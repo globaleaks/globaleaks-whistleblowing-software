@@ -1,0 +1,33 @@
+<div id="OrgOverview" class="card card-default" [attr.aria-expanded]="collapsed">
+    <div class="card-header clearfix" (click)="toggleCollapse()">
+        <span>{{'Overview'|translate}}</span>
+        <span class="float-end">
+            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+        </span>
+    </div>
+    <div class="card-body" *ngIf="!collapsed">
+        <div class="table-responsive">
+            <table class="table table-striped" id="orgOverviewTable">
+                <thead>
+                    <tr>
+                        <th>{{'Type'|translate}}</th>                    
+                        <th>{{'Accreditation date'|translate}}</th>
+                        <th>{{'Tips'|translate}}</th>
+                        <th>{{'Closed Tips'|translate}}</th>
+                        <th>{{'State'|translate}}</th>
+                    </tr>
+                </thead>
+                <tbody id="orgOverviewTableBody">
+                    <tr id="orgOverview">
+                        <td>{{org.type}}</td>
+                        <td>{{org.accreditation_date}}</td>
+                        <td>{{org.num_tip}}</td>
+                        <td>{{org.num_tip}}</td>
+                        <td>{{org.state}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

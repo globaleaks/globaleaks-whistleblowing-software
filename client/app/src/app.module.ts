@@ -39,6 +39,8 @@ import {AnalystModule} from "@app/pages/analyst/analyst.module";
 import {mockEngine} from './services/helper/mocks';
 import {HttpService} from "./shared/services/http.service";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import { AccredModule } from "./pages/accred/accred.module";
+import { AccreditorModule } from "./pages/accreditor/accreditor.module";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {NgbDatepickerI18n} from '@ng-bootstrap/ng-bootstrap';
 import {CustomDatepickerI18n} from '@app/shared/services/custom-datepicker-i18n';
@@ -82,6 +84,8 @@ const translationModule = TranslateModule.forRoot({
     HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
+    AccredModule,
+    AccreditorModule,
     AuthModule,
     SignupModule,
     ActionModule,

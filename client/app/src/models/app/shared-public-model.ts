@@ -199,3 +199,14 @@ export interface SubmissionStatus {
   status?: string;
   substatus?: string;
 }
+
+export interface EOUser {
+  id: string;
+  name: string;
+  surname: string;
+  creation_date: string;
+  last_access: string;
+  role: string;
+  tips: number;
+  closed_tips: number;
+}
