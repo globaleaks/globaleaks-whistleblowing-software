@@ -147,6 +147,8 @@ export interface WbFile {
   type: string;
   reference_id: string;
   error: boolean;
+  verification_status: string;
+  last_verification_date: string;
 }
 
 export interface RFile {
@@ -160,6 +162,8 @@ export interface RFile {
   error: boolean;
   author: string;
   downloads: number;
+  verification_status: string;
+  last_verification_date: string;
 }
 
 export interface QuestionWhistleblowerIdentityName {

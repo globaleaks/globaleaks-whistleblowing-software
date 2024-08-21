@@ -143,6 +143,10 @@ table tr td {
   vertical-align: middle;
 }
 
+.centered-text {
+  text-align: center; 
+}
+
 .uib-datepicker-popup {
   padding: 5px;
   margin: 0;

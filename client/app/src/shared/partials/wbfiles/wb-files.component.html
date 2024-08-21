@@ -8,9 +8,16 @@
             </span>
             <span class="float-end">
                 <span>
-                    <span class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)">
+                    <!-- <span class="download-button btn btn-sm btn-primary"                     
+                    (click)="downloadWBFile(wbFile)">
                         <i class="fa-solid fa-download"></i>
-                    </span>
+                    </span> -->
+
+                    <button class="btn btn-sm btn-primary tip-action-download-file" 
+                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.verification_status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
+                        <i class="fa-solid fa-download"></i>
+                    </button>
+
                     <button *ngIf="authenticationService.session?.role === 'receiver'" class="btn btn-sm btn-danger" (click)="deleteWBFile(wbFile)">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -30,6 +37,9 @@
             </span>
             <span class="px-1" *ngIf="ctx === 'rtip'">
                 <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
+            </span>
+            <span>
+                <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.verification_status}}</span>
             </span>
         </div>
         <div *ngIf="wbFile.description">

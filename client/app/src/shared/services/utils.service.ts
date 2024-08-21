@@ -764,4 +764,18 @@ export class UtilsService {
       return this.authenticationService.getHeader();
     }
   });
+
+
+  sumDaysToDate(date: string, daysNum: number): Date{
+
+    let first_date = new Date(date);
+
+    let final_date = new Date();
+    final_date.setDate(first_date.getDate() + daysNum);
+
+    return final_date;
+
+  }
+
+
 }

@@ -5,6 +5,7 @@ import {HttpService} from "@app/shared/services/http.service";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {RFile} from "@app/models/app/shared-public-model";
 import {ReceiversById} from "@app/models/reciever/reciever-tip-data";
+import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
   selector: "src-wbfiles",
@@ -16,7 +17,7 @@ export class WbFilesComponent implements OnInit {
   @Input() receivers_by_id: ReceiversById;
   @Output() dataToParent = new EventEmitter<any>();
 
-  constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService) {
+  constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected preferenceResolver:PreferenceResolver) {
   }
 
   ngOnInit(): void {
