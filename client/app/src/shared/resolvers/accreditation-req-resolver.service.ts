@@ -4,7 +4,6 @@ import { UtilsService } from '../services/utils.service';
 import { HttpService } from '../services/http.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { map, Observable, of } from 'rxjs';
-import { AppDataService } from '@app/app-data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +12,7 @@ export class AccreditationReqResolver {
 
   dataModel: AccreditationRequestModel[] = [];
 
-  constructor(private utilsService: UtilsService, private httpService: HttpService, 
-    private authenticationService: AuthenticationService,
-    private appDataService: AppDataService) {
+  constructor(private utilsService: UtilsService, private httpService: HttpService, private authenticationService: AuthenticationService) {
   }
 
 
@@ -31,7 +28,6 @@ export class AccreditationReqResolver {
     //TODO MOCKUP
     setTimeout(()=> {
       this.utilsService.reloadComponent();
-      this.appDataService.updateShowLoadingPanel(false)
     }, 1000)
   }
 
@@ -76,7 +72,6 @@ export class AccreditationReqResolver {
           }
 
         ]
-        this.appDataService.updateShowLoadingPanel(false)
         return true;
       }, 1000)
     }
