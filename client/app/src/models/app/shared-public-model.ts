@@ -147,9 +147,8 @@ export interface WbFile {
   type: string;
   reference_id: string;
   error: boolean;
-  status: string;
-  verification_date: string;
-  is_scan_expired: boolean;
+  verification_status: string;
+  last_verification_date: string;
 }
 
 export interface RFile {
@@ -163,8 +162,8 @@ export interface RFile {
   error: boolean;
   author: string;
   downloads: number;
-  status: string;
-  isLoading: boolean;
+  verification_status: string;
+  last_verification_date: string;
 }
 
 export interface QuestionWhistleblowerIdentityName {

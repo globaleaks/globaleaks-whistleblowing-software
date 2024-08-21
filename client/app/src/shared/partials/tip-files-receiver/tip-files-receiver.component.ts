@@ -26,6 +26,7 @@ export class TipFilesReceiverComponent implements OnInit {
   }
 
   getSortedWBFiles(data: WbFile[]): WbFile[] {
+    // data[0].verification_status = 'LOADING' MOCKUP
     return data;
   }
 

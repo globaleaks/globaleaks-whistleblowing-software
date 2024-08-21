@@ -24,21 +24,19 @@
                 <ng-container *ngFor="let file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date') as index">
                     <tr id="file-{{index}}" *ngIf="(file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
                         <td>{{ file.name }}</td>
-                        <td [ngClass]="{'centered-text': file.status ==='LOADING'}">
-                            <div *ngIf="file.status !== 'LOADING'">
-                                {{ (file.status === 'PENDING' && file.is_scan_expired) ? 'SCAN EXPIRED' : file.status }}
-                            </div>
-                            <i class="fa fa-spinner fa-spin" *ngIf="file.status ==='LOADING'"></i>
+                        <td [ngClass]="{'centered-text': file.verification_status ==='LOADING'}">
+                            <div *ngIf="file.verification_status !== 'LOADING'">{{ file.verification_status }}</div>
+                            <i class="fa fa-spinner fa-spin" *ngIf="file.verification_status ==='LOADING'"></i>
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                            [disabled]="!utilsService.supportedViewTypes.includes(file.type) || file.status ==='PENDING' || (file.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(file)">
+                            [disabled]="!utilsService.supportedViewTypes.includes(file.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" 
-                            (click)="utilsService.downloadRFile(file)" [disabled]="file.status ==='PENDING' || (file.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)">
+                            (click)="utilsService.downloadRFile(file)" [disabled]="file.verification_status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
                                 <i class="fa-solid fa-download"></i>
                             </button>
                             <span *ngIf="redactMode">
