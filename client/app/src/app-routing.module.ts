@@ -22,6 +22,8 @@ import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
 import {SubmissionComponent} from "@app/pages/whistleblower/submission/submission.component";
 import {AuthRoutingModule} from "@app/pages/auth/auth-routing.module";
+import { AccreditorGuard } from "./shared/guards/accreditor.guard";
+import { OrganizationComponent } from "./pages/accreditor/organization/organization.component";
 
 
 const routes: Routes = [
@@ -127,6 +129,15 @@ const routes: Routes = [
     loadChildren: () => import("./pages/wizard/wizard-routing.module").then(m => m.WizardRoutingModule)
   },
   {
+    path: "accred",
+    data: {pageTitle: "Accreditation"},
+    resolve: {
+      PreferenceResolver,
+      title: TitleResolver
+    },
+    loadChildren: () => import("./pages/accred/accred-routing.module").then(m => m.AccredRoutingModule)
+  },
+  {
     path: "reports/:tip_id",
     data: {pageTitle: "Report"},
     resolve: {
@@ -134,6 +145,22 @@ const routes: Routes = [
     },
     component: TipComponent,
     canActivate: [SessionGuard],
+    pathMatch: "full",
+  },
+  { 
+    path: 'accreditor', 
+    canActivate: [AccreditorGuard],
+    data: {
+      sidebar: "acreditator-sidebar",
+      pageTitle: "Home",
+    },
+    loadChildren: () => import('./pages/accreditor/accreditor-routing.module').then(m => m.AccreditorRoutingModule) 
+  },
+  {
+    path: "organizations/:org_id",
+    data: {pageTitle: "Organization"},
+    component: OrganizationComponent,
+    canActivate: [AccreditorGuard],
     pathMatch: "full",
   },
   {path: "**", redirectTo: ""}

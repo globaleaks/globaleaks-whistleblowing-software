@@ -310,7 +310,8 @@ h6 {
 #FooterBox,
 #DemoBadge,
 #PrivacyBadge,
-#operator-badge{
+#operator-badge,
+#organization-button{
   padding: 1em;
 }
 

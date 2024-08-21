@@ -1,0 +1,104 @@
+<div id="OrgOverview" class="card card-default" [attr.aria-expanded]="collapsed">
+    <div class="card-header clearfix" (click)="toggleCollapse()">
+        <span>{{'Users List'|translate}}</span>
+        <span class="float-end">
+            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip"
+                title="{{'Collapse' | translate}}"></i>
+            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip"
+                title="{{'Expand' | translate}}"></i>
+        </span>
+    </div>
+    <div class="card-body" *ngIf="!collapsed">
+        <div class="table-responsive">
+            <table class="table table-striped" id="orgOverviewTable">
+                <thead>
+                    <tr>
+                        <th class="UserID" (click)="sortKey = 'id'; sortReverse = !sortReverse">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <span *ngIf="sortKey === 'id'">
+                                <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                            </span>
+                        </th>                    
+                        <th class="UserName">
+                            <span (click)="sortKey = 'name'; sortReverse = !sortReverse">
+                                <i class="fa-solid fa-address-card"></i>
+                                <span>{{'Name' | translate}}</span>
+                                <span *ngIf="sortKey === 'name'">
+                                    <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                    <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                                </span>
+                            </span>
+                        </th>
+                        <th class="UserRole">
+                            <span (click)="sortKey = 'role'; sortReverse = !sortReverse">
+                                <i class="fa-solid fa-tag"></i>
+                                <span>{{'Role' | translate}}</span>
+                                <span *ngIf="sortKey === 'role'">
+                                    <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                    <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                                </span>
+                            </span>
+                        </th>
+                        
+                        <th class="UserCreationDate">
+                            <span (click)="sortKey = 'creation_date'; sortReverse = !sortReverse">
+                                <i class="fa-solid fa-calendar"></i>
+                                <span>{{'Creation Date' | translate}}</span>
+                                <span *ngIf="sortKey === 'creation_date'">
+                                    <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                    <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                                </span>
+                            </span>
+                        </th>
+                        
+                        <th class="UserLastAccess">
+                            <span (click)="sortKey = 'last_access'; sortReverse = !sortReverse">
+                              <i class="fa-solid fa-users"></i>
+                              <span>{{'Last Access' | translate}}</span>
+                              <span *ngIf="sortKey === 'last_access'">
+                                <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                              </span>
+                            </span>
+                        </th>
+    
+                        <th class="UserTips">
+                            <span (click)="sortKey = 'tips'; sortReverse = !sortReverse">
+                              <i class="fa-solid fa-file"></i>
+                              <span>{{'Tips' | translate}}</span>
+                              <span *ngIf="sortKey === 'tips'">
+                                <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                              </span>
+                            </span>
+                        </th>
+    
+                        <th class="ReqInfoClosedCount">
+                            <span (click)="sortKey = 'closed'; sortReverse = !sortReverse">
+                              <i class="fa-solid fa-lock"></i>
+                              <span>{{'Closed' | translate}}</span>
+                              <span *ngIf="sortKey === 'closed'">
+                                <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                              </span>
+                            </span>
+                        </th>
+    
+                    </tr>
+                </thead>
+                <tbody id="orgOverviewTableBody">
+                    <tr *ngFor="let user of users; let i = index" id="orgOverview-{{i}}">
+                        <td>{{user.id}}</td>
+                        <td>{{user.name}}</td>
+                        <td>{{user.role}}</td>
+                        <td>{{user.creation_date}}</td>
+                        <td>{{user.last_access}}</td>
+                        <td>{{user.tips}}</td>
+                        <td>{{user.closed_tips}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

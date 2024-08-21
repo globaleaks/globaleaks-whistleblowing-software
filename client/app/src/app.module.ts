@@ -39,6 +39,8 @@ import {AnalystModule} from "@app/pages/analyst/analyst.module";
 import {mockEngine} from './services/helper/mocks';
 import {HttpService} from "./shared/services/http.service";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import { AccredModule } from "./pages/accred/accred.module";
+import { AccreditorModule } from "./pages/accreditor/accreditor.module";
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "l10n/", "");
 }
@@ -74,6 +76,8 @@ const translationModule = TranslateModule.forRoot({
     HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
+    AccredModule,
+    AccreditorModule,
     AuthModule,
     SignupModule,
     ActionModule,

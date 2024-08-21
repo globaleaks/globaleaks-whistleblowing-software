@@ -1,0 +1,20 @@
+<div class="card">
+    <div class="card-header">{{ 'Admin info' | translate }}</div>
+    <div class="card-body text-left">
+        <div class="form-group" >
+            <label>
+                <span>{{'Name and last name'|translate}}</span>
+                <span class="text-danger">*</span>
+            </label>
+            <input name="adminName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="adminInfo.name" required>
+        </div>
+        <div class="form-group" >
+            <label>
+                <span>{{'Email'|translate}}</span>
+                <span class="text-danger">*</span>
+            </label>
+            <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email" [pattern]="Constants.emailRegexp" required #adminEmail="ngModel">
+            <div class="text-danger" *ngIf="adminEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
+        </div>
+    </div>
+</div>

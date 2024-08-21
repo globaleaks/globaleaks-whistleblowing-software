@@ -1,0 +1,27 @@
+<div class="card">
+    <div class="card-header">{{ 'Primary recipient info' | translate }}</div>
+    <div class="card-body text-left">
+        <div class="form-group" >
+            <label>
+                <span>{{'Name and last name'|translate}}</span>
+                <span class="text-danger">*</span>
+            </label>
+            <input name="recipientName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="recipientInfo.name" required>
+        </div>
+        <div class="form-group" >
+            <label>
+                <span>{{'Fiscal Code'|translate}}</span>
+                <span class="text-danger">*</span>
+            </label>
+            <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscalCode" required>
+        </div>
+        <div class="form-group" >
+            <label>
+                <span>{{'Email'|translate}}</span>
+                <span class="text-danger">*</span>
+            </label>
+            <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="recipientInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel">
+            <div class="text-danger" *ngIf="recipientEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
+        </div>
+    </div>
+</div>
