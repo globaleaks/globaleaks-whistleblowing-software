@@ -60,7 +60,7 @@ export class TipService {
     }
   }
 
-  
+
   /* processFilesVerificationStatus(wbFiles: any[]){
     let i;
     for(i=0; i< wbFiles.length; i++){
