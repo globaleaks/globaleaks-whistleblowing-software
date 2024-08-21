@@ -186,6 +186,10 @@
                     <span>{{ 'Give this user ability to permanently redact masked information' | translate }}</span>
                 </div>
                 <div class="form-group">
+                    <input name="can_download_infected" [(ngModel)]="user.can_download_infected" type="checkbox" />
+                    <span>{{ 'Give this user ability to download infected or unverified files' | translate }}</span>
+                </div>
+                <div class="form-group">
                     <input name="can_delete_submission" [(ngModel)]="user.can_delete_submission" type="checkbox" />
                     <label>{{ 'Allow the recipient to delete reports' | translate }}</label>
                 </div>
