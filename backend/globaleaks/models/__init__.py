@@ -590,6 +590,8 @@ class _InternalFile(Model):
     size = Column(JSON, default='', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
     reference_id = Column(UnicodeText(36), default='', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -959,6 +961,7 @@ class _User(Model):
     readonly = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+    status = Column(Enum(EnumUserStatus), default='active', nullable=False)
 
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
@@ -974,7 +977,7 @@ class _User(Model):
                     'name', 'public_name',
                     'language', 'change_email_address',
                     'salt',
-                    'two_factor_secret']
+                    'two_factor_secret', 'status']
 
     localized_keys = ['description']
 
@@ -1022,9 +1025,11 @@ class _ReceiverFile(Model):
     size = Column(Integer, nullable=False)
     content_type = Column(UnicodeText, nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    verification_date = Column(DateTime, nullable=True)
     access_date = Column(DateTime, default=datetime_null, nullable=False)
     description = Column(UnicodeText, default="", nullable=False)
     visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
 
     @declared_attr
