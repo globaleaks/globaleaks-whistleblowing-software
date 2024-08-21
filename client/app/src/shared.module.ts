@@ -83,6 +83,11 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {OperationComponent} from "@app/shared/partials/operation/operation.component";
 import {RedactInformationComponent} from "@app/shared/modals/redact-information/redact-information.component";
+import { OrgInfoComponent } from "./shared/partials/org-info/org-info.component";
+import { OrgAdminInfoComponent } from "./shared/partials/org-admin-info/org-admin-info.component";
+import { OrgRecipientInfoComponent } from "./shared/partials/org-recipient-info/org-recipient-info.component";
+import { OrgOverviewComponent } from "./shared/partials/org-overview/org-overview.component";
+import { OrgUsersListComponent } from "./shared/partials/org-users-list/org-users-list.component";
 
 @NgModule({
   imports: [
@@ -191,7 +196,12 @@ import {RedactInformationComponent} from "@app/shared/modals/redact-information/
     SwitchComponent,
     OtkcAccessComponent,
     OperationComponent,
-    RedactInformationComponent
+    RedactInformationComponent,
+    OrgInfoComponent,
+    OrgRecipientInfoComponent,
+    OrgAdminInfoComponent,
+    OrgOverviewComponent,
+    OrgUsersListComponent
   ],
   exports: [
     FooterComponent,
@@ -251,7 +261,12 @@ import {RedactInformationComponent} from "@app/shared/modals/redact-information/
     SwitchComponent,
     OtkcAccessComponent,
     OperationComponent,
-    RedactInformationComponent
+    RedactInformationComponent,
+    OrgInfoComponent,
+    OrgRecipientInfoComponent,
+    OrgAdminInfoComponent,
+    OrgOverviewComponent,
+    OrgUsersListComponent
   ]
 })
 export class SharedModule {
