@@ -2,3 +2,8 @@ backend/env/
 backend/workingdir/
 client/build
 client/node_modules/
+/docker-compose.yml
+/Dockerfile
+/**/client/package.json
+/**/client/proxy.conf.json
+/client/.angular
