@@ -1,0 +1,26 @@
+<div id="TipPageRFileUpload" class="card card-default">
+    <div class="card-header clearfix">
+      <span>{{'Files attached by recipients' | translate}}</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div>{{'Upload a file:' | translate}}</div>
+        <div class="form">
+          <div class="input-group">
+            <span class="input-group-prepend">
+              <span class="input-group-text rounded-end-0" data-translate>Description</span>
+            </span>
+            <input type="text" class="form-control" id="upload_description"/>
+            <span class="input-group-append">
+              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': checkingFile}">
+                <i class="fa-solid fa-upload"></i>
+                <span>{{'Upload'|translate}}</span>
+              </label>
+              <input #uploader id="customFile" type="file" (change)="addFile(uploader)" [disabled]="checkingFile" style="display: none;" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

@@ -90,6 +90,10 @@ import { OrgRecipientInfoComponent } from "@app/shared/partials/org-recipient-in
 import { OrgOverviewComponent } from "@app/shared/partials/org-overview/org-overview.component";
 import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-users-list.component";
 import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.component";
+import { SendtipFilesComponent } from "@app/shared/partials/sendtip-files/sendtip-files.component";
+import { SendTipFileUploadComponent } from "@app/shared/partials/sendtip-file-upload/sendtip-file-upload.component";
+import { SendtipDetailFilesComponent } from "@app/shared/partials/sendtip-details-files/sendtip-details-files.component";
+import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
 
 @NgModule({
   imports: [
@@ -172,6 +176,10 @@ import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.
     ConfirmationWith2faComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
+    TipOeListComponent,
+    SendtipFilesComponent,
+    SendTipFileUploadComponent,
+    SendtipDetailFilesComponent,
     TipOperationSetReminderComponent,
     TipOperationPostponeComponent,
     FileViewComponent,
@@ -244,6 +252,10 @@ import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.
     DateRangeSelectorComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
+    TipOeListComponent,
+    SendtipFilesComponent,
+    SendTipFileUploadComponent,
+    SendtipDetailFilesComponent,
     TipOperationSetReminderComponent,
     TipUploadWbFileComponent,
     EnableEncryptionComponent,

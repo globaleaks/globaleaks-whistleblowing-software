@@ -1,0 +1,107 @@
+<div class="reveal">
+  <div id="Toolbar" class="row">
+    <div class="col-md-12">
+        <a id="link-tiplist" (click)="backClicked();" data-toggle="tooltip" title="{{'Reports' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+</div>
+    <div class="row">
+      <div class="col-6">
+        <div class="row form-group">
+          <label class="col-md-12">
+            <span>{{'Select accredited organization'|translate}}</span>
+          </label>
+          <div class="col-md-12 mt-2">
+            <select id="assignSubmissionStatus" class="form-control" (change)="addOrganization($event)">
+                <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
+                <option *ngFor="let org of organizations" [value]="org.oe_id">{{ org.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" id="selected-oe">
+          <div class="col-12">
+              <button *ngFor="let org of selectedOrganizations" class="btn btn-outline-secondary" style="margin-right: 10px;">
+                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.oe_id)"></i>
+                <span>{{ org.name }}</span>
+              </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="row form-group">
+          <label class="col-md-12">
+            <span>{{'Register new organization'|translate}}</span>
+          </label>
+          <div class="col-md-12 mt-2">
+            <button class="btn btn-sm btn-primary" id="add-organization" (click)="null;">
+              <i class="fa-solid fa-check"></i>
+              <span>{{ 'Register OE' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Form di testo e selezione del form di istruttoria -->
+    <div class="row">
+      <div class="col-12">
+        <div class="row form-group">
+          <label class="col-md-12">
+            <span>{{'Text'|translate}}</span>
+          </label>
+          <div class="col-md-12 mt-2">
+            <textarea id="SendTipText" name="sendTipText" maxlength="4096" autocomplete="off" class="form-control" [(ngModel)]="tipText"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-6">
+        <div class="row form-group">
+            <label class="col-md-12">
+              <span>{{'Review Form'|translate}}</span>
+            </label>
+            <div class="col-md-12 mt-2">
+              <select id="assignSubmissionStatus" class="form-control" (change)="selectReviewForm($event)">
+                <option value="" disabled selected>{{ 'Select a review form' | translate }}</option>
+                <option *ngFor="let form of reviewForms" [value]="form.form_id">{{ form.name }}</option>
+              </select>
+            </div>
+          </div>
+          
+      </div>
+    </div>
+  
+    <!-- Sezione per la gestione dei file -->
+    <div class="row mt-2">
+        <sendtip-files [files]="files" [selectedFiles]="selectedFiles"></sendtip-files>
+    </div>
+  
+  
+    <!-- Pannello di caricamento dei file -->
+    <div class="row mt-2">
+        <sendtip-file-upload (fileUploaded)="onFileUploaded($event)" (fileVerified)="onFileVerified($event)"></sendtip-file-upload>
+    </div>
+  
+    <!-- Pulsanti di azione -->
+    <div class="row">
+      <div class="col-10"></div>
+      <div class="col-2">
+        <button class="btn btn-outline-secondary float-end" id="discard" (click)="null;">
+          <i class="fa-solid fa-times"></i>
+          <span>{{ 'Discard' | translate }}</span>
+        </button>
+        <button class="btn btn-primary float-end" id="send" style="margin-right: 10px;"
+        (click)="sendForm();" 
+        [disabled]="checkingFile || !isFormValid()"
+        [ngClass]="{'disabled': checkingFile || !isFormValid()}">
+            <i class="fa-solid fa-check"></i>
+            <span>{{ 'Send' | translate }}</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+  

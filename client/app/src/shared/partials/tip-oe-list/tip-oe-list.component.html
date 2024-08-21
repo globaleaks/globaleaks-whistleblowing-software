@@ -1,0 +1,35 @@
+<div *ngIf="dataList.length" id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
+    <div class="card-header clearfix" (click)="collapsed = !collapsed; $event.stopPropagation();">
+        <span>{{ 'Forwarded tips' | translate }}</span>
+        <span class="float-end">
+            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
+            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
+        </span>
+    </div>
+    <div class="card-body" *ngIf="!collapsed">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>{{ 'Organization' | translate }}</th>
+                    <th>{{ 'Date' | translate }}</th>
+                    <th>{{ 'Files' | translate }}</th>
+                    <th>{{ 'Comments' | translate }}</th>
+                    <th>{{ 'State' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let item of dataList">
+                    <tr role="button" (click)="utils.go('/sendtip-detail/' + item.id)">
+                        <td>{{ item.organization }}</td>
+                        <td>{{ item.date | date:'dd-MM-yyyy HH:mm' }}</td>
+                        <td>{{ item.files }}</td>
+                        <td>{{ item.comments }}</td>
+                        <td>{{ item.state }}</td>
+                    </tr>
+                </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

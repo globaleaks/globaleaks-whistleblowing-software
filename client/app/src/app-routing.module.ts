@@ -15,6 +15,8 @@ import {ActivationComponent} from "@app/pages/signup/templates/activation/activa
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {TipComponent} from "@app/pages/recipient/tip/tip.component";
+import { TipOeComponent } from "@app/pages/recipient/tip-oe/tip-oe.component";
+import {SendtipComponent} from "@app/pages/recipient/sendtip/sendtip.component";
 import {TitleResolver} from "@app/shared/resolvers/title-resolver.resolver";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 import {BlankComponent} from "@app/shared/blank/blank.component";
@@ -22,9 +24,9 @@ import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
 import {SubmissionComponent} from "@app/pages/whistleblower/submission/submission.component";
 import {AuthRoutingModule} from "@app/pages/auth/auth-routing.module";
+import { SendtipDetailComponent } from "@app/pages/recipient/sendtip-detail/sendtip-detail.component";
 import { AccreditorGuard } from "./shared/guards/accreditor.guard";
 import { OrganizationComponent } from "@app/pages/accreditor/organization/organization.component";
-
 
 const routes: Routes = [
   {
@@ -170,6 +172,46 @@ const routes: Routes = [
     data: {pageTitle: "Organization"},
     component: OrganizationComponent,
     canActivate: [AccreditorGuard],
+    pathMatch: "full",
+  },
+  {
+    path: "reports/:tip_id",
+    data: {pageTitle: "Report"},
+    resolve: {
+      PreferenceResolver,
+    },
+    component: TipComponent,
+    canActivate: [SessionGuard],
+    pathMatch: "full",
+  },
+  {
+    path: "reports_oe/:tip_id",
+    data: {pageTitle: "Report"},
+    resolve: {
+      PreferenceResolver,
+    },
+    component: TipOeComponent,
+    canActivate: [SessionGuard],
+    pathMatch: "full",
+  },
+  {
+    path: "sendtip/:tip_id",
+    data: {pageTitle: "Send tip"},
+    resolve: {
+      PreferenceResolver,
+    },
+    component: SendtipComponent,
+    canActivate: [SessionGuard],
+    pathMatch: "full",
+  },
+  {
+    path: "sendtip-detail/:tip_id",
+    data: {pageTitle: "Sent tip detail"},
+    resolve: {
+      PreferenceResolver,
+    },
+    component: SendtipDetailComponent,
+    canActivate: [SessionGuard],
     pathMatch: "full",
   },
   {path: "**", redirectTo: ""}

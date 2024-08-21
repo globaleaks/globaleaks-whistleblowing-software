@@ -157,6 +157,9 @@
                             </div>
                         </span>
                     </th>
+                    <th class="TipInfoSent">
+                        <i class="fa-solid fa-file-arrow-up"></i>
+                    </th>
                     <th class="TipInfoReadReceipt">
                         <i class="fa-solid fa-envelope-circle-check"></i>
                     </th>
@@ -222,6 +225,9 @@
                         <td class="TipInfoExpirationDate">
                             <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
+                        </td>
+                        <td class="TipInfoSendNum">
+                            {{tip.send_num}}
                         </td>
                         <td class="TipInfoLastAccess">
                             <i *ngIf="tip.last_access >= tip.update_date" class="fa-solid fa-check" data-toggle="tooltip" title="{{'The whistleblower has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>

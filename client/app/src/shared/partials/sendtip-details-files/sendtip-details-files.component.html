@@ -1,0 +1,113 @@
+<div class="reveal">
+  <div id="TipPageFilesInfoBox" class="card card-default" aria-expanded="false">
+    <div class="card-header clearfix">
+      <span>{{ "Attachments" | translate }}</span>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped" id="fileList">
+          <thead>
+            <tr>
+              <th>{{ "Nome file" | translate }}</th>
+              <th>{{ "Scansione" | translate }}</th>
+              <th>{{ "Origine" | translate }}</th>
+              <th>{{ "Scarica" | translate }}</th>
+              <th>{{ "Elimina" | translate }}</th>
+              <th>{{ "Data caricamento" | translate }}</th>
+              <th>{{ "Dimensione" | translate }}</th>
+            </tr>
+          </thead>
+          <tbody id="fileListBody">
+            <tr *ngFor="let file of files">
+              <td [ngClass]="{ 'text-danger': file.infected }">
+                {{ file.name }}
+              </td>
+              <td [ngClass]="{ 'text-danger': file.infected }">
+                <ng-container *ngIf="!file.loading; else loadingTemplate">
+                  {{ file.scanStatus }}
+                </ng-container>
+                <ng-template #loadingTemplate>
+                  <i class="fa fa-spinner fa-spin"></i>
+                </ng-template>
+              </td>
+              <td [ngClass]="{ 'text-danger': file.infected }">
+                {{ file.origin }}
+              </td>
+              <td>
+                <button
+                  *ngIf="!file.infected && !file.loading"
+                  class="btn btn-sm btn-primary tip-action-download-file"
+                  data-toggle="tooltip"
+                  title="{{ 'Scarica' | translate }}"
+                >
+                  <i class="fa-solid fa-download"></i>
+                </button>
+              </td>
+              <td>
+                <button
+                  class="btn btn-sm btn-danger"
+                  (click)="deleteFile(file)"
+                  data-toggle="tooltip"
+                  title="{{ 'Elimina' | translate }}"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+              <td [ngClass]="{ 'text-danger': file.infected }">
+                <ng-container *ngIf="!file.loading; else placeholderTemplate">
+                  {{ file.uploadDate }}
+                </ng-container>
+              </td>
+              <td [ngClass]="{ 'text-danger': file.infected }">
+                <ng-container *ngIf="!file.loading; else placeholderTemplate">
+                  {{ file.size }}
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #placeholderTemplate> - </ng-template>
+
+  <div id="TipPageRFileUpload" class="card card-default">
+    <div class="card-header clearfix">
+      <span>{{ "Files attached by recipients" | translate }}</span>
+    </div>
+    <div class="card-body">
+      <div>
+        <div>{{ "Upload a file:" | translate }}</div>
+        <div class="form">
+          <div class="input-group">
+            <span class="input-group-prepend">
+              <span class="input-group-text rounded-end-0" data-translate
+                >Description</span
+              >
+            </span>
+            <input type="text" class="form-control" id="upload_description" />
+            <span class="input-group-append">
+              <label
+                for="customFile"
+                class="btn btn-primary rounded-start-0 m-0"
+                [ngClass]="{ disabled: checkingFile }"
+              >
+                <i class="fa-solid fa-upload"></i>
+                <span>{{ "Upload" | translate }}</span>
+              </label>
+              <input
+                #uploader
+                id="customFile"
+                type="file"
+                (change)="addFile(uploader)"
+                [disabled]="checkingFile"
+                style="display: none"
+              />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@ export interface rtipResolverModel {
   creation_date: string;
   access_date: string;
   last_access: string;
+  send_num: number;
   update_date: string;
   expiration_date: string;
   reminder_date: string;

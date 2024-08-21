@@ -33,10 +33,10 @@ import {TranslateService} from "@ngx-translate/core";
 
 
 @Component({
-  selector: "src-tip",
-  templateUrl: "./tip.component.html",
+  selector: "src-tip-oe",
+  templateUrl: "./tip-oe.component.html",
 })
-export class TipComponent implements OnInit {
+export class TipOeComponent implements OnInit {
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
@@ -47,11 +47,11 @@ export class TipComponent implements OnInit {
   score: number;
   ctx: string;
   showEditLabelInput: boolean;
+  tabs: Tab[];
   active: string;
   loading = true;
-  redactMode:boolean = false;
+  redactMode :boolean = false;
   redactOperationTitle: string;
-  tabs: Tab[];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -83,11 +83,6 @@ export class TipComponent implements OnInit {
           this.showEditLabelInput = this.tip.label === "";
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-          //TODO MOCKUP - PROCESS WBFILES E RFILES VERIFICATION_STATUS
-          //this.tipServices.processFilesVerificationStatus()
-          //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
-          //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
-          //TODO FINE
           this.initNavBar()
         }
       }
