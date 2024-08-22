@@ -290,8 +290,7 @@ class _ConfigL10N(Model):
 
     @declared_attr
     def __table_args__(self):
-        return ForeignKeyConstraint(['tid', 'lang'], ['enabledlanguage.tid', 'enabledlanguage.name'],
-                                    ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+        return ForeignKeyConstraint(['tid', 'lang'], ['enabledlanguage.tid', 'enabledlanguage.name'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
 
     def __init__(self, values=None):
         if values is None:
