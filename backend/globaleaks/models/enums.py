@@ -51,3 +51,12 @@ class EnumStateFile(_Enum):
     pending = 0
     verified = 1
     infected = 2
+
+
+class EnumSubscriberStatus(_Enum):
+    requested = 0
+    accredited = 1
+    rejected = 2
+    instructor_request = 3
+    invited = 4
+    suspend = 5
