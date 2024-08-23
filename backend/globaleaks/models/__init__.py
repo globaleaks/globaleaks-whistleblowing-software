@@ -956,7 +956,7 @@ class _Subscriber(Model):
     tos2 = Column(UnicodeText, default='', nullable=False)
 
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    state = Column(Enum(EnumSubscriberStatus), nullable=True)
+    state = Column(Integer, default=None, nullable=True)
     organization_institutional_site = Column(UnicodeText, default='', nullable=False)
     accreditation_date = Column(DateTime, nullable=True)
     admin_name = Column(UnicodeText, nullable=True)
