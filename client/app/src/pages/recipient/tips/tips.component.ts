@@ -62,6 +62,9 @@ export class TipsComponent implements OnInit {
     searchPlaceholderText: this.translateService.instant("Search")
   };
 
+  // TODO Variabile provvisoria
+  t_type: number = 1;
+
   constructor(private http: HttpClient,protected authenticationService: AuthenticationService, protected httpService: HttpService, private appConfigServices: AppConfigService, private router: Router, protected RTips: RTipsResolver, protected preference: PreferenceResolver, private modalService: NgbModal, protected utils: UtilsService, protected appDataService: AppDataService, private translateService: TranslateService, private tokenResourceService: TokenResource) {
 
   }
@@ -189,6 +192,22 @@ export class TipsComponent implements OnInit {
     this.appConfigServices.localInitialization(true, reloadCallback);
   }
 
+  // La seguente funzione sceglie l'ui per mostrare la segnalazione a seconda di che si tratti di anac o di un oe
+  showTipDetails(id: string): void{
+
+    switch(this.t_type){
+      case 0:
+        this.utils.go('/reports/' + id)
+        break;
+
+      case 1:
+        this.utils.go('/reports-oe/' + id)
+        break;
+    }
+
+    
+  }
+
   tipSwitch(id: string): void {
     this.index = this.selectedTips.indexOf(id);
     if (this.index > -1) {
@@ -200,6 +219,11 @@ export class TipsComponent implements OnInit {
 
   isSelected(id: string): boolean {
     return this.selectedTips.indexOf(id) !== -1;
+  }
+
+  exportTip(tipId: string) {
+    this.utils.download("api/recipient/rtips/" + tipId + "/export").subscribe();
+    this.appDataService.updateShowLoadingPanel(false);
   }
 
   actAsWhistleblower() {

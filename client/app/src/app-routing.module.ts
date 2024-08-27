@@ -185,7 +185,7 @@ const routes: Routes = [
     pathMatch: "full",
   },
   {
-    path: "reports_oe/:tip_id",
+    path: "reports-oe/:tip_id",
     data: {pageTitle: "Report"},
     resolve: {
       PreferenceResolver,

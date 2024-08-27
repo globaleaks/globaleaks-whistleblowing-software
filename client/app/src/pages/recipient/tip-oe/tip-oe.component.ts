@@ -52,6 +52,10 @@ export class TipOeComponent implements OnInit {
   loading = true;
   redactMode :boolean = false;
   redactOperationTitle: string;
+  questionnaireData = {
+    textareaAnswer: '',
+    selectboxAnswer: ''
+  };
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -84,9 +88,20 @@ export class TipOeComponent implements OnInit {
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           this.initNavBar()
+          this.populateQuestionnaireData()
         }
       }
     );
+  }
+
+  populateQuestionnaireData() {
+    const answerId = this.tip.questionnaires[0].steps[0].children
+    const answers = this.tip.questionnaires[0].answers
+
+    this.questionnaireData.textareaAnswer = answers[answerId[0].id][0].value;
+    this.questionnaireData.selectboxAnswer = answers[answerId[2].id][0].value;
+
+    console.log(this.questionnaireData)
   }
 
   initNavBar() {

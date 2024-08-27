@@ -202,7 +202,7 @@
                 </thead>
                 <tbody id="tipListTableBody">
                 <ng-container *ngFor="let tip of orderbyCast(filteredTips | orderBy:sortKey:sortReverse) | slice:((currentPage - 1) * itemsPerPage):((currentPage - 1) * itemsPerPage + itemsPerPage) let index = index">
-                    <tr id="tip-{{index}}" [ngClass]="{'fw-bold': tip.updated, 'selectedTip': isSelected(tip.id),'disabled': !tip.accessible}" class="tip-action-open" (click)="utils.go('/reports/' + tip.id)">
+                    <tr id="tip-{{index}}" [ngClass]="{'fw-bold': tip.updated, 'selectedTip': isSelected(tip.id),'disabled': !tip.accessible}" class="tip-action-open" (click)="showTipDetails(tip.id)">
                         <td>
                             <span class="btn btn-sm btn-outline-secondary" *ngIf="isSelected(tip.id)" (click)="tipSwitch(tip.id); $event.stopPropagation();">
                                 <i class="fa-solid fa-check-square"></i>
