@@ -16,6 +16,7 @@ import { DownloadConfirmationComponent } from "@app/shared/modals/download-confi
 export class WbFilesComponent implements OnInit {
   @Input() wbFile: RFile;
   @Input() ctx: string;
+  @Input() canDelete: boolean = true;
   @Input() receivers_by_id: ReceiversById;
   @Output() dataToParent = new EventEmitter<any>();
 

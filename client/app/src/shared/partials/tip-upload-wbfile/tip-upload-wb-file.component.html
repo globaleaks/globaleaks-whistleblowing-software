@@ -10,11 +10,11 @@
         <!-- Now Filter is managed by the component <div *ngFor="let rfile of tip.rfiles | filter : 'visibility' : key | orderBy: 'creation_date' as index"> -->
         <div *ngFor="let rfile of getFilteredAndSortedFiles() as index">
             <div id="rfile-{{index}}" data-wbfile data-ctx="'rtip'">
-                <src-wbfiles [ctx]="'rtip'" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="{}" [wbFile]="rfile"></src-wbfiles>
+                <src-wbfiles [ctx]="'rtip'" [canDelete]="canUpload" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="{}" [wbFile]="rfile"></src-wbfiles>
             </div>
         </div>
-        <div *ngIf="tip.status !== 'closed'">
-            <div>{{'Upload a file:'|translate}}</div>
+        <div *ngIf="tip.status !== 'closed' && canUpload">
+            <div>{{'Upload a file:' | translate}}</div>
             <div class="form">
                 <div class="input-group">
                     <span class="input-group-prepend">

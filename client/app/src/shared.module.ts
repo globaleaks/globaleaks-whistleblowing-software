@@ -94,6 +94,7 @@ import { SendtipFilesComponent } from "@app/shared/partials/sendtip-files/sendti
 import { SendTipFileUploadComponent } from "@app/shared/partials/sendtip-file-upload/sendtip-file-upload.component";
 import { SendtipDetailFilesComponent } from "@app/shared/partials/sendtip-details-files/sendtip-details-files.component";
 import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
+import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
 
 @NgModule({
   imports: [
@@ -136,6 +137,7 @@ import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list
     DatePipe,
     ReceiptValidatorDirective,
     TipInfoComponent,
+    TipOeFormComponent,
     TipQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
     TipFieldComponent,
@@ -226,6 +228,7 @@ import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list
     FilterPipe,
     OrderByPipe,
     TipInfoComponent,
+    TipOeFormComponent,
     TipQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
     TipFieldComponent,

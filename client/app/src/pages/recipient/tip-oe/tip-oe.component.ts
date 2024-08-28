@@ -30,7 +30,7 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
-
+import { Children3 } from "@app/models/reciever/reciever-tip-data";
 
 @Component({
   selector: "src-tip-oe",
@@ -52,9 +52,12 @@ export class TipOeComponent implements OnInit {
   loading = true;
   redactMode :boolean = false;
   redactOperationTitle: string;
-  questionnaireData = {
+  questionnaireData: {
+    textareaAnswer: string;
+    reviewFormFields: Children3[];
+  } = {
     textareaAnswer: '',
-    selectboxAnswer: ''
+    reviewFormFields: []
   };
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
@@ -88,6 +91,7 @@ export class TipOeComponent implements OnInit {
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           this.initNavBar()
+          console.log(this.tip);
           this.populateQuestionnaireData()
         }
       }
@@ -99,33 +103,36 @@ export class TipOeComponent implements OnInit {
     const answers = this.tip.questionnaires[0].answers
 
     this.questionnaireData.textareaAnswer = answers[answerId[0].id][0].value;
-    this.questionnaireData.selectboxAnswer = answers[answerId[2].id][0].value;
-
+    this.questionnaireData.reviewFormFields = this.tip.questionnaire.steps[1].children
     console.log(this.questionnaireData)
   }
 
   initNavBar() {
     setTimeout(() => {
-      this.active = "Everyone";
+      this.active = "Whistleblower";
       this.tabs = [
         {
-          title: "Everyone",
+          title: "Whistleblower",
           component: this.tab1
         },
         {
-          title: "Recipients only",
+          title: "ANAC",
           component: this.tab2
         },
         {
-          title: "Only me",
+          title: "Internal",
           component: this.tab3
         },
         {
-          title: "Organization",
+          title: "Only me",
           component: this.tab4
         },
       ];
     });
+  }
+
+  submitForm(): void {
+    console.log("Submit form");
   }
 
   openGrantTipAccessModal(): void {

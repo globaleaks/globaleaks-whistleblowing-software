@@ -20,6 +20,11 @@
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-people-arrows"></i>
             </span>
+            <span id="tip-action-submit-form"
+                (click)="submitForm()" data-toggle="tooltip" title="{{'Submit review form' | translate}}"
+                class="btn btn-outline-secondary">
+                <i class="fa-solid fa-paper-plane"></i>
+            </span>
             <span id="link-reload" (click)="reload()" data-toggle="tooltip" title="{{'Refresh' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-sync"></i>
@@ -50,33 +55,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div id="ReviewFormCard" class="card card-default">
-                <div class="card-header d-flex justify-content-between">
-                    <span>Review Form</span>
-                </div>
-                <div class="card-body">
-                    <!-- TODO Aggiungere un selettore di form a partire dal valore in questionnaireData.selectboxAnswer -->
-                    <form>
-                        <div class="form-group">
-                            <label for="tipologia">Tipologia istruttoria avviata</label>
-                            <input type="text" class="form-control" id="tipologia" name="tipologia" />
-                        </div>
-                        <div class="form-group">
-                            <label for="dannoStimato">Danno stimato</label>
-                            <input type="text" class="form-control" id="dannoStimato" name="dannoStimato" />
-                        </div>
-                        <div class="form-group">
-                            <label for="dannoRecuperato">Danno recuperato</label>
-                            <input type="text" class="form-control" id="dannoRecuperato" name="dannoRecuperato" />
-                        </div>
-                        <div class="form-group">
-                            <label for="esito">Esito istruttoria</label>
-                            <input type="text" class="form-control" id="esito" name="esito" />
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send review</button>
-                    </form>                    
-                </div>
-            </div>
+            <src-tip-oe-form [fields]="questionnaireData.reviewFormFields"></src-tip-oe-form>
         </div>
     </div>
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
@@ -93,6 +72,8 @@
     <div class="row">
         <ng-template #tab1>
             <div class="col-md-12">
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'public'" [canUpload]="false"></src-tip-upload-wbfile>
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
@@ -102,6 +83,16 @@
         <ng-template #tab2>
             <div class="col-md-12">
                 <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'oe'" [canUpload]="false"></src-tip-upload-wbfile>
+                <ng-container *ngIf="tip && tip.context">
+                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+                        [redactMode]="redactMode" [key]="'oe'"></src-tip-comments>
+                </ng-container>
+            </div>
+        </ng-template>
+        <ng-template #tab3>
+            <div class="col-md-12">
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
                     [key]="'internal'"></src-tip-upload-wbfile>
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
@@ -109,16 +100,10 @@
                 </ng-container>
             </div>
         </ng-template>
-        <ng-template #tab3>
-            <div class="col-md-12">
-                <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
-                </ng-container>
-            </div>
-        </ng-template>
         <ng-template #tab4>
             <div class="col-md-12">
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'personal'"></src-tip-upload-wbfile>
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>

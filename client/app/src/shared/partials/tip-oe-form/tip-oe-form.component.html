@@ -1,0 +1,32 @@
+<div id="ReviewFormCard" class="card card-default">
+    <div class="card-header d-flex justify-content-between">
+        <span>Review Form</span>
+    </div>
+    <div class="card-body">
+        <!-- TODO Aggiungere un selettore di form a partire dal valore in questionnaireData.selectboxAnswer -->
+        <form>
+            <div *ngFor="let field of fields" class="form-group">
+                <label [for]="field.id">{{ field.label }}</label>
+                <ng-container [ngSwitch]="field.type">
+                    <select *ngSwitchCase="'selectbox'" class="form-control" [id]="field.id" [name]="field.id">
+                        <option *ngFor="let option of field.options" [value]="option.label">{{ option.label }}</option>
+                    </select>
+                    <div *ngSwitchCase="'checkbox'">
+                        <div *ngFor="let option of field.options">
+                            <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.label" />
+                            <label [for]="option.label">{{ option.label }}</label>
+                        </div>
+                    </div>
+                    <div *ngSwitchCase="'multichoice'">
+                        <div *ngFor="let option of field.options">
+                            <input type="radio" [id]="option.label" [name]="field.id" [value]="option.label" />
+                            <label [for]="option.label">{{ option.label }}</label>
+                        </div>
+                    </div>
+                    <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.id" [name]="field.id" />
+                    <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" />
+                </ng-container>
+            </div>                                            
+        </form>                    
+    </div>
+</div>

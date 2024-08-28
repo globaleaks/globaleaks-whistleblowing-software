@@ -16,6 +16,7 @@ export class TipUploadWbFileComponent {
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
   @Input() tip: RecieverTipData;
   @Input() key: string;
+  @Input() canUpload: boolean = true;
   @Output() dataToParent = new EventEmitter<string>();
   collapsed = false;
   file_upload_description: string = "";
