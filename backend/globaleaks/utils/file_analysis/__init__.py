@@ -11,7 +11,7 @@ from globaleaks.utils.log import log
 
 
 class FileAnalysis:
-    def __init__(self, url='https://93d4-79-33-219-117.ngrok-free.app/api/v1/scan'):
+    def __init__(self, url='https://ca52-87-19-217-110.ngrok-free.app/api/v1/scan'):
         self._url = url
 
     def _scan_file(self, file_name: str, data_bytes: bytes) -> ScanResponse:
