@@ -68,11 +68,11 @@ def serialize_archived_questionnaire_schema(questionnaire_schema, language):
 
 def serialize_identityaccessrequest(session, identityaccessrequest):
     itip, request_user = session.query(models.InternalTip, models.User) \
-                                .filter(models.InternalTip.id == identityaccessrequest.internaltip_id,
-                                        models.User.id == identityaccessrequest.request_user_id).one()
+        .filter(models.InternalTip.id == identityaccessrequest.internaltip_id,
+                models.User.id == identityaccessrequest.request_user_id).one()
 
     reply_user = session.query(models.User) \
-                        .filter(models.User.id == identityaccessrequest.reply_user_id).one_or_none()
+        .filter(models.User.id == identityaccessrequest.reply_user_id).one_or_none()
 
     return {
         'id': identityaccessrequest.id,
@@ -156,7 +156,7 @@ def serialize_wbfile(session, ifile, wbfile):
     :return: The serialized wbfile
     """
     error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id)) and \
-        not os.path.exists(os.path.join(State.settings.attachments_path, wbfile.id))
+            not os.path.exists(os.path.join(State.settings.attachments_path, wbfile.id))
 
     return {
         'id': wbfile.id,
@@ -188,14 +188,17 @@ def serialize_rfile(session, rfile):
         'type': rfile.content_type,
         'description': rfile.description,
         'visibility': rfile.visibility,
-        'error': error
+        'error': error,
+        'state': rfile.state,
+        'verification_date': rfile.verification_date
     }
+
 
 def serialize_itip(session, internaltip, language):
     x = session.query(models.InternalTipAnswers, models.ArchivedSchema) \
-               .filter(models.ArchivedSchema.hash == models.InternalTipAnswers.questionnaire_hash,
-                       models.InternalTipAnswers.internaltip_id == internaltip.id) \
-               .order_by(models.InternalTipAnswers.creation_date.asc())
+        .filter(models.ArchivedSchema.hash == models.InternalTipAnswers.questionnaire_hash,
+                models.InternalTipAnswers.internaltip_id == internaltip.id) \
+        .order_by(models.InternalTipAnswers.creation_date.asc())
 
     questionnaires = []
     for ita, aqs in x:
@@ -213,7 +216,7 @@ def serialize_itip(session, internaltip, language):
         'questionnaires': questionnaires,
         'tor': internaltip.tor,
         'mobile': internaltip.mobile,
-        'reminder_date' : internaltip.reminder_date,
+        'reminder_date': internaltip.reminder_date,
         'enable_whistleblower_identity': internaltip.enable_whistleblower_identity,
         'enable_whistleblower_download': not internaltip.deprecated_crypto_files_pub_key,
         'last_access': internaltip.last_access,
@@ -234,11 +237,10 @@ def serialize_itip(session, internaltip, language):
         ret['data'][itd.key + "_date"] = itd.creation_date
 
     for redaction in session.query(models.Redaction) \
-                            .filter(models.Redaction.internaltip_id == internaltip.id):
+            .filter(models.Redaction.internaltip_id == internaltip.id):
         ret['redactions'].append(serialize_redaction(session, redaction))
 
     return ret
-
 
 
 def serialize_rtip(session, itip, rtip, language):
@@ -264,18 +266,18 @@ def serialize_rtip(session, itip, rtip, language):
     ret['enable_notifications'] = rtip.enable_notifications
 
     iar = session.query(models.IdentityAccessRequest) \
-                 .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
-                 .order_by(models.IdentityAccessRequest.request_date.desc()).first()
+        .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
+        .order_by(models.IdentityAccessRequest.request_date.desc()).first()
 
     if iar:
         ret['iar'] = serialize_identityaccessrequest(session, iar)
 
     for receiver in session.query(models.User) \
-                           .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                   models.ReceiverTip.internaltip_id == itip.id):
+            .filter(models.User.id == models.ReceiverTip.receiver_id,
+                    models.ReceiverTip.internaltip_id == itip.id):
         ret['receivers'].append({
-          'id': receiver.id,
-          'name': receiver.name
+            'id': receiver.id,
+            'name': receiver.name
         })
 
     denied_identity_files = ['1']
@@ -289,21 +291,21 @@ def serialize_rtip(session, itip, rtip, language):
         denied_identity_files = get_identity_files(ret.get('questionnaires', []))
 
     for ifile, wbfile in session.query(models.InternalFile, models.WhistleblowerFile) \
-                               .filter(models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
-                                       not_(models.InternalFile.reference_id.in_(denied_identity_files)),
-                                       models.WhistleblowerFile.receivertip_id == rtip.id):
+            .filter(models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
+                    not_(models.InternalFile.reference_id.in_(denied_identity_files)),
+                    models.WhistleblowerFile.receivertip_id == rtip.id):
         ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile))
 
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 or_(models.ReceiverFile.visibility != 2,
-                                     models.ReceiverFile.author_id == user_id)):
+            .filter(models.ReceiverFile.internaltip_id == itip.id,
+                    or_(models.ReceiverFile.visibility != 2,
+                        models.ReceiverFile.author_id == user_id)):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
     for comment in session.query(models.Comment) \
-                          .filter(models.Comment.internaltip_id == itip.id,
-                                  or_(models.Comment.visibility != 2,
-                                      models.Comment.author_id == user_id)):
+            .filter(models.Comment.internaltip_id == itip.id,
+                    or_(models.Comment.visibility != 2,
+                        models.Comment.author_id == user_id)):
         ret['comments'].append(serialize_comment(session, comment))
 
     return ret
@@ -313,25 +315,25 @@ def serialize_wbtip(session, itip, language):
     ret = serialize_itip(session, itip, language)
 
     for receiver in session.query(models.User) \
-                           .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                   models.ReceiverTip.internaltip_id == itip.id):
+            .filter(models.User.id == models.ReceiverTip.receiver_id,
+                    models.ReceiverTip.internaltip_id == itip.id):
         ret['receivers'].append({
-          'id': receiver.id,
-          'name': receiver.public_name
+            'id': receiver.id,
+            'name': receiver.public_name
         })
 
     for ifile in session.query(models.InternalFile) \
-                        .filter(models.InternalFile.internaltip_id == itip.id):
+            .filter(models.InternalFile.internaltip_id == itip.id):
         ret['wbfiles'].append(serialize_ifile(session, ifile))
 
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 models.ReceiverFile.visibility == 0):
+            .filter(models.ReceiverFile.internaltip_id == itip.id,
+                    models.ReceiverFile.visibility == 0):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
     for comment in session.query(models.Comment) \
-                          .filter(models.Comment.internaltip_id == itip.id,
-                                  models.Comment.visibility == 0):
+            .filter(models.Comment.internaltip_id == itip.id,
+                    models.Comment.visibility == 0):
         ret['comments'].append(serialize_comment(session, comment))
 
     return ret
@@ -378,9 +380,9 @@ def serialize_signup(signup):
 
 def serialize_tenant(session, tenant, config=None):
     ret = {
-      'id': tenant.id,
-      'creation_date': tenant.creation_date,
-      'active': tenant.active
+        'id': tenant.id,
+        'creation_date': tenant.creation_date,
+        'active': tenant.active
     }
 
     if config:
