@@ -166,6 +166,8 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
+        'status': ifile.state,
+        'verification_date': ifile.verification_date,
         'error': error
     }
 
