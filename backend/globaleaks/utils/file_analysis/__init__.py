@@ -2,16 +2,13 @@ import aiohttp
 import requests
 import json
 
-from twisted.internet import abstract
-
 from globaleaks.models import EnumStateFile
-from globaleaks.rest import errors
 from globaleaks.utils.file_analysis.ScanResponse import ScanResponse
 from globaleaks.utils.log import log
 
 
 class FileAnalysis:
-    def __init__(self, url='https://ca52-87-19-217-110.ngrok-free.app/api/v1/scan'):
+    def __init__(self, url='https://93d4-79-33-219-117.ngrok-free.app/api/v1/scan'):
         self._url = url
 
     def _scan_file(self, file_name: str, data_bytes: bytes) -> ScanResponse:
@@ -41,26 +38,6 @@ class FileAnalysis:
         except Exception as e:
             log.err(f"Scan failed for {e}")
             return EnumStateFile.pending
-
-    def read_file_for_scanning(self, fp, file_name, state):
-        status_file = EnumStateFile.verified
-        if state == EnumStateFile.infected.name:
-            raise errors.FileInfectedDownloadPermissionDenied
-        if state == EnumStateFile.verified.name:
-            return status_file
-        chunk = fp.read(abstract.FileDescriptor.bufferSize)
-        while chunk:
-            status_file = self.wrap_scanning(
-                file_name=file_name,
-                data_bytes=chunk
-            )
-            if status_file == EnumStateFile.pending:
-                raise errors.FilePendingDownloadPermissionDenied
-            if status_file == EnumStateFile.infected:
-                raise errors.FileInfectedDownloadPermissionDenied
-            chunk = fp.read(abstract.FileDescriptor.bufferSize)
-        return status_file
-
 
 
 
