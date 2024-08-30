@@ -22,12 +22,13 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import user_serialize_user
-from globaleaks.models import serializers
+from globaleaks.models import serializers, EnumStateFile
 from globaleaks.models.serializers import process_logs
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.file_analysis import FileAnalysis
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -102,7 +103,7 @@ def db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, receiver_id)
             GCE.asymmetric_encrypt(new_receiver.crypto_pub_key, _files_key))
 
     wbfiles = session.query(models.WhistleblowerFile) \
-                     .filter(models.WhistleblowerFile.receivertip_id == rtip.id)
+        .filter(models.WhistleblowerFile.receivertip_id == rtip.id)
 
     for wbfile in wbfiles:
         rf = models.WhistleblowerFile()
@@ -185,7 +186,7 @@ def get_ttl(session, orm_object_model, orm_object_id):
     # we exploit the fact that we have the same "tip_timetolive" name in
     # the SubmissionSubStatus, SubmissionStatus and Context tables
     return session.query(orm_object_model.tip_timetolive) \
-                  .filter(orm_object_model.id == orm_object_id).one()[0]
+        .filter(orm_object_model.id == orm_object_id).one()[0]
 
 
 def recalculate_data_retention(session, itip, report_reopen_request):
@@ -233,10 +234,10 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
     report_reopen_request = itip.status == "closed" and status_id == "opened"
 
     if report_reopen_request and not can_reopen_reports:
-        raise errors.ForbiddenOperation # mandatory permission setting missing
+        raise errors.ForbiddenOperation  # mandatory permission setting missing
 
     if report_reopen_request and motivation is None:
-        raise errors.ForbiddenOperation # motivation must be given when restoring closed tips
+        raise errors.ForbiddenOperation  # motivation must be given when restoring closed tips
 
     itip.status = status_id
     itip.substatus = substatus_id or None
@@ -244,9 +245,9 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
     prev_expiration_date, curr_expiration_date = recalculate_data_retention(session, itip, report_reopen_request)
 
     log_data = {
-      'status': itip.status,
-      'substatus': itip.substatus,
-      'motivation': motivation,
+        'status': itip.status,
+        'substatus': itip.substatus,
+        'motivation': motivation,
     }
 
     db_log(session, tid=tid, type='update_report_status', user_id=user_id, object_id=itip.id, data=log_data)
@@ -271,7 +272,8 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
     :param id: The object_id
     :param redaction_data: The updated redaction data
     """
-    new_temporary_redaction = get_new_temporary_redaction(redaction_data['temporary_redaction'], redaction.permanent_redaction)
+    new_temporary_redaction = get_new_temporary_redaction(redaction_data['temporary_redaction'],
+                                                          redaction.permanent_redaction)
 
     log_data = {
         'old_remporary_redaction': redaction.temporary_redaction,
@@ -280,7 +282,8 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
 
     db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
 
-    if len(new_temporary_redaction) == 0 and (not redaction.permanent_redaction or len(redaction.permanent_redaction) == 0):
+    if len(new_temporary_redaction) == 0 and (
+            not redaction.permanent_redaction or len(redaction.permanent_redaction) == 0):
         session.delete(redaction)
     else:
         redaction.temporary_redaction = new_temporary_redaction
@@ -417,7 +420,8 @@ def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data,
     currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'],
+                                                    redaction_data['permanent_redaction']):
         return
 
     currentMaskedContent = next((masked_content for masked_content in tip_data.get('comments', []) if
@@ -462,7 +466,8 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction):
         for inner_idx, whistleblower_identity in enumerate(whistleblower_identities[key]):
             if 'value' in whistleblower_identity:
                 if key == redaction.reference_id:
-                    whistleblower_identity['value'] = redact_content(whistleblower_identity['value'], redaction.permanent_redaction)
+                    whistleblower_identity['value'] = redact_content(whistleblower_identity['value'],
+                                                                     redaction.permanent_redaction)
                     return
             else:
                 db_redact_whistleblower_identities(whistleblower_identity, redaction)
@@ -494,7 +499,7 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_answers = session.query(models.InternalTipAnswers) \
-                          .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
 
     if itip_answers:
         itip_answers.answers = _content
@@ -524,7 +529,7 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_whistleblower_identity = session.query(models.InternalTipData) \
-                        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
     if itip_whistleblower_identity:
         itip_whistleblower_identity.value = _content
 
@@ -548,9 +553,9 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
 
     # send mail notification to all users with access to the report excluding <user_id>
     for user in session.query(models.User) \
-                       .filter(models.User.id == models.ReceiverTip.receiver_id,
-                               models.ReceiverTip.internaltip_id == itip.id,
-                               models.ReceiverTip.receiver_id != user_id):
+            .filter(models.User.id == models.ReceiverTip.receiver_id,
+                    models.ReceiverTip.internaltip_id == itip.id,
+                    models.ReceiverTip.receiver_id != user_id):
         db_notify_report_update(session, user, rtip, itip)
 
     db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id, motivation)
@@ -586,9 +591,9 @@ def db_access_rfile(session, tid, user_id, rfile_id):
     :return: A model requested
     """
     itips_ids = [x[0] for x in session.query(models.InternalTip.id)
-                                      .filter(models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                              models.ReceiverTip.receiver_id == user_id,
-                                              models.InternalTip.tid == tid)]
+    .filter(models.InternalTip.id == models.ReceiverTip.internaltip_id,
+            models.ReceiverTip.receiver_id == user_id,
+            models.InternalTip.tid == tid)]
 
     return db_get(session,
                   models.ReceiverFile,
@@ -609,11 +614,11 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     :return: A descriptor of the file
     """
     rtip, itip = session.query(models.ReceiverTip, models.InternalTip) \
-                        .filter(models.InternalTip.id == itip_id,
-                                models.ReceiverTip.receiver_id == user_id,
-                                models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                models.InternalTip.status != 'closed',
-                                models.InternalTip.tid == tid).one()
+        .filter(models.InternalTip.id == itip_id,
+                models.ReceiverTip.receiver_id == user_id,
+                models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                models.InternalTip.status != 'closed',
+                models.InternalTip.tid == tid).one()
 
     rtip.last_access = datetime_now()
     if uploaded_file['visibility'] == 0:
@@ -722,7 +727,9 @@ def redact_report(session, user_id, report, enforce=False):
 
     for comment in report['comments']:
         if comment['id'] in redactions_by_reference_id:
-            comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
+            comment['content'] = redact_content(comment['content'],
+                                                redactions_by_reference_id[comment['id']][0].temporary_redaction,
+                                                '0x2591')
 
     report['wbfiles'] = [x for x in report['wbfiles'] if x['ifile_id'] not in redactions_by_reference_id]
 
@@ -811,13 +818,13 @@ def delete_wbfile(session, tid, user_id, file_id):
     """
     ifile = (
         session.query(models.InternalFile)
-               .filter(models.InternalFile.id == file_id,
-                       models.WhistleblowerFile.internalfile_id == models.InternalFile.id,
-                       models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
-                       models.ReceiverTip.receiver_id == user_id,
-                       models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                       models.InternalTip.tid == tid)
-               .first()
+        .filter(models.InternalFile.id == file_id,
+                models.WhistleblowerFile.internalfile_id == models.InternalFile.id,
+                models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
+                models.ReceiverTip.receiver_id == user_id,
+                models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                models.InternalTip.tid == tid)
+        .first()
     )
 
     if ifile:
@@ -843,12 +850,11 @@ def postpone_expiration(session, tid, user_id, itip_id, expiration_date):
     prev_expiration_date, curr_expiration_date = db_postpone_expiration(session, itip, expiration_date)
 
     log_data = {
-      'prev_expiration_date': int(datetime.timestamp(prev_expiration_date)),
-      'curr_expiration_date': int(datetime.timestamp(curr_expiration_date))
+        'prev_expiration_date': int(datetime.timestamp(prev_expiration_date)),
+        'curr_expiration_date': int(datetime.timestamp(curr_expiration_date))
     }
 
     db_log(session, tid=tid, type='update_report_expiration', user_id=user_id, object_id=itip.id, data=log_data)
-
 
 
 @transact
@@ -964,7 +970,8 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
     session.flush()
 
     custodians = 0
-    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.enabled == True):
+    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian',
+                                                       models.User.enabled == True):
         iarc = models.IdentityAccessRequestCustodian()
         iarc.identityaccessrequest_id = iar.id
         iarc.custodian_id = custodian.id
@@ -1092,6 +1099,7 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
         elif content_type == 'whistleblower_identity':
             db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
 
+
 @transact
 def delete_rfile(session, tid, user_id, file_id):
     """
@@ -1127,7 +1135,8 @@ class RTipRedactionCollection(BaseHandler):
         payload = self.request.content.read().decode('utf-8')
         data = json.loads(payload)
 
-        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'], self.request.language)
+        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'],
+                                                 self.request.language)
 
         if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
@@ -1183,7 +1192,8 @@ class RTipInstance(OperationHandler):
         return revoke_tip_access(self.request.tid, self.session.user_id, itip_id, req_args['receiver'])
 
     def transfer_tip(self, req_args, itip_id, *args, **kwargs):
-        return transfer_tip_access(self.request.tid, self.session.user_id, self.session.cc, itip_id, req_args['receiver'])
+        return transfer_tip_access(self.request.tid, self.session.user_id, self.session.cc, itip_id,
+                                   req_args['receiver'])
 
     def postpone_expiration(self, req_args, itip_id, *args, **kwargs):
         return postpone_expiration(self.request.tid, self.session.user_id, itip_id, req_args['value'])
@@ -1210,7 +1220,8 @@ class RTipCommentCollection(BaseHandler):
 
     def post(self, itip_id):
         request = self.validate_request(self.request.content.read(), requests.CommentDesc)
-        return create_comment(self.request.tid, self.session.user_id, itip_id, request['content'], request['visibility'])
+        return create_comment(self.request.tid, self.session.user_id, itip_id, request['content'],
+                              request['visibility'])
 
 
 class WhistleblowerFileDownload(BaseHandler):
@@ -1234,7 +1245,7 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.WhistleblowerFile.id == file_id))
 
         redaction = session.query(models.Redaction) \
-                           .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
+            .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
 
         if redaction is not None and \
                 not user.can_mask_information and \
@@ -1247,11 +1258,11 @@ class WhistleblowerFileDownload(BaseHandler):
         log.debug("Download of file %s by receiver %s" %
                   (wbfile.internalfile_id, rtip.receiver_id))
 
-        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public
+        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public, ifile.state
 
     @inlineCallbacks
     def get(self, wbfile_id):
-        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key = yield self.download_wbfile(self.request.tid,
+        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key, state = yield self.download_wbfile(self.request.tid,
                                                                                                    self.session.user_id,
                                                                                                    wbfile_id)
 
@@ -1276,6 +1287,9 @@ class WhistleblowerFileDownload(BaseHandler):
 
                 files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key2))
                 filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+
+        af = FileAnalysis()
+        status = af.read_file_for_scanning(filelocation, name, state)
 
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
@@ -1313,12 +1327,12 @@ class ReceiverFileDownload(BaseHandler):
         except:
             raise errors.ResourceNotFound
         else:
-            return rfile.name, rfile.id, base64.b64decode(rtip.crypto_tip_prv_key), pgp_key
+            return rfile.name, rfile.id, base64.b64decode(rtip.crypto_tip_prv_key), pgp_key, rfile.state
 
     @inlineCallbacks
     def get(self, rfile_id):
-        name, filename, tip_prv_key, pgp_key = yield self.download_rfile(self.request.tid, self.session.user_id,
-                                                                         rfile_id)
+        name, filename, tip_prv_key, pgp_key, state = yield self.download_rfile(self.request.tid, self.session.user_id,
+                                                                                rfile_id)
 
         filelocation = os.path.join(self.state.settings.attachments_path, filename)
         if not os.path.exists(filelocation):
@@ -1333,6 +1347,8 @@ class ReceiverFileDownload(BaseHandler):
             name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
             filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
 
+        af = FileAnalysis()
+        status = af.read_file_for_scanning(filelocation, filename, state)
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
     def delete(self, file_id):

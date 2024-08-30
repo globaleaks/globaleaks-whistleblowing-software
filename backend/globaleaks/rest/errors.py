@@ -183,7 +183,26 @@ class AccessLocationInvalid(GLException):
     error_code = 16
     status_code = 401
 
+
 class DuplicateUserError(GLException):
     reason = "A user with this username already exists"
     error_code = 17
     status_code = 422
+
+
+class FileInfectedDownloadPermissionDenied(GLException):
+    """
+    User lacks download permissions.
+    """
+    reason = "User lacks download permissions."
+    error_code = 18
+    status_code = 403
+
+
+class FilePendingDownloadPermissionDenied(GLException):
+    """
+    Files in pending cannot be downloaded.
+    """
+    reason = "Files in pending cannot be downloaded."
+    error_code = 19
+    status_code = 403
