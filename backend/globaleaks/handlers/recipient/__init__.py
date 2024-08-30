@@ -17,6 +17,7 @@ from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.recipient.sendtip
 
 
 @transact

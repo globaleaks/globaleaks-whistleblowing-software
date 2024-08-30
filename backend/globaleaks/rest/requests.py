@@ -597,3 +597,17 @@ SubmissionSubStatusDesc = {
 SessionUpdateDesc = {
     'token': str
 }
+
+
+
+ForwardSubmissionFilesDesc = {
+    'id': uuid_regexp,
+    'origin': str
+}
+
+ForwardSubmissionDesc = {
+    'tid': [int],
+    'text': str,
+    'files': [ForwardSubmissionFilesDesc],
+    'questionnaire_id': uuid_regexp
+}
