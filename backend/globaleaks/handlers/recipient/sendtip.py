@@ -4,8 +4,8 @@
 import base64
 import os
 import json
-from uuid import uuid4
-from twisted.internet.defer import inlineCallbacks
+from globaleaks.settings import Settings
+from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.state import State
 from globaleaks.models import InternalFile, serializers
 from globaleaks.handlers.base import BaseHandler
@@ -42,23 +42,23 @@ class ForwardSubmission(BaseHandler):
     """
     check_roles = 'any'
     
-    def copy_file(self, source_id, source_prv_key, destination_pub_key):
+    def copy_file(self, source_id, source_prv_key):
         source_file = os.path.join(self.state.settings.attachments_path, source_id)
         self.check_file_presence(source_file)
-        destination_id = str(uuid4())
-        destination_file = os.path.join(self.state.settings.attachments_path, destination_id)
-        source = GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file)
+        temp_file = SecureTemporaryFile(Settings.tmp_path)
+        filepath = os.path.join(Settings.tmp_path, temp_file.key_id)
         
-        with GCE.streaming_encryption_open('ENCRYPT', destination_pub_key, destination_file) as seo:
-            chunk = source.read(1)
+        self.state.TempUploadFiles[temp_file.key_id] = temp_file
+        with temp_file.open('w') as output_fd,\
+             GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
             while True:
-                x = source.read(1)
-                if not x:
-                    seo.encrypt_chunk(chunk, 1)
+                last, data = seo.decrypt_chunk()
+                log.info("POST FORWARD DATA %s" % data)
+                output_fd.write(data)
+                if last:
                     break
-                seo.encrypt_chunk(chunk, 0)
-                chunk = x
-        return destination_id
+    
+        return temp_file.key_id
     
     def forward_internalfile(self, session, forwarded_itip, source_id, source_prv_key, crypto_is_available):
         internalfile = db_get(session, models.InternalFile, models.InternalFile.id == source_id)
@@ -66,10 +66,7 @@ class ForwardSubmission(BaseHandler):
         content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(internalfile.content_type))
         size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(internalfile.size))
         reference = internalfile.reference_id
-        new_file_id = self.copy_file(internalfile.id, source_prv_key, forwarded_itip.crypto_tip_pub_key)
-        
-        log.info("NAME: %s" % name)
-        log.info("NEW ID: %s" % new_file_id)
+        new_file_id = self.copy_file(internalfile.id, source_prv_key)
         
         new_file = models.InternalFile()
         new_file.id = new_file_id
@@ -87,14 +84,54 @@ class ForwardSubmission(BaseHandler):
         new_file.reference_id = reference
         new_file.creation_date = forwarded_itip.creation_date
         session.add(new_file)
+        
+        # TODO add row in file_forwarding
+        return new_file
+    
+    def forward_receiverfile(self, session, forwarded_itip, source_id, source_prv_key, crypto_is_available, visibility):
+        receiverfile = db_get(session, models.ReceiverFile, models.ReceiverFile.id == source_id)
+        name = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.name))
+        content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.content_type))
+        size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.size))
+        description = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.description))
+        author_id = receiverfile.author_id
+        creation_date = receiverfile.creation_date
+        new_file_id = self.copy_file(receiverfile.id, source_prv_key)
+        
+        new_file = models.ReceiverFile()
+        new_file.id = new_file_id
+        if crypto_is_available:
+            new_file.name = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, name))
+            new_file.content_type = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, content_type))
+            new_file.size = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, size))
+            new_file.description = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, description))
+        else:
+            new_file.name = name
+            new_file.content_type = content_type
+            new_file.size = size
+            new_file.description = description
+
+        new_file.author_id = author_id
+        new_file.internaltip_id = forwarded_itip.id
+        new_file.creation_date = creation_date
+        new_file.visibility = visibility
+        session.add(new_file)
+        
+        # TODO add row in file_forwarding
         return new_file
     
     def forward_files(self, session, forwarded_itip, files, source_prv_key, crypto_is_available):
         for f in files:
-            if f['origin'] == models.EnumVisibility.public.name:
+            if f['origin'] == 'whistleblower':
                 new_file = self.forward_internalfile(session, forwarded_itip, f['id'], source_prv_key, crypto_is_available)
-                log.info("INTERNAL NEW FILE %s" % new_file.id)
+            elif f['origin'] == 'recipient':
+                new_file = self.forward_receiverfile(session, forwarded_itip, f['id'], source_prv_key, crypto_is_available, models.EnumVisibility.public.name)
+            elif f['origin'] == 'oe':
+                new_file = self.forward_receiverfile(session, forwarded_itip, f['id'], source_prv_key, crypto_is_available, models.EnumVisibility.public.name)
+            elif f['origin'] == 'new':
                 break;
+            else:
+                raise errors.InputValidationError("Unable to deliver the file's origin")
         return id
     
     @transact
@@ -115,10 +152,10 @@ class ForwardSubmission(BaseHandler):
 
             # # TODO Verificare che il questionario abbia le caratteristiche di inoltro (prima domanda testo libero, ultima domanda esito)
             # # TODO Inserire il testo libero all'interno del json delle answers
-            # # answers = request['answers']
             answers = request['text']
-            log.info("answer %s" % answers)
             steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
+            fields = db_query(session, models.Field)
+            # log.info("STEPS %s" % steps)
             questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
             receivers = []
@@ -172,6 +209,7 @@ class ForwardSubmission(BaseHandler):
 
             if crypto_is_available:
                 crypto_tip_prv_key, forwarded_itip.crypto_tip_pub_key = GCE.generate_keypair()
+                log.info("original key %s" % crypto_tip_prv_key)
 
             if crypto_is_available:
                 crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()

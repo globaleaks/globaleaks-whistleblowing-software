@@ -113,7 +113,7 @@ def write_encrypted_file(session, key, sf, dest_path):
             seo.encrypt_chunk(b'', 1)
             save_status_file_scanning(id_file, status_file)
     except Exception as excep:
-        log.err("Unable to create plaintext file %s: %s", dest_path, excep)
+        log.err("Unable to create encrypted file %s: %s", dest_path, excep)
 
 
 @transact
