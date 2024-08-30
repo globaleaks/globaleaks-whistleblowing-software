@@ -21,7 +21,6 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import Base64Encoder, GCE
 from globaleaks.utils.file_analysis import FileAnalysis
-from globaleaks.utils.file_analysis.utils import save_status_file_scanning
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
