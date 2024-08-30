@@ -21,6 +21,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import Base64Encoder, GCE
 from globaleaks.utils.file_analysis import FileAnalysis
+from globaleaks.utils.file_analysis.utils import save_status_file_scanning
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -255,7 +256,8 @@ class WhistleblowerFileDownload(BaseHandler):
 
         af = FileAnalysis()
         status = af.read_file_for_scanning(filelocation, name, state)
-
+        if status.name != state:
+            save_status_file_scanning(name, status)
         yield self.write_file_as_download(name, filelocation)
 
 
@@ -296,7 +298,8 @@ class ReceiverFileDownload(BaseHandler):
 
         af = FileAnalysis()
         status = af.read_file_for_scanning(filelocation, name, state)
-
+        if status.name != state:
+            save_status_file_scanning(name, status)
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
 

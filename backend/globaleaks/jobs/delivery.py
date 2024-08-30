@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-from datetime import datetime
-
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
 
@@ -12,6 +10,7 @@ from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.file_analysis import FileAnalysis
+from globaleaks.utils.file_analysis.utils import save_status_file_scanning
 from globaleaks.utils.log import log
 from globaleaks.utils.pgp import PGPContext
 
@@ -93,30 +92,6 @@ def write_plaintext_file(sf, dest_path):
         log.err("Unable to create plaintext file %s: %s", dest_path, excep)
 
 
-def save_status_file_scanning(session, file_id: str, status_file: EnumStateFile) -> bool:
-    def update_file_state(file_obj):
-        file_obj.state = status_file.name
-        if status_file != EnumStateFile.pending:
-            file_obj.verification_date = datetime.now()
-
-    def process_file(model):
-        try:
-            # Tenta di aggiornare il file del modello passato
-            file_obj = session.query(model).filter(model.id == file_id).one()
-            update_file_state(file_obj)
-            session.commit()
-            return True
-        except Exception as e:
-            log.err(f"Unexpected error updating {model.__name__} with id {file_id}: {e}")
-            session.rollback()
-        return False
-
-    # Prova con InternalFile e ReceiverFile
-    if process_file(models.InternalFile):
-        return True
-    return process_file(models.ReceiverFile)
-
-
 def write_encrypted_file(session, key, sf, dest_path):
     af = FileAnalysis()
     status_file = EnumStateFile.verified
@@ -133,7 +108,7 @@ def write_encrypted_file(session, key, sf, dest_path):
                 seo.encrypt_chunk(chunk, 0)
                 chunk = encrypted_file.read(abstract.FileDescriptor.bufferSize)
             seo.encrypt_chunk(b'', 1)
-            save_status_file_scanning(session, id_file, status_file)
+            save_status_file_scanning(id_file, status_file)
     except Exception as excep:
         log.err("Unable to create plaintext file %s: %s", dest_path, excep)
 
