@@ -1291,7 +1291,8 @@ class WhistleblowerFileDownload(BaseHandler):
 
         af = FileAnalysis()
         status = af.read_file_for_scanning(filelocation, name, state)
-
+        if status.name != state:
+            save_status_file_scanning(name, status)
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
 
@@ -1350,6 +1351,8 @@ class ReceiverFileDownload(BaseHandler):
 
         af = FileAnalysis()
         status = af.read_file_for_scanning(filelocation, filename, state)
+        if status.name != state:
+            save_status_file_scanning(filename, status)
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
     def delete(self, file_id):
