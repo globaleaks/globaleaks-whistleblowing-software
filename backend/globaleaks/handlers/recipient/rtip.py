@@ -691,7 +691,6 @@ def get_rtip(session, tid, user_id, itip_id, language):
     return db_get_rtip(session, tid, user_id, itip_id, language)
 
 
-
 def redact_answers(answers, redactions):
     for key in answers:
         if not re.match(requests.uuid_regexp, key) or \
