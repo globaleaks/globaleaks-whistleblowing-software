@@ -15,7 +15,7 @@ export class OrganizationComponent implements OnInit{
   org_id: string | null;
   loading: boolean = false;
   organization: OrganizationData;
-  org_type: boolean = false;
+
 
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService, private orgService : AccreditorOrgService){
@@ -42,7 +42,13 @@ export class OrganizationComponent implements OnInit{
       this.organization.num_tip = 10
       this.organization.num_user_profiled = 2
       this.organization.type = "NOT_AFFILIATED"
-      this.organization.state = "ACCREDITED"
+      // •	0 -> REQUESTED
+      // •	1 -> ACCREDITED
+      // •	2 -> REJECTED
+      // •	3 -> INSTRUCTOR_REQUEST
+      // •	4 -> INVITED
+      // •	5 -> SUSPEND
+       this.organization.state = 0
       
       let users : EOUser[] = [];
       users.push({
@@ -84,4 +90,13 @@ export class OrganizationComponent implements OnInit{
     console.log("CONVERTI IN AFFILIATA - TODO!!!")
   }
 
+  isSuspendable(){
+    return this.organization.state == 1
+  }
+
+  isDeletable(){
+    return this.organization.state == 1
+  }
+
+  
 }
