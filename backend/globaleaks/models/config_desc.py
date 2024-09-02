@@ -118,7 +118,8 @@ ConfigDescriptor = {
     'version': Unicode(default=str(__version__)),
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
-    'uuid': Unicode(default=uuid4)
+    'uuid': Unicode(default=uuid4),
+    'url_file_analysis': Unicode(default='http://localhost/api/v1/scan')
 }
 
 

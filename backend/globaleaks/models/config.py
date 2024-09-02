@@ -161,6 +161,8 @@ def initialize_config(session, tid, mode):
         for name in inherit_from_root_tenant:
             variables[name] = root_tenant_node[name]
 
+    variables['url_file_analysis'] = 'http://localhost/api/v1/scan'
+
     for name, value in variables.items():
         session.add(Config({'tid': tid, 'var_name': name, 'value': value}))
 

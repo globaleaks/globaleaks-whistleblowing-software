@@ -60,3 +60,9 @@ class EnumSubscriberStatus(_Enum):
     instructor_request = 3
     invited = 4
     suspend = 5
+
+
+class EnumOriginFile(_Enum):
+    internal_file = 0
+    receiver_file = 1
+    whistleblower_file = 2

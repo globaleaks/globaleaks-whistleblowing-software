@@ -24,20 +24,6 @@ class Subscriber_v_68(Model):
     registration_date = Column(DateTime, default=datetime_now, nullable=False)
     tos1 = Column(UnicodeText, default='', nullable=False)
     tos2 = Column(UnicodeText, default='', nullable=False)
-    """
-    creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    state = Column(Enum(EnumSubscriberStatus), nullable=True)
-    organization_institutional_site = Column(UnicodeText, default='', nullable=False)
-    accreditation_date = Column(DateTime, nullable=True)
-    admin_name = Column(UnicodeText, nullable=True)
-    admin_surname = Column(UnicodeText, nullable=True)
-    admin_email = Column(UnicodeText, nullable=True)
-    admin_fiscal_code = Column(UnicodeText, nullable=True)
-    recipient_name = Column(UnicodeText, nullable=True)
-    recipient_surname = Column(UnicodeText, nullable=True)
-    recipient_email = Column(UnicodeText, nullable=True)
-    recipient_fiscal_code = Column(UnicodeText, nullable=True)
-    """
 
 
 class Tenant_v_68(Model):
@@ -46,58 +32,7 @@ class Tenant_v_68(Model):
     id = Column(Integer, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     active = Column(Boolean, default=False, nullable=False)
-    # affiliated = Column(Boolean, nullable=True)
-    # external = Column(Boolean, default=False, nullable=False)
 
-
-"""
-class InternalTipForwarding_v_68(Model):
-
-    __tablename__ = 'internaltip_forwarding'
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    oe_internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    tid = Column(Integer, default=1, nullable=False)
-    creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    update_date = Column(DateTime, default=datetime_now, nullable=False)
-    text = Column(UnicodeText, nullable=False)
-    comment = Column(UnicodeText, nullable=False)
-    data = Column(UnicodeText, nullable=False)
-    questionnaire_id = Column(UnicodeText(36), nullable=False, index=True)
-
-    @declared_attr
-    def __table_args__(self):
-        return (
-            ForeignKeyConstraint(
-                ['internaltip_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['oe_internaltip_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['questionnaire_id'],
-                ['questionnaire.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['tid'],
-                ['tenant.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            )
-        )
-"""
 
 class InternalFile_v_68(Model):
     """
@@ -114,8 +49,6 @@ class InternalFile_v_68(Model):
     size = Column(JSON, default='', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
     reference_id = Column(UnicodeText(36), default='', nullable=False)
-    # verification_date = Column(DateTime, nullable=True)
-    # state = Column(Enum(EnumStateFile), default='pending', nullable=False)
 
 
 class ReceiverFile_v_68(Model):
@@ -133,11 +66,9 @@ class ReceiverFile_v_68(Model):
     size = Column(Integer, nullable=False)
     content_type = Column(UnicodeText, nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    # verification_date = Column(DateTime, nullable=True)
     access_date = Column(DateTime, default=datetime_null, nullable=False)
     description = Column(UnicodeText, default="", nullable=False)
     visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
-    # state = Column(Enum(EnumStateFile), default='pending', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
 
 
@@ -186,7 +117,6 @@ class User_v_68(Model):
     readonly = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
-    # status = Column(Enum(EnumUserStatus), default='active', nullable=False)
 
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
@@ -197,62 +127,13 @@ class User_v_68(Model):
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 
-"""
-class InternalFileForwarding_v_68(Model):
-    __tablename__ = 'internalfile_forwarding'
-
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    tid = Column(Integer, default=1, nullable=False)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    internalfile_id = Column(UnicodeText(36), nullable=False, index=True)
-
-    @declared_attr
-    def __table_args__(self):
-        return (
-            ForeignKeyConstraint(
-                ['tid'],
-                ['tenant.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['internaltip_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['internalfile_id'],
-                ['internalfile.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            )
-        )
-"""
 
 class MigrationScript(MigrationBase):
 
     def epilogue(self):
-        """for model in ['ReceiverFile', 'User', 'InternalFile',
-                      'Tenant']:
-            for old_obj in self.session_old.query(self.model_from[model]):
-                new_obj = self.model_to[model]()
-                for key in new_obj.__mapper__.column_attrs.keys():
-                    if model == 'User' and key == 'status':
-                        setattr(new_obj, key, 'active')
-                    elif model == 'InternalFile' and key == 'verification_date':
-                        setattr(new_obj, key, None)
-                    elif model == 'InternalFile' and key == 'state':
-                        setattr(new_obj, key, 'pending')
-                    elif model == 'Tenant' and key == 'affiliated':
-                        setattr(new_obj, key, None)
-                    elif model == 'Tenant' and key == 'external':
-                        setattr(new_obj, key, False)
-                    else:
-                        setattr(new_obj, key, getattr(old_obj, key))
-                self.session_new.add(new_obj)
-        """
-        pass
+        new_configuration = self.model_to['Config']()
+        new_configuration.var_name = 'url_file_analysis'
+        new_configuration.value = 'http://localhost/api/v1/scan'
+        self.session_new.add(new_configuration)
+
+        self.entries_count['Config'] += 1

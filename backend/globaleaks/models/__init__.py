@@ -591,16 +591,17 @@ class _IdentityAccessRequestCustodian(Model):
                                      initially='DEFERRED'))
 
 
-class _InternalFileForwarding(Model):
+class _FileForwarding(Model):
     """
     This model keeps track of submission files for the oe
     """
-    __tablename__ = 'internalfile_forwarding'
+    __tablename__ = 'file_forwarding'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
     internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    internalfile_id = Column(UnicodeText(36), nullable=False, index=True)
+    file_id = Column(UnicodeText(36), nullable=False, index=True)
+    file_origin = Column(Enum(EnumOriginFile), default='internal_file', nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -615,13 +616,6 @@ class _InternalFileForwarding(Model):
             ForeignKeyConstraint(
                 ['internaltip_id'],
                 ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['internalfile_id'],
-                ['internalfile.id'],
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
@@ -954,7 +948,6 @@ class _Subscriber(Model):
     registration_date = Column(DateTime, default=datetime_now, nullable=False)
     tos1 = Column(UnicodeText, default='', nullable=False)
     tos2 = Column(UnicodeText, default='', nullable=False)
-
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     state = Column(Integer, default=None, nullable=True)
     organization_institutional_site = Column(UnicodeText, default='', nullable=False)
@@ -1313,5 +1306,5 @@ class InternalTipForwarding(_InternalTipForwarding, Base):
     pass
 
 
-class InternalFileForwarding(_InternalFileForwarding, Base):
+class FileForwarding(_FileForwarding, Base):
     pass
