@@ -23,7 +23,7 @@ import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-lo
 import {SubmissionComponent} from "@app/pages/whistleblower/submission/submission.component";
 import {AuthRoutingModule} from "@app/pages/auth/auth-routing.module";
 import { AccreditorGuard } from "./shared/guards/accreditor.guard";
-import { OrganizationComponent } from "./pages/accreditor/organization/organization.component";
+import { OrganizationComponent } from "@app/pages/accreditor/organization/organization.component";
 
 
 const routes: Routes = [
