@@ -5,7 +5,7 @@ export class OrganizationData {
     id: string;
     denomination: string;
     type: string;
-    state: string;
+    state: number;
     accreditation_date: string;
     num_user_profiled: number;
     num_tip: number;
