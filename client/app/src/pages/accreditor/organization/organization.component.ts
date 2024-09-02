@@ -4,6 +4,7 @@ import { OrganizationData } from '@app/models/accreditor/organization-data';
 import { EOUser } from '@app/models/app/shared-public-model';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { HttpService } from '@app/shared/services/http.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'src-organization',
@@ -41,14 +42,7 @@ export class OrganizationComponent implements OnInit{
       this.organization.num_tip = 10
       this.organization.num_user_profiled = 2
       this.organization.type = "NOT_AFFILIATED"
-      // •	0 -> REQUESTED
-      // •	1 -> ACCREDITED
-      // •	2 -> REJECTED
-      // •	3 -> INSTRUCTOR_REQUEST
-      // •	4 -> INVITED
-      // •	5 -> SUSPEND
-      // •	6 -> APPROVED
-      this.organization.state = "INSTRUCTOR_REQUEST"
+      this.organization.state = "ACCREDITED"
       
       let users : EOUser[] = [];
       users.push({
@@ -88,45 +82,6 @@ export class OrganizationComponent implements OnInit{
   
   convertiInAffiliata(){
     console.log("CONVERTI IN AFFILIATA - TODO!!!")
-  }
-
-  invia(){
-    if(this.org_type)
-      this.organization.type = "AFFILIATED"
-  
-    console.log("INVIA / INVIA INVITO - TODO!!!")
-  }
-
-  rifiuta(){
-    console.log("REJECT - TODO!!!")
-
-  }
-
-      // •	0 -> REQUESTED
-      // •	1 -> ACCREDITED
-      // •	2 -> REJECTED
-      // •	3 -> INSTRUCTOR_REQUEST
-      // •	4 -> INVITED
-      // •	5 -> SUSPEND
-
-  isRequested(){
-    return this.organization.state === "REQUESTED"
-  }
-
-  isInstructorRequest(){
-    return this.organization.state === "INSTRUCTOR_REQUEST"
-  }
-
-  isAccredited(){
-    return this.organization.state === "ACCREDITED"
-  }
-
-  isSuspended(){
-    return this.organization.state === "SUSPENDED"
-  }
-
-  isInvited(){
-    return this.organization.state === "INVITED"
   }
 
 }

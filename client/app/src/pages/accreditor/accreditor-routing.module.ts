@@ -9,18 +9,12 @@ const routes: Routes = [
     path: "",
     component: AccreditorHomeComponent,
     pathMatch: "full",
-    resolve: {
-      AccreditationReqResolver
-    },
     data: {sidebar: "accreditor-sidebar", pageTitle: "Home"},
   },
   {
     path: "home",
     component: AccreditorHomeComponent,
     pathMatch: "full",
-    resolve: {
-      AccreditationReqResolver
-    },
     data: {sidebar: "accreditor-sidebar", pageTitle: "Home"},
   },
   {
