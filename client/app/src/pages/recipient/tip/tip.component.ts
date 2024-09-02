@@ -84,8 +84,8 @@ export class TipComponent implements OnInit {
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           //TODO PROCESS WBFILES E RFILES VERIFICATION_STATUS
           // this.tipServices.processFilesVerificationStatus()
-          this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
-          this.tipService.processFilesVerificationStatus(this.tip.rfiles);
+          //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
+          //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
           this.initNavBar()
         }

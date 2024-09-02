@@ -7,7 +7,8 @@
         </span>
     </div>
     <div class="card-body" *ngIf="!collapsed">
-        <div *ngFor="let rfile of tip.rfiles | filter : 'visibility' : key | orderBy: 'creation_date' as index">
+        <!-- Now Filter is managed by the component <div *ngFor="let rfile of tip.rfiles | filter : 'visibility' : key | orderBy: 'creation_date' as index"> -->
+        <div *ngFor="let rfile of getFilteredAndSortedFiles() as index">
             <div id="rfile-{{index}}" data-wbfile data-ctx="'rtip'">
                 <src-wbfiles [ctx]="'rtip'" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="{}" [wbFile]="rfile"></src-wbfiles>
             </div>
