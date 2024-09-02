@@ -6,7 +6,7 @@
                     <span>{{'Filename'|translate}}</span>: </span>
                 <span class="filename px-1">{{wbFile.name}}</span>
             </span>
-            <span class="float-end">
+            <span *ngIf="!wbFile.isLoading" class="float-end">
                 <span>
                     <!-- <span class="download-button btn btn-sm btn-primary"                     
                     (click)="downloadWBFile(wbFile)">
@@ -14,7 +14,7 @@
                     </span> -->
 
                     <button class="btn btn-sm btn-primary tip-action-download-file" 
-                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.verification_status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
+                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
                         <i class="fa-solid fa-download"></i>
                     </button>
 
@@ -24,28 +24,77 @@
                 </span>
             </span>
         </div>
-        <div class="file-info-row">
-            <span *ngIf="receivers_by_id[wbFile.author]">
-                <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
-            </span>
-            <span class="px-1">
-                <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
-            </span>
-            <span class="px-1">
-                <span>{{'Size:'|translate}}</span>
-                <span>{{wbFile.size | byteFmt:2}}</span>
-            </span>
-            <span class="px-1" *ngIf="ctx === 'rtip'">
-                <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
-            </span>
-            <span>
-                <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.verification_status}}</span>
-            </span>
+        <div>
+            <ng-container *ngIf="wbFile.isLoading; else existingFile">
+                <div class="file-info-row">
+                    <span *ngIf="receivers_by_id[wbFile.author]">
+                        <span>{{'From'|translate}}</span>:
+                        <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                            <span>{{receivers_by_id[wbFile.author].name}}</span>
+                        </ng-container>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Date'|translate}}</span>:
+                        <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                            <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
+                        </ng-container>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Size:'|translate}}</span>
+                        <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                            <span>{{wbFile.size | byteFmt:2}}</span>
+                        </ng-container>
+                    </span>
+                    <span class="px-1" *ngIf="ctx === 'rtip'">
+                        <span>{{'Number of downloads'|translate}}</span>:
+                        <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                            <span>{{wbFile.downloads}}</span>
+                        </ng-container>
+                    </span>
+                </div>
+                <div *ngIf="wbFile.description">
+                    <span>
+                        <span class="px-1">{{'Description'|translate}}</span>:
+                        <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                            <span> {{wbFile.description}} </span>
+                        </ng-container>
+                    </span>
+                </div>
+                <div>
+                    <span>{{'Verification Status'|translate}}</span>:
+                    <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
+                        <span>{{wbFile.status}}</span>
+                    </ng-container>
+                </div>
+            </ng-container>
+            <ng-template #existingFile>
+                <div class="file-info-row">
+                    <span *ngIf="receivers_by_id[wbFile.author]">
+                        <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Size:'|translate}}</span>
+                        <span>{{wbFile.size | byteFmt:2}}</span>
+                    </span>
+                    <span class="px-1" *ngIf="ctx === 'rtip'">
+                        <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
+                    </span>
+                </div>
+                <div *ngIf="wbFile.description">
+                    <span>
+                        <span class="px-1">{{'Description'|translate}}</span>: <span> {{wbFile.description}} </span>
+                    </span>
+                </div>
+                <div>
+                    <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.status}}</span>
+                </div>
+            </ng-template>
         </div>
-        <div *ngIf="wbFile.description">
-            <span>
-                <span class="px-1">{{'Description'|translate}}</span>: </span>
-            <span> {{wbFile.description}} </span>
-        </div>
+        <ng-template #loadingTemplate>
+            <i class="fa fa-spinner fa-spin"></i>
+        </ng-template>
     </div>
 </div>

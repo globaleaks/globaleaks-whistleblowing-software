@@ -6,7 +6,6 @@ import * as Flow from "@flowjs/flow.js";
 import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import { RFile } from "@app/models/app/shared-public-model";
-import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
   selector: "src-tip-upload-wbfile",
@@ -25,7 +24,7 @@ export class TipUploadWbFileComponent {
 
   recentFile: RFile;
 
-  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService, protected preferenceResolver:PreferenceResolver) {
+  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
   }
 
@@ -50,7 +49,7 @@ export class TipUploadWbFileComponent {
         error: false,
         author: '',
         downloads: 0,
-        status: 'PENDING',
+        status: 'uploading',
         isLoading: true
       };
       this.tip.rfiles.push(this.recentFile);
@@ -62,21 +61,25 @@ export class TipUploadWbFileComponent {
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
+        setTimeout(() => {
             this.recentFile.isLoading = false;
             this.dataToParent.emit();
-            this.errorFile = null;
+        this.errorFile = null;
+        }, 10000);
       });
       flowJsInstance.on("fileError", (file, _) => {
+        setTimeout(() => {
           const index = this.tip.rfiles.indexOf(this.recentFile);
           if (index > -1) {
             this.tip.rfiles.splice(index, 1);
           }
-          this.showError = true;
-          this.errorFile = file;
-          if (this.uploaderInput) {
-            this.uploaderInput.nativeElement.value = "";
-          }
-          this.cdr.detectChanges();
+        this.showError = true;
+        this.errorFile = file;
+        if (this.uploaderInput) {
+          this.uploaderInput.nativeElement.value = "";
+        }
+        this.cdr.detectChanges();
+        }, 10000);        
       });
 
       this.utilsService.onFlowUpload(flowJsInstance, file);
