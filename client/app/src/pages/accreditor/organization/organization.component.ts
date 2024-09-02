@@ -48,7 +48,7 @@ export class OrganizationComponent implements OnInit{
       // •	3 -> INSTRUCTOR_REQUEST
       // •	4 -> INVITED
       // •	5 -> SUSPEND
-       this.organization.state = 0
+      this.organization.state = 5
       
       let users : EOUser[] = [];
       users.push({
@@ -90,8 +90,14 @@ export class OrganizationComponent implements OnInit{
     console.log("CONVERTI IN AFFILIATA - TODO!!!")
   }
 
+      // •	0 -> REQUESTED
+      // •	1 -> ACCREDITED
+      // •	2 -> REJECTED
+      // •	3 -> INSTRUCTOR_REQUEST
+      // •	4 -> INVITED
+      // •	5 -> SUSPEND
   isSuspendable(){
-    return this.organization.state == 1
+    return [1, 5].includes(this.organization.state)
   }
 
   isDeletable(){
