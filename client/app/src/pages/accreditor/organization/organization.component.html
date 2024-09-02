@@ -7,12 +7,14 @@
             </a>
 
             <span id="org-action-suspend"
+                *ngIf="isSuspendable()"
                 data-toggle="tooltip" title="{{'Suspend Organization' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-clock"></i>
             </span>
 
             <span id="org-action-delete"
+                *ngIf="isDeletable()"
                 data-toggle="tooltip" title="{{'Delete' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-trash"></i>
