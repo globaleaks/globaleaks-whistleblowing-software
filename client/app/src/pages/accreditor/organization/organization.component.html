@@ -41,11 +41,11 @@
             <src-org-info></src-org-info>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4" *ngIf="!isInvited()">
             <src-org-admin-info></src-org-admin-info>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-4"  *ngIf="!isInvited()">
             <src-org-recipient-info></src-org-recipient-info>
         </div>
     </div>
