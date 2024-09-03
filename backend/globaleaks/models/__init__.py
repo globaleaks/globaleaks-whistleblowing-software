@@ -591,28 +591,20 @@ class _IdentityAccessRequestCustodian(Model):
                                      initially='DEFERRED'))
 
 
-class _FileForwarding(Model):
+class _ContentForwarding(Model):
     """
     This model keeps track of submission files for the oe
     """
-    __tablename__ = 'file_forwarding'
+    __tablename__ = 'content_forwarding'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    tid = Column(Integer, default=1, nullable=False)
     internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
-    file_id = Column(UnicodeText(36), nullable=False, index=True)
-    file_origin = Column(Enum(EnumOriginFile), default='internal_file', nullable=False)
+    content_id = Column(UnicodeText(36), nullable=False, index=True)
+    content_origin = Column(Enum(EnumOriginFile), default='receiver_file', nullable=False)
 
     @declared_attr
     def __table_args__(self):
         return (
-            ForeignKeyConstraint(
-                ['tid'],
-                ['tenant.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
             ForeignKeyConstraint(
                 ['internaltip_forwarding_id'],
                 ['internaltip_forwarding.id'],
@@ -1004,8 +996,6 @@ class _InternalTipForwarding(Model):
     tid = Column(Integer, default=1, nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
-    text = Column(UnicodeText, nullable=False)
-    comment = Column(UnicodeText, nullable=False)
     data = Column(UnicodeText, nullable=False)
     questionnaire_id = Column(UnicodeText(36), nullable=False, index=True)
 
@@ -1306,5 +1296,5 @@ class InternalTipForwarding(_InternalTipForwarding, Base):
     pass
 
 
-class FileForwarding(_FileForwarding, Base):
+class ContentForwarding(_ContentForwarding, Base):
     pass
