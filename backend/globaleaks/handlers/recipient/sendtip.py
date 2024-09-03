@@ -2,8 +2,10 @@
 #
 # Handlers dealing with forwarding submission to an external organization
 import base64
+from email import contentmanager
 import os
 import json
+from pyexpat import model
 from globaleaks.settings import Settings
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.state import State
@@ -46,14 +48,12 @@ class ForwardSubmission(BaseHandler):
         source_file = os.path.join(self.state.settings.attachments_path, source_id)
         self.check_file_presence(source_file)
         temp_file = SecureTemporaryFile(Settings.tmp_path)
-        filepath = os.path.join(Settings.tmp_path, temp_file.key_id)
         
         self.state.TempUploadFiles[temp_file.key_id] = temp_file
         with temp_file.open('w') as output_fd,\
              GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
             while True:
                 last, data = seo.decrypt_chunk()
-                log.info("POST FORWARD DATA %s" % data)
                 output_fd.write(data)
                 if last:
                     break
@@ -134,6 +134,37 @@ class ForwardSubmission(BaseHandler):
                 raise errors.InputValidationError("Unable to deliver the file's origin")
         return id
     
+    def validate_steps(self, session, tid, questionnaire_id):
+        questionnaire = db_get(session, models.Questionnaire,(models.Questionnaire.id == questionnaire_id))
+        steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
+        first_field = steps[0]['children'][0]
+        if first_field['type'] != 'textarea' or bool(first_field['editable']):
+            raise errors.InputValidationError("Unable to forward the submission with this questionnaire")
+        return steps
+    
+    def set_answer(self, session, text, steps):
+        first_field_id = steps[0]['children'][0]['id']
+        answers = dict()
+        empty_content = dict()
+        required_status = False
+        empty_content['required_status'] = required_status
+        empty_content['value'] = ''
+        empty_content['editable'] = True
+        empty_content_list = [1]
+        empty_content_list[0] = empty_content
+        for s in steps:
+            for f in s['children']:
+                answers[f['id']] = empty_content_list
+                
+        content = dict()
+        content_list = [1]
+        content['required_status'] = required_status
+        content['value'] = text
+        content_list[0] = content
+        answers[first_field_id] = content_list
+        return answers
+    
+    
     @transact
     def forward_submission(self, session, request, itip_id, user_session):
         
@@ -148,38 +179,17 @@ class ForwardSubmission(BaseHandler):
             crypto_is_available = encryption.value
             
             default_context = db_get(session, models.Context, (models.Context.tid == tid, models.Context.order == 0))
-            questionnaire = db_get(session, models.Questionnaire,(models.Questionnaire.id == request['questionnaire_id']))
-
-            # # TODO Verificare che il questionario abbia le caratteristiche di inoltro (prima domanda testo libero, ultima domanda esito)
-            # # TODO Inserire il testo libero all'interno del json delle answers
-            answers = request['text']
-            steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
-            fields = db_query(session, models.Field)
-            # log.info("STEPS %s" % steps)
+            
+            steps = self.validate_steps(session, tid, request['questionnaire_id'])
+            log.info("STEPS %s" % steps)
+            answers = self.set_answer(session, request['text'], steps)
+            log.info("ANSWERS %s" % answers)
             questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
             receivers = []
-            context_users = db_query(session, models.User, 
+            receivers = db_query(session, models.User, 
                             (models.ReceiverContext.context_id == default_context.id, 
                             models.User.id == models.ReceiverContext.receiver_id)).all()
-            for r in context_users:
-                if crypto_is_available:
-                    if r.crypto_pub_key:
-                        # This is the regular condition of systems setup on Globaleaks 4
-                        # Since this version, encryption is enabled by default and
-                        # users need to perform their first access before they
-                        # could receive reports.
-                        receivers.append(r)
-                    elif encryption.update_date != datetime_null():
-                        # This is the exceptional condition of systems setup when
-                        # encryption was implemented via PGP.
-                        # For continuity reason of those production systems
-                        # encryption could not be enforced.
-                        receivers.append(r)
-                        crypto_is_available = False
-                else:
-                    receivers.append(r)
-
             if not receivers:
                 raise errors.InputValidationError("Unable to deliver the submission to at least one recipient")
 
@@ -207,13 +217,9 @@ class ForwardSubmission(BaseHandler):
             session.add(forwarded_itip)
             session.flush()
 
-            if crypto_is_available:
-                crypto_tip_prv_key, forwarded_itip.crypto_tip_pub_key = GCE.generate_keypair()
-                log.info("original key %s" % crypto_tip_prv_key)
-
-            if crypto_is_available:
-                crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
-
+            crypto_tip_prv_key, forwarded_itip.crypto_tip_pub_key = GCE.generate_keypair()
+            crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
+                
             db_set_internaltip_answers(session, forwarded_itip.id, questionnaire_hash, crypto_answers, forwarded_itip.creation_date)
 
             self.forward_files(session, forwarded_itip, request['files'], original_itip_private_key, crypto_is_available)
