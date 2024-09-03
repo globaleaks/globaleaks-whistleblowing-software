@@ -61,6 +61,7 @@ export class TipUploadWbFileComponent {
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
+        // TODO setTimeout solo per test, da rimuovere
         setTimeout(() => {
             this.recentFile.isLoading = false;
             this.dataToParent.emit();
@@ -68,6 +69,7 @@ export class TipUploadWbFileComponent {
         }, 10000);
       });
       flowJsInstance.on("fileError", (file, _) => {
+        // TODO setTimeout solo per test, da rimuovere
         setTimeout(() => {
           const index = this.tip.rfiles.indexOf(this.recentFile);
           if (index > -1) {
