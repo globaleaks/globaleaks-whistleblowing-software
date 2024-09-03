@@ -602,7 +602,7 @@ class _ContentForwarding(Model):
     internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
     content_id = Column(UnicodeText(36), nullable=False, index=True)
     oe_content_id = Column(UnicodeText(36), nullable=False, index=True)
-    content_origin = Column(Enum(EnumOriginFile), default='receiver_file', nullable=False)
+    content_origin = Column(Enum(EnumContentForwarding), default='receiver_file', nullable=False)
     author_type = Column(Enum(EnumAuthorType), default='main', nullable=False)
 
     @declared_attr

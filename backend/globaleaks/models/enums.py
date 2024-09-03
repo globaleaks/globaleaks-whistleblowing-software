@@ -62,11 +62,11 @@ class EnumSubscriberStatus(_Enum):
     suspended = 5 #6
     approved = 6 # 1
 
-class EnumOriginFile(_Enum):
+class EnumContentForwarding(_Enum):
     internal_file = 0
     receiver_file = 1
-    whistleblower_file = 2
-    
+    comment = 2
+
 class EnumForwardingState(_Enum):
     open = 0
     closed = 1
