@@ -611,7 +611,7 @@ class _ContentForwarding(Model):
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
-            )
+            ),
         )
 
 
