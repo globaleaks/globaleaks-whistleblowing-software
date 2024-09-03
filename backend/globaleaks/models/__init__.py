@@ -1036,7 +1036,7 @@ class _InternalTipForwarding(Model):
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
-            )
+            ),
         )
 
 
