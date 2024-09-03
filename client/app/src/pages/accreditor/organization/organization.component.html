@@ -7,22 +7,24 @@
             </a>
 
             <span id="org-action-suspend"
-                *ngIf="isSuspendable()"
+                *ngIf="isAccredited()"
                 data-toggle="tooltip" title="{{'Suspend Organization' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-clock"></i>
             </span>
 
+            <span id="org-action-reactivate"
+                *ngIf="isSuspended()"
+                data-toggle="tooltip" title="{{'Reactivate Organization' | translate}}"
+                class="btn btn-outline-secondary">
+                <i class="fa-solid fa-check"></i>
+            </span>
+
             <span id="org-action-delete"
-                *ngIf="isDeletable()"
+                *ngIf="isAccredited() || isSuspended()"
                 data-toggle="tooltip" title="{{'Delete' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-trash"></i>
-            </span>
-
-            <span id="org-save" data-toggle="tooltip" title="{{'Save' | translate}}"
-                class="btn btn-outline-secondary">
-            <i class="fa-solid fa-floppy-disk"></i>
             </span>
 
             <span id="link-reload" data-toggle="tooltip" title="{{'Refresh' | translate}}"
@@ -48,9 +50,16 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" *ngIf="isAccredited() || isSuspended()">
         <div class="col-md-12" id="organization-button">
             <button class="btn btn-primary" (click)="convertiInAffiliata()">{{'Converti in Affiliata' | translate}}</button>
+        </div>
+    </div>
+
+    <div class="row" *ngIf="isRequested() || isInstructorRequest()">
+        <div class="col-md-12" id="organization-affiliata">
+            <input name="affiliata" [(ngModel)]="org_type" type="checkbox">
+            <span>{{'Enable email notifications'|translate}}</span>
         </div>
     </div>
 
@@ -63,6 +72,24 @@
     <div class="row">
         <div class="col-md-12">
             <src-org-users-list></src-org-users-list>
+        </div>
+    </div>
+
+
+    <div class="row" *ngIf="isRequested() || isInstructorRequest() || isInvited()">
+        <div class="col-md-6"></div>
+        <div class="col-md-3" id="accept-button">
+            <button class="btn btn-primary" (click)="invia()">
+                <i class="fa-solid fa-check"></i>
+                <span>{{(isRequested()? 'Accetta Organizzazione Esterna': 'Inoltra Invito') | translate }}</span>
+            </button>
+        </div>
+        <div class="col-md-3" id="reject-button">
+            <button class="btn btn-danger" (click)="rifiuta()"
+            *ngIf="!isInvited()">
+                <i class="fa-solid fa-xmark"></i>
+                <span>{{'Rifiuta Organizzazione Esterna' | translate}}</span>
+            </button>
         </div>
     </div>
 

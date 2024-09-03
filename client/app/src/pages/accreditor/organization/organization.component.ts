@@ -4,7 +4,6 @@ import { OrganizationData } from '@app/models/accreditor/organization-data';
 import { EOUser } from '@app/models/app/shared-public-model';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { HttpService } from '@app/shared/services/http.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'src-organization',
@@ -15,7 +14,7 @@ export class OrganizationComponent implements OnInit{
   org_id: string | null;
   loading: boolean = false;
   organization: OrganizationData;
-
+  org_type: boolean = false;
 
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService, private orgService : AccreditorOrgService){
@@ -48,7 +47,8 @@ export class OrganizationComponent implements OnInit{
       // •	3 -> INSTRUCTOR_REQUEST
       // •	4 -> INVITED
       // •	5 -> SUSPEND
-      this.organization.state = 5
+      // •	6 -> APPROVED
+      this.organization.state = "INSTRUCTOR_REQUEST"
       
       let users : EOUser[] = [];
       users.push({
@@ -90,19 +90,43 @@ export class OrganizationComponent implements OnInit{
     console.log("CONVERTI IN AFFILIATA - TODO!!!")
   }
 
+  invia(){
+    if(this.org_type)
+      this.organization.type = "AFFILIATED"
+  
+    console.log("INVIA / INVIA INVITO - TODO!!!")
+  }
+
+  rifiuta(){
+    console.log("REJECT - TODO!!!")
+
+  }
+
       // •	0 -> REQUESTED
       // •	1 -> ACCREDITED
       // •	2 -> REJECTED
       // •	3 -> INSTRUCTOR_REQUEST
       // •	4 -> INVITED
       // •	5 -> SUSPEND
-  isSuspendable(){
-    return [1, 5].includes(this.organization.state)
+
+  isRequested(){
+    return this.organization.state === "REQUESTED"
   }
 
-  isDeletable(){
-    return this.organization.state == 1
+  isInstructorRequest(){
+    return this.organization.state === "INSTRUCTOR_REQUEST"
   }
 
+  isAccredited(){
+    return this.organization.state === "ACCREDITED"
+  }
+
+  isSuspended(){
+    return this.organization.state === "SUSPENDED"
+  }
+
+  isInvited(){
+    return this.organization.state === "INVITED"
+  }
 
 }
