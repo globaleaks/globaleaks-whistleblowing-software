@@ -599,7 +599,7 @@ class _FileForwarding(Model):
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
+    internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
     file_id = Column(UnicodeText(36), nullable=False, index=True)
     file_origin = Column(Enum(EnumOriginFile), default='internal_file', nullable=False)
 
@@ -614,8 +614,8 @@ class _FileForwarding(Model):
                 initially='DEFERRED'
             ),
             ForeignKeyConstraint(
-                ['internaltip_id'],
-                ['internaltip.id'],
+                ['internaltip_forwarding_id'],
+                ['internaltip_forwarding.id'],
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
