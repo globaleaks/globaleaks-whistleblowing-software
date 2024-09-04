@@ -13,6 +13,12 @@ class EnumUserRole(_Enum):
     receiver = 1
     custodian = 2
     analyst = 3
+    accreditor = 4
+
+
+class EnumUserStatus(_Enum):
+    active = 0
+    suspend = 1
 
 
 class EnumFieldInstance(_Enum):
@@ -38,3 +44,25 @@ class EnumVisibility(_Enum):
     public = 0
     internal = 1
     personal = 2
+    oe = 3
+
+
+class EnumStateFile(_Enum):
+    pending = 0
+    verified = 1
+    infected = 2
+
+
+class EnumSubscriberStatus(_Enum):
+    requested = 0
+    accredited = 1
+    rejected = 2
+    instructor_request = 3
+    invited = 4
+    suspend = 5
+
+
+class EnumOriginFile(_Enum):
+    internal_file = 0
+    receiver_file = 1
+    whistleblower_file = 2
