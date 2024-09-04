@@ -168,9 +168,13 @@
         <ng-template #tab4>
             <div class="col-md-12">
                 <src-selectoe-dropdown [organizations]="organizationList"></src-selectoe-dropdown>
+
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'oe'"></src-tip-upload-wbfile>
+
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
+                        [redactMode]="redactMode" [key]="'oe'"></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>

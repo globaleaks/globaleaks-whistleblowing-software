@@ -42,7 +42,7 @@ export class TipComponent implements OnInit {
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
-  @ViewChild("tab4") tab4!: TemplateRef<SelectOEDropdownComponent | TipCommentsComponent>;
+  @ViewChild("tab4") tab4!: TemplateRef<SelectOEDropdownComponent | TipUploadWbFileComponent | TipCommentsComponent>;
 
   tip_id: string | null;
   tip: RecieverTipData;
