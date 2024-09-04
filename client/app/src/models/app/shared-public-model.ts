@@ -204,3 +204,12 @@ export interface SubmissionStatus {
   status?: string;
   substatus?: string;
 }
+
+
+export interface ForwardedFile {
+  id: string;
+  creation_date: string;
+  name: string;
+  size: number;
+  type: string;
+}

@@ -23,13 +23,15 @@ import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {Forwarding, RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {Receiver} from "@app/models/app/public-model";
 import {TipUploadWbFileComponent} from "@app/shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
+import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
+import { Organization } from "@app/models/reciever/sendtip-data";
 
 
 @Component({
@@ -40,7 +42,7 @@ export class TipComponent implements OnInit {
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
-  @ViewChild("tab4") tab4!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
+  @ViewChild("tab4") tab4!: TemplateRef<SelectOEDropdownComponent | TipCommentsComponent>;
 
   tip_id: string | null;
   tip: RecieverTipData;
@@ -52,6 +54,7 @@ export class TipComponent implements OnInit {
   redactMode:boolean = false;
   redactOperationTitle: string;
   tabs: Tab[];
+  organizationList: Organization[] = [];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -88,10 +91,31 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
+          this.organizationList = this.getForwardedOEList(this.tip.forwardings);
           this.initNavBar()
         }
       }
     );
+  }
+
+  getForwardedOEList(forwardings: Forwarding[]): Organization[]{
+
+    let orgList: Organization[] = [{oe_id: "ALL", name:"All"}]
+
+    if(forwardings){
+      let temp = forwardings.map(obj => {
+        let org = {
+          name: obj.recipient_name,
+          oe_id : obj.tid_recipient
+        }
+        return org;
+      });
+  
+      return orgList.concat(temp);
+    }
+    
+    else return orgList;
+
   }
 
   initNavBar() {
@@ -111,7 +135,7 @@ export class TipComponent implements OnInit {
           component: this.tab3
         },
         {
-          title: "Organization",
+          title: "External Organization",
           component: this.tab4
         },
       ];

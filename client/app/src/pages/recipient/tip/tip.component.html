@@ -110,16 +110,19 @@
             </div>
         </ng-container>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <src-tip-files-receiver [redactMode]="redactMode"></src-tip-files-receiver>
-        </div>
-    </div>
+    
     <div class="row">
         <div class="col-md-12">
             <src-tip-oe-list></src-tip-oe-list>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <src-tip-files-receiver [redactMode]="redactMode"></src-tip-files-receiver>
+        </div>
+    </div>
+
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
         <ng-container *ngFor="let tab of tabs">
             <li [ngbNavItem]="tab.title">
@@ -164,8 +167,7 @@
         </ng-template>
         <ng-template #tab4>
             <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'personal'"></src-tip-upload-wbfile>
+                <src-selectoe-dropdown [organizations]="organizationList"></src-selectoe-dropdown>
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>

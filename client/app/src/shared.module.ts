@@ -95,6 +95,7 @@ import { SendTipFileUploadComponent } from "@app/shared/partials/sendtip-file-up
 import { SendtipDetailFilesComponent } from "@app/shared/partials/sendtip-details-files/sendtip-details-files.component";
 import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
 import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
+import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
 
 @NgModule({
   imports: [
@@ -209,6 +210,7 @@ import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form
     OtkcAccessComponent,
     OperationComponent,
     RedactInformationComponent,
+    SelectOEDropdownComponent,
     DownloadConfirmationComponent,
     OrgInfoComponent,
     OrgRecipientInfoComponent,
@@ -282,6 +284,7 @@ import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form
     OtkcAccessComponent,
     OperationComponent,
     RedactInformationComponent,
+    SelectOEDropdownComponent,
     OrgInfoComponent,
     OrgRecipientInfoComponent,
     OrgAdminInfoComponent,

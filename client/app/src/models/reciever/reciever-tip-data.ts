@@ -5,7 +5,8 @@ import {
   RFile,
   WbFile,
   WhistleblowerIdentity,
-  Comment
+  Comment,
+  ForwardedFile
 } from "@app/models/app/shared-public-model";
 import {IarData} from "@app/models/reciever/Iar-data";
 import {RedactionData} from "@app/models/component-model/redaction";
@@ -48,6 +49,7 @@ export class RecieverTipData {
   tip_id: string;
   motivation: string;
   redactions: RedactionData[];
+  forwardings: Forwarding[];
 }
 
 export interface Questionnaire {
@@ -306,4 +308,12 @@ export interface ReceiversById {
   [key: string]: {
     name: string;
   };
+}
+
+export interface Forwarding {
+  tid_recipient: string;
+  recipient_name: string;
+  creation_date: string;
+  files: ForwardedFile[];
+  comments: string[];
 }
