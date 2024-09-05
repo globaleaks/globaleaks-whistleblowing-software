@@ -34,7 +34,7 @@ from globaleaks.handlers import admin, \
                                 user, \
                                 viewer, \
                                 wizard, \
-                                whistleblower
+    whistleblower, accreditation
 
 from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
@@ -140,6 +140,9 @@ api_spec = [
     (r'/api/admin/statuses/' + uuid_regexp + r'/substatuses', admin.submission_statuses.SubmissionSubStatusCollection),
     (r'/api/admin/statuses/' + r'(closed)' + r'/substatuses/' + uuid_regexp, admin.submission_statuses.SubmissionSubStatusInstance),
     (r'/api/admin/statuses/' + uuid_regexp + r'/substatuses/' + uuid_regexp, admin.submission_statuses.SubmissionSubStatusInstance),
+
+    # Accreditation
+    (r'/accreditation', accreditation.SubmitAccreditationHandler),
 
     # Services
     (r'/api/support', support.SupportHandler),

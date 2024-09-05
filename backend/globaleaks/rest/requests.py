@@ -525,6 +525,24 @@ SignupDesc = {
     'tos2': bool
 }
 
+SubmitAccreditation = {
+    'organization_name': str
+}
+"""
+    'organization_email': email_regexp,
+    'organization_site': hostname_regexp_or_empty,
+    'admin_name': alphanumeric_str_regexp,
+    'admin_surname': alphanumeric_str_regexp,
+    'admin_email': email_regexp,
+    'receiver_name': alphanumeric_str_regexp,
+    'receiver_surname': alphanumeric_str_regexp,
+    'receiver_tax_code': alphanumeric_str_regexp,
+    'receiver_email': email_regexp,
+    
+    'tos1': bool,
+    'tos2': bool
+"""
+
 SupportDesc = {
     'mail_address': email_regexp,
     'url': url_regexp_or_empty,
