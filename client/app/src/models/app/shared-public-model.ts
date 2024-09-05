@@ -161,7 +161,7 @@ export interface RFile {
   error: boolean;
   author: string;
   downloads: number;
-  status: string;
+  state: string;
   isLoading: boolean;
 }
 
