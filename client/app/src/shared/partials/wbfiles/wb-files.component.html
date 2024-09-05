@@ -8,13 +8,8 @@
             </span>
             <span *ngIf="!wbFile.isLoading" class="float-end">
                 <span>
-                    <!-- <span class="download-button btn btn-sm btn-primary"                     
-                    (click)="downloadWBFile(wbFile)">
-                        <i class="fa-solid fa-download"></i>
-                    </span> -->
-
                     <button class="btn btn-sm btn-primary tip-action-download-file" 
-                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.state ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
+                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.state ==='PENDING' || (wbFile.state ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)">
                         <i class="fa-solid fa-download"></i>
                     </button>
 

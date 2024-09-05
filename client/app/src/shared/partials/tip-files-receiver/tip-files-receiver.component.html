@@ -30,13 +30,13 @@
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                            [disabled]="!utilsService.supportedViewTypes.includes(file.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(file)">
+                            [disabled]="!utilsService.supportedViewTypes.includes(file.type) || file.status ==='PENDING' || file.status ==='INFECTED'" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" 
-                            (click)="utilsService.downloadRFile(file)" [disabled]="file.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected">
+                            (click)="utilsService.downloadRFile(file)" [disabled]="file.status ==='PENDING' || (file.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)">
                                 <i class="fa-solid fa-download"></i>
                             </button>
                             <span *ngIf="redactMode">
