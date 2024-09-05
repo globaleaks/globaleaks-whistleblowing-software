@@ -49,7 +49,7 @@ export class TipUploadWbFileComponent {
         error: false,
         author: '',
         downloads: 0,
-        state: 'uploading',
+        status: 'PENDING',
         isLoading: true
       };
       this.tip.rfiles.push(this.recentFile);

@@ -9,7 +9,7 @@
             <span *ngIf="!wbFile.isLoading" class="float-end">
                 <span>
                     <button class="btn btn-sm btn-primary tip-action-download-file" 
-                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.state ==='PENDING' || (wbFile.state ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)">
+                        (click)="downloadWBFile(wbFile)" [disabled]="wbFile.status ==='PENDING' || (wbFile.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)">
                         <i class="fa-solid fa-download"></i>
                     </button>
 
@@ -58,7 +58,7 @@
                 <div>
                     <span>{{'Verification Status'| translate}}</span>:
                     <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
-                        <span>{{wbFile.state | translate}}</span>
+                        <span>{{wbFile.status | translate}}</span>
                     </ng-container>
                 </div>
             </ng-container>
@@ -84,7 +84,7 @@
                     </span>
                 </div>
                 <div>
-                    <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.state | translate}}</span>
+                    <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.status | translate}}</span>
                 </div>
             </ng-template>
         </div>
