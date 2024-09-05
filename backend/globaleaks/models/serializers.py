@@ -6,8 +6,9 @@ from datetime import datetime
 
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import transact
+from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
+from globaleaks.utils.log import log
 from sqlalchemy import or_, not_
 
 
@@ -310,6 +311,28 @@ def serialize_rtip(session, itip, rtip, language):
                                   or_(models.Comment.visibility != 2,
                                       models.Comment.author_id == user_id)):
         ret['comments'].append(serialize_comment(session, comment))
+
+    forwardings = []
+    internaltip_forwardings = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip.id).all()
+    for internaltip_forwarding in internaltip_forwardings:
+        forwarding = dict()
+        forwarding['tid'] = internaltip_forwarding.tid
+        forwarding['name'] = db_get(session, models.Config, (models.Config.tid == internaltip_forwarding.tid, models.Config.var_name == 'name')).value
+        forwarding['creation_date'] = internaltip_forwarding.creation_date
+        contents = db_query(session, models.ContentForwarding, models.ContentForwarding.internaltip_forwarding_id == internaltip_forwarding.id).all()
+        files = []
+        comments = []
+        for content in contents:
+            if content.content_origin == models.EnumContentForwarding.comment.name:
+                comments.append(content.content_id)
+            elif content.content_origin == models.EnumContentForwarding.internal_file.name:
+                files.append(content.content_id)
+            elif content.content_origin == models.EnumContentForwarding.receiver_file.name:
+                files.append(content.content_id)
+        forwarding['files'] = files
+        forwarding['comments'] = comments
+        forwardings.append(forwarding)
+    ret['forwardings'] = forwardings
 
     return ret
 

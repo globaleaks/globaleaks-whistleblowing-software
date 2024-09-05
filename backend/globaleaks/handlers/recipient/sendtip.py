@@ -83,11 +83,12 @@ class ForwardSubmission(BaseHandler):
         
         return new_file
     
-    def add_file_forwarding(self, session, internaltip_forwarding_id, file):
+    def add_file_forwarding(self, session, internaltip_forwarding_id, file, original_file_id):
 
         file_forwarding = models.ContentForwarding()
         file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
-        file_forwarding.content_id = file.id
+        file_forwarding.oe_content_id = file.id
+        file_forwarding.content_id = original_file_id
         if isinstance(file, models.ReceiverFile):  
             file_forwarding.content_origin = models.EnumContentForwarding.receiver_file.value
         elif isinstance(file, models.InternalFile):
@@ -107,6 +108,7 @@ class ForwardSubmission(BaseHandler):
         internaltip_forwarding.update_date = forwarded_itip.update_date
         internaltip_forwarding.data = data
         internaltip_forwarding.questionnaire_id = questionnaire_id
+        internaltip_forwarding.state = models.EnumForwardingState.open.value
         session.add(internaltip_forwarding)
         
         return internaltip_forwarding
@@ -166,7 +168,12 @@ class ForwardSubmission(BaseHandler):
         original_itip_private_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
         
         for tid in request['tid']:
-            
+            previous_forwarding = session.query(models.InternalTipForwarding)\
+                .filter(models.InternalTipForwarding.tid == tid, models.InternalTipForwarding.internaltip_id == itip.id)\
+                    .one_or_none()
+            if(previous_forwarding is not None):
+                raise errors.InputValidationError("Forwarding already present for one or more selected tenants")
+
             steps = self.validate_steps(session, tid, request['questionnaire_id'])
             answers = self.set_answer(request['text'], steps)
             questionnaire_hash = db_archive_questionnaire_schema(session, steps)
@@ -212,7 +219,7 @@ class ForwardSubmission(BaseHandler):
             internaltip_forwarding = self.add_internaltip_forwarding(session, tid, itip_id, forwarded_itip, crypto_forwarded_answers, request['questionnaire_id'])
             for file in request['files']:
                 copied_file = self.copy_file(session, tid, forwarded_itip, file, original_itip_private_key)
-                self.add_file_forwarding(session, internaltip_forwarding.id, copied_file)
+                self.add_file_forwarding(session, internaltip_forwarding.id, copied_file, file['id'])
 
         return serializers.serialize_itip(session, forwarded_itip, user.language)
     
