@@ -168,7 +168,7 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'status': ifile.state,
+        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
         'verification_date': ifile.verification_date,
         'error': error
     }
@@ -193,7 +193,7 @@ def serialize_rfile(session, rfile):
         'description': rfile.description,
         'visibility': rfile.visibility,
         'error': error,
-        'state': rfile.state,
+        'status': "PENDING" if rfile.state is None or rfile.state == '' else rfile.state.upper(),
         'verification_date': rfile.verification_date
     }
 
