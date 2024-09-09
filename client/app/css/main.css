@@ -1134,3 +1134,8 @@ i.fa-solid.fa-chevron-right {
 .underline {
   text-decoration: underline;
 }
+
+
+#AccreditationRequestPrivacy div {
+  margin-bottom: 0.5em;
+}
