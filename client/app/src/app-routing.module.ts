@@ -129,7 +129,7 @@ const routes: Routes = [
     loadChildren: () => import("./pages/wizard/wizard-routing.module").then(m => m.WizardRoutingModule)
   },
   {
-    path: "accred",
+    path: "accreditation-request",
     data: {pageTitle: "Accreditation"},
     resolve: {
       PreferenceResolver,
