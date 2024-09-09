@@ -107,13 +107,16 @@
     <div class="row">
         <div class="col-md-12">
             <div class="form-group">
-                <div class="title">{{ 'Privacy Policy' | translate }}</div>
-                <div class="tos-text">{{ privacyPolicy | translate }}</div>
+                <a *ngIf="appDataService.public.node.footer_privacy_policy" href="{{appDataService.public.node.footer_privacy_policy}}">{{'Privacy Policy'}}</a>
                 <div class="form-check">
                     <input name="privacyAccept" class="tos-agreement-input inputelem" type="checkbox" [(ngModel)]="privacyAccept" required>
                     <span class="tos-agreement-label form-check-label" [ngClass]="{'text-danger': !privacyAccept}">{{ 'I have read and agree to the privacy policy.' | translate }}</span>
+                    <br>
+                    <span class="tos-agreement-label form-check-label" >{{ 'Una volta inoltrata la richiesta di accreditamento riceverai una notifica via email.' | translate }}</span>
                 </div>
             </div>
+
+            
         </div>
     </div>
     <br>

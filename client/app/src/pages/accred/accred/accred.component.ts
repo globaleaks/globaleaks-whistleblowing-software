@@ -39,7 +39,7 @@ export class AccredComponent implements OnInit {
   privacyAccept = false;
   privacyPolicy = 'Your privacy policy text here...';
 
-  constructor(private authentication: AuthenticationService, public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal) {}
+  constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal) {}
 
   ngOnInit() {
     this.adminInfo.fiscalCode = this.getFiscalCodeFromIdp();
