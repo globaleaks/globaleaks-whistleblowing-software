@@ -16,9 +16,7 @@ class Token(object):
         self.creation_date = datetime_now()
 
     def serialize(self):
-        otp = CryptoOTP()
         return {
-            # 'id': f"{self.id.decode()}:{otp.exec(self.id.decode())}",
             'id': self.id.decode(),
             'creation_date': self.creation_date,
             'complexity': 4
@@ -61,40 +59,3 @@ class TokenList(TempDict):
             raise errors.InternalServerError("TokenFailure: Invalid token")
 
         return token
-
-import hashlib
-import asyncio
-class CryptoOTP:
-    def __init__(self):
-        self.data = ""
-        self.counter = 0
-
-    def calculate_hash(self, hash_bytes: bytes) -> int:
-        # Verifica se l'ultimo byte dell'hash è 0
-        if hash_bytes[-1] == 0:
-            return self.counter
-        else:
-            self.counter += 1
-            return None  # Indica che è necessario continuare a lavorare
-
-    @staticmethod
-    def convert_string(string: str) -> bytes:
-        # Converte una stringa in un array di byte
-        return string.encode('utf-8')
-
-    def search_collision(self) -> int:
-        # Loop asincrono per trovare il valore che soddisfa la condizione
-        while True:
-            to_hash = self.convert_string(self.data + str(self.counter))
-            hash_result = hashlib.sha256(to_hash).digest()
-
-            result = self.calculate_hash(hash_result)
-            if result is not None:
-                return result  # Hash valido trovato
-
-    def exec(self, data: str) -> int:
-        # Inizializza i dati e il contatore
-        self.data = data
-        self.counter = 0
-
-        return self.search_collision()
