@@ -142,7 +142,7 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'status': ifile.state,
+        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
         'verification_date': ifile.verification_date,
         'error': error
     }
