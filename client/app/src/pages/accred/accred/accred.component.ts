@@ -5,8 +5,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataService } from "@app/app-data.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
+import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
-import { AccreditationModel } from "@app/models/resolvers/accreditation-model";
 
 @Component({
   selector: "app-login",
@@ -71,14 +71,25 @@ export class AccredComponent implements OnInit {
   }
 
 
-  buildAccreditationRequest() : AccreditationModel{
+  buildAccreditationRequest() : AccreditationSubscriberModel{
 
-    let request: AccreditationModel = new AccreditationModel();
+    let request: AccreditationSubscriberModel = new AccreditationSubscriberModel();
 
-    request.admin = this.adminInfo;
-    request.check_privacy = this.privacyAccept;
-    request.external_organization = this.organizationInfo;
-    request.primary_receiver = this.receiverInfo;
+    request.admin_email = this.adminInfo.email
+    request.admin_name = this.adminInfo.name
+    request.admin_surname = this.adminInfo.surname
+
+    request.organization_email = this.organizationInfo.pec
+    request.organization_name = this.organizationInfo.denomination
+    request.organization_institutional_site = this.organizationInfo.institutional_site
+
+    request.name = this.receiverInfo.name
+    request.surname = this.receiverInfo.surname
+    request.email = this.receiverInfo.email
+    request.recipient_fiscal_code = this.receiverInfo.fiscal_code
+
+    request.tos1 = true;
+    request.tos2 = false;
 
     return request;
  
