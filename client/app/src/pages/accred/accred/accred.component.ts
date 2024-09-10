@@ -6,6 +6,7 @@ import { AppDataService } from "@app/app-data.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
 import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
+import { AccreditationModel } from "@app/models/resolvers/accreditation-model";
 
 @Component({
   selector: "app-login",
@@ -33,7 +34,7 @@ export class AccredComponent implements OnInit {
     surname: ''
   };
 
-  recipientInfo: EOPrimaryReceiver = {
+  receiverInfo: EOPrimaryReceiver = {
     name: '',
     surname: '',
     fiscal_code: '',
@@ -67,5 +68,19 @@ export class AccredComponent implements OnInit {
     if (this.privacyAccept && this.pecsMatch) {
       this.openConfirmModal();
     }
+  }
+
+
+  buildAccreditationRequest() : AccreditationModel{
+
+    let request: AccreditationModel = new AccreditationModel();
+
+    request.admin = this.adminInfo;
+    request.check_privacy = this.privacyAccept;
+    request.external_organization = this.organizationInfo;
+    request.primary_receiver = this.receiverInfo;
+
+    return request;
+ 
   }
 }
