@@ -16,24 +16,24 @@ from twisted.web.server import NOT_DONE_YET
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.handlers import admin, \
-                                analyst, \
-                                auth, \
-                                custodian, \
-                                file, \
-                                health, \
-                                l10n, \
-                                public, \
-                                recipient, \
-                                redirect, \
-                                robots, \
-                                security, \
-                                signup, \
-                                sitemap, \
-                                staticfile, \
-                                support, \
-                                user, \
-                                viewer, \
-                                wizard, \
+    analyst, \
+    auth, \
+    custodian, \
+    file, \
+    health, \
+    l10n, \
+    public, \
+    recipient, \
+    redirect, \
+    robots, \
+    security, \
+    signup, \
+    sitemap, \
+    staticfile, \
+    support, \
+    user, \
+    viewer, \
+    wizard, \
     whistleblower, accreditation
 
 from globaleaks.rest import decorators, errors
@@ -142,7 +142,9 @@ api_spec = [
     (r'/api/admin/statuses/' + uuid_regexp + r'/substatuses/' + uuid_regexp, admin.submission_statuses.SubmissionSubStatusInstance),
 
     # Accreditation
-    (r'/accreditation', accreditation.SubmitAccreditationHandler),
+    (r'/api/accreditation', accreditation.SubmitAccreditationHandler),
+    (r'/api/accreditation/all', accreditation.GetAllAccreditationHandler),
+    (r'/api/accreditation/' + uuid_regexp, accreditation.AccreditationHandler),
 
     # Services
     (r'/api/support', support.SupportHandler),
