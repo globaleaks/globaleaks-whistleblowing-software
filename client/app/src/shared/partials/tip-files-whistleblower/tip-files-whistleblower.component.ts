@@ -17,7 +17,7 @@ export class TipFilesWhistleblowerComponent {
   @Input() fileUploadUrl: string;
   collapsed = false;
 
-  constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, protected wbTipService: WbtipService, protected preferenceResolver:PreferenceResolver) {
+  constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, protected wbTipService: WbtipService) {
   }
 
   downloadWBFile(wbFile: WbFile) {
