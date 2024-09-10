@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataService } from "@app/app-data.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
+import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
+import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
 
 @Component({
   selector: "app-login",
@@ -18,20 +20,24 @@ export class AccredComponent implements OnInit {
   protected readonly location = location;
   protected readonly Constants = Constants;
 
-  organizationInfo = {
+  pecConfirmed: string;
+
+  organizationInfo: ExternalOrganization = {
     denomination: '',
     pec: '',
-    confirmPec: '',
-    institutionalWebsite: ''
+    institutional_site: ''
   };
-  adminInfo = {
+
+  adminInfo: EOAdmin = {
     name: '',
     email: '',
-    fiscalCode: ''
+    surname: ''
   };
-  recipientInfo = {
+
+  receiverInfo: EOPrimaryReceiver = {
     name: '',
-    fiscalCode: '',
+    surname: '',
+    fiscal_code: '',
     email: ''
   };
 
@@ -42,15 +48,11 @@ export class AccredComponent implements OnInit {
   constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal) {}
 
   ngOnInit() {
-    this.adminInfo.fiscalCode = this.getFiscalCodeFromIdp();
   }
 
-  private getFiscalCodeFromIdp(): string {
-    return 'sample-fiscal-code';
-  }
 
   checkPecsMatch() {
-    this.pecsMatch = this.organizationInfo.pec === this.organizationInfo.confirmPec;
+    this.pecsMatch = this.organizationInfo.pec === this.pecConfirmed;
   }
 
   closeModal(modal: any) {
@@ -66,5 +68,30 @@ export class AccredComponent implements OnInit {
     if (this.privacyAccept && this.pecsMatch) {
       this.openConfirmModal();
     }
+  }
+
+
+  buildAccreditationRequest() : AccreditationSubscriberModel{
+
+    let request: AccreditationSubscriberModel = new AccreditationSubscriberModel();
+
+    request.admin_email = this.adminInfo.email
+    request.admin_name = this.adminInfo.name
+    request.admin_surname = this.adminInfo.surname
+
+    request.organization_email = this.organizationInfo.pec
+    request.organization_name = this.organizationInfo.denomination
+    request.organization_institutional_site = this.organizationInfo.institutional_site
+
+    request.name = this.receiverInfo.name
+    request.surname = this.receiverInfo.surname
+    request.email = this.receiverInfo.email
+    request.recipient_fiscal_code = this.receiverInfo.fiscal_code
+
+    request.tos1 = true;
+    request.tos2 = false;
+
+    return request;
+ 
   }
 }

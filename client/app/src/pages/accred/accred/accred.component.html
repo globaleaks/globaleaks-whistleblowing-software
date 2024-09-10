@@ -36,7 +36,7 @@
                             <span>{{'Confirm PEC'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="confirmPec" class="form-control" [placeholder]="'Confirm PEC' | translate" type="email" [(ngModel)]="organizationInfo.confirmPec" (ngModelChange)="checkPecsMatch()" [pattern]="Constants.emailRegexp" required #confirmPec="ngModel">
+                        <input name="confirmPec" class="form-control" [placeholder]="'Confirm PEC' | translate" type="email" [(ngModel)]="pecConfirmed" (ngModelChange)="checkPecsMatch()" [pattern]="Constants.emailRegexp" required #confirmPec="ngModel">
                         <div class="text-danger" *ngIf="confirmPec.errors?.['pattern']">{{'Invalid PEC format' | translate}}</div>
                         <div class="text-danger" *ngIf="!pecsMatch">{{'PEC and Confirm PEC must match' | translate}}</div>
                     </div>
@@ -44,22 +44,28 @@
                         <label>
                             <span>{{'Institutional website'|translate}}</span>
                         </label>
-                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.institutionalWebsite">
+                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.institutional_site">
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <!-- <src-org-admin-info></src-org-admin-info> -->
             <div class="card">
                 <div class="card-header">{{ 'Admin info' | translate }}</div>
                 <div class="card-body text-left">
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label>
-                            <span>{{'Name and last name'|translate}}</span>
+                            <span>{{'Name'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="adminInfo.name" required>
+                        <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required>
+                    </div>
+                    <div class="form-group" ngModelGroup="adminInfo">
+                        <label>
+                            <span>{{'Surname'|translate}}</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required>
                     </div>
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label>
@@ -73,30 +79,37 @@
             </div>
         </div>
         <div class="col-md-4">
-            <!-- <src-org-recipient-info></src-org-recipient-info> -->
             <div class="card">
                 <div class="card-header">{{ 'Primary recipient info' | translate }}</div>
                 <div class="card-body text-left">
-                    <div class="form-group" ngModelGroup="recipientInfo">
+                    <div class="form-group" ngModelGroup="receiverInfo">
                         <label>
-                            <span>{{'Name and last name'|translate}}</span>
+                            <span>{{'Name'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="recipientInfo.name" required>
+                        <input name="recipientName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="receiverInfo.name" required>
                     </div>
-                    <div class="form-group" ngModelGroup="recipientInfo">
+                    <div class="form-group" ngModelGroup="receiverInfo">
+                        <label>
+                            <span>{{'Surname'|translate}}</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input name="recipientSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="receiverInfo.surname" required>
+                    </div>
+                    <div class="form-group" ngModelGroup="receiverInfo">
                         <label>
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscalCode" required>
+                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="receiverInfo.fiscal_code" required #recipientFiscalCode="ngModel">
+                        <div class="text-danger" *ngIf="recipientFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
-                    <div class="form-group" ngModelGroup="recipientInfo">
+                    <div class="form-group" ngModelGroup="receiverInfo">
                         <label>
                             <span>{{'Email'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="recipientInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel">
+                        <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="receiverInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel">
                         <div class="text-danger" *ngIf="recipientEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
                     </div>
                 </div>
