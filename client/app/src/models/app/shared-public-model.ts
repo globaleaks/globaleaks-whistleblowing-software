@@ -210,3 +210,24 @@ export interface EOUser {
   tips: number;
   closed_tips: number;
 }
+
+
+export interface ExternalOrganization {
+  denomination: string;
+  pec: string;
+  institutional_site: string;
+}
+
+
+export interface EOAdmin {
+  name: string;
+  surname: string;
+  email: string;
+}
+
+export interface EOPrimaryReceiver {
+  name: string;
+  surname: string;
+  email: string;
+  fiscal_code: string;
+}
