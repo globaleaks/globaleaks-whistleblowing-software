@@ -6,6 +6,7 @@ import * as Flow from "@flowjs/flow.js";
 import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import { RFile } from "@app/models/app/shared-public-model";
+import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
   selector: "src-tip-upload-wbfile",
@@ -24,7 +25,7 @@ export class TipUploadWbFileComponent {
 
   recentFile: RFile;
 
-  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
+  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService, protected preferenceResolver:PreferenceResolver) {
 
   }
 

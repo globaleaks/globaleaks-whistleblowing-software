@@ -25,7 +25,7 @@
                     <td>{{ file.status}}</td>
                     <td *ngIf="wbTipService.tip.enable_whistleblower_download">
                         <button class="btn btn-sm btn-primary tip-action-download-file"
-                                [disabled]="file.error || file.status === 'PENDING' || (file.status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)"
+                                [disabled]="file.error || file.status === 'PENDING' || file.status ==='INFECTED'"
                                 data-toggle="tooltip" title="{{'Download' | translate}}"
                                 (click)="downloadWBFile(file)">
                             <i class="fa-solid fa-download"></i>
