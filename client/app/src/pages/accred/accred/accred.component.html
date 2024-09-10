@@ -36,7 +36,7 @@
                             <span>{{'Confirm PEC'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="confirmPec" class="form-control" [placeholder]="'Confirm PEC' | translate" type="email" [(ngModel)]="organizationInfo.confirmPec" (ngModelChange)="checkPecsMatch()" [pattern]="Constants.emailRegexp" required #confirmPec="ngModel">
+                        <input name="confirmPec" class="form-control" [placeholder]="'Confirm PEC' | translate" type="email" [(ngModel)]="pecConfirmed" (ngModelChange)="checkPecsMatch()" [pattern]="Constants.emailRegexp" required #confirmPec="ngModel">
                         <div class="text-danger" *ngIf="confirmPec.errors?.['pattern']">{{'Invalid PEC format' | translate}}</div>
                         <div class="text-danger" *ngIf="!pecsMatch">{{'PEC and Confirm PEC must match' | translate}}</div>
                     </div>
@@ -44,13 +44,12 @@
                         <label>
                             <span>{{'Institutional website'|translate}}</span>
                         </label>
-                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.institutionalWebsite">
+                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.institutional_site">
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <!-- <src-org-admin-info></src-org-admin-info> -->
             <div class="card">
                 <div class="card-header">{{ 'Admin info' | translate }}</div>
                 <div class="card-body text-left">
@@ -89,7 +88,8 @@
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscalCode" required>
+                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="recipientInfo.fiscal_code" required #recipientFiscalCode="ngModel">
+                        <div class="text-danger" *ngIf="recipientFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
                     <div class="form-group" ngModelGroup="recipientInfo">
                         <label>

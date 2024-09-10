@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataService } from "@app/app-data.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
+import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
 
 @Component({
   selector: "app-login",
@@ -18,20 +19,24 @@ export class AccredComponent implements OnInit {
   protected readonly location = location;
   protected readonly Constants = Constants;
 
-  organizationInfo = {
+  pecConfirmed: string;
+
+  organizationInfo: ExternalOrganization = {
     denomination: '',
     pec: '',
-    confirmPec: '',
-    institutionalWebsite: ''
+    institutional_site: ''
   };
-  adminInfo = {
+
+  adminInfo: EOAdmin = {
     name: '',
     email: '',
-    fiscalCode: ''
+    surname: ''
   };
-  recipientInfo = {
+
+  recipientInfo: EOPrimaryReceiver = {
     name: '',
-    fiscalCode: '',
+    surname: '',
+    fiscal_code: '',
     email: ''
   };
 
@@ -42,15 +47,11 @@ export class AccredComponent implements OnInit {
   constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal) {}
 
   ngOnInit() {
-    this.adminInfo.fiscalCode = this.getFiscalCodeFromIdp();
   }
 
-  private getFiscalCodeFromIdp(): string {
-    return 'sample-fiscal-code';
-  }
 
   checkPecsMatch() {
-    this.pecsMatch = this.organizationInfo.pec === this.organizationInfo.confirmPec;
+    this.pecsMatch = this.organizationInfo.pec === this.pecConfirmed;
   }
 
   closeModal(modal: any) {
