@@ -25,7 +25,9 @@
                     <tr id="file-{{index}}" *ngIf="(file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
                         <td>{{ file.name }}</td>
                         <td [ngClass]="{'centered-text': file.status ==='LOADING'}">
-                            <div *ngIf="file.status !== 'LOADING'">{{ file.status }}</div>
+                            <div *ngIf="file.status !== 'LOADING'">
+                                {{ (file.status === 'PENDING' && file.is_scan_expired) ? 'SCAN EXPIRED' : file.status }}
+                            </div>
                             <i class="fa fa-spinner fa-spin" *ngIf="file.status ==='LOADING'"></i>
                         </td>
                         <td>
