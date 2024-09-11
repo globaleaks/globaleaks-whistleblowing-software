@@ -83,7 +83,8 @@ def serialize_element(accreditation_item, count_tip, count_user, t):
         'denomination': accreditation_item.organization_name,
         'type': "NOT_AFFILIATED" if t.affiliated is None or t.affiliated == '' else t.affiliated.upper(),
         'accreditation_date': accreditation_item.creation_date,
-        'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(accreditation_item.state).name,
+        'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
+            accreditation_item.state).name,
         'num_user_profiled': list(count_user)[0] + 2,
         'num_tip': list(count_tip)[0]
     }
@@ -224,3 +225,7 @@ class AccreditationHandler(BaseHandler):
 
     def delete(self, accreditation_id: str):
         return delete_accreditation_by_id(accreditation_id)
+
+
+class AccreditationConfirmHandler(BaseHandler):
+    pass
