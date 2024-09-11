@@ -7,6 +7,7 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
+import { UtilsService } from "@app/shared/services/utils.service";
 
 @Component({
   selector: "app-login",
@@ -45,7 +46,7 @@ export class AccredComponent implements OnInit {
   privacyAccept = false;
   privacyPolicy = 'Your privacy policy text here...';
 
-  constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal) {}
+  constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService) {}
 
   ngOnInit() {
   }
@@ -66,9 +67,12 @@ export class AccredComponent implements OnInit {
 
   onSubmit() {
     if (this.privacyAccept && this.pecsMatch) {
-      this.openConfirmModal();
+      this.utilsService.submitAccreditationRequest(this.buildAccreditationRequest()).subscribe(_ => {
+        this.openConfirmModal();
+      });
     }
   }
+
 
 
   buildAccreditationRequest() : AccreditationSubscriberModel{

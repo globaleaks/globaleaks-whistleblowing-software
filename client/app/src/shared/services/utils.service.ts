@@ -32,6 +32,7 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 @Injectable({
   providedIn: "root"
 })
@@ -349,6 +350,10 @@ export class UtilsService {
       "url": window.location.href.replace("localhost", "127.0.0.1")
     });
     this.httpService.requestSupport(param).subscribe();
+  }
+
+  submitAccreditationRequest(request: AccreditationSubscriberModel){
+    return this.httpService.requestAccreditationOE(request);
   }
 
   runUserOperation(operation: string, args: any, refresh: boolean) {
