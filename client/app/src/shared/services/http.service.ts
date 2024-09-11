@@ -35,6 +35,7 @@ import {IarData} from "@app/models/reciever/Iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import { RedactionData } from "@app/models/component-model/redaction";
+import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 
 
 @Injectable({
@@ -425,6 +426,10 @@ export class HttpService {
 
   requestUpdateRedaction(data:RedactionData): Observable<RedactionData> {
     return this.httpClient.put<RedactionData>("api/recipient/redactions/"+ data.id, data);
+  }
+
+  requestAccreditationOE(data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
+    return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request", data);
   }
 
   runOperation(url: string, operation: string, args: any, refresh: boolean) {
