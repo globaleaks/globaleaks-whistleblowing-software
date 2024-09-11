@@ -83,7 +83,8 @@ def serialize_element(accreditation_item, count_tip, count_user, t):
         'denomination': accreditation_item.organization_name,
         'type': "NOT_AFFILIATED" if t.affiliated is None or t.affiliated == '' else t.affiliated.upper(),
         'accreditation_date': accreditation_item.creation_date,
-        'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(accreditation_item.state).name,
+        'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
+            accreditation_item.state).name,
         'num_user_profiled': list(count_user)[0] + 2,
         'num_tip': list(count_tip)[0]
     }
@@ -205,3 +206,26 @@ class GetAllAccreditationHandler(BaseHandler):
     def get(self):
         return get_all_accreditation()
 
+
+class AccreditationHandler(BaseHandler):
+    """
+    This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def get(self, accreditation_id: str):
+        return get_accreditation_by_id(accreditation_id)
+
+    def put(self, accreditation_id: str):
+        payload = self.request.content.read().decode('utf-8')
+        data = json.loads(payload) if not (payload == '' or payload is None) else {}
+        return update_accreditation_by_id(accreditation_id, data)
+
+    def delete(self, accreditation_id: str):
+        return delete_accreditation_by_id(accreditation_id)
+
+
+class AccreditationConfirmHandler(BaseHandler):
+    pass

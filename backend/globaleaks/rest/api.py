@@ -142,9 +142,10 @@ api_spec = [
     (r'/api/admin/statuses/' + uuid_regexp + r'/substatuses/' + uuid_regexp, admin.submission_statuses.SubmissionSubStatusInstance),
 
     # Accreditation
-    (r'/api/accreditation', accreditation.SubmitAccreditationHandler),
+    (r'/api/accreditation/request', accreditation.SubmitAccreditationHandler),
     (r'/api/accreditation/all', accreditation.GetAllAccreditationHandler),
-    (r'/api/accreditation/' + uuid_regexp, accreditation.AccreditationHandler),
+    (r'/api/accreditation/request/' + uuid_regexp, accreditation.AccreditationHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/accredited', accreditation.AccreditationConfirmHandler),
 
     # Services
     (r'/api/support', support.SupportHandler),
