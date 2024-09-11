@@ -148,6 +148,8 @@ export interface WbFile {
   reference_id: string;
   error: boolean;
   status: string;
+  verification_date: string;
+  is_scan_expired: boolean;
 }
 
 export interface RFile {
