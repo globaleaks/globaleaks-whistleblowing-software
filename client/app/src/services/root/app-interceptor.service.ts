@@ -23,7 +23,8 @@ const protectedUrls = [
   "api/auth/authentication",
   "api/user/reset/password",
   "api/recipient/rtip",
-  "api/support"
+  "api/support",
+  "api/accreditation/request"
 ];
 
 @Injectable()
