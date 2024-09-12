@@ -99,7 +99,7 @@ def get_all_accreditation(session):
             count_tip, count_user = count_user_tip(session, accreditation_item)
             element = serialize_element(accreditation_item, count_tip, count_user, t)
             request_accreditation.append(element)
-        return {i: request_accreditation[i] for i in range(len(request_accreditation))}
+        return request_accreditation
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError
@@ -223,9 +223,15 @@ class AccreditationHandler(BaseHandler):
         data = json.loads(payload) if not (payload == '' or payload is None) else {}
         return update_accreditation_by_id(accreditation_id, data)
 
-    def delete(self, accreditation_id: str):
-        return delete_accreditation_by_id(accreditation_id)
-
 
 class AccreditationConfirmHandler(BaseHandler):
     pass
+
+
+class AccreditationRejectHandler(BaseHandler):
+    check_roles = 'any'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def delete(self, accreditation_id: str):
+        return delete_accreditation_by_id(accreditation_id)
