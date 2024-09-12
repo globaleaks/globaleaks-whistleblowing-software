@@ -146,6 +146,7 @@ api_spec = [
     (r'/api/accreditation/all', accreditation.GetAllAccreditationHandler),
     (r'/api/accreditation/request/' + uuid_regexp, accreditation.AccreditationHandler),
     (r'/api/accreditation/request/' + uuid_regexp + r'/accredited', accreditation.AccreditationConfirmHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/rejected', accreditation.AccreditationRejectHandler),
 
     # Services
     (r'/api/support', support.SupportHandler),
