@@ -59,6 +59,7 @@ ConfigDescriptor = {
     'escrow': Bool(default=False),
     'hostname': Unicode(default=''),
     'https_admin': Bool(default=True),
+    'https_accreditor': Bool(default=True),
     'https_analyst': Bool(default=True),
     'https_cert': Unicode(),
     'https_chain': Unicode(),
@@ -149,6 +150,7 @@ ConfigFilters = {
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor',
         'https_custodian',
         'https_enabled',
         'https_receiver',
@@ -252,6 +254,7 @@ ConfigFilters = {
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor'
         'https_custodian',
         'https_receiver',
         'https_whistleblower',
