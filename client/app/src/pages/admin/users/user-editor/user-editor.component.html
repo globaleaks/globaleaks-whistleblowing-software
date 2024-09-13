@@ -8,6 +8,7 @@
                     <span *ngSwitchCase="'receiver'">{{ 'Recipient' | translate }}</span>
                     <span *ngSwitchCase="'custodian'">{{ 'Custodian' | translate }}</span>
                     <span *ngSwitchCase="'analyst'">{{ 'Analyst' | translate }}</span>
+                    <span *ngSwitchCase="'accreditor'">{{ 'Accreditation Manager' | translate }}</span>
                 </ng-container>
             </span>
             <span class="badge bg-secondary" *ngIf="!user.enabled">{{ 'Disabled' | translate }}</span>

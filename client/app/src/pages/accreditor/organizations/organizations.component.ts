@@ -55,7 +55,6 @@ export class OrganizationsComponent implements OnInit{
     if (typeof value !== "undefined") {
       this.currentPage = 1;
       this.filteredReqs = this.AReqs.dataModel;
-      // this.processTips();
 
       this.filteredReqs = orderBy(filter(this.filteredReqs, (req) =>
         Object.values(req).some((val) => {
