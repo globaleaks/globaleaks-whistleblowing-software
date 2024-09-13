@@ -1,5 +1,4 @@
-import { Component, OnInit, ViewChild, TemplateRef } from "@angular/core";
-import { AuthenticationService } from "@app/services/helper/authentication.service";
+import { Component, ViewChild, TemplateRef } from "@angular/core";
 import { Constants } from "@app/shared/constants/constants";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AppDataService } from "@app/app-data.service";
@@ -13,7 +12,7 @@ import { UtilsService } from "@app/shared/services/utils.service";
   selector: "app-login",
   templateUrl: "./accred.component.html"
 })
-export class AccredComponent implements OnInit {
+export class AccredComponent {
   @ViewChild("accredForm") public accredForm: NgForm;
   @ViewChild('content') content: TemplateRef<any>;
   modalMessage = 'A confirmation email will be sent to the organization\'s PEC.';
@@ -47,10 +46,6 @@ export class AccredComponent implements OnInit {
   privacyPolicy = 'Your privacy policy text here...';
 
   constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService) {}
-
-  ngOnInit() {
-  }
-
 
   checkPecsMatch() {
     this.pecsMatch = this.organizationInfo.pec === this.pecConfirmed;
