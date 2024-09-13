@@ -60,6 +60,7 @@ class EnumSubscriberStatus(_Enum):
     instructor_request = 3
     invited = 4
     suspend = 5
+    to_accredited = 6
 
 
 class EnumOriginFile(_Enum):

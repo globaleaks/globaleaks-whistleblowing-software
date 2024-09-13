@@ -98,7 +98,7 @@ def decorator_authentication(f, roles):
         if (('any' in roles) or
             ((self.session and self.session.tid == self.request.tid) and
              (('user' in roles and
-               self.session.user_role in ['admin', 'analyst', 'custodian', 'receiver']) or
+               self.session.user_role in ['admin', 'analyst', 'custodian', 'receiver', 'accreditor']) or
               (self.session.user_role in roles)))):
 
             return f(self, *args, **kwargs)
