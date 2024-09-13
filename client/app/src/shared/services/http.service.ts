@@ -36,6 +36,7 @@ import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import { RedactionData } from "@app/models/component-model/redaction";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
+import { AccreditationRequestModel } from "@app/models/accreditor/organization-data";
 
 
 @Injectable({
@@ -458,5 +459,9 @@ export class HttpService {
     };
     return this.httpClient.put("api/recipient/rtips/" + tipId, req);
   };
+
+  accreditorRequestResource(): Observable<AccreditationRequestModel[]> {
+    return this.httpClient.get<AccreditationRequestModel[]>("api/accreditation/all");
+  }
 
 }
