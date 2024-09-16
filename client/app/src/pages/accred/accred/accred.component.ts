@@ -82,12 +82,12 @@ export class AccredComponent {
     request.organization_name = this.organizationInfo.denomination
     request.organization_institutional_site = this.organizationInfo.institutional_site
 
-    request.name = this.receiverInfo.name
-    request.surname = this.receiverInfo.surname
-    request.email = this.receiverInfo.email
+    request.recipient_name = this.receiverInfo.name
+    request.recipient_surname = this.receiverInfo.surname
+    request.recipient_email = this.receiverInfo.email
     request.recipient_fiscal_code = this.receiverInfo.fiscal_code
 
-    request.tos1 = true;
+    request.tos1 = this.privacyAccept;
     request.tos2 = false;
 
     return request;
