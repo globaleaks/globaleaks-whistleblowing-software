@@ -19,16 +19,6 @@
                                 <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
                                 <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
                             </span>
-                        </th>                    
-                        <th class="UserName">
-                            <span (click)="sortKey = 'name'; sortReverse = !sortReverse">
-                                <i class="fa-solid fa-address-card"></i>
-                                <span>{{'Name' | translate}}</span>
-                                <span *ngIf="sortKey === 'name'">
-                                    <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
-                                    <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
-                                </span>
-                            </span>
                         </th>
                         <th class="UserRole">
                             <span (click)="sortKey = 'role'; sortReverse = !sortReverse">
@@ -90,12 +80,11 @@
                 <tbody id="orgOverviewTableBody">
                     <tr *ngFor="let user of users; let i = index" id="orgOverview-{{i}}">
                         <td>{{user.id}}</td>
-                        <td>{{user.name}}</td>
                         <td>{{user.role}}</td>
                         <td>{{user.creation_date}}</td>
-                        <td>{{user.last_access}}</td>
-                        <td>{{user.tips}}</td>
-                        <td>{{user.closed_tips}}</td>
+                        <td>{{user.last_login}}</td>
+                        <td>{{user.opened_rtips}}</td>
+                        <td>{{user.closed_rtips}}</td>
                     </tr>
                 </tbody>
             </table>

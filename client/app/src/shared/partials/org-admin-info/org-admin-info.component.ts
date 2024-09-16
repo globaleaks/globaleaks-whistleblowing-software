@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { EOAdmin } from '@app/models/app/shared-public-model';
+import { EOAdmin } from '@app/models/accreditor/organization-data';
 import { Constants } from '@app/shared/constants/constants';
 
 @Component({

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { OrganizationData } from '@app/models/accreditor/organization-data';
-import { EOAdmin, EOPrimaryReceiver, EOUser, ExternalOrganization } from '@app/models/app/shared-public-model';
+import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { HttpService } from '@app/shared/services/http.service';
 import { Observable } from 'rxjs';
@@ -14,10 +13,12 @@ export class OrganizationComponent implements OnInit{
 
   org_id: string | null;
   loading: boolean = false;
-  organization: OrganizationData;
+
+  organization: ExternalOrganization;
+
   org_type: boolean = false;
 
-  organizationInfo: ExternalOrganization = {
+  organizationInfo: EOInfo = {
     organization_name: '',
     organization_email: '',
     organization_institutional_site: ''
@@ -50,7 +51,7 @@ export class OrganizationComponent implements OnInit{
   loadOrganizationData(){
     this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
     
-    const requestObservable: Observable<any> = this.httpService.accreditorAccreditationDetail(this.org_id);
+    const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
 
 
     requestObservable.subscribe(
@@ -58,6 +59,8 @@ export class OrganizationComponent implements OnInit{
         next: (response) => {
           this.loading = false;
           this.orgService.reset();
+
+          this.organization = response;
           
           this.organizationInfo.organization_email = response.organization_email
           this.organizationInfo.organization_name = response.organization_name
@@ -73,23 +76,32 @@ export class OrganizationComponent implements OnInit{
           this.receiverInfo.fiscal_code = response.recipient_fiscal_code
           this.receiverInfo.email = response.recipient_email
 
+          //todo mockup
+          this.org_type = this.organization.type === "AFFILIATED"
+
+          //todo mockup:
+          let users : EOUser[] = [];
+          users.push({
+            id: "1",
+            creation_date: "01-01-2024",
+            last_login: "01/02/2024 10:00:05",
+            role: "Admin",
+            opened_rtips: 10,
+            closed_rtips: 1
+          })
+
+          this.organization.users = users;
+
+          this.organization.state = "REQUESTED"
+          //fine mockup
+
         }
       });
 
     
 
       
-      let users : EOUser[] = [];
-      users.push({
-        id: "1",
-        name: "Utente 1",
-        surname: "Surname 1",
-        creation_date: "01-01-2024",
-        last_access: "01/02/2024 10:00:05",
-        role: "Admin",
-        tips: 10,
-        closed_tips: 1
-      })
+      
 
     
     

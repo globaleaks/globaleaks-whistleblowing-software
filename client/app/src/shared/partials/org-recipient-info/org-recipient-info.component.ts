@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { EOPrimaryReceiver } from '@app/models/app/shared-public-model';
+import { EOPrimaryReceiver } from '@app/models/accreditor/organization-data';
 import { Constants } from '@app/shared/constants/constants';
 
 @Component({

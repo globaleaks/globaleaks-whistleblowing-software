@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EOUser } from '@app/models/app/shared-public-model';
+import { EOUser } from '@app/models/accreditor/organization-data';
 
 @Component({
   selector: 'src-org-users-list',

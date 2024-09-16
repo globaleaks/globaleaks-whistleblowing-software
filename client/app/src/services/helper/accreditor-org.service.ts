@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OrganizationData } from '@app/models/accreditor/organization-data';
+import { ExternalOrganization } from '@app/models/accreditor/organization-data';
 import { HttpService } from '@app/shared/services/http.service';
 
 @Injectable({
@@ -7,13 +7,13 @@ import { HttpService } from '@app/shared/services/http.service';
 })
 export class AccreditorOrgService {
 
-  organization: OrganizationData = new OrganizationData();
+  organization: ExternalOrganization = new ExternalOrganization();
 
   constructor(private httpService: HttpService) { 
 
   }
 
   reset(){
-    this.organization = new OrganizationData();
+    this.organization = new ExternalOrganization();
   }
 }
