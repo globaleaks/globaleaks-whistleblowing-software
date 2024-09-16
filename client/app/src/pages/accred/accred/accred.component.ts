@@ -5,8 +5,8 @@ import { AppDataService } from "@app/app-data.service";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgForm } from "@angular/forms";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
-import { EOAdmin, EOPrimaryReceiver, ExternalOrganization } from "@app/models/app/shared-public-model";
 import { UtilsService } from "@app/shared/services/utils.service";
+import { EOAdmin, EOInfo, EOPrimaryReceiver } from "@app/models/accreditor/organization-data";
 
 @Component({
   selector: "app-login",
@@ -22,7 +22,7 @@ export class AccredComponent {
 
   pecConfirmed: string;
 
-  organizationInfo: ExternalOrganization = {
+  organizationInfo: EOInfo = {
     organization_name: '',
     organization_email: '',
     organization_institutional_site: ''

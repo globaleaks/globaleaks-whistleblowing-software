@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AccreditationRequestModel, OrganizationData } from '@app/models/accreditor/organization-data';
+import { ExternalOrganization } from '@app/models/accreditor/organization-data';
 
 @Component({
   selector: 'src-org-overview',
@@ -8,7 +8,7 @@ import { AccreditationRequestModel, OrganizationData } from '@app/models/accredi
 export class OrgOverviewComponent implements OnInit {
 
   
-  @Input() org: OrganizationData
+  @Input() org: ExternalOrganization
   collapsed: boolean = false;
 
 
