@@ -106,31 +106,6 @@ export class OrganizationComponent implements OnInit{
         }
       });
 
-    
-
-      
-      
-
-    
-    
-    // }, 1000)
-
-    // requestObservable.subscribe(
-    //   {
-    //     next: (response: OrganizationData) => {
-    //       this.loading = false;
-    //       this.organization = this.orgService.organization;
-
-    //       // this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
-    //       //   this.tip.tip_id = params["tip_id"];
-    //       // })
-
-    //       //TODO: CHIAMATA PER RECUPERARE LISTA UTENTI DELL'ORGANIZZAZIONE
-    //       // this.httpService.getOrgUsers(this.org_id)
-          
-    //     }
-    //   }
-    // );
   }
 
   
@@ -150,12 +125,6 @@ export class OrganizationComponent implements OnInit{
 
   }
 
-      // •	0 -> REQUESTED
-      // •	1 -> ACCREDITED
-      // •	2 -> REJECTED
-      // •	3 -> INSTRUCTOR_REQUEST
-      // •	4 -> INVITED
-      // •	5 -> SUSPEND
 
   isRequested(){
     return this.organization.state === "REQUESTED"

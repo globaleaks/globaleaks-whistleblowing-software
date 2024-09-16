@@ -5,16 +5,12 @@ import { ExternalOrganization } from '@app/models/accreditor/organization-data';
   selector: 'src-org-overview',
   templateUrl: './org-overview.component.html'
 })
-export class OrgOverviewComponent implements OnInit {
+export class OrgOverviewComponent {
 
   
   @Input() org: ExternalOrganization
   collapsed: boolean = false;
 
-
-  ngOnInit(): void {
-    
-  }
 
 
   public toggleCollapse() {
