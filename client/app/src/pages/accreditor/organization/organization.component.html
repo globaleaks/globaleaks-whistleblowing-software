@@ -69,7 +69,7 @@
         </div>
     </div>
     
-    <div class="row">
+    <div class="row" *ngIf="organization.users && organization.users.length > 0">
         <div class="col-md-12">
             <src-org-users-list [users]="organization.users"></src-org-users-list>
         </div>
