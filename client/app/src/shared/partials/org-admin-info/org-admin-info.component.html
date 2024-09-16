@@ -6,7 +6,7 @@
                 <span>{{'Name'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required disabled="visualization">
+            <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required [disabled]="visualization">
         </div>
 
         <div class="form-group" >
@@ -14,7 +14,7 @@
                 <span>{{'Surname'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required disabled="visualization">
+            <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required [disabled]="visualization">
         </div>
 
         <div class="form-group" >
@@ -22,7 +22,7 @@
                 <span>{{'Fiscal Code'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" disabled="visualization">
+            <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="visualization">
         </div>
 
 
@@ -31,7 +31,7 @@
                 <span>{{'Email'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email"  required #adminEmail="ngModel" disabled="visualization">
+            <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email"  required #adminEmail="ngModel" [disabled]="visualization">
         </div>
     </div>
 </div>

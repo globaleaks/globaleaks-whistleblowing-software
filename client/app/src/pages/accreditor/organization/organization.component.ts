@@ -12,7 +12,6 @@ import { Observable } from 'rxjs';
 export class OrganizationComponent implements OnInit{
 
   org_id: string | null;
-  loading: boolean = false;
 
   organization: ExternalOrganization;
 
@@ -57,7 +56,6 @@ export class OrganizationComponent implements OnInit{
     requestObservable.subscribe(
       {
         next: (response) => {
-          this.loading = false;
           this.orgService.reset();
 
           this.organization = response;
