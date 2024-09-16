@@ -3,25 +3,31 @@
     <div class="card-body text-left">
         <div class="form-group" >
             <label>
-                <span>{{'Name and last name'|translate}}</span>
-                <span class="text-danger">*</span>
+                <span>{{'Name'|translate}}</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="recipientName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="recipientInfo.name" required>
+            <input name="recipientName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="recipientInfo.name" required disabled="visualization">
+        </div>
+        <div class="form-group" >
+            <label>
+                <span>{{'Surname'|translate}}</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
+            </label>
+            <input name="recipientSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="recipientInfo.surname" required disabled="visualization">
         </div>
         <div class="form-group" >
             <label>
                 <span>{{'Fiscal Code'|translate}}</span>
-                <span class="text-danger">*</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscalCode" required>
+            <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscal_code" required #recipientFiscalCode="ngModel" disabled="visualization">
         </div>
         <div class="form-group" >
             <label>
                 <span>{{'Email'|translate}}</span>
-                <span class="text-danger">*</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="recipientInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel">
-            <div class="text-danger" *ngIf="recipientEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
+            <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="recipientInfo.email" required #recipientEmail="ngModel" disabled="visualization">
         </div>
     </div>
 </div>

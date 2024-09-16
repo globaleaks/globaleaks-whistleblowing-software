@@ -464,4 +464,8 @@ export class HttpService {
     return this.httpClient.get<AccreditationRequestModel[]>("api/accreditation/all");
   }
 
+  accreditorAccreditationDetail(org_id: string | null){
+    return this.httpClient.get<any>("api/accreditation/request/"+org_id);
+  }
+
 }

@@ -213,9 +213,9 @@ export interface EOUser {
 
 
 export interface ExternalOrganization {
-  denomination: string;
-  pec: string;
-  institutional_site: string;
+  organization_name: string;
+  organization_email: string;
+  organization_institutional_site: string;
 }
 
 
@@ -223,6 +223,7 @@ export interface EOAdmin {
   name: string;
   surname: string;
   email: string;
+  fiscal_code: string;
 }
 
 export interface EOPrimaryReceiver {

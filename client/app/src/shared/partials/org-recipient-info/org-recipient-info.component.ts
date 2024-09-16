@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { EOPrimaryReceiver } from '@app/models/app/shared-public-model';
 import { Constants } from '@app/shared/constants/constants';
 
 @Component({
@@ -7,11 +8,9 @@ import { Constants } from '@app/shared/constants/constants';
 })
 export class OrgRecipientInfoComponent {
 
-  recipientInfo = {
-    name: '',
-    fiscalCode: '',
-    email: ''
-  };
+  @Input() recipientInfo: EOPrimaryReceiver;
+  @Input() visualization: boolean = true;
 
+  
   protected readonly Constants = Constants;
 }
