@@ -23,15 +23,16 @@ export class AccredComponent {
   pecConfirmed: string;
 
   organizationInfo: ExternalOrganization = {
-    denomination: '',
-    pec: '',
-    institutional_site: ''
+    organization_name: '',
+    organization_email: '',
+    organization_institutional_site: ''
   };
 
   adminInfo: EOAdmin = {
     name: '',
     email: '',
-    surname: ''
+    surname: '',
+    fiscal_code: ""
   };
 
   receiverInfo: EOPrimaryReceiver = {
@@ -48,7 +49,7 @@ export class AccredComponent {
   constructor(public router: Router, private route: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService) {}
 
   checkPecsMatch() {
-    this.pecsMatch = this.organizationInfo.pec === this.pecConfirmed;
+    this.pecsMatch = this.organizationInfo.organization_email === this.pecConfirmed;
   }
 
   closeModal(modal: any) {
@@ -78,9 +79,9 @@ export class AccredComponent {
     request.admin_name = this.adminInfo.name
     request.admin_surname = this.adminInfo.surname
 
-    request.organization_email = this.organizationInfo.pec
-    request.organization_name = this.organizationInfo.denomination
-    request.organization_institutional_site = this.organizationInfo.institutional_site
+    request.organization_email = this.organizationInfo.organization_email
+    request.organization_name = this.organizationInfo.organization_name
+    request.organization_institutional_site = this.organizationInfo.organization_institutional_site
 
     request.recipient_name = this.receiverInfo.name
     request.recipient_surname = this.receiverInfo.surname

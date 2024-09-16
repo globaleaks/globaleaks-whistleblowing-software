@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { EOAdmin } from '@app/models/app/shared-public-model';
 import { Constants } from '@app/shared/constants/constants';
 
 @Component({
@@ -7,11 +8,9 @@ import { Constants } from '@app/shared/constants/constants';
 })
 export class OrgAdminInfoComponent {
 
-  adminInfo = {
-    name: '',
-    email: '',
-    fiscalCode: ''
-  };
+  @Input() visualization: boolean = true;
+
+  @Input() adminInfo: EOAdmin;
 
   protected readonly Constants = Constants;
 

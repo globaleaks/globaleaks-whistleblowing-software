@@ -21,14 +21,14 @@
                             <span>{{'Denomination'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="organizationInfo.denomination" required>
+                        <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="organizationInfo.organization_name" required>
                     </div>
                     <div class="form-group" ngModelGroup="organizationInfo">
                         <label>
                             <span>{{'PEC'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="organizationInfo.pec" [pattern]="Constants.emailRegexp" required #pec="ngModel">
+                        <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="organizationInfo.organization_email" [pattern]="Constants.emailRegexp" required #pec="ngModel">
                         <div class="text-danger" *ngIf="pec.errors?.['pattern']">{{'Invalid PEC format' | translate}}</div>
                     </div>
                     <div class="form-group" [ngClass]="{'has-error': !pecsMatch}" ngModelGroup="organizationInfo">
@@ -44,7 +44,7 @@
                         <label>
                             <span>{{'Institutional website'|translate}}</span>
                         </label>
-                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.institutional_site">
+                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.organization_institutional_site">
                     </div>
                 </div>
             </div>
