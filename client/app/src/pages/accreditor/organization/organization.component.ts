@@ -80,25 +80,25 @@ export class OrganizationComponent implements OnInit{
           this.org_type = this.organization.type === "AFFILIATED"
 
           //todo mockup:
-          let users : EOUser[] = [];
-          users.push({
-            id: "zaoi1",
-            creation_date: "01-01-2024",
-            last_login: "01/02/2024 10:00:05",
-            role: "RECIPIENT",
-            opened_rtips: 10,
-            closed_rtips: 1
-          },
-          {
-            id: "abcde1",
-            creation_date: "01-02-2024",
-            last_login: "01/01/2024 10:00:05",
-            role: "RECIPIENT",
-            opened_rtips: 5,
-            closed_rtips: 10
-          })
+          // let users : EOUser[] = [];
+          // users.push({
+          //   id: "zaoi1",
+          //   creation_date: "01-01-2024",
+          //   last_login: "01/02/2024 10:00:05",
+          //   role: "RECIPIENT",
+          //   opened_rtips: 10,
+          //   closed_rtips: 1
+          // },
+          // {
+          //   id: "abcde1",
+          //   creation_date: "01-02-2024",
+          //   last_login: "01/01/2024 10:00:05",
+          //   role: "RECIPIENT",
+          //   opened_rtips: 5,
+          //   closed_rtips: 10
+          // })
 
-          this.organization.users = users;
+          // this.organization.users = users;
 
           this.organization.state = "REQUESTED"
           //fine mockup
