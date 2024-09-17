@@ -295,30 +295,40 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 
 
 @transact
-def delete_accreditation_by_id(session, accreditation_id):
+def change_status_accreditation(session, accreditation_id: str, from_status: str, to_status: int):
     """
-    Mark an accreditation as rejected by its ID.
+    Updates the accreditation status of a subscriber in the database.
 
-    Args:
-        session: The database session.
-        accreditation_id: The ID of the accreditation to reject.
+    This function searches for a subscriber with the given `accreditation_id` and current
+    status `from_status`. If found, it updates the subscriber's status (`state`) to `to_status`.
+    If no subscriber is found or an error occurs, appropriate exceptions are raised.
+
+    Parameters:
+        session (Session): The current database session used to query and commit changes.
+        accreditation_id (str): The unique identifier of the accreditation whose status is to be updated.
+        from_status (str): The current status of the accreditation. The update will only occur if this matches.
+        to_status (int): The new status value to which the accreditation will be updated.
 
     Returns:
-        A dictionary containing the rejected accreditation's sharing ID.
+        dict: A dictionary containing the `id` of the subscriber whose status was successfully updated.
 
     Raises:
-        ResourceNotFound: If the accreditation item is not found.
-        InternalServerError: If the rejection process fails.
+        ResourceNotFound: Raised if no subscriber with the given `accreditation_id` and `from_status` is found.
+        InternalServerError: Raised if any other error occurs during the process.
+
+    Exceptions:
+        NoResultFound: Raised when the query does not find a matching subscriber.
+        Exception: Generic exceptions are caught, logged, and raise an `InternalServerError`.
     """
     try:
         accreditation_item = (
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
             .filter(Subscriber.sharing_id == accreditation_id)
-            .filter(Subscriber.state == EnumSubscriberStatus.requested.name)
+            .filter(Subscriber.state == from_status)
             .one()
         )
-        accreditation_item.state = EnumSubscriberStatus.rejected.value
+        accreditation_item.state = to_status
         session.commit()
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
@@ -500,4 +510,8 @@ class AccreditationRejectHandler(BaseHandler):
     invalidate_cache = True
 
     def delete(self, accreditation_id: str):
-        return delete_accreditation_by_id(accreditation_id)
+        return change_status_accreditation(
+            accreditation_id,
+            EnumSubscriberStatus.requested.name,
+            EnumSubscriberStatus.rejected.value
+        )
