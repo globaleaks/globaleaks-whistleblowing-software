@@ -160,7 +160,7 @@ const routes: Routes = [
     path: 'accreditor', 
     canActivate: [AccreditorGuard],
     data: {
-      sidebar: "acreditator-sidebar",
+      sidebar: "accreditor-sidebar",
       pageTitle: "Home",
     },
     loadChildren: () => import('./pages/accreditor/accreditor-routing.module').then(m => m.AccreditorRoutingModule) 
