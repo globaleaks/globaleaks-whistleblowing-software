@@ -3,6 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { AccreditorHomeComponent } from './home/home.component';
 import { OrganizationsComponent } from './organizations/organizations.component';
 import { AccreditationReqResolver } from '@app/shared/resolvers/accreditation-req-resolver.service';
+import { NodeResolver } from '@app/shared/resolvers/node.resolver';
+import { PreferencesComponent } from '@app/shared/partials/preferences/preferences.component';
+import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
+import { RTipsResolver } from '@app/shared/resolvers/r-tips-resolver.service';
 
 const routes: Routes = [
   {
@@ -12,7 +16,7 @@ const routes: Routes = [
     resolve: {
       AccreditationReqResolver
     },
-    data: {sidebar: "accreditor-sidebar", pageTitle: "Home"},
+    data: {pageTitle: "Home"},
   },
   {
     path: "home",
@@ -21,7 +25,7 @@ const routes: Routes = [
     resolve: {
       AccreditationReqResolver
     },
-    data: {sidebar: "accreditor-sidebar", pageTitle: "Home"},
+    data: { pageTitle: "Home"},
   },
   {
     path: "organizations",
@@ -30,9 +34,17 @@ const routes: Routes = [
       AccreditationReqResolver
     },
     pathMatch: "full",
-    data: {sidebar: "accreditor-sidebar", pageTitle: "Organizations"},
+    data: {pageTitle: "Organizations"},
+  },
+  {
+    path: "preferences",
+    component: PreferencesComponent,
+    pathMatch: "full",
+    resolve: {
+      PreferenceResolver, RTipsResolver
+    },
+    data: {pageTitle: "Preferences"},
   }
-
 
 ];
 

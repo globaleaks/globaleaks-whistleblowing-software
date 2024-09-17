@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { EOInfo } from '@app/models/accreditor/organization-data';
 import { Constants } from "@app/shared/constants/constants";
-import {FormsModule} from '@angular/forms'
 
 @Component({
   selector: 'src-org-info',
@@ -10,17 +10,8 @@ export class OrgInfoComponent {
 
   protected readonly Constants = Constants;
 
-  organizationInfo = {
-    denomination: '',
-    pec: '',
-    confirmPec: '',
-    institutionalWebsite: ''
-  };
+  @Input() orgInfo: EOInfo;
+  @Input() visualization: boolean = true;
 
-  pecsMatch = true;
-
-  checkPecsMatch() {
-    this.pecsMatch = this.organizationInfo.pec === this.organizationInfo.confirmPec;
-  }
 
 }

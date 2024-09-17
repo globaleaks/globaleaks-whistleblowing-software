@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { OrganizationData } from '@app/models/accreditor/organization-data';
-import { EOUser } from '@app/models/app/shared-public-model';
+import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'src-organization',
@@ -13,9 +13,30 @@ import { HttpService } from '@app/shared/services/http.service';
 export class OrganizationComponent implements OnInit{
 
   org_id: string | null;
-  loading: boolean = false;
-  organization: OrganizationData;
+
+  organization: ExternalOrganization;
+
   org_type: boolean = false;
+
+  organizationInfo: EOInfo = {
+    organization_name: '',
+    organization_email: '',
+    organization_institutional_site: ''
+  };
+
+  adminInfo: EOAdmin = {
+    name: '',
+    email: '',
+    surname: '',
+    fiscal_code: ''
+  };
+
+  receiverInfo: EOPrimaryReceiver = {
+    name: '',
+    surname: '',
+    fiscal_code: '',
+    email: ''
+  };
 
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
@@ -32,60 +53,59 @@ export class OrganizationComponent implements OnInit{
     console.log("LOAD ORGANIZATION DATA");
     this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
     
-    // const requestObservable: Observable<any> = this.httpService.receiverTip(this.org_id);
-    this.loading = true;
-    this.orgService.reset();
+    const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
 
-    // setTimeout(()=>{
-      this.organization = new OrganizationData();
-      this.organization.id = "1"
-      this.organization.denomination = "denominazione Org 1"
-      this.organization.accreditation_date = "01-02-2024"
-      this.organization.num_tip = 10
-      this.organization.num_user_profiled = 2
-      this.organization.type = "NOT_AFFILIATED"
-      // •	0 -> REQUESTED
-      // •	1 -> ACCREDITED
-      // •	2 -> REJECTED
-      // •	3 -> INSTRUCTOR_REQUEST
-      // •	4 -> INVITED
-      // •	5 -> SUSPEND
-      // •	6 -> APPROVED
-      this.organization.state = "ACCREDITED"
-      
-      let users : EOUser[] = [];
-      users.push({
-        id: "1",
-        name: "Utente 1",
-        surname: "Surname 1",
-        creation_date: "01-01-2024",
-        last_access: "01/02/2024 10:00:05",
-        role: "Admin",
-        tips: 10,
-        closed_tips: 1
-      })
 
-      this.organization.users = users;
-    
-    
-    // }, 1000)
+    requestObservable.subscribe(
+      {
+        next: (response) => {
+          this.orgService.reset();
 
-    // requestObservable.subscribe(
-    //   {
-    //     next: (response: OrganizationData) => {
-    //       this.loading = false;
-    //       this.organization = this.orgService.organization;
-
-    //       // this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
-    //       //   this.tip.tip_id = params["tip_id"];
-    //       // })
-
-    //       //TODO: CHIAMATA PER RECUPERARE LISTA UTENTI DELL'ORGANIZZAZIONE
-    //       // this.httpService.getOrgUsers(this.org_id)
+          this.organization = response;
           
-    //     }
-    //   }
-    // );
+          this.organizationInfo.organization_email = response.organization_email
+          this.organizationInfo.organization_name = response.organization_name
+          this.organizationInfo.organization_institutional_site = response.organization_institutional_site
+
+          this.adminInfo.name = response.admin_name
+          this.adminInfo.surname = response.admin_surname
+          this.adminInfo.fiscal_code = response.admin_fiscal_code
+          this.adminInfo.email = response.admin_email
+
+          this.receiverInfo.name = response.recipient_name
+          this.receiverInfo.surname = response.recipient_surname
+          this.receiverInfo.fiscal_code = response.recipient_fiscal_code
+          this.receiverInfo.email = response.recipient_email
+
+          //todo mockup
+          this.org_type = this.organization.type === "AFFILIATED"
+
+          //todo mockup:
+          // let users : EOUser[] = [];
+          // users.push({
+          //   id: "zaoi1",
+          //   creation_date: "01-01-2024",
+          //   last_login: "01/02/2024 10:00:05",
+          //   role: "RECIPIENT",
+          //   opened_rtips: 10,
+          //   closed_rtips: 1
+          // },
+          // {
+          //   id: "abcde1",
+          //   creation_date: "01-02-2024",
+          //   last_login: "01/01/2024 10:00:05",
+          //   role: "RECIPIENT",
+          //   opened_rtips: 5,
+          //   closed_rtips: 10
+          // })
+
+          // this.organization.users = users;
+
+          this.organization.state = "REQUESTED"
+          //fine mockup
+
+        }
+      });
   }
 
   
@@ -127,12 +147,6 @@ export class OrganizationComponent implements OnInit{
 
   }
 
-      // •	0 -> REQUESTED
-      // •	1 -> ACCREDITED
-      // •	2 -> REJECTED
-      // •	3 -> INSTRUCTOR_REQUEST
-      // •	4 -> INVITED
-      // •	5 -> SUSPEND
 
   isRequested(){
     return this.organization.state === "REQUESTED"

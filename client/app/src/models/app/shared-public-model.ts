@@ -198,35 +198,3 @@ export interface SubmissionStatus {
   status?: string;
   substatus?: string;
 }
-
-export interface EOUser {
-  id: string;
-  name: string;
-  surname: string;
-  creation_date: string;
-  last_access: string;
-  role: string;
-  tips: number;
-  closed_tips: number;
-}
-
-
-export interface ExternalOrganization {
-  denomination: string;
-  pec: string;
-  institutional_site: string;
-}
-
-
-export interface EOAdmin {
-  name: string;
-  surname: string;
-  email: string;
-}
-
-export interface EOPrimaryReceiver {
-  name: string;
-  surname: string;
-  email: string;
-  fiscal_code: string;
-}

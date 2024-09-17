@@ -20,8 +20,8 @@
                 </thead>
                 <tbody id="orgOverviewTableBody">
                     <tr id="orgOverview">
-                        <td>{{org.type}}</td>
-                        <td>{{org.accreditation_date}}</td>
+                        <td>{{org.type | translate}}</td>
+                        <td>{{org.accreditation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                         <td>{{org.num_tip}}</td>
                         <td>{{org.num_tip}}</td>
                         <td>{{org.state}}</td>

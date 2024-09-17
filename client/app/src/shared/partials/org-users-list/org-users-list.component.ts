@@ -1,18 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { EOUser } from '@app/models/app/shared-public-model';
+import { Component, Input } from '@angular/core';
+import { EOUser } from '@app/models/accreditor/organization-data';
 
 @Component({
   selector: 'src-org-users-list',
   templateUrl: './org-users-list.component.html'
 })
-export class OrgUsersListComponent implements OnInit {
+export class OrgUsersListComponent {
 
-  ngOnInit(): void {
-    
-  }
-
+  @Input() users: EOUser[];
   collapsed: boolean = false;
-  users: EOUser[] = [];
   sortKey: string = "creation_date";
   sortReverse: boolean = true;
 
@@ -20,5 +16,9 @@ export class OrgUsersListComponent implements OnInit {
     this.collapsed = !this.collapsed;
   }
 
+
+  orderbyCast(data: EOUser[]): EOUser[] {
+    return data;
+  }
 
 }

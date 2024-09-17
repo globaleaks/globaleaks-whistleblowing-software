@@ -3,18 +3,35 @@
     <div class="card-body text-left">
         <div class="form-group" >
             <label>
-                <span>{{'Name and last name'|translate}}</span>
-                <span class="text-danger">*</span>
+                <span>{{'Name'|translate}}</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminName" class="form-control" [placeholder]="'Name and last name' | translate" type="text" [(ngModel)]="adminInfo.name" required>
+            <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required [disabled]="visualization">
         </div>
+
+        <div class="form-group" >
+            <label>
+                <span>{{'Surname'|translate}}</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
+            </label>
+            <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required [disabled]="visualization">
+        </div>
+
+        <div class="form-group" >
+            <label>
+                <span>{{'Fiscal Code'|translate}}</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
+            </label>
+            <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="visualization">
+        </div>
+
+
         <div class="form-group" >
             <label>
                 <span>{{'Email'|translate}}</span>
-                <span class="text-danger">*</span>
+                <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email" [pattern]="Constants.emailRegexp" required #adminEmail="ngModel">
-            <div class="text-danger" *ngIf="adminEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
+            <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email"  required #adminEmail="ngModel" [disabled]="visualization">
         </div>
     </div>
 </div>
