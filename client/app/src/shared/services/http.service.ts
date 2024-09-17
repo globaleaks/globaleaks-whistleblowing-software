@@ -464,4 +464,12 @@ export class HttpService {
     return this.httpClient.get<AccreditationRequestModel[]>("api/accreditation/all");
   }
 
+  sendAccreditationInvitation(id: string): Observable<void> {
+    return this.httpClient.patch<void>(`/api/accreditation/${id}/invited`, { responseType: 'text' as 'json'});
+  }
+
+  deleteAccreditationRequest(id: string): Observable<void> {
+    return this.httpClient.patch<void>(`/api/accreditation/${id}/rejected`, { responseType: 'text' as 'json'});
+  }
+
 }

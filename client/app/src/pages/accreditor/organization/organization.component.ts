@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { OrganizationData } from '@app/models/accreditor/organization-data';
 import { EOUser } from '@app/models/app/shared-public-model';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
+import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
 
 @Component({
@@ -17,7 +18,8 @@ export class OrganizationComponent implements OnInit{
   org_type: boolean = false;
 
 
-  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService, private orgService : AccreditorOrgService){
+  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
+    private orgService : AccreditorOrgService, private authenticationService: AuthenticationService){
 
   }
 
@@ -27,6 +29,7 @@ export class OrganizationComponent implements OnInit{
   }
 
   loadOrganizationData(){
+    console.log("LOAD ORGANIZATION DATA");
     this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
     
     // const requestObservable: Observable<any> = this.httpService.receiverTip(this.org_id);
@@ -48,7 +51,7 @@ export class OrganizationComponent implements OnInit{
       // •	4 -> INVITED
       // •	5 -> SUSPEND
       // •	6 -> APPROVED
-      this.organization.state = "INSTRUCTOR_REQUEST"
+      this.organization.state = "ACCREDITED"
       
       let users : EOUser[] = [];
       users.push({
@@ -91,14 +94,36 @@ export class OrganizationComponent implements OnInit{
   }
 
   invia(){
-    if(this.org_type)
+    if(this.org_type) // TODO richiesta info
       this.organization.type = "AFFILIATED"
   
-    console.log("INVIA / INVIA INVITO - TODO!!!")
+    console.log("INVIA / INVIA INVITO - TODO!!!", this.organization.id);
+    // if (this.authenticationService.session.role === "accreditor") {
+    //   this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
+    //     next: (response) => {
+    //       console.log("Invito inviato con successo", response);
+    //       this.loadOrganizationData();
+    //     },
+    //     error: (err) => {
+    //       console.error("Errore durante l'invio dell'invito", err);
+    //     }
+    //   }); 
+    // }
   }
 
   rifiuta(){
     console.log("REJECT - TODO!!!")
+    // if (this.authenticationService.session.role === "accreditor") {
+    //   this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
+    //     next: (response) => {
+    //       console.log("Richiesta rifiutata con successo", response);
+    //       this.loadOrganizationData();
+    //     },
+    //     error: (err) => {
+    //       console.error("Errore durante il rifiuto della richiesta", err);
+    //     }
+    //   }); 
+    // }
 
   }
 
