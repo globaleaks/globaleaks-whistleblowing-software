@@ -37,6 +37,17 @@ export interface AccreditationRequestModel{
     num_tip: number;
 }
 
+export interface EOExtendedInfo{
+    id: string;
+    organization_name: string;
+    type: string;
+    state: string;
+    accreditation_date: string;
+    num_user_profiled: number;
+    opened_tips: number;
+    closed_tips: number;
+}
+
 
 export interface EOInfo {
     organization_name: string;
