@@ -216,7 +216,7 @@ class ForwardSubmission(BaseHandler):
 
         original_itip_private_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
         
-        for tid in request['tid']:
+        for tid in request['tids']:
             previous_forwarding = session.query(models.InternalTipForwarding)\
                 .filter(models.InternalTipForwarding.tid == tid, models.InternalTipForwarding.internaltip_id == itip.id)\
                     .one_or_none()

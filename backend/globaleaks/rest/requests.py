@@ -606,7 +606,7 @@ ForwardSubmissionFilesDesc = {
 }
 
 ForwardSubmissionDesc = {
-    'tid': [int],
+    'tids': [int],
     'text': str,
     'files': [ForwardSubmissionFilesDesc],
     'questionnaire_id': uuid_regexp
