@@ -138,6 +138,15 @@ const routes: Routes = [
     loadChildren: () => import("./pages/accred/accred-routing.module").then(m => m.AccredRoutingModule)
   },
   {
+    path: "accreditation-request/:org_id",
+    data: {pageTitle: "Accreditation"},
+    resolve: {
+      PreferenceResolver,
+      title: TitleResolver
+    },
+    loadChildren: () => import("./pages/accred/accred-routing.module").then(m => m.AccredRoutingModule)
+  },
+  {
     path: "reports/:tip_id",
     data: {pageTitle: "Report"},
     resolve: {
