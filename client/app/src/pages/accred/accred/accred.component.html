@@ -21,17 +21,17 @@
                             <span>{{'Denomination'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="organizationInfo.organization_name" required>
+                        <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="organizationInfo.organization_name" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="organizationInfo">
                         <label>
                             <span>{{'PEC'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="organizationInfo.organization_email" [pattern]="Constants.emailRegexp" required #pec="ngModel">
+                        <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="organizationInfo.organization_email" [pattern]="Constants.emailRegexp" required #pec="ngModel" [disabled]="readOnly">
                         <div class="text-danger" *ngIf="pec.errors?.['pattern']">{{'Invalid PEC format' | translate}}</div>
                     </div>
-                    <div class="form-group" [ngClass]="{'has-error': !pecsMatch}" ngModelGroup="organizationInfo">
+                    <div class="form-group" [ngClass]="{'has-error': !pecsMatch}" ngModelGroup="organizationInfo" *ngIf="!readOnly">
                         <label>
                             <span>{{'Confirm PEC'|translate}}</span>
                             <span class="text-danger">*</span>
@@ -44,7 +44,7 @@
                         <label>
                             <span>{{'Institutional website'|translate}}</span>
                         </label>
-                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.organization_institutional_site">
+                        <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="organizationInfo.organization_institutional_site" [disabled]="readOnly">
                     </div>
                 </div>
             </div>
@@ -58,21 +58,21 @@
                             <span>{{'Name'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required>
+                        <input name="adminName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="adminInfo.name" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label>
                             <span>{{'Surname'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required>
+                        <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label>
                             <span>{{'Email'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email" [pattern]="Constants.emailRegexp" required #adminEmail="ngModel">
+                        <input name="adminEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="adminInfo.email" [pattern]="Constants.emailRegexp" required #adminEmail="ngModel" [disabled]="readOnly">
                         <div class="text-danger" *ngIf="adminEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
                     </div>
                 </div>
@@ -87,21 +87,21 @@
                             <span>{{'Name'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="receiverInfo.name" required>
+                        <input name="recipientName" class="form-control" [placeholder]="'Name' | translate" type="text" [(ngModel)]="receiverInfo.name" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="receiverInfo">
                         <label>
                             <span>{{'Surname'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="receiverInfo.surname" required>
+                        <input name="recipientSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="receiverInfo.surname" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="receiverInfo">
                         <label>
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="receiverInfo.fiscal_code" required #recipientFiscalCode="ngModel">
+                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="receiverInfo.fiscal_code" required #recipientFiscalCode="ngModel" [disabled]="readOnly">
                         <div class="text-danger" *ngIf="recipientFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
                     <div class="form-group" ngModelGroup="receiverInfo">
@@ -109,7 +109,7 @@
                             <span>{{'Email'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="receiverInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel">
+                        <input name="recipientEmail" class="form-control" [placeholder]="'Email' | translate" type="email" [(ngModel)]="receiverInfo.email" [pattern]="Constants.emailRegexp" required #recipientEmail="ngModel" [disabled]="readOnly">
                         <div class="text-danger" *ngIf="recipientEmail.errors?.['pattern']">{{'Invalid email format' | translate}}</div>
                     </div>
                 </div>
