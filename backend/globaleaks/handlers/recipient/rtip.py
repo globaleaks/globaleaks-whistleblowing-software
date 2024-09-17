@@ -5,6 +5,7 @@ import base64
 import copy
 import json
 import os
+from pyexpat import model
 import re
 import time
 
@@ -25,7 +26,7 @@ from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers, EnumStateFile
 from globaleaks.models.config import ConfigFactory
 from globaleaks.models.serializers import process_logs
-from globaleaks.orm import db_get, db_del, db_log, transact
+from globaleaks.orm import db_get, db_del, db_log, db_query, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
@@ -991,6 +992,68 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
 
     return serializers.serialize_identityaccessrequest(session, iar)
 
+def db_add_comment(session, internaltip_id, type, author_id, content, visibility):
+    comment = models.Comment()
+    comment.internaltip_id = internaltip_id
+    comment.type = type
+    comment.author_id = author_id
+    comment.content = content
+    comment.visibility = visibility
+    session.add(comment)
+    session.flush()
+    return comment
+
+def db_add_comment_forwarding(session, internaltip_forwarding_id, oe_content_id, content_id, author_type):
+    comment_forwarding = models.ContentForwarding()
+    comment_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
+    comment_forwarding.oe_content_id = oe_content_id
+    comment_forwarding.content_id = content_id
+    comment_forwarding.content_origin = models.EnumContentForwarding.comment.value
+    comment_forwarding.author_type = author_type
+    session.add(comment_forwarding)
+    session.flush()
+    return comment_forwarding
+
+def forward_from_oe(session, user_id, internaltip_forwarding, content, visibility, content_id):
+
+    main_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.internaltip_id)
+
+    if main_itip is None or visibility not in (models.EnumVisibility.oe.name, models.EnumVisibility.whistleblower.name):
+        return
+
+    if main_itip.crypto_tip_pub_key:
+        _content = base64.b64encode(GCE.asymmetric_encrypt(main_itip.crypto_tip_pub_key, content)).decode()
+
+    comment = db_add_comment(session, main_itip.id, 'receiver', user_id, _content, visibility)
+    comment_forwarding = db_add_comment_forwarding(session, internaltip_forwarding.id, content_id, comment.id, models.EnumAuthorType.oe.value)
+    return comment_forwarding.id
+
+def forward_from_main(session, user_id, internaltip_forwarding, content, visibility, content_id):
+    oe_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id)
+
+    if oe_itip is None or visibility not in (models.EnumVisibility.oe.name):
+        return
+
+    if oe_itip.crypto_tip_pub_key:
+        _content = base64.b64encode(GCE.asymmetric_encrypt(oe_itip.crypto_tip_pub_key, content)).decode()
+
+    comment = db_add_comment(session, oe_itip.id, 'receiver', user_id, _content, visibility)
+    comment_forwarding = db_add_comment_forwarding(session, internaltip_forwarding.id, comment.id, content_id, models.EnumAuthorType.main.value)
+
+    return comment_forwarding.id
+
+
+def forward_comment(session, user_id, itip_id, content, visibility, content_id):
+    internaltip_forwarding_from_oe = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
+    internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).one_or_none()
+
+    if internaltip_forwarding_from_oe is not None:
+        return forward_from_oe(session, user_id, internaltip_forwarding_from_oe, content, visibility, content_id)
+    elif internaltip_forwarding_from_main is not None:
+        return forward_from_main(session, user_id, internaltip_forwarding_from_oe, content, visibility, content_id)
+    else:
+        raise errors.ResourceNotFound()
+
 
 @transact
 def create_comment(session, tid, user_id, itip_id, content, visibility=0):
@@ -1007,7 +1070,7 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0):
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
     rtip.last_access = datetime_now()
-    if visibility == 0:
+    if visibility == models.EnumVisibility.public.value:
         itip.update_date = rtip.last_access
 
     _content = content
@@ -1025,6 +1088,7 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0):
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    forward_comment(session, user_id, itip_id, content, visibility, comment.id)
     return ret
 
 

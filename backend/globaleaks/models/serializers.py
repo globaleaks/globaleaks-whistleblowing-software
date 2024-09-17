@@ -3,6 +3,7 @@ import copy
 import os
 
 from datetime import datetime
+from pyexpat import model
 
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
@@ -302,13 +303,13 @@ def serialize_rtip(session, itip, rtip, language):
 
     for rfile in session.query(models.ReceiverFile) \
                          .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 or_(models.ReceiverFile.visibility != 2,
+                                 or_(models.ReceiverFile.visibility not in (models.EnumVisibility.personal.value, models.EnumVisibility.whistleblower.value),
                                      models.ReceiverFile.author_id == user_id)):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
     for comment in session.query(models.Comment) \
                           .filter(models.Comment.internaltip_id == itip.id,
-                                  or_(models.Comment.visibility != 2,
+                                  or_(models.Comment.visibility not in (models.EnumVisibility.personal.value, models.EnumVisibility.whistleblower.value),
                                       models.Comment.author_id == user_id)):
         ret['comments'].append(serialize_comment(session, comment))
 
@@ -354,12 +355,12 @@ def serialize_wbtip(session, itip, language):
 
     for rfile in session.query(models.ReceiverFile) \
                          .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 models.ReceiverFile.visibility == 0):
+                                 models.ReceiverFile.visibility == models.EnumVisibility.public.value):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
     for comment in session.query(models.Comment) \
                           .filter(models.Comment.internaltip_id == itip.id,
-                                  models.Comment.visibility == 0):
+                                  models.Comment.visibility in (models.EnumVisibility.public.value, models.EnumVisibility.whistleblower.value)):
         ret['comments'].append(serialize_comment(session, comment))
 
     return ret

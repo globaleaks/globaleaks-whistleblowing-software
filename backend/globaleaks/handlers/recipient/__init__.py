@@ -14,7 +14,6 @@ from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_ti
 from globaleaks.orm import db_get, db_log, db_query, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.log import log
 
 import globaleaks.handlers.recipient.export
 import globaleaks.handlers.recipient.sendtip
@@ -63,7 +62,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                  .filter(models.ReceiverTip.receiver_id == receiver_id,
                                          models.ReceiverTip.internaltip_id == models.InternalTip.id,
                                          models.Comment.internaltip_id == models.InternalTip.id,
-                                         models.Comment.visibility == 0) \
+                                         models.Comment.visibility == models.EnumVisibility.public.value) \
                                  .group_by(models.InternalTip.id):
         comments_by_itip[itip_id] = count
 

@@ -45,6 +45,7 @@ class EnumVisibility(_Enum):
     internal = 1
     personal = 2
     oe = 3
+    whistleblower = 4
 
 
 class EnumStateFile(_Enum):

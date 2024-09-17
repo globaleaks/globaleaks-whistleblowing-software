@@ -163,9 +163,9 @@ class ForwardSubmission(BaseHandler):
         if file['origin'] == 'whistleblower':
             new_file = self.copy_internalfile(session, tid, forwarded_itip, file['id'], source_prv_key)
         elif file['origin'] == 'recipient':
-            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.public.name)
+            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.oe.name)
         elif file['origin'] == 'oe':
-            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.public.name)
+            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.oe.name)
         elif file['origin'] == 'new':
             new_file = db_get(session, models.ReceiverFile, models.ReceiverFile.id == file['id'])
         else:
