@@ -3,13 +3,23 @@ from uuid import uuid4
 
 from sqlalchemy import func, distinct
 from sqlalchemy.exc import NoResultFound
+from twisted.internet.threads import deferToThread
 
+from globaleaks import models
+from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.db.appdata import load_appdata
+from globaleaks.handlers.admin.node import db_admin_serialize_node
+from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.admin.tenant import db_initialize_tenant_submission_statuses
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, User
+from globaleaks.handlers.wizard import db_wizard
+from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, \
+    User, serializers, EnumUserRole
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
+from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword
 from globaleaks.utils.log import log
 
 
@@ -25,17 +35,18 @@ def save_step(session, obj):
     session.flush()
 
 
-def send_email(session, tenant_id: int, email: list):
+def send_email(session, email: list, language, accreditation_item, wizard):
     for user_desc in email:
         template_vars = {
-            'type': 'admin_signup_alert',
-            'node': '',  # db_admin_serialize_node(session, 1, user_desc['language']),
-            'notification': '',  # db_get_notification(session, 1, user_desc['language']),
-            'user': user_desc,
-            'signup': '',  # signup_dict
+            'type': 'activation',
+            'node': db_admin_serialize_node(session, 1, language),
+            'notification': db_get_notification(session, 1, language),
+            'signup': serializers.serialize_signup(accreditation_item),
+            'password_admin': wizard['admin_password'],
+            'password_recipient': wizard['receiver_password']
         }
 
-        State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
+        State.format_and_send_mail(session, 1, user_desc, template_vars)
 
 
 @transact
@@ -71,22 +82,133 @@ def count_user_tip(session, accreditation_item):
             func.count(distinct(User.id))
         )
         .filter(User.tid == accreditation_item.tid)
-        .filter(User.mail_address not in (accreditation_item.email, accreditation_item.admin_email))
+        .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
         .one()
     )
     return count_tip, count_user
 
 
+def add_user_primary(session, accreditation_item, dict_element):
+    dict_element['organization_email'] = accreditation_item.organization_email
+    dict_element['organization_institutional_site'] = accreditation_item.organization_institutional_site
+    dict_element['admin_name'] = accreditation_item.admin_name
+    dict_element['admin_surname'] = accreditation_item.admin_surname
+    dict_element['admin_fiscal_code'] = accreditation_item.admin_fiscal_code
+    dict_element['admin_email'] = accreditation_item.admin_email
+    dict_element['recipient_name'] = accreditation_item.name
+    dict_element['recipient_surname'] = accreditation_item.surname
+    dict_element['recipient_fiscal_code'] = accreditation_item.recipient_fiscal_code
+    dict_element['recipient_email'] = accreditation_item.email
+    dict_element['tos1'] = accreditation_item.tos1
+    dict_element['tos2'] = accreditation_item.tos2
+    dict_element['closed_tips'] = 0
+    return dict_element
+
+
+def extract_user(session, accreditation_item):
+    user_list = []
+    """
+    try:
+        query = (session.query(User)
+                 .filter(User.tid == accreditation_item.tid)
+                 .filter(User.mail_address == accreditation_item.email)
+                 ).one()
+        user_list.append(
+            {
+                'id': query.id,
+                'name': accreditation_item.name,
+                'surname': accreditation_item.surname,
+                'email': accreditation_item.email,
+                'fiscal_code': accreditation_item.recipient_fiscal_code,
+                'role': query.role,
+                'creation_date': query.creation_date,
+                'last_access': query.last_login,
+                'assigned_tips': 0,
+                'closed_tips': 0
+            }
+        )
+    except:
+        user_list.append(
+            {
+                'id': None,
+                'name': accreditation_item.name,
+                'surname': accreditation_item.surname,
+                'email': accreditation_item.email,
+                'fiscal_code': accreditation_item.recipient_fiscal_code,
+                'role': EnumUserRole.receiver.name,
+                'creation_date': accreditation_item.creation_date,
+                'last_access': None,
+                'assigned_tips': 0,
+                'closed_tips': 0
+            }
+        )
+    try:
+        query = (session.query(User)
+                 .filter(User.tid == accreditation_item.tid)
+                 .filter(User.mail_address == accreditation_item.admin_email)
+                 ).one()
+        user_list.append(
+            {
+                'id': query.id,
+                'name': accreditation_item.admin_name,
+                'surname': accreditation_item.admin_surname,
+                'email': accreditation_item.admin_email,
+                'fiscal_code': accreditation_item.admin_fiscal_code,
+                'role': query.role,
+                'creation_date': query.creation_date,
+                'last_access': query.last_login,
+                'assigned_tips': 0,
+                'closed_tips': 0
+            }
+        )
+    except:
+        user_list.append(
+            {
+                'id': None,
+                'name': accreditation_item.admin_name,
+                'surname': accreditation_item.admin_surname,
+                'email': accreditation_item.admin_email,
+                'fiscal_code': accreditation_item.admin_fiscal_code,
+                'role': EnumUserRole.admin.name,
+                'creation_date': accreditation_item.creation_date,
+                'last_access': None,
+                'assigned_tips': 0,
+                'closed_tips': 0
+            }
+        )
+    """
+    query = (session.query(User)
+             .filter(User.tid == accreditation_item.tid)
+             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
+             ).all()
+    for user in query:
+        user_list.append(
+            {
+                'id': user.id,
+                'name': user.name,
+                'surname': None,
+                'email': user.mail_address,
+                'fiscal_code': None,
+                'role': user.role,
+                'creation_date': user.creation_date,
+                'last_access': user.last_login,
+                'assigned_tips': 0,
+                'cloesd_tips': 0
+            }
+        )
+    return user_list
+
+
 def serialize_element(accreditation_item, count_tip, count_user, t):
     return {
         'id': accreditation_item.sharing_id,
-        'denomination': accreditation_item.organization_name,
+        'organization_name': accreditation_item.organization_name,
         'type': "NOT_AFFILIATED" if t.affiliated is None or t.affiliated == '' else t.affiliated.upper(),
         'accreditation_date': accreditation_item.creation_date,
         'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
             accreditation_item.state).name,
         'num_user_profiled': list(count_user)[0] + 2,
-        'num_tip': list(count_tip)[0]
+        'opened_tips': list(count_tip)[0]
     }
 
 
@@ -98,6 +220,7 @@ def get_all_accreditation(session):
             t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
             count_tip, count_user = count_user_tip(session, accreditation_item)
             element = serialize_element(accreditation_item, count_tip, count_user, t)
+            element['closed_tips'] = 0
             request_accreditation.append(element)
         return request_accreditation
     except Exception as e:
@@ -167,6 +290,8 @@ def get_accreditation_by_id(session, accreditation_id):
         )
         count_tip, count_user = count_user_tip(session, accreditation_item)
         element = serialize_element(accreditation_item, count_tip, count_user, t)
+        element = add_user_primary(session, accreditation_item, element)
+        element['users'] = extract_user(session, accreditation_item)
         return element
     except NoResultFound:
         log.error(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -174,6 +299,60 @@ def get_accreditation_by_id(session, accreditation_id):
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError
+
+
+@transact
+def activate_tenant(session, accreditation_id):
+    config_element = ConfigFactory(session, 1)
+    accreditation_item = (
+        session.query(Subscriber)
+        .filter(Subscriber.organization_name.isnot(None))
+        .filter(Subscriber.sharing_id == accreditation_id)
+        .one()
+    )
+    accreditation_item.activation_token = generateRandomKey()
+    t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
+    mode = config_element.get_val('mode')
+    language = config_element.get_val('default_language')
+    appdata = load_appdata()
+    models.config.initialize_config(session, t.id, mode)
+    models.config.add_new_lang(session, t.id, language, appdata)
+    db_initialize_tenant_submission_statuses(session, t.id)
+    t.active = True
+    accreditation_item.activation_token = generateRandomKey()
+    password_admin = generateRandomPassword(16)
+    password_receiver = generateRandomPassword(16)
+    node_name = accreditation_item.organization_name
+    wizard = {
+        'node_language': language,
+        'node_name': node_name,
+        'admin_username': 'admin',
+        'admin_name': accreditation_item.admin_name + ' ' + accreditation_item.admin_surname,
+        'admin_password': password_admin,
+        'admin_mail_address': accreditation_item.admin_email,
+        'admin_escrow': config_element.get_val('escrow'),
+        'receiver_username': 'recipient',
+        'receiver_name': accreditation_item.name + ' ' + accreditation_item.surname,
+        'receiver_password': password_receiver,
+        'receiver_mail_address': accreditation_item.email,
+        'profile': 'default',
+        'skip_admin_account_creation': False,
+        'skip_recipient_account_creation': False,
+        'enable_developers_exception_notification': True
+    }
+    db_wizard(session, accreditation_item.tid, '', wizard)
+    deferToThread(sync_refresh_tenant_cache, t)
+    """
+    send_email(
+        session, 
+        [accreditation_item.admin_email, accreditation_item.email], 
+        language, 
+        accreditation_item,
+        wizard
+    )
+    """
+    accreditation_item.state = 1
+    return {'id': accreditation_item.sharing_id}
 
 
 class SubmitAccreditationHandler(BaseHandler):
@@ -225,7 +404,14 @@ class AccreditationHandler(BaseHandler):
 
 
 class AccreditationConfirmHandler(BaseHandler):
-    pass
+    """
+    This manager is responsible for confirm accreditation requests
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+
+    def post(self, accreditation_id: str):
+        return activate_tenant(accreditation_id)
 
 
 class AccreditationRejectHandler(BaseHandler):
