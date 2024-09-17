@@ -14,7 +14,7 @@ from globaleaks.handlers.admin.tenant import db_initialize_tenant_submission_sta
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.wizard import db_wizard
 from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, \
-    User, serializers, EnumUserRole
+    User, serializers
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
