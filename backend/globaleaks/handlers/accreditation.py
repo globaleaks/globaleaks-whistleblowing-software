@@ -107,76 +107,6 @@ def add_user_primary(session, accreditation_item, dict_element):
 
 def extract_user(session, accreditation_item):
     user_list = []
-    """
-    try:
-        query = (session.query(User)
-                 .filter(User.tid == accreditation_item.tid)
-                 .filter(User.mail_address == accreditation_item.email)
-                 ).one()
-        user_list.append(
-            {
-                'id': query.id,
-                'name': accreditation_item.name,
-                'surname': accreditation_item.surname,
-                'email': accreditation_item.email,
-                'fiscal_code': accreditation_item.recipient_fiscal_code,
-                'role': query.role,
-                'creation_date': query.creation_date,
-                'last_access': query.last_login,
-                'assigned_tips': 0,
-                'closed_tips': 0
-            }
-        )
-    except:
-        user_list.append(
-            {
-                'id': None,
-                'name': accreditation_item.name,
-                'surname': accreditation_item.surname,
-                'email': accreditation_item.email,
-                'fiscal_code': accreditation_item.recipient_fiscal_code,
-                'role': EnumUserRole.receiver.name,
-                'creation_date': accreditation_item.creation_date,
-                'last_access': None,
-                'assigned_tips': 0,
-                'closed_tips': 0
-            }
-        )
-    try:
-        query = (session.query(User)
-                 .filter(User.tid == accreditation_item.tid)
-                 .filter(User.mail_address == accreditation_item.admin_email)
-                 ).one()
-        user_list.append(
-            {
-                'id': query.id,
-                'name': accreditation_item.admin_name,
-                'surname': accreditation_item.admin_surname,
-                'email': accreditation_item.admin_email,
-                'fiscal_code': accreditation_item.admin_fiscal_code,
-                'role': query.role,
-                'creation_date': query.creation_date,
-                'last_access': query.last_login,
-                'assigned_tips': 0,
-                'closed_tips': 0
-            }
-        )
-    except:
-        user_list.append(
-            {
-                'id': None,
-                'name': accreditation_item.admin_name,
-                'surname': accreditation_item.admin_surname,
-                'email': accreditation_item.admin_email,
-                'fiscal_code': accreditation_item.admin_fiscal_code,
-                'role': EnumUserRole.admin.name,
-                'creation_date': accreditation_item.creation_date,
-                'last_access': None,
-                'assigned_tips': 0,
-                'closed_tips': 0
-            }
-        )
-    """
     query = (session.query(User)
              .filter(User.tid == accreditation_item.tid)
              .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
@@ -193,7 +123,7 @@ def extract_user(session, accreditation_item):
                 'creation_date': user.creation_date,
                 'last_access': user.last_login,
                 'assigned_tips': 0,
-                'cloesd_tips': 0
+                'closed_tips': 0
             }
         )
     return user_list
