@@ -80,6 +80,7 @@ api_spec = [
     (r'/api/recipient/rfiles/' + uuid_regexp, recipient.rtip.ReceiverFileDownload),
     (r'/api/recipient/wbfiles/' + uuid_regexp, recipient.rtip.WhistleblowerFileDownload),
     (r'/api/recipient/wbtip/' + uuid_regexp + r'/send', recipient.sendtip.ForwardSubmission),
+    (r'/api/recipient/wbtip/' + uuid_regexp + r'/close', recipient.sendtip.CloseForwardedSubmission),
 
     # Whistleblower Handlers
     (r'/api/whistleblower/operations', whistleblower.wbtip.Operations),

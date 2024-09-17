@@ -13,16 +13,61 @@ from globaleaks.handlers.admin.questionnaire import db_get_questionnaire
 from globaleaks.handlers.whistleblower.submission import db_archive_questionnaire_schema, db_assign_submission_progressive, db_create_receivertip, db_set_internaltip_answers
 from globaleaks.utils.log import log
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import get_expiration
+from globaleaks.utils.utility import datetime_now, get_expiration
 from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
+
+class CloseForwardedSubmission(BaseHandler):
+    """
+    Handler responsible for closing a previously forwarded submission to an external organization
+    """
+    check_roles = 'receiver'
+
+    @transact
+    def close_forwarded_submission(self, session, request, itip_id, user_session):
+        itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
+        itip_answers = db_get(session, models.InternalTipAnswers, models.InternalTipAnswers.internaltip_id == itip.id)
+
+        internaltip_forwarding = session.query(models.InternalTipForwarding)\
+                .filter(models.InternalTipForwarding.tid == itip.tid, models.InternalTipForwarding.oe_internaltip_id == itip.id)\
+                    .one_or_none()
+
+        if(internaltip_forwarding is None):
+                raise errors.ResourceNotFound()
+        elif(internaltip_forwarding.state == models.EnumForwardingState.closed.name):
+             raise errors.InputValidationError("Forwarded submission already closed")
+
+        original_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.internaltip_id)
+        answers = request['answers']
+        
+        crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
+        crypto_forwarded_answers = base64.b64encode(GCE.asymmetric_encrypt(original_itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
+        
+        now = datetime_now()
+        
+        itip_answers.answers = crypto_answers
+
+        itip.update_date = now
+
+        # TODO inserire i campi di interesse statistico in apposita colonna
+        internaltip_forwarding.state = models.EnumForwardingState.closed.value
+        internaltip_forwarding.data = crypto_forwarded_answers
+        internaltip_forwarding.update_date = now
+
+        session.flush()
+        
+        return internaltip_forwarding.id
+    
+    def post(self, itip_id):
+        request = self.validate_request(self.request.content.read(), requests.CloseForwardedSubmissionDesc)
+        return self.close_forwarded_submission(request, itip_id, self.session)
 
 class ForwardSubmission(BaseHandler):
     """
     Handler responsible for forwarding a submission to an external organization
     """
-    check_roles = 'any'
+    check_roles = 'receiver'
     
     def fs_copy_file(self, source_id, source_prv_key):
         source_file = os.path.join(self.state.settings.attachments_path, source_id)
@@ -89,6 +134,7 @@ class ForwardSubmission(BaseHandler):
         file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
         file_forwarding.oe_content_id = file.id
         file_forwarding.content_id = original_file_id
+        file_forwarding.author_type = models.EnumAuthorType.main
         if isinstance(file, models.ReceiverFile):  
             file_forwarding.content_origin = models.EnumContentForwarding.receiver_file.value
         elif isinstance(file, models.InternalFile):
@@ -165,6 +211,9 @@ class ForwardSubmission(BaseHandler):
         rtip = db_get(session, models.ReceiverTip, (models.ReceiverTip.receiver_id == user.id, 
                                                         models.ReceiverTip.internaltip_id == itip.id))
         
+        if rtip is None or user.tid != 1:
+            raise errors.ForbiddenOperation()
+
         original_itip_private_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
         
         for tid in request['tid']:
@@ -211,6 +260,7 @@ class ForwardSubmission(BaseHandler):
             crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
             crypto_forwarded_answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
             db_set_internaltip_answers(session, forwarded_itip.id, questionnaire_hash, crypto_answers, forwarded_itip.creation_date)
+            # TODO inserire i campi di interesse statistico in apposita colonna
 
             for user in receivers:
                 _tip_key = GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_tip_prv_key)
@@ -221,7 +271,7 @@ class ForwardSubmission(BaseHandler):
                 copied_file = self.copy_file(session, tid, forwarded_itip, file, original_itip_private_key)
                 self.add_file_forwarding(session, internaltip_forwarding.id, copied_file, file['id'])
 
-        return serializers.serialize_itip(session, forwarded_itip, user.language)
+        return internaltip_forwarding.id
     
     def post(self, itip_id):
         

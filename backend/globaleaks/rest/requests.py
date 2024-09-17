@@ -611,3 +611,7 @@ ForwardSubmissionDesc = {
     'files': [ForwardSubmissionFilesDesc],
     'questionnaire_id': uuid_regexp
 }
+
+CloseForwardedSubmissionDesc = {
+    'answers': str
+}
