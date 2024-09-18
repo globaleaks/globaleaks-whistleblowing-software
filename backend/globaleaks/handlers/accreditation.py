@@ -1,19 +1,31 @@
 import json
+from typing import Dict, Optional
 from uuid import uuid4
 
 from sqlalchemy import func, distinct
 from sqlalchemy.exc import NoResultFound
+from twisted.internet.threads import deferToThread
 
+from globaleaks import models
+from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.db.appdata import load_appdata
+from globaleaks.handlers.admin.node import db_admin_serialize_node
+from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.admin.tenant import db_initialize_tenant_submission_statuses
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, User
+from globaleaks.handlers.wizard import db_wizard
+from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, \
+    User, serializers
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
+from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword
 from globaleaks.utils.log import log
 
 
 def create_tenant():
+    """Create a new inactive, external tenant."""
     t = Tenant()
     t.active = False
     t.external = True
@@ -21,37 +33,70 @@ def create_tenant():
 
 
 def save_step(session, obj):
+    """Save an object to the database session and flush changes."""
     session.add(obj)
     session.flush()
 
 
-def send_email(session, tenant_id: int, email: list):
-    for user_desc in email:
-        template_vars = {
-            'type': 'admin_signup_alert',
-            'node': '',  # db_admin_serialize_node(session, 1, user_desc['language']),
-            'notification': '',  # db_get_notification(session, 1, user_desc['language']),
-            'user': user_desc,
-            'signup': '',  # signup_dict
-        }
+def send_email(session, emails: list, language, accreditation_item, wizard):
+    """
+    Send activation emails to the provided email addresses.
 
-        State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
+    Args:
+        session: The database session.
+        emails: List of email addresses to send to.
+        language: The language for the email content.
+        accreditation_item: The Subscriber object.
+        wizard: Dictionary containing setup information.
+    """
+    node = db_admin_serialize_node(session, 1, language)
+    notification = db_get_notification(session, 1, language)
+    signup = serializers.serialize_signup(accreditation_item)
+
+    template_vars = {
+        'type': 'activation',
+        'node': node,
+        'notification': notification,
+        'signup': signup,
+        'password_admin': wizard['admin_password'],
+        'password_recipient': wizard['receiver_password']
+    }
+
+    for email in emails:
+        State.format_and_send_mail(session, 1, email, template_vars)
 
 
 @transact
 def accreditation(session, request):
+    """
+    Process an accreditation request.
+
+    Args:
+        session: The database session.
+        request: The accreditation request data.
+
+    Returns:
+        A dictionary containing the new subscriber's sharing ID.
+
+    Raises:
+        InternalServerError: If the accreditation process fails.
+    """
     try:
         sub = Subscriber(request)
         sub.language = ''
         sub.subdomain = str(uuid4())
         sub.state = EnumSubscriberStatus.requested.name
         sub.organization_location = ''
+
         t = create_tenant()
         save_step(session, t)
+
         sub.tid = t.id
         save_step(session, sub)
+
         sub.subdomain = sub.sharing_id
         save_step(session, sub)
+
         return {'id': sub.sharing_id}
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
@@ -59,45 +104,138 @@ def accreditation(session, request):
 
 
 def count_user_tip(session, accreditation_item):
+    """
+    Count the number of tips and users for a given accreditation item.
+
+    Args:
+        session: The database session.
+        accreditation_item: The Subscriber object.
+
+    Returns:
+        A tuple containing the count of tips and users.
+    """
     count_tip = (
-        session.query(
-            func.count(distinct(InternalTipForwarding.id))
-        )
+        session.query(func.count(distinct(InternalTipForwarding.id)))
         .filter(InternalTipForwarding.oe_internaltip_id == accreditation_item.tid)
-        .one()
+        .scalar()
     )
     count_user = (
         session.query(
             func.count(distinct(User.id))
         )
         .filter(User.tid == accreditation_item.tid)
-        .filter(User.mail_address not in (accreditation_item.email, accreditation_item.admin_email))
-        .one()
+        .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
+        .scalar()
     )
     return count_tip, count_user
 
 
+def add_user_primary(accreditation_item, dict_element):
+    """
+    Add primary user information to the dictionary element.
+
+    Args:
+        accreditation_item: The Subscriber object.
+        dict_element: The dictionary to update.
+
+    Returns:
+        The updated dictionary.
+    """
+    dict_element.update({
+        'organization_email': accreditation_item.organization_email,
+        'organization_institutional_site': accreditation_item.organization_institutional_site,
+        'admin_name': accreditation_item.admin_name,
+        'admin_surname': accreditation_item.admin_surname,
+        'admin_fiscal_code': accreditation_item.admin_fiscal_code,
+        'admin_email': accreditation_item.admin_email,
+        'recipient_name': accreditation_item.name,
+        'recipient_surname': accreditation_item.surname,
+        'recipient_fiscal_code': accreditation_item.recipient_fiscal_code,
+        'recipient_email': accreditation_item.email,
+        'tos1': accreditation_item.tos1,
+        'tos2': accreditation_item.tos2,
+        'closed_tips': 0
+    })
+    return dict_element
+
+
+def extract_user(session, accreditation_item):
+    """
+    Extract user information for a given accreditation item.
+
+    Args:
+        session: The database session.
+        accreditation_item: The Subscriber object.
+
+    Returns:
+        A list of dictionaries containing user information.
+    """
+    query = (session.query(User)
+             .filter(User.tid == accreditation_item.tid)
+             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email])))
+    return [
+        {
+            'id': user.id,
+            'name': user.name,
+            'surname': None,
+            'email': user.mail_address,
+            'fiscal_code': None,
+            'role': user.role,
+            'creation_date': user.creation_date,
+            'last_access': user.last_login,
+            'assigned_tips': 0,
+            'closed_tips': 0
+        }
+        for user in query
+    ]
+
+
 def serialize_element(accreditation_item, count_tip, count_user, t):
+    """
+    Serialize an accreditation item into a dictionary.
+
+    Args:
+        accreditation_item: The Subscriber object.
+        count_tip: The number of tips.
+        count_user: The number of users.
+        t: The Tenant object.
+
+    Returns:
+        A dictionary containing serialized accreditation information.
+    """
     return {
         'id': accreditation_item.sharing_id,
-        'denomination': accreditation_item.organization_name,
-        'type': "NOT_AFFILIATED" if t.affiliated is None or t.affiliated == '' else t.affiliated.upper(),
+        'organization_name': accreditation_item.organization_name,
+        'type': "AFFILIATED" if t.affiliated else 'NOT_AFFILIATED',
         'accreditation_date': accreditation_item.creation_date,
         'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
             accreditation_item.state).name,
-        'num_user_profiled': list(count_user)[0] + 2,
-        'num_tip': list(count_tip)[0]
+        'num_user_profiled': count_user + 2,
+        'opened_tips': count_tip
     }
 
 
 @transact
 def get_all_accreditation(session):
+    """
+    Retrieve all accreditation items.
+
+    Args:
+        session: The database session.
+
+    Returns:
+        A list of dictionaries containing accreditation information.
+
+    Raises:
+        InternalServerError: If the retrieval process fails.
+    """
     try:
         request_accreditation = []
         for accreditation_item in (session.query(Subscriber).filter(Subscriber.organization_name.isnot(None))):
             t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
             count_tip, count_user = count_user_tip(session, accreditation_item)
             element = serialize_element(accreditation_item, count_tip, count_user, t)
+            element['closed_tips'] = 0
             request_accreditation.append(element)
         return request_accreditation
     except Exception as e:
@@ -105,23 +243,48 @@ def get_all_accreditation(session):
         raise errors.InternalServerError
 
 
+def determine_type(data: Dict[str, Optional[str]]) -> bool:
+    type_value = data.get('type')
+    return (
+            isinstance(type_value, bool) and type_value or
+            isinstance(type_value, str) and type_value.upper() == 'AFFILIATED'
+    )
+
+
 @transact
 def update_accreditation_by_id(session, accreditation_id, data: dict = None):
+    """
+    Update an accreditation item by its ID.
+
+    Args:
+        session: The database session.
+        accreditation_id: The ID of the accreditation to update.
+        data: A dictionary containing the fields to update.
+
+    Returns:
+        A dictionary containing the updated accreditation's sharing ID.
+
+    Raises:
+        ResourceNotFound: If the accreditation item is not found.
+        InternalServerError: If the update process fails.
+    """
+    data = data or {}
     try:
-        data = data or {}
         accreditation_item = (
             session.query(Subscriber)
-            .filter(Subscriber.organization_name.isnot(None))
-            .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.organization_name.isnot(None), Subscriber.sharing_id == accreditation_id)
             .one()
         )
-        if 'denomination' in data:
-            accreditation_item.organization_name = data['denomination']
-        if 'pec' in data:
-            accreditation_item.organization_email = data['pec']
-        if 'institutional_site' in data:
-            accreditation_item.organization_institutional_site = data['institutional_site']
-        save_step(session, accreditation_item)
+        if accreditation_item.state == EnumSubscriberStatus.requested.name:
+            updated_fields = ['organization_name', 'organization_email', 'organization_institutional_site']
+            for key, value in data.items():
+                if key in updated_fields:
+                    setattr(accreditation_item, key, value)
+            session.commit()
+        if 'type' in data:
+            tenant = session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one()
+            tenant.affiliated = determine_type(data)
+            session.commit()
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
         log.error(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -132,19 +295,44 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 
 
 @transact
-def delete_accreditation_by_id(session, accreditation_id):
+def change_status_accreditation(session, accreditation_id: str, from_status: str, to_status: int):
+    """
+    Updates the accreditation status of a subscriber in the database.
+
+    This function searches for a subscriber with the given `accreditation_id` and current
+    status `from_status`. If found, it updates the subscriber's status (`state`) to `to_status`.
+    If no subscriber is found or an error occurs, appropriate exceptions are raised.
+
+    Parameters:
+        session (Session): The current database session used to query and commit changes.
+        accreditation_id (str): The unique identifier of the accreditation whose status is to be updated.
+        from_status (str): The current status of the accreditation. The update will only occur if this matches.
+        to_status (int): The new status value to which the accreditation will be updated.
+
+    Returns:
+        dict: A dictionary containing the `id` of the subscriber whose status was successfully updated.
+
+    Raises:
+        ResourceNotFound: Raised if no subscriber with the given `accreditation_id` and `from_status` is found.
+        InternalServerError: Raised if any other error occurs during the process.
+
+    Exceptions:
+        NoResultFound: Raised when the query does not find a matching subscriber.
+        Exception: Generic exceptions are caught, logged, and raise an `InternalServerError`.
+    """
     try:
         accreditation_item = (
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
             .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.state == from_status)
             .one()
         )
-        accreditation_item.state = EnumSubscriberStatus.rejected.value
-        save_step(session, accreditation_item)
+        accreditation_item.state = to_status
+        session.commit()
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
-        log.error(f"Error: Accreditation with ID {accreditation_id} not found")
+        log.err(f"Error: Accreditation with ID {accreditation_id} not found")
         raise errors.ResourceNotFound
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
@@ -153,6 +341,20 @@ def delete_accreditation_by_id(session, accreditation_id):
 
 @transact
 def get_accreditation_by_id(session, accreditation_id):
+    """
+    Retrieve an accreditation item by its ID.
+
+    Args:
+        session: The database session.
+        accreditation_id: The ID of the accreditation to retrieve.
+
+    Returns:
+        A dictionary containing the accreditation information.
+
+    Raises:
+        ResourceNotFound: If the accreditation item is not found.
+        InternalServerError: If the retrieval process fails.
+    """
     try:
         accreditation_item = (
             session.query(Subscriber)
@@ -167,6 +369,8 @@ def get_accreditation_by_id(session, accreditation_id):
         )
         count_tip, count_user = count_user_tip(session, accreditation_item)
         element = serialize_element(accreditation_item, count_tip, count_user, t)
+        element = add_user_primary(accreditation_item, element)
+        element['users'] = extract_user(session, accreditation_item)
         return element
     except NoResultFound:
         log.error(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -174,6 +378,71 @@ def get_accreditation_by_id(session, accreditation_id):
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError
+
+
+@transact
+def activate_tenant(session, accreditation_id):
+    """
+    Activate a tenant based on the accreditation ID.
+
+    Args:
+        session: The database session.
+        accreditation_id: The ID of the accreditation to activate.
+
+    Returns:
+        A dictionary containing the activated accreditation's sharing ID.
+    """
+    config_element = ConfigFactory(session, 1)
+    accreditation_item = (
+        session.query(Subscriber)
+        .filter(Subscriber.organization_name.isnot(None))
+        .filter(Subscriber.sharing_id == accreditation_id)
+        .one()
+    )
+    accreditation_item.activation_token = generateRandomKey()
+    t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
+    mode = config_element.get_val('mode')
+    language = config_element.get_val('default_language')
+    appdata = load_appdata()
+
+    models.config.initialize_config(session, t.id, mode)
+    models.config.add_new_lang(session, t.id, language, appdata)
+    db_initialize_tenant_submission_statuses(session, t.id)
+
+    t.active = True
+    accreditation_item.activation_token = generateRandomKey()
+
+    wizard = {
+        'node_language': language,
+        'node_name': accreditation_item.organization_name,
+        'admin_username': 'admin',
+        'admin_name': f"{accreditation_item.admin_name} {accreditation_item.admin_surname}",
+        'admin_password': generateRandomPassword(16),
+        'admin_mail_address': accreditation_item.admin_email,
+        'admin_escrow': config_element.get_val('escrow'),
+        'receiver_username': 'recipient',
+        'receiver_name': f"{accreditation_item.name} {accreditation_item.surname}",
+        'receiver_password': generateRandomPassword(16),
+        'receiver_mail_address': accreditation_item.email,
+        'profile': 'default',
+        'skip_admin_account_creation': False,
+        'skip_recipient_account_creation': False,
+        'enable_developers_exception_notification': True
+    }
+    db_wizard(session, accreditation_item.tid, '', wizard)
+    deferToThread(sync_refresh_tenant_cache, t)
+    """
+    send_email(
+        session, 
+        [accreditation_item.admin_email, accreditation_item.email], 
+        language, 
+        accreditation_item,
+        wizard
+    )
+    """
+    accreditation_item.state = EnumSubscriberStatus.accredited.value
+    session.commit()
+    return {'id': accreditation_item.sharing_id}
 
 
 class SubmitAccreditationHandler(BaseHandler):
@@ -220,12 +489,19 @@ class AccreditationHandler(BaseHandler):
 
     def put(self, accreditation_id: str):
         payload = self.request.content.read().decode('utf-8')
-        data = json.loads(payload) if not (payload == '' or payload is None) else {}
+        data = json.loads(payload) if payload else {}
         return update_accreditation_by_id(accreditation_id, data)
 
 
 class AccreditationConfirmHandler(BaseHandler):
-    pass
+    """
+    This manager is responsible for confirm accreditation requests
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+
+    def post(self, accreditation_id: str):
+        return activate_tenant(accreditation_id)
 
 
 class AccreditationRejectHandler(BaseHandler):
@@ -234,4 +510,8 @@ class AccreditationRejectHandler(BaseHandler):
     invalidate_cache = True
 
     def delete(self, accreditation_id: str):
-        return delete_accreditation_by_id(accreditation_id)
+        return change_status_accreditation(
+            accreditation_id,
+            EnumSubscriberStatus.requested.name,
+            EnumSubscriberStatus.rejected.value
+        )

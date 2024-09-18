@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AccreditationRequestModel } from '@app/models/accreditor/organization-data';
+import { EOExtendedInfo } from '@app/models/accreditor/organization-data';
 import { UtilsService } from '../services/utils.service';
 import { HttpService } from '../services/http.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
@@ -10,7 +10,7 @@ import { map, Observable, of } from 'rxjs';
 })
 export class AccreditationReqResolver {
 
-  dataModel: AccreditationRequestModel[] = [];
+  dataModel: EOExtendedInfo[] = [];
 
   constructor(private utilsService: UtilsService, private httpService: HttpService, 
     private authenticationService: AuthenticationService) {
@@ -30,7 +30,7 @@ export class AccreditationReqResolver {
   resolve(): Observable<boolean> {
     if (this.authenticationService.session.role === "accreditor") {
       return this.httpService.accreditorRequestResource().pipe(
-        map((response: AccreditationRequestModel[]) => {
+        map((response: EOExtendedInfo[]) => {
           this.dataModel = response;
           return true;
         })

@@ -26,11 +26,13 @@
             <table class="table table-striped" id="reqList">
                 <thead>
                 <tr>
-                    <th class="ReqInfoID" (click)="sortKey = 'id'; sortReverse = !sortReverse">
-                        <i class="fa-solid fa-hashtag"></i>
-                        <span *ngIf="sortKey === 'id'">
-                            <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
-                            <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                    <th class="ReqInfoID" >
+                        <span (click)="sortKey = 'id'; sortReverse = !sortReverse">
+                            <i class="fa-solid fa-hashtag"></i>
+                            <span *ngIf="sortKey === 'id'">
+                                <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
+                                <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
+                            </span>
                         </span>
                     </th>                    
                     <th class="ReqInfoDenomination">
@@ -120,11 +122,11 @@
                         </td>           
 
                         <td class="ReqInfoDenomination">
-                            {{req.denomination}}
+                            {{req.organization_name}}
                         </td>
 
                         <td class="ReqInfoType">
-                            {{req.type}}
+                            {{req.type | translate}}
                         </td>
                         
                         <td class="ReqInfoAccreditationDate">
@@ -136,15 +138,15 @@
                         </td>
     
                         <td class="ReqInfoTipsCount">
-                            {{req.num_tip}}
+                            {{req.opened_tips}}
                         </td>
     
                         <td class="ReqInfoClosedCount">
-                            {{req.num_tip}}
+                            {{req.closed_tips}}
                         </td>
     
                         <td class="ReqInfoState">
-                            {{req.state}}
+                            {{req.state | translate}}
                         </td>
 
 

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppDataService } from '@app/app-data.service';
-import { AccreditationRequestModel } from '@app/models/accreditor/organization-data';
+import { EOExtendedInfo } from '@app/models/accreditor/organization-data';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { AppConfigService } from '@app/services/root/app-config.service';
 import { AccreditationReqResolver } from '@app/shared/resolvers/accreditation-req-resolver.service';
@@ -25,7 +25,7 @@ export class OrganizationsComponent implements OnInit{
 
   search: string | undefined;
   selectedReqs: string[] = [];
-  filteredReqs: AccreditationRequestModel[];
+  filteredReqs: EOExtendedInfo[];
   currentPage: number = 1;
   itemsPerPage: number = 20;
   sortKey: string = "accreditation_date";
@@ -67,7 +67,7 @@ export class OrganizationsComponent implements OnInit{
     }
   }
 
-  orderbyCast(data: AccreditationRequestModel[]): AccreditationRequestModel[] {
+  orderbyCast(data: EOExtendedInfo[]): EOExtendedInfo[] {
     return data;
   }
 
