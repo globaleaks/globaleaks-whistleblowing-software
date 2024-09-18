@@ -38,6 +38,13 @@ export class OrganizationComponent implements OnInit{
     email: ''
   };
 
+  private actionHandlers: { [key: string]: () => void } = {
+    'reload': () => this.loadOrganizationData(),
+    'suspend': () => this.cambiaStatoOrganizzazioneAccreditata(),
+    'reactivate': () => this.cambiaStatoOrganizzazioneAccreditata(),
+    'update': () => this.aggiornaInfoOrganizazzione(),
+    'delete': () => this.rifiuta()
+  };
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
     private orgService : AccreditorOrgService, private authenticationService: AuthenticationService){
@@ -47,6 +54,12 @@ export class OrganizationComponent implements OnInit{
 
   ngOnInit() {
    this.loadOrganizationData();
+
+   const container = document.getElementById('actions-container');
+    if (container) {
+      container.addEventListener('click', this.onActionHandler.bind(this));
+      container.addEventListener('keydown', this.onActionHandler.bind(this));
+    }
   }
 
   loadOrganizationData(){
@@ -101,27 +114,29 @@ export class OrganizationComponent implements OnInit{
 
           // this.organization.users = users;
 
-          this.organization.state = "REQUESTED"
+          this.organization.state = "ACCREDITED";
           //fine mockup
 
         }
       });
   }
-
   
   convertiInAffiliata(){
     console.log("CONVERTI IN AFFILIATA - TODO!!!")
+    if(this.org_type) // TODO richiesta info
+      this.organization.type = "AFFILIATED"
   }
 
   invia(){
-    if(this.org_type) // TODO richiesta info
-      this.organization.type = "AFFILIATED"
+    //todo mockup
+    this.organization.state = "INVITED";
+    //fine mockup
   
-    console.log("INVIA / INVIA INVITO - TODO!!!", this.organization.id);
+    console.log("INVIA / INVIA INVITO - TODO!!!");
     // if (this.authenticationService.session.role === "accreditor") {
     //   this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
-    //     next: (response) => {
-    //       console.log("Invito inviato con successo", response);
+    //     next: () => {
+    //       console.log("Invito inviato con successo");
     //       this.loadOrganizationData();
     //     },
     //     error: (err) => {
@@ -132,11 +147,14 @@ export class OrganizationComponent implements OnInit{
   }
 
   rifiuta(){
+    //todo mockup
+    this.organization.state = "REJECTED";
+    //fine mockup
     console.log("REJECT - TODO!!!")
     // if (this.authenticationService.session.role === "accreditor") {
     //   this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
-    //     next: (response) => {
-    //       console.log("Richiesta rifiutata con successo", response);
+    //     next: () => {
+    //       console.log("Richiesta rifiutata con successo");
     //       this.loadOrganizationData();
     //     },
     //     error: (err) => {
@@ -144,7 +162,66 @@ export class OrganizationComponent implements OnInit{
     //     }
     //   }); 
     // }
+  }
 
+  onActionHandler(event: Event) {
+    if (event instanceof MouseEvent || (event instanceof KeyboardEvent && event.key === 'Enter')) {
+      const target = (event.target as HTMLElement).closest('span[data-action]');
+      
+      if (target) {
+        const action = target.getAttribute('data-action');
+        
+        // Esegui l'azione corrispondente dalla mappa
+        if (action && this.actionHandlers[action]) {
+          this.actionHandlers[action]();
+        }
+      }
+    }
+  }
+
+  cambiaStatoOrganizzazioneAccreditata() {
+    //todo mockup
+    this.organization.state = "SUSPENDED"; //"SUSPENDED";
+    //fine mockup
+    console.log("CAMBIA STATO - TODO!!!")
+    // if (this.authenticationService.session.role === "accreditor") {
+    //   this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
+    //     next: () => {
+    //       console.log("Stato modificato con successo");
+    //       this.loadOrganizationData();
+    //     },
+    //     error: (err) => {
+    //       console.error("Errore durante il rifiuto della richiesta", err);
+    //     }
+    //   }); 
+    // }
+  }
+
+  aggiornaInfoOrganizazzione() {
+    console.log("AGGIORNA DATI ORGANIZZAZIONE - TODO!!!")
+    //todo mockup
+    this.organization.organization_name = "updated name";
+    this.organization.organization_email = "updated email";
+    this.organization.organization_institutional_site = "updated site";
+    this.organization.type = "NOT_AFFILIATED";
+    //fine mockup
+    // if (this.authenticationService.session.role === "accreditor") {
+    //   const updatedData = {
+    //     organization_name: this.organizationInfo.organization_name,
+    //     organization_email: this.organizationInfo.organization_email,
+    //     organization_institutional_site: this.organizationInfo.organization_institutional_site,
+    //     type: this.organization.type ? 'AFFILIATED' : 'NOT_AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
+    //   };
+    //   this.httpService.updateInfoAccreditedOrganizationRequest(this.organization.id, updatedData).subscribe({
+    //     next: () => {
+    //       console.log("Aggiornamento effettuato con successo");
+    //       this.loadOrganizationData();
+    //     },
+    //     error: (err) => {
+    //       console.error("Errore durante il rifiuto della richiesta", err);
+    //     }
+    //   }); 
+    // }
   }
 
 
