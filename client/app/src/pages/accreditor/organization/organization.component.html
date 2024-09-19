@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <div class="row" *ngIf="!isInvited()">
+    <div class="row" *ngIf="!(isInvited() || isApproved())">
         <div class="col-md-12" id="organization-button">
             <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
                 {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
