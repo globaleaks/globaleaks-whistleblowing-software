@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { ConfirmationComponent } from '@app/shared/modals/confirmation/confirmation.component';
 
 @Component({
   selector: 'src-organization',
@@ -47,7 +49,8 @@ export class OrganizationComponent implements OnInit{
   };
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
-    private orgService : AccreditorOrgService, private authenticationService: AuthenticationService){
+    private orgService : AccreditorOrgService, private authenticationService: AuthenticationService,
+    private modalService: NgbModal){
 
   }
 
@@ -90,8 +93,11 @@ export class OrganizationComponent implements OnInit{
           this.receiverInfo.fiscal_code = response.recipient_fiscal_code
           this.receiverInfo.email = response.recipient_email
 
+          console.log("response.state:", response.state);
+          console.log("organization state:", this.organization.state);
+
           //todo mockup
-          this.org_type = this.organization.type === "AFFILIATED"
+          //this.org_type = this.organization.type === "AFFILIATED"
 
           //todo mockup:
           // let users : EOUser[] = [];
@@ -114,7 +120,7 @@ export class OrganizationComponent implements OnInit{
 
           // this.organization.users = users;
 
-          this.organization.state = "ACCREDITED";
+          //this.organization.state = "ACCREDITED";
           //fine mockup
 
         }
@@ -129,39 +135,49 @@ export class OrganizationComponent implements OnInit{
 
   invia(){
     //todo mockup
-    this.organization.state = "INVITED";
+    //this.organization.state = "INVITED";
     //fine mockup
   
     console.log("INVIA / INVIA INVITO - TODO!!!");
-    // if (this.authenticationService.session.role === "accreditor") {
-    //   this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
-    //     next: () => {
-    //       console.log("Invito inviato con successo");
-    //       this.loadOrganizationData();
-    //     },
-    //     error: (err) => {
-    //       console.error("Errore durante l'invio dell'invito", err);
-    //     }
-    //   }); 
-    // }
+    if (this.authenticationService.session.role === "accreditor") {
+      this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
+        next: () => {
+          console.log("Invito inviato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante l'invio dell'invito", err);
+        }
+      }); 
+    }
   }
 
   rifiuta(){
     //todo mockup
-    this.organization.state = "REJECTED";
+    // this.organization.state = "REJECTED";
     //fine mockup
     console.log("REJECT - TODO!!!")
-    // if (this.authenticationService.session.role === "accreditor") {
-    //   this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
-    //     next: () => {
-    //       console.log("Richiesta rifiutata con successo");
-    //       this.loadOrganizationData();
-    //     },
-    //     error: (err) => {
-    //       console.error("Errore durante il rifiuto della richiesta", err);
-    //     }
-    //   }); 
-    // }
+    if (this.authenticationService.session.role === "accreditor") {
+      const modalRef = this.modalService.open(ConfirmationComponent);
+
+      modalRef.result.then((result) => {
+        if (result) {
+          this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
+            next: () => {
+              console.log("Richiesta rifiutata con successo");
+              this.loadOrganizationData();
+            },
+            error: (err) => {
+              console.error("Errore durante il rifiuto della richiesta", err);
+            }
+          });
+        } else {
+          console.log('Modal dismissed');
+        }
+      }).catch((error) => {
+        console.log("Operazione annullata o chiusa", error);
+      });
+    }
   }
 
   onActionHandler(event: Event) {
@@ -181,68 +197,74 @@ export class OrganizationComponent implements OnInit{
 
   cambiaStatoOrganizzazioneAccreditata() {
     //todo mockup
-    this.organization.state = "SUSPENDED"; //"SUSPENDED";
+    // this.organization.state = "SUSPENDED"; //"SUSPENDED";
     //fine mockup
     console.log("CAMBIA STATO - TODO!!!")
-    // if (this.authenticationService.session.role === "accreditor") {
-    //   this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
-    //     next: () => {
-    //       console.log("Stato modificato con successo");
-    //       this.loadOrganizationData();
-    //     },
-    //     error: (err) => {
-    //       console.error("Errore durante il rifiuto della richiesta", err);
-    //     }
-    //   }); 
-    // }
+    if (this.authenticationService.session.role === "accreditor") {
+      this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
+        next: () => {
+          console.log("Stato modificato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante il rifiuto della richiesta", err);
+        }
+      }); 
+    }
   }
 
   aggiornaInfoOrganizazzione() {
     console.log("AGGIORNA DATI ORGANIZZAZIONE - TODO!!!")
     //todo mockup
-    this.organization.organization_name = "updated name";
-    this.organization.organization_email = "updated email";
-    this.organization.organization_institutional_site = "updated site";
-    this.organization.type = "NOT_AFFILIATED";
+    // this.organization.organization_name = "updated name";
+    // this.organization.organization_email = "updated email";
+    // this.organization.organization_institutional_site = "updated site";
+    // this.organization.type = "NOT_AFFILIATED";
     //fine mockup
-    // if (this.authenticationService.session.role === "accreditor") {
-    //   const updatedData = {
-    //     organization_name: this.organizationInfo.organization_name,
-    //     organization_email: this.organizationInfo.organization_email,
-    //     organization_institutional_site: this.organizationInfo.organization_institutional_site,
-    //     type: this.organization.type ? 'AFFILIATED' : 'NOT_AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
-    //   };
-    //   this.httpService.updateInfoAccreditedOrganizationRequest(this.organization.id, updatedData).subscribe({
-    //     next: () => {
-    //       console.log("Aggiornamento effettuato con successo");
-    //       this.loadOrganizationData();
-    //     },
-    //     error: (err) => {
-    //       console.error("Errore durante il rifiuto della richiesta", err);
-    //     }
-    //   }); 
-    // }
+    if (this.authenticationService.session.role === "accreditor") {
+      const updatedData = {
+        organization_name: this.organizationInfo.organization_name,
+        organization_email: this.organizationInfo.organization_email,
+        organization_institutional_site: this.organizationInfo.organization_institutional_site,
+        type: this.organization.type ? 'AFFILIATED' : 'NOT_AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
+      };
+      this.httpService.updateInfoAccreditedOrganizationRequest(this.organization.id, updatedData).subscribe({
+        next: () => {
+          console.log("Aggiornamento effettuato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante il rifiuto della richiesta", err);
+        }
+      }); 
+    }
   }
 
-
   isRequested(){
-    return this.organization.state === "REQUESTED"
+    return this.organization.state === "requested"
   }
 
   isInstructorRequest(){
-    return this.organization.state === "INSTRUCTOR_REQUEST"
+    return this.organization.state === "instructor_request"
   }
 
   isAccredited(){
-    return this.organization.state === "ACCREDITED"
+    return this.organization.state === "accredited"
   }
 
   isSuspended(){
-    return this.organization.state === "SUSPENDED"
+    return this.organization.state === "suspended"
   }
 
   isInvited(){
-    return this.organization.state === "INVITED"
+    return this.organization.state === "invited"
+  }
+
+  canDelete(){
+    console.log("CAN DELETE");
+    console.log(this.organization.opened_tips);
+    console.log(this.organization.num_user_profiled);
+    return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
 
 }

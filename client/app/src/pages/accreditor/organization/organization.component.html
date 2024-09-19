@@ -27,20 +27,20 @@
             </span>
 
             <span id="org-action-delete"
+                *ngIf="(isAccredited() || isSuspended()) && canDelete()"
                 data-action="delete"
                 (click)="onActionHandler($event)"
                 (keydown)="onActionHandler($event)"
-                *ngIf="isAccredited() || isSuspended()"
                 data-toggle="tooltip" title="{{'Delete' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-trash"></i>
             </span>
 
             <span id="org-action-update"
+                *ngIf="isAccredited() || isSuspended()"
                 data-action="update"
                 (click)="onActionHandler($event)"
                 (keydown)="onActionHandler($event)"
-                *ngIf="isAccredited() || isSuspended()"
                 data-toggle="tooltip" title="{{'Save' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-save"></i>
