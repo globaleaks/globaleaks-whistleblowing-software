@@ -417,3 +417,19 @@ class BaseHandler(object):
             log.err(tid=self.request.tid, *err_tup)
 
         track_handler(self)
+
+    def fs_copy_file(self, source_id, source_prv_key):
+        source_file = os.path.join(self.state.settings.attachments_path, source_id)
+        self.check_file_presence(source_file)
+        temp_file = SecureTemporaryFile(Settings.tmp_path)
+
+        self.state.TempUploadFiles[temp_file.key_id] = temp_file
+        with temp_file.open('w') as output_fd,\
+             GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
+            while True:
+                last, data = seo.decrypt_chunk()
+                output_fd.write(data)
+                if last:
+                    break
+
+        return temp_file.key_id

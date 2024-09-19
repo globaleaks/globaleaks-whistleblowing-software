@@ -18,6 +18,106 @@ from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
 
+def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id):
+    internaltip_forwarding = models.InternalTipForwarding()
+    internaltip_forwarding.internaltip_id = original_itip_id
+    internaltip_forwarding.oe_internaltip_id = forwarded_itip.id
+    internaltip_forwarding.tid = tid
+    internaltip_forwarding.creation_date = forwarded_itip.creation_date
+    internaltip_forwarding.update_date = forwarded_itip.update_date
+    internaltip_forwarding.data = data
+    internaltip_forwarding.questionnaire_id = questionnaire_id
+    internaltip_forwarding.state = models.EnumForwardingState.open.value
+    session.add(internaltip_forwarding)
+
+    return internaltip_forwarding
+
+def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_id):
+
+    file_forwarding = models.ContentForwarding()
+    file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
+    file_forwarding.oe_content_id = file.id
+    file_forwarding.content_id = original_file_id
+    file_forwarding.author_type = models.EnumAuthorType.main
+    if isinstance(file, models.ReceiverFile):
+        file_forwarding.content_origin = models.EnumContentForwarding.receiver_file.value
+    elif isinstance(file, models.InternalFile):
+        file_forwarding.content_origin = models.EnumContentForwarding.internal_file.value
+    else:
+        raise errors.InputValidationError("Unable to deliver the file's origin")
+
+    session.add(file_forwarding)
+    return file_forwarding
+
+def validate_steps(session, tid, questionnaire_id):
+    questionnaire = db_get(session, models.Questionnaire,(models.Questionnaire.id == questionnaire_id))
+    steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
+    first_field = steps[0]['children'][0]
+    if first_field['type'] != 'textarea' or bool(first_field['editable']):
+        raise errors.InputValidationError("Unable to forward the submission with this questionnaire")
+    return steps
+
+def set_answer(text, steps):
+    first_field_id = steps[0]['children'][0]['id']
+    answers = dict()
+    empty_content = dict()
+    required_status = False
+    empty_content['required_status'] = required_status
+    empty_content['value'] = ''
+    empty_content['editable'] = True
+    empty_content_list = [1]
+    empty_content_list[0] = empty_content
+    for s in steps:
+        for f in s['children']:
+            answers[f['id']] = empty_content_list
+
+    content = dict()
+    content_list = [1]
+    content['required_status'] = required_status
+    content['value'] = text
+    content_list[0] = content
+    answers[first_field_id] = content_list
+    return answers
+
+def copy_internalfile(session, destination_itip, source_internalfile, source_prv_key, destination_id):
+    name = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_internalfile.name))
+    content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_internalfile.content_type))
+    size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_internalfile.size))
+    reference = source_internalfile.reference_id
+    new_file = models.InternalFile()
+    new_file.id = destination_id
+    new_file.name = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, name))
+    new_file.content_type = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, content_type))
+    new_file.size = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, size))
+    new_file.tid = destination_itip.tid
+    new_file.internaltip_id = destination_itip.id
+    new_file.reference_id = reference
+    new_file.creation_date = destination_itip.creation_date
+    session.add(new_file)
+
+    return new_file
+
+def copy_receiverfile(session, destination_itip, source_rfile, source_prv_key, visibility, destination_id):
+    name = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_rfile.name))
+    content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_rfile.content_type))
+    size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_rfile.size))
+    description = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(source_rfile.description))
+    author_id = source_rfile.author_id
+    creation_date = source_rfile.creation_date
+    new_file = models.ReceiverFile()
+    new_file.id = destination_id
+    new_file.name = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, name))
+    new_file.content_type = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, content_type))
+    new_file.size = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, size))
+    new_file.description = base64.b64encode(GCE.asymmetric_encrypt(destination_itip.crypto_tip_pub_key, description))
+    new_file.author_id = author_id
+    new_file.internaltip_id = destination_itip.id
+    new_file.creation_date = creation_date
+    new_file.visibility = visibility
+    session.add(new_file)
+
+    return new_file
+
 class CloseForwardedSubmission(BaseHandler):
     """
     Handler responsible for closing a previously forwarded submission to an external organization
@@ -68,139 +168,23 @@ class ForwardSubmission(BaseHandler):
     Handler responsible for forwarding a submission to an external organization
     """
     check_roles = 'receiver'
-    
-    def fs_copy_file(self, source_id, source_prv_key):
-        source_file = os.path.join(self.state.settings.attachments_path, source_id)
-        self.check_file_presence(source_file)
-        temp_file = SecureTemporaryFile(Settings.tmp_path)
         
-        self.state.TempUploadFiles[temp_file.key_id] = temp_file
-        with temp_file.open('w') as output_fd,\
-             GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
-            while True:
-                last, data = seo.decrypt_chunk()
-                output_fd.write(data)
-                if last:
-                    break
-    
-        return temp_file.key_id
-    
-    def copy_internalfile(self, session, tid, forwarded_itip, source_id, source_prv_key):
-        internalfile = db_get(session, models.InternalFile, models.InternalFile.id == source_id)
-        name = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(internalfile.name))
-        content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(internalfile.content_type))
-        size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(internalfile.size))
-        reference = internalfile.reference_id
-        new_file_id = self.fs_copy_file(internalfile.id, source_prv_key)
-        new_file = models.InternalFile()
-        new_file.id = new_file_id
-        new_file.name = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, name))
-        new_file.content_type = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, content_type))
-        new_file.size = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, size))
-        new_file.tid = forwarded_itip.tid
-        new_file.internaltip_id = forwarded_itip.id
-        new_file.reference_id = reference
-        new_file.creation_date = forwarded_itip.creation_date
-        session.add(new_file)
-        
-        return new_file
-    
-    def copy_receiverfile(self, session, tid, forwarded_itip, source_id, source_prv_key, visibility):
-        receiverfile = db_get(session, models.ReceiverFile, models.ReceiverFile.id == source_id)
-        name = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.name))
-        content_type = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.content_type))
-        size = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.size))
-        description = GCE.asymmetric_decrypt(source_prv_key, base64.b64decode(receiverfile.description))
-        author_id = receiverfile.author_id
-        creation_date = receiverfile.creation_date
-        new_file_id = self.fs_copy_file(receiverfile.id, source_prv_key)
-        new_file = models.ReceiverFile()
-        new_file.id = new_file_id
-        new_file.name = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, name))
-        new_file.content_type = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, content_type))
-        new_file.size = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, size))
-        new_file.description = base64.b64encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, description))
-        new_file.author_id = author_id
-        new_file.internaltip_id = forwarded_itip.id
-        new_file.creation_date = creation_date
-        new_file.visibility = visibility
-        session.add(new_file)
-        
-        return new_file
-    
-    def add_file_forwarding(self, session, internaltip_forwarding_id, file, original_file_id):
-
-        file_forwarding = models.ContentForwarding()
-        file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
-        file_forwarding.oe_content_id = file.id
-        file_forwarding.content_id = original_file_id
-        file_forwarding.author_type = models.EnumAuthorType.main
-        if isinstance(file, models.ReceiverFile):  
-            file_forwarding.content_origin = models.EnumContentForwarding.receiver_file.value
-        elif isinstance(file, models.InternalFile):
-            file_forwarding.content_origin = models.EnumContentForwarding.internal_file.value
-        else:
-            raise errors.InputValidationError("Unable to deliver the file's origin")
-        
-        session.add(file_forwarding)
-        return file_forwarding
-    
-    def add_internaltip_forwarding(self, session, tid, original_itip_id, forwarded_itip, data, questionnaire_id):
-        internaltip_forwarding = models.InternalTipForwarding()
-        internaltip_forwarding.internaltip_id = original_itip_id
-        internaltip_forwarding.oe_internaltip_id = forwarded_itip.id
-        internaltip_forwarding.tid = tid
-        internaltip_forwarding.creation_date = forwarded_itip.creation_date
-        internaltip_forwarding.update_date = forwarded_itip.update_date
-        internaltip_forwarding.data = data
-        internaltip_forwarding.questionnaire_id = questionnaire_id
-        internaltip_forwarding.state = models.EnumForwardingState.open.value
-        session.add(internaltip_forwarding)
-        
-        return internaltip_forwarding
-        
-    def copy_file(self, session, tid, forwarded_itip, file, source_prv_key):
+    def forward_file(self, session, destination_itip, file, source_prv_key):
         if file['origin'] == 'whistleblower':
-            new_file = self.copy_internalfile(session, tid, forwarded_itip, file['id'], source_prv_key)
-        elif file['origin'] == 'recipient':
-            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.oe.name)
-        elif file['origin'] == 'oe':
-            new_file = self.copy_receiverfile(session, tid, forwarded_itip, file['id'], source_prv_key, models.EnumVisibility.oe.name)
+            source_internalfile = db_get(session, models.InternalFile, models.InternalFile.id == file['id'])
+            if source_internalfile is not None:
+                destination_id = self.fs_copy_file(source_internalfile.id, source_prv_key)
+                new_file = copy_internalfile(session, destination_itip, source_internalfile, source_prv_key, destination_id)
+        elif file['origin'] in ('recipient', 'oe'):
+            source_rfile = db_get(session, models.ReceiverFile, models.ReceiverFile.id == file['id'])
+            if source_rfile is not None:
+                destination_id = self.fs_copy_file(source_rfile.id, source_prv_key)
+                new_file = copy_receiverfile(session, destination_itip, source_rfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
         elif file['origin'] == 'new':
             new_file = db_get(session, models.ReceiverFile, models.ReceiverFile.id == file['id'])
         else:
             raise errors.InputValidationError("Unable to deliver the file's origin")
         return new_file
-    
-    def validate_steps(self, session, tid, questionnaire_id):
-        questionnaire = db_get(session, models.Questionnaire,(models.Questionnaire.id == questionnaire_id))
-        steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
-        first_field = steps[0]['children'][0]
-        if first_field['type'] != 'textarea' or bool(first_field['editable']):
-            raise errors.InputValidationError("Unable to forward the submission with this questionnaire")
-        return steps
-    
-    def set_answer(self, text, steps):
-        first_field_id = steps[0]['children'][0]['id']
-        answers = dict()
-        empty_content = dict()
-        required_status = False
-        empty_content['required_status'] = required_status
-        empty_content['value'] = ''
-        empty_content['editable'] = True
-        empty_content_list = [1]
-        empty_content_list[0] = empty_content
-        for s in steps:
-            for f in s['children']:
-                answers[f['id']] = empty_content_list
-                
-        content = dict()
-        content_list = [1]
-        content['required_status'] = required_status
-        content['value'] = text
-        content_list[0] = content
-        answers[first_field_id] = content_list
-        return answers
     
     
     @transact
@@ -266,10 +250,10 @@ class ForwardSubmission(BaseHandler):
                 _tip_key = GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_tip_prv_key)
                 db_create_receivertip(session, user, forwarded_itip, _tip_key)
                 
-            internaltip_forwarding = self.add_internaltip_forwarding(session, tid, itip_id, forwarded_itip, crypto_forwarded_answers, request['questionnaire_id'])
+            internaltip_forwarding = add_internaltip_forwarding(session, tid, itip_id, forwarded_itip, crypto_forwarded_answers, request['questionnaire_id'])
             for file in request['files']:
-                copied_file = self.copy_file(session, tid, forwarded_itip, file, original_itip_private_key)
-                self.add_file_forwarding(session, internaltip_forwarding.id, copied_file, file['id'])
+                copied_file = self.forward_file(session, forwarded_itip, file, original_itip_private_key)
+                add_file_forwarding(session, internaltip_forwarding.id, copied_file, file['id'])
 
         return internaltip_forwarding.id
     
