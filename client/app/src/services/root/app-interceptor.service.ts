@@ -27,6 +27,10 @@ const protectedUrls = [
   "api/accreditation/request"
 ];
 
+const regexProtectedUrl = [
+  "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/accredited"  
+]
+
 @Injectable()
 export class appInterceptor implements HttpInterceptor {
   constructor(private authenticationService: AuthenticationService, private httpClient: HttpClient, private cryptoService: CryptoService, private translationService: TranslationService) {
@@ -45,6 +49,13 @@ export class appInterceptor implements HttpInterceptor {
         return "";
       }
     }
+  }
+
+  private checkRegexProtectedUrl(url: string){
+
+    let arrayContainsString = regexProtectedUrl.some(item => url.match(item));
+    return arrayContainsString;
+
   }
 
   intercept(httpRequest: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -67,7 +78,8 @@ export class appInterceptor implements HttpInterceptor {
       headers: authRequest.headers.set("Accept-Language", this.getAcceptLanguageHeader() || ""),
     });
 
-    if (httpRequest.url.includes("api/signup") || httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session || protectedUrls.includes(httpRequest.url)) {
+    if (httpRequest.url.includes("api/signup") || httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session || protectedUrls.includes(httpRequest.url)
+      || this.checkRegexProtectedUrl(httpRequest.url)) {
       return this.httpClient.post("api/auth/token", {}).pipe(
         switchMap((response) =>
           from(this.cryptoService.proofOfWork(Object.assign(new TokenResponse(), response).id)).pipe(
