@@ -5,7 +5,7 @@ import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from 
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ConfirmationComponent } from '@app/shared/modals/confirmation/confirmation.component';
 
 @Component({
@@ -42,9 +42,8 @@ export class OrganizationComponent implements OnInit{
 
   private actionHandlers: { [key: string]: () => void } = {
     'reload': () => this.loadOrganizationData(),
-    'suspend': () => this.cambiaStatoOrganizzazioneAccreditata(),
-    'reactivate': () => this.cambiaStatoOrganizzazioneAccreditata(),
-    'update': () => this.aggiornaInfoOrganizazzione(),
+    'suspend': () => this.sospendiAttivaOrganizzazioneAccreditata(),
+    'reactivate': () => this.sospendiAttivaOrganizzazioneAccreditata(),
     'delete': () => this.rifiuta()
   };
 
@@ -123,12 +122,6 @@ export class OrganizationComponent implements OnInit{
         }
       });
   }
-  
-  convertiInAffiliata(){
-    console.log("CONVERTI IN AFFILIATA - TODO!!!")
-    if(this.org_type) // TODO richiesta info
-      this.organization.type = "AFFILIATED"
-  }
 
   invia(){
     //todo mockup
@@ -196,11 +189,7 @@ export class OrganizationComponent implements OnInit{
     }
   }
 
-  cambiaStatoOrganizzazioneAccreditata() {
-    //todo mockup
-    // this.organization.state = "SUSPENDED"; //"SUSPENDED";
-    //fine mockup
-    console.log("CAMBIA STATO - TODO!!!")
+  sospendiAttivaOrganizzazioneAccreditata() {
     if (this.authenticationService.session.role === "accreditor") {
       this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
         next: () => {
@@ -214,28 +203,19 @@ export class OrganizationComponent implements OnInit{
     }
   }
 
-  aggiornaInfoOrganizazzione() {
-    console.log("AGGIORNA DATI ORGANIZZAZIONE - TODO!!!")
-    //todo mockup
-    // this.organization.organization_name = "updated name";
-    // this.organization.organization_email = "updated email";
-    // this.organization.organization_institutional_site = "updated site";
-    // this.organization.type = "NOT_AFFILIATED";
-    //fine mockup
+  aggiornaStatoAffiliazioneOrganizazzione() {
+    console.log("AGGIORNA STATO ORGANIZZAZIONE")
     if (this.authenticationService.session.role === "accreditor") {
       const updatedData = {
-        organization_name: this.organizationInfo.organization_name,
-        organization_email: this.organizationInfo.organization_email,
-        organization_institutional_site: this.organizationInfo.organization_institutional_site,
-        type: this.organization.type ? 'AFFILIATED' : 'NOT_AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
+        type: this.organization.type === 'AFFILIATED' ? 'NOT_AFFILIATED' : 'AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
       };
-      this.httpService.updateInfoAccreditedOrganizationRequest(this.organization.id, updatedData).subscribe({
+      this.httpService.updateStateOrganizationRequest(this.organization.id, updatedData).subscribe({
         next: () => {
-          console.log("Aggiornamento effettuato con successo");
+          console.log("Aggiornamento stato effettuato con successo");
           this.loadOrganizationData();
         },
         error: (err) => {
-          console.error("Errore durante il rifiuto della richiesta", err);
+          console.error("Errore durante la richiesta di aggiornamento", err);
         }
       }); 
     }
@@ -263,6 +243,10 @@ export class OrganizationComponent implements OnInit{
 
   canDelete(){
     return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
+  }
+
+  isAffiliated(){
+    return this.organization.type === "AFFILIATED"
   }
 
 }
