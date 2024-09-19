@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
@@ -50,7 +50,7 @@ export class OrganizationComponent implements OnInit{
 
   constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
     private orgService : AccreditorOrgService, private authenticationService: AuthenticationService,
-    private modalService: NgbModal){
+    private modalService: NgbModal, private router: Router){
 
   }
 
@@ -92,9 +92,6 @@ export class OrganizationComponent implements OnInit{
           this.receiverInfo.surname = response.recipient_surname
           this.receiverInfo.fiscal_code = response.recipient_fiscal_code
           this.receiverInfo.email = response.recipient_email
-
-          console.log("response.state:", response.state);
-          console.log("organization state:", this.organization.state);
 
           //todo mockup
           //this.org_type = this.organization.type === "AFFILIATED"
@@ -160,19 +157,23 @@ export class OrganizationComponent implements OnInit{
     if (this.authenticationService.session.role === "accreditor") {
       const modalRef = this.modalService.open(ConfirmationComponent);
 
+      modalRef.componentInstance.confirmFunction = (arg: string) => {
+        this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
+          next: () => {
+            console.log("Richiesta rifiutata con successo");
+            this.router.navigateByUrl('/accreditor/organizations');
+          },
+          error: (err) => {
+            console.error("Errore durante il rifiuto della richiesta", err);
+          }
+        });
+      };
+
       modalRef.result.then((result) => {
         if (result) {
-          this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
-            next: () => {
-              console.log("Richiesta rifiutata con successo");
-              this.loadOrganizationData();
-            },
-            error: (err) => {
-              console.error("Errore durante il rifiuto della richiesta", err);
-            }
-          });
+          console.log("Conferma avvenuta con argomento:", result);
         } else {
-          console.log('Modal dismissed');
+          console.log("Modal dismissed");
         }
       }).catch((error) => {
         console.log("Operazione annullata o chiusa", error);
@@ -261,9 +262,6 @@ export class OrganizationComponent implements OnInit{
   }
 
   canDelete(){
-    console.log("CAN DELETE");
-    console.log(this.organization.opened_tips);
-    console.log(this.organization.num_user_profiled);
     return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
 
