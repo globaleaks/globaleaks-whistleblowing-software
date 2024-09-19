@@ -22,7 +22,8 @@ export class ExternalOrganization {
     
     accreditation_date: string;
     num_user_profiled: number;
-    num_tip: number;
+    opened_tips: number;
+    closed_tips: number;
     users: EOUser[];
 }
 

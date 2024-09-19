@@ -477,7 +477,7 @@ export class HttpService {
   }
 
   deleteAccreditationRequest(id: string): Observable<void> {
-    return this.httpClient.delete<void>(`/api/accreditation/request/${id}/rejected`);
+    return this.httpClient.delete<void>(`/api/accreditation/request/${id}`);
   }
 
   updateInfoAccreditedOrganizationRequest(id: string, dataToUpdate: { 
