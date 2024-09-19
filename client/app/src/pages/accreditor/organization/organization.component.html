@@ -36,16 +36,6 @@
                 <i class="fa-solid fa-trash"></i>
             </span>
 
-            <span id="org-action-update"
-                *ngIf="isAccredited() || isSuspended()"
-                data-action="update"
-                (click)="onActionHandler($event)"
-                (keydown)="onActionHandler($event)"
-                data-toggle="tooltip" title="{{'Save' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-save"></i>
-            </span>
-
             <span id="link-reload" 
                 data-action="reload"
                 (click)="onActionHandler($event)"
@@ -74,18 +64,20 @@
         </div>
     </div>
 
-    <div class="row" *ngIf="isAccredited() || isSuspended()">
+    <div class="row" *ngIf="!isInvited()">
         <div class="col-md-12" id="organization-button">
-            <button class="btn btn-primary" (click)="convertiInAffiliata()">{{'Converti in Affiliata' | translate}}</button>
+            <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
+                {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
+            </button>
         </div>
     </div>
 
-    <div class="row" *ngIf="isRequested() || isInstructorRequest()">
+    <!-- <div class="row" *ngIf="isRequested() || isInstructorRequest()">
         <div class="col-md-12" id="organization-affiliata">
             <input name="affiliata" [(ngModel)]="org_type" type="checkbox">
             <span>{{'Affiliata'|translate}}</span>
         </div>
-    </div>
+    </div> -->
 
     <div class="row">
         <div class="col-md-12">

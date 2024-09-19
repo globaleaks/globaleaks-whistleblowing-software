@@ -476,7 +476,7 @@ export class HttpService {
     return this.httpClient.delete<void>(`/api/accreditation/request/${id}`);
   }
 
-  updateInfoAccreditedOrganizationRequest(id: string, dataToUpdate: { 
+  updateStateOrganizationRequest(id: string, dataToUpdate: { 
     organization_name?: string, 
     organization_email?: string, 
     organization_institutional_site?: string, 
