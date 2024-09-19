@@ -473,7 +473,7 @@ export class HttpService {
   }
 
   sendAccreditationInvitation(id: string): Observable<void> {
-    return this.httpClient.patch<void>(`/api/accreditation/${id}/invited`, { responseType: 'text' as 'json'});
+    return this.httpClient.put<void>(`/api/accreditation/${id}/invited`, { responseType: 'text' as 'json'});
   }
 
   deleteAccreditationRequest(id: string): Observable<void> {
@@ -486,11 +486,11 @@ export class HttpService {
     organization_institutional_site?: string, 
     type?: 'AFFILIATED' | 'NOT_AFFILIATED' 
   }): Observable<void> {
-    return this.httpClient.patch<void>(`/api/accreditation/request/${id}`, dataToUpdate);
+    return this.httpClient.put<void>(`/api/accreditation/request/${id}`, dataToUpdate);
   }
 
   toggleAccreditedOrganizationStatus(id: string): Observable<void> {
-    return this.httpClient.patch<void>(`/api/accreditation/request/${id}/toggle-status-active`, { responseType: 'text' as 'json'});
+    return this.httpClient.put<void>(`/api/accreditation/request/${id}/toggle-status-active`, { responseType: 'text' as 'json'});
   }
 
 }
