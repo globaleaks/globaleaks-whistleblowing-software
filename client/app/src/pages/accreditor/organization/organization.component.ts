@@ -241,6 +241,10 @@ export class OrganizationComponent implements OnInit{
     return this.organization.state === "invited"
   }
 
+  isApproved(){
+    return this.organization.state === "approved"
+  }
+
   canDelete(){
     return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
