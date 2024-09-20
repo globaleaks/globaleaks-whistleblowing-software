@@ -337,7 +337,8 @@ def persistent_drop(session, accreditation_id: str):
         status = status if isinstance(status, str) else EnumSubscriberStatus(status).name
         status_mapping = {
             'requested': EnumSubscriberStatus.requested,
-            'suspended': EnumSubscriberStatus.suspended
+            'suspended': EnumSubscriberStatus.suspended,
+            'instructor_request': EnumSubscriberStatus.instructor_request
         }
         if status not in status_mapping:
             raise errors.ForbiddenOperation
