@@ -333,6 +333,24 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 def persistent_drop(session, accreditation_id: str):
     try:
         accreditation_item = accreditation_by_id(session, accreditation_id)
+        status = accreditation_item.get('state')
+        status = status if isinstance(status, str) else EnumSubscriberStatus(status).name
+        status_mapping = {
+            'requested': EnumSubscriberStatus.requested,
+            'suspended': EnumSubscriberStatus.suspended
+        }
+        if status not in status_mapping:
+            raise errors.ForbiddenOperation
+        elif status == 'suspended' and accreditation_item.get('num_user_profiled') > 1 and accreditation_item.get('opened_tips') > 0:
+            raise errors.ForbiddenOperation
+        else:
+            tenant_item = (
+                session.query(Tenant)
+                .join(Subscriber, Tenant.id == Subscriber.tid)  # Correzione join tra Tenant e Subscriber
+                .filter(Subscriber.sharing_id == accreditation_id)  # Corretto 'fileter' in 'filter'
+                .one()
+            )
+            session.delete(tenant_item)
         return {'id': accreditation_item.get('id')}
     except NoResultFound:
         log.err(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -428,7 +446,7 @@ def accreditation_by_id(session, accreditation_id):
         element['users'] = extract_user(session, accreditation_item)
         return element
     except NoResultFound:
-        log.error(f"Error: Accreditation with ID {accreditation_id} not found")
+        log.err(f"Error: Accreditation with ID {accreditation_id} not found")
         raise errors.ResourceNotFound
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
