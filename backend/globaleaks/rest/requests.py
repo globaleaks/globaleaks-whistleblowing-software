@@ -532,10 +532,10 @@ SubmitAccreditation = {
     'admin_name': alphanumeric_str_regexp,
     'admin_surname': alphanumeric_str_regexp,
     'admin_email': email_regexp,
-    'name': alphanumeric_str_regexp,
-    'surname': alphanumeric_str_regexp,
+    'recipient_name': alphanumeric_str_regexp,
+    'recipient_surname': alphanumeric_str_regexp,
     'recipient_fiscal_code': alphanumeric_str_regexp,
-    'email': email_regexp,
+    'recipient_email': email_regexp,
     'tos1': bool,
     'tos2': bool
 }
