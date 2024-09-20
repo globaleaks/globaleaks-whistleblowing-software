@@ -526,22 +526,19 @@ SignupDesc = {
 }
 
 SubmitAccreditation = {
-    'organization_name': str
-}
-"""
+    'organization_name': str,
     'organization_email': email_regexp,
-    'organization_site': hostname_regexp_or_empty,
+    'organization_institutional_site': str,
     'admin_name': alphanumeric_str_regexp,
     'admin_surname': alphanumeric_str_regexp,
     'admin_email': email_regexp,
-    'receiver_name': alphanumeric_str_regexp,
-    'receiver_surname': alphanumeric_str_regexp,
-    'receiver_tax_code': alphanumeric_str_regexp,
-    'receiver_email': email_regexp,
-    
+    'recipient_name': alphanumeric_str_regexp,
+    'recipient_surname': alphanumeric_str_regexp,
+    'recipient_fiscal_code': alphanumeric_str_regexp,
+    'recipient_email': email_regexp,
     'tos1': bool,
     'tos2': bool
-"""
+}
 
 SupportDesc = {
     'mail_address': email_regexp,

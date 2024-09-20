@@ -119,6 +119,9 @@ def accreditation(session, request):
         InternalServerError: If the accreditation process fails.
     """
     try:
+        request['name'] = request['recipient_name']
+        request['surname'] = request['recipient_surname']
+        request['email'] = request['recipient_email']
         sub = Subscriber(request)
         sub.language = ''
         sub.subdomain = str(uuid4())
