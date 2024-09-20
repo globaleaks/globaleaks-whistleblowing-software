@@ -7,7 +7,7 @@
             </a>
 
             <span id="org-action-suspend"
-                *ngIf="isAccredited()"
+                *ngIf="isState('accredited')"
                 data-action="suspend"
                 (click)="onActionHandler($event)"
                 (keydown)="onActionHandler($event)"
@@ -17,7 +17,7 @@
             </span>
 
             <span id="org-action-reactivate"
-                *ngIf="isSuspended()"
+                *ngIf="isState('suspended')"
                 data-action="reactivate"
                 (click)="onActionHandler($event)"
                 (keydown)="onActionHandler($event)"
@@ -27,7 +27,7 @@
             </span>
 
             <span id="org-action-delete"
-                *ngIf="(isAccredited() || isSuspended()) && canDelete()"
+                *ngIf="(isState('accredited') || isState('suspended')) && canDelete()"
                 data-action="delete"
                 (click)="onActionHandler($event)"
                 (keydown)="onActionHandler($event)"
@@ -55,16 +55,16 @@
             <src-org-info [orgInfo]="organizationInfo" [visualization]="true"></src-org-info>
         </div>
 
-        <div class="col-md-4" *ngIf="!isInvited()">
+        <div class="col-md-4" *ngIf="!isState('invited')">
             <src-org-admin-info [adminInfo]="adminInfo" [visualization]="true"></src-org-admin-info>
         </div>
 
-        <div class="col-md-4" *ngIf="!isInvited()">
+        <div class="col-md-4" *ngIf="!isState('invited')">
             <src-org-recipient-info [recipientInfo]="receiverInfo" [visualization]="true"></src-org-recipient-info>
         </div>
     </div>
 
-    <div class="row" *ngIf="!isInvited()">
+    <div class="row" *ngIf="!(isState('invited') || isState('approved'))">
         <div class="col-md-12" id="organization-button">
             <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
                 {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
@@ -72,37 +72,37 @@
         </div>
     </div>
 
-    <!-- <div class="row" *ngIf="isRequested() || isInstructorRequest()">
+    <!-- <div class="row" *ngIf="isState('requested') || isState('instructor_request')">
         <div class="col-md-12" id="organization-affiliata">
             <input name="affiliata" [(ngModel)]="org_type" type="checkbox">
             <span>{{'Affiliata'|translate}}</span>
         </div>
     </div> -->
 
-    <div class="row">
+    <div class="row" *ngIf="organization">
         <div class="col-md-12">
             <src-org-overview [org]="organization"></src-org-overview>
         </div>
     </div>
     
-    <div class="row" *ngIf="organization.users && organization.users.length > 0">
+    <div class="row" *ngIf="organization?.users && organization.users.length > 0">
         <div class="col-md-12">
             <src-org-users-list [users]="organization.users"></src-org-users-list>
         </div>
     </div>
 
 
-    <div class="row" *ngIf="isRequested() || isInstructorRequest() || isInvited()">
+    <div class="row" *ngIf="isState('requested') || isState('instructor_request') || isState('invited')">
         <div class="col-md-6"></div>
         <div class="col-md-3" id="accept-button">
             <button class="btn btn-primary" (click)="invia()">
                 <i class="fa-solid fa-check"></i>
-                <span>{{(isRequested()? 'Accetta Organizzazione Esterna': 'Inoltra Invito') | translate }}</span>
+                <span>{{(isState('requested')? 'Accetta Organizzazione Esterna': 'Inoltra Invito') | translate }}</span>
             </button>
         </div>
         <div class="col-md-3" id="reject-button">
             <button class="btn btn-danger" (click)="rifiuta()"
-            *ngIf="!isInvited()">
+            *ngIf="!isState('invited')">
                 <i class="fa-solid fa-xmark"></i>
                 <span>{{'Rifiuta Organizzazione Esterna' | translate}}</span>
             </button>
