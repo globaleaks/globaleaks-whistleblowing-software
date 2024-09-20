@@ -83,6 +83,7 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {OperationComponent} from "@app/shared/partials/operation/operation.component";
 import {RedactInformationComponent} from "@app/shared/modals/redact-information/redact-information.component";
+import { DownloadConfirmationComponent } from "./shared/modals/download-confirmation/download-confirmation.component";
 
 @NgModule({
   imports: [
@@ -191,7 +192,8 @@ import {RedactInformationComponent} from "@app/shared/modals/redact-information/
     SwitchComponent,
     OtkcAccessComponent,
     OperationComponent,
-    RedactInformationComponent
+    RedactInformationComponent,
+    DownloadConfirmationComponent
   ],
   exports: [
     FooterComponent,
@@ -226,6 +228,7 @@ import {RedactInformationComponent} from "@app/shared/modals/redact-information/
     GrantAccessComponent,
     RevokeAccessComponent,
     DeleteConfirmationComponent,
+    DownloadConfirmationComponent,
     DateRangeSelectorComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
