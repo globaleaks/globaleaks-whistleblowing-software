@@ -1,8 +1,19 @@
-<div id="TipPageRFileUpload" class="card card-default">
-    <div class="card-header clearfix">
+<div id="TipPagefileUpload" class="card card-default" [attr.aria-expanded]="collapsed">
+    <div class="card-header clearfix"  (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
       <span>{{'Files attached by recipients' | translate}}</span>
+      <span class="float-end">
+        <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
+        <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
+    </span>
     </div>
-    <div class="card-body">
+    <div class="card-body" *ngIf="!collapsed">
+
+      <div *ngFor="let file of files | orderBy: 'creation_date' as index">
+        <div id="file-{{index}}" >
+            <src-wbfiles  [wbFile]="file"></src-wbfiles>
+        </div>
+      </div>
+
       <div>
         <div>{{'Upload a file:' | translate}}</div>
         <div class="form">
@@ -16,7 +27,7 @@
                 <i class="fa-solid fa-upload"></i>
                 <span>{{'Upload'|translate}}</span>
               </label>
-              <input #uploader id="customFile" type="file" (change)="addFile(uploader)" [disabled]="checkingFile" style="display: none;" />
+              <input #uploader id="customFile" type="file" (change)="addFile(uploader)" style="display: none;" />
             </span>
           </div>
         </div>

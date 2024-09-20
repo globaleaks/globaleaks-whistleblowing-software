@@ -82,7 +82,9 @@
   
     <!-- Pannello di caricamento dei file -->
     <div class="row mt-2">
-        <sendtip-file-upload (fileUploaded)="onFileUploaded($event)" (fileVerified)="onFileVerified($event)"></sendtip-file-upload>
+        <sendtip-file-upload [files]="uploadedFiles"></sendtip-file-upload>
+
+
     </div>
   
     <!-- Pulsanti di azione -->
