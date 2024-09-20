@@ -2,7 +2,7 @@ import json
 from typing import Dict, Optional
 from uuid import uuid4
 
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, or_
 from sqlalchemy.exc import NoResultFound
 from twisted.internet.threads import deferToThread
 
@@ -30,6 +30,43 @@ def create_tenant():
     t.active = False
     t.external = True
     return t
+
+
+def revert_tenant(session, accreditation_id: str):
+    t = (
+        session.query(Tenant)
+        .join(Subscriber, Tenant.id == Subscriber.tid)  # Correzione join tra Tenant e Subscriber
+        .filter(Subscriber.sharing_id == accreditation_id)  # Corretto 'fileter' in 'filter'
+        .one()
+    )
+    t.active = not t.active
+
+
+@transact
+def toggle_status_activate(session, accreditation_id: str):
+    accreditation_item = (
+        session.query(Subscriber)
+        .filter(Subscriber.sharing_id == accreditation_id)
+        .one()
+    )
+    status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
+        accreditation_item.state).name
+
+    status_mapping = {
+        'accredited': EnumSubscriberStatus.suspended,
+        'suspended': EnumSubscriberStatus.accredited
+    }
+
+    if status not in status_mapping:
+        raise errors.ForbiddenOperation
+
+    revert_tenant(session, accreditation_id)
+    return _change_status(
+        session,
+        accreditation_id,
+        status,
+        status_mapping[status].value
+    )
 
 
 def save_step(session, obj):
@@ -280,11 +317,9 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
             for key, value in data.items():
                 if key in updated_fields:
                     setattr(accreditation_item, key, value)
-            session.commit()
         if 'type' in data:
             tenant = session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one()
             tenant.affiliated = determine_type(data)
-            session.commit()
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
         log.error(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -295,7 +330,19 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 
 
 @transact
-def change_status_accreditation(session, accreditation_id: str, from_status: str, to_status: int):
+def persistent_drop(session, accreditation_id: str):
+    try:
+        accreditation_item = accreditation_by_id(session, accreditation_id)
+        return {'id': accreditation_item.get('id')}
+    except NoResultFound:
+        log.err(f"Error: Accreditation with ID {accreditation_id} not found")
+        raise errors.ResourceNotFound
+    except Exception as e:
+        log.err(f"Error: Accreditation Fail: {e}")
+        raise errors.InternalServerError
+
+
+def _change_status(session, accreditation_id: str, from_status: str, to_status: int):
     """
     Updates the accreditation status of a subscriber in the database.
 
@@ -325,11 +372,15 @@ def change_status_accreditation(session, accreditation_id: str, from_status: str
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
             .filter(Subscriber.sharing_id == accreditation_id)
-            .filter(Subscriber.state == from_status)
+            .filter(
+                or_(
+                    Subscriber.state == from_status,
+                    Subscriber.state == EnumSubscriberStatus[from_status].value
+                )
+            )
             .one()
         )
         accreditation_item.state = to_status
-        session.commit()
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
         log.err(f"Error: Accreditation with ID {accreditation_id} not found")
@@ -341,6 +392,10 @@ def change_status_accreditation(session, accreditation_id: str, from_status: str
 
 @transact
 def get_accreditation_by_id(session, accreditation_id):
+    return accreditation_by_id(session, accreditation_id)
+
+
+def accreditation_by_id(session, accreditation_id):
     """
     Retrieve an accreditation item by its ID.
 
@@ -441,7 +496,6 @@ def activate_tenant(session, accreditation_id):
     )
     """
     accreditation_item.state = EnumSubscriberStatus.accredited.value
-    session.commit()
     return {'id': accreditation_item.sharing_id}
 
 
@@ -492,6 +546,11 @@ class AccreditationHandler(BaseHandler):
         data = json.loads(payload) if payload else {}
         return update_accreditation_by_id(accreditation_id, data)
 
+    def delete(self, accreditation_id: str):
+        return persistent_drop(
+            accreditation_id
+        )
+
 
 class AccreditationConfirmHandler(BaseHandler):
     """
@@ -504,14 +563,10 @@ class AccreditationConfirmHandler(BaseHandler):
         return activate_tenant(accreditation_id)
 
 
-class AccreditationRejectHandler(BaseHandler):
+class ToggleStatusActiveHandler(BaseHandler):
     check_roles = 'any'
     root_tenant_only = True
     invalidate_cache = True
 
-    def delete(self, accreditation_id: str):
-        return change_status_accreditation(
-            accreditation_id,
-            EnumSubscriberStatus.requested.name,
-            EnumSubscriberStatus.rejected.value
-        )
+    def put(self, accreditation_id: str):
+        return toggle_status_activate(accreditation_id)

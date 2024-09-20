@@ -8,6 +8,9 @@
 
             <span id="org-action-suspend"
                 *ngIf="isAccredited()"
+                data-action="suspend"
+                (click)="onActionHandler($event)"
+                (keydown)="onActionHandler($event)"
                 data-toggle="tooltip" title="{{'Suspend Organization' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-clock"></i>
@@ -15,19 +18,30 @@
 
             <span id="org-action-reactivate"
                 *ngIf="isSuspended()"
+                data-action="reactivate"
+                (click)="onActionHandler($event)"
+                (keydown)="onActionHandler($event)"
                 data-toggle="tooltip" title="{{'Reactivate Organization' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-check"></i>
             </span>
 
             <span id="org-action-delete"
-                *ngIf="isAccredited() || isSuspended()"
+                *ngIf="(isAccredited() || isSuspended()) && canDelete()"
+                data-action="delete"
+                (click)="onActionHandler($event)"
+                (keydown)="onActionHandler($event)"
                 data-toggle="tooltip" title="{{'Delete' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-trash"></i>
             </span>
 
-            <span id="link-reload" data-toggle="tooltip" title="{{'Refresh' | translate}}"
+            <span id="link-reload" 
+                data-action="reload"
+                (click)="onActionHandler($event)"
+                (keydown)="onActionHandler($event)"
+                data-toggle="tooltip"
+                title="{{'Refresh' | translate}}"
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-sync"></i>
             </span>
@@ -50,18 +64,20 @@
         </div>
     </div>
 
-    <div class="row" *ngIf="isAccredited() || isSuspended()">
+    <div class="row" *ngIf="!isInvited()">
         <div class="col-md-12" id="organization-button">
-            <button class="btn btn-primary" (click)="convertiInAffiliata()">{{'Converti in Affiliata' | translate}}</button>
+            <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
+                {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
+            </button>
         </div>
     </div>
 
-    <div class="row" *ngIf="isRequested() || isInstructorRequest()">
+    <!-- <div class="row" *ngIf="isRequested() || isInstructorRequest()">
         <div class="col-md-12" id="organization-affiliata">
             <input name="affiliata" [(ngModel)]="org_type" type="checkbox">
             <span>{{'Affiliata'|translate}}</span>
         </div>
-    </div>
+    </div> -->
 
     <div class="row">
         <div class="col-md-12">

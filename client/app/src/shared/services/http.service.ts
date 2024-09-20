@@ -468,6 +468,27 @@ export class HttpService {
     return this.httpClient.get<EOExtendedInfo[]>("api/accreditation/all");
   }
 
+  sendAccreditationInvitation(id: string): Observable<void> {
+    return this.httpClient.put<void>(`/api/accreditation/${id}/invited`, { responseType: 'text' as 'json'});
+  }
+
+  deleteAccreditationRequest(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`/api/accreditation/request/${id}`);
+  }
+
+  updateStateOrganizationRequest(id: string, dataToUpdate: { 
+    organization_name?: string, 
+    organization_email?: string, 
+    organization_institutional_site?: string, 
+    type?: 'AFFILIATED' | 'NOT_AFFILIATED' 
+  }): Observable<void> {
+    return this.httpClient.put<void>(`/api/accreditation/request/${id}`, dataToUpdate);
+  }
+
+  toggleAccreditedOrganizationStatus(id: string): Observable<void> {
+    return this.httpClient.put<void>(`/api/accreditation/request/${id}/toggle-status-active`, { responseType: 'text' as 'json'});
+  }
+
   accreditorAccreditationDetail(org_id: string | null): Observable<ExternalOrganization>{
     return this.httpClient.get<any>("api/accreditation/request/"+org_id);
   }

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
+import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
 import { Observable } from 'rxjs';
+import { ConfirmationComponent } from '@app/shared/modals/confirmation/confirmation.component';
 
 @Component({
   selector: 'src-organization',
@@ -37,17 +40,32 @@ export class OrganizationComponent implements OnInit{
     email: ''
   };
 
+  private actionHandlers: { [key: string]: () => void } = {
+    'reload': () => this.loadOrganizationData(),
+    'suspend': () => this.sospendiAttivaOrganizzazioneAccreditata(),
+    'reactivate': () => this.sospendiAttivaOrganizzazioneAccreditata(),
+    'delete': () => this.rifiuta()
+  };
 
-  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService, private orgService : AccreditorOrgService){
+  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
+    private orgService : AccreditorOrgService, private authenticationService: AuthenticationService,
+    private modalService: NgbModal, private router: Router){
 
   }
 
 
   ngOnInit() {
    this.loadOrganizationData();
+
+   const container = document.getElementById('actions-container');
+    if (container) {
+      container.addEventListener('click', this.onActionHandler.bind(this));
+      container.addEventListener('keydown', this.onActionHandler.bind(this));
+    }
   }
 
   loadOrganizationData(){
+    console.log("LOAD ORGANIZATION DATA");
     this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
     
     const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
@@ -75,7 +93,7 @@ export class OrganizationComponent implements OnInit{
           this.receiverInfo.email = response.recipient_email
 
           //todo mockup
-          this.org_type = this.organization.type === "AFFILIATED"
+          //this.org_type = this.organization.type === "AFFILIATED"
 
           //todo mockup:
           // let users : EOUser[] = [];
@@ -98,50 +116,137 @@ export class OrganizationComponent implements OnInit{
 
           // this.organization.users = users;
 
-          this.organization.state = "REQUESTED"
+          //this.organization.state = "ACCREDITED";
           //fine mockup
 
         }
       });
-
-  }
-
-  
-  convertiInAffiliata(){
-    console.log("CONVERTI IN AFFILIATA - TODO!!!")
   }
 
   invia(){
-    if(this.org_type)
-      this.organization.type = "AFFILIATED"
+    //todo mockup
+    //this.organization.state = "INVITED";
+    //fine mockup
   
-    console.log("INVIA / INVIA INVITO - TODO!!!")
+    console.log("INVIA / INVIA INVITO - TODO!!!");
+    if (this.authenticationService.session.role === "accreditor") {
+      this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
+        next: () => {
+          console.log("Invito inviato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante l'invio dell'invito", err);
+        }
+      }); 
+    }
   }
 
   rifiuta(){
+    //todo mockup
+    // this.organization.state = "REJECTED";
+    //fine mockup
     console.log("REJECT - TODO!!!")
+    if (this.authenticationService.session.role === "accreditor") {
+      const modalRef = this.modalService.open(ConfirmationComponent);
 
+      modalRef.componentInstance.confirmFunction = (arg: string) => {
+        this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
+          next: () => {
+            console.log("Richiesta rifiutata con successo");
+            this.router.navigateByUrl('/accreditor/organizations');
+          },
+          error: (err) => {
+            console.error("Errore durante il rifiuto della richiesta", err);
+          }
+        });
+      };
+
+      modalRef.result.then((result) => {
+        if (result) {
+          console.log("Conferma avvenuta con argomento:", result);
+        } else {
+          console.log("Modal dismissed");
+        }
+      }).catch((error) => {
+        console.log("Operazione annullata o chiusa", error);
+      });
+    }
   }
 
+  onActionHandler(event: Event) {
+    if (event instanceof MouseEvent || (event instanceof KeyboardEvent && event.key === 'Enter')) {
+      const target = (event.target as HTMLElement).closest('span[data-action]');
+      
+      if (target) {
+        const action = target.getAttribute('data-action');
+        
+        // Esegui l'azione corrispondente dalla mappa
+        if (action && this.actionHandlers[action]) {
+          this.actionHandlers[action]();
+        }
+      }
+    }
+  }
+
+  sospendiAttivaOrganizzazioneAccreditata() {
+    if (this.authenticationService.session.role === "accreditor") {
+      this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
+        next: () => {
+          console.log("Stato modificato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante il rifiuto della richiesta", err);
+        }
+      }); 
+    }
+  }
+
+  aggiornaStatoAffiliazioneOrganizazzione() {
+    console.log("AGGIORNA STATO ORGANIZZAZIONE")
+    if (this.authenticationService.session.role === "accreditor") {
+      const updatedData = {
+        type: this.organization.type === 'AFFILIATED' ? 'NOT_AFFILIATED' : 'AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
+      };
+      this.httpService.updateStateOrganizationRequest(this.organization.id, updatedData).subscribe({
+        next: () => {
+          console.log("Aggiornamento stato effettuato con successo");
+          this.loadOrganizationData();
+        },
+        error: (err) => {
+          console.error("Errore durante la richiesta di aggiornamento", err);
+        }
+      }); 
+    }
+  }
 
   isRequested(){
-    return this.organization.state === "REQUESTED"
+    return this.organization.state === "requested"
   }
 
   isInstructorRequest(){
-    return this.organization.state === "INSTRUCTOR_REQUEST"
+    return this.organization.state === "instructor_request"
   }
 
   isAccredited(){
-    return this.organization.state === "ACCREDITED"
+    return this.organization.state === "accredited"
   }
 
   isSuspended(){
-    return this.organization.state === "SUSPENDED"
+    return this.organization.state === "suspended"
   }
 
   isInvited(){
-    return this.organization.state === "INVITED"
+    return this.organization.state === "invited"
+  }
+
+  canDelete(){
+    return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
+  }
+
+  isAffiliated(){
+    return this.organization.type === "AFFILIATED"
   }
 
 }
