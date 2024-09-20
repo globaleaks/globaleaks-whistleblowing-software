@@ -56,16 +56,9 @@ export class OrganizationComponent implements OnInit{
 
   ngOnInit() {
    this.loadOrganizationData();
-
-   const container = document.getElementById('actions-container');
-    if (container) {
-      container.addEventListener('click', this.onActionHandler.bind(this));
-      container.addEventListener('keydown', this.onActionHandler.bind(this));
-    }
   }
 
   loadOrganizationData(){
-    console.log("LOAD ORGANIZATION DATA");
     this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
     
     const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
@@ -78,47 +71,28 @@ export class OrganizationComponent implements OnInit{
 
           this.organization = response;
           
-          this.organizationInfo.organization_email = response.organization_email
-          this.organizationInfo.organization_name = response.organization_name
-          this.organizationInfo.organization_institutional_site = response.organization_institutional_site
+          this.organizationInfo.organization_email = response.organization_email;
+          this.organizationInfo.organization_name = response.organization_name;
+          this.organizationInfo.organization_institutional_site = response.organization_institutional_site;
 
-          this.adminInfo.name = response.admin_name
-          this.adminInfo.surname = response.admin_surname
-          this.adminInfo.fiscal_code = response.admin_fiscal_code
-          this.adminInfo.email = response.admin_email
+          this.adminInfo.name = response.admin_name;
+          this.adminInfo.surname = response.admin_surname;
+          this.adminInfo.fiscal_code = response.admin_fiscal_code;
+          this.adminInfo.email = response.admin_email;
 
-          this.receiverInfo.name = response.recipient_name
-          this.receiverInfo.surname = response.recipient_surname
-          this.receiverInfo.fiscal_code = response.recipient_fiscal_code
-          this.receiverInfo.email = response.recipient_email
+          this.receiverInfo.name = response.recipient_name;
+          this.receiverInfo.surname = response.recipient_surname;
+          this.receiverInfo.fiscal_code = response.recipient_fiscal_code;
+          this.receiverInfo.email = response.recipient_email;
 
-          //todo mockup
-          //this.org_type = this.organization.type === "AFFILIATED"
-
-          //todo mockup:
-          // let users : EOUser[] = [];
-          // users.push({
-          //   id: "zaoi1",
-          //   creation_date: "01-01-2024",
-          //   last_login: "01/02/2024 10:00:05",
-          //   role: "RECIPIENT",
-          //   opened_rtips: 10,
-          //   closed_rtips: 1
-          // },
-          // {
-          //   id: "abcde1",
-          //   creation_date: "01-02-2024",
-          //   last_login: "01/01/2024 10:00:05",
-          //   role: "RECIPIENT",
-          //   opened_rtips: 5,
-          //   closed_rtips: 10
-          // })
-
-          // this.organization.users = users;
-
-          //this.organization.state = "ACCREDITED";
-          //fine mockup
-
+          const container = document.getElementById('actions-container');
+          if (container) {
+              container.addEventListener('click', this.onActionHandler.bind(this));
+              container.addEventListener('keydown', this.onActionHandler.bind(this));
+          }
+        },
+        error: (err) => {
+            console.error("Errore nel caricamento dei dati dell'organizzazione: ", err);
         }
       });
   }
@@ -161,16 +135,6 @@ export class OrganizationComponent implements OnInit{
           }
         });
       };
-
-      modalRef.result.then((result) => {
-        if (result) {
-          console.log("Conferma avvenuta con argomento:", result);
-        } else {
-          console.log("Modal dismissed");
-        }
-      }).catch((error) => {
-        console.log("Operazione annullata o chiusa", error);
-      });
     }
   }
 
@@ -193,7 +157,6 @@ export class OrganizationComponent implements OnInit{
     if (this.authenticationService.session.role === "accreditor") {
       this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
         next: () => {
-          console.log("Stato modificato con successo");
           this.loadOrganizationData();
         },
         error: (err) => {
@@ -204,14 +167,12 @@ export class OrganizationComponent implements OnInit{
   }
 
   aggiornaStatoAffiliazioneOrganizazzione() {
-    console.log("AGGIORNA STATO ORGANIZZAZIONE")
     if (this.authenticationService.session.role === "accreditor") {
       const updatedData = {
         type: this.organization.type === 'AFFILIATED' ? 'NOT_AFFILIATED' : 'AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
       };
       this.httpService.updateStateOrganizationRequest(this.organization.id, updatedData).subscribe({
         next: () => {
-          console.log("Aggiornamento stato effettuato con successo");
           this.loadOrganizationData();
         },
         error: (err) => {
@@ -221,36 +182,16 @@ export class OrganizationComponent implements OnInit{
     }
   }
 
-  isRequested(){
-    return this.organization.state === "requested"
-  }
-
-  isInstructorRequest(){
-    return this.organization.state === "instructor_request"
-  }
-
-  isAccredited(){
-    return this.organization.state === "accredited"
-  }
-
-  isSuspended(){
-    return this.organization.state === "suspended"
-  }
-
-  isInvited(){
-    return this.organization.state === "invited"
-  }
-
-  isApproved(){
-    return this.organization.state === "approved"
+  isState(state: string): boolean {
+    return this.organization?.state === state;
   }
 
   canDelete(){
-    return this.organization.opened_tips == 0 && this.organization.num_user_profiled == 1;
+    return this.organization?.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
 
   isAffiliated(){
-    return this.organization.type === "AFFILIATED"
+    return this.organization?.type === "AFFILIATED"
   }
 
 }
