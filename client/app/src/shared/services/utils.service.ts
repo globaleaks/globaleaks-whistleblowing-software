@@ -32,6 +32,7 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import { DownloadConfirmationComponent } from "../modals/download-confirmation/download-confirmation.component";
 @Injectable({
   providedIn: "root"
 })
@@ -733,23 +734,54 @@ export class UtilsService {
     };
   }
 
-  public downloadRFile(file: WbFile) {
-    const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
-        next: async token => {
-          this.cryptoService.proofOfWork(token.id).subscribe(
-              (ans) => {
-               const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
-                window.open(url + file.id + "?token=" + token.id + ":" + ans);
-                this.appDataService.updateShowLoadingPanel(false);
-              }
-          );
+  public downloadRFile(wbFile: WbFile) {
+
+    if(wbFile.status === "VERIFIED"){
+      const param = JSON.stringify({});
+      this.httpService.requestToken(param).subscribe(
+        {
+          next: async token => {
+            this.cryptoService.proofOfWork(token.id).subscribe(
+                (ans) => {
+                 const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+                  window.open(url + wbFile.id + "?token=" + token.id + ":" + ans);
+                  this.appDataService.updateShowLoadingPanel(false);
+                }
+            );
+          }
         }
-      }
-    );
+      );
+
+      return null ;
+    }
+    else{
+      const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
+      modalRef.componentInstance.arg = JSON.stringify({});
+      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato potrebbe essere infetto. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
+      modalRef.componentInstance.confirmFunction = (arg: string) => {
+        this.httpService.requestToken(arg).subscribe
+      (
+        {
+          next: async token => {
+            this.cryptoService.proofOfWork(token.id).subscribe(
+              (ans) => {
+                const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+                  window.open(url + wbFile.id + "?token=" + token.id + ":" + ans);
+                  this.appDataService.updateShowLoadingPanel(false);
+              }
+            );
+          }
+        }
+      )
+      };
+      return modalRef.result;
+    }
+
+    
+
   }
+
+
 
   flowDefault = new Flow({
     testChunks: false,
