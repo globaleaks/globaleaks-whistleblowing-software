@@ -1028,28 +1028,31 @@ def forward_comment_from_oe(session, user_id, internaltip_forwarding, content, v
                                                    models.EnumContentForwarding.comment.value, models.EnumAuthorType.oe.value)
     return comment_forwarding.id
 
-def forward_comment_from_main(session, user_id, internaltip_forwarding, content, visibility, content_id):
-    oe_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id)
+def forward_comment_from_main(session, user_id, internaltip_forwardings, content, visibility, content_id):
+    comment_forwardings = list()
+    for internaltip_forwarding in internaltip_forwardings:
+        oe_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id)
 
-    if oe_itip is None or visibility not in (models.EnumVisibility.oe.name):
-        return
+        if oe_itip is None or visibility not in (models.EnumVisibility.oe.name):
+            return
 
-    if oe_itip.crypto_tip_pub_key:
-        _content = base64.b64encode(GCE.asymmetric_encrypt(oe_itip.crypto_tip_pub_key, content)).decode()
+        if oe_itip.crypto_tip_pub_key:
+            _content = base64.b64encode(GCE.asymmetric_encrypt(oe_itip.crypto_tip_pub_key, content)).decode()
 
-    comment = db_add_comment(session, oe_itip.id, 'receiver', user_id, _content, visibility)
-    comment_forwarding = db_add_content_forwarding(session, internaltip_forwarding.id, comment.id, content_id,
+        comment = db_add_comment(session, oe_itip.id, 'receiver', user_id, _content, visibility)
+        comment_forwarding = db_add_content_forwarding(session, internaltip_forwarding.id, comment.id, content_id,
                                                    models.EnumContentForwarding.comment.value, models.EnumAuthorType.main.value)
-    return comment_forwarding.id
+        comment_forwardings.append(comment_forwarding.id)
+    return comment_forwardings
 
 
 def forward_comment(session, user_id, itip_id, content, visibility, content_id):
     internaltip_forwarding_from_oe = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
-    internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).one_or_none()
+    internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).all()
 
     if internaltip_forwarding_from_oe is not None:
         return forward_comment_from_oe(session, user_id, internaltip_forwarding_from_oe, content, visibility, content_id)
-    elif internaltip_forwarding_from_main is not None:
+    elif internaltip_forwarding_from_main is not None and internaltip_forwarding_from_main:
         return forward_comment_from_main(session, user_id, internaltip_forwarding_from_main, content, visibility, content_id)
     else:
         raise errors.ResourceNotFound()
@@ -1097,6 +1100,7 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0):
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    # TODO handle multiple OE forward
     forward_comment(session, user_id, itip_id, content, visibility, comment.id)
     return ret
 
@@ -1398,21 +1402,24 @@ class ReceiverFileUpload(BaseHandler):
 
         return file_forwarding.id
 
-    def forward_rfile_from_main(self, session, internaltip_forwarding, visibility, content_id, source_prv_key):
+    def forward_rfile_from_main(self, session, internaltip_forwardings, visibility, content_id, source_prv_key):
         main_receiverfile = db_query(session, models.ReceiverFile, models.ReceiverFile.id == content_id).one_or_none()
         if main_receiverfile is None:
             raise errors.ResourceNotFound()
+        file_forwardings = list()
+        for internaltip_forwarding in internaltip_forwardings:
 
-        oe_itip = db_query(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id).one_or_none()
+            oe_itip = db_query(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id).one_or_none()
 
-        if oe_itip is None or visibility != models.EnumVisibility.oe.value:
-            return
+            if oe_itip is None or visibility != models.EnumVisibility.oe.value:
+                return
 
-        destination_id = self.fs_copy_file(main_receiverfile.id, source_prv_key)
-        destination_rfile = copy_receiverfile(session, oe_itip, main_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
-        file_forwarding = add_file_forwarding(session, internaltip_forwarding.id, destination_rfile, main_receiverfile.id)
+            destination_id = self.fs_copy_file(main_receiverfile.id, source_prv_key)
+            destination_rfile = copy_receiverfile(session, oe_itip, main_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
+            file_forwarding = add_file_forwarding(session, internaltip_forwarding.id, destination_rfile, main_receiverfile.id)
+            file_forwardings.append(file_forwarding.id)
 
-        return file_forwarding.id
+        return file_forwardings
 
     def forward_file(self, session, rfile_id, itip_id, visibility):
         rtip = db_get(session, models.ReceiverTip, (models.ReceiverTip.receiver_id == self.session.user_id,
@@ -1423,11 +1430,11 @@ class ReceiverFileUpload(BaseHandler):
         source_itip_private_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
         internaltip_forwarding_from_oe = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
-        internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).one_or_none()
+        internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).all()
 
         if internaltip_forwarding_from_oe is not None:
             return self.forward_rfile_from_oe(session, internaltip_forwarding_from_oe, visibility, rfile_id, source_itip_private_key)
-        elif internaltip_forwarding_from_main is not None:
+        elif internaltip_forwarding_from_main is not None and internaltip_forwarding_from_main:
             return self.forward_rfile_from_main(session, internaltip_forwarding_from_main, visibility, rfile_id, source_itip_private_key)
         else:
             raise errors.ResourceNotFound()
@@ -1435,6 +1442,7 @@ class ReceiverFileUpload(BaseHandler):
     @transact
     def upload_file(self, session, tid, user_id, itip_id, uploaded_file):
         ret = register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file)
+        # TODO handle multiple OE forward
         self.forward_file(session, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'])
         return ret
 
