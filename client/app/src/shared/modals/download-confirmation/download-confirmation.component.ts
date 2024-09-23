@@ -7,8 +7,9 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class DownloadConfirmationComponent {
 
-  confirmationText: string = "Se sicuro di voler scaricare un file infetto?"
+  confirmationText: string = "Sei sicuro di voler procedere?"
 
+  @Input() text: string = "";
 
   @Input() arg: string;
 
