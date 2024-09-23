@@ -737,27 +737,27 @@ export class UtilsService {
   public downloadRFile(wbFile: WbFile) {
 
     if(wbFile.status === "VERIFIED"){
-      const param = JSON.stringify({});
+    const param = JSON.stringify({});
       this.httpService.requestToken(param).subscribe(
-        {
-          next: async token => {
-            this.cryptoService.proofOfWork(token.id).subscribe(
-                (ans) => {
-                 const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+      {
+        next: async token => {
+          this.cryptoService.proofOfWork(token.id).subscribe(
+              (ans) => {
+               const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
                   window.open(url + wbFile.id + "?token=" + token.id + ":" + ans);
-                  this.appDataService.updateShowLoadingPanel(false);
-                }
-            );
-          }
+                this.appDataService.updateShowLoadingPanel(false);
+              }
+          );
         }
-      );
+      }
+    );
 
       return null ;
-    }
+  }
     else{
       const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = JSON.stringify({});
-      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato non è verificato. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
+      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato potrebbe essere infetto. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
       modalRef.componentInstance.confirmFunction = (arg: string) => {
         this.httpService.requestToken(arg).subscribe
       (
