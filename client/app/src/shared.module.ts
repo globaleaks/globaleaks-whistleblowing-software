@@ -88,6 +88,7 @@ import { OrgAdminInfoComponent } from "@app/shared/partials/org-admin-info/org-a
 import { OrgRecipientInfoComponent } from "@app/shared/partials/org-recipient-info/org-recipient-info.component";
 import { OrgOverviewComponent } from "@app/shared/partials/org-overview/org-overview.component";
 import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-users-list.component";
+import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.component";
 
 @NgModule({
   imports: [
@@ -201,7 +202,8 @@ import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-u
     OrgRecipientInfoComponent,
     OrgAdminInfoComponent,
     OrgOverviewComponent,
-    OrgUsersListComponent
+    OrgUsersListComponent,
+    CustomModalComponent
   ],
   exports: [
     FooterComponent,
@@ -266,7 +268,8 @@ import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-u
     OrgRecipientInfoComponent,
     OrgAdminInfoComponent,
     OrgOverviewComponent,
-    OrgUsersListComponent
+    OrgUsersListComponent,
+    CustomModalComponent
   ]
 })
 export class SharedModule {
