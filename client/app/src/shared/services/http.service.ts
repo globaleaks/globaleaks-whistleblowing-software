@@ -473,7 +473,7 @@ export class HttpService {
   }
 
   sendAccreditationApproved(id: string): Observable<void> {
-    return this.httpClient.post<void>(`/api/accreditation/${id}/approved`, { responseType: 'text' as 'json'});
+    return this.httpClient.post<void>(`/api/accreditation/request/${id}/approved`, { responseType: 'text' as 'json'});
   }
 
   deleteAccreditationRequest(id: string, bodyReq: any): Observable<any> {
