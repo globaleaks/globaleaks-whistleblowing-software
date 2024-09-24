@@ -227,6 +227,14 @@ class ForwardSubmission(BaseHandler):
                 "Unable to deliver the file's origin")
         return new_file
 
+    def check_default_context_receivers(self, default_context, receivers, receivers_count):
+        if not receivers:
+                raise errors.InputValidationError(
+                    "Unable to deliver the submission to at least one recipient")
+
+        if 0 < default_context.maximum_selectable_receivers < receivers_count:
+            raise errors.InputValidationError(
+                "The number of recipients selected exceed the configured limit")
     @transact
     def forward_submission(self, session, request, itip_id, user_session):
         itip = db_get(session, models.InternalTip,
@@ -261,13 +269,7 @@ class ForwardSubmission(BaseHandler):
                                  (models.ReceiverContext.context_id == default_context.id,
                                   models.User.id == models.ReceiverContext.receiver_id)).all()
 
-            if not receivers:
-                raise errors.InputValidationError(
-                    "Unable to deliver the submission to at least one recipient")
-
-            if 0 < default_context.maximum_selectable_receivers < len(request['receivers']):
-                raise errors.InputValidationError(
-                    "The number of recipients selected exceed the configured limit")
+            self.check_default_context_receivers(default_context, receivers, len(request['receivers']))
 
             forwarded_itip = models.InternalTip()
             forwarded_itip.tid = tid
