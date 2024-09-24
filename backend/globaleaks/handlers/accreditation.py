@@ -43,7 +43,7 @@ def revert_tenant(session, accreditation_id: str):
 
 
 @transact
-def toggle_status_activate(session, accreditation_id: str):
+def toggle_status_activate(session, accreditation_id: str, is_toggle=False):
     accreditation_item = (
         session.query(Subscriber)
         .filter(Subscriber.sharing_id == accreditation_id)
@@ -54,13 +54,17 @@ def toggle_status_activate(session, accreditation_id: str):
 
     status_mapping = {
         'accredited': EnumSubscriberStatus.suspended,
-        'suspended': EnumSubscriberStatus.accredited
+        'suspended': EnumSubscriberStatus.accredited,
     }
+    if not is_toggle:
+        status_mapping['requested'] = EnumSubscriberStatus.approved
 
     if status not in status_mapping:
         raise errors.ForbiddenOperation
 
-    revert_tenant(session, accreditation_id)
+    if is_toggle:
+        revert_tenant(session, accreditation_id)
+
     return _change_status(
         session,
         accreditation_id,
@@ -573,6 +577,15 @@ class AccreditationHandler(BaseHandler):
             accreditation_id
         )
 
+class AccreditationApprovedHandler(BaseHandler):
+    """
+    This manager is responsible for confirm accreditation requests
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+
+    def post(self, accreditation_id: str):
+        return toggle_status_activate(accreditation_id)
 
 class AccreditationConfirmHandler(BaseHandler):
     """
@@ -591,4 +604,4 @@ class ToggleStatusActiveHandler(BaseHandler):
     invalidate_cache = True
 
     def put(self, accreditation_id: str):
-        return toggle_status_activate(accreditation_id)
+        return toggle_status_activate(accreditation_id, is_toggle=True)
