@@ -14,7 +14,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.tenant import db_initialize_tenant_submission_statuses
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.wizard import db_wizard
-from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTip, InternalTipForwarding, \
+from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTipForwarding, \
     User, serializers
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
@@ -35,8 +35,8 @@ def create_tenant():
 def revert_tenant(session, accreditation_id: str):
     t = (
         session.query(Tenant)
-        .join(Subscriber, Tenant.id == Subscriber.tid)  # Correzione join tra Tenant e Subscriber
-        .filter(Subscriber.sharing_id == accreditation_id)  # Corretto 'fileter' in 'filter'
+        .join(Subscriber, Tenant.id == Subscriber.tid)
+        .filter(Subscriber.sharing_id == accreditation_id)
         .one()
     )
     t.active = not t.active
@@ -112,15 +112,12 @@ def send_email(session, emails: list, language, accreditation_item, wizard):
 def accreditation(session, request, is_instructor=False):
     """
     Process an accreditation request.
-
     Args:
         session: The database session.
         request: The accreditation request data.
         is_instructor: is a request of instructor
-
     Returns:
         A dictionary containing the new subscriber's sharing ID.
-
     Raises:
         InternalServerError: If the accreditation process fails.
     """
@@ -155,11 +152,9 @@ def accreditation(session, request, is_instructor=False):
 def count_user_tip(session, accreditation_item):
     """
     Count the number of tips and users for a given accreditation item.
-
     Args:
         session: The database session.
         accreditation_item: The Subscriber object.
-
     Returns:
         A tuple containing the count of tips and users.
     """
@@ -359,8 +354,8 @@ def persistent_drop(session, accreditation_id: str):
         else:
             tenant_item = (
                 session.query(Tenant)
-                .join(Subscriber, Tenant.id == Subscriber.tid)  # Correzione join tra Tenant e Subscriber
-                .filter(Subscriber.sharing_id == accreditation_id)  # Corretto 'fileter' in 'filter'
+                .join(Subscriber, Tenant.id == Subscriber.tid)
+                .filter(Subscriber.sharing_id == accreditation_id)
                 .one()
             )
             session.delete(tenant_item)
