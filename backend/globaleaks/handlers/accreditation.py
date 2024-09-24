@@ -58,6 +58,7 @@ def toggle_status_activate(session, accreditation_id: str, is_toggle=False):
     }
     if not is_toggle:
         status_mapping['requested'] = EnumSubscriberStatus.approved
+        status_mapping['instructor_request'] = EnumSubscriberStatus.invited
 
     if status not in status_mapping:
         raise errors.ForbiddenOperation
@@ -108,13 +109,14 @@ def send_email(session, emails: list, language, accreditation_item, wizard):
 
 
 @transact
-def accreditation(session, request):
+def accreditation(session, request, is_instructor=False):
     """
     Process an accreditation request.
 
     Args:
         session: The database session.
         request: The accreditation request data.
+        is_instructor: is a request of instructor
 
     Returns:
         A dictionary containing the new subscriber's sharing ID.
@@ -129,7 +131,10 @@ def accreditation(session, request):
         sub = Subscriber(request)
         sub.language = ''
         sub.subdomain = str(uuid4())
-        sub.state = EnumSubscriberStatus.requested.name
+        if is_instructor:
+            sub.state = EnumSubscriberStatus.instructor_request.name
+        else:
+            sub.state = EnumSubscriberStatus.requested.name
         sub.organization_location = ''
 
         t = create_tenant()
@@ -605,3 +610,67 @@ class ToggleStatusActiveHandler(BaseHandler):
 
     def put(self, accreditation_id: str):
         return toggle_status_activate(accreditation_id, is_toggle=True)
+
+class SubmitInstructorRequestHandler(BaseHandler):
+    """
+    This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def post(self):
+        request = self.validate_request(
+            self.request.content.read(),
+            requests.SubmitAccreditation)
+        request['client_ip_address'] = self.request.client_ip
+        request['client_user_agent'] = self.request.client_ua
+        return accreditation(request, is_instructor = True)
+
+@transact
+def from_invited_to_request(session, request, accreditation_id: str):
+    try:
+        accreditation_item = (
+            session.query(Subscriber)
+            .filter(Subscriber.sharing_id == accreditation_id)
+            .one()
+        )
+        accreditation_item.organization_name = request['organization_name']
+        accreditation_item.organization_email = request['organization_email']
+        accreditation_item.organization_institutional_site = request['organization_institutional_site']
+        accreditation_item.admin_name = request['admin_name']
+        accreditation_item.admin_surname = request['admin_surname']
+        accreditation_item.admin_email = request['admin_email']
+        accreditation_item.admin_fiscal_code = request['admin_fiscal_code']
+        accreditation_item.name = request['recipient_name']
+        accreditation_item.surname = request['recipient_surname']
+        accreditation_item.email = request['recipient_email']
+        accreditation_item.recipient_fiscal_code = request['recipient_fiscal_code']
+        accreditation_item.tos1 = request['tos1']
+        accreditation_item.tos2 = request['tos2']
+        accreditation_item.state = EnumSubscriberStatus.requested.name
+        save_step(session, accreditation_item)
+        return {'id': accreditation_item.sharing_id}
+    except Exception as e:
+        log.err(f"Error: Accreditation Fail: {e}")
+        raise errors.InternalServerError
+
+
+
+class ConfirmRequestHandler(BaseHandler):
+    """
+    This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
+    """
+    check_roles = 'any'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def post(self, accreditation_id: str):
+        fiscal_code = self.request.headers.get(b'x-idp-userid')
+        request = self.validate_request(
+            self.request.content.read(),
+            requests.SubmitAccreditation)
+        request['client_ip_address'] = self.request.client_ip
+        request['client_user_agent'] = self.request.client_ua
+        request['admin_fiscal_code'] = fiscal_code
+        return from_invited_to_request(request, accreditation_id)

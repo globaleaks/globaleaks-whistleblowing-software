@@ -145,7 +145,10 @@ api_spec = [
     (r'/api/accreditation/request', accreditation.SubmitAccreditationHandler),
     (r'/api/accreditation/all', accreditation.GetAllAccreditationHandler),
     (r'/api/accreditation/request/' + uuid_regexp, accreditation.AccreditationHandler),
+    (r'/api/accreditation/request/instructor_request', accreditation.SubmitInstructorRequestHandler),
     (r'/api/accreditation/request/' + uuid_regexp + r'/approved', accreditation.AccreditationApprovedHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/invited', accreditation.AccreditationApprovedHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/confirm_invited', accreditation.ConfirmRequestHandler),
     (r'/api/accreditation/request/' + uuid_regexp + r'/accredited', accreditation.AccreditationConfirmHandler),
     (r'/api/accreditation/request/' + uuid_regexp + r'/toggle-status-active', accreditation.ToggleStatusActiveHandler),
 
