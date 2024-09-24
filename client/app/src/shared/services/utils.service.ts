@@ -757,7 +757,7 @@ export class UtilsService {
     else{
       const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = JSON.stringify({});
-      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato potrebbe essere infetto. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
+      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato non è verificato. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
       modalRef.componentInstance.confirmFunction = (arg: string) => {
         this.httpService.requestToken(arg).subscribe
       (
