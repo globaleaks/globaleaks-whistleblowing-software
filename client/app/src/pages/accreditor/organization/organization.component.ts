@@ -98,36 +98,41 @@ export class OrganizationComponent implements OnInit{
   }
 
   invia(){
-    //todo mockup
-    //this.organization.state = "INVITED";
-    //fine mockup
   
-    console.log("INVIA / INVIA INVITO - TODO!!!");
     if (this.authenticationService.session.role === "accreditor") {
-      this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
-        next: () => {
-          console.log("Invito inviato con successo");
-          this.loadOrganizationData();
-        },
-        error: (err) => {
-          console.error("Errore durante l'invio dell'invito", err);
-        }
-      }); 
+
+      if(this.organization.state === 'instructor_request'){
+        this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
+          next: () => {
+            this.loadOrganizationData();
+          },
+          error: (err) => {
+            console.error("Errore durante l'invio dell'invito", err);
+          }
+        }); 
+      }
+      else if(this.organization.state === 'requested'){
+        this.httpService.sendAccreditationApproved(this.organization.id).subscribe({
+          next: () => {
+            this.loadOrganizationData();
+          },
+          error: (err) => {
+            console.error("Errore durante l'invio dell'invito", err);
+          }
+        });
+      }
+
+      
     }
   }
 
   rifiuta(){
-    //todo mockup
-    // this.organization.state = "REJECTED";
-    //fine mockup
-    console.log("REJECT - TODO!!!")
     if (this.authenticationService.session.role === "accreditor") {
       const modalRef = this.modalService.open(ConfirmationComponent);
 
       modalRef.componentInstance.confirmFunction = (arg: string) => {
         this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
           next: () => {
-            console.log("Richiesta rifiutata con successo");
             this.router.navigateByUrl('/accreditor/organizations');
           },
           error: (err) => {
