@@ -480,6 +480,7 @@ def activate_tenant(session, accreditation_id):
         .filter(Subscriber.sharing_id == accreditation_id)
         .one()
     )
+
     accreditation_item.activation_token = generateRandomKey()
     t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
     mode = config_element.get_val('mode')
