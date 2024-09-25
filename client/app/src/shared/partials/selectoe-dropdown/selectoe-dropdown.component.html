@@ -1,11 +1,11 @@
 <div class="row" style="padding-bottom: 1em;">
-    <label class="col-md-12">
+    <div class="col-md-12">
       <span>{{'Select accredited organization'|translate}}</span>
-    </label>
+    </div>
     <div class="col-md-12 mt-2">
       <select id="selectOrganization" class="form-control" (change)="addOrganization($event)">
           <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
-          <option *ngFor="let org of organizations" [value]="org.oe_id">{{ org.name }}</option>
+          <option *ngFor="let org of organizations" [value]="org.tid">{{ org.name }}</option>
       </select>
     </div>
 </div>

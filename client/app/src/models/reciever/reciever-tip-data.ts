@@ -311,9 +311,9 @@ export interface ReceiversById {
 }
 
 export interface Forwarding {
-  tid_recipient: string;
-  recipient_name: string;
+  tid: number;
+  name: string;
   creation_date: string;
-  files: ForwardedFile[];
+  files: string[];
   comments: string[];
 }

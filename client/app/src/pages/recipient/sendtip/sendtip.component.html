@@ -9,20 +9,20 @@
     <div class="row">
       <div class="col-6">
         <div class="row form-group">
-          <label class="col-md-12">
+          <div class="col-md-12">
             <span>{{'Select accredited organization'|translate}}</span>
-          </label>
+          </div>
           <div class="col-md-12 mt-2">
             <select id="assignSubmissionStatus" class="form-control" (change)="addOrganization($event)">
                 <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
-                <option *ngFor="let org of organizations" [value]="org.oe_id">{{ org.name }}</option>
+                <option *ngFor="let org of organizations" [value]="org.tid">{{ org.name }}</option>
             </select>
           </div>
         </div>
         <div class="row" id="selected-oe">
           <div class="col-12">
               <button *ngFor="let org of selectedOrganizations" class="btn btn-outline-secondary" style="margin-right: 10px;">
-                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.oe_id)"></i>
+                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.tid)"></i>
                 <span>{{ org.name }}</span>
               </button>
           </div>
@@ -30,9 +30,9 @@
       </div>
       <div class="col-6">
         <div class="row form-group">
-          <label class="col-md-12">
+          <div class="col-md-12">
             <span>{{'Register new organization'|translate}}</span>
-          </label>
+          </div>
           <div class="col-md-12 mt-2">
             <button class="btn btn-sm btn-primary" id="add-organization" (click)="null;">
               <i class="fa-solid fa-check"></i>
@@ -47,9 +47,9 @@
     <div class="row">
       <div class="col-12">
         <div class="row form-group">
-          <label class="col-md-12">
+          <div class="col-md-12">
             <span>{{'Text'|translate}}</span>
-          </label>
+          </div>
           <div class="col-md-12 mt-2">
             <textarea id="SendTipText" name="sendTipText" maxlength="4096" autocomplete="off" class="form-control" [(ngModel)]="tipText"></textarea>
           </div>
@@ -60,9 +60,9 @@
     <div class="row">
       <div class="col-6">
         <div class="row form-group">
-            <label class="col-md-12">
+            <div class="col-md-12">
               <span>{{'Review Form'|translate}}</span>
-            </label>
+            </div>
             <div class="col-md-12 mt-2">
               <select id="assignSubmissionStatus" class="form-control" (change)="selectReviewForm($event)">
                 <option value="" disabled selected>{{ 'Select a review form' | translate }}</option>

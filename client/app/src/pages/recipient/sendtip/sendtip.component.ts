@@ -37,9 +37,9 @@ export class SendtipComponent implements OnInit {
   loadOrganizations() {
     setTimeout(() => {
       this.organizations = [
-        { oe_id: 'uuid-oe1', name: 'OE 01' },
-        { oe_id: 'uuid-oe2', name: 'OE 02' },
-        { oe_id: 'uuid-oe3', name: 'OE 03' },
+        { tid: 1, name: 'OE 01' },
+        { tid: 11, name: 'OE 02' },
+        { tid: 21, name: 'OE 03' },
       ];
     }, 500);
   }
@@ -64,22 +64,21 @@ export class SendtipComponent implements OnInit {
     }, 500);
   }
 
-  // Logic
 
   addOrganization(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    const oe_id = selectElement.value;
-  
+    const oe_id = parseInt(selectElement.value);
+
     if (oe_id) {
-      const selected = this.organizations.find(org => org.oe_id === oe_id);
+      const selected = this.organizations.find(org => org.tid == oe_id);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
       }
     }
   }
   
-  removeOrganization(oe_id: string) {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.oe_id !== oe_id);
+  removeOrganization(oe_id: number) {
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.tid != oe_id);
   }
 
   selectReviewForm(event: Event) {

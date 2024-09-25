@@ -100,13 +100,13 @@ export class TipComponent implements OnInit {
 
   getForwardedOEList(forwardings: Forwarding[]): Organization[]{
 
-    let orgList: Organization[] = [{oe_id: "ALL", name:"All"}]
+    let orgList: Organization[] = [{tid: 0, name:"All"}]
 
     if(forwardings){
       let temp = forwardings.map(obj => {
         let org = {
-          name: obj.recipient_name,
-          oe_id : obj.tid_recipient
+          name: obj.name,
+          tid : obj.tid
         }
         return org;
       });

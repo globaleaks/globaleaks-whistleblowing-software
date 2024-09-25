@@ -1,5 +1,5 @@
 export interface Organization {
-    oe_id: string;
+    tid: number;
     name: string;
 }
 
