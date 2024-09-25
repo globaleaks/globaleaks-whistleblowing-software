@@ -1,0 +1,34 @@
+<div class="modal-header">
+    <div class="modal-title">{{ title | translate }}</div>
+    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+        <i class="fa-solid fa-times"></i>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="form-group">
+        <div>
+            <span>{{ message | translate }}</span>
+        </div>
+
+        <div *ngIf="showInputText">
+            <textarea id="textarea"  class="form-control inputelem" [(ngModel)]="inputText" [required]="true" #textarea="ngModel" ></textarea>
+            
+            <div class="text-danger">
+                <span *ngIf="textarea?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
+                <span *ngIf="textarea?.errors?.['minlength']">{{'The text is too short'|translate}}</span>
+                <span *ngIf="textarea?.errors?.['maxlength']">{{'The text is too short'|translate}}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal-footer">
+    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg)">
+        <i class="fa-solid fa-check"></i>
+        <span>{{ 'Yes' | translate }}</span>
+    </button>
+    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+        <i class="fa-solid fa-times"></i>
+        <span>{{ 'No' | translate }}</span>
+    </button>
+</div>

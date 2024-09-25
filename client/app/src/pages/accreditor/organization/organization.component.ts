@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOUser, EOInfo } from '@app/models/accreditor/organization-data';
+import { ExternalOrganization,EOAdmin, EOPrimaryReceiver, EOInfo } from '@app/models/accreditor/organization-data';
 import { AccreditorOrgService } from '@app/services/helper/accreditor-org.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { HttpService } from '@app/shared/services/http.service';
 import { Observable } from 'rxjs';
-import { ConfirmationComponent } from '@app/shared/modals/confirmation/confirmation.component';
+import { CustomModalComponent } from '@app/shared/modals/custom-modal/custom-modal.component';
 
 @Component({
   selector: 'src-organization',
@@ -128,10 +128,14 @@ export class OrganizationComponent implements OnInit{
 
   rifiuta(){
     if (this.authenticationService.session.role === "accreditor") {
-      const modalRef = this.modalService.open(ConfirmationComponent);
+      const modalRef = this.modalService.open(CustomModalComponent);
+      modalRef.componentInstance.title = "Sei sicuro di voler rifiutare?";
+      modalRef.componentInstance.message = "Inserisci qui la motivazione del rifiuto:"
+      modalRef.componentInstance.arg = this.organization.id;
+      modalRef.componentInstance.showInputText = true;
 
-      modalRef.componentInstance.confirmFunction = (arg: string) => {
-        this.httpService.deleteAccreditationRequest(this.organization.id).subscribe({
+      modalRef.componentInstance.confirmFunction = (arg: string, text: string) => {
+        this.httpService.deleteAccreditationRequest(arg, {'motivation_text': text}).subscribe({
           next: () => {
             this.router.navigateByUrl('/accreditor/organizations');
           },

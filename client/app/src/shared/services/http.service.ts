@@ -473,11 +473,11 @@ export class HttpService {
   }
 
   sendAccreditationApproved(id: string): Observable<void> {
-    return this.httpClient.post<void>(`/api/accreditation/${id}/approved`, { responseType: 'text' as 'json'});
+    return this.httpClient.post<void>(`/api/accreditation/request/${id}/approved`, { responseType: 'text' as 'json'});
   }
 
-  deleteAccreditationRequest(id: string): Observable<void> {
-    return this.httpClient.delete<void>(`/api/accreditation/request/${id}`);
+  deleteAccreditationRequest(id: string, bodyReq: any): Observable<any> {
+    return this.httpClient.delete<void>(`/api/accreditation/request/${id}`, {body : bodyReq});
   }
 
   updateStateOrganizationRequest(id: string, dataToUpdate: { 
