@@ -8,7 +8,6 @@
                     <span *ngSwitchCase="'receiver'">{{ 'Recipient' | translate }}</span>
                     <span *ngSwitchCase="'custodian'">{{ 'Custodian' | translate }}</span>
                     <span *ngSwitchCase="'analyst'">{{ 'Analyst' | translate }}</span>
-                    <span *ngSwitchCase="'accreditor'">{{ 'Accreditation Manager' | translate }}</span>
                 </ng-container>
             </span>
             <span class="badge bg-secondary" *ngIf="!user.enabled">{{ 'Disabled' | translate }}</span>
@@ -53,6 +52,11 @@
                     <label>{{ 'Name' | translate }}</label>
                     <input class="form-control" name="name" [(ngModel)]="user.name" type="text" required />
                     <div class="text-danger" *ngIf="editUser.form.get('name')?.errors?.['required']">This field is mandatory </div>
+                </div>
+                <div class="form-group">
+                    <label>{{ 'Fiscal Code' | translate }}</label>
+                    <input class="form-control" name="fiscalcode" [(ngModel)]="user.fiscalcode" type="text" required />
+                    <div class="text-danger" *ngIf="editUser.form.get('fiscalcode')?.errors?.['required']">This field is mandatory </div>
                 </div>
                 <div class="form-group">
                     <label>{{ 'Public name' | translate }}</label>
@@ -175,42 +179,44 @@
             </div>
         </div>
         <div class="row" *ngIf="user.role === 'receiver'">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <input [(ngModel)]="user.forcefully_selected" type="checkbox">
-                    <label>{{ 'Forcefully selected' | translate }}</label>
+            <ng-container *ngIf="authenticationService.session.t_type == 0">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input [(ngModel)]="user.forcefully_selected" type="checkbox">
+                        <label>{{ 'Forcefully selected' | translate }}</label>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_mask_information" [(ngModel)]="user.can_mask_information" type="checkbox" />
+                        <span>{{ 'Give this user ability to mask information' | translate }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_redact_information" [(ngModel)]="user.can_redact_information" type="checkbox" />
+                        <span>{{ 'Give this user ability to permanently redact masked information' | translate }}</span>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_delete_submission" [(ngModel)]="user.can_delete_submission" type="checkbox" />
+                        <label>{{ 'Allow the recipient to delete reports' | translate }}</label>
+                    </div>
+                    <div  class="form-group" *ngIf="!nodeData.can_postpone_expiration">
+                        <input name="can_postpone_expiration" [(ngModel)]="user.can_postpone_expiration" type="checkbox" />
+                        <label>{{ 'Allow the recipient to edit the report expiration date' | translate }}</label>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_grant_access_to_reports" [(ngModel)]="user.can_grant_access_to_reports" type="checkbox" />
+                        <label>{{ 'Give this user ability to grant user access to reports' | translate }}</label>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_transfer_access_to_reports" [(ngModel)]="user.can_transfer_access_to_reports" type="checkbox" />
+                        <label>{{ 'Give this user ability to transfer reports to other users' | translate }}</label>
+                    </div>
+                    <div class="form-group">
+                        <input name="can_reopen_reports" [(ngModel)]="user.can_reopen_reports" type="checkbox" />
+                        <label>{{ 'Allow this user to reopen management of a report' | translate }}</label>
+                      </div>
                 </div>
-                <div class="form-group">
-                    <input name="can_mask_information" [(ngModel)]="user.can_mask_information" type="checkbox" />
-                    <span>{{ 'Give this user ability to mask information' | translate }}</span>
-                </div>
-                <div class="form-group">
-                    <input name="can_redact_information" [(ngModel)]="user.can_redact_information" type="checkbox" />
-                    <span>{{ 'Give this user ability to permanently redact masked information' | translate }}</span>
-                </div>
-                <div class="form-group">
-                    <input name="can_delete_submission" [(ngModel)]="user.can_delete_submission" type="checkbox" />
-                    <label>{{ 'Allow the recipient to delete reports' | translate }}</label>
-                </div>
-                <div  class="form-group" *ngIf="!nodeData.can_postpone_expiration">
-                    <input name="can_postpone_expiration" [(ngModel)]="user.can_postpone_expiration" type="checkbox" />
-                    <label>{{ 'Allow the recipient to edit the report expiration date' | translate }}</label>
-                </div>
-                <div class="form-group">
-                    <input name="can_grant_access_to_reports" [(ngModel)]="user.can_grant_access_to_reports" type="checkbox" />
-                    <label>{{ 'Give this user ability to grant user access to reports' | translate }}</label>
-                </div>
-                <div class="form-group">
-                    <input name="can_transfer_access_to_reports" [(ngModel)]="user.can_transfer_access_to_reports" type="checkbox" />
-                    <label>{{ 'Give this user ability to transfer reports to other users' | translate }}</label>
-                </div>
-                <div class="form-group">
-                    <input name="can_reopen_reports" [(ngModel)]="user.can_reopen_reports" type="checkbox" />
-                    <label>{{ 'Allow this user to reopen management of a report' | translate }}</label>
-                  </div>
-            </div>
+            </ng-container>         
         </div>
-        <div class="row" *ngIf="user.role !== 'admin'">
+        <div class="row" *ngIf="user.role !== 'admin' && authenticationService.session.t_type != 1">
             <div class="col-md-12">
                 <label>{{ 'Give the user administrative access to the following features:' | translate }}</label>
                 <div class="form-group">
