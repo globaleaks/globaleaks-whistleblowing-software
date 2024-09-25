@@ -4,14 +4,49 @@
       <span class="float-end">
         <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
         <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
-    </span>
+      </span>
     </div>
     <div class="card-body" *ngIf="!collapsed">
 
-      <div *ngFor="let file of files | orderBy: 'creation_date' as index">
-        <div id="file-{{index}}" >
-            <src-wbfiles  [wbFile]="file"></src-wbfiles>
+      <div *ngFor="let file of files | orderBy: 'creation_date' as index; let i = index">
+        <div id="file-{{index}}" class="whistle-blower-file card card-default" >
+            <div class="card-body">
+                <div class="top-row clearfix">
+                    <span class="float-start">
+                        <span class="text-muted" >
+                            <span>{{'Filename'|translate}}</span>: </span>
+                        <span class="filename px-1">{{file.name}}</span>
+                    </span>
+                    <span class="float-end">
+                        <span>
+                            <button *ngIf="authenticationService.session?.role === 'receiver'" class="btn btn-sm btn-danger" (click)="removeFile(i)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </span>
+                    </span>
+                </div>
+                <div class="file-info-row">
+                    <span>
+                        <span>{{'Origin'|translate}}</span>: <span>{{file.origin | translate}}</span>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Date'|translate}}</span>: <span>{{file.uploadDate | date:'dd-MM-yyyy HH:MM'}}</span>
+                    </span>
+                    <span class="px-1">
+                        <span>{{'Size:'|translate}}</span>
+                        <span>{{file.file.size | byteFmt:2}}</span>
+                    </span>
+                </div>
+                <div *ngIf="file.description">
+                    <span>
+                        <span>{{'Description'|translate}}</span>: 
+                    </span>
+                    <span> {{file.description}} </span>
+                </div>
+            </div>
         </div>
+
+
       </div>
 
       <div>
@@ -21,13 +56,13 @@
             <span class="input-group-prepend">
               <span class="input-group-text rounded-end-0" data-translate>Description</span>
             </span>
-            <input type="text" class="form-control" id="upload_description"/>
+            <input type="text" class="form-control" id="upload_description" [(ngModel)]="newFileDescription"/>
             <span class="input-group-append">
-              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': checkingFile}">
+              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': newFileDescription == null}">
                 <i class="fa-solid fa-upload"></i>
                 <span>{{'Upload'|translate}}</span>
               </label>
-              <input #uploader id="customFile" type="file" (change)="addFile(uploader)" style="display: none;" />
+              <input #uploader id="customFile" type="file" (change)="addFile($event)" style="display: none;" />
             </span>
           </div>
         </div>

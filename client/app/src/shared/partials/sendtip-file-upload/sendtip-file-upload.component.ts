@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FileItem } from '@app/models/reciever/sendtip-data';
+import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { UtilsService } from '@app/shared/services/utils.service';
 
 @Component({
@@ -13,37 +14,37 @@ export class SendTipFileUploadComponent {
 
   collapsed = false;
 
-  checkingFile: boolean = false;
+  newFileDescription: string = "";
 
-  constructor(protected utilsService: UtilsService){}
+  constructor(protected utilsService: UtilsService, protected authenticationService: AuthenticationService){}
 
-  addFile(fileInput: HTMLInputElement) {
+  addFile(event: any) {
 
-
-    const file = fileInput.files?.[0];
+    const file: File = event.target.files[0];
 
     if (file) {
-      const loadingFile: FileItem = {
+
+      let item: FileItem = {
+        file: file,
+        description: this.newFileDescription,
         id: 'uuid-' + (Math.random() * 10000).toFixed(0),
         name: file.name,
-        scanStatus: 'In attesa', // Status iniziale
-        origin: 'Nuovo',
+        scanStatus: 'PENDING', // Status iniziale
+        origin: 'recipient',
         uploadDate: new Date().toLocaleString(),
-        size: `${file.size} bytes`,
+        size: `${file.size}`,
         infected: false,
         loading: true
-      };
-
-      this.files.push(loadingFile);
-
-      // this.fileUploaded.emit(loadingFile);
-
-      // setTimeout(() => {
-      //   loadingFile.scanStatus = 'Verificato';
-      //   loadingFile.loading = false;
-      //   this.checkingFile = false;
-      //   this.fileVerified.emit(loadingFile.scanStatus)
-      // }, 3000);
+      }
+    
+      this.files.push(item);
+      this.newFileDescription = "";
+    
     }
+  }
+
+
+  removeFile(index: number){
+    this.files.splice(index, 1);
   }
 }

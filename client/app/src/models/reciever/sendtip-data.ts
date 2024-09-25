@@ -17,6 +17,8 @@ export interface FileItem {
     size: string;
     infected: boolean;
     loading: boolean;
+    file?: File;
+    description?: string;
   }
   
 export interface SentTipDetail {
