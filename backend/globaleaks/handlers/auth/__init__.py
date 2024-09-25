@@ -6,6 +6,7 @@ from random import SystemRandom
 from sqlalchemy import or_
 from twisted.internet.defer import inlineCallbacks, returnValue
 
+from globaleaks import models
 import globaleaks.handlers.auth.token
 
 from globaleaks.handlers.base import connection_check, BaseHandler
@@ -283,6 +284,12 @@ class SessionHandler(BaseHandler):
 
         del Sessions[self.session.id]
 
+@transact
+def external_tenant_redirect(session, tid, uuid_tenant):
+    tenant = session.query(models.Tenant).filter(models.Tenant.id == tid).one_or_none()
+    if tenant and tenant.external:
+        return {'redirect': '/t/%s/#/login' % (uuid_tenant)}
+    return None
 
 class TenantAuthSwitchHandler(BaseHandler):
     """
@@ -290,11 +297,17 @@ class TenantAuthSwitchHandler(BaseHandler):
     """
     check_roles = 'admin'
 
+    @inlineCallbacks
     def get(self, tid):
+        tid = int(tid)
         if self.request.tid != 1:
             raise errors.InvalidAuthentication
+        uuid_tenant = State.tenants[tid].cache.uuid
 
-        tid = int(tid)
+        external_tenant_redirect_res = yield external_tenant_redirect(tid, uuid_tenant)
+        if external_tenant_redirect_res:
+            returnValue(external_tenant_redirect_res)
+
         session = Sessions.new(tid,
                                self.session.user_id,
                                self.session.user_tid,
@@ -305,7 +318,7 @@ class TenantAuthSwitchHandler(BaseHandler):
 
         session.properties['management_session'] = True
 
-        return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
+        returnValue({'redirect': '/t/%s/#/login?token=%s' % (uuid_tenant, session.id)})
 
 
 class OperatorAuthSwitchHandler(BaseHandler):
