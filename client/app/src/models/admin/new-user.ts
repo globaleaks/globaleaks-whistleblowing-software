@@ -4,6 +4,7 @@ export class NewUser {
   role = "receiver";
   enabled = true;
   password_change_needed = true;
+  fiscalcode = "";
   name = "";
   description = "";
   public_name = "";
