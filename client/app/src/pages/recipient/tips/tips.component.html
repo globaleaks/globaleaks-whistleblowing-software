@@ -227,7 +227,7 @@
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
                         </td>
                         <td class="TipInfoSendNum">
-                            {{tip.send_num}}
+                            {{tip.total_forwardings_eo}}
                         </td>
                         <td class="TipInfoLastAccess">
                             <i *ngIf="tip.last_access >= tip.update_date" class="fa-solid fa-check" data-toggle="tooltip" title="{{'The whistleblower has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>

@@ -9,7 +9,6 @@ export interface rtipResolverModel {
   creation_date: string;
   access_date: string;
   last_access: string;
-  send_num: number;
   update_date: string;
   expiration_date: string;
   reminder_date: string;
@@ -30,6 +29,8 @@ export interface rtipResolverModel {
   comment_count: number;
   accessible: boolean;
   data: Data;
+  total_forwardings_eo: number;
+  forwardings: Forwarding[];
 }
 
 export interface Answers {
@@ -37,4 +38,9 @@ export interface Answers {
     required_status: boolean;
     value: string;
   }[];
+}
+
+export interface Forwarding {
+  tid: number;
+  name: string;
 }
