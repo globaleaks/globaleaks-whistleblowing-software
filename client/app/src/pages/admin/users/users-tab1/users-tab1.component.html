@@ -13,13 +13,17 @@
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>
                     <select name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
-                        <option value="admin">{{ 'Admin' | translate }}</option>
-                        <option value="analyst">{{ 'Analyst' | translate }}</option>
-                        <option value="custodian">{{ 'Custodian' | translate }}</option>
-                        <option value="receiver">{{ 'Recipient' | translate }}</option>
-                        <option value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
+                        <ng-container *ngIf="authenticationService.session.t_type == 0; else restrictedOptions">
+                            <option value="admin">{{ 'Admin' | translate }}</option>
+                            <option value="analyst">{{ 'Analyst' | translate }}</option>
+                            <option value="custodian">{{ 'Custodian' | translate }}</option>
+                            <option value="receiver">{{ 'Recipient' | translate }}</option>
+                        </ng-container>
+                        <ng-template #restrictedOptions>
+                            <option value="receiver">{{ 'Recipient' | translate }}</option>
+                        </ng-template>
                     </select>
-                </div>
+                </div>                
             </div>
             <div class="form-group" *ngIf="new_user.role !== 'receiver' || !nodeResolver.dataModel.simplified_login">
                 <label>{{ 'Username' | translate }}</label>
@@ -33,6 +37,13 @@
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>
                     <input class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label>{{ 'Fiscal Code' | translate }}</label>
+                <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+                <div>
+                    <input class="form-control" name="name" [(ngModel)]="new_user.fiscalcode" type="text" required />
                 </div>
             </div>
             <div class="form-group">

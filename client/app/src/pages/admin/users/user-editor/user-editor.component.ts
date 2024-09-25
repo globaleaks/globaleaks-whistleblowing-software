@@ -34,7 +34,7 @@ export class UserEditorComponent implements OnInit {
   appServiceData: AppDataService;
   protected readonly Constants = Constants;
 
-  constructor(private modalService: NgbModal, private appDataService: AppDataService, private preference: PreferenceResolver, private authenticationService: AuthenticationService, private nodeResolver: NodeResolver, private utilsService: UtilsService) {
+  constructor(private modalService: NgbModal, private appDataService: AppDataService, private preference: PreferenceResolver, protected authenticationService: AuthenticationService, private nodeResolver: NodeResolver, private utilsService: UtilsService) {
   }
 
   ngOnInit(): void {
@@ -57,6 +57,15 @@ export class UserEditorComponent implements OnInit {
     this.changePasswordArgs = {
       password_change_needed: ""
     };
+    // TODO only for testing TO REMOVE if/else block
+    if(this.authenticationService.session.user_name === "adminOE") {
+      console.log("adminOE");
+      
+      this.authenticationService.session.t_type = 1;
+    } else {
+      console.log("admin");
+      this.authenticationService.session.t_type = 0;
+    }
   }
 
   toggleEditing() {

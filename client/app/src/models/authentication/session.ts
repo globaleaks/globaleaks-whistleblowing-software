@@ -13,6 +13,7 @@ export class Session {
   two_factor: boolean;
   permissions: { can_upload_files: boolean };
   token: any;
+  t_type: number;
 }
 
 export interface Properties {

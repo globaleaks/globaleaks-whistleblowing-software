@@ -3,39 +3,47 @@
     <i class="fa fa-home"></i>
     <span>{{'Home'|translate}}</span>
 </a>
-<a routerLink="/admin/settings" routerLinkActive="active" id="admin_settings" [attr.aria-current]="isActive('/admin/settings') ? 'page' : 'false'">
-    <i class="fa-solid fa-sliders"></i>
-    <span>{{'Settings'|translate}}</span>
-</a>
+<div *ngIf="authenticationService.session.t_type == 0">
+    <a routerLink="/admin/settings" routerLinkActive="active" id="admin_settings" [attr.aria-current]="isActive('/admin/settings') ? 'page' : 'false'">
+        <i class="fa-solid fa-sliders"></i>
+        <span>{{'Settings'|translate}}</span>
+    </a>
+</div>
 <a routerLink="/admin/users" routerLinkActive="active" id="admin_users" [attr.aria-current]="isActive('/admin/users') ? 'page' : 'false'">
     <i class="fa fa-users"></i>
     <span>{{'Users'|translate}}</span>
 </a>
-<a routerLink="/admin/questionnaires" routerLinkActive="active" id="admin_questionnaires" [attr.aria-current]="isActive('/admin/questionnaires') ? 'page' : 'false'">
-    <i class="fa fa-circle-question"></i>
-    <span>{{'Questionnaires'|translate}}</span>
-</a>
-<a routerLink="/admin/contexts" routerLinkActive="active" id="admin_channels" [attr.aria-current]="isActive('/admin/contexts') ? 'page' : 'false'">
-    <i class="fa fa-inbox"></i>
-    <span>{{'Channels'|translate}}</span>
-</a>
-<a routerLink="/admin/casemanagement" routerLinkActive="active" id="admin_case_management" [attr.aria-current]="isActive('/admin/casemanagement') ? 'page' : 'false'">
-    <i class="fa fa-bars-progress"></i>
-    <span>{{'Case management'|translate}}</span>
-</a>
-<a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
-    <i class="fa fa-envelope"></i>
-    <span>{{'Notifications'|translate}}</span>
-</a>
-<a routerLink="/admin/network" routerLinkActive="active" id="admin_network" *ngIf="nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session" [attr.aria-current]="isActive('/admin/network') ? 'page' : 'false'">
-    <i class="fa fa-network-wired"></i>
-    <span>{{'Network'|translate}}</span>
-</a>
-<a routerLink="/admin/sites" routerLinkActive="active" id="admin_sites" *ngIf="nodeResolver.dataModel.root_tenant" [attr.aria-current]="isActive('/admin/sites') ? 'page' : 'false'">
-    <i class="fa-solid fa-sitemap"></i>
-    <span>{{'Sites'|translate}}</span>
-</a>
-<a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
-    <i class="fa fa-clipboard-list"></i>
-    <span>{{'Audit log'|translate}}</span>
-</a>
+<div *ngIf="authenticationService.session.t_type == 0">
+    <a routerLink="/admin/questionnaires" routerLinkActive="active" id="admin_questionnaires" [attr.aria-current]="isActive('/admin/questionnaires') ? 'page' : 'false'">
+        <i class="fa fa-circle-question"></i>
+        <span>{{'Questionnaires'|translate}}</span>
+    </a>
+    <a routerLink="/admin/contexts" routerLinkActive="active" id="admin_channels" [attr.aria-current]="isActive('/admin/contexts') ? 'page' : 'false'">
+        <i class="fa fa-inbox"></i>
+        <span>{{'Channels'|translate}}</span>
+    </a>
+    <a routerLink="/admin/casemanagement" routerLinkActive="active" id="admin_case_management" [attr.aria-current]="isActive('/admin/casemanagement') ? 'page' : 'false'">
+        <i class="fa fa-bars-progress"></i>
+        <span>{{'Case management'|translate}}</span>
+    </a>
+    <a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
+        <i class="fa fa-envelope"></i>
+        <span>{{'Notifications'|translate}}</span>
+    </a>
+    <a routerLink="/admin/network" routerLinkActive="active" id="admin_network" *ngIf="nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session" [attr.aria-current]="isActive('/admin/network') ? 'page' : 'false'">
+        <i class="fa fa-network-wired"></i>
+        <span>{{'Network'|translate}}</span>
+    </a>
+    <a routerLink="/admin/sites" routerLinkActive="active" id="admin_sites" *ngIf="nodeResolver.dataModel.root_tenant" [attr.aria-current]="isActive('/admin/sites') ? 'page' : 'false'">
+        <i class="fa-solid fa-sitemap"></i>
+        <span>{{'Sites'|translate}}</span>
+    </a>
+    <a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
+        <i class="fa fa-clipboard-list"></i>
+        <span>{{'Audit log'|translate}}</span>
+    </a>
+    <a routerLink="/admin/backup" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/backup') ? 'page' : 'false'">
+        <i class="fa fa-save"></i>
+        <span>{{'Backup'|translate}}</span>
+    </a>
+</div>
