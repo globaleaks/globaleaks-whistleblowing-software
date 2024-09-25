@@ -88,16 +88,16 @@ export class SendtipComponent implements OnInit {
     this.selectedReviewForm = this.reviewForms.find(form => form.form_id === formId) || null;
   }
 
-  // Events
-  onFileUploaded(newFile: FileItem) {
-    this.files.push(newFile);
-    this.checkingFile = true;
-  }
+  // // Events
+  // onFileUploaded(newFile: FileItem) {
+  //   this.files.push(newFile);
+  //   this.checkingFile = true;
+  // }
 
-  onFileVerified(status: string) {
-    this.checkingFile = false;
-    // TODO: Set checkbox checked for newly added files
-  }
+  // onFileVerified(status: string) {
+  //   this.checkingFile = false;
+  //   // TODO: Set checkbox checked for newly added files
+  // }
 
   // Form validation and send
   isFormValid(): boolean {
@@ -110,7 +110,7 @@ export class SendtipComponent implements OnInit {
   }
 
   sendForm() {
-    if (this.isFormValid() && !this.checkingFile) {
+    if (this.isFormValid()) {
       // TODO: Add API call
       console.log("Form inviato!");
     }

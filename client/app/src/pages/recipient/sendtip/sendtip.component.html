@@ -87,16 +87,16 @@
   
     <!-- Pulsanti di azione -->
     <div class="row">
-      <div class="col-10"></div>
-      <div class="col-2">
+      <div class="col-md-9"></div>
+      <div class="col-md-3 mt-12">
         <button class="btn btn-outline-secondary float-end" id="discard" (click)="backClicked()">
           <i class="fa-solid fa-times"></i>
           <span>{{ 'Discard' | translate }}</span>
         </button>
         <button class="btn btn-primary float-end" id="send" style="margin-right: 10px;"
         (click)="sendForm();" 
-        [disabled]="checkingFile || !isFormValid()"
-        [ngClass]="{'disabled': checkingFile || !isFormValid()}">
+        [disabled]="!isFormValid()"
+        [ngClass]="{'disabled': !isFormValid()}">
             <i class="fa-solid fa-check"></i>
             <span>{{ 'Send' | translate }}</span>
         </button>
