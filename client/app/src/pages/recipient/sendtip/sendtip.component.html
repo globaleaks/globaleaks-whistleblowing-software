@@ -13,10 +13,6 @@
             <span>{{'Select accredited organization'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
-            <!-- <select id="assignSubmissionStatus" class="form-control" (change)="addOrganization($event)" >
-                <option [value]="" disabled selected>{{ 'Select an organization' | translate }}</option>
-                <option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</option>
-            </select> -->
 
             <div class="form-group">
               <select class="form-select-custom" #select ngModel (change)="addOrganization(select)">
@@ -60,7 +56,7 @@
             <span>{{'Text'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
-            <textarea id="SendTipText" name="sendTipText" maxlength="4096" autocomplete="off" class="form-control" [(ngModel)]="tipText"></textarea>
+            <textarea id="SendTipText" name="sendTipText" maxlength="4096" autocomplete="off" class="form-control" [(ngModel)]="sendTipRequest.text"></textarea>
           </div>
         </div>
       </div>
@@ -73,7 +69,7 @@
               <span>{{'Review Form'|translate}}</span>
             </div>
             <div class="col-md-12 mt-2">
-              <select id="assignSubmissionStatus" class="form-control" (change)="selectReviewForm($event)">
+              <select id="assignSubmissionStatus" class="form-control" [(ngModel)]="sendTipRequest.questionnaire_id">
                 <option value="" disabled selected>{{ 'Select a review form' | translate }}</option>
                 <option *ngFor="let form of reviewForms" [value]="form.id">{{ form.name }}</option>
               </select>
@@ -85,7 +81,7 @@
   
     <!-- Sezione per la gestione dei file -->
     <div class="row mt-2">
-        <sendtip-files [files]="files" [selectedFiles]="selectedFiles"></sendtip-files>
+        <sendtip-files [files]="files" [selectedFiles]="sendTipRequest.files"></sendtip-files>
     </div>
   
   

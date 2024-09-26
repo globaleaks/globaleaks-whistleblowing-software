@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { FileItem } from "@app/models/reciever/sendtip-data";
+import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
 
 @Component({
   selector: "sendtip-files",
@@ -7,7 +7,7 @@ import { FileItem } from "@app/models/reciever/sendtip-data";
 })
 export class SendtipFilesComponent implements OnInit {
   @Input() files: FileItem[] = [];
-  @Input() selectedFiles: FileItem[] = [];
+  @Input() selectedFiles: AttachmentFile[] = [];
 
   ngOnInit(): void {
   }

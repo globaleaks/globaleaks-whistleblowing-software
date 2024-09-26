@@ -1,3 +1,16 @@
+export class SendTip {
+  tip_id: string;
+  tids: number[] = [];
+  text: string;
+  files: AttachmentFile[] = [];
+  questionnaire_id: string;
+}
+
+export interface AttachmentFile {
+  id: string;
+  origin: string;
+}
+
 export interface Organization {
     tid: number;
     name: string;

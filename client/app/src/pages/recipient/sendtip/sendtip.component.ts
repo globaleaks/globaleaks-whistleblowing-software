@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
-import { FileItem } from "@app/models/reciever/sendtip-data";
+import { FileItem, SendTip } from "@app/models/reciever/sendtip-data";
 import { HttpService } from '@app/shared/services/http.service';
 import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
-import { NgModel } from '@angular/forms';
 
 @Component({
   selector: "src-sendtip",
@@ -15,16 +14,15 @@ export class SendtipComponent implements OnInit {
   reviewForms: questionnaireResolverModel[] = [];
   files: FileItem[] = [];
 
+  sendTipRequest: SendTip = new SendTip();
+
   selectedOrganizations: tenantResolverModel[] = [];
   selectedReviewFormId: string | null = null;
-  selectedFiles: FileItem[] = [];
-  tipText: string = "";
 
   checkingFile: boolean = false;
 
   uploadedFiles: FileItem[] = [];
 
-  // Initialization
   constructor(private _location: Location, private httpService: HttpService){}
 
   backClicked() {
@@ -70,33 +68,37 @@ export class SendtipComponent implements OnInit {
       const selected = this.organizations.find(org => org.id == oe_id);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
+        this.sendTipRequest.tids.push(selected.id)
       }
     }
   }
 
   removeOrganization(oe_id: number) {
     this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id != oe_id);
+    this.sendTipRequest.tids = this.sendTipRequest.tids.filter(org => org != oe_id);
   }
 
   selectReviewForm(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    this.selectedReviewFormId = selectElement.value;
+    this.sendTipRequest.questionnaire_id = selectElement.value;
   }
 
 
   // Form validation and send
   isFormValid(): boolean {
     return (
-      this.selectedOrganizations.length > 0 &&
-      this.selectedReviewFormId !== null &&
-      this.selectedFiles.length > 0 &&
-      this.tipText.trim().length > 0
+      this.sendTipRequest.tids.length > 0 &&
+      this.sendTipRequest.questionnaire_id !== null &&
+      this.sendTipRequest.files.length > 0 &&
+      this.sendTipRequest.text.trim().length > 0
     );
   }
 
   sendForm() {
     if (this.isFormValid()) {
-      console.log("Form inviato!");
+      //todo: lista dei file solo come id-origin???
+      console.log("Form :" , this.sendTipRequest);
+      console.log("todo: inviare file appena caricati")
     }
   }
 }
