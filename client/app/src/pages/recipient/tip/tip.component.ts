@@ -373,9 +373,7 @@ export class TipComponent implements OnInit {
 
   exportTip(tipId: string) {
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
+    this.httpService.requestToken(param).subscribe({
         next: async token => {
           this.cryptoService.proofOfWork(token.id).subscribe(
             (result: number) => {

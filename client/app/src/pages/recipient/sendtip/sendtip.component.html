@@ -7,22 +7,31 @@
         </a>
 </div>
     <div class="row">
-      <div class="col-6">
+      <div class="col-6" style="margin-bottom: 1rem;">
         <div class="row form-group">
           <div class="col-md-12">
             <span>{{'Select accredited organization'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
-            <select id="assignSubmissionStatus" class="form-control" (change)="addOrganization($event)">
-                <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
-                <option *ngFor="let org of organizations" [value]="org.tid">{{ org.name }}</option>
-            </select>
+            <!-- <select id="assignSubmissionStatus" class="form-control" (change)="addOrganization($event)" >
+                <option [value]="" disabled selected>{{ 'Select an organization' | translate }}</option>
+                <option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</option>
+            </select> -->
+
+            <div class="form-group">
+              <select class="form-select-custom" #select ngModel (change)="addOrganization(select)">
+                  <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
+                  <option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</option>
+              </select>
+            </div>
+
+
           </div>
         </div>
         <div class="row" id="selected-oe">
           <div class="col-12">
               <button *ngFor="let org of selectedOrganizations" class="btn btn-outline-secondary" style="margin-right: 10px;">
-                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.tid)"></i>
+                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.id)"></i>
                 <span>{{ org.name }}</span>
               </button>
           </div>

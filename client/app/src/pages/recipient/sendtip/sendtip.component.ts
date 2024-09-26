@@ -1,19 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
-import { Organization, ReviewForm, FileItem } from "@app/models/reciever/sendtip-data";
+import { FileItem } from "@app/models/reciever/sendtip-data";
 import { HttpService } from '@app/shared/services/http.service';
 import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
+import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
+import { NgModel } from '@angular/forms';
 
 @Component({
   selector: "src-sendtip",
   templateUrl: "./sendtip.component.html",
 })
 export class SendtipComponent implements OnInit {
-  organizations: Organization[] = [];
+  organizations: tenantResolverModel[] = [];
   reviewForms: questionnaireResolverModel[] = [];
   files: FileItem[] = [];
 
-  selectedOrganizations: Organization[] = [];
+  selectedOrganizations: tenantResolverModel[] = [];
   selectedReviewFormId: string | null = null;
   selectedFiles: FileItem[] = [];
   tipText: string = "";
@@ -23,7 +25,6 @@ export class SendtipComponent implements OnInit {
   uploadedFiles: FileItem[] = [];
 
   // Initialization
-
   constructor(private _location: Location, private httpService: HttpService){}
 
   backClicked() {
@@ -37,14 +38,13 @@ export class SendtipComponent implements OnInit {
   }
 
   loadOrganizations() {
-    setTimeout(() => {
-      this.organizations = [
-        { tid: 1, name: 'OE 01' },
-        { tid: 11, name: 'OE 02' },
-        { tid: 21, name: 'OE 03' },
-      ];
-    }, 500);
+
+    return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
+        this.organizations = response
+    });
   }
+
+
 
   loadReviewForms() {
       return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
@@ -63,20 +63,19 @@ export class SendtipComponent implements OnInit {
   }
 
 
-  addOrganization(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
+  addOrganization(selectElement: HTMLSelectElement) {
     const oe_id = parseInt(selectElement.value);
 
     if (oe_id) {
-      const selected = this.organizations.find(org => org.tid == oe_id);
+      const selected = this.organizations.find(org => org.id == oe_id);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
       }
     }
   }
-  
+
   removeOrganization(oe_id: number) {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.tid != oe_id);
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id != oe_id);
   }
 
   selectReviewForm(event: Event) {
@@ -84,16 +83,6 @@ export class SendtipComponent implements OnInit {
     this.selectedReviewFormId = selectElement.value;
   }
 
-  // // Events
-  // onFileUploaded(newFile: FileItem) {
-  //   this.files.push(newFile);
-  //   this.checkingFile = true;
-  // }
-
-  // onFileVerified(status: string) {
-  //   this.checkingFile = false;
-  //   // TODO: Set checkbox checked for newly added files
-  // }
 
   // Form validation and send
   isFormValid(): boolean {
@@ -107,7 +96,6 @@ export class SendtipComponent implements OnInit {
 
   sendForm() {
     if (this.isFormValid()) {
-      // TODO: Add API call
       console.log("Form inviato!");
     }
   }
