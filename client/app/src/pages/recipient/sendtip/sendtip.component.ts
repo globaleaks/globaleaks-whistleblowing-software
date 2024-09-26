@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
 import { Organization, ReviewForm, FileItem } from "@app/models/reciever/sendtip-data";
+import { HttpService } from '@app/shared/services/http.service';
+import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
 
 @Component({
   selector: "src-sendtip",
@@ -8,11 +10,11 @@ import { Organization, ReviewForm, FileItem } from "@app/models/reciever/sendtip
 })
 export class SendtipComponent implements OnInit {
   organizations: Organization[] = [];
-  reviewForms: ReviewForm[] = [];
+  reviewForms: questionnaireResolverModel[] = [];
   files: FileItem[] = [];
 
   selectedOrganizations: Organization[] = [];
-  selectedReviewForm: ReviewForm | null = null;
+  selectedReviewFormId: string | null = null;
   selectedFiles: FileItem[] = [];
   tipText: string = "";
 
@@ -22,7 +24,7 @@ export class SendtipComponent implements OnInit {
 
   // Initialization
 
-  constructor(private _location: Location){}
+  constructor(private _location: Location, private httpService: HttpService){}
 
   backClicked() {
     this._location.back();
@@ -45,13 +47,9 @@ export class SendtipComponent implements OnInit {
   }
 
   loadReviewForms() {
-    setTimeout(() => {
-      this.reviewForms = [
-        { form_id: 'form1', name: 'Form 01' },
-        { form_id: 'form2', name: 'Form 02' },
-        { form_id: 'form3', name: 'Form 03' },
-      ];
-    }, 500);
+      return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
+        this.reviewForms = response;
+      });
   }
 
   loadFiles() {
@@ -83,8 +81,7 @@ export class SendtipComponent implements OnInit {
 
   selectReviewForm(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
-    const formId = selectElement.value;
-    this.selectedReviewForm = this.reviewForms.find(form => form.form_id === formId) || null;
+    this.selectedReviewFormId = selectElement.value;
   }
 
   // // Events
@@ -102,7 +99,7 @@ export class SendtipComponent implements OnInit {
   isFormValid(): boolean {
     return (
       this.selectedOrganizations.length > 0 &&
-      this.selectedReviewForm !== null &&
+      this.selectedReviewFormId !== null &&
       this.selectedFiles.length > 0 &&
       this.tipText.trim().length > 0
     );

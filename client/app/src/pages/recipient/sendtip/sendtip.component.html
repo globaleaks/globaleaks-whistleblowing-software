@@ -66,7 +66,7 @@
             <div class="col-md-12 mt-2">
               <select id="assignSubmissionStatus" class="form-control" (change)="selectReviewForm($event)">
                 <option value="" disabled selected>{{ 'Select a review form' | translate }}</option>
-                <option *ngFor="let form of reviewForms" [value]="form.form_id">{{ form.name }}</option>
+                <option *ngFor="let form of reviewForms" [value]="form.id">{{ form.name }}</option>
               </select>
             </div>
           </div>
@@ -100,7 +100,6 @@
             <i class="fa-solid fa-check"></i>
             <span>{{ 'Send' | translate }}</span>
         </button>
-
       </div>
     </div>
   </div>
