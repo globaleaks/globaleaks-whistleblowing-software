@@ -10,7 +10,7 @@ import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-acc
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {Observable} from "rxjs";
+import {first, Observable} from "rxjs";
 import {
   TipOperationSetReminderComponent
 } from "@app/shared/modals/tip-operation-set-reminder/tip-operation-set-reminder.component";
@@ -32,6 +32,7 @@ import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submiss
 import {TranslateService} from "@ngx-translate/core";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
 import { Organization } from "@app/models/reciever/sendtip-data";
+import { tenantResolverModel } from "@app/models/resolvers/tenant-resolver-model";
 
 
 @Component({
@@ -54,7 +55,7 @@ export class TipComponent implements OnInit {
   redactMode:boolean = false;
   redactOperationTitle: string;
   tabs: Tab[];
-  organizationList: Organization[] = [];
+  organizationList: tenantResolverModel[] = [];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -91,32 +92,46 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
-          this.organizationList = this.getForwardedOEList(this.tip.forwardings);
+          this.getForwardedOEList(this.tip.forwardings);
+          
           this.initNavBar()
         }
       }
     );
   }
 
-  getForwardedOEList(forwardings: Forwarding[]): Organization[]{
+  //TODO
+  getForwardedOEList(forwardings: Forwarding[]){
 
-    let orgList: Organization[] = [{tid: 0, name:"All"}]
+    let firstElement = new tenantResolverModel();
+    firstElement.id = 0
+    firstElement.name = "All"
 
-    if(forwardings){
-      let temp = forwardings.map(obj => {
-        let org = {
-          name: obj.name,
-          tid : obj.tid
-        }
-        return org;
+    return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
+      this.organizationList = response
+      this.organizationList.unshift(firstElement)
+   
       });
   
       return orgList.concat(temp);
     }
     
-    else return orgList;
+    // let orgList: Organization[] = [{tid: 0, name:"All"}]
 
-  }
+    // if(forwardings){
+    //   let temp = forwardings.map(obj => {
+    //     let org = {
+    //       name: obj.name,
+    //       tid : obj.tid
+    //     }
+    //     return org;
+    //   });
+  
+    //   return orgList.concat(temp);
+    // }
+    
+    // else return orgList;
+
 
   initNavBar() {
     setTimeout(() => {
@@ -392,6 +407,10 @@ export class TipComponent implements OnInit {
 
   listenToFields() {
     this.loadTipDate();
+  }
+
+  selectOrganization(org_id:number){
+    console.log("ho selezionato la oe: ", org_id)
   }
 
   protected readonly JSON = JSON;

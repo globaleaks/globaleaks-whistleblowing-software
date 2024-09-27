@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Organization } from '@app/models/reciever/sendtip-data';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
 
 @Component({
   selector: 'src-selectoe-dropdown',
@@ -7,14 +7,12 @@ import { Organization } from '@app/models/reciever/sendtip-data';
 })
 export class SelectOEDropdownComponent{
 
-  @Input() organizations: Organization[];
+  @Input() organizations: tenantResolverModel[];
+  @Output() dataToParent = new EventEmitter<number>();
 
-  selectedOrganization: string;
 
-  addOrganization(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedOrganization = selectElement.value;
-  
+  addOrganization(selectElement: HTMLSelectElement) {
+    this.dataToParent.emit(parseInt(selectElement.value));
   }
   
 

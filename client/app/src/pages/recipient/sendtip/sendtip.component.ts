@@ -61,8 +61,7 @@ export class SendtipComponent implements OnInit {
   }
 
 
-  addOrganization(selectElement: HTMLSelectElement) {
-    const oe_id = parseInt(selectElement.value);
+  addOrganization(oe_id: number) {
 
     if (oe_id) {
       const selected = this.organizations.find(org => org.id == oe_id);

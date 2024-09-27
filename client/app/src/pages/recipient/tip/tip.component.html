@@ -167,7 +167,10 @@
         </ng-template>
         <ng-template #tab4>
             <div class="col-md-12">
-                <src-selectoe-dropdown [organizations]="organizationList"></src-selectoe-dropdown>
+                <div class="col-md-12">
+                    <span>{{'Select accredited organization'|translate}}</span>
+                </div>
+                <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
 
                 <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
                     [key]="'oe'"></src-tip-upload-wbfile>
