@@ -13,7 +13,7 @@
                 <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
             </div>
             <div class="col-md-12 clearfix">
-                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
+                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="key !== 'oe' ? !newCommentContent : !newCommentContent || organizations.length == 0">
                     <i class="fa-solid fa-comment"></i>
                     <span>{{'Send'|translate}}</span>
                 </button>

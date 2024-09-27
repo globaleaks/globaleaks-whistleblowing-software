@@ -11,10 +11,6 @@ export interface AttachmentFile {
   origin: string;
 }
 
-export interface Organization {
-    tid: number;
-    name: string;
-}
 
 export interface ReviewForm {
     form_id: string;

@@ -56,6 +56,7 @@ export class TipComponent implements OnInit {
   redactOperationTitle: string;
   tabs: Tab[];
   organizationList: tenantResolverModel[] = [];
+  selectedOe: number[] = [];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -111,11 +112,11 @@ export class TipComponent implements OnInit {
       this.organizationList = response
       this.organizationList.unshift(firstElement)
    
-      });
+    });
   
       return orgList.concat(temp);
-    }
-    
+  }
+
     // let orgList: Organization[] = [{tid: 0, name:"All"}]
 
     // if(forwardings){
@@ -410,7 +411,14 @@ export class TipComponent implements OnInit {
   }
 
   selectOrganization(org_id:number){
-    console.log("ho selezionato la oe: ", org_id)
+    this.selectedOe = [];
+    
+    if(org_id != 0)
+      this.selectedOe.push(org_id);
+    else
+      this.selectedOe = this.organizationList.map(a => a.id);
+
+    console.log("ho selezionato le oe: ", this.selectedOe)
   }
 
   protected readonly JSON = JSON;

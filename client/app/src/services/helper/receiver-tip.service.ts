@@ -31,8 +31,8 @@ export class ReceiverTipService {
     return this.httpService.runOperation(url, operation, args, false).subscribe({});
   }
 
-  newComment(content: string, visibility: string) {
-    const param = JSON.stringify({"id": this.tip.msg_receiver_selected, "content": content, "visibility": visibility});
+  newComment(content: string, visibility: string, organizations?: number[]) {
+    const param = JSON.stringify({"id": this.tip.msg_receiver_selected, "content": content, "visibility": visibility, "tids": organizations});
     return this.httpService.rTipsRequestNewComment(param, this.tip.id);
   }
 

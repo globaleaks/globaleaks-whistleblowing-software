@@ -17,6 +17,9 @@ export class TipCommentsComponent implements OnInit {
   @Input() key: string;
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
+  @Input() organizations: number[] = [];
+
+  //todo aggiungere array di oe - opzionale
 
   collapsed = false;
   newCommentContent = "";
@@ -38,7 +41,8 @@ export class TipCommentsComponent implements OnInit {
   }
 
   newComment() {
-    const response = this.tipService.newComment(this.newCommentContent, this.key);
+    
+    const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations);
     this.newCommentContent = "";
 
     response.subscribe(
