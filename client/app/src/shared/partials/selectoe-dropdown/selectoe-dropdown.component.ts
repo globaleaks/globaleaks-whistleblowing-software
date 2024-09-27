@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Forwarding } from '@app/models/reciever/reciever-tip-data';
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
 
 @Component({
@@ -7,7 +8,7 @@ import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model
 })
 export class SelectOEDropdownComponent{
 
-  @Input() organizations: tenantResolverModel[];
+  @Input() organizations: Forwarding[];
   @Output() dataToParent = new EventEmitter<number>();
 
 

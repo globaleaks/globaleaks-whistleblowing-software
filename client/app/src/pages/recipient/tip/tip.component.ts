@@ -10,7 +10,7 @@ import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-acc
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {first, Observable} from "rxjs";
+import {Observable} from "rxjs";
 import {
   TipOperationSetReminderComponent
 } from "@app/shared/modals/tip-operation-set-reminder/tip-operation-set-reminder.component";
@@ -55,7 +55,7 @@ export class TipComponent implements OnInit {
   redactMode:boolean = false;
   redactOperationTitle: string;
   tabs: Tab[];
-  organizationList: tenantResolverModel[] = [];
+  organizationList: Forwarding[] = [];
   selectedOe: number[] = [];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
@@ -93,7 +93,8 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
-          this.getForwardedOEList(this.tip.forwardings);
+          if(this.tip.forwardings && this.tip.forwardings.length > 0)
+            this.getForwardedOEList(this.tip.forwardings);
           
           this.initNavBar()
         }
@@ -101,16 +102,12 @@ export class TipComponent implements OnInit {
     );
   }
 
-  //TODO
+
   getForwardedOEList(forwardings: Forwarding[]){
 
-    let firstElement = new tenantResolverModel();
-    firstElement.id = 0
-    firstElement.name = "All"
+    this.organizationList.push({"tid":0, "name":"All"});
 
-    return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
-      this.organizationList = response
-      this.organizationList.unshift(firstElement)
+    this.organizationList.concat(forwardings)
    
     });
   
@@ -416,7 +413,7 @@ export class TipComponent implements OnInit {
     if(org_id != 0)
       this.selectedOe.push(org_id);
     else
-      this.selectedOe = this.organizationList.map(a => a.id).slice(1);
+      this.selectedOe = this.organizationList.map(a => a.tid).slice(1);
 
     console.log("ho selezionato le oe: ", this.selectedOe)
   }

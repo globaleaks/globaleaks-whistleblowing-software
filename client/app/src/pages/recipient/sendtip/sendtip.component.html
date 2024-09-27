@@ -19,7 +19,7 @@
         <div class="row" id="selected-oe">
           <div class="col-12">
               <button *ngFor="let org of selectedOrganizations" class="btn btn-outline-secondary" style="margin-right: 10px;">
-                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.id)"></i>
+                <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.tid)"></i>
                 <span>{{ org.name }}</span>
               </button>
           </div>

@@ -4,19 +4,20 @@ import { FileItem, SendTip } from "@app/models/reciever/sendtip-data";
 import { HttpService } from '@app/shared/services/http.service';
 import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
+import { Forwarding } from '@app/models/reciever/reciever-tip-data';
 
 @Component({
   selector: "src-sendtip",
   templateUrl: "./sendtip.component.html",
 })
 export class SendtipComponent implements OnInit {
-  organizations: tenantResolverModel[] = [];
+  organizations: Forwarding[] = [];
   reviewForms: questionnaireResolverModel[] = [];
   files: FileItem[] = [];
 
   sendTipRequest: SendTip = new SendTip();
 
-  selectedOrganizations: tenantResolverModel[] = [];
+  selectedOrganizations: Forwarding[] = [];
   selectedReviewFormId: string | null = null;
 
   checkingFile: boolean = false;
@@ -38,7 +39,7 @@ export class SendtipComponent implements OnInit {
   loadOrganizations() {
 
     return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
-        this.organizations = response
+      this.organizations = response.map(v => { return {name: v.name, tid: v.id} }) as Forwarding[];
     });
   }
 
@@ -64,16 +65,16 @@ export class SendtipComponent implements OnInit {
   addOrganization(oe_id: number) {
 
     if (oe_id) {
-      const selected = this.organizations.find(org => org.id == oe_id);
+      const selected = this.organizations.find(org => org.tid == oe_id);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
-        this.sendTipRequest.tids.push(selected.id)
+        this.sendTipRequest.tids.push(selected.tid)
       }
     }
   }
 
   removeOrganization(oe_id: number) {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.id != oe_id);
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.tid != oe_id);
     this.sendTipRequest.tids = this.sendTipRequest.tids.filter(org => org != oe_id);
   }
 

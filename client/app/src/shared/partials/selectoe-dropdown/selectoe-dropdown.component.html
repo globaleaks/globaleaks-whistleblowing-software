@@ -1,8 +1,8 @@
 <div class="row" style="padding-bottom: 1em;">
     <div class="form-group">
-      <select class="form-select-custom" #select ngModel (change)="addOrganization(select)">
+      <select class="form-select-custom" #select ngModel (change)="addOrganization(select)" [disabled]="organizations == null || organizations.length == 0">
           <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
-          <option *ngFor="let org of organizations" [value]="org.id">{{ org.name }}</option>
+          <option *ngFor="let org of organizations" [value]="org.tid">{{ org.name }}</option>
       </select>
     </div>
 </div>
