@@ -528,7 +528,6 @@ SignupDesc = {
 SubmitAccreditation = {
     'organization_name': str,
     'organization_email': email_regexp,
-    'organization_institutional_site': str,
     'admin_name': alphanumeric_str_regexp,
     'admin_surname': alphanumeric_str_regexp,
     'admin_email': email_regexp,
@@ -537,6 +536,14 @@ SubmitAccreditation = {
     'recipient_fiscal_code': alphanumeric_str_regexp,
     'recipient_email': email_regexp,
     'tos1': bool,
+    'organization_accreditation_reason': str
+}
+
+deleteAccreditation = {
+    'motivation_text': str
+}
+
+confirmAccreditation = {
     'tos2': bool
 }
 

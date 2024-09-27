@@ -125,6 +125,7 @@ def accreditation(session, request, is_instructor=False):
         request['name'] = request['recipient_name']
         request['surname'] = request['recipient_surname']
         request['email'] = request['recipient_email']
+        request['organization_institutional_site'] = request.get('organization_institutional_site')
         sub = Subscriber(request)
         sub.language = ''
         sub.subdomain = str(uuid4())
@@ -337,8 +338,9 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 
 
 @transact
-def persistent_drop(session, accreditation_id: str):
+def persistent_drop(session, accreditation_id: str, request):
     try:
+        print(request['motivation_text'])
         accreditation_item = accreditation_by_id(session, accreditation_id)
         status = accreditation_item.get('state')
         status = status if isinstance(status, str) else EnumSubscriberStatus(status).name
@@ -462,17 +464,19 @@ def accreditation_by_id(session, accreditation_id):
 
 
 @transact
-def activate_tenant(session, accreditation_id):
+def activate_tenant(session, accreditation_id, request):
     """
     Activate a tenant based on the accreditation ID.
 
     Args:
         session: The database session.
         accreditation_id: The ID of the accreditation to activate.
+        request: dict of input request
 
     Returns:
         A dictionary containing the activated accreditation's sharing ID.
     """
+    print(request['tos2'])
     config_element = ConfigFactory(session, 1)
     accreditation_item = (
         session.query(Subscriber)
@@ -493,6 +497,7 @@ def activate_tenant(session, accreditation_id):
 
     t.active = True
     accreditation_item.activation_token = generateRandomKey()
+    accreditation_item.tos2 = str(request['tos2'])
 
     wizard = {
         'node_language': language,
@@ -574,8 +579,12 @@ class AccreditationHandler(BaseHandler):
         return update_accreditation_by_id(accreditation_id, data)
 
     def delete(self, accreditation_id: str):
+        request = self.validate_request(
+            self.request.content.read().decode('utf-8'),
+            requests.deleteAccreditation)
         return persistent_drop(
-            accreditation_id
+            accreditation_id,
+            request
         )
 
 class AccreditationApprovedHandler(BaseHandler):
@@ -596,7 +605,10 @@ class AccreditationConfirmHandler(BaseHandler):
     root_tenant_only = True
 
     def post(self, accreditation_id: str):
-        return activate_tenant(accreditation_id)
+        request = self.validate_request(
+            self.request.content.read(),
+            requests.confirmAccreditation)
+        return activate_tenant(accreditation_id, request)
 
 
 class ToggleStatusActiveHandler(BaseHandler):
