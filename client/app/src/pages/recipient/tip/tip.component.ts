@@ -416,7 +416,7 @@ export class TipComponent implements OnInit {
     if(org_id != 0)
       this.selectedOe.push(org_id);
     else
-      this.selectedOe = this.organizationList.map(a => a.id);
+      this.selectedOe = this.organizationList.map(a => a.id).slice(1);
 
     console.log("ho selezionato le oe: ", this.selectedOe)
   }

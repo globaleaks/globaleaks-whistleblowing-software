@@ -17,6 +17,8 @@ export class TipUploadWbFileComponent {
   @Input() tip: RecieverTipData;
   @Input() key: string;
   @Input() canUpload: boolean = true;
+  @Input() organizations: number[] = [];
+
   @Output() dataToParent = new EventEmitter<string>();
   collapsed = false;
   file_upload_description: string = "";
@@ -24,17 +26,12 @@ export class TipUploadWbFileComponent {
   showError: boolean = false;
   errorFile: FlowFile | null;
 
-  recentFile: RFile;
+recentFile: RFile;
 
-  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService, protected preferenceResolver:PreferenceResolver) {
+  //TODO: IN INPUT LISTA DELLE OE A CUI INOLTRARE IL FILE. 
+  
+  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
-  }
-
-  // Metodo per filtrare e ordinare i file
-  getFilteredAndSortedFiles(): RFile[] {
-    return this.tip.rfiles
-      .filter(file => file.visibility === this.key)
-      .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
   }
 
   onFileSelected(files: FileList | null) {
@@ -60,24 +57,24 @@ export class TipUploadWbFileComponent {
 
       flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
       flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024},
+      flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: this.organizations},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
             this.recentFile.isLoading = false;
             this.dataToParent.emit();
-            this.errorFile = null;
+        this.errorFile = null;
       });
       flowJsInstance.on("fileError", (file, _) => {
           const index = this.tip.rfiles.indexOf(this.recentFile);
           if (index > -1) {
             this.tip.rfiles.splice(index, 1);
           }
-          this.showError = true;
-          this.errorFile = file;
-          if (this.uploaderInput) {
-            this.uploaderInput.nativeElement.value = "";
-          }
-          this.cdr.detectChanges();
+        this.showError = true;
+        this.errorFile = file;
+        if (this.uploaderInput) {
+          this.uploaderInput.nativeElement.value = "";
+        }
+        this.cdr.detectChanges();
       });
 
       this.utilsService.onFlowUpload(flowJsInstance, file);
