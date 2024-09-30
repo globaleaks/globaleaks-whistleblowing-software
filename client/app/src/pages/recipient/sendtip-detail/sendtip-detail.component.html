@@ -30,10 +30,10 @@
               </thead>
               <tbody>
                 <tr *ngIf="detail">
-                  <td>{{ detail.organization }}</td>
-                  <td>{{ detail.date }}</td>
-                  <td>{{ detail.fileSent }}</td>
-                  <td>{{ detail.status }}</td>
+                  <td>{{ detail.name }}</td>
+                  <td>{{ detail.creation_date }}</td>
+                  <td>{{ detail.files?.length }}</td>
+                  <td>{{ detail.state }}</td>
                 </tr>
               </tbody>
             </table>
@@ -68,6 +68,7 @@
       (fileDeleted)="onFileDeleted($event)"
     >
     </src-sendtip-details-files>
+
     <src-tip-comments></src-tip-comments>
   </div>
 </div>

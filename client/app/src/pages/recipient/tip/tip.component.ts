@@ -93,6 +93,10 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
+
+          //mockup
+          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"]})
+          this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"]})
           if(this.tip.forwardings && this.tip.forwardings.length > 0)
             this.getForwardedOEList(this.tip.forwardings);
           
@@ -107,7 +111,7 @@ export class TipComponent implements OnInit {
 
     this.organizationList.push({"tid":0, "name":"All"});
 
-    this.organizationList = this.organizationList.concat(forwardings);
+    this.organizationList = this.organizationList.concat(forwardings)
 
     });
   

@@ -310,7 +310,7 @@ export interface ReceiversById {
   };
 }
 
-export interface Forwarding {
+export class Forwarding {
   tid: number;
   name: string;
   creation_date?: string;

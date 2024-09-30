@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {AppDataService} from "@app/app-data.service";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {Forwarding, RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {UtilsService} from "@app/shared/services/utils.service";
 import { RedactionData } from "@app/models/component-model/redaction";
 
@@ -11,11 +11,14 @@ import { RedactionData } from "@app/models/component-model/redaction";
 export class ReceiverTipService {
   tip: RecieverTipData = new RecieverTipData();
 
+  forwarding: Forwarding;
+
   constructor(private httpService: HttpService, private appDataService: AppDataService,protected utils: UtilsService) {
   }
 
   reset() {
     this.tip = new RecieverTipData();
+    this.forwarding = new Forwarding();
   }
 
   initialize(response: RecieverTipData) {

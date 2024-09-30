@@ -3,7 +3,7 @@ import {Location} from '@angular/common';
 import { FileItem, SentTipDetail } from "@app/models/reciever/sendtip-data";
 import { ActivatedRoute, Router } from '@angular/router';
 import { TipService } from '@app/shared/services/tip-service';
-import { RecieverTipData } from '@app/models/reciever/reciever-tip-data';
+import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
 import { Observable } from 'rxjs';
 import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
@@ -14,7 +14,9 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: "./sendtip-detail.component.html",
 })
 export class SendtipDetailComponent implements OnInit {
-  detail: SentTipDetail | null = null;
+
+  detail: Forwarding | null = null;
+
   files: FileItem[] = [];
 
   tip_id: string | null;
@@ -37,11 +39,14 @@ export class SendtipDetailComponent implements OnInit {
   loadDetail() {
     this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
 
+    this.detail = this.RTipService.forwarding;
+
     this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
     this.RTipService.reset();
+    
     requestObservable.subscribe(
       {
         next: (response: RecieverTipData) => {
