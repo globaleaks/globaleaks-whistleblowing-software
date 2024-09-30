@@ -107,7 +107,7 @@ export class TipComponent implements OnInit {
 
     this.organizationList.push({"tid":0, "name":"All"});
 
-    this.organizationList.concat(forwardings)
+    this.organizationList = this.organizationList.concat(forwardings);
 
     });
   

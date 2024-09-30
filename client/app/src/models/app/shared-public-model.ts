@@ -136,6 +136,7 @@ export interface Comment {
   visibility: string;
   type: string;
   data: any;
+  tids: number[];
 }
 
 export interface WbFile {

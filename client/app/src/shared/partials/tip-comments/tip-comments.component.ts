@@ -56,6 +56,11 @@ export class TipCommentsComponent implements OnInit {
   }
 
   getSortedComments(data: Comment[]): Comment[] {
+
+    if(this.key==='oe'){
+      data.filter(f => f.tids?.some(i => this.organizations.includes(i)));
+    }
+    
     return data;
   }
 
