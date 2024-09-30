@@ -122,9 +122,9 @@ def accreditation(session, request, is_instructor=False):
         InternalServerError: If the accreditation process fails.
     """
     try:
-        request['name'] = request['recipient_name']
-        request['surname'] = request['recipient_surname']
-        request['email'] = request['recipient_email']
+        request['name'] = request.get('recipient_name', '')
+        request['surname'] = request.get('recipient_surname', '')
+        request['email'] = request.get('recipient_email', '')
         request['organization_institutional_site'] = request.get('organization_institutional_site')
         sub = Subscriber(request)
         sub.language = ''
@@ -630,7 +630,7 @@ class SubmitInstructorRequestHandler(BaseHandler):
     def post(self):
         request = self.validate_request(
             self.request.content.read(),
-            requests.SubmitAccreditation)
+            requests.AccreditationInstructorRequest)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
         return accreditation(request, is_instructor = True)

@@ -535,7 +535,12 @@ SubmitAccreditation = {
     'recipient_surname': alphanumeric_str_regexp,
     'recipient_fiscal_code': alphanumeric_str_regexp,
     'recipient_email': email_regexp,
-    'tos1': bool,
+    'tos1': bool
+}
+
+AccreditationInstructorRequest = {
+    'organization_name': str,
+    'organization_email': email_regexp,
     'organization_accreditation_reason': str
 }
 
