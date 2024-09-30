@@ -23,6 +23,7 @@ from globaleaks.handlers.whistleblower.submission import db_create_receivertip, 
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers, EnumStateFile
+from globaleaks.models.config import ConfigFactory
 from globaleaks.models.serializers import process_logs
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
@@ -690,6 +691,7 @@ def get_rtip(session, tid, user_id, itip_id, language):
     return db_get_rtip(session, tid, user_id, itip_id, language)
 
 
+
 def redact_answers(answers, redactions):
     for key in answers:
         if not re.match(requests.uuid_regexp, key) or \
@@ -1261,6 +1263,15 @@ class WhistleblowerFileDownload(BaseHandler):
 
         return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public, ifile.state
 
+    @transact
+    def scan_and_download(self, session, file_location, name, state, pgp_key):
+        url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+        af = FileAnalysis(url=url_clam_av)
+        status = af.read_file_for_scanning(file_location, name, state)
+        if status.name != state:
+            save_status_file_scanning(name, status)
+        yield self.write_file_as_download(name, file_location, pgp_key)
+
     @inlineCallbacks
     def get(self, wbfile_id):
         name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key, state = yield self.download_wbfile(self.request.tid,
@@ -1288,12 +1299,7 @@ class WhistleblowerFileDownload(BaseHandler):
 
                 files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key2))
                 filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
-
-        af = FileAnalysis()
-        status = af.read_file_for_scanning(filelocation, name, state)
-        if status.name != state:
-            save_status_file_scanning(name, status)
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        yield self.scan_and_download(filelocation, name, state, pgp_key)
 
 
 class ReceiverFileUpload(BaseHandler):
@@ -1331,6 +1337,15 @@ class ReceiverFileDownload(BaseHandler):
         else:
             return rfile.name, rfile.id, base64.b64decode(rtip.crypto_tip_prv_key), pgp_key, rfile.state
 
+    @transact
+    def scan_and_download(self, session, file_location, name, state, pgp_key):
+        url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+        af = FileAnalysis(url=url_clam_av)
+        status = af.read_file_for_scanning(file_location, name, state)
+        if status.name != state:
+            save_status_file_scanning(name, status)
+        yield self.write_file_as_download(name, file_location, pgp_key)
+
     @inlineCallbacks
     def get(self, rfile_id):
         name, filename, tip_prv_key, pgp_key, state = yield self.download_rfile(self.request.tid, self.session.user_id,
@@ -1348,12 +1363,7 @@ class ReceiverFileDownload(BaseHandler):
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, tip_prv_key)
             name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
             filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
-
-        af = FileAnalysis()
-        status = af.read_file_for_scanning(filelocation, filename, state)
-        if status.name != state:
-            save_status_file_scanning(filename, status)
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        yield self.scan_and_download(filelocation, name, state, pgp_key)
 
     def delete(self, file_id):
         """

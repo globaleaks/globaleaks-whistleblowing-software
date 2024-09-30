@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 from datetime import datetime
 from twisted.internet import abstract
@@ -7,6 +8,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
 from globaleaks.models import EnumStateFile
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
@@ -46,7 +48,7 @@ def file_delivery(session):
             # https://github.com/globaleaks/whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
-            receiverfile.new = not ifile.creation_date == itip.creation_date
+            receiverfile.new = ifile.creation_date != itip.creation_date
 
             session.add(receiverfile)
 
@@ -94,7 +96,8 @@ def write_plaintext_file(sf, dest_path):
 
 
 def write_encrypted_file(session, key, sf, dest_path):
-    af = FileAnalysis()
+    url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+    af = FileAnalysis(url = url_clam_av)
     status_file = EnumStateFile.verified
     try:
         with sf.open('rb') as encrypted_file, GCE.streaming_encryption_open('ENCRYPT', key, dest_path) as seo:
@@ -134,8 +137,8 @@ def process_receiverfiles(session, state, files_maps):
                         PGPContext(rf['pgp_key_public']).encrypt_file(encrypted_file, rf['dst'])
                 else:
                     write_plaintext_file(sf, rf['dst'])
-            except:
-                pass
+            except Exception as e:
+                logging.debug(e)
 
 
 @transact
@@ -154,8 +157,8 @@ def process_whistleblowerfiles(session, state, files_maps):
                 write_encrypted_file(session, m['key'], sf, m['dst'])
             else:
                 write_plaintext_file(sf, m['dst'])
-        except:
-            pass
+        except Exception as e:
+            logging.debug(e)
 
 
 class Delivery(LoopingJob):

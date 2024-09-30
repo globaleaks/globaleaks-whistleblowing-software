@@ -21,7 +21,7 @@ class FileAnalysis:
         # Esegui la richiesta POST
         response = requests.post(self._url, files=files)
         if response.status_code != 200:
-            raise Exception('Error')
+            raise errors.InternalServerError('Error')
         print(f"Response Code: {response.status_code}")
         print(f"Response Body: {response.text}")
         json_data = json.loads(response.text)
@@ -34,7 +34,7 @@ class FileAnalysis:
                 data_bytes=data_bytes
             )
             if not response.success:
-                raise Exception('File scan Fail')
+                raise errors.InternalServerError('File scan Fail')
             if any(result.is_infected for result in response.data.result):
                 return EnumStateFile.infected
             return EnumStateFile.verified
