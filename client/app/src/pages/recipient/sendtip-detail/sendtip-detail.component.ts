@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
 import { FileItem, SentTipDetail } from "@app/models/reciever/sendtip-data";
+import { ActivatedRoute, Router } from '@angular/router';
+import { TipService } from '@app/shared/services/tip-service';
+import { RecieverTipData } from '@app/models/reciever/reciever-tip-data';
+import { Observable } from 'rxjs';
+import { HttpService } from '@app/shared/services/http.service';
+import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: "src-sendtip-detail",
@@ -10,7 +17,13 @@ export class SendtipDetailComponent implements OnInit {
   detail: SentTipDetail | null = null;
   files: FileItem[] = [];
 
-  constructor(private _location: Location){}
+  tip_id: string | null;
+  tip: RecieverTipData;
+  loading = true;
+
+  redactOperationTitle: string;
+
+  constructor(private _location: Location, private tipService: TipService,  private translateService: TranslateService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
 
   backClicked() {
     this._location.back();
@@ -22,16 +35,29 @@ export class SendtipDetailComponent implements OnInit {
   }
 
   loadDetail() {
-    setTimeout(() => {
-      this.detail = {
-        organization: 'Organizzazione 01',
-        date: '01-01-2023',
-        fileSent: 5,
-        status: 'Open',
-        text: 'Example text content',
-        review_form: { field1: 'value1', field2: 'value2' },
-      };
-    }, 500);
+    this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
+
+    this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
+    
+    const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
+    this.loading = true;
+    this.RTipService.reset();
+    requestObservable.subscribe(
+      {
+        next: (response: RecieverTipData) => {
+          this.loading = false;
+          this.RTipService.initialize(response);
+          this.tip = this.RTipService.tip;
+          this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
+            this.tip.tip_id = params["tip_id"];
+          });
+
+          this.tipService.preprocessTipAnswers(this.tip, true);
+          
+        }
+      }
+    );
+
   }
 
   loadFiles() {

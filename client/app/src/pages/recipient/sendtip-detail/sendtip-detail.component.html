@@ -49,67 +49,16 @@
           </div>
           <div class="card-body">
             <span id="TipDetailText">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
+              {{tip.questionnaires[0].steps[0].children[0].type==='textarea' ? tip.questionnaires[0].answers[tip.questionnaires[0].steps[0].children[0].id][0].value : null}}
             </span>
           </div>
         </div>
       </div>
       <div class="col-6">
-        <div id="TipPageDetails" class="card card-default">
-          <div class="card-header clearfix">
-            <span>{{ "Review form" | translate }}</span>
-          </div>
-          <div class="card-body">
-            <form>
-              <div class="form-group">
-                <label for="tipologia">Tipologia istruttoria avviata</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="tipologia"
-                  name="tipologia"
-                  disabled
-                />
-              </div>
-              <div class="form-group">
-                <label for="dannoStimato">Danno stimato</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="dannoStimato"
-                  name="dannoStimato"
-                  disabled
-                />
-              </div>
-              <div class="form-group">
-                <label for="dannoRecuperato">Danno recuperato</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="dannoRecuperato"
-                  name="dannoRecuperato"
-                  disabled
-                />
-              </div>
-              <div class="form-group">
-                <label for="esito">Esito istruttoria</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="esito"
-                  name="esito"
-                  disabled
-                />
-              </div>
-            </form>
-          </div>
-        </div>
+          
+        <src-tip-questionnaire-answers [tipService]="RTipService" 
+                [redactMode]="false"></src-tip-questionnaire-answers>
+          
       </div>
     </div>
     <src-sendtip-details-files
