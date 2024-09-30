@@ -36,7 +36,7 @@ import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import { RedactionData } from "@app/models/component-model/redaction";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
-import { AccreditationRequestModel, EOExtendedInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
+import { AccreditationRequestModel, EOExtendedInfo, EOInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
 
 
 @Injectable({
@@ -468,10 +468,6 @@ export class HttpService {
     return this.httpClient.get<EOExtendedInfo[]>("api/accreditation/all");
   }
 
-  accreditorAccreditationDetail(org_id: string | null): Observable<ExternalOrganization>{
-    return this.httpClient.get<any>("api/accreditation/request/"+org_id);
-  }
-
   sendAccreditationInvitation(id: string): Observable<void> {
     return this.httpClient.put<void>(`/api/accreditation/${id}/invited`, { responseType: 'text' as 'json'});
   }
@@ -495,6 +491,14 @@ export class HttpService {
 
   toggleAccreditedOrganizationStatus(id: string): Observable<void> {
     return this.httpClient.put<void>(`/api/accreditation/request/${id}/toggle-status-active`, { responseType: 'text' as 'json'});
+  }
+
+  accreditorAccreditationDetail(org_id: string | null): Observable<ExternalOrganization>{
+    return this.httpClient.get<any>("api/accreditation/request/"+org_id);
+  }
+
+  sendAccreditationRequest(dataToStore: EOInfo): Observable<void> {
+    return this.httpClient.post<void>(`/api/accreditation/request/instructor_request`, dataToStore);
   }
 
 }
