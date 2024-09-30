@@ -9,6 +9,7 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
 import {RedactionData} from "@app/models/component-model/redaction";
+import { Forwarding } from "@app/models/reciever/reciever-tip-data";
 @Component({
   selector: "src-tip-files-receiver",
   templateUrl: "./tip-files-receiver.component.html"
@@ -16,6 +17,7 @@ import {RedactionData} from "@app/models/component-model/redaction";
 export class TipFilesReceiverComponent implements OnInit {
   @Input() fileUploadUrl: string;
   @Input() redactMode: boolean;
+  @Input() forwardings: Forwarding[];
 
   collapsed = false;
 
@@ -52,6 +54,14 @@ export class TipFilesReceiverComponent implements OnInit {
     } else {
       this.tipService.newRedaction(redactionData);
     }
+  }
+
+
+  checkForwarded(file: WbFile){
+
+    let foundForwardedFiles = this.forwardings.filter(f => f.files?.some(i => i === file.id));
+
+    return  foundForwardedFiles.map(_ => _.name).join(', ');
   }
 }
 

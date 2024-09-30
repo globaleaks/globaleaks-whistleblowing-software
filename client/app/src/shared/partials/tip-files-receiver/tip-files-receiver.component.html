@@ -23,6 +23,7 @@
                 <tbody id="fileListBody">
                 <ng-container *ngFor="let file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date') as index">
                     <tr id="file-{{index}}" *ngIf="(file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
+                        <td data-toggle="tooltip" [title]="checkForwarded(file)">{{ file.name }}</td>
                         <td>{{ file.name }}</td>
                         <td [ngClass]="{'centered-text': file.status ==='LOADING'}">
                             <div *ngIf="file.status !== 'LOADING'">
