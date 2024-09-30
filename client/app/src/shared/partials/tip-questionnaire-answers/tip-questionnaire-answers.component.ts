@@ -11,6 +11,8 @@ export class TipQuestionnaireAnswersComponent {
   @Input() tipService: ReceiverTipService | WbtipService;
   @Input() redactOperationTitle: string;
   @Input() redactMode: boolean;
+  @Input() label: string = 'Questionnaire answers';
+
   collapsed = false;
 
   constructor(protected utilsService: UtilsService) {

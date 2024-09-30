@@ -1,6 +1,6 @@
 <div id="TipQuestionnaireAnswersBox" class="card card-default" [attr.aria-expanded]="collapsed">
     <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
-        <span>{{'Questionnaire answers'|translate}}</span>
+        <span>{{label |translate}}</span>
         <span class="">
             <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
             <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
