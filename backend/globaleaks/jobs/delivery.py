@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
@@ -6,6 +7,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
 from globaleaks.models import EnumStateFile
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
@@ -45,7 +47,7 @@ def file_delivery(session):
             # https://github.com/globaleaks/whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
-            receiverfile.new = not ifile.creation_date == itip.creation_date
+            receiverfile.new = ifile.creation_date != itip.creation_date
 
             session.add(receiverfile)
 
@@ -93,7 +95,8 @@ def write_plaintext_file(sf, dest_path):
 
 
 def write_encrypted_file(session, key, sf, dest_path):
-    af = FileAnalysis()
+    url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+    af = FileAnalysis(url = url_clam_av)
     status_file = EnumStateFile.verified
     try:
         with sf.open('rb') as encrypted_file, GCE.streaming_encryption_open('ENCRYPT', key, dest_path) as seo:
