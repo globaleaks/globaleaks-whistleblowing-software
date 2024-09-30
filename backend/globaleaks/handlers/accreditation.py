@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Dict, Optional
 from uuid import uuid4
 
@@ -628,11 +629,17 @@ class SubmitInstructorRequestHandler(BaseHandler):
     invalidate_cache = True
 
     def post(self):
+        body_req = self.request.content.read()
         request = self.validate_request(
-            self.request.content.read(),
+            body_req,
             requests.AccreditationInstructorRequest)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
+        try:
+            request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
+        except Exception as e:
+            logging.debug(e)
+            request['organization_institutional_site'] = None
         return accreditation(request, is_instructor = True)
 
 @transact
