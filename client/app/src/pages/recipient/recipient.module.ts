@@ -15,6 +15,7 @@ import {
   WhistleBlowerIdentityReceiverComponent
 } from "@app/pages/recipient/whistleblower-identity-reciever/whistle-blower-identity-receiver.component";
 import {NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
+import { AccreditationRequestComponent } from "@app/pages/recipient/accreditation-request/accreditation-request.component";
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import {NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
     TipComponent,
     SettingsComponent,
     WhistleBlowerIdentityReceiverComponent,
+    AccreditationRequestComponent,
   ],
   imports: [
     CommonModule, RouterModule, TranslateModule, SharedModule, FormsModule,

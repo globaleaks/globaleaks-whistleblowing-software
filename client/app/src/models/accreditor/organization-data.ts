@@ -54,7 +54,8 @@ export interface EOInfo {
     organization_name: string;
     organization_email: string;
     organization_institutional_site: string;
-  }
+    organization_accreditation_reason?: string;
+}
   
   
 export interface EOAdmin {
