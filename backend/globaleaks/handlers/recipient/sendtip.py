@@ -40,7 +40,7 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
     file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
     file_forwarding.oe_content_id = file.id
     file_forwarding.content_id = original_file_id
-    file_forwarding.author_type = models.EnumAuthorType.main
+    file_forwarding.author_type = models.EnumAuthorType.main.value
     if isinstance(file, models.ReceiverFile):
         file_forwarding.content_origin = models.EnumContentForwarding.receiver_file.value
     elif isinstance(file, models.InternalFile):
@@ -86,6 +86,16 @@ def set_answer(text, steps):
     content_list[0] = content
     answers[first_field_id] = content_list
     return answers
+
+
+def check_default_context_receivers(default_context, receivers, request):
+    if not receivers:
+        raise errors.InputValidationError(
+            "Unable to deliver the submission to at least one recipient")
+
+    if 0 < default_context.maximum_selectable_receivers < len(request['receivers']):
+        raise errors.InputValidationError(
+            "The number of recipients selected exceed the configured limit")
 
 
 def copy_internalfile(session, destination_itip, source_internalfile, source_prv_key, destination_id):
@@ -227,14 +237,6 @@ class ForwardSubmission(BaseHandler):
                 "Unable to deliver the file's origin")
         return new_file
 
-    def check_default_context_receivers(self, default_context, receivers, receivers_count):
-        if not receivers:
-                raise errors.InputValidationError(
-                    "Unable to deliver the submission to at least one recipient")
-
-        if 0 < default_context.maximum_selectable_receivers < receivers_count:
-            raise errors.InputValidationError(
-                "The number of recipients selected exceed the configured limit")
     @transact
     def forward_submission(self, session, request, itip_id, user_session):
         itip = db_get(session, models.InternalTip,
@@ -258,9 +260,9 @@ class ForwardSubmission(BaseHandler):
                 raise errors.InputValidationError(
                     "Forwarding already present for one or more selected tenants")
 
-            steps = self.validate_steps(
+            steps = validate_steps(
                 session, tid, request['questionnaire_id'])
-            answers = self.set_answer(request['text'], steps)
+            answers = set_answer(request['text'], steps)
             questionnaire_hash = db_archive_questionnaire_schema(
                 session, steps)
             default_context = db_get(
@@ -269,7 +271,8 @@ class ForwardSubmission(BaseHandler):
                                  (models.ReceiverContext.context_id == default_context.id,
                                   models.User.id == models.ReceiverContext.receiver_id)).all()
 
-            self.check_default_context_receivers(default_context, receivers, len(request['receivers']))
+            check_default_context_receivers(
+                default_context, receivers, request)
 
             forwarded_itip = models.InternalTip()
             forwarded_itip.tid = tid

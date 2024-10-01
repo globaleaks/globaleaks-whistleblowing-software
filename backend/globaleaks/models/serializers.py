@@ -319,6 +319,7 @@ def serialize_rtip(session, itip, rtip, language):
         forwarding = dict()
         forwarding['tid'] = internaltip_forwarding.tid
         forwarding['name'] = db_get(session, models.Config, (models.Config.tid == internaltip_forwarding.tid, models.Config.var_name == 'name')).value
+        forwarding['state'] = internaltip_forwarding.state
         forwarding['creation_date'] = internaltip_forwarding.creation_date
         contents = db_query(session, models.ContentForwarding, models.ContentForwarding.internaltip_forwarding_id == internaltip_forwarding.id).all()
         files = []

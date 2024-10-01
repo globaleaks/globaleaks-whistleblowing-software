@@ -168,7 +168,8 @@ UserUserDesc = {
 
 CommentDesc = {
     'content': str,
-    'visibility': str
+    'visibility': str,
+    'tids': [int]
 }
 
 OpsDesc = {

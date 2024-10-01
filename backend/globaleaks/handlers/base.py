@@ -34,8 +34,8 @@ def decodeString(string):
     uint8_array = [c for c in string]
     uint16_array = []
     for i in range(len(uint8_array)):
-        if not (i%2):
-             uint16_array.append((uint8_array[i] | (uint8_array[i+1] << 8)))
+        if not (i % 2):
+            uint16_array.append((uint8_array[i] | (uint8_array[i+1] << 8)))
     return ''.join(map(chr, uint16_array))
 
 
@@ -59,7 +59,6 @@ def serve_file(request, fo):
     return d
 
 
-
 def connection_check(tid, role, client_ip, client_using_tor):
     """
     Accept or refuse a connection in relation to the platform settings
@@ -69,7 +68,8 @@ def connection_check(tid, role, client_ip, client_using_tor):
     :param client_ip: A client IP
     :param client_using_tor: A boolean for signaling Tor use
     """
-    ip_filter_enabled = State.tenants[tid].cache.get('ip_filter_' + role + '_enable')
+    ip_filter_enabled = State.tenants[tid].cache.get(
+        'ip_filter_' + role + '_enable')
     if ip_filter_enabled:
         ip_filter = State.tenants[tid].cache.get('ip_filter_' + role)
         if not check_ip(client_ip, ip_filter):
@@ -145,7 +145,7 @@ class BaseHandler(object):
 
         if session.user_role != 'whistleblower' and \
            self.state.tenants[1].cache.get('log_accesses_of_internal_users', False):
-             self.request.log_ip_and_ua = True
+            self.request.log_ip_and_ua = True
 
         return session
 
@@ -188,7 +188,8 @@ class BaseHandler(object):
         elif callable(type):
             retval = BaseHandler.validate_python_type(value, type)
             if not retval:
-                log.err("-- Invalid python_type, in [%s] expected %s", value, type)
+                log.err(
+                    "-- Invalid python_type, in [%s] expected %s", value, type)
 
         # value as "{foo:bar}"
         elif isinstance(type, dict):
@@ -200,7 +201,8 @@ class BaseHandler(object):
         elif isinstance(type, str):
             retval = BaseHandler.validate_regexp(value, type)
             if not retval:
-                log.err("-- Failed Match in regexp [%s] against %s", value, type)
+                log.err(
+                    "-- Failed Match in regexp [%s] against %s", value, type)
 
         # value as "[ type ]"
         elif isinstance(type, list):
@@ -209,9 +211,11 @@ class BaseHandler(object):
                 retval = True
 
             else:
-                retval = all(BaseHandler.validate_type(x, type[0]) for x in value)
+                retval = all(BaseHandler.validate_type(
+                    x, type[0]) for x in value)
                 if not retval:
-                    log.err("-- List validation failed [%s] of %s", value, type)
+                    log.err(
+                        "-- List validation failed [%s] of %s", value, type)
 
         return retval
 
@@ -250,7 +254,8 @@ class BaseHandler(object):
 
                 if not BaseHandler.validate_type(value, request_template[key]):
                     log.err("Received key %s: type validation fail", key)
-                    raise errors.InputValidationError("Key (%s) type validation failure" % key)
+                    raise errors.InputValidationError(
+                        "Key (%s) type validation failure" % key)
                 success_check += 1
 
             for key in keys_to_strip:
@@ -265,16 +270,19 @@ class BaseHandler(object):
 
                 if not BaseHandler.validate_type(request[key], value):
                     log.err("Expected key: %s type validation failure", key)
-                    raise errors.InputValidationError("Key (%s) double validation failure" % key)
+                    raise errors.InputValidationError(
+                        "Key (%s) double validation failure" % key)
 
                 if isinstance(request_template[key], (dict, list)) and request_template[key]:
-                    BaseHandler.validate_request(request[key], request_template[key])
+                    BaseHandler.validate_request(
+                        request[key], request_template[key])
 
                 success_check += 1
 
             if success_check != len(request_template) * 2:
                 log.err("Success counter double check failure: %d", success_check)
-                raise errors.InputValidationError("Success counter double check failure")
+                raise errors.InputValidationError(
+                    "Success counter double check failure")
 
         elif isinstance(request_template, list):
             if not all(BaseHandler.validate_type(x, request_template[0]) for x in request):
@@ -347,16 +355,19 @@ class BaseHandler(object):
                 State.RateLimitingTable.check(self.request.path + b'#' + self.request.client_ip.encode(),
                                               State.tenants[1].cache.threshold_attachments_per_hour_per_ip)
 
-            self.state.TempUploadFiles[file_id] = SecureTemporaryFile(Settings.tmp_path)
+            self.state.TempUploadFiles[file_id] = SecureTemporaryFile(
+                Settings.tmp_path)
 
         f = self.state.TempUploadFiles[file_id]
 
         chunk_size = len(self.request.args[b'file'][0])
         if ((chunk_size // (1024 * 1024)) > self.state.tenants[self.request.tid].cache.maximum_filesize or
             (total_file_size // (1024 * 1024)) > self.state.tenants[self.request.tid].cache.maximum_filesize or
-            f.size // (1024 * 1024) > self.state.tenants[self.request.tid].cache.maximum_filesize):
-            log.err("File upload request rejected: file too big", tid=self.request.tid)
-            raise errors.FileTooBig(self.state.tenants[self.request.tid].cache.maximum_filesize)
+                f.size // (1024 * 1024) > self.state.tenants[self.request.tid].cache.maximum_filesize):
+            log.err("File upload request rejected: file too big",
+                    tid=self.request.tid)
+            raise errors.FileTooBig(
+                self.state.tenants[self.request.tid].cache.maximum_filesize)
 
         with f.open('w') as f:
             f.write(self.request.args[b'file'][0])
@@ -366,11 +377,13 @@ class BaseHandler(object):
 
             f.finalize_write()
 
-        mime_type, _ = mimetypes.guess_type(self.request.args[b'flowFilename'][0].decode())
+        mime_type, _ = mimetypes.guess_type(
+            self.request.args[b'flowFilename'][0].decode())
         if mime_type is None:
             mime_type = 'application/octet-stream'
 
-        filename = os.path.basename(self.request.args[b'flowFilename'][0].decode())
+        filename = os.path.basename(
+            self.request.args[b'flowFilename'][0].decode())
 
         self.uploaded_file = {
             'id': file_id,
@@ -391,11 +404,13 @@ class BaseHandler(object):
         :return: a descriptor dictionary for the saved file
         """
         try:
-            log.debug('Creating file %s with %d bytes', destination, self.uploaded_file['size'])
+            log.debug('Creating file %s with %d bytes',
+                      destination, self.uploaded_file['size'])
 
             with self.uploaded_file['body'].open('r') as encrypted_file, open(destination, 'wb') as plaintext_file:
                 while True:
-                    chunk = encrypted_file.read(abstract.FileDescriptor.bufferSize)
+                    chunk = encrypted_file.read(
+                        abstract.FileDescriptor.bufferSize)
                     if not chunk:
                         break
 
@@ -419,13 +434,14 @@ class BaseHandler(object):
         track_handler(self)
 
     def fs_copy_file(self, source_id, source_prv_key):
-        source_file = os.path.join(self.state.settings.attachments_path, source_id)
+        source_file = os.path.join(
+            self.state.settings.attachments_path, source_id)
         self.check_file_presence(source_file)
         temp_file = SecureTemporaryFile(Settings.tmp_path)
 
         self.state.TempUploadFiles[temp_file.key_id] = temp_file
-        with temp_file.open('w') as output_fd,\
-             GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
+        with temp_file.open('w') as output_fd, \
+                GCE.streaming_encryption_open('DECRYPT', source_prv_key, source_file) as seo:
             while True:
                 last, data = seo.decrypt_chunk()
                 output_fd.write(data)

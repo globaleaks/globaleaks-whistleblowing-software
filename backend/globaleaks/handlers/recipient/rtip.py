@@ -11,6 +11,7 @@ import time
 
 from datetime import datetime, timedelta
 
+from twisted.internet import defer
 from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -24,6 +25,7 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import user_serialize_user
+from globaleaks.models import serializers
 from globaleaks.models import serializers, EnumStateFile
 from globaleaks.models.config import ConfigFactory
 from globaleaks.models.serializers import process_logs
@@ -54,7 +56,8 @@ def db_notify_grant_access(session, user):
     data['node'] = db_admin_serialize_node(session, user.tid, user.language)
 
     if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
+        data['notification'] = db_get_notification(
+            session, user.tid, user.language)
     else:
         data['notification'] = db_get_notification(session, 1, user.language)
 
@@ -96,18 +99,21 @@ def db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, receiver_id)
 
     _tip_key = b''
     if itip.crypto_tip_pub_key:
-        _tip_key = GCE.asymmetric_decrypt(user_cc, base64.b64decode(rtip.crypto_tip_prv_key))
-        _tip_key = GCE.asymmetric_encrypt(new_receiver.crypto_pub_key, _tip_key)
+        _tip_key = GCE.asymmetric_decrypt(
+            user_cc, base64.b64decode(rtip.crypto_tip_prv_key))
+        _tip_key = GCE.asymmetric_encrypt(
+            new_receiver.crypto_pub_key, _tip_key)
 
     new_rtip = db_create_receivertip(session, new_receiver, itip, _tip_key)
     new_rtip.new = False
     if itip.deprecated_crypto_files_pub_key:
-        _files_key = GCE.asymmetric_decrypt(user_cc, base64.b64decode(rtip.deprecated_crypto_files_prv_key))
+        _files_key = GCE.asymmetric_decrypt(
+            user_cc, base64.b64decode(rtip.deprecated_crypto_files_prv_key))
         new_rtip.deprecated_crypto_files_prv_key = base64.b64encode(
             GCE.asymmetric_encrypt(new_receiver.crypto_pub_key, _files_key))
 
     wbfiles = session.query(models.WhistleblowerFile) \
-        .filter(models.WhistleblowerFile.receivertip_id == rtip.id)
+                     .filter(models.WhistleblowerFile.receivertip_id == rtip.id)
 
     for wbfile in wbfiles:
         rf = models.WhistleblowerFile()
@@ -146,10 +152,12 @@ def grant_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
     if user_id == receiver_id or not user.can_grant_access_to_reports:
         raise errors.ForbiddenOperation
 
-    new_receiver, _ = db_grant_tip_access(session, tid, user, user_cc, itip, rtip, receiver_id)
+    new_receiver, _ = db_grant_tip_access(
+        session, tid, user, user_cc, itip, rtip, receiver_id)
     if new_receiver:
         db_notify_grant_access(session, new_receiver)
-        db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id)
+        db_log(session, tid=tid, type='grant_access',
+               user_id=user_id, object_id=itip.id)
 
 
 @transact
@@ -159,7 +167,8 @@ def revoke_tip_access(session, tid, user_id, itip_id, receiver_id):
         raise errors.ForbiddenOperation
 
     if db_revoke_tip_access(session, tid, user, itip, receiver_id):
-        db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id)
+        db_log(session, tid=tid, type='revoke_access',
+               user_id=user_id, object_id=itip.id)
 
 
 @transact
@@ -172,11 +181,13 @@ def transfer_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
     if user_id == receiver_id or not user.can_transfer_access_to_reports:
         raise errors.ForbiddenOperation
 
-    new_receiver, _ = db_grant_tip_access(session, tid, user, user_cc, itip, rtip, receiver_id)
+    new_receiver, _ = db_grant_tip_access(
+        session, tid, user, user_cc, itip, rtip, receiver_id)
     if new_receiver:
         db_revoke_tip_access(session, tid, user, itip, user_id)
         db_notify_grant_access(session, new_receiver)
-        db_log(session, tid=tid, type='transfer_access', user_id=user_id, object_id=itip.id, data=log_data)
+        db_log(session, tid=tid, type='transfer_access',
+               user_id=user_id, object_id=itip.id, data=log_data)
 
 
 def get_ttl(session, orm_object_model, orm_object_id):
@@ -190,7 +201,7 @@ def get_ttl(session, orm_object_model, orm_object_id):
     # we exploit the fact that we have the same "tip_timetolive" name in
     # the SubmissionSubStatus, SubmissionStatus and Context tables
     return session.query(orm_object_model.tip_timetolive) \
-        .filter(orm_object_model.id == orm_object_id).one()[0]
+                  .filter(orm_object_model.id == orm_object_id).one()[0]
 
 
 def recalculate_data_retention(session, itip, report_reopen_request):
@@ -232,29 +243,34 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
         return
 
     if itip.crypto_tip_pub_key and motivation is not None:
-        motivation = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, motivation)).decode()
+        motivation = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, motivation)).decode()
 
-    can_reopen_reports = session.query(models.User.can_reopen_reports).filter(models.User.id == user_id).one()[0]
+    can_reopen_reports = session.query(models.User.can_reopen_reports).filter(
+        models.User.id == user_id).one()[0]
     report_reopen_request = itip.status == "closed" and status_id == "opened"
 
     if report_reopen_request and not can_reopen_reports:
         raise errors.ForbiddenOperation  # mandatory permission setting missing
 
     if report_reopen_request and motivation is None:
-        raise errors.ForbiddenOperation  # motivation must be given when restoring closed tips
+        # motivation must be given when restoring closed tips
+        raise errors.ForbiddenOperation
 
     itip.status = status_id
     itip.substatus = substatus_id or None
 
-    prev_expiration_date, curr_expiration_date = recalculate_data_retention(session, itip, report_reopen_request)
+    prev_expiration_date, curr_expiration_date = recalculate_data_retention(
+        session, itip, report_reopen_request)
 
     log_data = {
-        'status': itip.status,
-        'substatus': itip.substatus,
-        'motivation': motivation,
+      'status': itip.status,
+      'substatus': itip.substatus,
+      'motivation': motivation,
     }
 
-    db_log(session, tid=tid, type='update_report_status', user_id=user_id, object_id=itip.id, data=log_data)
+    db_log(session, tid=tid, type='update_report_status',
+           user_id=user_id, object_id=itip.id, data=log_data)
 
     if prev_expiration_date != curr_expiration_date:
         log_data = {
@@ -262,7 +278,8 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
             'curr_expiration_date': int(datetime.timestamp(curr_expiration_date))
         }
 
-        db_log(session, tid=tid, type='update_report_expiration', user_id=user_id, object_id=itip.id, data=log_data)
+        db_log(session, tid=tid, type='update_report_expiration',
+               user_id=user_id, object_id=itip.id, data=log_data)
 
 
 def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_data):
@@ -276,18 +293,18 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
     :param id: The object_id
     :param redaction_data: The updated redaction data
     """
-    new_temporary_redaction = get_new_temporary_redaction(redaction_data['temporary_redaction'],
-                                                          redaction.permanent_redaction)
+    new_temporary_redaction = get_new_temporary_redaction(
+        redaction_data['temporary_redaction'], redaction.permanent_redaction)
 
     log_data = {
         'old_remporary_redaction': redaction.temporary_redaction,
         'new_temporary_redaction': new_temporary_redaction
     }
 
-    db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
+    db_log(session, tid=tid, type='update_redaction',
+           user_id=user_id, object_id=redaction.id, data=log_data)
 
-    if len(new_temporary_redaction) == 0 and (
-            not redaction.permanent_redaction or len(redaction.permanent_redaction) == 0):
+    if len(new_temporary_redaction) == 0 and (not redaction.permanent_redaction or len(redaction.permanent_redaction) == 0):
         session.delete(redaction)
     else:
         redaction.temporary_redaction = new_temporary_redaction
@@ -327,7 +344,8 @@ def db_redact_data(session, tid, user_id, redaction, temporary_redaction, perman
         'new_permanent_redaction': permanent_redaction,
     }
 
-    db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
+    db_log(session, tid=tid, type='update_redaction',
+           user_id=user_id, object_id=redaction.id, data=log_data)
 
     redaction.temporary_redaction = temporary_redaction
     redaction.permanent_redaction = permanent_redaction
@@ -411,9 +429,11 @@ def get_new_temporary_redaction(current_mask, new_mask):
             # Case 2: Overlap, split the current range into two if needed
             else:
                 if new_start > current_start:
-                    updated_result.append({'start': current_start, 'end': new_start - 1})
+                    updated_result.append(
+                        {'start': current_start, 'end': new_start - 1})
                 if new_end < current_end:
-                    updated_result.append({'start': new_end + 1, 'end': current_end})
+                    updated_result.append(
+                        {'start': new_end + 1, 'end': current_end})
 
         result = updated_result
 
@@ -424,8 +444,7 @@ def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data,
     currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'],
-                                                    redaction_data['permanent_redaction']):
+    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
     currentMaskedContent = next((masked_content for masked_content in tip_data.get('comments', []) if
@@ -440,12 +459,15 @@ def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data,
     new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
-    db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
+    db_redact_data(session, tid, user_id, redaction,
+                   new_temporary_redaction, new_permanent_redaction)
 
-    content = redact_content(currentMaskedContent.get('content'), new_permanent_redaction)
+    content = redact_content(currentMaskedContent.get(
+        'content'), new_permanent_redaction)
 
     comment = session.query(models.Comment).get(redaction_data['reference_id'])
-    comment.content = base64.b64encode(GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, content)).decode()
+    comment.content = base64.b64encode(GCE.asymmetric_encrypt(
+        itip_id.crypto_tip_pub_key, content)).decode()
 
 
 def db_redact_answers(answers, redaction):
@@ -457,7 +479,8 @@ def db_redact_answers(answers, redaction):
         for inner_idx, answer in enumerate(answers[key]):
             if 'value' in answer:
                 if key == redaction.reference_id and answer['index'] == redaction.entry:
-                    answer['value'] = redact_content(answer['value'], redaction.permanent_redaction)
+                    answer['value'] = redact_content(
+                        answer['value'], redaction.permanent_redaction)
                     return
             else:
                 db_redact_answers(answer, redaction)
@@ -470,11 +493,12 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction):
         for inner_idx, whistleblower_identity in enumerate(whistleblower_identities[key]):
             if 'value' in whistleblower_identity:
                 if key == redaction.reference_id:
-                    whistleblower_identity['value'] = redact_content(whistleblower_identity['value'],
-                                                                     redaction.permanent_redaction)
+                    whistleblower_identity['value'] = redact_content(
+                        whistleblower_identity['value'], redaction.permanent_redaction)
                     return
             else:
-                db_redact_whistleblower_identities(whistleblower_identity, redaction)
+                db_redact_whistleblower_identities(
+                    whistleblower_identity, redaction)
 
 
 def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
@@ -490,7 +514,8 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
     new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
-    db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
+    db_redact_data(session, tid, user_id, redaction,
+                   new_temporary_redaction, new_permanent_redaction)
 
     answers = tip_data['questionnaires'][0]['answers']
 
@@ -503,7 +528,7 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_answers = session.query(models.InternalTipAnswers) \
-        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+                          .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
 
     if itip_answers:
         itip_answers.answers = _content
@@ -522,7 +547,8 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
     new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
-    db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
+    db_redact_data(session, tid, user_id, redaction,
+                   new_temporary_redaction, new_permanent_redaction)
 
     whistleblower_identity = tip_data['data']['whistleblower_identity']
     db_redact_whistleblower_identities(whistleblower_identity, redaction)
@@ -533,7 +559,7 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_whistleblower_identity = session.query(models.InternalTipData) \
-        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+                        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
     if itip_whistleblower_identity:
         itip_whistleblower_identity.value = _content
 
@@ -557,12 +583,13 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
 
     # send mail notification to all users with access to the report excluding <user_id>
     for user in session.query(models.User) \
-            .filter(models.User.id == models.ReceiverTip.receiver_id,
-                    models.ReceiverTip.internaltip_id == itip.id,
-                    models.ReceiverTip.receiver_id != user_id):
+                       .filter(models.User.id == models.ReceiverTip.receiver_id,
+                               models.ReceiverTip.internaltip_id == itip.id,
+                               models.ReceiverTip.receiver_id != user_id):
         db_notify_report_update(session, user, rtip, itip)
 
-    db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id, motivation)
+    db_update_submission_status(
+        session, tid, user_id, itip, status_id, substatus_id, motivation)
 
 
 def db_access_rtip(session, tid, user_id, itip_id):
@@ -595,15 +622,16 @@ def db_access_rfile(session, tid, user_id, rfile_id):
     :return: A model requested
     """
     itips_ids = [x[0] for x in session.query(models.InternalTip.id)
-    .filter(models.InternalTip.id == models.ReceiverTip.internaltip_id,
-            models.ReceiverTip.receiver_id == user_id,
-            models.InternalTip.tid == tid)]
+                                      .filter(models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                              models.ReceiverTip.receiver_id == user_id,
+                                              models.InternalTip.tid == tid)]
 
     return db_get(session,
                   models.ReceiverFile,
                   (models.ReceiverFile.id == rfile_id,
                    models.ReceiverFile.internaltip_id.in_(itips_ids),
                    models.InternalTip.tid == tid))
+
 
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     """
@@ -616,11 +644,11 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     :return: A descriptor of the file
     """
     rtip, itip = session.query(models.ReceiverTip, models.InternalTip) \
-        .filter(models.InternalTip.id == itip_id,
-                models.ReceiverTip.receiver_id == user_id,
-                models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                models.InternalTip.status != 'closed',
-                models.InternalTip.tid == tid).one()
+                        .filter(models.InternalTip.id == itip_id,
+                                models.ReceiverTip.receiver_id == user_id,
+                                models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                                models.InternalTip.status != 'closed',
+                                models.InternalTip.tid == tid).one()
 
     rtip.last_access = datetime_now()
     if uploaded_file['visibility'] == models.EnumVisibility.public.value:
@@ -630,7 +658,8 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
         for k in ['name', 'description', 'type', 'size']:
             if k == 'size':
                 uploaded_file[k] = str(uploaded_file[k])
-            uploaded_file[k] = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, uploaded_file[k]))
+            uploaded_file[k] = base64.b64encode(GCE.asymmetric_encrypt(
+                itip.crypto_tip_pub_key, uploaded_file[k]))
 
     new_file = models.ReceiverFile()
     new_file.id = uploaded_file['filename']
@@ -669,9 +698,11 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
 
     if itip.status == 'new':
         itip.update_date = rtip.last_access
-        db_update_submission_status(session, tid, user_id, itip, 'opened', None)
+        db_update_submission_status(
+            session, tid, user_id, itip, 'opened', None)
 
-    db_log(session, tid=tid, type='access_report', user_id=user_id, object_id=itip.id)
+    db_log(session, tid=tid, type='access_report',
+           user_id=user_id, object_id=itip.id)
 
     return serializers.serialize_rtip(session, itip, rtip, language), base64.b64decode(rtip.crypto_tip_prv_key)
 
@@ -702,7 +733,8 @@ def redact_answers(answers, redactions):
             if 'value' in answer:
                 for redaction in redactions:
                     if key == redaction.reference_id and answer['index'] == redaction.entry:
-                        answer['value'] = redact_content(answer['value'], redaction.temporary_redaction, '0x2591')
+                        answer['value'] = redact_content(
+                            answer['value'], redaction.temporary_redaction, '0x2591')
             else:
                 redact_answers(answer, redactions)
 
@@ -711,11 +743,12 @@ def redact_answers(answers, redactions):
 def redact_report(session, user_id, report, enforce=False):
     user = session.query(models.User).get(user_id)
 
-    redactions = session.query(models.Redaction).filter(models.Redaction.internaltip_id == report['id']).all()
+    redactions = session.query(models.Redaction).filter(
+        models.Redaction.internaltip_id == report['id']).all()
 
     if not enforce and \
-            (user.can_mask_information or \
-             user.can_redact_information or \
+            (user.can_mask_information or
+             user.can_redact_information or
              not len(redactions)):
         return report
 
@@ -730,11 +763,11 @@ def redact_report(session, user_id, report, enforce=False):
 
     for comment in report['comments']:
         if comment['id'] in redactions_by_reference_id:
-            comment['content'] = redact_content(comment['content'],
-                                                redactions_by_reference_id[comment['id']][0].temporary_redaction,
-                                                '0x2591')
+            comment['content'] = redact_content(
+                comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
 
-    report['wbfiles'] = [x for x in report['wbfiles'] if x['ifile_id'] not in redactions_by_reference_id]
+    report['wbfiles'] = [x for x in report['wbfiles']
+                         if x['ifile_id'] not in redactions_by_reference_id]
 
     return report
 
@@ -808,7 +841,8 @@ def delete_rtip(session, tid, user_id, itip_id):
 
     db_delete_itip(session, itip.id)
 
-    db_log(session, tid=tid, type='delete_report', user_id=user_id, object_id=itip.id)
+    db_log(session, tid=tid, type='delete_report',
+           user_id=user_id, object_id=itip.id)
 
 
 def delete_wbfile(session, tid, user_id, file_id):
@@ -821,13 +855,13 @@ def delete_wbfile(session, tid, user_id, file_id):
     """
     ifile = (
         session.query(models.InternalFile)
-        .filter(models.InternalFile.id == file_id,
-                models.WhistleblowerFile.internalfile_id == models.InternalFile.id,
-                models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
-                models.ReceiverTip.receiver_id == user_id,
-                models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                models.InternalTip.tid == tid)
-        .first()
+               .filter(models.InternalFile.id == file_id,
+                       models.WhistleblowerFile.internalfile_id == models.InternalFile.id,
+                       models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
+                       models.ReceiverTip.receiver_id == user_id,
+                       models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                       models.InternalTip.tid == tid)
+               .first()
     )
 
     if ifile:
@@ -850,14 +884,16 @@ def postpone_expiration(session, tid, user_id, itip_id, expiration_date):
     if not user.can_postpone_expiration:
         raise errors.ForbiddenOperation
 
-    prev_expiration_date, curr_expiration_date = db_postpone_expiration(session, itip, expiration_date)
+    prev_expiration_date, curr_expiration_date = db_postpone_expiration(
+        session, itip, expiration_date)
 
     log_data = {
-        'prev_expiration_date': int(datetime.timestamp(prev_expiration_date)),
-        'curr_expiration_date': int(datetime.timestamp(curr_expiration_date))
+      'prev_expiration_date': int(datetime.timestamp(prev_expiration_date)),
+      'curr_expiration_date': int(datetime.timestamp(curr_expiration_date))
     }
 
-    db_log(session, tid=tid, type='update_report_expiration', user_id=user_id, object_id=itip.id, data=log_data)
+    db_log(session, tid=tid, type='update_report_expiration',
+           user_id=user_id, object_id=itip.id, data=log_data)
 
 
 @transact
@@ -891,7 +927,8 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     _, _, itip = db_access_rtip(session, tid, user_id, itip_id)
 
     if itip.crypto_tip_pub_key and value and key in ['label']:
-        value = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, value))
+        value = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, value))
 
     setattr(itip, key, value)
 
@@ -923,22 +960,28 @@ def db_create_identityaccessrequest_notifications(session, itip, rtip, iar):
     for user in session.query(models.User).filter(models.User.role == 'custodian',
                                                   models.User.tid == itip.tid,
                                                   models.User.notification.is_(True)):
-        context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
+        context = session.query(models.Context).filter(
+            models.Context.id == itip.context_id).one()
 
         data = {
             'type': 'identity_access_request'
         }
 
         data['user'] = user_serialize_user(session, user, user.language)
-        data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
-        data['context'] = admin_serialize_context(session, context, user.language)
+        data['tip'] = serializers.serialize_rtip(
+            session, itip, rtip, user.language)
+        data['context'] = admin_serialize_context(
+            session, context, user.language)
         data['iar'] = serializers.serialize_identityaccessrequest(session, iar)
-        data['node'] = db_admin_serialize_node(session, itip.tid, user.language)
+        data['node'] = db_admin_serialize_node(
+            session, itip.tid, user.language)
 
         if data['node']['mode'] == 'default':
-            data['notification'] = db_get_notification(session, itip.tid, user.language)
+            data['notification'] = db_get_notification(
+                session, itip.tid, user.language)
         else:
-            data['notification'] = db_get_notification(session, 1, user.language)
+            data['notification'] = db_get_notification(
+                session, 1, user.language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
@@ -962,7 +1005,8 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
-    crypto_tip_prv_key = GCE.asymmetric_decrypt(user_cc, base64.b64decode(rtip.crypto_tip_prv_key))
+    crypto_tip_prv_key = GCE.asymmetric_decrypt(
+        user_cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
     iar = models.IdentityAccessRequest()
     iar.internaltip_id = itip.id
@@ -973,12 +1017,12 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
     session.flush()
 
     custodians = 0
-    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian',
-                                                       models.User.enabled == True):
+    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.enabled == True):
         iarc = models.IdentityAccessRequestCustodian()
         iarc.identityaccessrequest_id = iar.id
         iarc.custodian_id = custodian.id
-        iarc.crypto_tip_prv_key = base64.b64encode(GCE.asymmetric_encrypt(custodian.crypto_pub_key, crypto_tip_prv_key))
+        iarc.crypto_tip_prv_key = base64.b64encode(
+            GCE.asymmetric_encrypt(custodian.crypto_pub_key, crypto_tip_prv_key))
         session.add(iarc)
         custodians += 1
 
@@ -991,6 +1035,7 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
 
     return serializers.serialize_identityaccessrequest(session, iar)
 
+
 def db_add_comment(session, internaltip_id, type, author_id, content, visibility):
     comment = models.Comment()
     comment.internaltip_id = internaltip_id
@@ -1001,6 +1046,7 @@ def db_add_comment(session, internaltip_id, type, author_id, content, visibility
     session.add(comment)
     session.flush()
     return comment
+
 
 def db_add_content_forwarding(session, internaltip_forwarding_id, oe_content_id, content_id, content_origin, author_type):
     comment_forwarding = models.ContentForwarding()
@@ -1013,53 +1059,63 @@ def db_add_content_forwarding(session, internaltip_forwarding_id, oe_content_id,
     session.flush()
     return comment_forwarding
 
+
 def forward_comment_from_oe(session, user_id, internaltip_forwarding, content, visibility, content_id):
 
-    main_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.internaltip_id)
+    main_itip = db_get(session, models.InternalTip,
+                       models.InternalTip.id == internaltip_forwarding.internaltip_id)
 
     if main_itip is None or visibility not in (models.EnumVisibility.oe.name, models.EnumVisibility.whistleblower.name):
         return
 
     if main_itip.crypto_tip_pub_key:
-        _content = base64.b64encode(GCE.asymmetric_encrypt(main_itip.crypto_tip_pub_key, content)).decode()
+        _content = base64.b64encode(GCE.asymmetric_encrypt(
+            main_itip.crypto_tip_pub_key, content)).decode()
 
-    comment = db_add_comment(session, main_itip.id, 'receiver', user_id, _content, visibility)
+    comment = db_add_comment(session, main_itip.id,
+                             'receiver', user_id, _content, visibility)
     comment_forwarding = db_add_content_forwarding(session, internaltip_forwarding.id, content_id, comment.id,
                                                    models.EnumContentForwarding.comment.value, models.EnumAuthorType.oe.value)
     return comment_forwarding.id
 
+
 def forward_comment_from_main(session, user_id, internaltip_forwardings, content, visibility, content_id):
     comment_forwardings = list()
     for internaltip_forwarding in internaltip_forwardings:
-        oe_itip = db_get(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id)
+        oe_itip = db_get(session, models.InternalTip, models.InternalTip.id ==
+                         internaltip_forwarding.oe_internaltip_id)
 
         if oe_itip is None or visibility not in (models.EnumVisibility.oe.name):
             return
 
         if oe_itip.crypto_tip_pub_key:
-            _content = base64.b64encode(GCE.asymmetric_encrypt(oe_itip.crypto_tip_pub_key, content)).decode()
+            _content = base64.b64encode(GCE.asymmetric_encrypt(
+                oe_itip.crypto_tip_pub_key, content)).decode()
 
-        comment = db_add_comment(session, oe_itip.id, 'receiver', user_id, _content, visibility)
+        comment = db_add_comment(
+            session, oe_itip.id, 'receiver', user_id, _content, visibility)
         comment_forwarding = db_add_content_forwarding(session, internaltip_forwarding.id, comment.id, content_id,
                                                    models.EnumContentForwarding.comment.value, models.EnumAuthorType.main.value)
         comment_forwardings.append(comment_forwarding.id)
     return comment_forwardings
 
 
-def forward_comment(session, user_id, itip_id, content, visibility, content_id):
-    internaltip_forwarding_from_oe = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
-    internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).all()
+def forward_comment(session, user_id, itip_id, content, visibility, content_id, tids_to_forward=[]):
+    internaltip_forwarding_from_oe = db_query(
+        session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
+    internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding,
+                                                (models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids_to_forward))).all()
 
-    if internaltip_forwarding_from_oe is not None:
+    if internaltip_forwarding_from_oe is not None and internaltip_forwarding_from_oe:
         return forward_comment_from_oe(session, user_id, internaltip_forwarding_from_oe, content, visibility, content_id)
     elif internaltip_forwarding_from_main is not None and internaltip_forwarding_from_main:
         return forward_comment_from_main(session, user_id, internaltip_forwarding_from_main, content, visibility, content_id)
     else:
-        raise errors.ResourceNotFound()
+        return
 
 
 @transact
-def create_comment(session, tid, user_id, itip_id, content, visibility=0):
+def create_comment(session, tid, user_id, itip_id, content, visibility=0, tids_to_forward=[]):
     """
     Transaction for registering a new comment
     :param session: An ORM session
@@ -1087,7 +1143,8 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0):
 
     _content = content
     if itip.crypto_tip_pub_key:
-        _content = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _content = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, content)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
@@ -1100,14 +1157,15 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0):
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
-    # TODO handle multiple OE forward
-    forward_comment(session, user_id, itip_id, content, visibility, comment.id)
+    forward_comment(session, user_id, itip_id, content,
+                    visibility, comment.id, tids_to_forward)
     return ret
 
 
 @transact
 def create_redaction(session, tid, user_id, data):
-    user, rtip, itip = db_access_rtip(session, tid, user_id, data['internaltip_id'])
+    user, rtip, itip = db_access_rtip(
+        session, tid, user_id, data['internaltip_id'])
 
     itip.update_date = rtip.last_access = datetime_now()
 
@@ -1121,7 +1179,8 @@ def create_redaction(session, tid, user_id, data):
         else:
             content_str = data.get('content', str(data))
             content_bytes = content_str.encode()
-            mask_content = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content_bytes)).decode()
+            mask_content = base64.b64encode(GCE.asymmetric_encrypt(
+                itip.crypto_tip_pub_key, content_bytes)).decode()
 
     redaction = models.Redaction()
     redaction.id = data.get('id')
@@ -1146,7 +1205,8 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
     :param user_id: A user ID of the user performing the operation
     :param redaction_id: The ID of the mask to be updated
     """
-    user, rtip, itip = db_access_rtip(session, tid, user_id, redaction_data['internaltip_id'])
+    user, rtip, itip = db_access_rtip(
+        session, tid, user_id, redaction_data['internaltip_id'])
 
     redaction = session.query(models.Redaction).get(redaction_id)
 
@@ -1157,7 +1217,8 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
         return
 
     if operation.endswith('mask') and user.can_mask_information:
-        db_update_temporary_redaction(session, tid, user_id, redaction, redaction_data)
+        db_update_temporary_redaction(
+            session, tid, user_id, redaction, redaction_data)
 
         if operation == 'full-unmask':
             if redaction.permanent_redaction:
@@ -1167,9 +1228,11 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
 
     elif operation == 'redact' and user.can_redact_information:
         if content_type == "answer":
-            db_redact_answers_recursively(session, tid, user_id, itip, redaction, redaction_data, tip_data)
+            db_redact_answers_recursively(
+                session, tid, user_id, itip, redaction, redaction_data, tip_data)
         elif content_type == "comment":
-            db_redact_comment(session, tid, user_id, itip, redaction, redaction_data, tip_data)
+            db_redact_comment(session, tid, user_id, itip,
+                              redaction, redaction_data, tip_data)
         elif content_type == 'file':
             if len(redaction.temporary_redaction) == 1 and \
                     redaction.temporary_redaction[0].get('start', False) == '-inf' and \
@@ -1177,7 +1240,8 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
                 delete_wbfile(session, tid, user_id, redaction.reference_id)
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
-            db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
+            db_redact_whistleblower_identity(
+                session, tid, user_id, itip, redaction, redaction_data, tip_data)
 
 
 @transact
@@ -1215,8 +1279,7 @@ class RTipRedactionCollection(BaseHandler):
         payload = self.request.content.read().decode('utf-8')
         data = json.loads(payload)
 
-        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'],
-                                                 self.request.language)
+        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'], self.request.language)
 
         if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
@@ -1272,8 +1335,7 @@ class RTipInstance(OperationHandler):
         return revoke_tip_access(self.request.tid, self.session.user_id, itip_id, req_args['receiver'])
 
     def transfer_tip(self, req_args, itip_id, *args, **kwargs):
-        return transfer_tip_access(self.request.tid, self.session.user_id, self.session.cc, itip_id,
-                                   req_args['receiver'])
+        return transfer_tip_access(self.request.tid, self.session.user_id, self.session.cc, itip_id, req_args['receiver'])
 
     def postpone_expiration(self, req_args, itip_id, *args, **kwargs):
         return postpone_expiration(self.request.tid, self.session.user_id, itip_id, req_args['value'])
@@ -1299,9 +1361,9 @@ class RTipCommentCollection(BaseHandler):
     check_roles = 'receiver'
 
     def post(self, itip_id):
-        request = self.validate_request(self.request.content.read(), requests.CommentDesc)
-        return create_comment(self.request.tid, self.session.user_id, itip_id, request['content'],
-                              request['visibility'])
+        request = self.validate_request(
+            self.request.content.read(), requests.CommentDesc)
+        return create_comment(self.request.tid, self.session.user_id, itip_id, request['content'], request['visibility'], request['tids'])
 
 
 class WhistleblowerFileDownload(BaseHandler):
@@ -1325,7 +1387,7 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.WhistleblowerFile.id == file_id))
 
         redaction = session.query(models.Redaction) \
-            .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
+                           .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
 
         if redaction is not None and \
                 not user.can_mask_information and \
@@ -1355,27 +1417,35 @@ class WhistleblowerFileDownload(BaseHandler):
                                                                                                    self.session.user_id,
                                                                                                    wbfile_id)
 
-        filelocation = os.path.join(self.state.settings.attachments_path, wbfile_id)
+        filelocation = os.path.join(
+            self.state.settings.attachments_path, wbfile_id)
         if not os.path.exists(filelocation):
-            filelocation = os.path.join(self.state.settings.attachments_path, ifile_id)
+            filelocation = os.path.join(
+                self.state.settings.attachments_path, ifile_id)
 
-        directory_traversal_check(self.state.settings.attachments_path, filelocation)
+        directory_traversal_check(
+            self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         if tip_prv_key:
-            tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key))
-            name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
+            tip_prv_key = GCE.asymmetric_decrypt(
+                self.session.cc, base64.b64decode(tip_prv_key))
+            name = GCE.asymmetric_decrypt(
+                tip_prv_key, base64.b64decode(name.encode())).decode()
 
             try:
                 # First attempt
-                filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                filelocation = GCE.streaming_encryption_open(
+                    'DECRYPT', tip_prv_key, filelocation)
             except:
                 # Second attempt
                 if not tip_prv_key2:
                     raise
 
-                files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key2))
-                filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+                files_prv_key2 = GCE.asymmetric_decrypt(
+                    self.session.cc, base64.b64decode(tip_prv_key2))
+                filelocation = GCE.streaming_encryption_open(
+                    'DECRYPT', files_prv_key2, filelocation)
         yield self.scan_and_download(filelocation, name, state, pgp_key)
 
 
@@ -1386,68 +1456,119 @@ class ReceiverFileUpload(BaseHandler):
     check_roles = 'receiver'
     upload_handler = True
 
+    def __init__(self, state, request):
+        super().__init__(state, request)
+        self.deferred = defer.Deferred()
+
     def forward_rfile_from_oe(self, session, internaltip_forwarding, visibility, content_id, source_prv_key):
-        oe_receiverfile = db_query(session, models.ReceiverFile, models.ReceiverFile.id == content_id).one_or_none()
+        oe_receiverfile = db_query(
+            session, models.ReceiverFile, models.ReceiverFile.id == content_id).one_or_none()
         if oe_receiverfile is None:
             raise errors.ResourceNotFound()
 
-        main_itip = db_query(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.internaltip_id).one_or_none()
+        main_itip = db_query(session, models.InternalTip, models.InternalTip.id ==
+                             internaltip_forwarding.internaltip_id).one_or_none()
 
         if main_itip is None or visibility != models.EnumVisibility.oe.value:
             return
 
-        destination_id = self.fs_copy_file(oe_receiverfile.id, source_prv_key)
-        destination_rfile = copy_receiverfile(session, main_itip, oe_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
-        file_forwarding = add_file_forwarding(session, internaltip_forwarding.id, destination_rfile, oe_receiverfile.id)
+        destination_id = self.wrap_retry_fs_copy_file(session, oe_receiverfile.id, source_prv_key)
+        if destination_id:
+            destination_rfile = copy_receiverfile(
+                session, main_itip, oe_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
+            file_forwarding = add_file_forwarding(
+                session, internaltip_forwarding.id, destination_rfile, oe_receiverfile.id)
 
         return file_forwarding.id
 
     def forward_rfile_from_main(self, session, internaltip_forwardings, visibility, content_id, source_prv_key):
-        main_receiverfile = db_query(session, models.ReceiverFile, models.ReceiverFile.id == content_id).one_or_none()
+        main_receiverfile = db_query(
+            session, models.ReceiverFile, models.ReceiverFile.id == content_id).one_or_none()
         if main_receiverfile is None:
             raise errors.ResourceNotFound()
         file_forwardings = list()
         for internaltip_forwarding in internaltip_forwardings:
 
-            oe_itip = db_query(session, models.InternalTip, models.InternalTip.id == internaltip_forwarding.oe_internaltip_id).one_or_none()
+            oe_itip = db_query(session, models.InternalTip, models.InternalTip.id ==
+                               internaltip_forwarding.oe_internaltip_id).one_or_none()
 
-            if oe_itip is None or visibility != models.EnumVisibility.oe.value:
+            if oe_itip is None or visibility != models.EnumVisibility.oe.name:
                 return
 
-            destination_id = self.fs_copy_file(main_receiverfile.id, source_prv_key)
-            destination_rfile = copy_receiverfile(session, oe_itip, main_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
-            file_forwarding = add_file_forwarding(session, internaltip_forwarding.id, destination_rfile, main_receiverfile.id)
+            destination_id = self.wrap_retry_fs_copy_file(
+                session, main_receiverfile.id, source_prv_key)
+            if destination_id:
+                destination_rfile = copy_receiverfile(
+                    session, oe_itip, main_receiverfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
+                file_forwarding = add_file_forwarding(
+                    session, internaltip_forwarding.id, destination_rfile, main_receiverfile.id)
             file_forwardings.append(file_forwarding.id)
 
         return file_forwardings
 
+    def wrap_retry_fs_copy_file(self, session, source_id, source_prv_key):
+        destination_id = None
+        retries = 1
+        max_retries = 50
+        interval = 2
+        success = False
+        while not success:
+            try:
+                rfile = db_query(
+                    session, models.ReceiverFile, models.ReceiverFile.id == source_id).one_or_none()
+                if not rfile:
+                    break
+                destination_id = self.fs_copy_file(source_id, source_prv_key)
+                success = True
+            except Exception as e:
+                wait = retries * interval
+                time.sleep(wait)
+                retries += 1
+                if retries > max_retries:
+                    break
+        return destination_id
+
+    @transact
     def forward_file(self, session, rfile_id, itip_id, visibility):
+        if b'tids' in self.request.args:
+            tids = eval(self.request.args.get(b"tids", [])[0].decode())
+
         rtip = db_get(session, models.ReceiverTip, (models.ReceiverTip.receiver_id == self.session.user_id,
                                                         models.ReceiverTip.internaltip_id == itip_id))
         if rtip is None:
             raise errors.ForbiddenOperation()
 
-        source_itip_private_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
+            source_itip_private_key = GCE.asymmetric_decrypt(
+                self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
-        internaltip_forwarding_from_oe = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
-        internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip_id).all()
+            internaltip_forwarding_from_oe = db_query(
+                session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
+            internaltip_forwarding_from_main = session.query(models.InternalTipForwarding)\
+                .filter(models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids)).all()
 
-        if internaltip_forwarding_from_oe is not None:
+            if internaltip_forwarding_from_oe is not None and internaltip_forwarding_from_oe:
             return self.forward_rfile_from_oe(session, internaltip_forwarding_from_oe, visibility, rfile_id, source_itip_private_key)
         elif internaltip_forwarding_from_main is not None and internaltip_forwarding_from_main:
             return self.forward_rfile_from_main(session, internaltip_forwarding_from_main, visibility, rfile_id, source_itip_private_key)
         else:
-            raise errors.ResourceNotFound()
+                return
+        return None
 
     @transact
     def upload_file(self, session, tid, user_id, itip_id, uploaded_file):
-        ret = register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file)
-        # TODO handle multiple OE forward
-        self.forward_file(session, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'])
+        response = register_rfile_on_db(
+            session, tid, user_id, itip_id, uploaded_file)
+        return response
+
+    @inlineCallbacks
+    def process(self, tid, user_id, itip_id, uploaded_file):
+        ret = yield self.upload_file(tid, user_id, itip_id, uploaded_file)
+        deferToThread(
+            self.forward_file, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'].decode())
         return ret
 
     def post(self, itip_id):
-        return self.upload_file(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
+        return self.process(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
 
 
 class ReceiverFileDownload(BaseHandler):
@@ -1486,20 +1607,27 @@ class ReceiverFileDownload(BaseHandler):
     @inlineCallbacks
     def get(self, rfile_id):
         name, filename, tip_prv_key, pgp_key, state = yield self.download_rfile(self.request.tid, self.session.user_id,
-                                                                                rfile_id)
+                                                                         rfile_id)
 
-        filelocation = os.path.join(self.state.settings.attachments_path, filename)
+        filelocation = os.path.join(
+            self.state.settings.attachments_path, filename)
         if not os.path.exists(filelocation):
-            filelocation = os.path.join(self.state.settings.attachments_path, filename)
+            filelocation = os.path.join(
+                self.state.settings.attachments_path, filename)
 
-        filelocation = os.path.join(self.state.settings.attachments_path, filename)
-        directory_traversal_check(self.state.settings.attachments_path, filelocation)
+        filelocation = os.path.join(
+            self.state.settings.attachments_path, filename)
+        directory_traversal_check(
+            self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, tip_prv_key)
-            name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
-            filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+            name = GCE.asymmetric_decrypt(
+                tip_prv_key, base64.b64decode(name.encode())).decode()
+            filelocation = GCE.streaming_encryption_open(
+                'DECRYPT', tip_prv_key, filelocation)
+
         yield self.scan_and_download(filelocation, name, state, pgp_key)
 
     def delete(self, file_id):
@@ -1516,7 +1644,8 @@ class IdentityAccessRequestsCollection(BaseHandler):
     check_roles = 'receiver'
 
     def post(self, itip_id):
-        request = self.validate_request(self.request.content.read(), requests.ReceiverIdentityAccessRequestDesc)
+        request = self.validate_request(
+            self.request.content.read(), requests.ReceiverIdentityAccessRequestDesc)
 
         return create_identityaccessrequest(self.request.tid,
                                             self.session.user_id,
