@@ -7,7 +7,7 @@
             <table class="table table-striped" id="fileList">
                 <thead>
                 <tr>
-                    <th></th> <!-- Checkbox column -->
+                    <th *ngIf="isSelectable"></th>
                     <th>{{ 'Nome file' | translate }}</th>
                     <th>{{ 'Scansione' | translate }}</th>
                     <th>{{ 'Origine' | translate }}</th>
@@ -18,7 +18,7 @@
                 </thead>
                 <tbody id="fileListBody">
                 <tr *ngFor="let file of files">
-                    <td>
+                    <td *ngIf="isSelectable">
                         <ng-container *ngIf="!file.loading">
                           <input *ngIf="!file.infected" type="checkbox" (change)="toggleFileSelection(file)" [checked]="selectedFiles.includes(file)">
                         </ng-container>

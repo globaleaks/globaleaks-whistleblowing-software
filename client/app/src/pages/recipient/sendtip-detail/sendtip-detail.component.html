@@ -61,13 +61,15 @@
           
       </div>
     </div>
-    <src-sendtip-details-files
+    <!-- <src-sendtip-details-files
       [files]="files"
       (fileUploaded)="onFileUploaded($event)"
       (fileVerified)="onFileVerified($event)"
       (fileDeleted)="onFileDeleted($event)"
     >
-    </src-sendtip-details-files>
+    </src-sendtip-details-files> -->
+
+    <sendtip-files [files]="files" [isSelectable]="false" ></sendtip-files>
 
     <src-tip-comments></src-tip-comments>
   </div>

@@ -9,6 +9,8 @@ export class SendtipFilesComponent implements OnInit {
   @Input() files: FileItem[] = [];
   @Input() selectedFiles: AttachmentFile[] = [];
 
+  @Input() isSelectable: boolean = true;
+
   ngOnInit(): void {
   }
 
