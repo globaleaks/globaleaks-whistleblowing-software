@@ -173,7 +173,7 @@
                 <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
 
                 <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'oe'" [organizations]="selectedOe"></src-tip-upload-wbfile>
+                    [key]="'oe'" [organizations]="selectedMap"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"

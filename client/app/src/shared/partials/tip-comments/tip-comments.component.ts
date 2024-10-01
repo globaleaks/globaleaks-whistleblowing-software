@@ -7,6 +7,7 @@ import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {Comment} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
+import { Forwarding } from "@app/models/reciever/reciever-tip-data";
 
 @Component({
   selector: "src-tip-comments",
@@ -17,7 +18,7 @@ export class TipCommentsComponent implements OnInit {
   @Input() key: string;
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
-  @Input() organizations: number[] = [];
+  @Input() organizations: Forwarding[] = [];
 
   collapsed = false;
   newCommentContent = "";
@@ -40,7 +41,7 @@ export class TipCommentsComponent implements OnInit {
 
   newComment() {
     
-    const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations);
+    const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations.map(_=>_.tid));
     this.newCommentContent = "";
 
     response.subscribe(
@@ -55,8 +56,8 @@ export class TipCommentsComponent implements OnInit {
 
   getSortedComments(data: Comment[]): Comment[] {
 
-    if(this.key==='oe'){
-      data.filter(f => f.tids?.some(i => this.organizations.includes(i)));
+    if(this.key === 'oe'){
+      data = data.filter(commento => this.organizations.some(org => org.comments?.includes(commento.id)))
     }
     
     return data;

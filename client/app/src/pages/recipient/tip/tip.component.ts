@@ -56,7 +56,7 @@ export class TipComponent implements OnInit {
   redactOperationTitle: string;
   tabs: Tab[];
   organizationList: Forwarding[] = [];
-  selectedOe: number[] = [];
+  selectedOe: Forwarding[] = [];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -93,10 +93,11 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
-
+          
           //mockup
-          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"]})
-          this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"]})
+          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"], comments:["a14b3009-ec0a-4d76-8be7-c2b32b081975","2425fdb0-8bab-4702-a63e-24869d3abc82", "f8f02df0-0226-426c-b620-1c7c96177d26", "2425fdb0-8bab-4702-a63e-24869d3abc82"]})
+          this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"], comments:["e271bff7-a177-4b8a-933b-7529e46ea885","f8f02df0-0226-426c-b620-1c7c96177d26"]})
+
           if(this.tip.forwardings && this.tip.forwardings.length > 0)
             this.getForwardedOEList(this.tip.forwardings);
           
@@ -411,16 +412,19 @@ export class TipComponent implements OnInit {
     this.loadTipDate();
   }
 
-  selectOrganization(org_id:number){
+  selectOrganization(org: Forwarding){
     this.selectedOe = [];
     
-    if(org_id != 0)
-      this.selectedOe.push(org_id);
+    if(org.tid != 0)
+      this.selectedOe.push(org);
     else
-      this.selectedOe = this.organizationList.map(a => a.tid).slice(1);
+      this.selectedOe = this.organizationList.slice(1);
 
-    console.log("ho selezionato le oe: ", this.selectedOe)
+    // console.log("ho selezionato le oe: ", this.selectedOe)
+
+    this.selectedMap = this.selectedOe.map(_=> _.tid)
   }
 
+  selectedMap: number[] = []
   protected readonly JSON = JSON;
 }

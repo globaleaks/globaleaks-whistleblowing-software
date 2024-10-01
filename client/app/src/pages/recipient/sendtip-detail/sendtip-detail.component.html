@@ -71,6 +71,10 @@
 
     <sendtip-files [files]="files" [isSelectable]="false" ></sendtip-files>
 
+    <!--TODO: key='oe' [organizations]="organizations"; ricaricare dati dell'inoltro a valle del caricamento? (dataToParent)="listenToFields()" -->
+    <src-tip-upload-wbfile [tip]="tip" 
+                    [key]="'oe'" ></src-tip-upload-wbfile>
+
     <src-tip-comments [tipService]="RTipService" [key]="'oe'" [organizations]="organizations"></src-tip-comments>
   </div>
 </div>

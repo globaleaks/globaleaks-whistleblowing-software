@@ -19,6 +19,7 @@
                 </button>
             </div>
         </div>
+        
         <div *ngIf="tipService.tip.comments && tipService.tip.comments.length">
             <div data-cy="SubmissionComments" id="SubmissionComments" *ngFor="let comment of getSortedComments(comments | orderBy:'creation_date': true | filter : 'visibility' : key) | slice: (currentCommentsPage-1) * itemsPerPage : (currentCommentsPage-1) * itemsPerPage + itemsPerPage; let index = index">
                 <div id="comment-{{index}}" class="mt-2">
@@ -48,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="mt-2 text-center" *ngIf="tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage">
+        <div class="mt-2 text-center" *ngIf="getSortedComments(tipService.tip.comments) && (getSortedComments(comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage">
             <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
                 <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" data-toggle="tooltip" [title]="'First' | translate"></i></ng-template>
                 <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" data-toggle="tooltip" [title]="'Previous' | translate"></i></ng-template>

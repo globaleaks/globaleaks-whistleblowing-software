@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Forwarding } from '@app/models/reciever/reciever-tip-data';
-import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
 
 @Component({
   selector: 'src-selectoe-dropdown',
@@ -9,11 +8,13 @@ import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model
 export class SelectOEDropdownComponent{
 
   @Input() organizations: Forwarding[];
-  @Output() dataToParent = new EventEmitter<number>();
+  @Output() dataToParent = new EventEmitter<any>();
+
+  toStr = JSON.stringify;
 
 
   addOrganization(selectElement: HTMLSelectElement) {
-    this.dataToParent.emit(parseInt(selectElement.value));
+    this.dataToParent.emit(JSON.parse(selectElement.value));
   }
   
 

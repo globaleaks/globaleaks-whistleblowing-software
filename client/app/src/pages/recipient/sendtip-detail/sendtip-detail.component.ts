@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { TranslateService } from '@ngx-translate/core';
+import { UtilsService } from '@app/shared/services/utils.service';
 
 @Component({
   selector: "src-sendtip-detail",
@@ -16,7 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 export class SendtipDetailComponent implements OnInit {
 
   detail: Forwarding;
-  organizations: number[] = []
+  organizations: Forwarding[] = []
 
   files: FileItem[] = [];
 
@@ -27,7 +28,7 @@ export class SendtipDetailComponent implements OnInit {
 
   redactOperationTitle: string;
 
-  constructor(private _location: Location, private tipService: TipService,  private translateService: TranslateService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
+  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, private translateService: TranslateService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
 
   backClicked() {
     this._location.back();
@@ -42,7 +43,7 @@ export class SendtipDetailComponent implements OnInit {
     this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
 
     this.detail = this.RTipService.forwarding;
-    this.organizations.push(this.detail.tid);
+    this.organizations.push(this.detail);
 
     this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     
@@ -59,6 +60,8 @@ export class SendtipDetailComponent implements OnInit {
           this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
             this.tip.tip_id = params["tip_id"];
           });
+
+          this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
 
           this.tipService.preprocessTipAnswers(this.tip, true);
           
