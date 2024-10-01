@@ -15,12 +15,14 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SendtipDetailComponent implements OnInit {
 
-  detail: Forwarding | null = null;
+  detail: Forwarding;
+  organizations: number[] = []
 
   files: FileItem[] = [];
 
   tip_id: string | null;
   tip: RecieverTipData;
+
   loading = true;
 
   redactOperationTitle: string;
@@ -40,6 +42,7 @@ export class SendtipDetailComponent implements OnInit {
     this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
 
     this.detail = this.RTipService.forwarding;
+    this.organizations.push(this.detail.tid);
 
     this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     

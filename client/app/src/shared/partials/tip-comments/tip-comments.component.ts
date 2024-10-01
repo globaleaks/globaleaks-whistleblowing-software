@@ -19,8 +19,6 @@ export class TipCommentsComponent implements OnInit {
   @Input() redactOperationTitle: string;
   @Input() organizations: number[] = [];
 
-  //todo aggiungere array di oe - opzionale
-
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;
