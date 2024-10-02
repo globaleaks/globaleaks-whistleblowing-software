@@ -54,9 +54,10 @@ export class SendtipDetailComponent implements OnInit {
     requestObservable.subscribe(
       {
         next: (response: RecieverTipData) => {
-          this.loading = false;
+          
           this.RTipService.initialize(response);
           this.tip = this.RTipService.tip;
+
           this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
             this.tip.tip_id = params["tip_id"];
           });
@@ -65,6 +66,7 @@ export class SendtipDetailComponent implements OnInit {
 
           this.tipService.preprocessTipAnswers(this.tip, true);
           
+          this.loading = false;
         }
       }
     );

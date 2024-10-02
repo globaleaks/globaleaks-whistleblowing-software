@@ -95,7 +95,7 @@ export class TipComponent implements OnInit {
           //TODO FINE
           
           //mockup
-          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"], comments:["a14b3009-ec0a-4d76-8be7-c2b32b081975","2425fdb0-8bab-4702-a63e-24869d3abc82", "f8f02df0-0226-426c-b620-1c7c96177d26", "2425fdb0-8bab-4702-a63e-24869d3abc82"]})
+          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"], comments:["2fefd545-932b-4941-86d7-cbe809278dee", "02b9002b-1342-4846-b634-f9b4c72da2e1", "2425fdb0-8bab-4702-a63e-24869d3abc82", "4bb10faa-202d-470d-add7-98e77880d183", "7445da88-5ef8-4514-be31-63c3f4dfa592"]})
           this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"], comments:["e271bff7-a177-4b8a-933b-7529e46ea885","f8f02df0-0226-426c-b620-1c7c96177d26"]})
 
           if(this.tip.forwardings && this.tip.forwardings.length > 0)

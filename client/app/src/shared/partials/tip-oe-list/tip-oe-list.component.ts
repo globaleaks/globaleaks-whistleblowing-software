@@ -19,7 +19,7 @@ export class TipOeListComponent {
 
   goToDetailPage(item: Forwarding){
     this.tipService.forwarding = item;
-    this.utils.go('/sendtip-detail/018b675e-ac22-48b2-b8ea-0029fe22645a') //todo mockup   + item.tid);
+    this.utils.go('/sendtip-detail/90c4a81f-d5f0-464f-89db-b7685e140a02') //todo mockup   + item.tid);
   }
 
  

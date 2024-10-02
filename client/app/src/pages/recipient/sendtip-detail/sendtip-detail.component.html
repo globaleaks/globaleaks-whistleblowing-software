@@ -49,7 +49,7 @@
           </div>
           <div class="card-body">
             <span id="TipDetailText">
-              {{tip.questionnaires[0].steps[0].children[0].type==='textarea' ? tip.questionnaires[0].answers[tip.questionnaires[0].steps[0].children[0].id][0].value : null}}
+              {{ tip && tip.questionnaires && tip.questionnaires.length > 0 ? (tip.questionnaires[0].steps[0].children[0].type==='textarea' ? tip.questionnaires[0].answers[tip.questionnaires[0].steps[0].children[0].id][0].value : null) : null }}
             </span>
           </div>
         </div>
@@ -75,6 +75,6 @@
     <src-tip-upload-wbfile [tip]="tip" 
                     [key]="'oe'" ></src-tip-upload-wbfile>
 
-    <src-tip-comments [tipService]="RTipService" [key]="'oe'" [organizations]="organizations"></src-tip-comments>
+    <src-tip-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" [organizations]="organizations"></src-tip-comments>
   </div>
 </div>

@@ -40,7 +40,6 @@ export class TipCommentsComponent implements OnInit {
   }
 
   newComment() {
-    
     const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations.map(_=>_.tid));
     this.newCommentContent = "";
 
@@ -50,6 +49,8 @@ export class TipCommentsComponent implements OnInit {
         this.tipService.tip.comments.push(data);
         this.comments = [...this.comments, this.newComments];
         this.cdr.detectChanges();
+
+        //TODO: AGGIUNGERE ID DEL NUOVO COMMENTO ANCHE A FORWARDING, ALTRIMENTI NON LO MOSTRO
       }
     );
   }
