@@ -35,6 +35,7 @@ import {IarData} from "@app/models/reciever/Iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import { RedactionData } from "@app/models/component-model/redaction";
+import { SendTip } from "@app/models/reciever/sendtip-data";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 import { AccreditationRequestModel, EOExtendedInfo, EOInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
 
@@ -503,6 +504,10 @@ export class HttpService {
 
   sendAccreditationRequest(dataToStore: EOInfo): Observable<void> {
     return this.httpClient.post<void>(`/api/accreditation/request/instructor_request`, dataToStore);
+  }
+
+  sendTipRequest(data: SendTip): Observable<void> {
+    return this.httpClient.put<void>(`api/recipient/wbtip/${data.tip_id}/send`, data);
   }
 
 }

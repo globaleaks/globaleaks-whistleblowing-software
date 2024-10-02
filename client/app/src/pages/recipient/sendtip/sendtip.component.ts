@@ -99,6 +99,15 @@ export class SendtipComponent implements OnInit {
       //todo: lista dei file solo come id-origin???
       console.log("Form :" , this.sendTipRequest);
       console.log("todo: inviare file appena caricati")
+      // TODO: send files
+      // this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
+      //   next: () => {
+      //     // TODO: redirect to the moon
+      //   },
+      //   error: (err) => {
+      //     console.error("Errore durante l'inoltro della segnalazione'", err);
+      //   }
+      // }); 
     }
   }
 }
