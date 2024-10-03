@@ -27,7 +27,6 @@ export class CustomModalComponent {
   confirm(arg: string) {
 
     if(this.showInputText){
-      debugger
       this.confirmFunction(arg, this.inputText);
       return this.activeModal.close(arg);
     }

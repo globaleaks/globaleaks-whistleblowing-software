@@ -1148,6 +1148,7 @@ i.fa-solid.fa-chevron-right {
 @keyframes gly-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(359deg); }
+}
 
 #AccreditationRequestPrivacy div {
   margin-bottom: 0.5em;
