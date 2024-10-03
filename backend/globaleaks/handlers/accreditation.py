@@ -252,6 +252,7 @@ def serialize_element(accreditation_item, count_tip, count_user, t):
     return {
         'id': accreditation_item.sharing_id,
         'organization_name': accreditation_item.organization_name,
+        'organization_institutional_site': accreditation_item.organization_institutional_site,
         'type': "AFFILIATED" if t.affiliated else 'NOT_AFFILIATED',
         'accreditation_date': accreditation_item.creation_date,
         'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
@@ -519,7 +520,6 @@ def activate_tenant(session, accreditation_id, request):
     }
     db_wizard(session, accreditation_item.tid, '', wizard)
     deferToThread(sync_refresh_tenant_cache, t)
-    """
     send_email(
         session, 
         [accreditation_item.admin_email, accreditation_item.email], 
@@ -527,7 +527,6 @@ def activate_tenant(session, accreditation_id, request):
         accreditation_item,
         wizard
     )
-    """
     accreditation_item.state = EnumSubscriberStatus.accredited.value
     return {'id': accreditation_item.sharing_id}
 
@@ -650,19 +649,19 @@ def from_invited_to_request(session, request, accreditation_id: str):
             .filter(Subscriber.sharing_id == accreditation_id)
             .one()
         )
-        accreditation_item.organization_name = request['organization_name']
-        accreditation_item.organization_email = request['organization_email']
-        accreditation_item.organization_institutional_site = request['organization_institutional_site']
-        accreditation_item.admin_name = request['admin_name']
-        accreditation_item.admin_surname = request['admin_surname']
-        accreditation_item.admin_email = request['admin_email']
-        accreditation_item.admin_fiscal_code = request['admin_fiscal_code']
-        accreditation_item.name = request['recipient_name']
-        accreditation_item.surname = request['recipient_surname']
-        accreditation_item.email = request['recipient_email']
-        accreditation_item.recipient_fiscal_code = request['recipient_fiscal_code']
-        accreditation_item.tos1 = request['tos1']
-        accreditation_item.tos2 = request['tos2']
+        accreditation_item.organization_name = request.get('organization_name')
+        accreditation_item.organization_email = request.get('organization_email')
+        accreditation_item.organization_institutional_site = request.get('organization_institutional_site')
+        accreditation_item.admin_name = request.get('admin_name')
+        accreditation_item.admin_surname = request.get('admin_surname')
+        accreditation_item.admin_email = request.get('admin_email')
+        accreditation_item.admin_fiscal_code = request.get('admin_fiscal_code')
+        accreditation_item.name = request.get('recipient_name')
+        accreditation_item.surname = request.get('recipient_surname')
+        accreditation_item.email = request.get('recipient_email')
+        accreditation_item.recipient_fiscal_code = request.get('recipient_fiscal_code')
+        accreditation_item.tos1 = request.get('tos1', False)
+        accreditation_item.tos2 = request.get('tos2', False)
         accreditation_item.state = EnumSubscriberStatus.requested.name
         save_step(session, accreditation_item)
         return {'id': accreditation_item.sharing_id}
@@ -681,11 +680,18 @@ class ConfirmRequestHandler(BaseHandler):
     invalidate_cache = True
 
     def post(self, accreditation_id: str):
+        body_req = self.request.content.read()
         fiscal_code = self.request.headers.get(b'x-idp-userid')
         request = self.validate_request(
-            self.request.content.read(),
+            body_req,
             requests.SubmitAccreditation)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
         request['admin_fiscal_code'] = fiscal_code
+        try:
+            request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
+        except Exception as e:
+            logging.debug(e)
+            request['organization_institutional_site'] = None
         return from_invited_to_request(request, accreditation_id)
+
