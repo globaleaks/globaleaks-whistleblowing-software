@@ -469,7 +469,7 @@ export class HttpService {
   }
 
   sendAccreditationInvitation(id: string): Observable<void> {
-    return this.httpClient.put<void>(`/api/accreditation/request/${id}/invited`, { responseType: 'text' as 'json'});
+    return this.httpClient.post<void>(`/api/accreditation/request/${id}/invited`, { responseType: 'text' as 'json'});
   }
 
   sendAccreditationApproved(id: string): Observable<void> {
