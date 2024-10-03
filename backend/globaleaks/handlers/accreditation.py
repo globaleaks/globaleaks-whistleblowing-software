@@ -487,7 +487,7 @@ def activate_tenant(session, accreditation_id, request):
         .one()
     )
 
-    accreditation_item.activation_token = generateRandomKey()
+    accreditation_item.activation_token = None
     t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
     mode = config_element.get_val('mode')
     language = config_element.get_val('default_language')
@@ -498,7 +498,6 @@ def activate_tenant(session, accreditation_id, request):
     db_initialize_tenant_submission_statuses(session, t.id)
 
     t.active = True
-    accreditation_item.activation_token = generateRandomKey()
     accreditation_item.tos2 = str(request['tos2'])
 
     wizard = {
@@ -602,6 +601,7 @@ class AccreditationConfirmHandler(BaseHandler):
     This manager is responsible for confirm accreditation requests
     """
     check_roles = 'any'
+    invalidate_cache = True
     root_tenant_only = True
 
     def post(self, accreditation_id: str):
