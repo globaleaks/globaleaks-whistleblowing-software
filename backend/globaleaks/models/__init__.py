@@ -5,6 +5,7 @@ ORM Models definitions.
 import copy
 
 from datetime import datetime
+from email.policy import default
 
 from globaleaks.models import config_desc
 from globaleaks.models.enums import *
@@ -421,6 +422,7 @@ class _Field(Model):
     instance = Column(Enum(EnumFieldInstance), default='instance', nullable=False)
     template_id = Column(UnicodeText(36), index=True)
     template_override_id = Column(UnicodeText(36), index=True)
+    statistical = Column(Boolean, default=False, nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -600,7 +602,9 @@ class _ContentForwarding(Model):
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
     content_id = Column(UnicodeText(36), nullable=False, index=True)
+    oe_content_id = Column(UnicodeText(36), nullable=False, index=True)
     content_origin = Column(Enum(EnumOriginFile), default='receiver_file', nullable=False)
+    author_type = Column(Enum(EnumAuthorType), default='main', nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -690,6 +694,7 @@ class _InternalTipAnswers(Model):
     questionnaire_hash = Column(UnicodeText(64), primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
+    stat_answers = Column(JSON, default=dict, nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -956,9 +961,9 @@ class _Subscriber(Model):
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',
-                    'organization_institutional_site',
-                    'admin_name', 'admin_surname', 'admin_email', 'admin_fiscal_code', 'recipient_fiscal_code',
-                    'sharing_id']
+                    'organization_institutional_site', 'admin_name', 'admin_surname', 'admin_email',
+                    'admin_fiscal_code', 'recipient_name', 'recipient_surname', 'recipient_email',
+                    'recipient_fiscal_code', 'sharing_id']
 
     bool_keys = ['tos1', 'tos2']
 
@@ -998,6 +1003,8 @@ class _InternalTipForwarding(Model):
     update_date = Column(DateTime, default=datetime_now, nullable=False)
     data = Column(UnicodeText, nullable=False)
     questionnaire_id = Column(UnicodeText(36), nullable=False, index=True)
+    state = Column(Enum(EnumForwardingState), default='open', nullable=False)
+    stat_data = Column(UnicodeText, nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -1062,6 +1069,7 @@ class _User(Model):
     crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_global_stat_prv_key = Column(UnicodeText(84), default='', nullable=True)
     change_email_address = Column(UnicodeText, default='', nullable=False)
     change_email_token = Column(UnicodeText, unique=True)
     change_email_date = Column(DateTime, default=datetime_null, nullable=False)
