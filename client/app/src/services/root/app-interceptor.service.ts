@@ -28,7 +28,8 @@ const protectedUrls = [
 ];
 
 const regexProtectedUrl = [
-  "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/accredited"  
+  "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/accredited",
+  "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/confirm_invited"
 ]
 
 @Injectable()

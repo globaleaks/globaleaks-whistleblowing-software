@@ -356,6 +356,10 @@ export class UtilsService {
     return this.httpService.requestAccreditationOE(request);
   }
 
+  submitAccreditationRequestFromInvitation(uuid: string, request: AccreditationSubscriberModel){
+    return this.httpService.requestAccreditationFromInviteOE(uuid, request);
+  }
+
   runUserOperation(operation: string, args: any, refresh: boolean) {
     return this.httpService.runOperation("api/user/operations", operation, args, refresh);
   }

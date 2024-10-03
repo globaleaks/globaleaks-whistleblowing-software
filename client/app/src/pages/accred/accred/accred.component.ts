@@ -48,6 +48,7 @@ export class AccredComponent implements OnInit{
   privacyAccept = false;
   org_id: string | null;
   readOnly: boolean = false;
+  state: string | null;
   
 
   constructor(public router: Router, private activatedRoute: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService, private httpService: HttpService) {}
@@ -67,7 +68,11 @@ export class AccredComponent implements OnInit{
       requestObservable.subscribe(
         {
           next: (response) => {
-            this.readOnly = true;
+
+            this.state = response.state;
+
+            if(this.state !== "invited")
+              this.readOnly =  true;
             
             this.organizationInfo.organization_email = response.organization_email
             this.organizationInfo.organization_name = response.organization_name
@@ -110,6 +115,11 @@ export class AccredComponent implements OnInit{
         this.utilsService.submitAccreditationRequest(this.buildAccreditationRequest()).subscribe(_ => {
           this.openConfirmModal();
         });
+      else if (this.state==="invited"){
+        this.utilsService.submitAccreditationRequestFromInvitation(this.org_id, this.buildAccreditationRequest()).subscribe(_ => {
+          this.openConfirmModal();
+        });
+      }
       else
         this.httpService.requestUpdateOEAccredited(this.org_id, {tos2: this.privacyAccept}).subscribe(_=> {
           this.openConfirmModal();

@@ -433,6 +433,10 @@ export class HttpService {
     return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request", data);
   }
 
+  requestAccreditationFromInviteOE(uuid: string, data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
+    return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request/"+uuid+"/confirm_invited", data);
+  }
+
   requestUpdateOEAccredited(uuid: string, data: any) : Observable<any>{
     return this.httpClient.post<any>("api/accreditation/request/"+uuid+"/accredited", data);
   }
