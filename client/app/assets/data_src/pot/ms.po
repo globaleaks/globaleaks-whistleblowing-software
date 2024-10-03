@@ -84,11 +84,11 @@ msgstr "Pentadbir memberi kebenaran untuk mengubah kata laluan:"
 msgid "Advanced"
 msgstr "Lanjutan"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Benarkan penerima untuk memadam laporan"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Benarkan penerima untuk menunda tarikh tamat tempoh laporan"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Benarkan pemberi maklumat menambah lampiran kepada laporan"
@@ -189,8 +189,8 @@ msgstr "Sebelum meneruskan, sila tetapkan kata laluan baru."
 msgid "Block the submission"
 msgstr "Sekat penghantaran"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Dengan mengesahkan, anda akan menunda tarikh tamat tempoh kepada:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -262,9 +262,6 @@ msgstr "Konfigurasikan"
 
 msgid "Confirm"
 msgstr "Sahkan"
-
-msgid "Confirmation"
-msgstr "Pengesahan"
 
 msgid "Congratulations!"
 msgstr "Tahniah!"
@@ -399,6 +396,9 @@ msgstr "Tarikh yang boleh dipilih paling awal"
 
 msgid "Edit"
 msgstr "Edit"
+
+msgid "Edit the expiration date"
+msgstr "Tangguh tarikh tamat tempoh"
 
 msgid "Email"
 msgstr "E-mel"
@@ -897,9 +897,6 @@ msgstr "Sila ambil perhatian bahawa semua data berkaitan akan dipadam secara kek
 
 msgid "Please select your account:"
 msgstr "Sila pilih akaun anda:"
-
-msgid "Postpone the expiration date"
-msgstr "Tangguh tarikh tamat tempoh"
 
 msgid "Preferences"
 msgstr "Keutamaan"

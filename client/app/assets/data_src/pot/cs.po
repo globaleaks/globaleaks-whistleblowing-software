@@ -2,24 +2,24 @@
 # Translators:
 # A5h8d0wf0x <littleslyfoxie28@gmail.com>, 2014
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
-# Jiří Podhorecký, 2019
-# Jiří Skryja, 2022-2023
-# Jiří Podhorecký, 2019
-# Jiří Podhorecký, 2018-2019,2021
+# Jiří Podhorecký <jirka.p@volny.cz>, 2019
+# Jiří Skryja, 2022-2024
+# Jiří Podhorecký <jirka.p@volny.cz>, 2019
+# Jiří Podhorecký <jirka.p@volny.cz>, 2018-2019,2021
 # Lenka Ježková <lenka.jezkova@oziveni.cz>, 2019-2020
 # Miroslav Kučera <mkucera66@seznam.cz>, 2013-2017
 # Mr Higgins, 2016-2018,2020-2021
 # Pavla Holcova <p.holcova@gmail.com>, 2014-2015
-# Jiří Podhorecký, 2019
+# Jiří Podhorecký <jirka.p@volny.cz>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Jiří Skryja, 2022-2023\n"
+"Last-Translator: Jiří Skryja, 2022-2024\n"
 "Language-Team: Czech (http://app.transifex.com/otf/globaleaks/language/cs/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,7 +31,7 @@ msgid "0 = auto"
 msgstr "0 = automaticky"
 
 msgid "Accept multiple answers"
-msgstr "Povolit více odpovědí"
+msgstr "Akceptovat více odpovědí"
 
 msgid "Accept multiple file uploads"
 msgstr "Akceptován příjem více souborů"
@@ -56,7 +56,7 @@ msgid "Account recovery key"
 msgstr "Klíč pro obnovení účtu"
 
 msgid "Act on behalf of a whistleblower"
-msgstr ""
+msgstr "Jednat ve prospěch oznamovatele"
 
 msgid "Activities"
 msgstr "Aktivity"
@@ -97,11 +97,11 @@ msgstr "Správci mají oprávnění ke změně uživatelských hesel:"
 msgid "Advanced"
 msgstr "Rozšířené"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Umožnit příjemci upravit datum vypršení platnosti zpráv."
+
 msgid "Allow the recipient to delete reports"
 msgstr "Povolit příjemcům smazat oznámení"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Povolit příjemci odložit datum expirace oznámení"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Povolit oznamovateli přidat přílohy k oznámení"
@@ -110,7 +110,7 @@ msgid "Allow the whistleblower to write comments"
 msgstr "Povolit oznamovateli psát komentáře"
 
 msgid "Allow this user to reopen management of a report"
-msgstr ""
+msgstr "Povolit tomuto uživateli znovu otevřít správu sestavy"
 
 msgid "Allow users to sign up"
 msgstr "Povolit uživatelům registraci"
@@ -125,7 +125,7 @@ msgid "An update is available:"
 msgstr "Je dostupná aktualizace:"
 
 msgid "Analyst"
-msgstr ""
+msgstr "Analytik"
 
 msgid "Anomalies"
 msgstr "Anomálie"
@@ -134,7 +134,7 @@ msgid "Anomaly detection thresholds"
 msgstr "Prahové hodnoty detekce anomálií"
 
 msgid "Anonymity"
-msgstr ""
+msgstr "Anonymita"
 
 msgid "Anonymize outgoing connections"
 msgstr "Anonymizace odchozích spojení"
@@ -158,7 +158,7 @@ msgid "Attachments"
 msgstr "Přílohy"
 
 msgid "Attention"
-msgstr ""
+msgstr "Pozor"
 
 msgid "Audio"
 msgstr "Audio"
@@ -202,8 +202,8 @@ msgstr "Než budete pokračovat, nastavte prosím nové heslo."
 msgid "Block the submission"
 msgstr "Zablokujte oznámení"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Potvrzením odložíte datum expirace do:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Potvrzením upravíte datum vypršení platnosti na:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Potvrzením, nastavíte nastavíte datum připomenutí na:"
@@ -226,7 +226,7 @@ msgid "Certificate Signing Request"
 msgstr "Požadavek na podpis certifikátu"
 
 msgid "Change status"
-msgstr ""
+msgstr "Změna stavu"
 
 msgid "Change your password"
 msgstr "Změnit heslo"
@@ -275,9 +275,6 @@ msgstr "Nastavení"
 
 msgid "Confirm"
 msgstr "Potvrdit"
-
-msgid "Confirmation"
-msgstr "Potvrzení"
 
 msgid "Congratulations!"
 msgstr "Gratulujeme!"
@@ -360,7 +357,7 @@ msgid "Details of the PGP key:"
 msgstr "Detaily PGP klíče:"
 
 msgid "Devices"
-msgstr ""
+msgstr "Zařízení"
 
 msgid "Disable"
 msgstr "Zakázat"
@@ -412,6 +409,9 @@ msgstr "Nejdřívější zvolitelné datum"
 
 msgid "Edit"
 msgstr "Editovat"
+
+msgid "Edit the expiration date"
+msgstr " \nUpravte datum vypršení platnosti"
 
 msgid "Email"
 msgstr "Email"
@@ -528,7 +528,7 @@ msgid "Footer"
 msgstr "Patička"
 
 msgid "For security reasons the code needs to be changed."
-msgstr ""
+msgstr "Z bezpečnostních důvodů je třeba kód změnit."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
@@ -644,7 +644,7 @@ msgid ""
 msgstr "V tomto kroku jsou odpovědi na následující otázky buď chybějící nebo neplatné:"
 
 msgid "Initially anonymous"
-msgstr ""
+msgstr "Původně anonymní"
 
 msgid "Input validation"
 msgstr "Kontrola vstupu"
@@ -760,7 +760,7 @@ msgid "Maximum number of selectable recipients:"
 msgstr "Maximální počet zvolitelných příjemců"
 
 msgid "Me only"
-msgstr ""
+msgstr "Pouze já"
 
 msgid "Medium"
 msgstr "Střední"
@@ -911,9 +911,6 @@ msgstr "Vezměte prosím na vědomí, že všechna související data budou nav�
 msgid "Please select your account:"
 msgstr "Vyberte, prosím, váš účet"
 
-msgid "Postpone the expiration date"
-msgstr "Odložit datum vypršení"
-
 msgid "Preferences"
 msgstr "Nastavení"
 
@@ -1020,7 +1017,7 @@ msgid "Remove"
 msgstr "Odstranit"
 
 msgid "Reopen"
-msgstr ""
+msgstr "Znovu otevřít"
 
 msgid "Reply motivation"
 msgstr "Zodpovědět motivaci"
@@ -1086,7 +1083,7 @@ msgid "Restrict access to specific IP addresses"
 msgstr "Omezit přístup k určitým IP adresám"
 
 msgid "Returning whistleblowers"
-msgstr ""
+msgstr "Vracející se oznamovatelé"
 
 msgid "Revoke access"
 msgstr "Odvolat přístup"
@@ -1230,7 +1227,7 @@ msgid "Software version:"
 msgstr "Verze software:"
 
 msgid "Statistics"
-msgstr ""
+msgstr "Statistiky"
 
 msgid "Stats"
 msgstr "Statistiky"
@@ -1260,7 +1257,7 @@ msgid "Submit"
 msgstr "Odeslat"
 
 msgid "Subscribed"
-msgstr ""
+msgstr "Předplacené"
 
 msgid "Subscription date"
 msgstr "Datum předplatného"
@@ -1339,7 +1336,7 @@ msgid ""
 msgstr "Následující popis jednotlivých kroků vás provede vytvořením vaší whistleblowingové platformy."
 
 msgid "The link will expire in 7 days."
-msgstr ""
+msgstr "Platnost odkazu vyprší za 7 dní."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1468,7 +1465,7 @@ msgid "Unhide"
 msgstr "Zrušit skrytí"
 
 msgid "Unselect"
-msgstr ""
+msgstr "Zrušit výběr"
 
 msgid "Upload"
 msgstr "Načíst"
@@ -1582,7 +1579,7 @@ msgid ""
 msgstr "Připojujete se k serveru neanonymně. Tento server podporuje pouze anonymní oznámení."
 
 msgid "You are operating on behalf of a whistleblower."
-msgstr ""
+msgstr "Jednáte ve prospěch oznamovatele."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1717,7 +1714,7 @@ msgid "Other"
 msgstr "Další"
 
 msgid "Specify"
-msgstr ""
+msgstr "Specify"
 
 msgid "Dear {RecipientName},"
 msgstr "Vážený/á {RecipientName},"

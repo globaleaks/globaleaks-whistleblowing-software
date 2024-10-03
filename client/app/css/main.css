@@ -650,6 +650,11 @@ p:last-child {
   margin-bottom: 2em;
 }
 
+.question legend {
+  display: contents;
+  font-size: revert;
+}
+
 .question .question {
   padding-left: 1em;
 }
@@ -1135,6 +1140,15 @@ i.fa-solid.fa-chevron-right {
   text-decoration: underline;
 }
 
+.gly-spin {
+  animation: gly-spin 2s infinite linear;
+  text-shadow: #428bca 1px 0 5px;
+}
+
+@keyframes gly-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(359deg); }
+}
 
 #AccreditationRequestPrivacy div {
   margin-bottom: 0.5em;

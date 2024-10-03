@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -8,7 +8,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
   selector: "src-analyst-home",
   templateUrl: "./home.component.html"
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   preferenceData:  preferenceResolverModel;
   constructor(private appDataService: AppDataService,private utilsService: UtilsService, private preference: PreferenceResolver) {
   }

@@ -85,11 +85,11 @@ msgstr "Колдонуучулардын сырсөзүн алмаштырууг
 msgid "Advanced"
 msgstr "Өркүндөтүлгөн"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Алуучуга отчетторду өчүрүүгө уруксат бериңиз"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Алуучуга отчеттун жарактуулук мөөнөтүн узартууга уруксат бериңиз"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Кабарчыга отчетко тиркеме кошууга уруксат берүү"
@@ -190,8 +190,8 @@ msgstr "Улантуудан мурун, жаңы сырсөз коюңуз."
 msgid "Block the submission"
 msgstr "Жиберүүнү бөгөттөө"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Тастыктоо менен жарактуулук мөөнөтүн төмөнкүгө жылдырасыз:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -263,9 +263,6 @@ msgstr "Конфигурациялоо"
 
 msgid "Confirm"
 msgstr "Ырастоо"
-
-msgid "Confirmation"
-msgstr "Тастыктоо"
 
 msgid "Congratulations!"
 msgstr "Куттуктоолор!"
@@ -400,6 +397,9 @@ msgstr "Сиз тандай ала турган эң эрте дата"
 
 msgid "Edit"
 msgstr "Редакциялоо"
+
+msgid "Edit the expiration date"
+msgstr "Жарактуулук мөөнөтүн узартыңыз"
 
 msgid "Email"
 msgstr "Электрондук почта"
@@ -898,9 +898,6 @@ msgstr "Эске алыңыз, байланышкан бардык маалым�
 
 msgid "Please select your account:"
 msgstr "Аккаунтуңузду тандаңыз"
-
-msgid "Postpone the expiration date"
-msgstr "Жарактуулук мөөнөтүн узартыңыз"
 
 msgid "Preferences"
 msgstr "Параметрлер"

@@ -8,8 +8,8 @@ from globaleaks.utils.singleton import Singleton
 this_directory = os.path.dirname(__file__)
 
 possible_client_paths = [
-    '/usr/share/globaleaks/client/',
-    os.path.abspath(os.path.join(this_directory, '../../client/build/'))
+    os.path.abspath(os.path.join(this_directory, '../../client/build/')),
+    '/usr/share/globaleaks/client'
 ]
 
 
@@ -36,6 +36,7 @@ class SettingsClass(object, metaclass=Singleton):
 
         self.ramdisk_path = '/dev/shm/globaleaks'
         self.working_path = '/var/globaleaks'
+        self.client_path = None
 
         self.authentication_lifetime = 120
 
@@ -66,7 +67,7 @@ class SettingsClass(object, metaclass=Singleton):
         self.failed_login_block_time = 5
 
         # Limit for log sizes and number of log files
-        # https://github.com/globaleaks/GlobaLeaks/issues/1578
+        # https://github.com/globaleaks/whistleblowing-software/issues/1578
         self.log_size = 10000000  # 10MB
         self.log_file_size = 1000000  # 1MB
         self.num_log_files = self.log_size / self.log_file_size
@@ -87,9 +88,8 @@ class SettingsClass(object, metaclass=Singleton):
 
         self.files_path = os.path.abspath(os.path.join(self.working_path, 'files'))
         self.attachments_path = os.path.abspath(os.path.join(self.working_path, 'attachments'))
-        self.tor_path = os.path.abspath(os.path.join(self.working_path, 'tor'))
-        self.tor_control = os.path.abspath(os.path.join(self.tor_path, 'tor_control'))
         self.tmp_path = os.path.abspath(os.path.join(self.working_path, 'tmp'))
+        self.tor_control = os.path.abspath(os.path.join(self.tmp_path, 'tor_control'))
 
         self.db_file_path = os.path.abspath(os.path.join(self.working_path, 'globaleaks.db'))
 
@@ -98,13 +98,12 @@ class SettingsClass(object, metaclass=Singleton):
         self.accesslogfile = os.path.abspath(os.path.join(self.log_path, "access.log"))
 
         # Client path detection
-        possible_client_paths.insert(0, os.path.join(self.working_path, 'client'))
         for path in possible_client_paths:
             if os.path.isfile(os.path.join(path, 'index.html')):
                 self.client_path = path
                 break
 
-        if not self.client_path:
+        if self.client_path is None:
             print("Unable to find a directory to load the client from")
             sys.exit(1)
 

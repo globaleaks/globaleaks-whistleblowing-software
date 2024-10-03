@@ -6,7 +6,7 @@
 # Enrique Blat Puchades <enrique.blat@antifraucv.es>, 2020
 # estrella1876lc <estrella1876lc@gmail.com>, 2014
 # Francisco Huerta <francisco.huerta@davinci-ti.es>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2018-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2018-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2016
 # Joan Bitlloch <joanbit@gmail.com>, 2017
 # José Javier Alamá Izquierdo, 2022-2024
@@ -98,11 +98,11 @@ msgstr "Administradors autoritzats a canviar les contrasenyes dels usuaris:"
 msgid "Advanced"
 msgstr "Avançat"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permet al destinatari eliminar denúncies"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permet al destinatari pospondre la data d'expiració d'una denúncia"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permet als informadors afegir arxius adjunts a l'enviament"
@@ -203,8 +203,8 @@ msgstr "Abans de continuar, per favor establixca una nova contrasenya."
 msgid "Block the submission"
 msgstr "Bloqueja l’enviament"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Si ho confirma, posposarà la data de caducitat fins a:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "En confirmar, fixarà una data de recordatori:"
@@ -276,9 +276,6 @@ msgstr "Configurar"
 
 msgid "Confirm"
 msgstr "Confirme"
-
-msgid "Confirmation"
-msgstr "Confirmació"
 
 msgid "Congratulations!"
 msgstr "Enhorabona!"
@@ -413,6 +410,9 @@ msgstr "Data més propera disponible"
 
 msgid "Edit"
 msgstr "Edita"
+
+msgid "Edit the expiration date"
+msgstr "Editar la data d'expiració"
 
 msgid "Email"
 msgstr "Adreça electrònica"
@@ -911,9 +911,6 @@ msgstr "Tingueu en compte que totes les dades associades es suprimiran definitiv
 
 msgid "Please select your account:"
 msgstr "Per favor, seleccione el seu compte:"
-
-msgid "Postpone the expiration date"
-msgstr "Pospose la data de caducitat"
 
 msgid "Preferences"
 msgstr "Preferències"

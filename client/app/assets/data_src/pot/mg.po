@@ -100,11 +100,11 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permettre aux destinataires de supprimer des envois"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Autoriser les destinataires à repousser la date d’expiration des envois"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permettre au lanceur d’alerte d’ajouter des fichiers joints à l’envoi"
@@ -205,8 +205,8 @@ msgstr "Avant de continuer, veuillez définir un nouveau mot de passe."
 msgid "Block the submission"
 msgstr "Bloquer l'envoi"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "En confirmant, vous repousserez la date d’expiration au :"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -278,9 +278,6 @@ msgstr "Configurer"
 
 msgid "Confirm"
 msgstr "Confirmer"
-
-msgid "Confirmation"
-msgstr ""
 
 msgid "Congratulations!"
 msgstr "Félicitations !"
@@ -415,6 +412,9 @@ msgstr "Date la plus ancienne possible"
 
 msgid "Edit"
 msgstr "Modifier"
+
+msgid "Edit the expiration date"
+msgstr "Repousser la date d’expiration"
 
 msgid "Email"
 msgstr "Courriel"
@@ -913,9 +913,6 @@ msgstr ""
 
 msgid "Please select your account:"
 msgstr "Veuillez sélectionner votre compte :"
-
-msgid "Postpone the expiration date"
-msgstr "Repousser la date d’expiration"
 
 msgid "Preferences"
 msgstr "Préférences"

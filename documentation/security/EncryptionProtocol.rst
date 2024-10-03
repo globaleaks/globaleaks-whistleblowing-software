@@ -2,25 +2,25 @@ Encryption Protocol
 ===================
 GlobaLeaks implements an encryption protocol specifically designed for anonymous whistleblowing applications.
 
-The protocol has been developed and validated in collaboration with the `Open Technology Fund <https://www.opentech.fund/results/supported-projects/globaleaks/>`_ and represents a tradeoff between security and usability intended to provide easy use by whistleblowers and reasonable security from attackers seizing the backend and attempting bruteforce decryption.
+The protocol has been developed and validated in collaboration with the `Open Technology Fund <https://www.opentech.fund/results/supported-projects/globaleaks/>`_ and represents a trade-off between security and usability. It is designed to be user-friendly for whistleblowers while providing reasonable protection against attackers attempting to breach the backend and perform brute-force decryption.
 
-Encryption is implemented for each submission protecting questionnaire's answers, comments, attachments and involved metadata. The keys involved in the encryption are per-user and per-report and this guarantees that only whistleblowers and their recipients could access the reports. Such an implementation implies that in case users forget their password, they would lose any possibility of access to the data contained in their accounts.
+Encryption is applied to each submission, protecting answers to questionnaires, comments, attachments, and associated metadata. The encryption keys are assigned per user and per report, ensuring that only whistleblowers and their intended recipients can access the reports. This means that if users forget their passwords, they will lose access to the data in their accounts.
 
-In order to enable users to be able to recover their own account in case of loss of their password, the system implements an `Key Recovery`_ mechanism and make available to every user an Account Recovery Key. This measure ensure that users in possession of their own Account Recovery Key could always restore their own access to their own account and the data contained therein.
+To enable users to recover their accounts in case they forget their passwords, the system includes a `Key Recovery`_ mechanism and provides each user with an Account Recovery Key. This measure ensures that users with their own Account Recovery Key can always restore access to their account and the data it contains.
 
-In order to protect the system from data loss in case of users' loss of both the password and the account recovery key, the system could be configured enabling a `Key Escrow`_ mechanism and delegating to administrators the role and responsibility to support users recovering access to their own accounts and the data contained therein. Such a capability has the value to add resiliency to the project protecting from any data loss in case of users' death or in condition of conflict of interest inside the recipient team. The same capability has the drawback that users with access to escrow keys could possibily access others users accounts and the data contained therein. Project owners are invited to wisely choose if enabling this feature depending on the project's threat model and to document the choice on the project's privacy policies.
+To prevent data loss in case users lose both their password and their account recovery key, the system can be configured to use a `Key Escrow`_ mechanism. This delegates the responsibility of supporting users in recovering access to their accounts to administrators. This capability enhances the project's resilience against data loss due to users' death or conflicts of interest within the recipient team. However, it also means that administrators with access to escrow keys could potentially access other users' accounts and data. Project owners should carefully decide whether to enable this feature based on the project's threat model and document their decision in the project's privacy policies.
 
 Encryption's Workflow
 #####################
-* Users chooses a personal secure password at first login done using an account activation link;
-* The system creates a personal user asymmetrical keypair and stores the private key symmetrically encrypted with a secret derived from the personal user password;
-* The private key of each user is protected with the Key Recovery mechanism and if enabled with the Key Escrow mechanism;
-* The whistleblower files a report;
-* The system assigns personal numeric 16-digits receipt for the whistleblower;
-* The system generates an asymmetrical keypair for the whistleblower and stores the private key symmetrically encrypted with a secret derived from the receipt of the whistleblower;
-* The system generates an asymmetrical keypair for the encryption of the report, the attached files, the comments and the involved metadata and stores a copy of the private key encrypted for each involved user by using their own public key;
-* The system encrypts the report, the attached files, the comments and the metadata with the public key generated for the report;
-* The system grants every involved user access to their reports and enable them to communicate by automatically locking and unlocking involved keys when a report is accessed or new communication is performed.
+* Users choose a secure personal password during their first login using an account activation link.
+* The system creates a personal asymmetric keypair for each user and stores the private key symmetrically encrypted with a secret derived from the user's password.
+* Each user's private key is protected by the Key Recovery mechanism and, if enabled, by the Key Escrow mechanism.
+* The whistleblower files a report.
+* The system assigns a unique 16-digit receipt number to the whistleblower.
+* The system generates an asymmetric keypair for the whistleblower and stores the private key symmetrically encrypted with a secret derived from the whistleblower’s receipt number.
+* The system generates an asymmetric keypair for encrypting the report, attachments, comments, and associated metadata, and stores a copy of the private key encrypted for each involved user using their own public key.
+* The system encrypts the report, attachments, comments, and metadata with the public key generated for the report.
+* The system grants each involved user access to their reports and facilitates communication by automatically locking and unlocking the involved keys when a report is accessed or new communication is made.
 
 Encryption's Details
 ####################
@@ -29,60 +29,58 @@ Algorithms
 .. csv-table::
    :header: "Type", "Implementation"
 
-   "Asymmetric encryption", "`Libsodium SealedBoxes <https://pynacl.readthedocs.io/en/stable/public/#nacl.public.SealedBox>`_, an encryption implementation that combines Curve25519, XSalsa20 and Poly1305 alghoritms."
-   "Symmetric encryption", "`Libsodium SecretBoxes <https://pynacl.readthedocs.io/en/stable/secret/#nacl.secret.SecretBox>`_, an encryption implementation that combines XSalsa20 and Poly1305."
+   "Asymmetric encryption", "`Libsodium SealedBoxes <https://pynacl.readthedocs.io/en/stable/public/#nacl.public.SealedBox>`_, which combines Curve25519, XSalsa20, and Poly1305 algorithms."
+   "Symmetric encryption", "`Libsodium SecretBoxes <https://pynacl.readthedocs.io/en/stable/secret/#nacl.secret.SecretBox>`_, which combines XSalsa20 and Poly1305."
 
 Users’ Credentials
 ------------------
-The system used two different type of credentials depending on the user role:
+The system uses two types of credentials depending on the user role:
 
 .. csv-table::
    :header: "Credentials type", "User role"
 
-   "Passwords", "Passwords are used for authenticating users identified by a username"
-   "Receipts", "Receipts are 16-digits random secrets used for authenticating anonymous whistleblowers"
+   "Passwords", "Used for authenticating users identified by a username"
+   "Receipts", "16-digit random secrets used for authenticating anonymous whistleblowers"
 
 Assumptions:
 
-* The system enforces strong password complexity;
-* The system enforces expiration of receipts according to a strict data retention policy limiting the concurrent number of active receipts;
+* The system enforces strong password complexity.
+* The system enforces expiration of receipts according to a strict data retention policy that limits the number of concurrent active receipts.
 
 Users’ Keys
 -----------
-
 .. csv-table::
    :header: "Type", "Generation", "Storage"
 
-   "ECC Curve25519 keypair", "Generated by the backend at first user login for authenticated users and on submission for whistleblowers", "Keys are stored on the backend encrypted using symmetric encryption. The symmetric key used for encrypting users’ keys is derived from the users’ credentials using the KDF function `Argon2ID <https://password-hashing.net/argon2-specs.pdf>`_. The parameters for Argon2ID used for KDF are chosen stronger than the parameters one used for authentication of related user which the hash is stored. The parameters are chosen to require 128MB per Login and 1 second of computation."
+   "ECC Curve25519 keypair", "Generated by the backend during first user login for authenticated users and upon submission for whistleblowers", "Keys are stored on the backend encrypted using symmetric encryption. The symmetric key used for encrypting users’ keys is derived from the users’ credentials using the KDF function `Argon2ID <https://password-hashing.net/argon2-specs.pdf>`_. The parameters for Argon2ID used for KDF are stronger than those used for user authentication, with the hash stored. The parameters are selected to require 128MB of memory per login and 1 second of computation."
 
 Data Encryption's Keys
 ----------------------
-
 .. csv-table::
    :header: "Type", "Generation", "Storage"
 
-   "256 bit keys", "Generated by the backend for each report", "Keys and stored on backend filesystem  encrypted using asymmetric encryption by means of Users’ and Whistleblower’s keys respectively"
+   "256-bit keys", "Generated by the backend for each report", "Keys are stored on the backend filesystem encrypted using asymmetric encryption with Users’ and Whistleblower’s keys, respectively."
 
 Key Generation
 ##############
-Users' encryption keys are automatically generated during the first user login and secured by means of the user passphrase used for login. This simple but effective key generation policy requires users to perform their first login before being enabled to receive reports.
+Users' encryption keys are automatically generated during the first login and secured using the user passphrase. This straightforward but effective key generation policy requires users to complete their first login before being able to receive reports.
 
 Key Recovery
 ############
-The system implements a key recovery system by means of a recovery key and symmetric encryption.
+The system implements a key recovery mechanism using a recovery key and symmetric encryption.
 
-Upon generation of a user key, the private key is symmetrically encrypted with a randomly generated recovery key.
+When a user key is generated, the private key is symmetrically encrypted with a randomly generated recovery key.
 
-For usability reasons, this recovery is kept as well encrypted on the backend making it possible for logged users in possession of their password to retrieve and print their own account recovery key.
+For usability reasons, this recovery key is also securely encrypted and stored on the backend, allowing logged-in users who possess their password to retrieve and print their own account recovery key.
 
 Key Escrow
 ##########
-The system implements an optional key escrow mechanism in order to limit data loss in case of users’ password loss.
+The system offers an optional key escrow mechanism to mitigate data loss in the event of users losing their passwords.
 
-Key escrow can be enabled during the initial application wizard or alternatively could be enabled in the advanced settings of the software.
+Key escrow can be enabled during the initial application setup or in the advanced settings of the software.
 
-We advise enabling this option if you would like to protect whistleblowers' submissions from being lost in the situation where recipients lose their passwords. On the other hand, we would not advise using this feature if you want to setup a system where only recipients are able to access submissions.
+We recommend enabling this option to protect whistleblowers' submissions in cases where recipients lose their passwords. However, if you want to set up a system where only recipients can access submissions, we advise against using this feature.
 
-When the option is enabled the system will generate and assign an escrow key and assign it to the administrator that has enabled the feature; the key will be furtherly used by the system to encrypt every system key preserving a copy that could be unlocked by any administrator in the availability of the escrow key.
+When enabled, the system generates and assigns an escrow key to the administrator who activated the feature. This key is then used to encrypt every system key, with a copy preserved that any administrator with the escrow key can unlock.
 
-Administrators with access to the escrow key will be able to support any internal user in case of password loss and issue password reset. As well they will be able to grant this same privilege to other administrators or disable the feature completely.
+Administrators with access to the escrow key can assist internal users with password recovery and issue password resets. They can also grant this privilege to other administrators or disable the feature entirely.

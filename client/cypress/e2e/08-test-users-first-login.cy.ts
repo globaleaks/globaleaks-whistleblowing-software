@@ -7,7 +7,6 @@ describe("Recipient first login", () => {
     cy.get('input[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.waitForUrl("/recipient/home");
-    cy.takeScreenshot("recipient/home");
     cy.logout();
   });
 

@@ -26,7 +26,6 @@ class Tor(Service):
             reactor,
             socks_port=State.settings.socks_port,
             control_port='unix:' + State.settings.tor_control,
-            data_directory=State.settings.tor_path
         )
 
         Service.__init__(self)

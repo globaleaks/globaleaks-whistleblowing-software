@@ -62,7 +62,6 @@ export class Node {
   css: string[];
   favicon: string[];
   logo: string[];
-  footer_accessibility_declaration: string;
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;

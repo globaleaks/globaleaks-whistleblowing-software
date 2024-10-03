@@ -25,7 +25,7 @@ export class TipOperationPostponeComponent implements OnInit {
       let date: number;
 
       const {year, month, day} = this.args.expiration_date;
-      const dateData = new Date(year, month - 1, day);
+      const dateData = new Date(year, month - 1, day, 23, 59, 59);
       const timestamp = dateData.getTime();
 
       if (this.args.operation === "postpone")

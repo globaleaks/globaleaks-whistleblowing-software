@@ -86,11 +86,11 @@ msgstr ""
 msgid "Advanced"
 msgstr "மேம்பட்டது"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "பெற்றவர்கள் சமர்ப்பிப்புகளை நீக்க அனுமதிக்க"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "பெறுநர் சமர்ப்பிப்பு காலாவதி தேதி ஒத்தி அனுமதி"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "தகவல் தெரிவிப்பவர் சமர்ப்பிப்பு இணைப்புகளை சேர்க்க அனுமதி"
@@ -191,8 +191,8 @@ msgstr "தொடருவதற்கு முன், புதிய கட�
 msgid "Block the submission"
 msgstr ""
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "உறுதிப்படுத்துவதன் மூலம், நீங்கள் காலாவதி தேதி தள்ளிப்போட:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -264,9 +264,6 @@ msgstr "கட்டமைக்க"
 
 msgid "Confirm"
 msgstr "உறுதிப்படுத்தவும்"
-
-msgid "Confirmation"
-msgstr ""
 
 msgid "Congratulations!"
 msgstr "வாழ்த்துக்கள்!"
@@ -401,6 +398,9 @@ msgstr "முந்தைய தேர்ந்தெடுக்கக்க�
 
 msgid "Edit"
 msgstr "தொகு"
+
+msgid "Edit the expiration date"
+msgstr "காலாவதி தேதி ஒத்தி"
 
 msgid "Email"
 msgstr "மின்னஞ்சல்"
@@ -899,9 +899,6 @@ msgstr ""
 
 msgid "Please select your account:"
 msgstr "உங்கள் கணக்கு தேர்ந்தெடுக்கவும்:"
-
-msgid "Postpone the expiration date"
-msgstr "காலாவதி தேதி ஒத்தி"
 
 msgid "Preferences"
 msgstr "விருப்பத்தேர்வுகள்"

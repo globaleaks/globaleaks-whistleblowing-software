@@ -1,10 +1,11 @@
 Supported Browsers
 ==================
-GlobaLeaks has been designed to fully support commonly used browsers running on desktop PCs, laptops, tablets and phones.
 
-We recommend the usage of the `Tor Browser <https://www.torproject.org/>`_ that protects users' anonymity and includes various privacy and security enhancements not present in other browsers.
+GlobaLeaks is designed to fully support commonly used browsers on desktop PCs, laptops, tablets, and smartphones.
 
-Other supported browsers are:
+We recommend using the `Tor Browser <https://www.torproject.org/>`_ for enhanced anonymity and additional privacy and security features not available in other browsers.
+
+Other supported browsers include:
 
 .. csv-table::
    :header: "Browser", "Version"

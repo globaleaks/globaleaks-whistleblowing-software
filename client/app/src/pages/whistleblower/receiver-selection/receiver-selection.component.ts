@@ -7,13 +7,10 @@ import {UtilsService} from "@app/shared/services/utils.service";
   templateUrl: "./receiver-selection.component.html"
 })
 export class ReceiverSelectionComponent {
-
   @Input() show_steps_navigation_bar: boolean;
   @Input() submission: SubmissionService;
   @Input() receiversOrderPredicate: string;
   @Output() switchSelection: EventEmitter<any> = new EventEmitter();
 
-  constructor(protected utilsService: UtilsService) {
-  }
-
+  constructor(protected utilsService: UtilsService) {}
 }

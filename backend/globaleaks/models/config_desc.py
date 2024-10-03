@@ -42,7 +42,7 @@ ConfigDescriptor = {
     'crypto_escrow_pub_key': Unicode(default=''),
     'default_language': Unicode(default='en'),
     'default_questionnaire': Unicode(default='default'),
-    'description': Unicode(default='Secure whistleblowing platform based on GlobaLeaks free and open-source software.'),
+    'description': Unicode(default='Secure reporting platform based on GlobaLeaks free and open-source whistleblowing software.'),
     'enable_admin_notification_emails': Bool(default=True),
     'enable_analyst_notification_emails': Bool(default=True),
     'enable_custodian_notification_emails': Bool(default=True),
@@ -120,7 +120,8 @@ ConfigDescriptor = {
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
-    'url_file_analysis': Unicode(default='http://localhost/api/v1/scan')
+    'url_file_analysis': Unicode(default='http://localhost/api/v1/scan'),
+    'global_stat_pub_key': Unicode(default='')
 }
 
 

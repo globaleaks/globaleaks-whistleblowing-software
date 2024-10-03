@@ -1,8 +1,8 @@
 export class notificationResolverModel {
-  disable_admin_notification_emails: boolean;
-  disable_custodian_notification_emails: boolean;
-  disable_receiver_notification_emails: boolean;
-  disable_analyst_notification_emails: boolean;
+  enable_admin_notification_emails: boolean;
+  enable_custodian_notification_emails: boolean;
+  enable_receiver_notification_emails: boolean;
+  enable_analyst_notification_emails: boolean;
   smtp_authentication: boolean;
   smtp_password: string;
   smtp_port: number;

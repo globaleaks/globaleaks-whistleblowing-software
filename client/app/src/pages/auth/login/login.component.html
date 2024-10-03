@@ -1,10 +1,9 @@
-
 <div class="row">
     <div class="col-3 col-sm-auto login-form" id="login-form">
         <form #loginValidator="ngForm" autocomplete="off">
             <input class="d-none" type="password" name="disable-autocomplete" />
-            <app-simple-login *ngIf="location.hash !== '#/admin/' && appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-simple-login>
-            <app-default-login *ngIf="location.hash === '#/admin/' || !appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-default-login>
+            <app-simple-login *ngIf="location.hash !== '#/admin' && appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-simple-login>
+            <app-default-login *ngIf="location.hash === '#/admin' || !appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-default-login>
             <br />
             <div id="LoginError" class="alert alert-danger" *ngIf="appDataService.errorCodes.code === 9">
                 <span>{{'Authentication failed'|translate}}</span>

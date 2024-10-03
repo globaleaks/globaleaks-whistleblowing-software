@@ -1,13 +1,14 @@
 ===============
 Security Audits
 ===============
-GlobaLeaks is periodically subject to independent security audits in order to verify and improve the security of the system and this page lists the most important available reports.
 
-We try to get it audited at least every 2 years thanks to funding opportinities and each adopter is invited to contribute funding a new general or topic specific audit based on their possibilities in order to ensure every alghorithm, component and methodology applied within the project is properly verified.
+GlobaLeaks undergoes independent security audits periodically to verify and enhance the security of the system. This page lists the most significant reports available.
 
-If you have carried or have the possibility to sponsor a security audit please email us at `info@globaleaks.org <mailto:info@globaleaks.org>`_. This would be particularly important for the general software security. When asking a company to audit the software please always remember to ask for the possibility to ask for the possibility to publish the report before this is performed; many auditors in fact may dont agree with publishing afterwards and this happened many times with waste of project resources.
+We aim to have audits conducted at least every two years, thanks to funding opportunities. Each adopter is encouraged to contribute by funding a general or topic-specific audit based on their capabilities. This helps ensure that every algorithm, component, and methodology applied within the project is thoroughly verified.
 
-If you are an independent security auditor or during your own peer review of globaleaks you have or think to have found a vulnerability, please do not file a public issue but send us your report privately either via or reporting form at https://github.com/globaleaks/GlobaLeaks/security/advisories/new or via email at `security@globaleaks.org <mailto:security@globaleaks.org>`_.
+If you have conducted or are considering sponsoring a security audit, please email us at `info@globaleaks.org <mailto:info@globaleaks.org>`_. This is especially important for general software security. When requesting a company to audit the software, always remember to ask if the report can be published afterward; many auditors may not agree to publish the report later, which has often led to wasted project resources.
+
+If you are an independent security auditor or, during your peer review of GlobaLeaks, you discover or suspect a vulnerability, please do not file a public issue. Instead, send your report privately through our reporting form at https://github.com/globaleaks/whistleblowing-software/security/advisories/new or via email to `security@globaleaks.org <mailto:security@globaleaks.org>`_.
 
 .. csv-table::
    :header: "Date", "Auditor", "Goal", "Report"

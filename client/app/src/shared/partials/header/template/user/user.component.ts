@@ -23,7 +23,7 @@ export class UserComponent {
     this.activatedRoute.queryParams.subscribe(params => {
       const currentLang = params['lang'];
       const isSubmissionRoute = this.router.url.includes('/submission');
-      const storageLanguage = localStorage.getItem("default_language");
+      const storageLanguage = sessionStorage.getItem("default_language");
       const languagesEnabled = this.appDataService.public.node.languages_enabled;
 
       if (currentLang && languagesEnabled.includes(currentLang)) {
@@ -32,7 +32,7 @@ export class UserComponent {
         }
         else if (storageLanguage !== currentLang) {
           this.translationService.onChange(currentLang);
-          localStorage.setItem("default_language", currentLang);
+          sessionStorage.setItem("default_language", currentLang);
           if (!isSubmissionRoute) {
             this.appConfigService.reinit(true);
             this.utils.reloadCurrentRouteFresh();
@@ -46,7 +46,7 @@ export class UserComponent {
   onLogout(event: Event) {
     event.preventDefault();
     const promise = () => {
-      localStorage.removeItem("default_language");
+      sessionStorage.removeItem("default_language");
       this.translationService.onChange(this.appDataService.public.node.default_language);
       this.appConfigService.reinit(false);
       this.appConfigService.onValidateInitialConfiguration();
@@ -57,7 +57,7 @@ export class UserComponent {
 
   onChangeLanguage() {
     this.cdr.detectChanges();
-    localStorage.removeItem("default_language");
+    sessionStorage.removeItem("default_language");
     this.translationService.onChange(this.translationService.language);
     this.appConfigService.reinit(false);
     this.utils.reloadCurrentRouteFresh(true);

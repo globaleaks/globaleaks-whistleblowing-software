@@ -1,11 +1,8 @@
 # -*- coding: UTF-8
-import os
-import shutil
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.models.properties import *
-from globaleaks.settings import Settings
 from globaleaks.utils.utility import datetime_now
 
 

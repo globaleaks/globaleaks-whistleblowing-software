@@ -28,7 +28,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: he\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -101,10 +101,10 @@ msgstr ""
 msgid "Advanced"
 msgstr "מתקדם"
 
-msgid "Allow the recipient to delete reports"
+msgid "Allow the recipient to edit the reports' expiration date"
 msgstr ""
 
-msgid "Allow the recipient to postpone the report expiration date"
+msgid "Allow the recipient to delete reports"
 msgstr ""
 
 msgid "Allow the whistleblower to add attachments"
@@ -206,8 +206,8 @@ msgstr "לפני שממשיכים, אנא קבע/י סיסמה חדשה"
 msgid "Block the submission"
 msgstr ""
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "לאחר שיאשר, תוכל לדחות את מועד התפוגה:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -279,9 +279,6 @@ msgstr "תצר"
 
 msgid "Confirm"
 msgstr "אשר"
-
-msgid "Confirmation"
-msgstr "אישור"
 
 msgid "Congratulations!"
 msgstr "מזל טוב!"
@@ -416,6 +413,9 @@ msgstr "תאריך בר‏־בחירה המוקדם ביותר"
 
 msgid "Edit"
 msgstr "ערוך"
+
+msgid "Edit the expiration date"
+msgstr "דחה את תאריך התפוגה"
 
 msgid "Email"
 msgstr "דוא״ל"
@@ -914,9 +914,6 @@ msgstr ""
 
 msgid "Please select your account:"
 msgstr "אנא בחר את חשבונך"
-
-msgid "Postpone the expiration date"
-msgstr "דחה את תאריך התפוגה"
 
 msgid "Preferences"
 msgstr "העדפות"

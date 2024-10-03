@@ -90,11 +90,11 @@ msgstr "Administratori koji mogu menjati korisničke lozinke:"
 msgid "Advanced"
 msgstr "Напредно"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Dozvoli primaocu da briše dojave"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Dozvoli primaocu da odloži datum isteka dojave"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Dozvoli uzbunjivaču da dodaje priloge u prijavu"
@@ -195,8 +195,8 @@ msgstr "Pre nego što nastavite, kreirajte novu lozinku."
 msgid "Block the submission"
 msgstr "Blokiraj dojavljivanje"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Ako potvrdite, odložićete datum isteka na:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -268,9 +268,6 @@ msgstr "Podesi"
 
 msgid "Confirm"
 msgstr "Potvrdi"
-
-msgid "Confirmation"
-msgstr "potvrda"
 
 msgid "Congratulations!"
 msgstr "Čеstitаmо!"
@@ -405,6 +402,9 @@ msgstr "Najraniji dozvoljeni datum"
 
 msgid "Edit"
 msgstr "Izmeni"
+
+msgid "Edit the expiration date"
+msgstr "Odloži datum isteka"
 
 msgid "Email"
 msgstr "Imejl"
@@ -903,9 +903,6 @@ msgstr "Imajte u vidu da će svi povezani podaci biti trajno izbrisani."
 
 msgid "Please select your account:"
 msgstr "Izaberite nalog:"
-
-msgid "Postpone the expiration date"
-msgstr "Odloži datum isteka"
 
 msgid "Preferences"
 msgstr "Željene postavke"

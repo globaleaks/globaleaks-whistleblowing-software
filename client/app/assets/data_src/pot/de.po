@@ -4,8 +4,9 @@
 # Andreas Jantz, 2023
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # Charles Peltier <charles@cl-info.fr>, 2015
-# Ettore Atalan <atalanttore@googlemail.com>, 2014-2023
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022
+# desert fox, 2024
+# Ettore Atalan <atalanttore@googlemail.com>, 2014-2024
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # Jack Pudding, 2015
@@ -54,7 +55,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Andreas Jantz, 2023\n"
+"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>, 2014-2024\n"
 "Language-Team: German (http://app.transifex.com/otf/globaleaks/language/de/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -91,7 +92,7 @@ msgid "Account recovery key"
 msgstr "Konto-Wiederherstellungsschlüssel"
 
 msgid "Act on behalf of a whistleblower"
-msgstr ""
+msgstr "Im Auftrag eines Hinweisgebers handeln"
 
 msgid "Activities"
 msgstr "Aktivitäten"
@@ -132,11 +133,11 @@ msgstr "Administratoren, die berechtigt sind, Benutzerpasswörter zu ändern:"
 msgid "Advanced"
 msgstr "Erweitert"
 
-msgid "Allow the recipient to delete reports"
-msgstr "Empfängern das Löschen von Hinweisen erlauben"
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Dem Empfänger das Ändern des Ablaufdatums der Berichte erlauben"
 
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Empfängern das Hinausschieben des Berichtablaufdatums erlauben"
+msgid "Allow the recipient to delete reports"
+msgstr "Dem Empfänger das Löschen von Hinweisen erlauben"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Dem Hinweisgeber das Hinzufügen von Anhängen zum Bericht erlauben"
@@ -151,7 +152,7 @@ msgid "Allow users to sign up"
 msgstr "Benutzerregistrierung erlauben"
 
 msgid "Allow whistleblowers to select their recipients"
-msgstr "Hinweisgebern die Auswahl Ihrer Empfänger erlauben"
+msgstr "Hinweisgebern die Auswahl ihrer Empfänger erlauben"
 
 msgid "Allowed IP addresses"
 msgstr "Erlaubte IP-Adressen"
@@ -237,8 +238,8 @@ msgstr "Bevor Sie fortfahren, legen Sie bitte ein neues Passwort fest."
 msgid "Block the submission"
 msgstr "Die Einreichung blockieren"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Mit der Bestätigung werden Sie das Ablaufdatum hinausschieben bis:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Mit der Bestätigung ändern Sie das Ablaufdatum auf:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Mit Ihrer Bestätigung legen Sie eine Erinnerung für den ... fest"
@@ -310,9 +311,6 @@ msgstr "Konfigurieren"
 
 msgid "Confirm"
 msgstr "Bestätigen"
-
-msgid "Confirmation"
-msgstr "Bestätigung"
 
 msgid "Congratulations!"
 msgstr "Glückwunsch!"
@@ -448,6 +446,9 @@ msgstr "Frühestes wählbares Datum"
 msgid "Edit"
 msgstr "Bearbeiten"
 
+msgid "Edit the expiration date"
+msgstr "Ablaufdatum bearbeiten"
+
 msgid "Email"
 msgstr "E-Mail"
 
@@ -563,7 +564,7 @@ msgid "Footer"
 msgstr "Fußzeile"
 
 msgid "For security reasons the code needs to be changed."
-msgstr ""
+msgstr "Aus Sicherheitsgründen muss der Code geändert werden."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
@@ -618,7 +619,7 @@ msgid "Group of questions"
 msgstr "Gruppe an Fragen"
 
 msgid "Have you already filed a report? Enter your receipt."
-msgstr "Haben Sie bereits eine Einreichung durchgeführt? Geben Sie Ihre Empfangsbestätigung an."
+msgstr "Haben Sie bereits einen Bericht eingereicht? Geben Sie Ihren erhaltenen Zahlencode ein."
 
 msgid "Hidden"
 msgstr "Versteckt"
@@ -679,7 +680,7 @@ msgid ""
 msgstr "In diesem Schritt fehlen die Antworten auf folgende Fragen oder sind ungültig:"
 
 msgid "Initially anonymous"
-msgstr ""
+msgstr "Anfänglich anonym"
 
 msgid "Input validation"
 msgstr "Eingangsüberprüfung"
@@ -946,9 +947,6 @@ msgstr "Bitte beachten Sie, dass alle zugehörigen Daten unwiederbringlich verlo
 msgid "Please select your account:"
 msgstr "Bitte wählen Sie Ihr Konto aus:"
 
-msgid "Postpone the expiration date"
-msgstr "Ablaufdatum hinausschieben"
-
 msgid "Preferences"
 msgstr "Einstellungen"
 
@@ -965,7 +963,7 @@ msgid "Print"
 msgstr "Drucken"
 
 msgid "Privacy Policy"
-msgstr "Datenschutzerklärung"
+msgstr "Datenschutzhinweise"
 
 msgid "Private Key"
 msgstr "Privater Schlüssel"
@@ -1031,7 +1029,7 @@ msgid "Recipients selected:"
 msgstr "Ausgewählte Empfänger:"
 
 msgid "Redact"
-msgstr "redigieren "
+msgstr "Schwärzen"
 
 msgid "Refresh"
 msgstr "Aktualisieren"
@@ -1055,7 +1053,7 @@ msgid "Remove"
 msgstr "Entfernen"
 
 msgid "Reopen"
-msgstr ""
+msgstr "Erneut öffnen"
 
 msgid "Reply motivation"
 msgstr "Antwortmotivation"
@@ -1121,7 +1119,7 @@ msgid "Restrict access to specific IP addresses"
 msgstr "Zugriff auf bestimmte IP-Adressen beschränken"
 
 msgid "Returning whistleblowers"
-msgstr ""
+msgstr "Zurückkehrende Hinweisgeber"
 
 msgid "Revoke access"
 msgstr "Zugriff widerrufen"
@@ -1175,7 +1173,7 @@ msgid "Select"
 msgstr "Auswählen"
 
 msgid "Select a file or drag it here."
-msgstr "Eine Datei auswählen oder Sie hierher ziehen."
+msgstr "Eine Datei auswählen oder sie hierher ziehen."
 
 msgid "Select all"
 msgstr "Alle auswählen"
@@ -1301,7 +1299,7 @@ msgid "Subscription date"
 msgstr "Datum der Anmeldung"
 
 msgid "Substatuses"
-msgstr "Substatuse"
+msgstr "Substatus"
 
 msgid "Success!"
 msgstr "Erfolg!"
@@ -1374,7 +1372,7 @@ msgid ""
 msgstr "Der folgende Schritt-für-Schritt-Assistent wird Sie durch die Konfiguration Ihrer Hinweisgeberseite führen."
 
 msgid "The link will expire in 7 days."
-msgstr ""
+msgstr "Dieser Link wird in 7 Tagen ablaufen."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1503,7 +1501,7 @@ msgid "Unhide"
 msgstr "Einblenden"
 
 msgid "Unselect"
-msgstr ""
+msgstr "Abwählen"
 
 msgid "Upload"
 msgstr "Hochladen"
@@ -1585,7 +1583,7 @@ msgid ""
 msgstr "Wir empfehlen Ihnen, den Bereich „Einstellungen“ aufzurufen, um Ihren „Konto-Wiederherstellungsschlüssel“ abzurufen und ihn sicher zu speichern. Dieser Schlüssel wird benötigt, um Ihren Zugang zur Plattform und zu Ihren Daten wiederherzustellen, falls Sie Ihr Passwort vergessen."
 
 msgid "We will try to get back to you as soon as possible."
-msgstr "Wir versuchen Ihnen so schnell wie möglich zu antworten."
+msgstr "Wir versuchen, Ihnen so schnell wie möglich zu antworten."
 
 msgid "Weak"
 msgstr "Schwach"
@@ -1597,7 +1595,7 @@ msgid "Whistleblower"
 msgstr "Hinweisgeber"
 
 msgid "Whistleblower's last access"
-msgstr "Letzer Zugriff des Hinweisgebers"
+msgstr "Letzter Zugriff des Hinweisgebers"
 
 msgid "Whistleblowing Policy"
 msgstr "Hinweisgeber Richtlinie"

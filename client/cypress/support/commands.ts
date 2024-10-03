@@ -87,7 +87,7 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
 Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
   password = password === undefined ? Cypress.env("user_password") : password;
-  url = url === undefined ? "#/admin/" : url;
+  url = url === undefined ? "#/admin" : url;
 
   let finalURL = "";
 
@@ -189,6 +189,8 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
 
     cy.waitForPageIdle();
 
+    cy.wait(500);
+
     if (locator && locator !== ".modal") {
       return cy.get(locator).screenshot("../" + filename, {overwrite: true, scale: true});
     }
@@ -196,14 +198,7 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     return cy.screenshot("../" + filename, {
       capture: "fullPage",
       overwrite: true,
-      scale: true,
-      /*onAfterScreenshot($el, props) {
-        cy.get("html, body").invoke(
-          "attr",
-          "style",
-          "height: 100%;"
-        );
-      }*/
+      scale: true
     });
   });
 });

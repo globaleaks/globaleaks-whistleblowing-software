@@ -11,7 +11,7 @@ Build-Depends:
   python3-setuptools,
   python3-sphinx
 Homepage: https://www.globaleaks.org/
-Vcs-Git: https://github.com/globaleaks/GlobaLeaks.git
+Vcs-Git: https://github.com/globaleaks/whistleblowing-software.git
 Standards-Version: 4.6.1
 
 Package: globaleaks

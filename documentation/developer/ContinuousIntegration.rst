@@ -5,7 +5,7 @@ The GlobaLeaks codebase is continuously tested for bug within a complete continu
 
 Testes are performed at every commit by:
 
-* performing continous integration testing with `GitHub Actions <https://github.com/globaleaks/GlobaLeaks/actions>`_;
+* performing continous integration testing with `GitHub Actions <https://github.com/globaleaks/whistleblowing-software/actions>`_;
 * tracking tests coverage and code quality with `Codacy <https://app.codacy.com/manual/GlobaLeaks/GlobaLeaks>`_.
 
 Unit Tests

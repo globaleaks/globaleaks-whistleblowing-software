@@ -37,7 +37,7 @@ export class SubStatusComponent implements OnInit {
     };
 
     this.http.post<any>(
-      `/api/admin/statuses/${this.submissionsStatus.id}/substatuses`,
+      `api/admin/statuses/${this.submissionsStatus.id}/substatuses`,
       newSubmissionsSubStatus
     ).subscribe(
       result => {
@@ -67,7 +67,7 @@ export class SubStatusComponent implements OnInit {
     const ids = this.submissionsStatus.substatuses.map((c: Substatus) => c.id);
 
     this.http.put<any>(
-      `/api/admin/statuses/${this.submissionsStatus.id}/substatuses`,
+      `api/admin/statuses/${this.submissionsStatus.id}/substatuses`,
       {
         operation: "order_elements",
         args: {ids: ids}

@@ -26,7 +26,7 @@
 # Eduardo Bonsi, 2013
 # Eduardo Bonsi, 2013-2014
 # fc2d9c36d73e741383fbbf46a4aac49f_013445b, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2015,2017-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2015,2017-2022,2024
 # Hamilton Junior Mendes Lopes <gigas_x_141@hotmail.com>, 2015
 # Hellen Cristina Silva <hlncrsilva@gmail.com>, 2015
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -124,11 +124,11 @@ msgstr "Administradores autorizados a mudar as palavra -passe dos utilizadores:"
 msgid "Advanced"
 msgstr "Avançado"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Permitir que o destinatário edite a data de expiração dos relatórios"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permitir que os destinatários apaguem as denúncias"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permitir o destinatário a postergar a data de expiração da submissão"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permitir que o denunciante adicione anexos"
@@ -229,8 +229,8 @@ msgstr "Antes de continuar, defina uma nova palavra-passe."
 msgid "Block the submission"
 msgstr "Bloquear a submissão"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Ao confirmar, adiará a data de expiração para:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Ao confirmar, irá editar a data de expiração para:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Ao confirmar, você definirá um lembrete na data:"
@@ -302,9 +302,6 @@ msgstr "Configurar"
 
 msgid "Confirm"
 msgstr "Confirmar"
-
-msgid "Confirmation"
-msgstr "Confirmação"
 
 msgid "Congratulations!"
 msgstr "Parabéns!"
@@ -439,6 +436,9 @@ msgstr "Primeira data selecionável"
 
 msgid "Edit"
 msgstr "Editar"
+
+msgid "Edit the expiration date"
+msgstr "Editar a data de expiração"
 
 msgid "Email"
 msgstr "E-mail"
@@ -937,9 +937,6 @@ msgstr "Observe que todos os dados associados serão excluídos permanentemente"
 
 msgid "Please select your account:"
 msgstr "Por favor, selecione a sua conta:"
-
-msgid "Postpone the expiration date"
-msgstr "Adiar a data de expiração"
 
 msgid "Preferences"
 msgstr "Preferências"

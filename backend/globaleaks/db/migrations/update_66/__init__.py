@@ -5,7 +5,6 @@ from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.utils.onion import generate_onion_service_v3
 from globaleaks.models.properties import *
-from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 
 
 class SubmissionSubStatus_v_65(Model):

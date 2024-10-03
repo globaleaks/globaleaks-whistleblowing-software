@@ -10,7 +10,7 @@
 # AO <ao@localizationlab.org>, 2016-2017
 # AO <ao@localizationlab.org>, 2016
 # AO <ao@localizationlab.org>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2023
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -122,11 +122,11 @@ msgstr "Administrateurs autorisés à changer les mots de passe des utilisateurs
 msgid "Advanced"
 msgstr "Avancés"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Permettre au destinataire de modifier la date d’expiration du signalement"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permettre au destinataire de supprimer des signalements"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permettre au destinataire de différer la date d’expiration du signalement"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permettre au lanceur d’alerte d’ajouter des fichiers joints"
@@ -165,7 +165,7 @@ msgid "Anonymize outgoing connections"
 msgstr "Anonymiser les connexions sortantes"
 
 msgid "Anonymous"
-msgstr "Anonymes"
+msgstr "Anonyme"
 
 msgid "Are you sure?"
 msgstr "Confirmez-vous ?"
@@ -216,27 +216,27 @@ msgid "Available disk space"
 msgstr "Espace disque disponible"
 
 msgid "Before proceeding please read carefully the documentation at:"
-msgstr "Avant de poursuivre, veuillez lire attentivement la documentation sur :"
+msgstr "Avant de poursuivre, lisez attentivement la documentation sur :"
 
 msgid "Before proceeding, please enable the two factor authentication."
-msgstr "Avant de poursuivre, veuillez activer l’authentification à deux facteurs."
+msgstr "Avant de poursuivre, activez l’authentification à deux facteurs."
 
 msgid "Before proceeding, please set a new password."
-msgstr "Avant de poursuivre, veuillez définir un nouveau mot de passe."
+msgstr "Avant de poursuivre, définissez un nouveau mot de passe."
 
 msgid "Block the submission"
 msgstr "Bloquer l’envoi"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "En confirmant, vous différerez la date d’expiration au :"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "En confirmant, vous modifiez la date d’expiration au :"
 
 msgid "By confirming, you will set a reminder on date:"
-msgstr "En confirmant, vous définirez un rappel pour cette date :"
+msgstr "En confirmant, vous définissez un rappel pour cette date :"
 
 msgid ""
 "By enabling this feature, you will contribute to the development and "
 "security of the platform."
-msgstr "En activant cette fonction, vous contribuerez au développement et la sécurité de la plateforme."
+msgstr "En activant cette fonction, vous contribuez au développement et la sécurité de la plateforme."
 
 msgid "Cancel"
 msgstr "Annuler"
@@ -301,9 +301,6 @@ msgstr "Configurer"
 msgid "Confirm"
 msgstr "Confirmer"
 
-msgid "Confirmation"
-msgstr "confirmation"
-
 msgid "Congratulations!"
 msgstr "Félicitations !"
 
@@ -355,7 +352,7 @@ msgstr "Plage de dates"
 msgid ""
 "Default mail configuration in use. Please consider using a private mail "
 "server."
-msgstr "La configuration de courriel par défaut est utilisée. Veuillez envisager d’utiliser un serveur privé de courriel."
+msgstr "La configuration de courriel par défaut est utilisée. Envisagez d’utiliser un serveur privé de courriel."
 
 msgid "Delete"
 msgstr "Supprimer"
@@ -437,6 +434,9 @@ msgstr "Date la plus ancienne possible"
 
 msgid "Edit"
 msgstr "Modifier"
+
+msgid "Edit the expiration date"
+msgstr "Modifier la date d’expiration"
 
 msgid "Email"
 msgstr "Courriel"
@@ -655,7 +655,7 @@ msgstr "Si vous souhaitez obtenir du soutien technique, si avez des questions d�
 msgid ""
 "If you want to contribute to software development or report a bug, please "
 "open an issue in our ticketing system:"
-msgstr "Si vous souhaitez participer au développement du logiciel ou signaler un bogue, veuillez créer un ticket de problème dans notre système de suivi :"
+msgstr "Si vous souhaitez participer au développement du logiciel ou signaler un bogue, créez un ticket de problème dans notre système de suivi :"
 
 msgid "Image"
 msgstr "Image"
@@ -755,7 +755,7 @@ msgstr "Faible"
 msgid ""
 "Make a copy and store it in a safe place. It will be necessary if you lose "
 "your password to recover the access to your account without data loss."
-msgstr "Copiez-la et gardez-la en lieu sûr. Si vous perdiez votre mot de passe, vous en auriez besoin afin de recouvrer l’accès à votre compte, sans perte de données."
+msgstr "Copiez-la et gardez-la en lieu sûr. Si vous perdez votre mot de passe, vous en aurez besoin afin de recouvrer l’accès à votre compte, sans perte de données."
 
 msgid "Make it possible for this admin to reset user passwords."
 msgstr "Donner à cet administrateur la possibilité de réinitialiser les mots de passe."
@@ -922,22 +922,19 @@ msgid "Platform wizard"
 msgstr "Assistant de la plateforme"
 
 msgid "Please check your inbox for further instructions."
-msgstr "Veuillez vérifier votre boîte de réception pour de plus amples instructions."
+msgstr "Vérifiez votre boîte de réception pour de plus amples instructions."
 
 msgid "Please choose a configuration profile:"
-msgstr "Veuillez choisir un profil de configuration :"
+msgstr "Choisissez un profil de configuration :"
 
 msgid "Please choose a different username."
-msgstr "Veuillez choisir un nom d’utilisateur différent."
+msgstr "Choisissez un nom d’utilisateur différent."
 
 msgid "Please note that all the associated data will be permanently deleted."
-msgstr "Veuillez noter que toutes les données associées seront irrémédiablement supprimées."
+msgstr "Notez que toutes les données associées seront irrémédiablement supprimées."
 
 msgid "Please select your account:"
-msgstr "Veuillez sélectionner votre compte :"
-
-msgid "Postpone the expiration date"
-msgstr "Différer la date d’expiration"
+msgstr "Sélectionnez votre compte :"
 
 msgid "Preferences"
 msgstr "Préférences"
@@ -1439,7 +1436,7 @@ msgid "This field is mandatory"
 msgstr "Ce champ est obligatoire"
 
 msgid "This is a demo platform, please do not use it for real submissions."
-msgstr "Ceci est une plateforme de démonstration. Veuillez ne pas l’utiliser pour des envois réels."
+msgstr "Ceci est une plateforme de démonstration. Ne l’utilisez pas pour des envois réels."
 
 msgid "This user has not performed the first login yet."
 msgstr "Cet utilisateur ne s’est pas encore connecté pour la première fois."
@@ -1648,10 +1645,10 @@ msgid "percentage"
 msgstr "pourcentage"
 
 msgid "please enter a valid email address."
-msgstr "veuillez saisir une adresse courriel valide."
+msgstr "Saisissez une adresse courriel valide."
 
 msgid "please enter numbers only."
-msgstr "veuillez ne saisir que des chiffres."
+msgstr "Ne saisissez que des chiffres."
 
 msgid "seconds"
 msgstr "secondes"
@@ -1663,7 +1660,7 @@ msgid "Select a reporting channel:"
 msgstr "Sélectionner un canal de signalement :"
 
 msgid "Please summarize your report in a few words."
-msgstr "Veuillez résumer votre signalement en quelques mots."
+msgstr "Résumez votre signalement en quelques mots."
 
 msgid "Describe your report in detail."
 msgstr "Décrivez votre signalement en détail."
@@ -1696,10 +1693,10 @@ msgid "Do you have evidence to support your report?"
 msgstr "Avez-vous une preuve pour étayer votre signalement ?"
 
 msgid "Please attach the evidence to support your report."
-msgstr "Veuillez joindre la preuve pour étayer votre signalement."
+msgstr "Joignez la preuve pour étayer votre signalement."
 
 msgid "Please describe the evidence in detail."
-msgstr "Veuillez décrire la preuve en détail."
+msgstr "Décrivez la preuve en détail."
 
 msgid ""
 "A thorough description of the submitted evidence enhances our ability to "
@@ -1713,7 +1710,7 @@ msgstr "Avez-vous signalé les faits à d’autres organismes ou personnes ?"
 msgid ""
 "Please list the organizations and/or individuals you have informed about "
 "these facts."
-msgstr "Veuillez indiquer les organismes et personnes à qui vous avez signalé ces faits."
+msgstr "Indiquez les organismes et personnes à qui vous avez signalé ces faits."
 
 msgid ""
 "Have these organizations investigated your claims? If so, what was the "
@@ -1761,7 +1758,7 @@ msgstr "Lien d’activation : {Url}"
 msgid ""
 "Please click on the activation link to proceed with the account activation "
 "and to set your user password."
-msgstr "Veuillez cliquer sur le lien d’activation afin de poursuivre l’activation du compte et définir votre mot de passe d’utilisateur."
+msgstr "Cliquez sur le lien d’activation afin de poursuivre l’activation du compte et définissez votre mot de passe d’utilisateur."
 
 msgid ""
 "After successful activation you will be able to access the system via the "
@@ -1816,7 +1813,7 @@ msgstr "Le serveur ne peut pas garantir qu’un nouveau signalement peut être e
 msgid ""
 "Please consider asking your technical support to create more disk space on "
 "the server."
-msgstr "Veuillez envisager de demander à votre soutien technique de créer de l’espace disque sur le serveur."
+msgstr "Envisagez de demander à votre soutien technique de créer de l’espace disque sur le serveur."
 
 msgid ""
 "GlobaLeaks technology includes a server status checking component which will"
@@ -2026,7 +2023,7 @@ msgstr "Les nouvelles fonctions et les correctifs de bogues de la nouvelle versi
 msgid ""
 "For instructions on software updates, please refer to the documentation at: "
 "{UpdateGuideUrl}"
-msgstr "Pour obtenir des instructions de mise à jour logicielle, veuillez consulter la documentation : {UpdateGuideUrl}"
+msgstr "Pour obtenir des instructions de mise à jour logicielle, consultez la documentation : {UpdateGuideUrl}"
 
 msgid ""
 "This is an email to notify you that a recipient has granted you access to "

@@ -19,7 +19,6 @@ describe("acquire screenshots necessary for user documentation - Admin Section",
     cy.takeScreenshot("admin/site_settings_logo_detail", "#Content");
 
     cy.get('[data-cy="files"]').first().click();
-    cy.wait(500)
     cy.takeScreenshot("admin/site_settings_files");
 
     cy.get('[data-cy="languages"]').first().click();
@@ -42,6 +41,9 @@ describe("acquire screenshots necessary for user documentation - Admin Section",
 
     cy.get('[data-cy="question_templates"]').first().click();
     cy.takeScreenshot("admin/question_templates");
+
+    cy.get("#admin_channels").first().click();
+    cy.takeScreenshot("admin/channels");
 
     cy.get("#admin_case_management").first().click();
     cy.takeScreenshot("admin/report_statuses");
@@ -98,7 +100,6 @@ describe("Acquire screenshots necessary for user documentation - Custodian Secti
     cy.login_custodian();
     cy.takeScreenshot("custodian/home");
     cy.get("#custodian_requests").first().click();
-    cy.wait(500);
     cy.takeScreenshot("custodian/requests");
     cy.logout();
   });

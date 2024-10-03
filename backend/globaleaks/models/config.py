@@ -162,6 +162,7 @@ def initialize_config(session, tid, mode):
             variables[name] = root_tenant_node[name]
 
     variables['url_file_analysis'] = 'http://localhost/api/v1/scan'
+    variables['global_stat_pub_key'] = ''
 
     for name, value in variables.items():
         session.add(Config({'tid': tid, 'var_name': name, 'value': value}))

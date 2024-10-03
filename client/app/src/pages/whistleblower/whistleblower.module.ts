@@ -11,7 +11,6 @@ import {
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SubmissionComponent} from "@app/pages/whistleblower/submission/submission.component";
 import {ContextSelectionComponent} from "@app/pages/whistleblower/context-selection/context-selection.component";
-import {SubmissionErrorComponent} from "@app/pages/whistleblower/submission-error/submission-error.component";
 import {StepErrorComponent} from "@app/pages/whistleblower/step-error/step-error.component";
 import {
   StepErrorEntryComponent
@@ -39,7 +38,6 @@ import {
     WhistleblowerIdentityComponent,
     SubmissionComponent,
     ContextSelectionComponent,
-    SubmissionErrorComponent,
     StepErrorComponent,
     StepErrorEntryComponent,
     ReceiverSelectionComponent,

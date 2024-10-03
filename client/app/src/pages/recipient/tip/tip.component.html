@@ -11,7 +11,7 @@
             </span>
             <span id="tip-action-reminder" (click)="setReminder()" data-toggle="tooltip"
                 title="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-                <i class="fa-solid" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': utils.isNever(tip.reminder_date), 'text-warning': utils.isDatePassed(tip.reminder_date)}"></i>
+                <i class="fa-solid" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
             </span>
             <span id="tip-action-notify" *ngIf="tip && !tip.enable_notifications" (click)="tipNotify(true)"
                 data-toggle="tooltip" title="{{'Turn on email notifications' | translate}}"

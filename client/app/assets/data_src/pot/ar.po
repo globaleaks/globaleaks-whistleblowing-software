@@ -1,0 +1,2086 @@
+# 
+# Translators:
+# 246d1139de69599774b6470f9985ef39_d892e0d <60b88f371afdc474c95db754c714c9ed_161423>, 2014
+# a96921fef9a72b1bcbac1fc92cca715a, 2015
+# ِAbu <elsahookie@gmail.com>, 2013
+# Ahmed Essam, 2020
+# Ahmed Essam, 2020
+# Ali <alimahwer@yahoo.com>, 2023
+# amine_Acess <amine@accessnow.org>, 2013
+# amine_Acess <amine@accessnow.org>, 2013
+# Amin Jobran, 2017
+# Amin Jobran, 2017
+# Arabic Editorial Team <arabic-ed@amnesty.org>, 2015
+# 246d1139de69599774b6470f9985ef39_d892e0d <60b88f371afdc474c95db754c714c9ed_161423>, 2014
+# 246d1139de69599774b6470f9985ef39_d892e0d <60b88f371afdc474c95db754c714c9ed_161423>, 2014
+# 246d1139de69599774b6470f9985ef39_d892e0d <60b88f371afdc474c95db754c714c9ed_161423>, 2014
+# Ashraf Damra <dr.d.ashraf@gmail.com>, 2015
+# b33a4006134bb6ee62b30fc0fac5cec6, 2014
+# b665ec457f7dbc468840c2b55b7422d3_ad81431 <382f1c68613d5cfe601c75d66e8ff0dd_51600>, 2013
+# nawaat <contact@nawaat.org>, 2014
+# Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2014
+# Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2014
+# Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2014
+# ِAbu <elsahookie@gmail.com>, 2013
+# a96921fef9a72b1bcbac1fc92cca715a, 2015
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024
+# b665ec457f7dbc468840c2b55b7422d3_ad81431 <382f1c68613d5cfe601c75d66e8ff0dd_51600>, 2013
+# harmony, 2013
+# harmony, 2013
+# Hassen Aouali <fozbalnetwork@gmail.com>, 2021
+# b33a4006134bb6ee62b30fc0fac5cec6, 2014
+# b33a4006134bb6ee62b30fc0fac5cec6, 2014
+# b33a4006134bb6ee62b30fc0fac5cec6, 2014
+# lamine Kacimi <k_lamine27@yahoo.fr>, 2015
+# lamine Kacimi <k_lamine27@yahoo.fr>, 2015
+# mohammad ali <ilir95palira@gmail.com>, 2017
+# Muhammad Elghdban <Mohamed.Elghdban@gmail.com>, 2020
+# Muhammad Elghdban <Mohamed.Elghdban@gmail.com>, 2020,2023-2024
+# Muna Hemoudi, 2021
+# Muna Hemoudi, 2021
+# nawaat <contact@nawaat.org>, 2014
+# ouss <oussjarrouse@gmail.com>, 2016
+# ouss <oussjarrouse@gmail.com>, 2016
+# ArchLord, 2013-2014
+# Raed667, 2013
+# Raed667, 2013-2015
+# Raed667, 2013
+# Rima Sghaier, 2015-2018
+# Rima Sghaier, 2019-2020
+# Rima Sghaier, 2020
+# Rima Sghaier, 2019
+# b665ec457f7dbc468840c2b55b7422d3_ad81431 <382f1c68613d5cfe601c75d66e8ff0dd_51600>, 2013
+# b665ec457f7dbc468840c2b55b7422d3_ad81431 <382f1c68613d5cfe601c75d66e8ff0dd_51600>, 2013
+msgid ""
+msgstr ""
+"Project-Id-Version: GlobaLeaks\n"
+"PO-Revision-Date: 2013-05-29 17:59+0000\n"
+"Last-Translator: Muhammad Elghdban <Mohamed.Elghdban@gmail.com>, 2020,2023-2024\n"
+"Language-Team: Arabic (http://app.transifex.com/otf/globaleaks/language/ar/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"mime-version: 1.0\n"
+
+msgid "0 = auto"
+msgstr "0= أوتوماتيكي"
+
+msgid "Accept multiple answers"
+msgstr "قبول اجابات متعددة"
+
+msgid "Accept multiple file uploads"
+msgstr "قبول رفع ملفات متعددة"
+
+msgid "Acceptable"
+msgstr "مقبول"
+
+msgid "Access control"
+msgstr "سيطرة الوصول"
+
+msgid "Access date"
+msgstr "تاريخ الوصول"
+
+msgid "Access requested"
+msgstr "مطلوب النفاذ"
+
+msgid ""
+"Access to the whistleblower's identity has been requested to the custodian."
+msgstr "تمّ طلب الحصول على هوية المبلغ من الوصيّ."
+
+msgid "Account recovery key"
+msgstr "مفتاح استرداد الحساب"
+
+msgid "Act on behalf of a whistleblower"
+msgstr "اعمل بالنيابة عن مخبر."
+
+msgid "Activities"
+msgstr "الأنشطة"
+
+msgid "Add"
+msgstr "أضف"
+
+msgid "Add custom text"
+msgstr "اضافة نص مخصص"
+
+msgid "Add multimedia content"
+msgstr "أصف محتوى وسائط متعددة"
+
+msgid "Add new question"
+msgstr "إضافة سؤال جديد"
+
+msgid "Add new questionnaire"
+msgstr "أضف استطلاعا جديدا"
+
+msgid "Add question from template"
+msgstr "إضافة سؤال من نموذج"
+
+msgid "Addition"
+msgstr "الإضافة"
+
+msgid "Additional questionnaire"
+msgstr "الاستبيان اﻹضافي"
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "Admin"
+msgstr "مشرف"
+
+msgid "Administrators authorized to change user passwords:"
+msgstr "المسؤولون المفوضون لتغيير كلمات مرور المستخدم:"
+
+msgid "Advanced"
+msgstr "متقدم"
+
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
+msgid "Allow the recipient to delete reports"
+msgstr "السماح للمتلقين بحذف البلاغات"
+
+msgid "Allow the whistleblower to add attachments"
+msgstr "السّماح للمبلغين باضافة مرفقات إلى البلاغ"
+
+msgid "Allow the whistleblower to write comments"
+msgstr "تمكين المبلغ من كتابة تعليقات"
+
+msgid "Allow this user to reopen management of a report"
+msgstr "اسمح لهذا المستخدم بإعادة فتح إدارة هذا التقرير."
+
+msgid "Allow users to sign up"
+msgstr "السماح للمستخدمين بالاشتراك"
+
+msgid "Allow whistleblowers to select their recipients"
+msgstr "السماح للمبلغين بتحديد متلقّيهم"
+
+msgid "Allowed IP addresses"
+msgstr "عناوين بروتوكول الانترنت المسموح بها"
+
+msgid "An update is available:"
+msgstr "هنالك تحديث متوفّر:"
+
+msgid "Analyst"
+msgstr "محلل"
+
+msgid "Anomalies"
+msgstr "الحالات الشاذّة"
+
+msgid "Anomaly detection thresholds"
+msgstr "عتبات كشف الانحرافات"
+
+msgid "Anonymity"
+msgstr "نعم"
+
+msgid "Anonymize outgoing connections"
+msgstr "إخفاء هوية الاتصالات الصادرة"
+
+msgid "Anonymous"
+msgstr "مجهول"
+
+msgid "Are you sure?"
+msgstr "هل أنت متأكد؟"
+
+msgid "Assign score points"
+msgstr "تخصيص نقاط المجموع"
+
+msgid "Assigned to"
+msgstr "تعيين لـ"
+
+msgid "Attachment"
+msgstr "مرفق"
+
+msgid "Attachments"
+msgstr "مرفقات"
+
+msgid "Attention"
+msgstr "انتباه"
+
+msgid "Audio"
+msgstr "الصوت"
+
+msgid "Audit log"
+msgstr "سجل التدقيق"
+
+msgid "Authentication failed"
+msgstr "فشلت المصادقة."
+
+msgid "Authorization"
+msgstr "تفويض"
+
+msgid "Authorize"
+msgstr "تفويض"
+
+msgid "Authorize access to the whistleblower's identity"
+msgstr "السماح بالنفاذ الى هوية المبلغ"
+
+msgid "Authorized"
+msgstr "مسموح به"
+
+msgid "Auto-renewal"
+msgstr "تجديد تلقائي"
+
+msgid "Automatic configuration"
+msgstr "الترتيب التلقائي"
+
+msgid "Available disk space"
+msgstr "المساحة المتوفرة على القرص"
+
+msgid "Before proceeding please read carefully the documentation at:"
+msgstr "قبل المتابعة، يرجى قراءة التوثيق جيدا في:"
+
+msgid "Before proceeding, please enable the two factor authentication."
+msgstr "قبل المتابعة، يرجى تمكين الإستيثاق ذو المعاملين."
+
+msgid "Before proceeding, please set a new password."
+msgstr "قبل المتابعة، يرجى تغيير كلمة المرور الخاصة بك."
+
+msgid "Block the submission"
+msgstr "أوقف البلاغ"
+
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
+
+msgid "By confirming, you will set a reminder on date:"
+msgstr "عند الموافقة، سيتم ضبط مُنبّهٍ على التاريخ:"
+
+msgid ""
+"By enabling this feature, you will contribute to the development and "
+"security of the platform."
+msgstr "بتفعيل هذه الميزة سوف تساهم في تطوير و أمن المنصة."
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Case management"
+msgstr "إدارة حالة"
+
+msgid "Certificate"
+msgstr "شهادة"
+
+msgid "Certificate Signing Request"
+msgstr "طلب توقيع الشهادة  "
+
+msgid "Change status"
+msgstr "تغيير الحالة"
+
+msgid "Change your password"
+msgstr "تغيير كلمة المرور"
+
+msgid "Changelog"
+msgstr "سجلّ التغييرات "
+
+msgid "Channel"
+msgstr "القناة"
+
+msgid "Channels"
+msgstr "القنوات"
+
+msgid "Check your inbox to activate it."
+msgstr "قم بتفقد بريدك الإلكتروني من أجل التفعيل."
+
+msgid "Checkbox"
+msgstr "خانة الاختيار"
+
+msgid "Checkbox label"
+msgstr "عنوان خانة الإختيار"
+
+msgid "City"
+msgstr "المدينة"
+
+msgid "Close"
+msgstr "‮إغلاق"
+
+msgid "Closed"
+msgstr "مغلق"
+
+msgid "Collapse"
+msgstr "طي"
+
+msgid "Column"
+msgstr "عمود"
+
+msgid "Comments"
+msgstr "تعليقات"
+
+msgid "Computer"
+msgstr "كمبيوتر"
+
+msgid "Configure"
+msgstr "اضبط"
+
+msgid "Confirm"
+msgstr "تأكيد "
+
+msgid "Congratulations!"
+msgstr "تهانينا!"
+
+msgid "Copy to clipboard"
+msgstr "نسخ إلى الحافظة"
+
+msgid "Country"
+msgstr "الدولة"
+
+msgid "Country code"
+msgstr "مفتاح الدّولة"
+
+msgid "Creation date"
+msgstr "تاريخ الانشاء"
+
+msgid "Creation date:"
+msgstr "تاريخ الإنشاء:"
+
+msgid "Current password"
+msgstr "كلمة السر الحالية"
+
+msgid "Custodian"
+msgstr " الحارس"
+
+msgid "Custom"
+msgstr "مخصص"
+
+msgid "Custom privacy panel"
+msgstr "مخصص لوحة الخصوصية"
+
+msgid "Custom support URL"
+msgstr "عنوان URL المخصص للدعم"
+
+msgid "Custom text"
+msgstr "نص مخصص"
+
+msgid "Custom translation"
+msgstr "الترجمة المخصصة"
+
+msgid "Date"
+msgstr "تاريخ "
+
+msgid "Date of the request"
+msgstr "تاريخ الطلب"
+
+msgid "Date range"
+msgstr "نطاق التاريخ"
+
+msgid ""
+"Default mail configuration in use. Please consider using a private mail "
+"server."
+msgstr "التكوين الافتراضي للبريد قيد الاستخدام. يرجى اعتبار استخدام خادم بريد خاص."
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Denied"
+msgstr "مرفوض"
+
+msgid "Deny"
+msgstr "رفض"
+
+msgid "Deny access to the whistleblower's identity"
+msgstr "رفض النفاذ الى هوية المبلغ"
+
+msgid "Description"
+msgstr "وصف"
+
+msgid "Deselect"
+msgstr "الغاء الاختيار"
+
+msgid "Deselect all"
+msgstr "الغاء كل الاختيارات"
+
+msgid "Details"
+msgstr "تفاصيل"
+
+msgid "Details of the PGP key:"
+msgstr "تفاصيل مفتاح PGP:"
+
+msgid "Devices"
+msgstr "الأجهزة"
+
+msgid "Disable"
+msgstr "إلغاء"
+
+msgid "Disable notifications to administrators"
+msgstr "تعطيل الإشعارات للاداريين"
+
+msgid "Disable notifications to custodians"
+msgstr "تعطيل الإشعارات للحامين"
+
+msgid "Disable notifications to recipients"
+msgstr "تعطيل الإشعارات للمستلمين"
+
+msgid "Disable submissions"
+msgstr "منع البلاغات"
+
+msgid "Disable the privacy panel"
+msgstr "تعطيل شارة الخصوصية"
+
+msgid "Disable two factor authentication"
+msgstr "إلغاء تفعيل الإستيثاق ذي المعاملين"
+
+msgid "Disabled"
+msgstr "غير مفعل"
+
+msgid "Disclaimer"
+msgstr "إخلاء مسؤولية"
+
+msgid "Display options alphabetically"
+msgstr "إظهار الخيارات بترتيب أبجدي"
+
+msgid "Download"
+msgstr "تنزيل"
+
+msgid "Download copy of the Privacy Policy"
+msgstr "قم بتنزيل نسخة من سياسة الخصوصية"
+
+msgid "Download the Tor Browser"
+msgstr "تحميل متصفح Tor ."
+
+msgid "Duplicate"
+msgstr "تكرير"
+
+msgid "Each entry must be separated with a comma."
+msgstr "يجب أن يكون كل إدخال مفصولا بفاصلة إنجليزية"
+
+msgid "Earliest selectable date"
+msgstr "أقرب تاريخ للاختيار"
+
+msgid "Edit"
+msgstr "تحرير"
+
+msgid "Edit the expiration date"
+msgstr "تأجيل تاريخ نهاية الصلوحية"
+
+msgid "Email"
+msgstr "بريد إلكتروني"
+
+msgid "Email address"
+msgstr "بريد إلكتروني"
+
+msgid "Enable"
+msgstr "تمكين"
+
+msgid "Enable PGP"
+msgstr "تمكين التشفير PGP"
+
+msgid "Enable administrators to change user passwords"
+msgstr "تمكين المدراء من تغيير كلمات سر المستخدمين"
+
+msgid "Enable custom privacy panel"
+msgstr "تمكين شريط الخصوصيّة المخصّص"
+
+msgid "Enable email notifications"
+msgstr "تمكين اشعارات البريد الإلكتروني"
+
+msgid "Enable email notifications for:"
+msgstr "تمكين اشعارات البريد الالكتروني الى :"
+
+msgid "Enable encryption"
+msgstr "تمكين التعمية"
+
+msgid "Enable scoring system"
+msgstr "تمكين نظام تسجيل النقاط"
+
+msgid "Enable search engines indexing"
+msgstr "تفعيل فهرسة محركات البحث"
+
+msgid "Enable simplified login"
+msgstr "تمكين تسجيل دخول مبسط"
+
+msgid "Enable terms of service"
+msgstr "تمكين شروط الخدمة"
+
+msgid "Enable two factor authentication"
+msgstr "فعّل الاستيثاق ذي المعاملين"
+
+msgid "Enabled"
+msgstr "مفعل"
+
+msgid "Enter a name for the copy"
+msgstr "أدخل اسما من أجل النسخة"
+
+msgid "Enter the two factor authentication code"
+msgstr "أدخل رمز الاستيثاق ذي المعاملين"
+
+msgid ""
+"Enter your account recovery key to complete the password reset procedure"
+msgstr "قم بإدخال مفتاح استعادة الحساب لإكمال إجراء تعيين كلمة المرور"
+
+msgid ""
+"Enter your account's username or your email address to request a password "
+"reset."
+msgstr "قم بكتابة إسم المستخدم أو عنوان البريد الإلكتروني الخاص بالحساب من أجل طلب إعادة تعيين كلمة المرور."
+
+msgid "Enter your email address to request a password reset."
+msgstr "قم بكتابة عنوان البريد الإلكتروني من أجل طلب إعادة تعيين كلمة السر."
+
+msgid "Error on input validation"
+msgstr "خطأ في التحقق من صحة الإدخال"
+
+msgid "Error!"
+msgstr "خطأ!"
+
+msgid "Everyone"
+msgstr "الجميع"
+
+msgid "Example:"
+msgstr "مثال"
+
+msgid "Expand"
+msgstr "تمديد"
+
+msgid "Expiration date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Export"
+msgstr "إخراج"
+
+msgid "File size"
+msgstr "حجم الملف"
+
+msgid "File size not accepted."
+msgstr "حجم الملف غير مقبول."
+
+msgid "Filename"
+msgstr "إسم الملف"
+
+msgid "Files"
+msgstr "الملفّات"
+
+msgid "Files attached by recipients"
+msgstr "الملفات المرفقة من قبل المتلقّين"
+
+msgid "Fill the additional questionnaire"
+msgstr "قم بإكمال الاستبيان الإضافي,"
+
+msgid "Fingerprint"
+msgstr "بصمة المفتاح العلني"
+
+msgid "First"
+msgstr "اﻷول"
+
+msgid "Fiscal code"
+msgstr "الكود الضريبي"
+
+msgid "Footer"
+msgstr "ذيل الصفحة "
+
+msgid "For security reasons the code needs to be changed."
+msgstr "لأغراض أمنية يجب تغيير الرمز."
+
+msgid ""
+"For security reasons, password changes are required at regular intervals."
+msgstr "يستلزم تغيير كلمة السر على فترات منتظمة لأسباب أمنية."
+
+msgid "For the user documentation, visit:"
+msgstr "للاطلاع على وثائق المستخدم، قم بزيارة:"
+
+msgid "Forbidden operation"
+msgstr "العملية ممنوعة"
+
+msgid "Force password change"
+msgstr " الاجبار على تغيير كلمة المرور "
+
+msgid "Forcefully selected"
+msgstr "مختارة بالقوّة"
+
+msgid "Forgot password?"
+msgstr "نسيت كلمة السر؟"
+
+msgid "From"
+msgstr "من"
+
+msgid "From:"
+msgstr "من:"
+
+msgid "Generate"
+msgstr "توليد"
+
+msgid "Give the user administrative access to the following features:"
+msgstr "امنح المستخدم حق الوصول المطلق إلى الميزات التالية:"
+
+msgid "Give this admin ability to change user passwords"
+msgstr "إعطاء هذا المشرف القدرة على تغيير كلمات سر المستخدم"
+
+msgid "Give this user ability to grant user access to reports"
+msgstr "منح المستخدِم الحق في منح إذن الوصول إلى التقارير لمستخدِمين آخرين"
+
+msgid "Give this user ability to mask information"
+msgstr "مكِّن المستخدِم من حجب المعلومات"
+
+msgid "Give this user ability to permanently redact masked information"
+msgstr "مكِّن المستخدِم من تعمية المعلومات المحجوبة بشكل دائم"
+
+msgid "Give this user ability to transfer reports to other users"
+msgstr "منح المستخدِم إمنح المستخدِم الحق نقل التقارير لمستخدِمين آخرين"
+
+msgid "Grant access"
+msgstr "السماح بالوصول"
+
+msgid "Group of questions"
+msgstr "مجموعة من الأسئلة"
+
+msgid "Have you already filed a report? Enter your receipt."
+msgstr "هل قدمت بلاغا سابقا؟ أدخل رقم البلاغ."
+
+msgid "Hidden"
+msgstr "‮مخفي"
+
+msgid "Hide"
+msgstr "إخفاء"
+
+msgid "High"
+msgstr "عالٍ"
+
+msgid "Hint"
+msgstr "تلميح"
+
+msgid "Home"
+msgstr "الصفحة الرئيسية"
+
+msgid "Homepage title"
+msgstr "عنوان الصفحة الرئيسية"
+
+msgid "Hostname"
+msgstr "اسم المضيف"
+
+msgid "I have read and agree to the terms of the license."
+msgstr "لقد قرأت ووافقت على الشروط الخاصّة بالترخيص."
+
+msgid "I've read and accept the Privacy Policy"
+msgstr "لقد قرأت و قبلت سياسة الخصوصية"
+
+msgid "ID"
+msgstr "المُعرِّف"
+
+msgid "Identity"
+msgstr "الهوية"
+
+msgid ""
+"If not activated within 24 hours the platform will be automatically deleted."
+msgstr "إذا لم يتم التفعيل في خلال 24 ساعة، سيتم حذف هذه المنصة تلقائيًا."
+
+msgid ""
+"If you need technical support, have general questions, or have new ideas for"
+" the software:"
+msgstr "إذا كنت بحاجة إلى الدعم التقني أو لديك أسئلة عامة أو أفكار جديدة للبرنامج:"
+
+msgid ""
+"If you want to contribute to software development or report a bug, please "
+"open an issue in our ticketing system:"
+msgstr "إذا كنت ترغب في المساهمة في تطوير البرمجيّة أو الإبلاغ عن عطب، يرجى التدوين على نظام التذاكر على Github:"
+
+msgid "Image"
+msgstr "صورة"
+
+msgid "Import"
+msgstr "إدخال"
+
+msgid ""
+"In this step the answers to the following questions are either missing or "
+"invalid:"
+msgstr " بهذه الخطوة , الإجابات على هذه الأسئلة مفقودة أو غير صالحة:"
+
+msgid "Initially anonymous"
+msgstr "مجهول الهوية مبدئيًا"
+
+msgid "Input validation"
+msgstr "التحقق من صحة المدخلات"
+
+msgid "Install an authenticator app on your phone"
+msgstr "تثبيت تطبيق استيثاقي على هاتفك"
+
+msgid "Intermediate Certificates"
+msgstr "شهادات الوساطة"
+
+msgid "Internal server error"
+msgstr "خطأ داخلي في الخادم"
+
+msgid "Invalid confirmation"
+msgstr "تأكيد غير صالح"
+
+msgid "Invalid email address"
+msgstr "عنوان بريد إلكتروني غير صحيح"
+
+msgid "Invalid phone number"
+msgstr "رقم هاتف غير صالح"
+
+msgid "Issuer:"
+msgstr "المُصدِر:"
+
+msgid "Join our chat:"
+msgstr "انضم إلى دردشتنا:"
+
+msgid "Label"
+msgstr "التسمية"
+
+msgid "Label the report"
+msgstr "صنّف البلاغ"
+
+msgid "Language"
+msgstr "لغة"
+
+msgid "Language:"
+msgstr "اللغة:"
+
+msgid "Languages"
+msgstr "اللغات"
+
+msgid "Last"
+msgstr "اﻷخير"
+
+msgid "Last Access"
+msgstr "النفاذ الأخير"
+
+msgid "Last access"
+msgstr "آخر دخول"
+
+msgid "Last update"
+msgstr "آخر تحديث"
+
+msgid "Latest selectable date"
+msgstr "آخر تاريخ للاختيار"
+
+msgid "Let the platform be reachable without Tor"
+msgstr "اسمح للمنصّة بأن تكون قابلة للوصول بدون Tor"
+
+msgid "License"
+msgstr "الترخيص"
+
+msgid "Log accesses of internal users"
+msgstr "تسجيل بيانات دخول المستخدمين الداخليين"
+
+msgid "Log in"
+msgstr "اتّصال"
+
+msgid "Logging level"
+msgstr "مستوى التسجيل"
+
+msgid "Logo"
+msgstr "الشعار "
+
+msgid "Logout"
+msgstr "تسجيل الخروج"
+
+msgid "Low"
+msgstr "منخفض"
+
+msgid ""
+"Make a copy and store it in a safe place. It will be necessary if you lose "
+"your password to recover the access to your account without data loss."
+msgstr "اعمل نسخة منه وخزنها فى مكان آمن. اذا فقدت كلمة السر سيكون مهما لاسترداد الدخول إلى حسابك دون فقدان أى بيانات."
+
+msgid "Make it possible for this admin to reset user passwords."
+msgstr "اجعل من الممكن لهذا المسئول أن يقوم بإعادة تعيين كلمة مرور المستخدم."
+
+msgid "Mandatory"
+msgstr "مطلوب"
+
+msgid "Manual configuration"
+msgstr "التهيئة اليدوية"
+
+msgid "Mark as important"
+msgstr "تحديد كهام."
+
+msgid "Mask"
+msgstr "إخفاء"
+
+msgid "Max"
+msgstr "اقصى"
+
+msgid "Maximum file size is:"
+msgstr "الحد الأقصى لحجم الملف هو:"
+
+msgid "Maximum number of input characters"
+msgstr "الحد الأقصى لعدد الرموز المدخلة"
+
+msgid "Maximum number of selectable recipients:"
+msgstr "الحد الأقصى لعدد المتلقين الذي يمكن اختياره :"
+
+msgid "Me only"
+msgstr "أنا فقط"
+
+msgid "Medium"
+msgstr "متوسط"
+
+msgid "Min"
+msgstr "الحد الأدنى"
+
+msgid "Minimum number of input characters"
+msgstr "الحد الأدنى لعدد الرموز المدخلة"
+
+msgid "Mobile"
+msgstr "الهاتف النقّال"
+
+msgid "Mode:"
+msgstr "الوضع:"
+
+msgid "Motivation"
+msgstr "الدوافع"
+
+msgid "Move down"
+msgstr "حرك الى الاسفل"
+
+msgid "Move left"
+msgstr "حرك الى اليسار"
+
+msgid "Move right"
+msgstr "حرك الى اليمين"
+
+msgid "Move up"
+msgstr "حرك الى الاعلى"
+
+msgid "Multi-line text input"
+msgstr "إدخال نص متعدد الأسطر"
+
+msgid "Multiple choice input"
+msgstr "إدخال متعدد الاختيارات"
+
+msgid "Multiplier"
+msgstr "المضاعفة"
+
+msgid "Name"
+msgstr "اسم"
+
+msgid "Network"
+msgstr "الشبكة"
+
+msgid "New"
+msgstr "‮جديد"
+
+msgid "New password"
+msgstr "كلمة السر الجديدة"
+
+msgid "New request"
+msgstr "طلب جديد"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "No"
+msgstr "لا"
+
+msgid "None"
+msgstr "لا شيء"
+
+msgid "Not provided."
+msgstr "لم يتم توفيره."
+
+msgid "Notifications"
+msgstr "التنبيهات"
+
+msgid "Notify administrators of software problems"
+msgstr "نبّه المديرين الى أعطاب البرمجيّة"
+
+msgid "Notify developers of software problems"
+msgstr "نبّه المطوّرين الى أعطاب برمجيّة"
+
+msgid "Now type your password, then click 'Log in':"
+msgstr "الآن اكتب كلمة العبور الخاصة بك، ثم انقر على \"تسجيل الدخول\":"
+
+msgid "Number"
+msgstr "رقم"
+
+msgid "Number of days till notifying unread reports to users"
+msgstr "عدد الأيام حتى إبلاغ التقارير غير المقروءة للمستخدمين"
+
+msgid "Number of downloads"
+msgstr "عدد التحميلات"
+
+msgid "Number of hours before sending a report expiration alert"
+msgstr "عدد الساعات قبل إرسال تنبيه بانقضاء مدة البلاغ"
+
+msgid "Object"
+msgstr "الغرض"
+
+msgid ""
+"One or more recipients have not performed the first login yet. This means "
+"they won't be receiving reports."
+msgstr "لم يقم واحد أو أكثر من المستلمين بتسجيل الدخول للمرة الأولى حتى الآن. هذا يعنى أنهم لن يتمكنوا من استلام بلاغات."
+
+msgid "Opened"
+msgstr "مفتوح"
+
+msgid "Options"
+msgstr "خيارات"
+
+msgid "Organization"
+msgstr "منظمة"
+
+msgid "Original text"
+msgstr "النص الأصلي"
+
+msgid "Original translation"
+msgstr "الترجمة الأصلية"
+
+msgid "Password"
+msgstr "كلمة السرّ"
+
+msgid "Password change interval"
+msgstr "فترة تغيير كلمة السر"
+
+msgid "Password reset"
+msgstr "إعادة ضبط كلمة السر"
+
+msgid "Password reset requested."
+msgstr "تم طلب إعادة تعيين كلمة السر."
+
+msgid "Phone number"
+msgstr "رقم الهاتف"
+
+msgid "Placeholder"
+msgstr "نائب"
+
+msgid "Platform wizard"
+msgstr "معالج المنصة"
+
+msgid "Please check your inbox for further instructions."
+msgstr "الرجاء التحقق من بريدك الوارد للمزيد من التعليمات."
+
+msgid "Please choose a configuration profile:"
+msgstr "الرجاء إختيار حساب التهيئة :"
+
+msgid "Please choose a different username."
+msgstr "من فضلك قم باختيار إسم مستخدم آخر."
+
+msgid "Please note that all the associated data will be permanently deleted."
+msgstr "يرجى ملاحظة أنه سيتم حذف كل البيانات المتعلقة بشكل دائم."
+
+msgid "Please select your account:"
+msgstr "الرجاء اختيار حسابك"
+
+msgid "Preferences"
+msgstr "التفضيلات"
+
+msgid "Presentation"
+msgstr "التقديم"
+
+msgid "Preview"
+msgstr "معاينة"
+
+msgid "Previous"
+msgstr "السابق"
+
+msgid "Print"
+msgstr "طباعة"
+
+msgid "Privacy Policy"
+msgstr "سياسة الخصوصية"
+
+msgid "Private Key"
+msgstr "مفتاح سرّي"
+
+msgid "Privileges"
+msgstr "امتيازات"
+
+msgid "Proceed"
+msgstr "مواصلة"
+
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Project name"
+msgstr "اسم المشروع"
+
+msgid "Public name"
+msgstr "الاسم العام"
+
+msgid "Question"
+msgstr "السؤال"
+
+msgid "Question group"
+msgstr "مجموعة الأسئلة"
+
+msgid "Question templates"
+msgstr "نماذج السؤال"
+
+msgid "Question to solicit possible whistleblowers"
+msgstr "سؤال لجذب إنتباه المبلّغين المستقبليّين المحتملين"
+
+msgid "Questionnaire"
+msgstr "استبيان"
+
+msgid "Questionnaire answers"
+msgstr "إجابات الاستبيان"
+
+msgid "Questionnaires"
+msgstr "الاستطلاعات"
+
+msgid "Questions"
+msgstr "الأسئلة"
+
+msgid "Receivers"
+msgstr "المرسل إليهم"
+
+msgid "Recipient"
+msgstr "المتلقّي"
+
+msgid "Recipient selection"
+msgstr "اختيار المتلقّي"
+
+msgid "Recipients"
+msgstr "المتلقّون"
+
+msgid "Recipients have requested you to fill an additional questionnaire."
+msgstr "طلب المستلمون منك إكمال استبيان إضافي."
+
+msgid "Recipients only"
+msgstr "المُرسَل إليهم فقط"
+
+msgid "Recipients selected:"
+msgstr "المتلقّون المختارون :"
+
+msgid "Redact"
+msgstr "أخفي"
+
+msgid "Refresh"
+msgstr "تحديث"
+
+msgid "Regenerate"
+msgstr "اعادة تكوين"
+
+msgid "Regular expression"
+msgstr "تعبير نمطي"
+
+msgid "Regular expression validator"
+msgstr "مدقق العبارات العادية"
+
+msgid "Remember your receipt for this report."
+msgstr "تذكّر الإستلام الخاص بك لهذا البلاغ."
+
+msgid "Reminder date"
+msgstr "تاريخ التنبيه"
+
+msgid "Remove"
+msgstr "حذف"
+
+msgid "Reopen"
+msgstr "إعادة فتح"
+
+msgid "Reply motivation"
+msgstr "دوافع الاجابة"
+
+msgid "Reply to the request"
+msgstr "الاجابة على الطلب"
+
+msgid "Report"
+msgstr "بلاغ"
+
+msgid "Report date"
+msgstr "تاريخ التقرير"
+
+msgid "Report statuses"
+msgstr "تقرير الحالات"
+
+msgid "Reports"
+msgstr "التقارير"
+
+msgid "Request access to the whistleblower's identity"
+msgstr "طلب النفاذ الى هوية المبلغ"
+
+msgid "Request date"
+msgstr "تاريخ الطلب"
+
+msgid "Request motivation"
+msgstr "دوافع الطلب"
+
+msgid "Request status"
+msgstr "حالة الطلب"
+
+msgid "Request support"
+msgstr "اطلب مساعدة"
+
+msgid "Requests"
+msgstr "الطلبات"
+
+msgid "Require authentication"
+msgstr "يستلزم الإستيثاق"
+
+msgid "Require two factor authentication"
+msgstr "يستلزم الاستيثاق ذو المعاملين"
+
+msgid "Reset"
+msgstr "إعادة ضبط"
+
+msgid "Reset SMTP configuration"
+msgstr "اعادة تعيين تهيئة SMTP"
+
+msgid "Reset notification templates to default"
+msgstr "إعادة ضبط نماذج الإشعارات إلى الوضع الإفتراضي"
+
+msgid "Reset reports"
+msgstr "اعادة تعيين التقارير"
+
+msgid "Resource can only be accessed via the Tor network"
+msgstr "يمكن الوصول إلى المحتوى فقط ضمن شبكة Tor"
+
+msgid "Resource not found"
+msgstr "الموارد غير موجود"
+
+msgid "Restrict access to specific IP addresses"
+msgstr "احصر الدخول على عناوين IP محددة"
+
+msgid "Returning whistleblowers"
+msgstr "مخبرين عائدين."
+
+msgid "Revoke access"
+msgstr "إلغاء حق الوصول"
+
+msgid "Role"
+msgstr "دور"
+
+msgid "Roles enabled to use the platform without Tor"
+msgstr "الجهات التي يسمح لها باستخدام المنصة بدون Tor"
+
+msgid "Root domain used for secondary sites"
+msgstr "النطاق الرئيسي المستخدم في المواقع الثانوية"
+
+msgid "Row"
+msgstr "سطر"
+
+msgid "SMTP email address"
+msgstr "البريد الإلكتروني لبروتوكول نقل البريد الإلكتروني - SMTP"
+
+msgid "SMTP server address"
+msgstr "عنوان الخادم SMTP"
+
+msgid "SMTP server port"
+msgstr "منفذ الخادم SMTP"
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Save all"
+msgstr "تخزين الكل"
+
+msgid "Scan the QR code with the app"
+msgstr "امسح رمز QR باستخدام التطبيق"
+
+msgid "Scheduled jobs"
+msgstr "العمليات المجدولة"
+
+msgid "Score"
+msgstr "مجموع النقاط"
+
+msgid "Scoring system options"
+msgstr "خيارات نظام تسجيل النقاط"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "Security"
+msgstr "الأمان"
+
+msgid "Select"
+msgstr "تحديد"
+
+msgid "Select a file or drag it here."
+msgstr "اختر ملفا أو اسحبه هنا."
+
+msgid "Select all"
+msgstr "اختر الكل"
+
+msgid "Select all recipients by default"
+msgstr "اختر جميع المتلقين بشكل اعتيادي "
+
+msgid "Select an option"
+msgstr "حدد اختيار"
+
+msgid "Select the recipients of your report"
+msgstr "إختَر من سيستلم تقريرك"
+
+msgid "Select your language"
+msgstr "إختر لغتك"
+
+msgid "Selection box"
+msgstr "علبة الإختيار"
+
+msgid "Send"
+msgstr "إرسال"
+
+msgid "Send a test email to your email address."
+msgstr " ارسال بريد الكتروني تجريبي الى عنوان البريد الإلكتروني الخاص بك."
+
+msgid "Send activation link"
+msgstr "إرسال رابط التفعيل"
+
+msgid "Send reset link"
+msgstr "إرسال رابط اعادة التعيين"
+
+msgid "Set a reminder"
+msgstr "قم بتعيين تذكير"
+
+msgid "Set password"
+msgstr "ضبط كلمة السر"
+
+msgid "Set the value to 0 to disable this feature."
+msgstr "اضبط القيمة على 0 لإلغاء تفعيل هذه الخاصية."
+
+msgid "Set up encryption by providing a PGP public key"
+msgstr "إعداد التشفير عن طريق توفير مفتاح PGP عمومي "
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Severity"
+msgstr "الخطورة"
+
+msgid "Show"
+msgstr "عرض"
+
+msgid "Show channels in alphabetical order"
+msgstr "عرض القنوان بحسب الترتيب الأبجدي"
+
+msgid "Show recipients in alphabetical order"
+msgstr "إظهار المتلقين بترتيب ابجدي"
+
+msgid "Show the questionnaire navigation interface"
+msgstr "أظهر واجهة التنقل للإستطلاع"
+
+msgid "Sign up"
+msgstr "تسجيل"
+
+msgid "Silence email notifications"
+msgstr "اسكات الاشعارات بالبريد الالكتروني"
+
+msgid "Single-line text input"
+msgstr "إدخال نص ذو سطر واحد"
+
+msgid "Site"
+msgstr "موقع"
+
+msgid "Sites"
+msgstr "المواقع"
+
+msgid "Size limit for file attachments"
+msgstr "الحد الأقصى لحجم الملفات المرفقة"
+
+msgid "Size:"
+msgstr "حجم:"
+
+msgid "Skip the recipient account creation."
+msgstr "تجاوز عملية إنشاء حساب للمستلم."
+
+msgid "Software version:"
+msgstr "نسخة البرنامج:"
+
+msgid "Statistics"
+msgstr "إحصائيات"
+
+msgid "Stats"
+msgstr "الاحصائيات"
+
+msgid "Status"
+msgstr "حالة"
+
+msgid "Status:"
+msgstr "الحالة:"
+
+msgid "Step"
+msgstr "خطوة"
+
+msgid "Steps"
+msgstr "الخطوات"
+
+msgid "Strong"
+msgstr "قوي"
+
+msgid "Subdomain"
+msgstr "النطاق الفرعي"
+
+msgid "Submissions disabled"
+msgstr "تم تعطيل البلاغات"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "Subscribed"
+msgstr "مشترك"
+
+msgid "Subscription date"
+msgstr "تاريخ الاشتراك"
+
+msgid "Substatuses"
+msgstr "الحالات الثانوية"
+
+msgid "Success!"
+msgstr "نجاح!"
+
+msgid "Sufficient"
+msgstr "الكافي"
+
+msgid "Surname"
+msgstr "اللقب"
+
+msgid "Tax code"
+msgstr "رمز الضريبة"
+
+msgid "Template"
+msgstr "قالب"
+
+msgid "Template override"
+msgstr "تجاوز القالب"
+
+msgid "Templates"
+msgstr "النماذج"
+
+msgid "Terms of service"
+msgstr "شروط الخدمة"
+
+msgid "Test the configuration"
+msgstr "ٌإختبر الضّبط"
+
+msgid "Text"
+msgstr "نص"
+
+msgid "Text customization"
+msgstr "تخصيص النص"
+
+msgid "Text shown after the user has selected the option."
+msgstr "النص الذى يظهر بعد أن ينتقى المستخدم الاختيار."
+
+msgid "Text shown on top of the interface for selecting channels"
+msgstr "النص الظاهر أعلى الواجهة لاختيار القنوات"
+
+msgid "Text shown upon negative answer"
+msgstr "النص الذي يظهر عند الإجابة السلبية"
+
+msgid "Thank you."
+msgstr "شكرًا لك."
+
+msgid "The answer is too short"
+msgstr "الإجابة قصيرة جدًا."
+
+msgid ""
+"The chosen password is too weak. A valid password should be at least 12 "
+"characters long and contain a variety of characters including at least a "
+"lowercase character, a capital character, a number and a special character."
+msgstr "كلمة السر المختارة ضعيفة للغاية. كلمة السر الصحيحة يجب أن يكون طولها على الأقل 12 حروف ومكونة من تشكيلة من الحروف تشمل على الأقل حرفا صغيرا وحرفا كبيرا ورقما وحرفا خاصا."
+
+msgid "The code is either invalid or expired."
+msgstr "إما أن الرمز غير صحيح أو انتهت صلاحيته."
+
+msgid "The connection is not secure."
+msgstr "الاتصال غير آمن."
+
+msgid ""
+"The following recipients will receive your report and could not be "
+"deselected:"
+msgstr "سيتلقى المستلمون التالين تقريرك ولا يمكن إلغاء تحديدهم:"
+
+msgid ""
+"The following step-by-step procedure will guide you through creating your "
+"whistleblowing platform."
+msgstr "سوف ترشدك هذه العملية التدريجية من إنشاء منصة الابلاغ الخاصة بك."
+
+msgid "The link will expire in 7 days."
+msgstr "ستنتهي صلاحية الرابط خلال 7 أيام."
+
+msgid ""
+"The manual configuration wizard will guide you through the setup of HTTPS "
+"from an alternative Certificate Authority."
+msgstr "سيوجّهك معالج التهيئة اليدوي خلال تمكين HTTPS من مرجع مصدّق بديل."
+
+msgid "The new password must be different from the current one."
+msgstr "لا بدّ أن تكون كلمة السر الجديدة مختلفة عن كلمة السر الحالية."
+
+msgid ""
+"The platform is still not configured for HTTPS connections and should "
+"therefore only be used for testing purposes."
+msgstr "لم تتم تهيئة المنصة بعد لاتصالات HTTPS و على اساس ذلك ينبغي أن تستخدم فقط لغرض الاختبار."
+
+msgid ""
+"The platform must be reachable through a public IP address and the selected "
+"hostname must have a DNS record referencing that address."
+msgstr "يجب التمكن من الاتصال بالمنصة عبر عنوان بروتوكول الإنترنت العام، ويجب أن يتوافق الاسم المحدد للمضيف مع سجل نظام أسماء النطاقات الذي يشير إلى هذا العنوان."
+
+msgid ""
+"The platform supports the configuration of HTTPS through this interface."
+msgstr "تمكّن المنصة تهيئة HTTPS من خلال هذه الواجهة."
+
+msgid "The provided recovery key is invalid."
+msgstr "مفتاح الاسترداد الذي تم توفيره غير صالح\n."
+
+msgid "The provided reset token is invalid or expired."
+msgstr "رمز إعادة التعيين الذي تم تقديمه غير صحيح أو منتهي."
+
+msgid "The receipt is either invalid or the report has expired."
+msgstr "إمّا أنّ الإستلام غير صالح أو أنّ صلاحيّة البلاغ انتهت."
+
+msgid "The specified input is not valid."
+msgstr "المدخلات المحددة غير صالحة."
+
+msgid "The specified input is not valid:"
+msgstr "الإدخال المحدد غير صالح:"
+
+msgid "The specified old password is not valid"
+msgstr "كلمة المرور القديمة المحددة غير صالحة"
+
+msgid "The two passwords do not match"
+msgstr "كلمتا السرّ لا تتطابقان "
+
+msgid "The upload request exceeds the size limit"
+msgstr "الملفات المراد رفعها تتخطى السعة المسموح بها."
+
+msgid "The user will be forced to change its password on next login."
+msgstr "سيضطر المستخدم إلى تغيير كلمة المرور الخاصة به عند تسجيل الدخول المقبل."
+
+msgid "The validation link is either incorrect or has expired."
+msgstr "إما أن رابط التحقق غير صحيح أو انتهت صلاحيته."
+
+msgid "The whistleblower has already read the last update"
+msgstr "المبلغ قد قرأ آخر تحديث "
+
+msgid "The whistleblower has not read the last update yet"
+msgstr "المبلغ لم يقرأ آخر تحديث بعد"
+
+msgid "Then, copy and paste the following address into the Tor Browser:"
+msgstr "ثمّ، انسخ والصق العنوان التالي في متصفّح Tor."
+
+msgid ""
+"This custom text is no longer displayed on the platform. The original text "
+"has either changed or been removed."
+msgstr "هذا النصّ المخصّص لم يعد قابلاً للعرض على المنصّة. النصّ الأصليّ إما تغيّر أو تمّت إزالته."
+
+msgid "This domain name is not available."
+msgstr "اسم النطاق غير متاح."
+
+msgid "This field is mandatory"
+msgstr "هذا الحقل إلزامي"
+
+msgid "This is a demo platform, please do not use it for real submissions."
+msgstr "هذه منصة تجريبية، يرجى عدم استخدامها في أي بلاغ حقيقي."
+
+msgid "This user has not performed the first login yet."
+msgstr "هذا المستخدم لم يقم بتسجيل الدخول للمرة الأولى حتى الآن."
+
+msgid "Threshold"
+msgstr "حد العتبة"
+
+msgid "Title"
+msgstr "العنوان"
+
+msgid "To"
+msgstr "إلى"
+
+msgid "To:"
+msgstr "إلى:"
+
+msgid "Tor"
+msgstr "تور"
+
+msgid "Tor Onion Service"
+msgstr "خدمة Tor onion"
+
+msgid "Transfer"
+msgstr "نقل"
+
+msgid "Transfer access"
+msgstr "نقل حق الوصول"
+
+msgid "Trigger conditions"
+msgstr "الظروف المحفزة"
+
+msgid "Trigger question"
+msgstr "سؤال التشغيل"
+
+msgid "Triggered by score:"
+msgstr "يُشغل بمجموع نقاط:"
+
+msgid "Turn on email notifications"
+msgstr "تشغيل الاشعارات بالبريد الالكتروني"
+
+msgid "Type"
+msgstr "نوع"
+
+msgid "Type your new password again"
+msgstr "أعد كتابة كلمة السرّ الجديدة"
+
+msgid "URL redirects"
+msgstr "إعادة توجيه URL"
+
+msgid "Unhide"
+msgstr "أظهِر من جديد"
+
+msgid "Unselect"
+msgstr "ألغاء التحديد"
+
+msgid "Upload"
+msgstr "تحميل"
+
+msgid "Upload a file:"
+msgstr "رفع ملف:"
+
+msgid "Upload date"
+msgstr "تاريخ  الرّفع"
+
+msgid "Use as default"
+msgstr "التعيين كوضع افتراضي"
+
+msgid ""
+"Use the 16 digit receipt to log in. It will allow you to view any messages "
+"we sent you, and also to add extra info."
+msgstr "استخدم الاستلام المكون من 16 رقم لتسجيل الدخول. سوف يسمح لك برؤية أي رسائل نرسلها إليك، و أيضا يُمكنك من إضافة المزيد من المعلومات."
+
+msgid "Use the first site for administrative purposes only"
+msgstr "استخدم الموقع الأول من أجل الأغراض الإدارية فقط"
+
+msgid "User"
+msgstr "مستخدم"
+
+msgid "Username"
+msgstr "اسم المستخدم"
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid ""
+"Using automatic HTTPS configuration will handle the entire process of "
+"requesting, enabling and renewing certificates from the Let's Encrypt "
+"Certificate Authority."
+msgstr "سيؤدي استخدام إعداد HTTPS الاوتوماتيكي إلى معالجة كامل عملية طلب ,تمكين وتجديد الشهادات من المرجع المفوّض لشهادة Let's Encrypt.ا"
+
+msgid "Valid until:"
+msgstr "ساري المفعول حتى:"
+
+msgid "Validation of email address change in progress."
+msgstr "جارى التحقق من التغيير في عنوان البريد الإلكتروني."
+
+msgid "Value"
+msgstr "‮القيمة"
+
+msgid "Video"
+msgstr "الفيديو"
+
+msgid "View"
+msgstr "عرض"
+
+msgid "View your report"
+msgstr "مشاهدة بلاغك"
+
+msgid "Voice"
+msgstr "صوت"
+
+msgid "Waiting for authorization"
+msgstr "في انتظار التفويض"
+
+msgid "Waiting for the file(s) to finish uploading."
+msgstr "يجري انتظار إنهاء رفع الملف/الملفات."
+
+msgid "Warning"
+msgstr "تنبيه"
+
+msgid ""
+"We advise selecting this option if you would like to protect data from being"
+" lost in the situation where recipients lose their passwords. On the other "
+"hand, we would not advise using this feature if you want to setup a system "
+"where only recipients are able to access submissions."
+msgstr "صح بتحديد هذا الخيار إذا كنت ترغب في حماية البيانات من الضياع في حالة فقدان المستلمين لكلمات المرور الخاصة بهم. من ناحية أخرى ، لا ننصح باستخدام هذه الميزة إذا كنت ترغب في إعداد نظام يستطيع فيه المستلمون فقط الوصول إلى عمليات الإرسال."
+
+msgid ""
+"We recommend that you access the “Preferences” section in order to retrieve "
+"your “Account Recovery Key” and store it safely. This key will be necessary "
+"to recover your access to the platform and to your data in case you forget "
+"your password."
+msgstr "نوصي بالوصول إلى قسم \"التفضيلات\" لاسترداد \"مفتاح استعادة الحساب\" وتخزينه بأمان. سيكون هذا المفتاح ضروريًا لاستعادة وصولك إلى المنصة وإلى بياناتك في حالة نسيان كلمة المرور الخاصة بك."
+
+msgid "We will try to get back to you as soon as possible."
+msgstr "سوف نسعى للاتصال بك مجددًا في أقرب وقت ممكن."
+
+msgid "Weak"
+msgstr "ضعيف"
+
+msgid "Welcome!"
+msgstr "مرحبا!"
+
+msgid "Whistleblower"
+msgstr "مبلّغ"
+
+msgid "Whistleblower's last access"
+msgstr "ﺁخر دخول لـ WB"
+
+msgid "Whistleblowing Policy"
+msgstr "سياسة التبليغ عن الانحرافات"
+
+msgid "Whistleblowing button"
+msgstr "زرّ التبليغ"
+
+msgid "Width"
+msgstr "عرض"
+
+msgid "Yes"
+msgstr "نعم"
+
+msgid ""
+"You are connecting to the server without anonymity and this server supports "
+"only anonymous submissions"
+msgstr "أنت تتصل بالخادم بطريقة لا تخفي هويتك. هذا الخادم يعمل فقط مع المتصلين و البلاغات المجهولة المصدر "
+
+msgid "You are operating on behalf of a whistleblower."
+msgstr "أنت تعمل بالنيابة عن مخبر."
+
+msgid ""
+"You are strongly advised to visit this site using the app called Tor "
+"Browser, that protects your identity."
+msgstr "يُنصح بشدة بزيارة هذا الموقع باستخدام متصفح الانترنت Tor Browser ، الذي يحمي هويتك."
+
+msgid "You have completed the platform activation."
+msgstr "لقد أتممت تفعيل المنصة."
+
+msgid "You have completed the platform wizard."
+msgstr "لقد اتممتم معالج المنصّة بنجاح."
+
+msgid "You have reached the maximum number of selectable recipients."
+msgstr "لقد وصلت إلى الحد الأقصى من عدد المستلمين الذين يمكن تحديدهم."
+
+msgid "You must select at least one recipient."
+msgstr "يجب تحديد مستلم واحد على الأقل."
+
+msgid "Your new email address has been validated."
+msgstr "تم التحقق من عنوان البريد الإلكتروني الجديد."
+
+msgid "Your report was successful."
+msgstr "تمّ الابلاغ بنجاح."
+
+msgid "Your whistleblowing platform is almost ready!"
+msgstr "منصة التبليغ الخاصة بك على وشك أن تكون جاهزة!"
+
+msgid "days"
+msgstr "‮أيّام"
+
+msgid "file unavailable"
+msgstr "الملف غير متوفر"
+
+msgid "megabytes"
+msgstr "بالميغابايت"
+
+msgid "percentage"
+msgstr "بالنسبة المئوية"
+
+msgid "please enter a valid email address."
+msgstr "الرجاء إدخال بريد الكتروني صحيح."
+
+msgid "please enter numbers only."
+msgstr "الرجاء ادخال أرقام فقط."
+
+msgid "seconds"
+msgstr "ثواني"
+
+msgid "File a report"
+msgstr "تقديم بلاغ"
+
+msgid "Select a reporting channel:"
+msgstr "اختر قناة للإبلاغ:"
+
+msgid "Please summarize your report in a few words."
+msgstr "الرجاء كتابة نبذة عن البلاغ."
+
+msgid "Describe your report in detail."
+msgstr "الرجاء وصف البلاغ بالتفصيل."
+
+msgid "Where did the facts happen?"
+msgstr "أين وقع الحادث؟"
+
+msgid "When did the facts happen?"
+msgstr "متى وقع الحادث؟"
+
+msgid "I'm a victim"
+msgstr "أنا ضحية"
+
+msgid "I'm involved in the facts"
+msgstr "أنا منخرط في الحقائق"
+
+msgid "I witnessed the facts in person"
+msgstr "لقد شاهدت الحادث شخصيًا"
+
+msgid "I was personally told by a direct witness"
+msgstr "قيل لي شخصيا من قبل شاهد مباشر"
+
+msgid "It is a rumor I heard"
+msgstr "شائعة - سمعت عنها"
+
+msgid "How are you involved in the reported facts?"
+msgstr "ما هي علاقتك في الحادث موضوع التقرير؟ "
+
+msgid "Do you have evidence to support your report?"
+msgstr "هل لديك ادلة تدعم تقريرك؟"
+
+msgid "Please attach the evidence to support your report."
+msgstr "الرجاء إرفاق الأدلة التي تدعم بلاغك"
+
+msgid "Please describe the evidence in detail."
+msgstr "يرجى وصف الصور أو الفيديو أو الأدلة الأخرى بالتفصيل"
+
+msgid ""
+"A thorough description of the submitted evidence enhances our ability to "
+"evaluate claims and investigate. Please take care to reference significant "
+"portions of any videos, images or documents submitted."
+msgstr "الوصف الدقيق للأدلة المقدمة يعزّز من قدرة فريقنا على تقييم البلاغ والتحقق من الأدلة. الرجاء الاشارة إلى المصدر الرئيسي للأدلة التي ارفقتها سواء كانت فيديو أو صور أو مستندات."
+
+msgid "Have you reported the facts to other organizations and/or individuals?"
+msgstr "هل أبلغت عن الحادث لجهات أخرى؟"
+
+msgid ""
+"Please list the organizations and/or individuals you have informed about "
+"these facts."
+msgstr "يرجى ذكر الجهات التي تواصلت معها عن هذا الحادث"
+
+msgid ""
+"Have these organizations investigated your claims? If so, what was the "
+"outcome?"
+msgstr "هل قامت هذه الجهات بالتحقيق في تقريرك؟ إذا كان نعم، ما كانت النتائج؟"
+
+msgid "What is the outcome you want to achieve with our support?"
+msgstr "ما هي النتيجة التي تريد تحقيقها بدعمنا؟"
+
+msgid "Would you like to tell us who you are?"
+msgstr "هل ترغب في إخبارنا بشخصيتك؟"
+
+msgid "First name"
+msgstr "الاسم"
+
+msgid "Last name"
+msgstr "الكنية"
+
+msgid "Alternative contact method"
+msgstr "وسيلة اتصال بديلة"
+
+msgid "I prefer to be contacted via this platform only"
+msgstr "أٌفضل أن يتم الاتصال بي بواسطة هذه المنصة فقط"
+
+msgid "Other"
+msgstr "أخرى"
+
+msgid "Specify"
+msgstr "حدِّد بالتفصيل"
+
+msgid "Dear {RecipientName},"
+msgstr "عزيزي {RecipientName},"
+
+msgid ""
+"You're receiving this email because a user account has been created for you "
+"on the system: {Site}"
+msgstr "انت تستقبل هذا البريد الإلكتروني لأنه تم إنشاء حساب مستخدم لك على النظام:  {Site}"
+
+msgid "Username: {Username}"
+msgstr "اسم المستخدم: {Username}"
+
+msgid "Activation link: {Url}"
+msgstr "رابط تفعيل  {Url}"
+
+msgid ""
+"Please click on the activation link to proceed with the account activation "
+"and to set your user password."
+msgstr "من فضلك قم بالضغط على رابط التفعيل من أجل إكمال باقي خطوات تنشيط الحساب وإعداد كلمة السر."
+
+msgid ""
+"After successful activation you will be able to access the system via the "
+"following link: {LoginUrl}"
+msgstr "بعد التفعيل الناجح، سيكون بمقدورك الولوج إلى النظام من خلال الرابط التالي:  {LoginUrl}"
+
+msgid "Kind regards,"
+msgstr "أطيب التحيّات،"
+
+msgid "Account activation"
+msgstr "تفعيل الحساب"
+
+msgid "Your whistleblowing platform is now accessible at:"
+msgstr "يمكن الآن الوصول إلى منصة الإبلاغ على:"
+
+msgid "To log in, visit:"
+msgstr "لتسجيل الدخول، الرجاء زيارة:"
+
+msgid "Users' credentials:"
+msgstr "اعتمادات المستخدمين:"
+
+msgid "The platform will be automatically deleted on:"
+msgstr "سيتم حذف المنصة تلقائيا في:"
+
+msgid "Access instructions"
+msgstr "تعليمات الدخول"
+
+msgid ""
+"The number of activities recently detected appears to be higher than usual."
+msgstr "عدد الأنشطة التي تم الكشف عنها مؤخرا يبدو أعلى من امعتاد."
+
+msgid ""
+"This could be a sign of an attack (for example, someone flooding your server"
+" with bogus information) or just a usage spike due to an increased "
+"visibility of your project."
+msgstr "هذا يمكن أن يكون علامة على وجود هجوم (على سبيل المثال، شخص ما يرسل بكثافة معلومات وهمية الى المشغل الخاص بك) أو مجرد ارتفاع الاستخدام نظرا لزيادة رؤية مشروعك."
+
+msgid "Examine the issue to determine whether it is legitimate or not."
+msgstr "الرجاء دراسة المسألة لتحديد ما إذا كانت مشروعة أم لا."
+
+msgid "The activities with unusual stats are:"
+msgstr "الأنشطة ذات الاحصائيات غير عادية هي:"
+
+msgid "Available disk space: {FreeMemory}/{TotalMemory}"
+msgstr "المساحة المتاحة على القرص: {FreeMemory}/{TotalMemory}"
+
+msgid ""
+"The server cannot guarantee that a new report can be stored, so submissions "
+"have been disabled."
+msgstr "لا يمكن للخادم ضمان أن البلاغ الجديد يمكن تخزينه، لذلك تم تعطيل التقديمات."
+
+msgid ""
+"Please consider asking your technical support to create more disk space on "
+"the server."
+msgstr "يرجى طلب إضافة المزيد من المساحة للقرص المشغل من الدعم الفني."
+
+msgid ""
+"GlobaLeaks technology includes a server status checking component which will"
+" alert you in case something requires your attention."
+msgstr "وتشمل تكنولوجيا GlobaLeaks عنصر فحص لحالة السيرفر الذي سوف ينبهك في حالة حدوث أمر يتطلب انتباهكم."
+
+msgid ""
+"For more information, log in to the Administration interface and look at the"
+" \"System Stats\" and \"Anomalies\" sections."
+msgstr "لمزيد من المعلومات، قم بتسجيل الدخول على واجهة الإدارة وإلقاء نظرة على قسمي \"إحصائيات النظام\" و \"العيوب\"."
+
+msgid "Anomaly detected in {NodeName}"
+msgstr "تم الكشف على خلل في {NodeName}"
+
+msgid ""
+"This is an email to inform you that the PGP key of the following users is "
+"going to expire or has already expired:"
+msgstr "هذا بريد إلكتروني لنبلغكم أنّ مفتاح PGP الخاصّ بالمستخدمين التوالي سوف تنتهي أو انتهت بالفعل:"
+
+msgid ""
+"Without a valid PGP key, the system will not be able to send them encrypted "
+"notifications."
+msgstr "بدون مفتاح PGP صالح، لن يكون النظام قادرا على إرسال اشعارات مشفرة."
+
+msgid "PGP key expiration alert"
+msgstr "تنبيه انتهاء صلاحية مفتاح PGP"
+
+msgid "A new whistleblowing site has been registered."
+msgstr "موقع جديد لكشف الفساد تم إنشائه."
+
+msgid "Registration data:"
+msgstr "بيانات التسجيل:"
+
+msgid "Site: {Url}"
+msgstr "الموقع: {Url}"
+
+msgid "Name: {Name}"
+msgstr "الاسم: {Name}"
+
+msgid "Email: {Email}"
+msgstr "البريد الإلكتروني: {Email}"
+
+msgid "New whistleblowing site registered"
+msgstr "موقع جديد لكشف الفساد تم تسجيله."
+
+msgid ""
+"This is a test email sent out from the platform's administrative interface."
+msgstr "هذا بريد الإلكتروني على سبيل الاختبار يرسل من الواجهة الإدارية للمنصة."
+
+msgid ""
+"Reception of this email indicates that the server was able to authenticate "
+"to and interact with the SMTP mail server."
+msgstr "استقبال هذه الرسالة يشير إلى أن الخادم كان قادرا على المصادقة والتفاعل مع خادم البريد SMTP."
+
+msgid "Test email"
+msgstr "بريد الكتروني تجريبي"
+
+msgid ""
+"This is an email to notify you that a request has been made to change your "
+"email address to {NewEmailAddress}."
+msgstr "هذا بريد إلكتروني للتنبيه على أن هناك طلب تم تقديمه من أجل تغيير عنوان البريد الإلكتروني الحالي إلى {NewEmailAddress}."
+
+msgid "Click the following link to validate this change:"
+msgstr "قم بالضغط على الرابط التالي من أجل المصادقة على هذا التغيير."
+
+msgid ""
+"If you didn't request this change, change your password and contact your "
+"system administrator."
+msgstr "إذا لم تقم بطلب هذا التغيير، قم تغيير كلمة مرورك ثم قم بالاتصال بمسئول النظام."
+
+msgid "Email change request"
+msgstr "طلب تغيير البريد الإلكتروني."
+
+msgid "From: {Author}"
+msgstr "بواسطة:  {Author}"
+
+msgid "Date: {EventTime}"
+msgstr "التاريخ: {EventTime}"
+
+msgid "From: Whistleblower"
+msgstr "من: المُبلٍّغ"
+
+msgid "Date: {SubmissionDate}"
+msgstr "التاريخ: {SubmissionDate}"
+
+msgid "Label: {TipLabel}"
+msgstr "التسمية: {TipLabel}"
+
+msgid "Status: {TipStatus}"
+msgstr "الحالة:  {TipStatus}"
+
+msgid ""
+"The HTTPS certificate loaded on the platform is about to, or has already "
+"expired."
+msgstr "شهادة HTTPS التي تم تحميلها على النظام الأساسي ستنتهي صلاحيتها أو انتهت صلاحيتها بالفعل."
+
+msgid "Expiration date: {ExpirationDate}"
+msgstr "تاريخ إنتهاء الصلوحية : {ExpirationDate}"
+
+msgid ""
+"Without a valid certificate, the platform will be accessible in a secure way"
+" only via Tor."
+msgstr "بدون شهادة صالحة، يمكن الوصول إلى المنصة بطريقة آمنة فقط عبر متصفح تور."
+
+msgid "Log in to solve the issue."
+msgstr "سجل الدخول لحل المشكلة."
+
+msgid "Expiration alert for HTTPS certificate"
+msgstr "ﺖﻨﺒﻴﻫ ﺎﻨﺘﻫﺍﺀ ﺹﻼﺤﻳﺓ ﺶﻫﺍﺩﺓ HTTPS"
+
+msgid ""
+"The automatic HTTPS certificate renewal scheduled for today just failed."
+msgstr "عملية التجديد التلقائي المجدولة اليوم لشهادة HTTPS فشلت."
+
+msgid "The system will keep trying."
+msgstr "النظام سوف يستمر في المحاولة."
+
+msgid "Failed HTTPS certificate renewal"
+msgstr "عملية تجديد فاشلة لشهادة HTTPS."
+
+msgid ""
+"This is an email to notify you that a custodian has authorized you to access"
+" to the whistleblowing identity for the report {TipNum}."
+msgstr "هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ هذا البلاغ {TipNum}."
+
+msgid "The report can be accessed at:"
+msgstr "يكمن النفاذ إلى التقرير:"
+
+msgid "Access to whistleblower's identity authorized"
+msgstr "الاذن بالحصول على هوية المبلغ"
+
+msgid ""
+"This is an email to notify you that a custodian has denied you access to the"
+" whistleblowing identity for the report {TipNum}."
+msgstr "هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ هذا البلاغ {TipNum}."
+
+msgid "Access to whistleblower's identity denied"
+msgstr " عدم الاذن بالحصول على هوية المبلغ "
+
+msgid ""
+"This is an email to notify you that a recipient has requested access to the "
+"whistleblower's identity for the report {TipNum}"
+msgstr "هذا هو بريد الكتروني لإعلامك أن أحد المتلقين قد طلب الاذن للوصول إلى هوية مبلغ هذا البلاغ {TipNum}."
+
+msgid "The request can be accessed at:"
+msgstr "الطلب يمكن الوصول إلي على:"
+
+msgid "New request of access to a whistleblower's identity"
+msgstr "طلب جديد للوصول إلى هوية المبلغ"
+
+msgid ""
+"This is an email to notify you that the whistleblower for the report "
+"{TipNum} has provided their identity."
+msgstr "هذا هو بريد الكتروني لإعلامك بأن مبلغ البلاغ {TipNum} قد وفر هويته."
+
+msgid "The whistleblower has provided their identity"
+msgstr "قدم المبلغ هويته"
+
+msgid ""
+"You're receiving this email because a password reset has been requested for "
+"the account: {Username}"
+msgstr "أنت تتلقى هذا البريد الإلكتروني لأنه تم طلب إعادة تعيين كلمة السر الخاصة بهذا الحساب {Username}"
+
+msgid ""
+"If you didn't make this request, you may safely ignore and delete this "
+"email."
+msgstr "إذا لم تقم بهذا الطلب، يمكنك بآمان تجاهل وحذف هذا البريد الإلكتروني."
+
+msgid "You can confirm your request by clicking the following link:"
+msgstr "يمكنك تأكيد طلب بالضغط على الرابط التالي:"
+
+msgid "Password reset instructions"
+msgstr "تعليمات لإعادة تعيين كلمة السر"
+
+msgid ""
+"This is an email to inform you that your PGP key is expiring or has already "
+"expired."
+msgstr "هذا بريد إلكتروني لنحيطكم علما بأن صلوحية مفتاح PGP الخاص بك ستنتهي أو انتهت بالفعل."
+
+msgid ""
+"You should extend its validity and update the key present on the platform, "
+"or upload a new key."
+msgstr "أنت مدعو لتمديد مدة صلاحية او تحديث المفتاح الموجود حاليا على المنصة او تحميل مفتاح جديد"
+
+msgid ""
+"Without a valid PGP key, the system won't be able to encrypt data provided "
+"to you."
+msgstr "بدون مفتاح PGP صالح، فإن النظام لن يكون قادرا على تشفير البيانات المقدمة إليك."
+
+msgid "Click the link to activate the platform:"
+msgstr "إنقر الرابط لتفعيل المنصة."
+
+msgid "Activation"
+msgstr "تفعيل"
+
+msgid "A software update is available."
+msgstr "التحديث متوفّر:"
+
+msgid "It is good security practice to keep the platform up to date."
+msgstr "انّها ممارسة أمنية جيدة الحفاظ على المنصة محيّنة."
+
+msgid ""
+"To learn about new features and bug fixes in the new version consult the "
+"change log at: {ChangeLogUrl}"
+msgstr "لمتابعة الخاصيّات الجديدة واصلاح الخللات في الاصدار الجديد  انظر في سجلّ التغييرات في : {ChangeLogUrl}"
+
+msgid ""
+"For instructions on software updates, please refer to the documentation at: "
+"{UpdateGuideUrl}"
+msgstr "لتعليمات حول تحديثات البرنامج , الرجاء مراجعة التوثيق في : {UpdateGuideUrl}"
+
+msgid ""
+"This is an email to notify you that a recipient has granted you access to "
+"one or more reports."
+msgstr "هذا بريد لإعلامك بأن المستلم قام بمنحك حق الوصول إلى تقرير أو عدة تقارير."
+
+msgid "New report"
+msgstr "تقرير جديد"
+
+msgid "One or more reports are expiring and will be soon deleted."
+msgstr "تقرير أو أكثر ستنتهي صلاحيتها قريباً و سيتم حذفها."
+
+msgid "The earliest expiration date is {EarliestExpirationDate}."
+msgstr "أقرب تاريخ لانتهاء الصلاحية {EarliestExpirationDate}."
+
+msgid "Please remember to check them before they are deleted."
+msgstr "الرجاء تذكر الاطلاع عليها قبل أن يتم حذفها."
+
+msgid "Some reports will expire soon"
+msgstr "ستنتهي صلاحية بعض البلاغات قريبا"
+
+msgid "This is an email to notify you the reception of a new report."
+msgstr "هذا الإيميل لإشعارك باستلام تقرير جديد."
+
+msgid ""
+"This is an email to notify you that the reminder date for one or more "
+"reports has been met."
+msgstr "هذا الإيميل لإشعارك بحلول تاريخ التنبيه لتقريرٍ أو أكثر."
+
+msgid "Reminder"
+msgstr "تذكير"
+
+msgid "This is an email to notify that an existing report has been updated."
+msgstr "هذه رسالة بريد إلكتروني لإعلامك بتحديث تقرير موجود."
+
+msgid "Report updated"
+msgstr "تم تحديث التقرير"
+
+msgid "This email is to remind you the presence of unread or updated reports."
+msgstr "هذا البريد الإلكتروني لتذكيرك بوجود تقارير غير مقروءة أو محدّثة."
+
+msgid "Reminder about unread or updated reports"
+msgstr "تذكير بشأن التقارير غير المقروءة أو المحدثة"
+
+msgid "Role: {Role}"
+msgstr "الدور: {Role}"
+
+msgid "Password: {Password}"
+msgstr "كلمة السركلمة السر: {Password}"

@@ -105,11 +105,11 @@ msgstr "Адміністраторам дозволено змінювати п�
 msgid "Advanced"
 msgstr "Розширений"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Дозволити отримувачу видаляти звіти"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Дозволити отримувачам відтерміновувати видалення звітів"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Дозволити інформаторам додавати файли до звіту"
@@ -210,8 +210,8 @@ msgstr "Перш ніж продовжити, будь ласка, встано�
 msgid "Block the submission"
 msgstr "Заблокувати подання"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Після підтвердження термін дії буде до:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -283,9 +283,6 @@ msgstr "Налаштувати"
 
 msgid "Confirm"
 msgstr "Підтвердити"
-
-msgid "Confirmation"
-msgstr "Підтвердження"
 
 msgid "Congratulations!"
 msgstr "Вітаємо!"
@@ -420,6 +417,9 @@ msgstr "Найдавніша дата вибору"
 
 msgid "Edit"
 msgstr "Редагування"
+
+msgid "Edit the expiration date"
+msgstr "Відтермінувати дату зачінчення терміну дії"
 
 msgid "Email"
 msgstr "Електронна пошта"
@@ -918,9 +918,6 @@ msgstr "Зверніть увагу, що всі пов'язані дані бу
 
 msgid "Please select your account:"
 msgstr "Будь ласка, оберіть ваш обліковий запис:"
-
-msgid "Postpone the expiration date"
-msgstr "Відтермінувати дату зачінчення терміну дії"
 
 msgid "Preferences"
 msgstr "Налаштування"

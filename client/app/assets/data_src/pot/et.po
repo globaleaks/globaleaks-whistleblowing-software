@@ -85,11 +85,11 @@ msgstr "Kasutajate paroolide muutmise õigust omavad administraatorid:"
 msgid "Advanced"
 msgstr "Peenhäälestus"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Luba saajal teavitusi kustutada"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Luba saajal teavituse aegumiskuupäeva edasi lükata"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Luba vihjeandjal teatele manuseid lisada"
@@ -190,8 +190,8 @@ msgstr "Enne jätkamist seadistage uus parool."
 msgid "Block the submission"
 msgstr "Blokeeri teabeesitus"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Kinnitades lükkate aegumise edasi kuupäevale:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Kinnitades määrate kuupäeva meeldetuletuse"
@@ -263,9 +263,6 @@ msgstr "Seadista"
 
 msgid "Confirm"
 msgstr "Kinnita"
-
-msgid "Confirmation"
-msgstr "Kinnitus"
 
 msgid "Congratulations!"
 msgstr "Õnnitleme!"
@@ -400,6 +397,9 @@ msgstr "Varaseim valitav kuupäev"
 
 msgid "Edit"
 msgstr "Muuda"
+
+msgid "Edit the expiration date"
+msgstr "Lükka aegumiskuupäeva edasi"
 
 msgid "Email"
 msgstr "E-post"
@@ -898,9 +898,6 @@ msgstr "Võtke arvesse, et kõik seotud andmed kustutatakse jäädavalt."
 
 msgid "Please select your account:"
 msgstr "Valige oma konto:"
-
-msgid "Postpone the expiration date"
-msgstr "Lükka aegumiskuupäeva edasi"
 
 msgid "Preferences"
 msgstr "Eelistused"

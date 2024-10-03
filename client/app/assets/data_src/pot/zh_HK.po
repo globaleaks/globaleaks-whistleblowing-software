@@ -86,11 +86,11 @@ msgstr "有權更改使用者密碼的管理員："
 msgid "Advanced"
 msgstr "高级"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "允許此接收者刪除報告"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "允許此接收者延遲報告到期日"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "吹哨者可在提交報告時新增附件"
@@ -191,8 +191,8 @@ msgstr "在繼續之前，請更新您的密碼。"
 msgid "Block the submission"
 msgstr "限制提交"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "您會將到期日延遲至："
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -263,9 +263,6 @@ msgid "Configure"
 msgstr "配置"
 
 msgid "Confirm"
-msgstr "確認"
-
-msgid "Confirmation"
 msgstr "確認"
 
 msgid "Congratulations!"
@@ -401,6 +398,9 @@ msgstr "最早可選日期"
 
 msgid "Edit"
 msgstr "編輯"
+
+msgid "Edit the expiration date"
+msgstr "延遲到期日"
 
 msgid "Email"
 msgstr "電郵"
@@ -899,9 +899,6 @@ msgstr "請注意，所有相關資料將會被永久刪除。"
 
 msgid "Please select your account:"
 msgstr "請選擇您的帳號："
-
-msgid "Postpone the expiration date"
-msgstr "延遲到期日"
 
 msgid "Preferences"
 msgstr "帳號設定"

@@ -27,7 +27,10 @@ export class CustomModalComponent {
   confirm(arg: string) {
 
     if(this.showInputText){
+<<<<<<< HEAD
       debugger
+=======
+>>>>>>> accreditamento
       this.confirmFunction(arg, this.inputText);
       return this.activeModal.close(arg);
     }

@@ -89,11 +89,11 @@ msgstr "ޔޫޒަރ ޕާސްވޯޑް ބަދަލުކުރުމުގެ ހުއްދަ ލ
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "ރިސިޕިއަންޓަށް ރިޕޯޓު ފުހެލުމުގެ ހުއްދަ ދިނުމަށް"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "ރިސިޕިއަންޓަށް ރިޕޯޓްގެ މުއްދަތުހަމަވާ ތާރީޚް ފަސްކުރުމަށް ހުއްދަ ދިނުން"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "ރިޕޯޓުގައި އާ ފައިލްތައް ހިމެނުމުގެ ހުއްދަ ވިސިލްބްލޯވާރ އަށް ދިނުމަށް "
@@ -194,8 +194,8 @@ msgstr "ކުރިއަށް ދިޔުމުގެ ކުރިން އާ ޕާސްވޯޑެއް
 msgid "Block the submission"
 msgstr "ސަބްމިޝަން ބްލޮކްކުރުމަށް"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "މުއްދަތު ހަމަވާ ތާރީޙް:  އަށް ލަސްކުރަން ބޭނުންފުޅުކަން ޔަގީންކުރެއްވުމަށް"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -267,9 +267,6 @@ msgstr "ކޮންފިގަރ ކުރެއްވުމަށް"
 
 msgid "Confirm"
 msgstr "ކޮންފަރމް ކުރެއްވުމަށް"
-
-msgid "Confirmation"
-msgstr "ކަށަވަރުކުރައްވާ"
 
 msgid "Congratulations!"
 msgstr "މަރުޙަބާ!"
@@ -404,6 +401,9 @@ msgstr "ހިޔާރުކުރެވޭނެ އެންމެ ކުރީގެ ތާރީޙް"
 
 msgid "Edit"
 msgstr "އެޑިޓްކުރަން"
+
+msgid "Edit the expiration date"
+msgstr "މުއްދަތު ހަމަވާ ތާރީޙް ލަސްކުރުމަށް"
 
 msgid "Email"
 msgstr "އީމެއިލް"
@@ -902,9 +902,6 @@ msgstr "މިކަމާޢި ގުޅޭ ހުރިހާ މަޢުލޫމާތެއް ޑިލީ
 
 msgid "Please select your account:"
 msgstr "ތިޔަ ފަރާތުގެ އެކައުންޓް އިޚްތިޔާރުކުރައްވާ"
-
-msgid "Postpone the expiration date"
-msgstr "މުއްދަތު ހަމަވާ ތާރީޙް ލަސްކުރުމަށް"
 
 msgid "Preferences"
 msgstr "ޕްރިފަރެންސަސް"

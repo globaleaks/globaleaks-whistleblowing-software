@@ -11,8 +11,7 @@ export class ReceiverCardComponent {
   @Input() submission: SubmissionService;
   @Input() receiverModel: Receiver;
 
-  constructor(protected translate: TranslateService) {
-  }
+  constructor(protected translate: TranslateService) {}
 
   selectable(): boolean {
     if (this.submission.context.maximum_selectable_receivers === 0) {

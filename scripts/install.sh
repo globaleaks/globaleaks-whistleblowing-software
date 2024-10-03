@@ -100,7 +100,7 @@ while getopts "ynv:h" opt; do
   esac
 done
 
-echo -e "Running the GlobaLeaks installation...\nIn case of failure please report encountered issues to the ticketing system at: https://github.com/globaleaks/GlobaLeaks/issues\n"
+echo -e "Running the GlobaLeaks installation...\nIn case of failure please report encountered issues to the ticketing system at: https://github.com/globaleaks/whistleblowing-software/issues\n"
 
 echo "Detected OS: $DISTRO - $DISTRO_CODENAME"
 

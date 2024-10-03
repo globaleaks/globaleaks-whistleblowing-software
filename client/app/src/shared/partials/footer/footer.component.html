@@ -1,12 +1,10 @@
 <footer id="FooterBox">
     <ng-container *ngIf="appDataService.public.node">
         <markdown id="CustomFooter" class="vcenter preformatted mb-1" *ngIf="appDataService.public.node.footer" [data]="appDataService.public.node.footer | stripHtml"></markdown>
-        <div id="Policies" class="vcenter mb-1" *ngIf="appDataService.public.node.footer_whistleblowing_policy || appDataService.public.node.footer_privacy_policy || appDataService.public.node.footer_accessibility_declaration">
-            <a *ngIf="appDataService.public.node.footer_whistleblowing_policy" href="{{appDataService.public.node.footer_whistleblowing_policy}}">{{'Whistleblowing Policy'}}</a>
-            <span *ngIf="appDataService.public.node.footer_whistleblowing_policy && (appDataService.public.node.footer_privacy_policy || appDataService.public.node.footer_accessibility_declaration)"> - </span>
-            <a *ngIf="appDataService.public.node.footer_privacy_policy" href="{{appDataService.public.node.footer_privacy_policy}}">{{'Privacy Policy'}}</a>
-            <span *ngIf="appDataService.public.node.footer_accessibility_declaration && (appDataService.public.node.footer_privacy_policy)"> - </span>
-            <a *ngIf="appDataService.public.node.footer_accessibility_declaration" href="{{appDataService.public.node.footer_accessibility_declaration}}">{{'Accessibility Declaration'}}</a>
+        <div id="Policies" class="vcenter mb-1" *ngIf="appDataService.public.node.footer_whistleblowing_policy || appDataService.public.node.footer_privacy_policy">
+            <a *ngIf="appDataService.public.node.footer_whistleblowing_policy" href="{{appDataService.public.node.footer_whistleblowing_policy}}">{{'Whistleblowing Policy' | translate}}</a>
+            <span *ngIf="appDataService.public.node.footer_whistleblowing_policy && appDataService.public.node.footer_privacy_policy"> - </span>
+            <a *ngIf="appDataService.public.node.footer_privacy_policy" href="{{appDataService.public.node.footer_privacy_policy}}">{{'Privacy Policy' | translate}}</a>
         </div>
         <div id="AttributionClause" class="vcenter">Powered by <a href="https://www.globaleaks.org/" title="GlobaLeaks - Secure Whistleblowing Software" rel="noreferrer" target="_blank">GlobaLeaks</a></div>
     </ng-container>

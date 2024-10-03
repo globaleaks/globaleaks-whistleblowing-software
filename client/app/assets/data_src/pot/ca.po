@@ -8,14 +8,14 @@
 # estrella1876lc <estrella1876lc@gmail.com>, 2014
 # estrella1876lc <estrella1876lc@gmail.com>, 2014-2015
 # Francisco Huerta <francisco.huerta@davinci-ti.es>, 2016,2019
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2016
 # Joan Bitlloch <joanbit@gmail.com>, 2017-2021
 # Joan Montané, 2020
 # Joan Montané, 2020
 # Joan Redon, 2022
-# José Luis Ramirez, 2022-2023
+# José Luis Ramirez, 2022-2024
 # Josep Anton Rius <j.rius.cat@gmail.com>, 2016
 # Maddish Falzoni <maddish@xnet-x.net>, 2016
 # Nick Skelsey, 2016
@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: José Luis Ramirez, 2022-2023\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024\n"
 "Language-Team: Catalan (http://app.transifex.com/otf/globaleaks/language/ca/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -103,11 +103,11 @@ msgstr "Persones administradores autoritzats a canviar les contrasenyes de les p
 msgid "Advanced"
 msgstr "Avançat"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permet al destinatari esborrar informes"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permet al destinatari ajornar la data d'expiració de l'informe"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permet a les persones reveladores de informació enviar un arxiu adjunt. "
@@ -208,8 +208,8 @@ msgstr "Abans de continuar, estableixi una nova contrasenya."
 msgid "Block the submission"
 msgstr "Bloquejar l'enviament"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Si ho confirmes, posposaràs la data de caducitat fins a:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "En confirmar, fixarà una data de recordatori:"
@@ -281,9 +281,6 @@ msgstr "Configura"
 
 msgid "Confirm"
 msgstr "Confirma extensió"
-
-msgid "Confirmation"
-msgstr "Confirmació"
 
 msgid "Congratulations!"
 msgstr "Enhorabona!"
@@ -418,6 +415,9 @@ msgstr "Data més propera disponible"
 
 msgid "Edit"
 msgstr "Edita"
+
+msgid "Edit the expiration date"
+msgstr "Editar la data de venciment"
 
 msgid "Email"
 msgstr "Adreça electrònica"
@@ -916,9 +916,6 @@ msgstr "Si us plau, sàpiga que totes les dades associades seran esborrades defi
 
 msgid "Please select your account:"
 msgstr "Si us plau, selecciona el teu compte:"
-
-msgid "Postpone the expiration date"
-msgstr "Posposa la data de caducitat"
 
 msgid "Preferences"
 msgstr "Preferències"
@@ -1641,7 +1638,7 @@ msgid "File a report"
 msgstr "Presentar un informe"
 
 msgid "Select a reporting channel:"
-msgstr "Trie un canal de denúncia:"
+msgstr "Tria un canal de denúncia:"
 
 msgid "Please summarize your report in a few words."
 msgstr "Descriu el teu informe en poques paraules."

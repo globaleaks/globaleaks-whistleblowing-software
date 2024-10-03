@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022\n"
+"Last-Translator: Aron <aron.plotnikowski@cryptolab.net>, 2014\n"
 "Language-Team: Polish (http://app.transifex.com/otf/globaleaks/language/pl/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -50,7 +50,7 @@ msgid "Access control"
 msgstr "Panel kontrolny"
 
 msgid "Access date"
-msgstr ""
+msgstr "Data dostępu"
 
 msgid "Access requested"
 msgstr "Zażądano dostępu"
@@ -63,7 +63,7 @@ msgid "Account recovery key"
 msgstr "Klucz odzyskiwania konta"
 
 msgid "Act on behalf of a whistleblower"
-msgstr ""
+msgstr "Działaj w imieniu sygnalisty"
 
 msgid "Activities"
 msgstr "Aktywności"
@@ -104,11 +104,11 @@ msgstr "Administratorzy upoważnieni do zmiany haseł użytkowników:"
 msgid "Advanced"
 msgstr "Zaawansowane"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Odbiorcy mogą usuwać zgłoszenia"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Odbiorcy mogą zmieniać datę wygaśnięcia zgłoszenia"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Sygnaliści mogą dodawać załączniki"
@@ -117,7 +117,7 @@ msgid "Allow the whistleblower to write comments"
 msgstr "Sygnalista może pisać komentarze"
 
 msgid "Allow this user to reopen management of a report"
-msgstr ""
+msgstr "Zezwól temu użytkownikowi na ponowne otwarcie zarządzania zgłoszeniem"
 
 msgid "Allow users to sign up"
 msgstr "Zezwalaj użytkownikom na rejestrację"
@@ -132,7 +132,7 @@ msgid "An update is available:"
 msgstr "Aktualizacja jest dostępna:"
 
 msgid "Analyst"
-msgstr ""
+msgstr "Analityk"
 
 msgid "Anomalies"
 msgstr "Anomalie"
@@ -156,7 +156,7 @@ msgid "Assign score points"
 msgstr "Przypisz punkty"
 
 msgid "Assigned to"
-msgstr ""
+msgstr "Przydzielony do"
 
 msgid "Attachment"
 msgstr "Załącznik"
@@ -165,7 +165,7 @@ msgid "Attachments"
 msgstr "Załączniki"
 
 msgid "Attention"
-msgstr ""
+msgstr "Uwaga"
 
 msgid "Audio"
 msgstr "Audio"
@@ -209,11 +209,11 @@ msgstr "Przed przejściem dalej proszę ustawić nowe hasło."
 msgid "Block the submission"
 msgstr "Zablokuj zgłoszenie"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Potwierdzasz przesunięcie daty wygaśnięcia na:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
-msgstr ""
+msgstr "Potwierdzając, ustawisz przypomnienie na dzień:"
 
 msgid ""
 "By enabling this feature, you will contribute to the development and "
@@ -233,7 +233,7 @@ msgid "Certificate Signing Request"
 msgstr "Żądanie podpisu certyfikatu (CSR)"
 
 msgid "Change status"
-msgstr ""
+msgstr "Zmień status"
 
 msgid "Change your password"
 msgstr "Zmień hasło"
@@ -242,10 +242,10 @@ msgid "Changelog"
 msgstr "Lista zmian"
 
 msgid "Channel"
-msgstr ""
+msgstr "Kanał"
 
 msgid "Channels"
-msgstr ""
+msgstr "Kanały"
 
 msgid "Check your inbox to activate it."
 msgstr "Sprawdź swoją skrzynkę odbiorczą by ją aktywować."
@@ -283,9 +283,6 @@ msgstr "Konfiguruj"
 msgid "Confirm"
 msgstr "Potwierdź Rozszerzenie"
 
-msgid "Confirmation"
-msgstr "Potwierdzenie"
-
 msgid "Congratulations!"
 msgstr "Gratulacje!"
 
@@ -317,7 +314,7 @@ msgid "Custom privacy panel"
 msgstr "Własne ustawienia prywatności"
 
 msgid "Custom support URL"
-msgstr ""
+msgstr "Niestandardowy URL wsparcia"
 
 msgid "Custom text"
 msgstr "Własny tekst"
@@ -337,7 +334,7 @@ msgstr "Zakres dat"
 msgid ""
 "Default mail configuration in use. Please consider using a private mail "
 "server."
-msgstr ""
+msgstr "Używana jest domyślna konfiguracja poczty. Rozważ użycie prywatnego serwera poczty."
 
 msgid "Delete"
 msgstr "Usuń"
@@ -367,7 +364,7 @@ msgid "Details of the PGP key:"
 msgstr "Szczegóły klucza PGP:"
 
 msgid "Devices"
-msgstr ""
+msgstr "Urządzenia"
 
 msgid "Disable"
 msgstr "Wyłącz"
@@ -403,7 +400,7 @@ msgid "Download"
 msgstr "Pobierz"
 
 msgid "Download copy of the Privacy Policy"
-msgstr ""
+msgstr "Pobierz kopię Polityki Prywatności"
 
 msgid "Download the Tor Browser"
 msgstr "Pobierz przeglądarkę Tor"
@@ -420,6 +417,9 @@ msgstr "Najwcześniejsza data, jaką możesz wybrać"
 msgid "Edit"
 msgstr "Edytuj"
 
+msgid "Edit the expiration date"
+msgstr "Zmień datę wygaśnięcia"
+
 msgid "Email"
 msgstr "Email"
 
@@ -430,7 +430,7 @@ msgid "Enable"
 msgstr "Włącz"
 
 msgid "Enable PGP"
-msgstr ""
+msgstr "Odblokuj PGP"
 
 msgid "Enable administrators to change user passwords"
 msgstr "Pozwól administratorom zmieniać hasła użytkowników"
@@ -490,7 +490,7 @@ msgid "Error!"
 msgstr "Błąd!"
 
 msgid "Everyone"
-msgstr ""
+msgstr "Wszyscy"
 
 msgid "Example:"
 msgstr "Przykład:"
@@ -529,13 +529,13 @@ msgid "First"
 msgstr "Pierwsza"
 
 msgid "Fiscal code"
-msgstr ""
+msgstr "Kod fiskalny"
 
 msgid "Footer"
 msgstr "Stopka"
 
 msgid "For security reasons the code needs to be changed."
-msgstr ""
+msgstr "Ze względów bezpieczeństwa kod musi zostać zmieniony."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
@@ -572,16 +572,16 @@ msgid "Give this admin ability to change user passwords"
 msgstr "Pozwól temu administratorowi zmieniać hasła użytkowników"
 
 msgid "Give this user ability to grant user access to reports"
-msgstr ""
+msgstr "Daj temu użytkownikowi możliwość przyznawania dostępu do raportów innym użytkownikom."
 
 msgid "Give this user ability to mask information"
-msgstr ""
+msgstr "Daj temu użytkownikowi możliwość maskowania informacji"
 
 msgid "Give this user ability to permanently redact masked information"
-msgstr ""
+msgstr "Daj temu użytkownikowi możliwość trwałego redagowania zamaskowanych informacji"
 
 msgid "Give this user ability to transfer reports to other users"
-msgstr ""
+msgstr "Daj temu użytkownikowi możliwość przenoszenia raportów do innych użytkowników."
 
 msgid "Grant access"
 msgstr "Udziel dostępu"
@@ -617,7 +617,7 @@ msgid "I have read and agree to the terms of the license."
 msgstr "Przeczytałem(am) warunki Umowy licencyjnej i zgadzam się z nimi."
 
 msgid "I've read and accept the Privacy Policy"
-msgstr ""
+msgstr "Przeczytałem i akceptuję Politykę Prywatności"
 
 msgid "ID"
 msgstr "ID"
@@ -651,7 +651,7 @@ msgid ""
 msgstr "W tym kroku odpowiedzi na następujące pytania są nieprawidłowe bądź nie ma ich wcale:"
 
 msgid "Initially anonymous"
-msgstr ""
+msgstr "Początkowo anonimowy"
 
 msgid "Input validation"
 msgstr "Walidacja zawartości"
@@ -752,7 +752,7 @@ msgid "Mark as important"
 msgstr "Oznacz jako ważne"
 
 msgid "Mask"
-msgstr ""
+msgstr "Maskuj"
 
 msgid "Max"
 msgstr "Maksimum"
@@ -767,7 +767,7 @@ msgid "Maximum number of selectable recipients:"
 msgstr "Maksymalna liczna dostępnych odbiorców:"
 
 msgid "Me only"
-msgstr ""
+msgstr "Tylko ja"
 
 msgid "Medium"
 msgstr "Średni"
@@ -833,7 +833,7 @@ msgid "None"
 msgstr "Brak walidacji"
 
 msgid "Not provided."
-msgstr ""
+msgstr "Nie podano"
 
 msgid "Notifications"
 msgstr "Powiadomienia"
@@ -918,9 +918,6 @@ msgstr "Zwróć uwagę na to, żę wszystkie powiązane dane zostaną nieodwraca
 msgid "Please select your account:"
 msgstr "Wybierz swoje konto:"
 
-msgid "Postpone the expiration date"
-msgstr "Zmień datę wygaśnięcia"
-
 msgid "Preferences"
 msgstr "Preferencje"
 
@@ -997,13 +994,13 @@ msgid "Recipients have requested you to fill an additional questionnaire."
 msgstr "Odbiorcy proszą cię byś wypełnił/a dodatkową ankietę."
 
 msgid "Recipients only"
-msgstr ""
+msgstr "Tylko odbiorcy"
 
 msgid "Recipients selected:"
 msgstr "Wybrani Odbiorcy:"
 
 msgid "Redact"
-msgstr ""
+msgstr "Redaguj"
 
 msgid "Refresh"
 msgstr "Odśwież"
@@ -1021,13 +1018,13 @@ msgid "Remember your receipt for this report."
 msgstr "Zapamiętaj swój kod potwierdzenia dla tego zgłoszenia."
 
 msgid "Reminder date"
-msgstr ""
+msgstr "Data przypomnienia"
 
 msgid "Remove"
 msgstr "Usuń"
 
 msgid "Reopen"
-msgstr ""
+msgstr "Otwórz ponownie"
 
 msgid "Reply motivation"
 msgstr "Uzasadnienie odpowiedzi"
@@ -1093,7 +1090,7 @@ msgid "Restrict access to specific IP addresses"
 msgstr "Ogranicz dostęp do określonych adresów IP"
 
 msgid "Returning whistleblowers"
-msgstr ""
+msgstr "Powracający sygnaliści"
 
 msgid "Revoke access"
 msgstr "Odwołaj dostęp"
@@ -1156,10 +1153,10 @@ msgid "Select all recipients by default"
 msgstr "Domyślnie wybierz wszystkich odbiorców"
 
 msgid "Select an option"
-msgstr ""
+msgstr "Wybierz opcję"
 
 msgid "Select the recipients of your report"
-msgstr ""
+msgstr "Wybierz odbiorców swojego zgłoszenia"
 
 msgid "Select your language"
 msgstr "Wybierz swój język"
@@ -1180,7 +1177,7 @@ msgid "Send reset link"
 msgstr "Wyślij link resetu hasła"
 
 msgid "Set a reminder"
-msgstr ""
+msgstr "Ustaw przypomnienie"
 
 msgid "Set password"
 msgstr "Ustaw hasło"
@@ -1201,7 +1198,7 @@ msgid "Show"
 msgstr "Pokaż"
 
 msgid "Show channels in alphabetical order"
-msgstr ""
+msgstr "Pokaż kanały w porządku alfabetycznym"
 
 msgid "Show recipients in alphabetical order"
 msgstr "Pokaż odbiorców w porządku alfabetycznym"
@@ -1270,7 +1267,7 @@ msgid "Subscribed"
 msgstr "Zaabonowany"
 
 msgid "Subscription date"
-msgstr ""
+msgstr "Data subskrypcji"
 
 msgid "Substatuses"
 msgstr "Podstatusy"
@@ -1312,7 +1309,7 @@ msgid "Text shown after the user has selected the option."
 msgstr "Tekst pokazywany po wybraniu tej opcji przez użytkownika."
 
 msgid "Text shown on top of the interface for selecting channels"
-msgstr ""
+msgstr "Tekst wyświetlany na górze interfejsu do wyboru kanałów:"
 
 msgid "Text shown upon negative answer"
 msgstr "Tekst wyświetlany przy błędnej odpowiedzi"
@@ -1346,7 +1343,7 @@ msgid ""
 msgstr "Poniższy przewodnik przeprowadzi Cię krok po kroku przez proces tworzenia platformy sygnalistycznej."
 
 msgid "The link will expire in 7 days."
-msgstr ""
+msgstr "Link wygaśnie za 7 dni."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1448,7 +1445,7 @@ msgid "Transfer"
 msgstr "Transfer"
 
 msgid "Transfer access"
-msgstr ""
+msgstr "Przenieś dostęp"
 
 msgid "Trigger conditions"
 msgstr "Uruchom warunki"
@@ -1472,10 +1469,10 @@ msgid "URL redirects"
 msgstr "przekierowania URL"
 
 msgid "Unhide"
-msgstr ""
+msgstr "Odkryj"
 
 msgid "Unselect"
-msgstr ""
+msgstr "Odznacz"
 
 msgid "Upload"
 msgstr "Załaduj"
@@ -1531,7 +1528,7 @@ msgid "View your report"
 msgstr "Zobacz swoje zgłoszenie"
 
 msgid "Voice"
-msgstr ""
+msgstr "Głos"
 
 msgid "Waiting for authorization"
 msgstr "Czeka na autoryzację"
@@ -1572,7 +1569,7 @@ msgid "Whistleblower's last access"
 msgstr "WB Ostatnio Zalogowany"
 
 msgid "Whistleblowing Policy"
-msgstr ""
+msgstr "Polityka sygnalizacyjna"
 
 msgid "Whistleblowing button"
 msgstr "Przycisk sygnalizuj"
@@ -1589,7 +1586,7 @@ msgid ""
 msgstr "Łączysz się z węzłem nieanonimowo, ten węzeł zezwala wyłącznie zgłoszenia anonimowe"
 
 msgid "You are operating on behalf of a whistleblower."
-msgstr ""
+msgstr "Działasz w imieniu sygnalisty."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1642,7 +1639,7 @@ msgid "File a report"
 msgstr " \nWyślij zgłoszenie"
 
 msgid "Select a reporting channel:"
-msgstr ""
+msgstr "Wybierz kanał zgłoszeniowy:"
 
 msgid "Please summarize your report in a few words."
 msgstr "Podsumuj swoje zgłoszenie w kilku słowach."
@@ -1660,7 +1657,7 @@ msgid "I'm a victim"
 msgstr "Jestem ofiarą."
 
 msgid "I'm involved in the facts"
-msgstr ""
+msgstr "Jestem zaangażowany w te wydarzenia."
 
 msgid "I witnessed the facts in person"
 msgstr "Byłem(-am) osobiście świadkiem zdarzeń."
@@ -1706,7 +1703,7 @@ msgid "What is the outcome you want to achieve with our support?"
 msgstr "Jaki rezultat chciałby(-aby) Pan(i) uzyskać z naszym wsparciem?"
 
 msgid "Would you like to tell us who you are?"
-msgstr ""
+msgstr "Czy chciałbyś nam powiedzieć, kim jesteś?"
 
 msgid "First name"
 msgstr "Imię"
@@ -1724,7 +1721,7 @@ msgid "Other"
 msgstr "Inne"
 
 msgid "Specify"
-msgstr ""
+msgstr "\tOkreśl"
 
 msgid "Dear {RecipientName},"
 msgstr "Szanowny(a) {RecipientName},"
@@ -1788,7 +1785,7 @@ msgid "The activities with unusual stats are:"
 msgstr "Oto działania z odbiegającymi od normy statystykami:"
 
 msgid "Available disk space: {FreeMemory}/{TotalMemory}"
-msgstr ""
+msgstr "Wolne miejsce na dysku: {FreeMemory}/{TotalMemory}"
 
 msgid ""
 "The server cannot guarantee that a new report can be stored, so submissions "
@@ -2019,7 +2016,7 @@ msgid "New report"
 msgstr "Nowy raport"
 
 msgid "One or more reports are expiring and will be soon deleted."
-msgstr ""
+msgstr "Jeden lub więcej raportów wygasa i wkrótce zostanie usuniętych."
 
 msgid "The earliest expiration date is {EarliestExpirationDate}."
 msgstr "Najwcześniejsza data wygaśnięcia to {EarliestExpirationDate}."
@@ -2031,15 +2028,15 @@ msgid "Some reports will expire soon"
 msgstr "Niektóre raporty wkrótce wygasną."
 
 msgid "This is an email to notify you the reception of a new report."
-msgstr ""
+msgstr "To jest wiadomość e-mail powiadamiająca o otrzymaniu nowego zgłoszenia."
 
 msgid ""
 "This is an email to notify you that the reminder date for one or more "
 "reports has been met."
-msgstr ""
+msgstr "To jest wiadomość e-mail powiadamiająca, że data przypomnienia dla jednego lub więcej raportów została osiągnięta."
 
 msgid "Reminder"
-msgstr ""
+msgstr "Przypomnienie"
 
 msgid "This is an email to notify that an existing report has been updated."
 msgstr "To jest wiadomość mailowa z powiadomieniem o aktualizacji istniejącego raportu."

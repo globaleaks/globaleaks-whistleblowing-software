@@ -20,19 +20,12 @@
             </div>
             <div class="col-md-6 clearfix" *ngIf="tenant.id !== 1" (click)="toggleEditing($event)">
                 <span class="float-end">
-                    <span *ngIf="tenant.active" class="btn btn-sm btn-primary" (click)="toggleActivation($event)">{{'Enabled'|translate}} </span>
-                    <span *ngIf="!tenant.active" class="btn btn-sm btn-danger" (click)="toggleActivation($event)">{{'Disabled'|translate}} </span>
-                    <span *ngIf="tenant.active" class="btn btn-sm btn-primary" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}
-                    </span>
-                    <button class="btn btn-sm btn-outline-secondary" *ngIf="!editing" (click)="toggleEditing($event)">
-                        <span>{{'Edit'|translate}}</span>
-                    </button>
-                    <button class="btn btn-sm btn-primary" *ngIf="editing" (click)="saveTenant()">
-                        <span>{{'Save'|translate}}</span>
-                    </button>
-                    <button class="btn btn-sm btn-danger" id="delete_tenant" *ngIf="isRemovableTenant()" (click)="deleteTenant($event, tenant)">
-                        <span>{{'Delete'|translate}}</span>
-                    </button>
+                    <button *ngIf="tenant.active" class="btn btn-sm btn-primary" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}} </button>
+                    <button *ngIf="!tenant.active" class="btn btn-sm btn-danger" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}} </button>
+                    <button *ngIf="tenant.active" class="btn btn-sm btn-primary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
+                    <button *ngIf="!editing" class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">{{'Edit'|translate}}</button>
+                    <button *ngIf="editing" class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
+                    <button *ngIf="isRemovableTenant()" class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
                 </span>
             </div>
         </div>

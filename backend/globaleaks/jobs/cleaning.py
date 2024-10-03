@@ -65,11 +65,15 @@ class Cleaning(DailyJob):
             data = {
                 'type': 'tip_expiration_summary',
                 'node': db_admin_serialize_node(session, tid, user.language),
-                'notification': db_get_notification(session, tid, user.language),
                 'user': user_desc,
                 'expiring_submission_count': expiring_submission_count,
                 'earliest_expiration_date': earliest_expiration_date
             }
+
+            if data['node']['mode'] == 'default':
+                data['notification'] = db_get_notification(session, tid, user.language)
+            else:
+                data['notification'] = db_get_notification(session, 1, user.language)
 
             subject, body = Templating().get_mail_subject_and_body(data)
 

@@ -84,11 +84,11 @@ msgstr "Идареджилерге къулланыджы пароллерини
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Алыджыгъа эсабатларны ёкъ этмеге изин бермек"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Алыджыгъа эсабат битме муддетини кечиктирмеге изин бермек"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Малюмат бериджиге берильген весикъаларгъа илявелерни къошмагъа изин бермек"
@@ -189,8 +189,8 @@ msgstr "Девам этмезден эвель, лютфен, янъы паро�
 msgid "Block the submission"
 msgstr "Весикъалар берильмесини токътатмакъ"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Тасдикъ олунса, сиз сонъ къулланма тарихини бу шекильде узатырсынъыз:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -262,9 +262,6 @@ msgstr "Сазлама"
 
 msgid "Confirm"
 msgstr "Тасдикъламакъ"
-
-msgid "Confirmation"
-msgstr "Тасдикъ"
 
 msgid "Congratulations!"
 msgstr "Хайырлаймыз!"
@@ -399,6 +396,9 @@ msgstr "Энъ эрте сайлама тарихи"
 
 msgid "Edit"
 msgstr "Денъиштирмек"
+
+msgid "Edit the expiration date"
+msgstr "Сонъ къуллама тарихини кериге чекмек"
 
 msgid "Email"
 msgstr "Электрон почта"
@@ -897,9 +897,6 @@ msgstr "Дикъкъат этинъиз, бутюн алякъадар малю�
 
 msgid "Please select your account:"
 msgstr "Эсабынъызны бельгиленъиз:"
-
-msgid "Postpone the expiration date"
-msgstr "Сонъ къуллама тарихини кериге чекмек"
 
 msgid "Preferences"
 msgstr "Сазламалар"

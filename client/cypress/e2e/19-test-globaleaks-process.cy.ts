@@ -62,11 +62,6 @@ describe("globaleaks process", function () {
 
       cy.login_whistleblower(receipts[0]);
 
-      cy.get('[data-cy="file_selection"]').click();
-      cy.get('.ng-dropdown-panel').should('be.visible');
-      cy.contains('.ng-option', 'evidence-1.pdf').click();
-
-
       cy.get("#comment-0").should("contain", comment);
 
       cy.get("[name='newCommentContent']").type(comment_reply);
@@ -76,10 +71,10 @@ describe("globaleaks process", function () {
 
       cy.takeScreenshot("whistleblower/report");
 
-      cy.fixture("files/evidence-3.txt").then(fileContent => {
+      cy.fixture("files/test.txt").then(fileContent => {
         cy.get('input[type="file"]').then(input => {
           const blob = new Blob([fileContent], { type: "text/plain" });
-          const testFile = new File([blob], "files/evidence-3.txt");
+          const testFile = new File([blob], "files/test.txt");
           const dataTransfer = new DataTransfer();
           dataTransfer.items.add(testFile);
           const inputElement = input[0] as HTMLInputElement;
@@ -124,13 +119,13 @@ describe("globaleaks process", function () {
     cy.logout();
   });
 
-  it("should update default context", () => {
+  it("should update default channel", () => {
     cy.login_admin();
-    cy.visit("/#/admin/contexts");
+    cy.visit("/#/admin/channels");
     cy.get("#edit_context").first().click();
-    cy.get('select[name="contextResolver.questionnaire_id"]').select('testing 1');
+    cy.get('select[name="contextResolver.questionnaire_id"]').select('questionnaire 1');
     cy.get("#advance_context").click();
-    cy.get('select[name="contextResolver.additional_questionnaire_id"]').select('testing 2');
+    cy.get('select[name="contextResolver.additional_questionnaire_id"]').select('questionnaire 2');
     cy.get("#save_context").click();
     cy.logout();
   });
@@ -198,9 +193,9 @@ describe("globaleaks process", function () {
     cy.logout();
   });
 
-  it("should revert default context", () => {
+  it("should revert default channel", () => {
     cy.login_admin();
-    cy.visit("/#/admin/contexts");
+    cy.visit("/#/admin/channels");
     cy.get("#edit_context").first().click();
     cy.get('select[name="contextResolver.questionnaire_id"]').select('GLOBALEAKS');
     cy.get("#save_context").click();

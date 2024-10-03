@@ -20,7 +20,7 @@
             <td>{{data.progressive}}</td>
             <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
             <td>{{data.last_update | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td>{{data.expiration_date | date:'dd-MM-yyyy'}}</td>
+            <td>{{data.expiration_date | date:'dd-MM-yyyy HH:mm'}}</td>
             <td *ngIf="appDataService.contexts_by_id[data.context_id]">{{appDataService.contexts_by_id[data.context_id]['name']}}</td>
             <td *ngIf="!appDataService.contexts_by_id[data.context_id]"></td>
             <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>

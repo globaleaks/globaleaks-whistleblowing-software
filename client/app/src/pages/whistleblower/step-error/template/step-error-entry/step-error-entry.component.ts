@@ -7,7 +7,6 @@ import {Field} from "@app/models/resolvers/field-template-model";
   templateUrl: "./step-error-entry.component.html"
 })
 export class StepErrorEntryComponent implements OnInit {
-  @Input() navigation: number;
   @Input() err: string;
   @Input() field_id_map: { [key: string]: Field };
   @Input() form!: NgForm;

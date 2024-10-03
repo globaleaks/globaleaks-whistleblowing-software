@@ -12,25 +12,27 @@
 # Drew Melim <nokostya.translation@gmail.com>, 2014,2018
 # e8f1a29f7bd45d2490d729ad149fc504_6eadd8e, 2015
 # fc2d9c36d73e741383fbbf46a4aac49f_013445b, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2023
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2024
 # João Paulo Macedo Batalha <joao.batalha@transparencia.pt>, 2015
 # José Anjos, 2022
+# lecalam, 2024
 # 425fe09b3064b9f906f637fff94056ae_a00ea56 <0fa3588fa89906bfcb3a354600956e0e_308047>, 2015-2016
 # Manuela Silva <mmsrs@sky.com>, 2020
 # Manuela Silva <mmsrs@sky.com>, 2014-2018
-# Manuela Silva <mmsrs@sky.com>, 2019-2020,2022-2023
+# Manuela Silva <mmsrs@sky.com>, 2019-2020,2022-2024
 # Mónica Marques <coelho_monica75@hotmail.com>, 2017
 # Manuela Silva <mmsrs@sky.com>, 2019
 # Drew Melim <nokostya.translation@gmail.com>, 2014-2015
 # 25dcf36596cc573910517485ce7471d2_e63d9c6 <02fb85a8c2ff1359b9784c1b22793096_365094>, 2015
 # 25dcf36596cc573910517485ce7471d2_e63d9c6 <02fb85a8c2ff1359b9784c1b22793096_365094>, 2015
 # 575b4991c894d9c8bf6a550fe019e79d_a59dad8 <feee6d7ec07d4c6114bc49e60d3a80e8_323709>, 2015
+# pcinacio, 2024
 # Yvette Agostini <mnemosyne@logioshermes.org>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: cocoon, 2023-2024\n"
+"Last-Translator: Manuela Silva <mmsrs@sky.com>, 2019-2020,2022-2024\n"
 "Language-Team: Portuguese (Portugal) (http://app.transifex.com/otf/globaleaks/language/pt_PT/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,7 +69,7 @@ msgid "Account recovery key"
 msgstr "Chave de recuperação da conta"
 
 msgid "Act on behalf of a whistleblower"
-msgstr "Agir em nome de um denunciante"
+msgstr "Agir em nome de um informador"
 
 msgid "Activities"
 msgstr "Atividades"
@@ -108,20 +110,20 @@ msgstr "Administradores autorizados para alterarem as palavras -passe de utiliza
 msgid "Advanced"
 msgstr "Avançadas"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Permitir que o destinatário edite a data de expiração dos relatórios"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permitir que o destinatário elimine denúncias"
 
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permitir que o destinatário adie a data de expiração da denúncia"
-
 msgid "Allow the whistleblower to add attachments"
-msgstr "Permitir que o informador adicione anexos à submissão"
+msgstr "Permitir que o informador adicione anexos"
 
 msgid "Allow the whistleblower to write comments"
 msgstr "Permitir que o informador escreva comentários"
 
 msgid "Allow this user to reopen management of a report"
-msgstr "Permitir que este usuário reabra o gerenciamento de um relatório"
+msgstr "Permitir que este utilizador reabra a gestão de um relatório"
 
 msgid "Allow users to sign up"
 msgstr "Permitir que os utilizadores se registem"
@@ -213,8 +215,8 @@ msgstr "Antes de continuar, por favor, defina uma nova palavra-passe."
 msgid "Block the submission"
 msgstr "Bloquear a submissão"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Ao confirmar, adiará a data de validade da denúncia para:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Ao confirmar, irá editar a data de expiração para:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Ao confirmar, irá definir um lembrete na data:"
@@ -237,7 +239,7 @@ msgid "Certificate Signing Request"
 msgstr "Pedido de Assinatura de Certificado"
 
 msgid "Change status"
-msgstr "Alterar status"
+msgstr "Alterar estado"
 
 msgid "Change your password"
 msgstr "Altere a sua palavra-passe"
@@ -286,9 +288,6 @@ msgstr "Configurar"
 
 msgid "Confirm"
 msgstr "Confirmar"
-
-msgid "Confirmation"
-msgstr "Confirmação"
 
 msgid "Congratulations!"
 msgstr "Parabéns!"
@@ -398,7 +397,7 @@ msgid "Disabled"
 msgstr "Desativada"
 
 msgid "Disclaimer"
-msgstr "Aviso"
+msgstr "Limitação de Responsabilidade"
 
 msgid "Display options alphabetically"
 msgstr "Exibir opções alfabeticamente "
@@ -410,7 +409,7 @@ msgid "Download copy of the Privacy Policy"
 msgstr "Transferir cópia da «Política de Privacidade»"
 
 msgid "Download the Tor Browser"
-msgstr "Transfira o Navegador Tor"
+msgstr "Transfira o Tor Browser"
 
 msgid "Duplicate"
 msgstr "Duplicar"
@@ -423,6 +422,9 @@ msgstr "Data selecionável mais antiga"
 
 msgid "Edit"
 msgstr "Editar"
+
+msgid "Edit the expiration date"
+msgstr "Editar a data de expiração"
 
 msgid "Email"
 msgstr "Correio eletrónico"
@@ -539,7 +541,7 @@ msgid "Footer"
 msgstr "Rodapé"
 
 msgid "For security reasons the code needs to be changed."
-msgstr "Por motivos de segurança, o código precisa ser alterado."
+msgstr "Por motivos de segurança, o código tem de ser alterado."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
@@ -655,7 +657,7 @@ msgid ""
 msgstr "Neste passo, as respostas para as seguintes questões estão em falta ou são inválidas:"
 
 msgid "Initially anonymous"
-msgstr "Inicialmente anônimo"
+msgstr "Inicialmente anónimo"
 
 msgid "Input validation"
 msgstr "Validação de entrada"
@@ -921,9 +923,6 @@ msgstr "Por favor, note que todos os dados associados serão perdidos para sempr
 
 msgid "Please select your account:"
 msgstr "Selecione a sua conta:"
-
-msgid "Postpone the expiration date"
-msgstr "Adiar a data de expiração"
 
 msgid "Preferences"
 msgstr "Preferências"
@@ -1350,7 +1349,7 @@ msgid ""
 msgstr "O seguinte procedimento passo a passo irá orientá-lo para criar a sua plataforma de denúncia."
 
 msgid "The link will expire in 7 days."
-msgstr "O link expirará em 7 dias."
+msgstr "A hiperligação expirará em 7 dias."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1593,7 +1592,7 @@ msgid ""
 msgstr "Está a ligar-se ao servidor sem anonimato e este servidor apenas suporta o envio anónimo."
 
 msgid "You are operating on behalf of a whistleblower."
-msgstr "Você está operando em nome de um denunciante."
+msgstr "Está a atuar em nome de um denunciante."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1710,7 +1709,7 @@ msgid "What is the outcome you want to achieve with our support?"
 msgstr "Qual é o resultado que pretende alcançar com o nosso apoio?"
 
 msgid "Would you like to tell us who you are?"
-msgstr "Gostaria de nos dizer quem você é?"
+msgstr "Deseja identificar-se?"
 
 msgid "First name"
 msgstr "Nome"

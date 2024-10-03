@@ -23,7 +23,7 @@ class TempDict(dict):
             except:
                 pass
 
-            if hasattr(value, 'expireCallback'):
+            if hasattr(value, 'expireCallback') and value.expireCallback:
                 value.expireCallback()
 
     def reset_timeout(self, value):

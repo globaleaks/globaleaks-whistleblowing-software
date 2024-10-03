@@ -1,4 +1,4 @@
-describe("admin configure, add, and delete tenants", () => {
+describe("admin configure, add, configure and delete tenants", () => {
   const add_tenant = async (name:string) => {
     cy.get(".show-add-tenant-btn").click();
     cy.get("[name='newTenant.name']").type(name);
@@ -6,7 +6,7 @@ describe("admin configure, add, and delete tenants", () => {
     cy.contains(name).should("exist");
   };
 
-  it("should add new tenant", () => {
+  it("should add, configure and delete tenant", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
 
@@ -16,7 +16,8 @@ describe("admin configure, add, and delete tenants", () => {
 
     cy.takeScreenshot("admin/sites_management_sites");
 
-    cy.get("#delete_tenant").last().click();
+    cy.get("button[name='configure_tenant']").last().click();
+    cy.get("button[name='delete_tenant']").last().click();
     cy.get("#modal-action-ok").click();
 
     cy.get('[data-cy="options"]').click();

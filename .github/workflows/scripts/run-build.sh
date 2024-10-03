@@ -38,4 +38,4 @@ sudo -E chroot "$chroot" locale-gen
 sudo -E chroot "$chroot" useradd -m builduser
 sudo -E su -c 'echo "builduser ALL=NOPASSWD: ALL" >> "$chroot"/etc/sudoers'
 sudo -E chroot "$chroot" chown builduser -R /build
-sudo -E chroot "$chroot" su - builduser /bin/bash -c '/build/GlobaLeaks/.github/workflows/scripts/build_and_install.sh'
+sudo -E chroot "$chroot" su - builduser /bin/bash -c '/build/whistleblowing-software/.github/workflows/scripts/build_and_install.sh'

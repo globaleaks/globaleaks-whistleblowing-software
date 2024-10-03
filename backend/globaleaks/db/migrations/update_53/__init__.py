@@ -1,10 +1,8 @@
 # -*- coding: UTF-8
-from datetime import datetime
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.handlers.admin.operation import db_reset_smtp_settings
 from globaleaks.models import Model
-from globaleaks.models.config import ConfigFactory
 from globaleaks.models.enums import *
 from globaleaks.models.properties import *
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null

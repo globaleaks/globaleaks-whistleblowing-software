@@ -55,19 +55,19 @@ const routes: Routes = [
   },
   {
     path: "settings",
+    loadChildren: () => SettingsModule,
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver
     },
-    loadChildren: () => SettingsModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Settings"},
   },
   {
     path: "sites",
+    loadChildren: () => SitesModule,
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, JobResolver, TipsResolver, QuestionnairesResolver, StatusResolver
     },
-    loadChildren: () => SitesModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Sites"},
   },
@@ -82,15 +82,15 @@ const routes: Routes = [
   },
   {
     path: "questionnaires",
+    loadChildren: () => QuestionnairesModule,
     resolve: {
       NodeResolver, PreferenceResolver, ContextsResolver, UsersResolver, QuestionnairesResolver, FieldTemplatesResolver
     },
-    loadChildren: () => QuestionnairesModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Questionnaires"},
   },
   {
-    path: "contexts",
+    path: "channels",
     loadChildren: () => ContextsModule,
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver, ContextsResolver
@@ -109,28 +109,28 @@ const routes: Routes = [
   },
   {
     path: "auditlog",
+    loadChildren: () => AuditLogModule,
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, AuditlogResolver: AuditLogResolver, JobResolver, TipsResolver
     },
-    loadChildren: () => AuditLogModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Audit log"},
   },
   {
     path: "notifications",
+    loadChildren: () => NotificationsModule,
     resolve: {
       NodeResolver, PreferenceResolver, NotificationsResolver
     },
-    loadChildren: () => NotificationsModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Notifications"},
   },
   {
     path: "network",
+    loadChildren: () => NetworkModule,
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, NetworkResolver, RedirectsResolver
     },
-    loadChildren: () => NetworkModule,
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Network"},
   }

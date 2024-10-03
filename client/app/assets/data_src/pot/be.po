@@ -85,11 +85,11 @@ msgstr "Адміністратары ўпаўнаважаныя змяняць �
 msgid "Advanced"
 msgstr "Пашыраны"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Дазволіць атрымальніку выдаляць справаздачы"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Дазволіць атрымальніку пераносіць сканчэнне тэрміну дзеяння справаздачы"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Дазволіць выкрывальніку дадаваць да справаздачы далучаныя файлы "
@@ -190,8 +190,8 @@ msgstr "Перад тым як працягнуць, к.л., стварыце н
 msgid "Block the submission"
 msgstr "Заблакаваць падачу матэрыялаў"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Пацвярджаючы, вы пераносіце сканчэнне тэрміну дзеяння справаздачы на:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -263,9 +263,6 @@ msgstr "Наладзіць"
 
 msgid "Confirm"
 msgstr "Пацвердзіць"
-
-msgid "Confirmation"
-msgstr "Пацверджанне"
 
 msgid "Congratulations!"
 msgstr "Віншуем!"
@@ -400,6 +397,9 @@ msgstr "Самая ранняя дата, якую можна выбраць"
 
 msgid "Edit"
 msgstr "Рэдагаваць"
+
+msgid "Edit the expiration date"
+msgstr "Перанесці сканчэнне тэрміну дзеяння"
 
 msgid "Email"
 msgstr "Эл. пошта"
@@ -898,9 +898,6 @@ msgstr "Звярніце ўвагу, што ўсе спалучаныя дадз
 
 msgid "Please select your account:"
 msgstr "Выберыце свой уліковы запіс:"
-
-msgid "Postpone the expiration date"
-msgstr "Перанесці сканчэнне тэрміну дзеяння"
 
 msgid "Preferences"
 msgstr "Налады"

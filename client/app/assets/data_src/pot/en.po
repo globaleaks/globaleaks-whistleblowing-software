@@ -78,11 +78,11 @@ msgstr "Administrators authorized to change user passwords:"
 msgid "Advanced"
 msgstr "Advanced"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Allow the recipient to edit the reports' expiration date"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Allow the recipient to delete reports"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Allow the recipient to postpone the report expiration date"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Allow the whistleblower to add attachments"
@@ -183,8 +183,8 @@ msgstr "Before proceeding, please set a new password."
 msgid "Block the submission"
 msgstr "Block the submission"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "By confirming, you will postpone the expiration date to:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "By confirming, you will edit the expiration date to:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "By confirming, you will set a reminder on date:"
@@ -394,6 +394,9 @@ msgstr "Earliest selectable date"
 
 msgid "Edit"
 msgstr "Edit"
+
+msgid "Edit the expiration date"
+msgstr "Edit the expiration date"
 
 msgid "Email"
 msgstr "Email"
@@ -901,9 +904,6 @@ msgstr "Please note that all the associated data will be permanently deleted."
 
 msgid "Please select your account:"
 msgstr "Please select your account:"
-
-msgid "Postpone the expiration date"
-msgstr "Postpone the expiration date"
 
 msgid "Preferences"
 msgstr "Preferences"

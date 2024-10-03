@@ -5,13 +5,16 @@ import base64
 import json
 import re
 
+from nacl.encoding import Base64Encoder
+from nacl.public import PrivateKey
+
 from globaleaks import models
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaire
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import sha256, Base64Encoder, GCE
+from globaleaks.utils.crypto import sha256, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null
 
@@ -50,7 +53,7 @@ def decrypt_tip(user_key, tip_prv_key, tip):
             tip['data'][k] = json.loads(GCE.asymmetric_decrypt(tip_key, base64.b64decode(tip['data'][k].encode())).decode())
 
             if k == 'whistleblower_identity' and isinstance(tip['data'][k], list):
-                # Fix for issue: https://github.com/globaleaks/GlobaLeaks/issues/2612
+                # Fix for issue: https://github.com/globaleaks/whistleblowing-software/issues/2612
                 # The bug is due to the fact that the data was initially saved as an array of one entry
                 tip['data'][k] = tip['data'][k][0]
 
@@ -240,7 +243,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     if crypto_is_available:
         crypto_tip_prv_key, itip.crypto_tip_pub_key = GCE.generate_keypair()
         wb_key = GCE.derive_key(receipt.encode(), State.tenants[tid].cache.receipt_salt)
-        user_session.cc, itip.crypto_pub_key = GCE.generate_keypair()
+        itip.crypto_pub_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
         itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, user_session.cc))
         itip.crypto_tip_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
 

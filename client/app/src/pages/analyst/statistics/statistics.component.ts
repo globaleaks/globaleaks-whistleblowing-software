@@ -23,8 +23,8 @@ export class StatisticsComponent implements OnInit {
   }
 
   private createChart(title: string, labels: string[], values: number[], colors: string[]) {
-    var total: number = 0;
-    var i: any;
+    let total = 0;
+    let i: any;
 
     for (i in values) {
       total += values[i];

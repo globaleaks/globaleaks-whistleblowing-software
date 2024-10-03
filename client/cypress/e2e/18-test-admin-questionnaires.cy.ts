@@ -99,10 +99,10 @@ describe("admin add, configure and delete questionnaires", () => {
 
     cy.visit("/#/admin/questionnaires");
     cy.get("#keyUpload").click();
-    cy.fixture("files/testing-1.txt").then(fileContent => {
+    cy.fixture("questionnaires/questionnaire1.txt").then(fileContent => {
       cy.get('input[type="file"]').then(input => {
         const blob = new Blob([fileContent], { type: "text/plain" });
-        const testFile = new File([blob], "files/testing-1.txt");
+        const testFile = new File([blob], "questionnaires/questionnaire1.txt");
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(testFile);
         const inputElement = input[0] as HTMLInputElement;
@@ -113,10 +113,10 @@ describe("admin add, configure and delete questionnaires", () => {
       });
 
     });
-    cy.fixture("files/testing-2.txt").then(fileContent => {
+    cy.fixture("questionnaires/questionnaire2.txt").then(fileContent => {
       cy.get('input[type="file"]').then(input => {
         const blob = new Blob([fileContent], { type: "text/plain" });
-        const testFile = new File([blob], "files/testing-2.txt");
+        const testFile = new File([blob], "questionnaires/questionnaire2.txt");
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(testFile);
         const inputElement = input[0] as HTMLInputElement;

@@ -15,7 +15,6 @@ import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
   templateUrl: "./tippage.component.html"
 })
 export class TippageComponent implements OnInit {
-
   fileUploadUrl: string;
   answers = {};
   uploads: { [key: string]: any } = {};
@@ -183,5 +182,4 @@ export class TippageComponent implements OnInit {
   onFormChange() {
     this.fieldUtilitiesService.onAnswersUpdate(this);
   }
-
 }

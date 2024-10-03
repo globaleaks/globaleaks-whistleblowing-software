@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: globaleaks
 Upstream-Context: info@globaleaks.org
-Source: https://github.com/globaleaks/GlobaLeaks
+Source: https://github.com/globaleaks/whistleblowing-software
 
 Files: *
 Copyright: © 2011-2022, GlobaLeaks

@@ -1,3 +1,82 @@
+Changes in version 5.0.10
+    Revert "Update codebase to new angular control flow-directive" causing instabilities on 5.0.9
+
+Changes in version 5.0.9
+    Fix failure in the loading of translations at first load of the application introduced in 5.0.7 (#4194)
+    Reimplement override of localStorage with sessionStorage (#3277)
+    Replace usages of localStorage with sessionStorage
+    Bump client dependencies to latest versions
+
+Changes in version 5.0.8
+    Fix multilang export of questionnaires (#4190)
+    Bump client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.7
+    Revise implementation of form validation
+    Implement language changes on ng-bootstrap datepicker
+    Revise internationalization issues
+    Revise admin sidebar menu fixing "Channels" link
+    Bump client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.6
+    Change text "Postpone the expiration date" to "Edit the expiration date" (#4175)
+    Revise reports' statuses configuration (#4177)
+    Fix regression on reports search introduced in release 5.0.0 (#4184)
+    Correct missing translation for "Privacy" and "Whistleblowing" policies link
+    Update list of italian ministries and authorities using the software
+    Revise description of the software adding reference to DPG recognition
+    Update client dependencies to latest versions
+    Update translations
+
+Changes in version 5.0.5
+    Fix regression #4181
+    Apply accessibility fixes as for ticket #3998
+    Update client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.4
+    Apply accessibility fixes as for ticket #3998
+    Preserve newlines during markdown rendering (#4179)
+    Fix internationalization issue on report page
+    Disable caching of Tor descriptors
+    Preserve newlines during markdown rendering (#4179)
+    Fix internationalization issue on report page
+    Revise session implementation fixing file downloads bug introduced in 5.0.3
+    Update client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.3
+    Implement encrypted sessions minimizing exposure of users keys
+    Revise implementation of questionnaires' step navigation
+    Make new reports expire at 23:59:59 UTC
+    Fix visualization of disabled reminder showing incorrecly as '3000-01-01'
+    Fix issue #4172
+    [doc] Update application security spec with detail on session encryption
+    [doc] Update documentation about usage of Angualar in place of AngularJS
+    [doc] Revise software features descriptions
+    [doc] Update list of italian public agencies using the software
+    [doc] Update documentation images
+    Bump client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.2
+    Fix loading of channels when context id is provided as URL parameter
+    Fix implementation of file enabler in relation to 2fa confirmation
+    Implement few fixes as by suggestion #4058
+    Add version bump script
+    Update client dependencies to latest version
+
+Changes in version 5.0.1
+    Avoid to send emails when handlers exceed execution threshold
+    Enable to use markdown in ToSs' labels
+    Correct login interface for admin in relation to simplified login
+    Revise interface showing files on related questions
+    Bump client dependencies to latest version
+    [ci] Revise tests and improve screenshots collection
+    [doc] Update documentation images
+
 Changes in version 5.0.0
     Implement full client rewrite on the base of Angular 18 and Bootstrap 5
     Display report expiration date changes on report page (#4116)

@@ -86,11 +86,11 @@ msgstr "Администраторийн бакъо ю пайдаэцархоч�
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "ДIаэцархочунна аьрзнаш дIадайъа бакъо луо"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "ДIаэцархочунна арз чекхдаларан хан дIататта бакъо луо "
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Iорадаккхархочунна магийта орзана тIе юкъаехкина файлаш тIетоха"
@@ -191,8 +191,8 @@ msgstr "Кхин дIавахале, керла парол хIоттаехьа."
 msgid "Block the submission"
 msgstr "Чудаларна блок хIоттае"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Тlечlагlдича, ахь чекхдаларан хан дlатотту:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -264,9 +264,6 @@ msgstr "Конфигураци е"
 
 msgid "Confirm"
 msgstr "ТIечIагIде"
-
-msgid "Confirmation"
-msgstr "Тlечlагlдар"
 
 msgid "Congratulations!"
 msgstr "Декъалво хьо!"
@@ -401,6 +398,9 @@ msgstr "Харжа йишйолу уггар гергара терахь"
 
 msgid "Edit"
 msgstr "Тодан"
+
+msgid "Edit the expiration date"
+msgstr "Чекхдаларан хан дlататта"
 
 msgid "Email"
 msgstr "Электронан пошта"
@@ -899,9 +899,6 @@ msgstr "Тидам белаш, кхуьнца йоьзна йолу информ
 
 msgid "Please select your account:"
 msgstr "Хьайн аккаунт харжахь:"
-
-msgid "Postpone the expiration date"
-msgstr "Чекхдаларан хан дlататта"
 
 msgid "Preferences"
 msgstr "Гlолениг харжар"

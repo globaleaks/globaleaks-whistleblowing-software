@@ -1,82 +1,81 @@
 ============
 Threat Model
 ============
-GlobaLeaks is an free and open source whistleblowing software that can be used in many different usage scenarios that may require very different approaches to obtain at the same time strong security and high usability. This two requirements are necessary to safely handle a whistleblowing procedure by protecting whistleblowers and at the same time achieve specific project goals. For this reasons considering the variety of different use cases and risks the software supports the possibility to be configured o respond to the specific threat model here detailed.
+GlobaLeaks is a free and open-source whistleblowing software designed for various usage scenarios, each requiring a balance between strong security and high usability. These two requirements are crucial for managing whistleblowing procedures effectively, protecting whistleblowers, and achieving specific project goals. Given the variety of use cases and associated risks, the software can be configured to address the specific threat model detailed here.
 
-This document is intended to be used by organizations that want to implement a whistleblowing procedure based on Globaleaks and support the analysis and comprehension of the specific threat model of their context of use and of the risks involved and guide users through the selection of the best practices to be used within their own project.
+This document is intended for organizations implementing a whistleblowing procedure using GlobaLeaks. It supports the analysis and understanding of the specific threat model relevant to their context and risks and guides users in selecting best practices for their project.
 
 Users Matrix
 ============
-As a first step we define the type of users that can interact with a GlobaLeaks platform.
+The first step is to define the types of users interacting with a GlobaLeaks platform.
 
 .. csv-table::
    :header: "User", "Definition"
 
-   "Whistleblower", "The user who submits an anonymous report through the platform. Whistleblowers are persons operating in a wide range of different threat models depending on the usage scenario and the nature of information being submitted."
-   "Recipient", "The user receiving anonymous reports submitted by Whistleblowers and responsible for their analysis. Recipients act reasonably in good faith and have to be considered in all scenarios described as trusted party with reference to the protection of Whistleblowers' and the confidentiality of the information by them communicated."
-   "Administrator", "The users supporting the setup, the management and monitoring the security of the platform. Administrator may not represent the same entity running, promoting and managing the whistleblowing initiatives (e.g., hosted solutions, multiple stakeholders projects, etc). The Administrator has to be considered in all scenarios described as a trusted entity. They do not have direct access to reports and they are responsible for advising Recipients on the best practices to be adopted in their work."
+   "Whistleblower", "The user who submits an anonymous report through the platform. Whistleblowers may operate under various threat models depending on the usage scenario and the nature of the information submitted."
+   "Recipient", "The user who receives and analyzes anonymous reports from Whistleblowers. Recipients act in good faith and are considered trusted parties concerning the protection of Whistleblowers' confidentiality."
+   "Administrator", "Users responsible for setting up, managing, and monitoring the platform's security. Administrators may not be the same entities running or managing the whistleblowing initiatives (e.g., hosted solutions, multiple stakeholder projects). Administrators are trusted entities but do not have direct access to reports and advise Recipients on best practices."
 
-It's highly relevant to apply each of the security measures always in relationship to the users using the platorm, trying to identify an adequate security and usability tradeoff.
+It is crucial to apply security measures relative to the users of the platform, aiming to achieve an appropriate tradeoff between security and usability.
 
 Anonymity Matrix
 ================
-The anonymity of different users must be differentiated and classified depending on the context of use represented by the following definitions:
+The anonymity of users must be classified depending on the context of use, as follows:
 
 .. csv-table::
    :header: "User", "Definition"
 
-   "Anonymous", "The user has accessed the platform via the Tor Browser and following the best practices for protecting their identity reducing to the maximum the possibility that a system involved in the operation has tracked their activities and their own IP address. The user has not provided any information about their own identity to Recipients."
-   "Confidential", "The user has used the platform by using a common browser. In this case, third parties could have logged their IP address during their operations but the platform has protected the content of their communication. The user may have possibly opted for disclosing confidentially their own identity to Recipients."
+   "Anonymous", "The user accesses the platform via the Tor Browser and follows best practices to protect their identity, minimizing the risk of tracking by any system involved in the operation. The user has not disclosed their identity to Recipients."
+   "Confidential", "The user accesses the platform via a common browser. While third parties might log their IP address, the platform protects the content of their communication. The user may choose to disclose their identity to Recipients confidentially."
 
-The platform always reports to users their current anonymity state and inform them about the best practices for accessing anonymously via the Tor Browser. Depending on the use case Administrators could possibly enforce the requirement that Whistleblowers could file reports only by using the Tor Browser.
+The platform always informs users of their current anonymity status and provides guidance on best practices for anonymous access via the Tor Browser. Administrators may enforce the requirement that Whistleblowers use the Tor Browser to file reports, depending on the use case.
 
 Communication Security Matrix
 =============================
-The security of communication with respect to third party transmission monitoring may have different requirements depending on its context of use.
+The security of communication concerning third-party monitoring varies based on the context of use.
 
 .. csv-table::
    :header: "Security level", "Description"
 
-   "High security", "Tor is used and the communication is encrypted end-to-end with the GlobaLeaks platform and no third party is in a condition to eavesdrop the communication."
-   "Medium security", "HTTPS is used and the communication is encrypted end-to-end with the GlobaLeaks platform. A third party able to manipulate HTTPS security (e.g., Govt re-issuing TLS cert) is in a condition to eavesdrop the communication. If HTTPS security is guaranteed, Monitoring  user's communication's line or the GlobaLeaks platform communication's line is not possible."
+   "High security", "Tor is used, and communication is encrypted end-to-end with the GlobaLeaks platform, ensuring that no third party can eavesdrop on the communication."
+   "Medium security", "HTTPS is used, and communication is encrypted end-to-end with the GlobaLeaks platform. A third party capable of manipulating HTTPS security (e.g., re-issuing TLS certificates) could eavesdrop on the communication. If HTTPS security is maintained, monitoring the user's communication line or the GlobaLeaks platform's communication line is not feasible."
 
 ==========================
-Independently of the anonymity matrix, various users may decide to, or be required to disclose or not disclose their identity.
+Regardless of the anonymity matrix, users may choose or be required to disclose their identity.
 
 .. csv-table::
    :header: "Identity disclosure matrix", "Definition"
 
-   "Undisclosed", "The user's identity is not disclosed and its disclosure is not likely."
-   "Optionally disclosed", "The user's identity is by default not disclosed, but they are given the chance to disclose it on a voluntary basis (e.g., in some workflows an anonymous tip-off MAY receive a follow-up, while a formal report with identity disclosed MUST receive a follow-up)."
-   "Disclosed", "The user decides to, or is required to, disclose their identity to other users."
+   "Undisclosed", "The user's identity is not disclosed and is unlikely to be disclosed."
+   "Optionally disclosed", "The user's identity is not disclosed by default but may be voluntarily disclosed (e.g., an anonymous tip-off MAY receive a follow-up, whereas a formal report with disclosed identity MUST receive a follow-up)."
+   "Disclosed", "The user chooses or is required to disclose their identity to other users."
 
-Identity disclosure is a highly relevant topic, because even in an Anonymous High security environment, identity disclosure may be an valuable option for specific whistleblowing initiative workflows.
+Identity disclosure is crucial because even in an Anonymous High security environment, disclosing one's identity may be a valuable option for specific whistleblowing workflows.
 
-If a user starts dealing with an Anonymity set “Anonymous” and with an “Undisclosed Identity” they can always decide, at a later stage, to disclose their identity. The opposite is not possible.
-This is one of the key considerations to provide users protection around GlobaLeaks.
+Users starting with an anonymity setting of “Anonymous” and an “Undisclosed Identity” can decide later to disclose their identity. Conversely, this cannot be undone. This consideration is key to ensuring user protection in GlobaLeaks.
 
-Voluntary identity disclosure may be required in certain whisteblowing procedures because, generally:
+Voluntary identity disclosure may be required in certain whistleblowing procedures because:
 
-* A tip off MAY receive a follow-up and can be anonymous;
-* Formal reports MUST receive a follow-up and in that case cannot be anonymous.
+* A tip-off MAY receive a follow-up and can be anonymous;
+* Formal reports MUST receive a follow-up and cannot be anonymous.
 
-The “MAY” vs. “MUST” is with respect to the actions of recipients and is a fundamental element of the guarantee provided to whistleblowers in many initiatives (e.g., a corporate or institutional whistleblowing platform should not follow a MUST approach for Anonymous submission follow-up, considering such submissions just tip offs and not formal reports). 
+The distinction between “MAY” and “MUST” refers to the actions of recipients and is a fundamental element of the guarantees provided to whistleblowers in many initiatives (e.g., a corporate or institutional whistleblowing platform should not follow a MUST approach for anonymous submission follow-up, treating such submissions as tip-offs rather than formal reports).
 
 Usage Scenarios Matrix
 ======================
-In this section you will find examples that show how different anonymity levels of different users can be mixed together depending on the context of use.
+This section provides examples of how different anonymity levels for users can be combined depending on the context of use.
 
 .. csv-table::
    :header: "Use case", "Description"
 
-   "Media outlet", "A Media outlet, whose identity is disclosed, decides to start a Whistleblowing initiative. The outlet's recipients are disclosed to Whistleblowers, so that they can trust a specific journalist rather than the outlet itself. Full anonymity must be assured to whistleblowers and their identity cannot be disclosed in connection with anonymous submissions. The whistleblower MAY choose to willingly disclose their identity (e.g. when the journalist's source-protection record is trusted)."
-   "Corporate compliance", "A Corporation needs to implement transparency, or anti-bribery law compliance, by promoting its initiatives to employees, consultants and providers. The recipients are part of a division of the company (e.g. Internal Audit office). The Whistleblower is guaranteed full anonymity, but they can optionally disclose their identity."
-   "Human Rights Activism Initiative", "A Human Rights Group starts a Whistleblowing initiative to spot human rights violations in a dangerous place. The organization requires anonymity to avoid retaliations and takedowns, and operates under a pseudonym. The Recipients MUST not be disclosed to the Whistleblowers, but a Partial Disclosure by pseudonym can be acceptable in order to give proper trust to “Who the whistleblower is submitting to” . The Whistleblower MUST be guaranteed anonymity and their identity cannot be disclosed."
-   "Citizen media initiative", "A Citizen media initiative with it's own public identity wants to collect reports on a specific topic (political, environmental malpractice, corruption, etc) in a medium-low risk operational context. The recipients could be public or use Pseudonym in order to avoid complete exposure. The Whistleblower, if the topic is not life-threatening, can be allowed to submit also in a Confidential way to lower the entrance barrier."
+   "Media outlet", "A media outlet with a disclosed identity initiates a whistleblowing project. The outlet’s recipients are disclosed to Whistleblowers, allowing them to trust a specific journalist rather than the outlet itself. Full anonymity must be assured to whistleblowers, and their identity cannot be disclosed in connection with anonymous submissions. Whistleblowers MAY choose to disclose their identity if they trust the journalist's source-protection record."
+   "Corporate compliance", "A corporation implements transparency or anti-bribery law compliance by promoting initiatives to employees, consultants, and providers. Recipients are part of a company division (e.g., Internal Audit office). Whistleblowers are guaranteed full anonymity but may optionally disclose their identity."
+   "Human Rights Activism Initiative", "A human rights group initiates a whistleblowing project to expose violations in a dangerous area. The organization requires anonymity to avoid retaliation and operates under a pseudonym. Recipients MUST not be disclosed to Whistleblowers, but partial disclosure by pseudonym is acceptable to establish trust. The Whistleblower MUST be guaranteed anonymity and their identity cannot be disclosed."
+   "Citizen media initiative", "A citizen media initiative with a public identity seeks reports on specific topics (e.g., political, environmental malpractice, corruption) in a medium-low risk operational context. Recipients may use pseudonyms or remain public to avoid complete exposure. Whistleblowers, if the topic is not life-threatening, may submit reports confidentially to lower the entry barrier."
 
-Below we show how different usage scenarios can require different anonymity levels, communication security requirements and identity disclosures for different users.
+The following matrix illustrates how different usage scenarios can require various anonymity levels, communication security requirements, and identity disclosures for different users.
 
-GlobaLeaks, through its user interface, will enable each user with appropriate security awareness information, and will enforce specific requirements to specific users by the application of clear configuration guidelines.
+GlobaLeaks will provide appropriate security awareness information through its user interface and enforce specific requirements based on clear configuration guidelines.
 
 .. csv-table::
    :header: "Scenario", "User", "Anonymity level", "Identity disclosure", "Communication security"
@@ -85,9 +84,9 @@ GlobaLeaks, through its user interface, will enable each user with appropriate s
    "", "Recipient", "No anonymity", "Disclosed", "Medium security"
    "", "Admin", "No anonymity", "Disclosed", "Medium security"
    "Corporate compliance", "Whistleblower", "Anonymous", "Optionally disclosed", "High security"
-    "", "Recipient", "No anonymity", "Partially disclosed", "Medium security"
-    "", "Admin", "No anonymity", "Disclosed", "Medium security"
-   "Human Rights Activism initiative", "Whistleblower", "Anonymous", "Undisclosed", "High security"
+   "", "Recipient", "No anonymity", "Partially disclosed", "Medium security"
+   "", "Admin", "No anonymity", "Disclosed", "Medium security"
+   "Human Rights Activism Initiative", "Whistleblower", "Anonymous", "Undisclosed", "High security"
    "", "Recipient", "Anonymous", "Partially disclosed", "High security"
    "", "Admin", "Anonymous", "Partially disclosed", "High security"
    "Citizen media initiative", "Whistleblower", "Confidential", "Optionally disclosed", "Medium security"
@@ -96,64 +95,64 @@ GlobaLeaks, through its user interface, will enable each user with appropriate s
 
 Data Security Matrix
 ====================
-This section highlights the data that is handled by GlobaLeaks and how different protection schemes are applied to GlobaLeaks handled data.
+This section highlights the data handled by GlobaLeaks and the protection schemes applied to it.
 
-The following information types are the one involved within GlobaLeaks:
+The following information types are involved in GlobaLeaks:
 
 .. csv-table::
    :header: "Information type", "Description"
 
-   "Questionnaire answers", "The data associated with a submission such as the filled forms and selectors provided by the Whistleblower."
-   "Submission attachments", "The files associated with a submission."
-   "Platform configuration", "The data for the configuration and customization of the platform."
-   "Software files", "All the files that the software requires to work, including configuration defaults."
-   "Email notifications", "Data sent to notify recipients of a new report via email"
+   "Questionnaire answers", "Data associated with a submission, including the filled forms and options selected by the Whistleblower."
+   "Submission attachments", "Files associated with a submission."
+   "Platform configuration", "Data for configuring and customizing the platform."
+   "Software files", "All files required for the software to function, including default configurations."
+   "Email notifications", "Data sent to notify recipients of new reports via email."
 
-Below a matrix showing different security measures applied on data.
+Below is a matrix showing the different security measures applied to data.
 
 .. csv-table::
    :header: "Information type", "Encryption", "Filters", "Sanitization"
 
-   "Questionnaire answers", "Encrypted on the database with per-user / per-submissions keys", "Keyword filters", "Antispam, Anti XSS"
-   "Submission attachments", "Encrypted on the filesystem with per-user / per/submissions keys", "Extension blocking, Antivirus", "N/A"
-   "Email notifications", "Encrypted with PGP when recipients keys are available", "Antispam to prevent flooding", "N/A"
+   "Questionnaire answers", "Encrypted in the database with per-user/per-submission keys", "Keyword filters", "Antispam, Anti-XSS"
+   "Submission attachments", "Encrypted on the filesystem with per-user/per-submission keys", "Extension blocking, Antivirus", "N/A"
+   "Email notifications", "Encrypted with PGP when recipient keys are available", "Antispam to prevent flooding", "N/A"
 
 Threats to Anonymity and Confidentiality
 ========================================
-In this section we highlight several threats that require specific explanation.
+This section highlights various threats that require specific consideration.
 
 Browser History and Cache
 -------------------------
-GlobaLeaks tries to avoid, by using properly crafted HTTP headers and other techniques, leaking information into any user's browser history or cache. This privacy feature cannot guarantee the safety of the user against a forensics analysis of their browser cache and/or history, but it is provided as an additional safety measure.
+GlobaLeaks uses crafted HTTP headers and other techniques to minimize leaking information into a user’s browser history or cache. While this privacy feature enhances safety, it cannot guarantee protection against forensic analysis of browser cache and history but serves as an additional safety measure.
 
 Metadata
 --------
-Every file can contain metadata related to the author or the whistleblower. The cleanup of metadata of submitted files is a particular topic that attempts to protect an “unaware” whistleblower from including information in a document that may put their anonymity at risk. In the context of GlobaLeaks, by default no automatic metadata cleanup is implemented because metadata is considered fundamental part of the original evidence that shall be preserved and not invalidated. For this reason metadata cleanup is an optional operation that could be suggested to Whistleblowers or operated by Recipients when sharing the document with other persons. When sharing files to external third parties Recipients are invited to print the document and provide a hard copy. This process is helpful to ensure that recipients only share what they see without risking to share sensitive information contained in the metadata of the files of which they may not be aware of. To get to know more about metadata and the best practices on redacting metadata from digital files we recommend reading the article `Everything you wanted to know about media metadata, but were afraid to ask <https://freedom.press/training/everything-you-wanted-know-about-media-metadata-were-afraid-ask/>`_ by Harlo Holmes. A valuable tool supporting these advanced procedures is the `Metadata Anonymization Toolkit <https://0xacab.org/jvoisin/mat2>`_
+Files may contain metadata related to the author or whistleblower. Cleaning metadata from submitted files helps protect an "unaware" whistleblower from inadvertently including information that may compromise their anonymity. GlobaLeaks does not automatically clean metadata by default, as metadata is considered a fundamental part of the original evidence that should be preserved. Metadata cleanup is an optional step that may be suggested to Whistleblowers or performed by Recipients when sharing documents with others. When sharing files with external parties, Recipients are advised to print the document and provide a hard copy to ensure that only visible information is shared, avoiding the risk of sharing sensitive metadata. For more on metadata and redacting digital files, see the article `Everything you wanted to know about media metadata, but were afraid to ask <https://freedom.press/training/everything-you-wanted-know-about-media-metadata-were-afraid-ask/>`_ by Harlo Holmes. A useful tool for these procedures is the `Metadata Anonymization Toolkit <https://0xacab.org/jvoisin/mat2>`_.
 
 Malware and Trojans
 -------------------
-GlobaLeaks could not prevent an attacker to use the platform maliciously trying to target recipients users with malware and trojans in general. Considering this and in order to be less vulnerable to risks of data exfiltration perpretrated with trojans, Recipients should always implement proper operation security by possibly using a laptop dedicated to reports visualization and open file attachments on computers disconnected from the network and other sensible information. Wherever possible in their operation they should adopt specialized secure operation systems like `QubesOS <https://www.qubes-os.org/>`_ or `Tails <https://tails.boum.org/>`_ or and at least run an up-to-date Anti-Virus software.
+GlobaLeaks cannot prevent an attacker from using the platform maliciously to target recipients with malware or trojans. To mitigate risks of data exfiltration through trojans, Recipients should implement proper operational security by using dedicated laptops for report viewing and opening file attachments on offline computers. Wherever possible, they should use specialized secure operating systems like `QubesOS <https://www.qubes-os.org/>`_ or `Tails <https://tails.boum.org/>`_ and ensure up-to-date antivirus software is running.
 
 Network and Reverse Proxies
 ---------------------------
-GlobaLeaks is intended to be used by end users with a direct Tor or TLS connection from the browser of the user to the application backend. Any use of Network and Reverse Proxies in front of the application is discouraged; those appliances could significatively interfere with the application and lower its security vanishing any confidentility and anonimity measure implemented within GlobaLeaks.
+GlobaLeaks is designed for use with direct Tor or TLS connections from the user’s browser to the application backend. The use of Network and Reverse Proxies in front of the application is discouraged as they can interfere with the application and compromise confidentiality and anonymity measures implemented in GlobaLeaks.
 
 Data Stored Outside the Platform
 --------------------------------
-GlobaLeaks does not provide any kind of security for data that is stored outside the GlobaLeaks system. Is responsibility of Recipients to protect the data they download from the platform on their personal computer or that they share with other persons with external usb drives. The operatin system used or the pen drive adoptet should offer encryption and guarantee that in case of device loss or stealing no one could access the data therein contained.
+GlobaLeaks does not provide security for data stored outside the GlobaLeaks system. It is the responsibility of Recipients to protect data downloaded from the platform or shared via external USB drives. The operating system used or the USB drive should offer encryption to ensure that, in case of device loss or theft, the data remains inaccessible.
 
 Environmental Factors
 ---------------------
-GlobaLeaks does not protect against environmental factors related to actors' physical locations and/or their social relationships. For example if a user has a video bug installed in their house to monitor all their activity, GlobaLeaks cannot protect them. Likewise, if a whistleblower, who is supposed to be anonymous, tells their story to friends or coworkers, GlobaLeaks cannot protect them.
+GlobaLeaks does not protect against environmental factors related to users' physical locations or social relationships. For example, if a user has a surveillance device in their home, GlobaLeaks cannot provide protection. Similarly, if a whistleblower, who is supposed to be anonymous, shares their story with friends or coworkers, GlobaLeaks cannot offer protection.
 
 Incorrect Data Retention Policies
 ---------------------------------
-GlobaLeaks implements by default a strict data retention policy of 90 days to enable users to operate on the report for a limited time necessary for the investigations. If the platform is configured to retain every report for a long time and Recipients do not manually delete the unnecessary reports, the value of the platform data for an attacker increases and so too does the risk.
+GlobaLeaks implements a strict default data retention policy of 90 days to allow users to manage reports within a limited time frame necessary for investigations. If the platform is configured to retain reports for an extended period and Recipients do not manually delete unnecessary reports, the value of the data increases, along with the risk of exposure.
 
 Human Negligence
 ----------------
-While we do provide the Administrator the ability to fine tune their security related configurations, and while we do continuously inform the users about their security related context at every step of interactions, GlobaLeaks cannot protect against any major security threats coming from human negligence. For example, if a Whistleblower submits data that a third party (carrying on an ex-post facto investigation) can use to identify them as the unique owner or recent viewer of that data, then the Whistleblower cannot be protected by GlobaLeaks.
+While GlobaLeaks provides Administrators with the ability to fine-tune security configurations and continuously informs users about their security context, it cannot protect against major security threats resulting from human negligence. For instance, if a Whistleblower submits data that can identify them as the unique owner or recent viewer, GlobaLeaks cannot protect their identity.
 
 Advanced Traffic Analysis
 -------------------------
-An attacker monitoring HTTPS traffic, with no ability to decrypt it, can still identify the role of the intercepted users, because the Whistleblower, Recipient and Administrator interfaces generate different network traffic patterns. GlobaLeaks does not provide protection against this threat. We suggest using `Tor pluggable transports <https://2019.www.torproject.org/docs/pluggable-transports.html.en>`_ or other methods that provide additional protection against this kind of attack.
+An attacker monitoring HTTPS traffic, without the ability to decrypt it, can still identify user roles based on different network traffic patterns generated by Whistleblowers, Recipients, and Administrators. GlobaLeaks does not offer protection against this type of threat. We recommend using `Tor pluggable transports <https://2019.www.torproject.org/docs/pluggable-transports.html.en>`_ or other methods that provide additional protection against such attacks.

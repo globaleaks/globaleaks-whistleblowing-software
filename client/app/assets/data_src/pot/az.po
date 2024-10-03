@@ -91,11 +91,11 @@ msgstr " İnzibatçılara istifadəçi parollarını dəyişmək səlahiyyəti v
 msgid "Advanced"
 msgstr "Qabaqcıl"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Alıcının hesabatları silməsinə icazə verin"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Alıcının hesabatların son tarixini dəyişməsinə icazə verin"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "İnformasiya ötürənin hesabata əlavələr etməsinə icazə verin"
@@ -196,8 +196,8 @@ msgstr "Davam etməzdən öncə yeni parol yaradın."
 msgid "Block the submission"
 msgstr "Göndərməni blokla"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Təsdiqləməklə, hesabatın tarixini dəyişəcəksiz:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -269,9 +269,6 @@ msgstr "Quraşdır"
 
 msgid "Confirm"
 msgstr "Təsdiqlə"
-
-msgid "Confirmation"
-msgstr "Təsdiqləmə"
 
 msgid "Congratulations!"
 msgstr "Təbriklər!"
@@ -406,6 +403,9 @@ msgstr "Ən erkən seçmə tarixi"
 
 msgid "Edit"
 msgstr "Düzəlt"
+
+msgid "Edit the expiration date"
+msgstr "Son istifadə tarixini dəyiş"
 
 msgid "Email"
 msgstr "Emeyl"
@@ -904,9 +904,6 @@ msgstr "Xahiş edirik, bütün əlaqəli məlumatların həmişəlik silinəcəy
 
 msgid "Please select your account:"
 msgstr "Xahiş edirik, hesabınızı seçin. "
-
-msgid "Postpone the expiration date"
-msgstr "Son istifadə tarixini dəyiş"
 
 msgid "Preferences"
 msgstr "Nizamlamalar"

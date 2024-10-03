@@ -15,7 +15,6 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null
 
-
 __all__ = ['PGPCheck']
 
 

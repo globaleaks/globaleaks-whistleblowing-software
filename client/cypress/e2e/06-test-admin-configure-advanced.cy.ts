@@ -3,7 +3,7 @@ describe("admin configure advanced settings", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
     cy.get('[data-cy="advanced"]').click().should("be.visible", { timeout: 10000 }).click();
-    cy.get('input[name="enable_custom_privacy_badge"]').click();
+    cy.get('input[name="node.dataModel.allow_indexing"]').click();
     cy.get("#save").click();
   });
 });

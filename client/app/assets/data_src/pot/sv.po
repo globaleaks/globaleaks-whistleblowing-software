@@ -1,6 +1,6 @@
 # 
 # Translators:
-# Daniel Vaknine, 2022-2023
+# Daniel Vaknine, 2022-2024
 # Daniel Vaknine <vaknine.daniel@gmail.com>, 2021
 # eckeman <eckeman@zoho.com>, 2020
 # eckeman <eckeman@zoho.com>, 2020
@@ -29,7 +29,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Daniel Vaknine, 2022-2023\n"
+"Last-Translator: Daniel Vaknine, 2022-2024\n"
 "Language-Team: Swedish (http://app.transifex.com/otf/globaleaks/language/sv/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -107,11 +107,11 @@ msgstr "Administratörer som tillåts ändra användarlösenord:"
 msgid "Advanced"
 msgstr "Avancerat"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Tillåt mottagaren att ta bort tips"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Tillåt mottagaren att förlänga utgångsdatumet för rapporten"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Tillåt att visselblåsaren lägger till bilagor till rapporten"
@@ -144,7 +144,7 @@ msgid "Anomaly detection thresholds"
 msgstr "Tröskelvärden för identifiering av avvikelser"
 
 msgid "Anonymity"
-msgstr ""
+msgstr "Anonymitet"
 
 msgid "Anonymize outgoing connections"
 msgstr "Anonymisera utgående anslutningar"
@@ -212,8 +212,8 @@ msgstr "Vänligen ställ in ett lösenord innan du går vidare."
 msgid "Block the submission"
 msgstr "Blockera tipset"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Genom att klicka på förlängning så kommer du att förlänga tipsets utgångsdatum till:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Genom att bekräfta ställs påminnelsedatum till:"
@@ -285,9 +285,6 @@ msgstr "Konfigurera"
 
 msgid "Confirm"
 msgstr "Bekräfta"
-
-msgid "Confirmation"
-msgstr "Bekräftelse"
 
 msgid "Congratulations!"
 msgstr "Grattis!"
@@ -422,6 +419,9 @@ msgstr "Tidigast valbara datum"
 
 msgid "Edit"
 msgstr "Redigera"
+
+msgid "Edit the expiration date"
+msgstr "Skjut up utgångsdatumet"
 
 msgid "Email"
 msgstr "E-post"
@@ -920,9 +920,6 @@ msgstr "Vänligen notera att alla tillhörande uppgifter kommer att tas bort per
 
 msgid "Please select your account:"
 msgstr "Vänligen välj ditt konto."
-
-msgid "Postpone the expiration date"
-msgstr "Skjut up utgångsdatumet"
 
 msgid "Preferences"
 msgstr "Inställningar"

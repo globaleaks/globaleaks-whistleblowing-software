@@ -52,7 +52,7 @@ def generateRandomKey() -> str:
     """
     Return a random secret of 256bits
     """
-    return sha256(nacl_random(32)).decode()
+    return nacl_random(32).hex()
 
 
 def generateRandomPassword(N: int) -> str:

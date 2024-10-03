@@ -29,9 +29,9 @@ class TestUtility(unittest.TestCase):
 
     def test_get_expiration(self):
         date = utility.get_expiration(15)
-        self.assertEqual(date.hour, 00)
-        self.assertEqual(date.minute, 00)
-        self.assertEqual(date.second, 00)
+        self.assertEqual(date.hour, 23)
+        self.assertEqual(date.minute, 59)
+        self.assertEqual(date.second, 59)
 
     def test_is_expired(self):
         self.assertTrue(utility.is_expired(utility.datetime_null()))

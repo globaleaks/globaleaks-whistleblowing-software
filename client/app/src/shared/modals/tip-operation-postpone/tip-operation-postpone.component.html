@@ -1,11 +1,11 @@
 <div class="modal-header">
-    <div class="modal-title" data-translate>Are you sure?</div>
+    <div class="modal-title">{{'Are you sure?'|translate}}</div>
     <button type="button" class="close btn" (click)="cancel()">
         <i class="fa-solid fa-times"></i>
     </button>
 </div>
 <div class="modal-body">
-    <span>{{'By confirming, you will postpone the expiration date to:'|translate}}</span>
+    <span>{{'By confirming, you will edit the expiration date to:'|translate}}</span>
     <div class="input-group">
         <input type="text" readonly class="form-control inputelem" placeholder="yyyy-mm-dd" name="dp" [required]="true" [minDate]="minDate" [maxDate]="maxDate" [(ngModel)]="args.expiration_date" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
         <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button">

@@ -7,7 +7,7 @@
 # Bujar Tafili, 2015
 # Florent <fspahija@kdi-kosova.org>, 2021-2022
 # F Nilaj <activisti@protonmail.com>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2022,2024
 # Jakub Srna <jaksrn@gmail.com>, 2014
 # Roman 'Kaktuxista' Benji <romanbeno273@gmail.com>, 2014
 # Tibor Deak <deaktib@gmail.com>, 2019,2021
@@ -93,11 +93,11 @@ msgstr "Përgjegjës të autorizuar për ndryshime fjalëkalimesh përdoruesish:
 msgid "Advanced"
 msgstr "Të mëtejshme"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Lejoje marrësin të përpunojë datën e skadimit të raportimit"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Lejoje marrësin të fshijë raportime"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Lejoje marrësin të shtyjë datën e skadimit të raportimit"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Lejoji nxjerrësit të së fshehtës të shtojë te raportimi bashkëngjitje"
@@ -198,8 +198,8 @@ msgstr "Para se të shkoni më tej, ju lutemi, caktoni një fjalëkalim të ri."
 msgid "Block the submission"
 msgstr "Bllokoje parashtrimin"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Duke e ripohuar, do ta shtyni datën e skadimit më:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Duke e ripohuar, do ta përpunoni datën e skadimit si:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Duke e ripohuar, do të caktoni një kujtues më datë:"
@@ -271,9 +271,6 @@ msgstr "Formësojeni"
 
 msgid "Confirm"
 msgstr "Ripohojeni"
-
-msgid "Confirmation"
-msgstr "Ripohim"
 
 msgid "Congratulations!"
 msgstr "Përgëzime!"
@@ -408,6 +405,9 @@ msgstr "Data më e hershme e përzgjedhshme"
 
 msgid "Edit"
 msgstr "Përpunojeni"
+
+msgid "Edit the expiration date"
+msgstr "Modifica la data di scadenza"
 
 msgid "Email"
 msgstr "Email"
@@ -906,9 +906,6 @@ msgstr "Ju lutemi, kini parasysh se krejt të dhënat e përshoqëruara do të f
 
 msgid "Please select your account:"
 msgstr "Ju lutemi, përzgjidhni llogarinë tuaj:"
-
-msgid "Postpone the expiration date"
-msgstr "Shtyjini datën e skadimit"
 
 msgid "Preferences"
 msgstr "Parapëlqime"

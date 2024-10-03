@@ -14,6 +14,7 @@ export class SubmissionService {
   mandatory_receivers = 0;
   optional_receivers = 0;
   selected_receivers: { [key: string]: boolean } = {};
+  override_receivers: string[] = [];
   blocked = false;
   uploads: { [key: string]: any };
   private sharedData: Flow[] = [];
@@ -64,9 +65,13 @@ export class SubmissionService {
   submit() {
     this.submission.receivers = [];
 
-    for (const key in this.selected_receivers) {
-      if (Object.prototype.hasOwnProperty.call(this.selected_receivers, key)) {
-        this.submission.receivers.push(key);
+    if (this.override_receivers.length) {
+      this.submission.receivers = this.override_receivers;
+    } else {
+      for (const key in this.selected_receivers) {
+        if (Object.prototype.hasOwnProperty.call(this.selected_receivers, key)) {
+          this.submission.receivers.push(key);
+        }
       }
     }
 

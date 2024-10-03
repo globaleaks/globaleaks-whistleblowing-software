@@ -77,7 +77,7 @@ def get_expiration(days):
     :return: a utc datetime object representing an expiration time calculated as the current date + N days
     """
     date = datetime.utcnow()
-    return datetime(year=date.year, month=date.month, day=date.day, hour=00, minute=00, second=00) + timedelta(days+1)
+    return datetime(year=date.year, month=date.month, day=date.day, hour=23, minute=59, second=59) + timedelta(days)
 
 
 def is_expired(check_date, seconds=0, minutes=0, hours=0, days=0):

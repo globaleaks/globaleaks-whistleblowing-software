@@ -84,11 +84,11 @@ msgstr "ადმინისტრატორებს უფლება ა�
 msgid "Advanced"
 msgstr "დამატებით"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "დართეთ ნება მიმღებს წაშალოს ანგარიშები"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "დართეთ ნება მიმღებს გადაავადოს ანგარიშის ვადის გასვლა"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "დართეთ ნება ინსტრუქტორს დაამატოს ანგარიშზე დანართები"
@@ -189,8 +189,8 @@ msgstr "გაგრძელებამდე, გთხოვთ დააყ
 msgid "Block the submission"
 msgstr "გაგზავნის დაბლოკვა"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "დადასტურებით, თქვენ გადაავადებთ ვადის გასვლის თარიღს:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -261,9 +261,6 @@ msgid "Configure"
 msgstr "კონფიგურაცია"
 
 msgid "Confirm"
-msgstr "დადასტურება"
-
-msgid "Confirmation"
 msgstr "დადასტურება"
 
 msgid "Congratulations!"
@@ -399,6 +396,9 @@ msgstr "ყველაზე ადრე არჩევადი თარი
 
 msgid "Edit"
 msgstr "რედაქტირება"
+
+msgid "Edit the expiration date"
+msgstr "ვადის გასვლის თარიღის გადავადება"
 
 msgid "Email"
 msgstr "ელფოსტა"
@@ -897,9 +897,6 @@ msgstr "გთხოვთ გაითვალისწინეთ, რომ
 
 msgid "Please select your account:"
 msgstr "გთხოვთ, აირჩიოთ თქვენი ანგარიში:"
-
-msgid "Postpone the expiration date"
-msgstr "ვადის გასვლის თარიღის გადავადება"
 
 msgid "Preferences"
 msgstr "პრიორიტეტები"

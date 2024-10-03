@@ -102,11 +102,11 @@ msgstr "Erabiltzailearen pasahitzak aldatzeko baimendutako administratzaileak:"
 msgid "Advanced"
 msgstr "Aurreratua"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Hartzaileei salaketak ezabatzen utzi"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Hartzaileari salaketaren iraungitze data jartzen utzi"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Salatzaileari salaketari eranskin gehiago gehitzea ahalbidetu"
@@ -207,8 +207,8 @@ msgstr "Jarraitu aurretik, ezarri pasahitz berria."
 msgid "Block the submission"
 msgstr "Bidalketa blokeatu "
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Berrestean, iraungitze-data egun honetara atzeratuko duzu:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Berretsi ondoren, egun honetarako zehaztuko duzu gogorarazpena:"
@@ -280,9 +280,6 @@ msgstr "Konfiguratu"
 
 msgid "Confirm"
 msgstr "Berretsi"
-
-msgid "Confirmation"
-msgstr "Berrespena"
 
 msgid "Congratulations!"
 msgstr "Zorionak!"
@@ -417,6 +414,9 @@ msgstr "Ahalik eta data erabilgarri gertukoena"
 
 msgid "Edit"
 msgstr "Editatu"
+
+msgid "Edit the expiration date"
+msgstr "Iraungitze data atzeratu"
 
 msgid "Email"
 msgstr "Posta elektronikoa"
@@ -915,9 +915,6 @@ msgstr "Arren, ulertu lotutako datu guztiak behin behineko ezabatuko direla."
 
 msgid "Please select your account:"
 msgstr "Arren, hautatu zure kontua:"
-
-msgid "Postpone the expiration date"
-msgstr "Iraungitze data atzeratu"
 
 msgid "Preferences"
 msgstr "Lehentasunak"

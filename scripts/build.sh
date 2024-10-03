@@ -78,9 +78,9 @@ BUILDSRC="$BUILDDIR/src"
 mkdir -p $BUILDSRC && cd $BUILDSRC
 
 if [ $LOCAL_ENV -eq 1 ]; then
-  git clone --branch="$TAG" --depth=1 file://$(pwd)/../../../GlobaLeaks .
+  git clone --branch="$TAG" --depth=1 file://$(pwd)/../../../whistleblowing-software .
 else
-  git clone --branch="$TAG" --depth=1 https://github.com/globaleaks/GlobaLeaks.git .
+  git clone --branch="$TAG" --depth=1 https://github.com/globaleaks/whistleblowing-software.git .
 fi
 
 cd client && npm install -d && ./node_modules/grunt/bin/grunt build

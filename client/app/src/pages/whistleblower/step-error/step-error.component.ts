@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output, QueryList} from "@angular/core";
-import {SubmissionService} from "@app/services/helper/submission.service";
 import {FormArray, FormGroup, NgForm} from "@angular/forms";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {DisplayStepErrorsFunction, StepFormFunction} from "@app/shared/constants/types";
@@ -10,11 +9,7 @@ import {DisplayStepErrorsFunction, StepFormFunction} from "@app/shared/constants
 })
 export class StepErrorComponent {
   @Input() navigation: number;
-
-  @Input() displayStepErrors: DisplayStepErrorsFunction;
-  @Input() stepForm: StepFormFunction;
-  @Input() submission: SubmissionService;
-  @Input() stepForms: QueryList<NgForm>;
+  @Input() stepForm: NgForm;
   @Input() field_id_map: { [key: string]: Field };
   @Output() goToStep: EventEmitter<any> = new EventEmitter();
 

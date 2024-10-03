@@ -67,3 +67,11 @@ class EnumOriginFile(_Enum):
     internal_file = 0
     receiver_file = 1
     whistleblower_file = 2
+    
+class EnumForwardingState(_Enum):
+    open = 0
+    closed = 1
+    
+class EnumAuthorType(_Enum):
+    main = 0
+    oe = 1

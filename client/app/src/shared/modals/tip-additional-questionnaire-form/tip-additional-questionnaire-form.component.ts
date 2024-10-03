@@ -15,12 +15,11 @@ import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistlebl
   templateUrl: "./tip-additional-questionnaire-form.component.html"
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
-
   @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepform") stepForms: QueryList<NgForm>;
+  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
 
+  _navigation: number = 0;
   validate: boolean[] = [];
-  navigation: number = 0;
   score: number = 0;
   questionnaire: Questionnaire3;
   answers: Answers = {};
@@ -28,12 +27,34 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   done: boolean = false;
   uploads: { [key: string]: any };
   file_upload_url: string = "api/whistleblower/wbtip/wbfiles";
+  hasPreviousStepValue: boolean;
+  hasNextStepValue: boolean;
 
   constructor(protected whistleblowerSubmissionService:WhistleblowerSubmissionService,private wbTipResolver: WbTipResolver, private httpService: HttpService, private fieldUtilitiesService: FieldUtilitiesService, private utilsService: UtilsService, protected wbTipService: WbtipService, protected activeModal: NgbActiveModal) {
   }
 
   ngOnInit(): void {
     this.prepareSubmission();
+  }
+
+  private updateStatusVariables(): void {
+    this.hasPreviousStepValue = this.hasPreviousStep();
+    this.hasNextStepValue = this.hasNextStep();
+  }
+
+  get navigation(): any {
+    return this._navigation;
+  }
+
+  set navigation(value: any) {
+    if (this._navigation !== value) {
+      this._navigation = value;
+      this.handleNavigationChange();
+    }
+  }
+
+  private handleNavigationChange(): void {
+    this.updateStatusVariables();
   }
 
   goToStep(step: number) {
@@ -107,7 +128,7 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   runValidation() {
     this.validate[this.navigation] = true;
 
-    if (this.navigation > -1 && !this.whistleblowerSubmissionService.checkForInvalidFields(this)) {
+    if (!this.whistleblowerSubmissionService.checkForInvalidFields(this)) {
       this.utilsService.scrollToTop();
       return false;
     }
@@ -190,6 +211,8 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   };
 
   displayErrors() {
+    this.updateStatusVariables();
+
     if (!(this.validate[this.navigation])) {
       return false;
     }

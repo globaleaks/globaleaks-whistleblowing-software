@@ -100,11 +100,11 @@ msgstr "Administratori autorizați să schimbe parolele utilizatorului:"
 msgid "Advanced"
 msgstr "Avansat"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Permite destinatarilor să șteargă sesizările"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Permite destinatarului să amâne data de expirare a sesizării"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permite avertizorului să adauge atașamente sesizării"
@@ -205,8 +205,8 @@ msgstr "Înainte de a începe, te rugăm să îți setezi o nouă parolă."
 msgid "Block the submission"
 msgstr "Blochează sesizarea"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Confirmând, vei amâna data de expirare până la:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -278,9 +278,6 @@ msgstr "Configurează"
 
 msgid "Confirm"
 msgstr "Confirmă"
-
-msgid "Confirmation"
-msgstr "Confirmare"
 
 msgid "Congratulations!"
 msgstr "Felicitări!"
@@ -415,6 +412,9 @@ msgstr "Cea mai veche dată ce poate fi selectată"
 
 msgid "Edit"
 msgstr "Editare"
+
+msgid "Edit the expiration date"
+msgstr "Amână data de expirare"
 
 msgid "Email"
 msgstr "E-mail"
@@ -913,9 +913,6 @@ msgstr "Atenție, toate datele asociate vor fi șterse definitiv. "
 
 msgid "Please select your account:"
 msgstr "Te rugăm să îți selectezi contul:"
-
-msgid "Postpone the expiration date"
-msgstr "Amână data de expirare"
 
 msgid "Preferences"
 msgstr "Preferințe"

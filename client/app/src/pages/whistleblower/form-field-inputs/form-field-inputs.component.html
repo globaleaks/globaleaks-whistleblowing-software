@@ -1,13 +1,9 @@
-<div id="{{fieldId}}" class="question">
-    <div class="question-label">
-        <label data-content="field.hint" data-toggle="tooltip" [title]="field.hint" for="{{field.id + '-input-' + 0}}">
-            <span *ngIf="field.label" class="title">{{field.label|translate}}</span>
-            <span *ngIf="field.hint">
-                <i class="fa-solid fa-question-circle"></i>
-            </span>
-            <span *ngIf="field.required" class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-    </div>
+<div *ngIf="(['checkbox', 'fieldgroup', 'multichoice'].indexOf(field.type) === -1) && (['whistleblower_identity'].indexOf(field.template_id) === -1)" id="{{fieldId}}" class="question">
+    <label class="question-label" data-content="field.hint" data-toggle="tooltip" [title]="field.hint" for="{{fieldId + '-input-' + 0}}">
+        <span *ngIf="field.label" class="title">{{field.label|translate}}</span>
+        <i *ngIf="field.hint" class="fa-solid fa-question-circle"></i>
+        <span *ngIf="field.required" class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+    </label>
     <div class="question-body">
         <markdown *ngIf="field.description" class="description" [data]="field.description | stripHtml"></markdown>
         <div class="form-group">
@@ -34,3 +30,33 @@
         </div>
     </div>
 </div>
+<fieldset *ngIf="(['checkbox', 'fieldgroup', 'multichoice'].indexOf(field.type) !== -1) || (['whistleblower_identity'].indexOf(field.template_id) !== -1)" id="{{fieldId}}" class="question">
+    <legend *ngIf="field.label" class="title">{{field.label|translate}}</legend>
+    <i *ngIf="field.hint" class="fa-solid fa-question-circle"></i>
+    <span *ngIf="field.required" class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+    <div class="question-body">
+        <markdown *ngIf="field.description" class="description" [data]="field.description | stripHtml"></markdown>
+        <div class="form-group">
+            <div class="field-answer-entry" *ngFor="let entry of entries; let entryIndex = index;let first = first;let last = last;" [ngClass]="{'fieldAnswerEntryFirst': first, 'fieldAnswerEntryLast': last}">
+                <div class="field-answer-entry-label clearfix" *ngIf="entries.length > 1">
+                    <span class="float-start">
+                        <label class="text-muted">
+                            <span>#{{entryIndex + 1}}</span>
+                        </label>
+                    </span>
+                    <span class="float-end">
+                        <span class="text-danger" data-toggle="tooltip" title="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
+                            <i class="fa-solid fa-times"></i>
+                        </span>
+                    </span>
+                </div>
+                <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]=identity_provided [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
+            </div>
+            <div *ngIf="field.multi_entry && field.type === 'fieldgroup'" class="float-end">
+                <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</fieldset>

@@ -86,11 +86,11 @@ msgstr "Пайдаланушылардың құпиясөздерін өзгер
 msgid "Advanced"
 msgstr "Кеңейтілген"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Алушыға есептерді жоюға рұқсат беру"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Алушыға есептің жарамдылық мерзімін кейінге қалдыруға рұқсат беру"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Хабарлаушыға есепке тіркемелер қосуға рұқсат беру"
@@ -191,8 +191,8 @@ msgstr "Жалғастырмас бұрын, жаңа құпиясөз орна�
 msgid "Block the submission"
 msgstr "Жіберуді бұғаттау"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Растау арқылы, жарамдылық мерзімін келесіге дейін қалдырасыз:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -263,9 +263,6 @@ msgid "Configure"
 msgstr "Конфигурациялау"
 
 msgid "Confirm"
-msgstr "Растау"
-
-msgid "Confirmation"
 msgstr "Растау"
 
 msgid "Congratulations!"
@@ -401,6 +398,9 @@ msgstr "Таңдауға болатын ең ерте уақыт"
 
 msgid "Edit"
 msgstr "Өңдеу"
+
+msgid "Edit the expiration date"
+msgstr "Жарамдылық мерзімін кейінге жылжыту"
 
 msgid "Email"
 msgstr "Эл. пошта"
@@ -899,9 +899,6 @@ msgstr "Осыған байланысты барлық деректер бірж
 
 msgid "Please select your account:"
 msgstr "Есептік жазбаңызды таңдаңыз:"
-
-msgid "Postpone the expiration date"
-msgstr "Жарамдылық мерзімін кейінге жылжыту"
 
 msgid "Preferences"
 msgstr "Бапталған параметрлер"

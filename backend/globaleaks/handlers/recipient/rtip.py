@@ -207,7 +207,7 @@ def recalculate_data_retention(session, itip, report_reopen_request):
     elif itip.status == "closed" and itip.substatus is not None:
         ttl = get_ttl(session, models.SubmissionSubStatus, itip.substatus)
         if ttl > 0:
-            itip.expiration_date = get_expiration(timedettl)
+            itip.expiration_date = get_expiration(ttl)
 
     return prev_expiration_date, itip.expiration_date
 

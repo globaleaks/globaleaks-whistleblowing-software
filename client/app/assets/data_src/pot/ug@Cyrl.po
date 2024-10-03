@@ -84,11 +84,11 @@ msgstr "Башқурғучиларға ишләткүчи пароллирини
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Тапшуривалғучиларниң доклатларни өчүришигә рухсәт қил"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Тапшуривалғучиниң доклат сүрүкини кәйнигә сүришигә рухсәт қил"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Паш қилғучиниң доклатқа қошумчә қистуришиға рухсәт қил"
@@ -189,8 +189,8 @@ msgstr "Бир тәрәп қилиштин бурун, йеңи бир паро�
 msgid "Block the submission"
 msgstr "Тапшурушни чәклә"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Җәзимлисиңиз, сүрүк чесласини бу күнгә кәйнигә сүргән болисиз:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -262,9 +262,6 @@ msgstr "Сәплә"
 
 msgid "Confirm"
 msgstr "Җәзимлә"
-
-msgid "Confirmation"
-msgstr "Җәзмләң"
 
 msgid "Congratulations!"
 msgstr "Тәбрикләймиз!"
@@ -399,6 +396,9 @@ msgstr "Таллашқа болидиған әң балдурқи числа"
 
 msgid "Edit"
 msgstr "Тәһрирлә"
+
+msgid "Edit the expiration date"
+msgstr "Сүрүк чесласини кәйнигә сүр"
 
 msgid "Email"
 msgstr "Елхәт"
@@ -897,9 +897,6 @@ msgstr "Мунасивәтлик барлиқ санлиқ мәлуматлар�
 
 msgid "Please select your account:"
 msgstr "Һесабиңизни таллаң:"
-
-msgid "Postpone the expiration date"
-msgstr "Сүрүк чесласини кәйнигә сүр"
 
 msgid "Preferences"
 msgstr "Майиллиқлар"

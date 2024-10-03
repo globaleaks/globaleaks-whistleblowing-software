@@ -96,11 +96,11 @@ msgstr "منتظمین صارف کے پاس ورڈ تبدیل کرنے کے مج
 msgid "Advanced"
 msgstr "ترقی یافتہ"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "وصول کنندگان کو اختیار دیجیے کہ تجاویز حذف کر سکیں"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "وصول کنندہ جمع کرانے کا وقت ختم ہونے کی تاریخ ملتوی کرنے کی اجازت دیں"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "مخبر کو اٹیچمنٹ شامل کرنے کی اجازت دیں"
@@ -201,8 +201,8 @@ msgstr "آگے بڑھنے سے پہلے، براہ کرم ایک نیا پاس �
 msgid "Block the submission"
 msgstr "جمع کرانے کومسدود کریں"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "کی تصدیق کر کے، آپ کا وقت ختم ہونے کی تاریخ ملتوی ہو گی:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -274,9 +274,6 @@ msgstr "مرتب کریں"
 
 msgid "Confirm"
 msgstr "تصدیق کی توسیع"
-
-msgid "Confirmation"
-msgstr "Confirmation"
 
 msgid "Congratulations!"
 msgstr "مبارک ہو!"
@@ -411,6 +408,9 @@ msgstr "شروع کی تاریخِ انتخاب"
 
 msgid "Edit"
 msgstr "ترمیم و تبديل کيجیے"
+
+msgid "Edit the expiration date"
+msgstr "آخری اپ ڈیٹ کی تاریخ ملتوی"
 
 msgid "Email"
 msgstr "ای میل"
@@ -909,9 +909,6 @@ msgstr "خیال رکھئے کہ تمام متعلقہ ڈیٹا مناسب طر�
 
 msgid "Please select your account:"
 msgstr "براہ مہربانی اپنا اکاؤنٹ منتخب کیجیے:"
-
-msgid "Postpone the expiration date"
-msgstr "آخری اپ ڈیٹ کی تاریخ ملتوی"
 
 msgid "Preferences"
 msgstr "ترجیحات"

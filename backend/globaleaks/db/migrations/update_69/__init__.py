@@ -1,7 +1,11 @@
+from globaleaks import models
+from globaleaks.models.enums import EnumFieldInstance
+from globaleaks.utils.crypto import GCE, Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model, EnumSubscriberStatus, EnumStateFile, EnumVisibility, EnumUserRole, EnumUserStatus
 from globaleaks.models.properties import *
-from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
+from globaleaks.utils.log import log
 
 
 class Subscriber_v_68(Model):
@@ -34,6 +38,30 @@ class Tenant_v_68(Model):
     active = Column(Boolean, default=False, nullable=False)
 
 
+class Field_v_68(Model):
+    __tablename__ = 'field'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    x = Column(Integer, default=0, nullable=False)
+    y = Column(Integer, default=0, nullable=False)
+    width = Column(Integer, default=0, nullable=False)
+    label = Column(JSON, default=dict, nullable=False)
+    description = Column(JSON, default=dict, nullable=False)
+    hint = Column(JSON, default=dict, nullable=False)
+    placeholder = Column(JSON, default=dict, nullable=False)
+    required = Column(Boolean, default=False, nullable=False)
+    multi_entry = Column(Boolean, default=False, nullable=False)
+    triggered_by_score = Column(Integer, default=0, nullable=False)
+    step_id = Column(UnicodeText(36), index=True)
+    fieldgroup_id = Column(UnicodeText(36), index=True)
+    type = Column(UnicodeText, default='inputbox', nullable=False)
+    instance = Column(Enum(EnumFieldInstance),
+                      default='instance', nullable=False)
+    template_id = Column(UnicodeText(36), index=True)
+    template_override_id = Column(UnicodeText(36), index=True)
+
+
 class InternalFile_v_68(Model):
     """
     This model keeps track of submission files
@@ -49,6 +77,18 @@ class InternalFile_v_68(Model):
     size = Column(JSON, default='', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
     reference_id = Column(UnicodeText(36), default='', nullable=False)
+
+
+class InternalTipAnswers_v_68(Model):
+    """
+    This is the internal representation of Tip Questionnaire Answers
+    """
+    __tablename__ = 'internaltipanswers'
+
+    internaltip_id = Column(UnicodeText(36), primary_key=True)
+    questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    answers = Column(JSON, default=dict, nullable=False)
 
 
 class ReceiverFile_v_68(Model):
@@ -93,14 +133,17 @@ class User_v_68(Model):
     mail_address = Column(UnicodeText, default='', nullable=False)
     language = Column(UnicodeText(12), nullable=False)
     password_change_needed = Column(Boolean, default=True, nullable=False)
-    password_change_date = Column(DateTime, default=datetime_null, nullable=False)
+    password_change_date = Column(
+        DateTime, default=datetime_null, nullable=False)
     crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
     crypto_rec_key = Column(UnicodeText(80), default='', nullable=False)
     crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
-    crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
-    crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp1_key = Column(
+        UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp2_key = Column(
+        UnicodeText(84), default='', nullable=False)
     change_email_address = Column(UnicodeText, default='', nullable=False)
     change_email_token = Column(UnicodeText, unique=True)
     change_email_date = Column(DateTime, default=datetime_null, nullable=False)
@@ -108,8 +151,10 @@ class User_v_68(Model):
     forcefully_selected = Column(Boolean, default=False, nullable=False)
     can_delete_submission = Column(Boolean, default=False, nullable=False)
     can_postpone_expiration = Column(Boolean, default=True, nullable=False)
-    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
-    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_grant_access_to_reports = Column(
+        Boolean, default=False, nullable=False)
+    can_transfer_access_to_reports = Column(
+        Boolean, default=False, nullable=False)
     can_redact_information = Column(Boolean, default=False, nullable=False)
     can_mask_information = Column(Boolean, default=True, nullable=False)
     can_reopen_reports = Column(Boolean, default=True, nullable=False)
@@ -121,19 +166,46 @@ class User_v_68(Model):
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
-    pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
+    pgp_key_expiration = Column(
+        DateTime, default=datetime_null, nullable=False)
     # END of PGP key fields
 
-    accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
+    accepted_privacy_policy = Column(
+        DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 
 
 class MigrationScript(MigrationBase):
 
-    def epilogue(self):
-        new_configuration = self.model_to['Config']()
-        new_configuration.var_name = 'url_file_analysis'
-        new_configuration.value = 'http://localhost/api/v1/scan'
-        self.session_new.add(new_configuration)
+    def add_global_stat_prv_key_to_users(self, global_stat_prv_key):
+        users = self.session_new.query(self.model_from['User']) \
+                                .filter(self.model_from['User'].tid == 1)\
+                                .filter(self.model_from['User'].role.in_([EnumUserRole.admin.name, EnumUserRole.analyst.name]))
 
+        for user in users:
+            crypto_stat_key = Base64Encoder.encode(
+                GCE.asymmetric_encrypt(user.crypto_pub_key, global_stat_prv_key)).decode()
+            self.session_new.query(models.User) \
+                                .filter(models.User.id == user.id)\
+                                .update({'crypto_global_stat_prv_key': crypto_stat_key})
+
+    def add_global_stat_keys(self):
+        global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
+        global_stat_pub_key_config = self.model_to['Config']()
+        global_stat_pub_key_config.var_name = 'global_stat_pub_key'
+        global_stat_pub_key_config.value = global_stat_pub_key
+        self.session_new.add(global_stat_pub_key_config)
         self.entries_count['Config'] += 1
+        self.add_global_stat_prv_key_to_users(global_stat_prv_key)
+
+    def add_file_analisys_url(self):
+        file_analisys_config = self.model_to['Config']()
+        file_analisys_config.var_name = 'url_file_analysis'
+        file_analisys_config.value = 'http://localhost/api/v1/scan'
+        self.session_new.add(file_analisys_config)
+        log.info("FILE ANALISYS %s" % file_analisys_config.value)
+        self.entries_count['Config'] += 1
+
+    def epilogue(self):
+        self.add_file_analisys_url()
+        self.add_global_stat_keys()

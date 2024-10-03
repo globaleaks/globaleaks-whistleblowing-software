@@ -84,11 +84,11 @@ msgstr "ຜູ້ເບິ່ງແຍງລະບົບໄດ້ຮັບອະ
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "ອະນຸຍາດໃຫ້ຜູ້ຮັບລຶບລາຍງານ"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "ອະນຸຍາດໃຫ້ຜູ້ຮັບເລື່ອນວັນທີໝົດອາຍຸໃນການລາຍງານ"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "ອະນຸຍາດໃຫ້ຜູ້ແຈ້ງເບາະແສເພີ່ມເອກະສານຄັດຕິດຕື່ມໃສ່ລາຍງານ"
@@ -189,8 +189,8 @@ msgstr "ກ່ອນດຳເນີນການ, ກະລຸນາຕັ້ງ�
 msgid "Block the submission"
 msgstr "ບລັອກການສົ່ງ"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "ການຢືນຢັນ, ໝາຍຄວາມວ່າທ່ານຈະເລື່ອນວັນທີໝົດອາຍຸໄປຍັງ:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -262,9 +262,6 @@ msgstr "ກຳນົດຄ່າ"
 
 msgid "Confirm"
 msgstr "ຢືນຢັນ"
-
-msgid "Confirmation"
-msgstr "ການຢືນຢັນ"
 
 msgid "Congratulations!"
 msgstr "ຂໍສະແດງຄວາມຍິນດີດ້ວຍ!"
@@ -399,6 +396,9 @@ msgstr "ວັນທີທີ່ສາມາດເລືອກໄດ້ໄວທ
 
 msgid "Edit"
 msgstr "ແກ້ໄຂ"
+
+msgid "Edit the expiration date"
+msgstr "ເລື່ອນວັນທີໝົດອາຍຸ"
 
 msgid "Email"
 msgstr "ອີເມວ"
@@ -897,9 +897,6 @@ msgstr "ກະລຸນາຊາບວ່າ ຂໍ້ມູນທີ່ກ່�
 
 msgid "Please select your account:"
 msgstr "ກະລຸນາເລືອກບັນຊີຂອງທ່ານ:"
-
-msgid "Postpone the expiration date"
-msgstr "ເລື່ອນວັນທີໝົດອາຍຸ"
 
 msgid "Preferences"
 msgstr "ການກຳນົດຄ່າທີ່ມັກ"

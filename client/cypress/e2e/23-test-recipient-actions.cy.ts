@@ -82,16 +82,16 @@ describe("recipient admin tip actions", () => {
     cy.logout();
   });
 
-  it("should upload a file", function () {
+  it("should upload, download and delete a file", function () {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get('#upload_description').type("description");
     cy.get('i.fa-solid.fa-upload').click();
-    cy.fixture("files/evidence-3.txt").then(fileContent => {
+    cy.fixture("files/test.txt").then(fileContent => {
       cy.get('input[type="file"]').then(input => {
         const blob = new Blob([fileContent], { type: "text/plain" });
-        const testFile = new File([blob], "files/evidence-3.txt");
+        const testFile = new File([blob], "files/test.txt");
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(testFile);
         const inputElement = input[0] as HTMLInputElement;
@@ -101,14 +101,8 @@ describe("recipient admin tip actions", () => {
         input[0].dispatchEvent(changeEvent);
       });
     });
-    cy.logout();
-  });
 
-  it("should download and delete the file", function () {
-    cy.login_receiver();
-
-    cy.visit("/#/recipient/reports");
-    cy.get("#tip-0").first().click();
+    cy.get('.download-button').should('be.visible');
     cy.get('.download-button').first().click();
     cy.get('.fa-trash').first().click();
     cy.get("#modal-action-ok").click();

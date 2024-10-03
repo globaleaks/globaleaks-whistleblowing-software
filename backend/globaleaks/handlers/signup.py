@@ -43,7 +43,7 @@ def signup(session, request, language):
     request['organization_vat_code'] = request['organization_vat_code'] or None
 
     # Delete the tenants created for the same subdomain that have still not been activated
-    # Ticket reference: https://github.com/globaleaks/GlobaLeaks/issues/2640
+    # Ticket reference: https://github.com/globaleaks/whistleblowing-software/issues/2640
     subquery = session.query(models.Tenant.id) \
                       .filter(models.Subscriber.subdomain == request['subdomain'],
                               not_(models.Subscriber.activation_token.is_(None)),

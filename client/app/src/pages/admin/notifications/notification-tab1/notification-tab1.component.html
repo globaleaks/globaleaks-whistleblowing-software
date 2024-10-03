@@ -55,25 +55,25 @@
               <tr>
                 <td>{{ 'Admin' | translate }}</td>
                 <td>
-                  <input [(ngModel)]="notificationResolver.dataModel.disable_admin_notification_emails" type="checkbox">
+                  <input [(ngModel)]="notificationResolver.dataModel.enable_admin_notification_emails" type="checkbox">
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Analyst' | translate }}</td>
                 <td>
-                  <input [(ngModel)]="notificationResolver.dataModel.disable_analyst_notification_emails" type="checkbox">
+                  <input [(ngModel)]="notificationResolver.dataModel.enable_analyst_notification_emails" type="checkbox">
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Custodian' | translate }}</td>
                 <td>
-                  <input [(ngModel)]="notificationResolver.dataModel.disable_custodian_notification_emails" type="checkbox">
+                  <input [(ngModel)]="notificationResolver.dataModel.enable_custodian_notification_emails" type="checkbox">
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Recipient' | translate }}</td>
                 <td>
-                  <input [(ngModel)]="notificationResolver.dataModel.disable_receiver_notification_emails" type="checkbox">
+                  <input [(ngModel)]="notificationResolver.dataModel.enable_receiver_notification_emails" type="checkbox">
                 </td>
               </tr>
             </tbody>

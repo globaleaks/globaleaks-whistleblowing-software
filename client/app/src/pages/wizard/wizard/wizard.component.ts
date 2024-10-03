@@ -67,7 +67,6 @@ export class WizardComponent implements OnInit {
   }
 
   complete() {
-
     if (this.completed) {
       return;
     }
@@ -92,7 +91,7 @@ export class WizardComponent implements OnInit {
   goToAdminInterface() {
     const promise = () => {
       this.translationService.onChange(this.translationService.language);
-      localStorage.removeItem("default_language");
+      sessionStorage.removeItem("default_language");
       this.appConfigService.reinit(false);
       this.appConfigService.loadAdminRoute("/admin/home");
     };

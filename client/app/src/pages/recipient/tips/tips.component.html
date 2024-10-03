@@ -17,7 +17,7 @@
                 <span id="tip-action-revoke-access-selected" *ngIf="preference.dataModel.can_grant_access_to_reports" (click)="openRevokeAccessModal()" data-toggle="tooltip" title="{{'Revoke access' | translate}}" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-user-minus"></i>
                 </span>
-                <span id="tip-action-export-selected" (click)="tipsExport()" data-toggle="tooltip" title="{{'Export' | translate}}" class="btn btn-outline-secondary">
+                <span id="tip-action-export-selected" (click)="exportTips()" data-toggle="tooltip" title="{{'Export' | translate}}" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-download"></i>
                 </span>
             </span>
@@ -207,11 +207,6 @@
                             <span class="btn btn-sm btn-outline-secondary" *ngIf="!isSelected(tip.id)" (click)="tipSwitch(tip.id); $event.stopPropagation();">
                                 <i class="fa-solid fa-square"></i>
                             </span>
-                            <span name="TipExport" (click)="exportTip(tip.id); $event.stopPropagation()" data-toggle="tooltip" title="{{'Export' | translate}}">
-                                <button id="tip-action-export" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fa-solid fa-download"></i>
-                                </button>
-                            </span>
                         </td>
                         <td>
                             <i *ngIf="tip.important" class="fa-solid fa-star text-warning"></i>
@@ -221,15 +216,11 @@
                         <td class="TipInfoID">{{tip.progressive}}</td>
                         <td class="TipInfoContext" *ngIf="appDataService.public.contexts.length > 1">{{tip.context_name}}</td>
                         <td class="TipInfoLabel">{{tip.label}}</td>
-                        <td class="TipInfoStatus">
-                            <span> {{tip.submissionStatusStr}}</span>
-                        </td>
-                        <td class="TipInfoSubmissionDate">
-                            <span>{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</span>
-                        </td>
+                        <td class="TipInfoStatus">{{tip.submissionStatusStr}}</td>
+                        <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                         <td class="TipInfoUpdateDate">{{tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
                         <td class="TipInfoExpirationDate">
-                            <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy'}}</span>
+                            <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
                         </td>
                         <td class="TipInfoLastAccess">

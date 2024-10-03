@@ -1,6 +1,6 @@
 <div id="TipPageRFileUpload" class="card card-default" [attr.aria-expanded]="collapsed">
     <div class="card-header clearfix" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
-        <span>{{'Files attached by recipients' | translate}}</span>
+        <span>{{'Files attached by recipients'|translate}}</span>
         <span class="float-end">
             <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
             <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
@@ -13,11 +13,11 @@
             </div>
         </div>
         <div *ngIf="tip.status !== 'closed'">
-            <div>{{'Upload a file:' | translate}}</div>
+            <div>{{'Upload a file:'|translate}}</div>
             <div class="form">
                 <div class="input-group">
                     <span class="input-group-prepend">
-                        <span class="input-group-text rounded-end-0" data-translate>Description</span>
+                        <span class="input-group-text rounded-end-0">{{'Description'|translate}}</span>
                     </span>
                     <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
                     <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description}">
@@ -32,7 +32,7 @@
                     <br>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <div>
-                            <span>{{'File size not accepted.' | translate}}</span> {{errorFile?.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
+                            <span>{{'File size not accepted.'|translate}}</span> {{errorFile?.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile?.cancel(); showError=false"></button>
                     </div>

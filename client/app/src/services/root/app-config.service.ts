@@ -32,7 +32,7 @@ export class AppConfigService {
   initRoutes(currentURL: string) {
     if (this.authenticationService && this.authenticationService.session && currentURL !== "login") {
       const queryParams = this.activatedRoute.snapshot.queryParams;
-      const param = localStorage.getItem("default_language");
+      const param = sessionStorage.getItem("default_language");
       if (param) {
         queryParams["lang"] = param;
       }
@@ -45,7 +45,7 @@ export class AppConfigService {
         this.router.navigate(["/custodian"], {queryParams}).then();
       }
     } else {
-      localStorage.removeItem("default_language");
+      sessionStorage.removeItem("default_language");
     }
   }
 
@@ -111,12 +111,12 @@ export class AppConfigService {
           }
         });
 
-        let storageLanguage = localStorage.getItem("default_language");
+        let storageLanguage = sessionStorage.getItem("default_language");
         const queryParams = this.activatedRoute.snapshot.queryParams;
         if (languageInit) {
           if (!storageLanguage) {
             storageLanguage = this.appDataService.public.node.default_language;
-            localStorage.setItem("default_language", storageLanguage);
+            sessionStorage.setItem("default_language", storageLanguage);
           }
           if(!queryParams["lang"]){
             const setTitle = () => {

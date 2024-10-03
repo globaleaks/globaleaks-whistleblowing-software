@@ -84,11 +84,11 @@ msgstr "Bashqurghuchilargha ishletküchi parollirini özgertishke hoquq bérildi
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Tapshuriwalghuchilarning melumatlarni öchürishige ruxset qil"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Tapshuriwalghuchining melumat sürükini keynige sürishige ruxset qil"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Pash qilghuchining melumatqa qoshumche qisturishigha ruxset qil"
@@ -189,8 +189,8 @@ msgstr "Bir terep qilishtin burun, yéngi bir parol belgileng."
 msgid "Block the submission"
 msgstr "Tapshurushni chekle"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Jezimlisingiz, sürük chéslasini bu kün’ge keynige sürgen bolisiz:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -262,9 +262,6 @@ msgstr "Seple"
 
 msgid "Confirm"
 msgstr "Jezimle"
-
-msgid "Confirmation"
-msgstr "Jezmleng"
 
 msgid "Congratulations!"
 msgstr "Tebrikleymiz!"
@@ -399,6 +396,9 @@ msgstr "Tallashqa bolidighan eng baldurqi chisla"
 
 msgid "Edit"
 msgstr "Tehrirle"
+
+msgid "Edit the expiration date"
+msgstr "Sürük chéslasini keynige sür"
 
 msgid "Email"
 msgstr "Élxet"
@@ -897,9 +897,6 @@ msgstr "Munasiwetlik barliq sanliq melumatlarnng menggülük öchürürilidighan
 
 msgid "Please select your account:"
 msgstr "Hésabingizni tallang:"
-
-msgid "Postpone the expiration date"
-msgstr "Sürük chéslasini keynige sür"
 
 msgid "Preferences"
 msgstr "Mayilliqlar"

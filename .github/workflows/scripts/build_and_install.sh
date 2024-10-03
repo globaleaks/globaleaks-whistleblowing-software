@@ -4,7 +4,7 @@ set -e
 echo "Running Build & Install"
 distro="$(lsb_release -cs)"
 
-cd /build/GlobaLeaks
+cd /build/whistleblowing-software
 
 sudo apt-get -y update
 

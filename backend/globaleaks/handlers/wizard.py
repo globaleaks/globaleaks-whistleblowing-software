@@ -13,6 +13,17 @@ from globaleaks.utils.crypto import Base64Encoder, GCE
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import isIPAddress
 
+def generate_analyst_key_pair(session, admin_user):
+    global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
+    global_stat_pub_key_config = session.query(models.Config) \
+        .filter(models.Config.tid == 1, models.Config.var_name == 'global_stat_pub_key')
+    global_stat_pub_key_config.value = global_stat_pub_key
+
+    crypto_stat_key = Base64Encoder.encode(
+                GCE.asymmetric_encrypt(admin_user.crypto_pub_key, global_stat_prv_key)).decode()
+    session.query(models.User) \
+            .filter(models.User.id == admin_user.id)\
+            .update({'crypto_global_stat_prv_key': crypto_stat_key})
 
 def db_wizard(session, tid, hostname, request):
     """
@@ -73,6 +84,8 @@ def db_wizard(session, tid, hostname, request):
         admin_user = db_create_user(session, tid, None, admin_desc, language)
         db_set_user_password(session, tid, admin_user, request['admin_password'])
         admin_user.password_change_needed = (tid != 1)
+        if tid == 1:
+            generate_analyst_key_pair(session, admin_user)
 
         if encryption and escrow:
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)

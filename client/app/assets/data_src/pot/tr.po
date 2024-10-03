@@ -11,7 +11,7 @@
 # Erdoğan Şahin, 2016
 # Erdoğan Şahin, 2016-2017
 # Erdoğan Şahin, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # uskumru, 2013
@@ -111,11 +111,11 @@ msgstr "Kullanıcıların parolasını değiştirme izni olan yöneticiler:"
 msgid "Advanced"
 msgstr "Gelişmiş"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Alıcı ihbarın geçerlilik sonu tarihini düzenleyebilsin"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Alıcı ihbarları silebilsin"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Alıcı ihbarın geçerlilik sonu tarihini uzatabilsin"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Muhbir dosya ekleyebilsin"
@@ -216,8 +216,8 @@ msgstr "İlerlemeden önce, lütfen yeni bir parola ayarlayın."
 msgid "Block the submission"
 msgstr "Gönderimi engelle"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Onayladığınızda, geçerlilik sonu şu tarihe uzatılacak:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Onayladığınızda, geçerlilik sonu şu tarihe değiştirilecek:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Onayladığınızda, şu tarihe bir anımsatıcı ayarlanacak:"
@@ -289,9 +289,6 @@ msgstr "Yapılandır"
 
 msgid "Confirm"
 msgstr "Onayla"
-
-msgid "Confirmation"
-msgstr "Doğrulama"
 
 msgid "Congratulations!"
 msgstr "Tebrikler!"
@@ -426,6 +423,9 @@ msgstr "Seçilebilecek en erken tarih"
 
 msgid "Edit"
 msgstr "Düzenle"
+
+msgid "Edit the expiration date"
+msgstr "Geçerlilik sonu tarihini düzenle"
 
 msgid "Email"
 msgstr "E-posta"
@@ -924,9 +924,6 @@ msgstr "Lütfen ilişkili tüm verilerin kalıcı olarak silineceğini unutmayı
 
 msgid "Please select your account:"
 msgstr "Lütfen hesabınızı seçin:"
-
-msgid "Postpone the expiration date"
-msgstr "Geçerlilik sonu tarihini uzat"
 
 msgid "Preferences"
 msgstr "Ayarlar"

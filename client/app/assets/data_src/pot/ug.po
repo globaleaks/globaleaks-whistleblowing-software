@@ -86,11 +86,11 @@ msgstr "باشقۇرغۇچىلارغا ئىشلەتكۈچى پاروللىرىن
 msgid "Advanced"
 msgstr ""
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "تاپشۇرىۋالغۇچىلارنىڭ مەلۇماتلارنى ئۆچۈرىشىگە رۇخسەت قىل"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "تاپشۇرىۋالغۇچىنىڭ مەلۇمات سۈرۈكىنى كەينىگە سۈرىشىگە رۇخسەت قىل"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr ""
@@ -191,8 +191,8 @@ msgstr "بىر تەرەپ قىلىشتىن بۇرۇن، يېڭى بىر پارو
 msgid "Block the submission"
 msgstr "تاپشۇرۇشنى چەكلە"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "جەزىملىسىڭىز، سۈرۈك چېسلاسىنى بۇ كۈنگە كەينىگە سۈرگەن بولىسىز:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -264,9 +264,6 @@ msgstr "سەپلە"
 
 msgid "Confirm"
 msgstr "جەزىملە"
-
-msgid "Confirmation"
-msgstr "جەزملەڭ"
 
 msgid "Congratulations!"
 msgstr "تەبرىكلەيمىز!"
@@ -401,6 +398,9 @@ msgstr "تاللاشقا بولىدىغان ئەڭ بالدۇرقى چىسلا"
 
 msgid "Edit"
 msgstr "تەھرىرلە"
+
+msgid "Edit the expiration date"
+msgstr "سۈرۈك چېسلاسىنى كەينىگە سۈر"
 
 msgid "Email"
 msgstr "ئېلخەت"
@@ -899,9 +899,6 @@ msgstr "مۇناسىۋەتلىك بارلىق سانلىق مەلۇماتلار�
 
 msgid "Please select your account:"
 msgstr "ھېسابىڭىزنى تاللاڭ:"
-
-msgid "Postpone the expiration date"
-msgstr "سۈرۈك چېسلاسىنى كەينىگە سۈر"
 
 msgid "Preferences"
 msgstr "مايىللىقلار"

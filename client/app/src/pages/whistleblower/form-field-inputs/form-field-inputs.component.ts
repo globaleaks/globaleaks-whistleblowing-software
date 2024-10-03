@@ -5,7 +5,7 @@ import {SubmissionService} from "@app/services/helper/submission.service";
 import {Answers} from "@app/models/reciever/reciever-tip-data";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
-import {cloneDeep} from "lodash";
+import {cloneDeep} from "lodash-es";
 
 @Component({
   selector: "src-form-field-inputs",

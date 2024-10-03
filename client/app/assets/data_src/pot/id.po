@@ -109,11 +109,11 @@ msgstr "Administrator mengizinkan untuk mengganti kata sandi pengguna:"
 msgid "Advanced"
 msgstr "Mahir"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Izinkan penerima untuk menghapus laporan"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Izinkan penerima untuk menunda tanggal kedaluwarsa laporan"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Izinkan informan publik untuk menambahkan lampiran ke dalam laporan"
@@ -146,7 +146,7 @@ msgid "Anomaly detection thresholds"
 msgstr "Batas deteksi anomali "
 
 msgid "Anonymity"
-msgstr ""
+msgstr "Anonimitas"
 
 msgid "Anonymize outgoing connections"
 msgstr "Menganonimisasi koneksi keluar"
@@ -214,8 +214,8 @@ msgstr "Sebelum melanjutkan, mohon atur kata sandi baru."
 msgid "Block the submission"
 msgstr "Blokir kiriman"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Dengan mengkonfirmasi, anda akan menunda tanggal kedaluwarsa menjadi: "
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -286,9 +286,6 @@ msgid "Configure"
 msgstr "Konfigurasikan"
 
 msgid "Confirm"
-msgstr "Konfirmasi"
-
-msgid "Confirmation"
 msgstr "Konfirmasi"
 
 msgid "Congratulations!"
@@ -424,6 +421,9 @@ msgstr "Tanggal paling awal yang dapat dipilih"
 
 msgid "Edit"
 msgstr "Sunting"
+
+msgid "Edit the expiration date"
+msgstr "Menunda tanggal kedaluwarsa"
 
 msgid "Email"
 msgstr "Surel"
@@ -922,9 +922,6 @@ msgstr "Harap dicatat bahwa semua data yang terkait akan dihapus secara permanen
 
 msgid "Please select your account:"
 msgstr "Tolong pilih akun Anda"
-
-msgid "Postpone the expiration date"
-msgstr "Menunda tanggal kedaluwarsa"
 
 msgid "Preferences"
 msgstr "Preferensi"

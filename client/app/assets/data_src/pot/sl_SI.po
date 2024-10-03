@@ -3,7 +3,7 @@
 # Aleš <ales.petan@digital.si>, 2016
 # Dagmar Šober, 2023-2024
 # Delo <prevajalci.delo@delo.si>, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2017,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2017,2020-2022,2024
 # Matija <matija@srebrni-galeb.si>, 2015
 # Štefan Baebler <stefan.baebler@gmail.com>, 2020
 # Vasja <vasja.cepic@transparency.si>, 2021
@@ -90,11 +90,11 @@ msgstr "Administatorji, ki smejo spreminjati uporabniška gesla:"
 msgid "Advanced"
 msgstr "Napredno"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Prejemniku omogočite urejanje datuma izteka veljavnosti prijav."
+
 msgid "Allow the recipient to delete reports"
 msgstr "Dovoli prejemniku, da zbriše prijave"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Dovoli prejemnikom spremembo roka veljavnosti prijav"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Prijavitelju dovoli dodajanje prilog"
@@ -195,8 +195,8 @@ msgstr "Preden nadaljujete, nastavite novo geslo."
 msgid "Block the submission"
 msgstr "Blokiraj oddano"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "S potrditvijo boste spremenili rok veljavnosti do:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "S potrditvijo boste spremenili datum izteka veljavnosti na:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "S potrditvijo boste določili opomnik na izbrani datum:"
@@ -268,9 +268,6 @@ msgstr "Oblikovanje"
 
 msgid "Confirm"
 msgstr "Potrdi "
-
-msgid "Confirmation"
-msgstr "Potrditev"
 
 msgid "Congratulations!"
 msgstr "Čestitamo!"
@@ -405,6 +402,9 @@ msgstr "Prvi možen datum"
 
 msgid "Edit"
 msgstr "Uredi"
+
+msgid "Edit the expiration date"
+msgstr "Uredi datum poteka veljavnosti"
 
 msgid "Email"
 msgstr "E-pošta"
@@ -765,7 +765,7 @@ msgid "Minimum number of input characters"
 msgstr "Minimalno število znakov"
 
 msgid "Mobile"
-msgstr ""
+msgstr "Mobilen"
 
 msgid "Mode:"
 msgstr "Način:"
@@ -903,9 +903,6 @@ msgstr "Vsi povezani podatki bodo trajno izbrisani."
 
 msgid "Please select your account:"
 msgstr "Izberite svoj račun:"
-
-msgid "Postpone the expiration date"
-msgstr "Spremeni rok veljavnosti"
 
 msgid "Preferences"
 msgstr "Uporabniške nastavitve"
@@ -1079,7 +1076,7 @@ msgid "Restrict access to specific IP addresses"
 msgstr "Omejite dostop določenim IP naslovom"
 
 msgid "Returning whistleblowers"
-msgstr ""
+msgstr "Večkratni prijavitelji suma nepravilnosti"
 
 msgid "Revoke access"
 msgstr "Prekliči dostop"

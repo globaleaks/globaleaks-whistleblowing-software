@@ -85,11 +85,11 @@ msgstr "အုပ်ချုပ်ရေးမှူးများအား �
 msgid "Advanced"
 msgstr "အဆင့်မြင့်"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "လက်ခံသူအား အစီရင်ခံစာများကို ဖျက်ခွင့်ပြုပါ"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "လက်ခံသူအား အစီရင်ခံစာ သက်တမ်းကုန်ဆုံးရက်ကို ရွှေ့ဆိုင်းခွင့်ပြုပါ"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "သတင်းပေးသူအား အစီရင်ခံစာတွင် ပူးတွဲဖိုင်များ ထည့်ခွင့်ပြုပါ"
@@ -190,8 +190,8 @@ msgstr "ဆက်မလုပ်မီ ကျေးဇူးပြု၍ စက�
 msgid "Block the submission"
 msgstr "တင်သွင်းမှုကို ပိတ်ဆို့မည်"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "အတည်ပြုခြင်းအားဖြင့် သင်သည် သက်တမ်းကုန်ဆုံးရက်ကို ရွှေ့ဆိုင်းပါမည် -"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -263,9 +263,6 @@ msgstr "ချိန်ညှိမည်"
 
 msgid "Confirm"
 msgstr "အတည်ပြုမည်"
-
-msgid "Confirmation"
-msgstr "အတည်ပြုရန်"
 
 msgid "Congratulations!"
 msgstr "ဂုဏ်ယူပါသည်။"
@@ -400,6 +397,9 @@ msgstr "အစောဆုံး ရွေးချယ်နိုင်သေ�
 
 msgid "Edit"
 msgstr "တည်းဖြတ်မည်"
+
+msgid "Edit the expiration date"
+msgstr "သက်တမ်းကုန်ဆုံးရက် ရွှေ့ဆိုင်းပါ"
 
 msgid "Email"
 msgstr "အီးမေးလ်"
@@ -898,9 +898,6 @@ msgstr "ကျေးဇူးပြု၍ ဆက်နွှယ်သော အ�
 
 msgid "Please select your account:"
 msgstr "ကျေးဇူးပြု၍ သင့်အကောင့်ကို ရွေးချယ်ပါ - "
-
-msgid "Postpone the expiration date"
-msgstr "သက်တမ်းကုန်ဆုံးရက် ရွှေ့ဆိုင်းပါ"
 
 msgid "Preferences"
 msgstr "အလေးပေး ရွေးချယ်မှု"

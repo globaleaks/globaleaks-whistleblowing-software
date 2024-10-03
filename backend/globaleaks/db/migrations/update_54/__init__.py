@@ -1,7 +1,6 @@
 # -*- coding: UTF-8
 import base64
 import os
-from datetime import datetime
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.handlers.admin.file import special_files

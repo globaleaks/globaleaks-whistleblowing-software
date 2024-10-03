@@ -81,7 +81,7 @@
                 </div>
                 <div class="form-check">
                         <input id="{{fieldEntry}}" [name]="fieldEntry" class="inputelem" [(ngModel)]="entry['value']" [required]="entry.required_status" value="{{field.value}}" type="checkbox" />
-                        <label for="{{fieldEntry}}" class="form-check-label">{{field.attrs.checkbox_label.value}}</label>
+                        <label for="{{fieldEntry}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
                 </div>
             </div>
             <div id="{{fieldEntry}}" *ngSwitchCase="'voice'">

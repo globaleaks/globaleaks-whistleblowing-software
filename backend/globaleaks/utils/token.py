@@ -1,6 +1,5 @@
 # -*- coding: utf-8
 # Implement a proof of work token to prevent resources exhaustion
-from datetime import timedelta
 
 from globaleaks.rest import errors
 from globaleaks.utils.crypto import sha256, generateRandomKey

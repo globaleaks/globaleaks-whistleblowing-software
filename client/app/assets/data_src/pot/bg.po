@@ -94,11 +94,11 @@ msgstr "Администратори, упълномощени да промен
 msgid "Advanced"
 msgstr "Напреднали"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Разрешаване на получателите да изтриват сигнали"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Разрешаване на получателя да отлага датата на изтичане на сигнала"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Разрешаване на подателя на сигнал да добавя прикачени файлове към сигнала"
@@ -199,8 +199,8 @@ msgstr "Преди да продължите, моля, задайте нова 
 msgid "Block the submission"
 msgstr "Блокиране на подаването"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Като потвърдите, отлагате датата на изтичане до:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -272,9 +272,6 @@ msgstr "Конфигуриране"
 
 msgid "Confirm"
 msgstr "Потвърждаване"
-
-msgid "Confirmation"
-msgstr "Потвърждение"
 
 msgid "Congratulations!"
 msgstr "Поздравления!"
@@ -409,6 +406,9 @@ msgstr "Най-ранна избираема дата"
 
 msgid "Edit"
 msgstr "Редакция"
+
+msgid "Edit the expiration date"
+msgstr "Отлагане на датата на изтичане"
 
 msgid "Email"
 msgstr "Имейл"
@@ -907,9 +907,6 @@ msgstr "Имайте предвид, че цялата свързана инфо
 
 msgid "Please select your account:"
 msgstr "Моля, изберете акаунта си:"
-
-msgid "Postpone the expiration date"
-msgstr "Отлагане на датата на изтичане"
 
 msgid "Preferences"
 msgstr "Предпочитания"

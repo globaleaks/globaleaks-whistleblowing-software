@@ -80,7 +80,7 @@
                     <td class="TipInfoCreationDate">{{tipService.tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                     <td class="TipInfoUpdateDate">{{tipService.tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
                     <td class="TipInfoExpirationDate">
-                        <span *ngIf="!utilsService.isNever(tipService.tip.expiration_date)">{{tipService.tip.expiration_date | date:'dd-MM-yyyy'}}</span>
+                        <span *ngIf="!utilsService.isNever(tipService.tip.expiration_date)">{{tipService.tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                         <span *ngIf="utilsService.isNever(tipService.tip.expiration_date)">-</span>
                     </td>
                     <td class="TipInfoReminderDate" *ngIf="authenticationService.session?.role === 'receiver'">

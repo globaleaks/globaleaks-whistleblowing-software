@@ -86,11 +86,11 @@ msgstr "Ադմինիստրատորները լիազորված են փոխել օ
 msgid "Advanced"
 msgstr "Ընդլայնված"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Թույլ տալ տվյալ հասցեատիրոջը ջնջել հաշվետվությունները"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Թույլ տալ հասցեատիրոջը հետաձգել հաշվետվության վերջնաժամկետը"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Թույլ տալ ազդարարին ֆայլեր կցել զեկույցին"
@@ -191,8 +191,8 @@ msgstr "Նախքան շարունակելը նոր գաղտնաբառ ստեղծ
 msgid "Block the submission"
 msgstr "Արգելել տվյալ հրապարակումը"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Հաստատելով ՝ դուք կհետաձգեք վերջնաժամկետը մինչև."
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -264,9 +264,6 @@ msgstr "Կարգավորել"
 
 msgid "Confirm"
 msgstr "Հաստատել"
-
-msgid "Confirmation"
-msgstr "Վավերացում"
 
 msgid "Congratulations!"
 msgstr "Շնորհավորո՜ւմ ենք։"
@@ -401,6 +398,9 @@ msgstr "Ամենավաղ ընտրելի ամսաթիվը"
 
 msgid "Edit"
 msgstr "Խմբագրել"
+
+msgid "Edit the expiration date"
+msgstr "Հետաձգել վերջնաժամկետը"
 
 msgid "Email"
 msgstr "Էլ.փոստ"
@@ -899,9 +899,6 @@ msgstr "Խնդրում ենք նկատի ունենալ, որ բոլոր հար�
 
 msgid "Please select your account:"
 msgstr "Խնդրում ենք ընտրել ձեր հաշիվը."
-
-msgid "Postpone the expiration date"
-msgstr "Հետաձգել վերջնաժամկետը"
 
 msgid "Preferences"
 msgstr "Նախասիրություններ"

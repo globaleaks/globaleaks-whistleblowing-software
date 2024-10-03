@@ -46,11 +46,11 @@ export class TipComponent implements OnInit {
   score: number;
   ctx: string;
   showEditLabelInput: boolean;
-  tabs: Tab[];
   active: string;
   loading = true;
-  redactMode :boolean = false;
+  redactMode:boolean = false;
   redactOperationTitle: string;
+  tabs: Tab[];
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -82,7 +82,9 @@ export class TipComponent implements OnInit {
           this.showEditLabelInput = this.tip.label === "";
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-          this.initNavBar()
+          setTimeout(() => {
+              this.initNavBar();
+          });
         }
       }
     );
@@ -317,7 +319,6 @@ export class TipComponent implements OnInit {
         minDate: new Date(this.tip.creation_date)
       },
       opened: false,
-
     };
   }
 

@@ -433,6 +433,10 @@ export class HttpService {
     return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request", data);
   }
 
+  requestAccreditationFromInviteOE(uuid: string, data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
+    return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request/"+uuid+"/confirm_invited", data);
+  }
+
   requestUpdateOEAccredited(uuid: string, data: any) : Observable<any>{
     return this.httpClient.post<any>("api/accreditation/request/"+uuid+"/accredited", data);
   }
@@ -469,7 +473,7 @@ export class HttpService {
   }
 
   sendAccreditationInvitation(id: string): Observable<void> {
-    return this.httpClient.put<void>(`/api/accreditation/request/${id}/invited`, { responseType: 'text' as 'json'});
+    return this.httpClient.post<void>(`/api/accreditation/request/${id}/invited`, { responseType: 'text' as 'json'});
   }
 
   sendAccreditationApproved(id: string): Observable<void> {

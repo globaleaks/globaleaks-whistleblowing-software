@@ -1,0 +1,214 @@
+import { registerLocaleData } from '@angular/common';
+
+// Importing locale data for each language
+import localeAm from '@angular/common/locales/am';
+import localeAmExtra from '@angular/common/locales/extra/am';
+import localeAr from '@angular/common/locales/ar';
+import localeArExtra from '@angular/common/locales/extra/ar';
+import localeAz from '@angular/common/locales/az';
+import localeAzExtra from '@angular/common/locales/extra/az';
+import localeBe from '@angular/common/locales/be';
+import localeBeExtra from '@angular/common/locales/extra/be';
+import localeBg from '@angular/common/locales/bg';
+import localeBgExtra from '@angular/common/locales/extra/bg';
+import localeBn from '@angular/common/locales/bn';
+import localeBnExtra from '@angular/common/locales/extra/bn';
+import localeBo from '@angular/common/locales/bo';
+import localeBoExtra from '@angular/common/locales/extra/bo';
+import localeBs from '@angular/common/locales/bs';
+import localeBsExtra from '@angular/common/locales/extra/bs';
+import localeCa from '@angular/common/locales/ca';
+import localeCaExtra from '@angular/common/locales/extra/ca';
+import localeCe from '@angular/common/locales/ce';
+import localeCeExtra from '@angular/common/locales/extra/ce';
+import localeCs from '@angular/common/locales/cs';
+import localeCsExtra from '@angular/common/locales/extra/cs';
+import localeDa from '@angular/common/locales/da';
+import localeDaExtra from '@angular/common/locales/extra/da';
+import localeDe from '@angular/common/locales/de';
+import localeDeExtra from '@angular/common/locales/extra/de';
+import localeEl from '@angular/common/locales/el';
+import localeElExtra from '@angular/common/locales/extra/el';
+import localeEn from '@angular/common/locales/en';
+import localeEnExtra from '@angular/common/locales/extra/en';
+import localeEs from '@angular/common/locales/es';
+import localeEsExtra from '@angular/common/locales/extra/es';
+import localeEt from '@angular/common/locales/et';
+import localeEtExtra from '@angular/common/locales/extra/et';
+import localeEu from '@angular/common/locales/eu';
+import localeEuExtra from '@angular/common/locales/extra/eu';
+import localeFa from '@angular/common/locales/fa';
+import localeFaExtra from '@angular/common/locales/extra/fa';
+import localeFaAf from '@angular/common/locales/fa-AF';
+import localeFaAfExtra from '@angular/common/locales/extra/fa-AF';
+import localeFi from '@angular/common/locales/fi';
+import localeFiExtra from '@angular/common/locales/extra/fi';
+import localeFr from '@angular/common/locales/fr';
+import localeFrExtra from '@angular/common/locales/extra/fr';
+import localeGl from '@angular/common/locales/gl';
+import localeGlExtra from '@angular/common/locales/extra/gl';
+import localeHe from '@angular/common/locales/he';
+import localeHeExtra from '@angular/common/locales/extra/he';
+import localeHrHr from '@angular/common/locales/hr';
+import localeHrHrExtra from '@angular/common/locales/extra/hr';
+import localeHuHu from '@angular/common/locales/hu';
+import localeHuHuExtra from '@angular/common/locales/extra/hu';
+import localeId from '@angular/common/locales/id';
+import localeIdExtra from '@angular/common/locales/extra/id';
+import localeIt from '@angular/common/locales/it';
+import localeItExtra from '@angular/common/locales/extra/it';
+import localeJa from '@angular/common/locales/ja';
+import localeJaExtra from '@angular/common/locales/extra/ja';
+import localeKa from '@angular/common/locales/ka';
+import localeKaExtra from '@angular/common/locales/extra/ka';
+import localeKk from '@angular/common/locales/kk';
+import localeKkExtra from '@angular/common/locales/extra/kk';
+import localeKm from '@angular/common/locales/km';
+import localeKmExtra from '@angular/common/locales/extra/km';
+import localeKo from '@angular/common/locales/ko';
+import localeKoExtra from '@angular/common/locales/extra/ko';
+import localeLo from '@angular/common/locales/lo';
+import localeLoExtra from '@angular/common/locales/extra/lo';
+import localeLt from '@angular/common/locales/lt';
+import localeLtExtra from '@angular/common/locales/extra/lt';
+import localeMg from '@angular/common/locales/mg';
+import localeMgExtra from '@angular/common/locales/extra/mg';
+import localeMk from '@angular/common/locales/mk';
+import localeMkExtra from '@angular/common/locales/extra/mk';
+import localeMs from '@angular/common/locales/ms';
+import localeMsExtra from '@angular/common/locales/extra/ms';
+import localeMy from '@angular/common/locales/my';
+import localeMyExtra from '@angular/common/locales/extra/my';
+import localeNbNo from '@angular/common/locales/nb';
+import localeNbNoExtra from '@angular/common/locales/extra/nb';
+import localeNl from '@angular/common/locales/nl';
+import localeNlExtra from '@angular/common/locales/extra/nl';
+import localePl from '@angular/common/locales/pl';
+import localePlExtra from '@angular/common/locales/extra/pl';
+import localePs from '@angular/common/locales/ps';
+import localePsExtra from '@angular/common/locales/extra/ps';
+import localePtBr from '@angular/common/locales/pt';
+import localePtBrExtra from '@angular/common/locales/extra/pt';
+import localePtPt from '@angular/common/locales/pt-PT';
+import localePtPtExtra from '@angular/common/locales/extra/pt-PT';
+import localeRo from '@angular/common/locales/ro';
+import localeRoExtra from '@angular/common/locales/extra/ro';
+import localeRu from '@angular/common/locales/ru';
+import localeRuExtra from '@angular/common/locales/extra/ru';
+import localeSk from '@angular/common/locales/sk';
+import localeSkExtra from '@angular/common/locales/extra/sk';
+import localeSlSi from '@angular/common/locales/sl';
+import localeSlSiExtra from '@angular/common/locales/extra/sl';
+import localeSq from '@angular/common/locales/sq';
+import localeSqExtra from '@angular/common/locales/extra/sq';
+import localeSrMe from '@angular/common/locales/sr';
+import localeSrMeExtra from '@angular/common/locales/extra/sr';
+import localeSrRs from '@angular/common/locales/sr';
+import localeSrRsExtra from '@angular/common/locales/extra/sr';
+import localeSrLatnMe from '@angular/common/locales/sr-Latn';
+import localeSrLatnMeExtra from '@angular/common/locales/extra/sr-Latn';
+import localeSrLatnRs from '@angular/common/locales/sr-Latn';
+import localeSrLatnRsExtra from '@angular/common/locales/extra/sr-Latn';
+import localeSv from '@angular/common/locales/sv';
+import localeSvExtra from '@angular/common/locales/extra/sv';
+import localeSw from '@angular/common/locales/sw';
+import localeSwExtra from '@angular/common/locales/extra/sw';
+import localeTa from '@angular/common/locales/ta';
+import localeTaExtra from '@angular/common/locales/extra/ta';
+import localeTg from '@angular/common/locales/tg';
+import localeTgExtra from '@angular/common/locales/extra/tg';
+import localeTh from '@angular/common/locales/th';
+import localeThExtra from '@angular/common/locales/extra/th';
+import localeTk from '@angular/common/locales/tk';
+import localeTkExtra from '@angular/common/locales/extra/tk';
+import localeTr from '@angular/common/locales/tr';
+import localeTrExtra from '@angular/common/locales/extra/tr';
+import localeTt from '@angular/common/locales/tt';
+import localeTtExtra from '@angular/common/locales/extra/tt';
+import localeUg from '@angular/common/locales/ug';
+import localeUgExtra from '@angular/common/locales/extra/ug';
+import localeUk from '@angular/common/locales/uk';
+import localeUkExtra from '@angular/common/locales/extra/uk';
+import localeUr from '@angular/common/locales/ur';
+import localeUrExtra from '@angular/common/locales/extra/ur';
+import localeVi from '@angular/common/locales/vi';
+import localeViExtra from '@angular/common/locales/extra/vi';
+import localeZhCn from '@angular/common/locales/zh';
+import localeZhCnExtra from '@angular/common/locales/extra/zh';
+import localeZhHk from '@angular/common/locales/zh-Hant-HK';
+import localeZhHkExtra from '@angular/common/locales/extra/zh-Hant-HK';
+import localeZhTw from '@angular/common/locales/zh-Hant';
+import localeZhTwExtra from '@angular/common/locales/extra/zh-Hant';
+
+// Registering all locales using your original codes
+export function registerLocales(): void {
+  registerLocaleData(localeAm, 'am', localeAmExtra);
+  registerLocaleData(localeAr, 'ar', localeArExtra);
+  registerLocaleData(localeAz, 'az', localeAzExtra);
+  registerLocaleData(localeBe, 'be', localeBeExtra);
+  registerLocaleData(localeBg, 'bg', localeBgExtra);
+  registerLocaleData(localeBn, 'bn', localeBnExtra);
+  registerLocaleData(localeBo, 'bo', localeBoExtra);
+  registerLocaleData(localeBs, 'bs', localeBsExtra);
+  registerLocaleData(localeCa, 'ca', localeCaExtra);
+  registerLocaleData(localeCe, 'ce', localeCeExtra);
+  registerLocaleData(localeCs, 'cs', localeCsExtra);
+  registerLocaleData(localeDa, 'da', localeDaExtra);
+  registerLocaleData(localeDe, 'de', localeDeExtra);
+  registerLocaleData(localeEl, 'el', localeElExtra);
+  registerLocaleData(localeEn, 'en', localeEnExtra);
+  registerLocaleData(localeEs, 'es', localeEsExtra);
+  registerLocaleData(localeEt, 'et', localeEtExtra);
+  registerLocaleData(localeEu, 'eu', localeEuExtra);
+  registerLocaleData(localeFa, 'fa', localeFaExtra);
+  registerLocaleData(localeFaAf, 'fa_AF', localeFaAfExtra); // Keeping 'fa_AF'
+  registerLocaleData(localeFi, 'fi', localeFiExtra);
+  registerLocaleData(localeFr, 'fr', localeFrExtra);
+  registerLocaleData(localeGl, 'gl', localeGlExtra);
+  registerLocaleData(localeHe, 'he', localeHeExtra);
+  registerLocaleData(localeHrHr, 'hr_HR', localeHrHrExtra); // Using 'hr_HR'
+  registerLocaleData(localeHuHu, 'hu_HU', localeHuHuExtra); // Using 'hu_HU'
+  registerLocaleData(localeId, 'id', localeIdExtra);
+  registerLocaleData(localeIt, 'it', localeItExtra);
+  registerLocaleData(localeJa, 'ja', localeJaExtra);
+  registerLocaleData(localeKa, 'ka', localeKaExtra);
+  registerLocaleData(localeKk, 'kk', localeKkExtra);
+  registerLocaleData(localeKm, 'km', localeKmExtra);
+  registerLocaleData(localeKo, 'ko', localeKoExtra);
+  registerLocaleData(localeLo, 'lo', localeLoExtra);
+  registerLocaleData(localeLt, 'lt', localeLtExtra);
+  registerLocaleData(localeMg, 'mg', localeMgExtra);
+  registerLocaleData(localeMk, 'mk', localeMkExtra);
+  registerLocaleData(localeMs, 'ms', localeMsExtra);
+  registerLocaleData(localeMy, 'my', localeMyExtra);
+  registerLocaleData(localeNbNo, 'nb_NO', localeNbNoExtra); // Using 'nb_NO'
+  registerLocaleData(localeNl, 'nl', localeNlExtra);
+  registerLocaleData(localePl, 'pl', localePlExtra);
+  registerLocaleData(localePs, 'ps', localePsExtra);
+  registerLocaleData(localePtBr, 'pt_BR', localePtBrExtra); // Using 'pt_BR'
+  registerLocaleData(localePtPt, 'pt_PT', localePtPtExtra); // Using 'pt_PT'
+  registerLocaleData(localeRo, 'ro', localeRoExtra);
+  registerLocaleData(localeRu, 'ru', localeRuExtra);
+  registerLocaleData(localeSk, 'sk', localeSkExtra);
+  registerLocaleData(localeSlSi, 'sl_SI', localeSlSiExtra); // Using 'sl_SI'
+  registerLocaleData(localeSq, 'sq', localeSqExtra);
+  registerLocaleData(localeSrMe, 'sr-ME', localeSrMeExtra); // Using 'sr-ME'
+  registerLocaleData(localeSrRs, 'sr-RS', localeSrRsExtra); // Using 'sr-RS'
+  registerLocaleData(localeSrLatnMe, 'sr-Latn-ME', localeSrLatnMeExtra); // Using 'sr-Latn-ME'
+  registerLocaleData(localeSrLatnRs, 'sr-Latn-RS', localeSrLatnRsExtra); // Using 'sr-Latn-RS'
+  registerLocaleData(localeSv, 'sv', localeSvExtra);
+  registerLocaleData(localeSw, 'sw', localeSwExtra);
+  registerLocaleData(localeTa, 'ta', localeTaExtra);
+  registerLocaleData(localeTg, 'tg', localeTgExtra);
+  registerLocaleData(localeTh, 'th', localeThExtra);
+  registerLocaleData(localeTk, 'tk', localeTkExtra);
+  registerLocaleData(localeTr, 'tr', localeTrExtra);
+  registerLocaleData(localeTt, 'tt', localeTtExtra);
+  registerLocaleData(localeUg, 'ug', localeUgExtra);
+  registerLocaleData(localeUk, 'uk', localeUkExtra);
+  registerLocaleData(localeUr, 'ur', localeUrExtra);
+  registerLocaleData(localeVi, 'vi', localeViExtra);
+  registerLocaleData(localeZhCn, 'zh_CN', localeZhCnExtra); // Using 'zh_CN'
+  registerLocaleData(localeZhHk, 'zh_HK', localeZhHkExtra); // Using 'zh_HK'
+  registerLocaleData(localeZhTw, 'zh_TW', localeZhTwExtra); // Using 'zh_TW'
+}

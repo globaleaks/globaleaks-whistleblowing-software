@@ -94,11 +94,11 @@ msgstr "Tillad administratorer at ændre brugeradgangskoder"
 msgid "Advanced"
 msgstr "Avanceret"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Tillad modtageren at slette indberetninger"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Tillad modtageren at udsætte udløbsdatoen på indberetningen"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Tillad whistlebloweren at tilføje vedhæftelser til indsendelsen"
@@ -199,8 +199,8 @@ msgstr "Før du fortsætter bedes du indstille en ny adgangskode."
 msgid "Block the submission"
 msgstr "Blokér indsendelsen"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Ved at bekræfte udsætter du udløbsdatoen til:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Ved at bekræfte, opretter du en påmindelsesdato den:"
@@ -272,9 +272,6 @@ msgstr "Konfigurer"
 
 msgid "Confirm"
 msgstr "Bekræft"
-
-msgid "Confirmation"
-msgstr "Bekræftelse"
 
 msgid "Congratulations!"
 msgstr "Tillykke!"
@@ -409,6 +406,9 @@ msgstr "Tidligst valgbare dato"
 
 msgid "Edit"
 msgstr "Rediger"
+
+msgid "Edit the expiration date"
+msgstr "Udsæt udløbsdatoen"
 
 msgid "Email"
 msgstr "E-mail"
@@ -907,9 +907,6 @@ msgstr "Bemærk at alle tilknyttede data bliver slettet permanent."
 
 msgid "Please select your account:"
 msgstr "Vælg venligst din konto:"
-
-msgid "Postpone the expiration date"
-msgstr "Udsæt udløbsdatoen"
 
 msgid "Preferences"
 msgstr "Indstillinger"

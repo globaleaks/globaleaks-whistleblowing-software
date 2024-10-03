@@ -2,7 +2,7 @@
 # Translators:
 # Akseli Pihlajamaa <akselijuhanipihlajamaa@gmail.com>, 2020-2022
 # Eva Simonsson, 2020-2021,2023-2024
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2018,2020-2022,2024
 # Jaakko Korhonen <jaakko.korhonen@gmail.com>, 2018
 # John Wild <ac@elephantleague.org>, 2015
 # Jorma Karvonen <karvonen.jorma@gmail.com>, 2015,2017,2020
@@ -53,7 +53,7 @@ msgid "Account recovery key"
 msgstr "Tilin palautusavain"
 
 msgid "Act on behalf of a whistleblower"
-msgstr ""
+msgstr "Toimi ilmoittajan puolesta"
 
 msgid "Activities"
 msgstr "Tapahtumat"
@@ -94,11 +94,11 @@ msgstr "Ylläpitäjillä on valtuutus vaihtaa käyttäjän salasanat:"
 msgid "Advanced"
 msgstr "Edistyneet ominaisuudet"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Salli vastaanottajan muokata vanhentumispäivää"
+
 msgid "Allow the recipient to delete reports"
 msgstr "Salli vastaanottajan poistaa raportteja"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Salli vastaanottajan lykätä raportin vanhentumispäivää"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Anna ilmoittajan lisätä liitteitä"
@@ -107,7 +107,7 @@ msgid "Allow the whistleblower to write comments"
 msgstr "Anna ilmoittajan kirjoittaa kommentteja"
 
 msgid "Allow this user to reopen management of a report"
-msgstr ""
+msgstr "Salli tämän käyttäjän avata ilmoituksen hallinta uudelleen."
 
 msgid "Allow users to sign up"
 msgstr "Salli käyttäjien rekisteröityä"
@@ -131,7 +131,7 @@ msgid "Anomaly detection thresholds"
 msgstr "Poikkeaman havainnointikynnys"
 
 msgid "Anonymity"
-msgstr ""
+msgstr "Nimettömyys"
 
 msgid "Anonymize outgoing connections"
 msgstr "Lähtevien yhteyksien anonymisointi"
@@ -155,7 +155,7 @@ msgid "Attachments"
 msgstr "Liitteet"
 
 msgid "Attention"
-msgstr ""
+msgstr "Huomio"
 
 msgid "Audio"
 msgstr "Ääni"
@@ -199,8 +199,8 @@ msgstr "Ennen kuin jatkat, aseta uusi salasana."
 msgid "Block the submission"
 msgstr "Estä lähettäminen"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Vahvistamalla lykkäät vanhentumispäivän ajankohtaan:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Vahvistamalla siirrät vanhentumispäivän ajankohtaan:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Vahvistamalla asetat muistutuksen päivämäärään:"
@@ -223,7 +223,7 @@ msgid "Certificate Signing Request"
 msgstr "Varmenteen allekirjoituspyyntö (CSR)"
 
 msgid "Change status"
-msgstr ""
+msgstr "Vaihda tila"
 
 msgid "Change your password"
 msgstr "Vaihda salasanasi"
@@ -272,9 +272,6 @@ msgstr "Määritä"
 
 msgid "Confirm"
 msgstr "Vahvista"
-
-msgid "Confirmation"
-msgstr "Vahvistus"
 
 msgid "Congratulations!"
 msgstr "Onnittelut!"
@@ -357,7 +354,7 @@ msgid "Details of the PGP key:"
 msgstr "PGP-avaimen tiedot:"
 
 msgid "Devices"
-msgstr ""
+msgstr "Laitteet"
 
 msgid "Disable"
 msgstr "Poista käytöstä"
@@ -409,6 +406,9 @@ msgstr "Varhaisin valittavissa oleva päivämäärä"
 
 msgid "Edit"
 msgstr "Muokkaa"
+
+msgid "Edit the expiration date"
+msgstr "Muokkaa vanhentumispäivää"
 
 msgid "Email"
 msgstr "Sähköposti"
@@ -525,7 +525,7 @@ msgid "Footer"
 msgstr "Alatunniste"
 
 msgid "For security reasons the code needs to be changed."
-msgstr ""
+msgstr "Turvallisuussyistä koodi on vaihdettava."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
@@ -908,9 +908,6 @@ msgstr "Huomaa, että kaikki siihen liittyvät tiedot poistetaan pysyvästi."
 msgid "Please select your account:"
 msgstr "Valitse tilisi:"
 
-msgid "Postpone the expiration date"
-msgstr "Siirrä vanhentumispäivää myöhäisemmäksi"
-
 msgid "Preferences"
 msgstr "Asetukset"
 
@@ -933,7 +930,7 @@ msgid "Private Key"
 msgstr "Yksityinen avain"
 
 msgid "Privileges"
-msgstr ""
+msgstr "Oikeudet"
 
 msgid "Proceed"
 msgstr "Jatka"
@@ -1017,7 +1014,7 @@ msgid "Remove"
 msgstr "Poista"
 
 msgid "Reopen"
-msgstr ""
+msgstr "Avaa uudelleen"
 
 msgid "Reply motivation"
 msgstr "Vastauksen syy"
@@ -1083,7 +1080,7 @@ msgid "Restrict access to specific IP addresses"
 msgstr "Rajoita pääsy tiettyihin IP-osoitteisiin"
 
 msgid "Returning whistleblowers"
-msgstr ""
+msgstr "Palaavat ilmoittajat"
 
 msgid "Revoke access"
 msgstr "Peruuta pääsy"
@@ -1191,7 +1188,7 @@ msgid "Show"
 msgstr "Näytä"
 
 msgid "Show channels in alphabetical order"
-msgstr ""
+msgstr "Näytä kanavat aakkosjärjestyksessä"
 
 msgid "Show recipients in alphabetical order"
 msgstr "Näytä vastaanottajat aakkosjärjestyksessä"
@@ -1336,7 +1333,7 @@ msgid ""
 msgstr "Tämän vaihe vaiheelta -opastuksen avulla voit ottaa vihjepalvelun käyttöösi haluamillasi asetuksilla."
 
 msgid "The link will expire in 7 days."
-msgstr ""
+msgstr "Linkki vanhenee 7 päivän kuluttua."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1462,10 +1459,10 @@ msgid "URL redirects"
 msgstr "URL-uudelleenohjaukset"
 
 msgid "Unhide"
-msgstr ""
+msgstr "Kumoa piilotus"
 
 msgid "Unselect"
-msgstr ""
+msgstr "Poista valinta"
 
 msgid "Upload"
 msgstr "Lataa"
@@ -1579,7 +1576,7 @@ msgid ""
 msgstr "Muodostat yhteyden palvelimeen ilman nimettömyyttä ja tämä palvelin tukee vain anonyymejä lähetyksiä"
 
 msgid "You are operating on behalf of a whistleblower."
-msgstr ""
+msgstr "Toimit ilmoittajan puolesta."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -2021,12 +2018,12 @@ msgid "Some reports will expire soon"
 msgstr "Osa ilmoituksista vanhenee pian"
 
 msgid "This is an email to notify you the reception of a new report."
-msgstr "Tämä sähköposti viestii sinulle uuden ilmoituksen vastaanottamisesta."
+msgstr "Tämä sähköposti ilmoittaa uuden ilmoituksen vastaanottamisesta."
 
 msgid ""
 "This is an email to notify you that the reminder date for one or more "
 "reports has been met."
-msgstr "Tämä sähköposti viestii sinulle, että yhden tai useamman ilmoituksen muistutuspäivämäärä on saavutettu."
+msgstr "Tämä sähköposti ilmoittaa, että yhden tai useamman ilmoituksen muistutuspäivämäärä on saavutettu."
 
 msgid "Reminder"
 msgstr "Muistutus"

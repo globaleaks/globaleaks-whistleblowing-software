@@ -171,7 +171,7 @@ The system with the basic configuration completed with the initial platform wiza
 
 Depending on your project needs here you could create additional Channels and configure their respective properties.
 
-.. image:: ../../images/admin/contexts.png
+.. image:: ../../images/admin/channels.png
 
 Data Retention Policy
 .....................

@@ -94,11 +94,11 @@ msgstr "ผู้ดูแลได้รับอนุญาตให้เป
 msgid "Advanced"
 msgstr "ขั้นสูง"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "อนุญาตให้ผู้รับลบรายงานได้"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "อนุญาตให้ผู้รับเลื่อนวันหมดอายุของรายงานได้"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "อนุญาตให้ผู้แจ้งเบาะแสแนบแฟ้มในรายงาน"
@@ -199,8 +199,8 @@ msgstr "ก่อนจะไปต่อ กรุณาตั้งรหั�
 msgid "Block the submission"
 msgstr "ปิดกั้นการส่ง"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "เมื่อยืนยัน คุณจะเลื่อนวันหมดอายุไปที่:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "เมื่อยืนยัน คุณจะตั้งให้แจ้งเตือนในวันที่:"
@@ -272,9 +272,6 @@ msgstr "ปรับค่า"
 
 msgid "Confirm"
 msgstr "ยืนยัน"
-
-msgid "Confirmation"
-msgstr "การยืนยัน"
 
 msgid "Congratulations!"
 msgstr "ยินดีด้วย!"
@@ -409,6 +406,9 @@ msgstr "วันที่แรกสุดที่ให้เลือกไ
 
 msgid "Edit"
 msgstr "แก้ไข"
+
+msgid "Edit the expiration date"
+msgstr "เลื่อนวันหมดอายุ"
 
 msgid "Email"
 msgstr "อีเมล"
@@ -907,9 +907,6 @@ msgstr "โปรดทราบว่าข้อมูลที่เชื่
 
 msgid "Please select your account:"
 msgstr "กรุณาเลือกบัญชีของคุณ:"
-
-msgid "Postpone the expiration date"
-msgstr "เลื่อนวันหมดอายุ"
 
 msgid "Preferences"
 msgstr "การตั้งค่า"

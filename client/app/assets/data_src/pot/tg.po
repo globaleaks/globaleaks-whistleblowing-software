@@ -92,11 +92,11 @@ msgstr "Ба маъмурон иҷозаи тағйир додани гузар�
 msgid "Advanced"
 msgstr "Бештар"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Ба гиранда иҷозаи пок кардани гузоришро додан"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Ба гиранда иҷозаи ба таъхир гузоштани мӯҳлати анҷоми эътибори гузоришро додан"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Ба хабардиҳанда иҷозаи илова кардани замима ба гузориш додан"
@@ -197,8 +197,8 @@ msgstr "Пеш аз идома додан, лутфан гузарвожаи н�
 msgid "Block the submission"
 msgstr "Ирсолро масдуд кардан"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Бо тасдиқи ин шумо мӯҳлати анҷоми эътиборро то ба ин сана ба таъхир мегузоред:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -269,9 +269,6 @@ msgid "Configure"
 msgstr "Танзим кардан"
 
 msgid "Confirm"
-msgstr "Тасдиқ кардан"
-
-msgid "Confirmation"
 msgstr "Тасдиқ кардан"
 
 msgid "Congratulations!"
@@ -407,6 +404,9 @@ msgstr "Барвақттарин санаи интихобшаванда "
 
 msgid "Edit"
 msgstr "Тағйир додан"
+
+msgid "Edit the expiration date"
+msgstr "Ба таъхир гузоштани мӯҳлати итмоми эътибор "
 
 msgid "Email"
 msgstr "Почтаи электронӣ"
@@ -905,9 +905,6 @@ msgstr "Лутфан таваҷҷӯҳ кунед, ки тамоми маълум
 
 msgid "Please select your account:"
 msgstr "Лутфан аккаунти худро интихоб кунед:"
-
-msgid "Postpone the expiration date"
-msgstr "Ба таъхир гузоштани мӯҳлати итмоми эътибор "
 
 msgid "Preferences"
 msgstr "Танзимотхо"

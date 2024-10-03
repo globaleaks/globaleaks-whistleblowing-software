@@ -8,6 +8,9 @@ export PYBUILD_INSTALL_ARGS=--no-compile
 %:
 	dh $@ --with python3 --buildsystem=pybuild --sourcedirectory=backend/
 
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
 override_dh_install:
 	dh_apparmor --profile-name=usr.bin.globaleaks
 	dh_install

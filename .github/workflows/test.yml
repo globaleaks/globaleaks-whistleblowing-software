@@ -10,9 +10,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Install git
         run: |

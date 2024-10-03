@@ -20,7 +20,7 @@
                 </label>
             </div>
             <div class="form-group" *ngIf="nodeResolver.dataModel.escrow">
-                <label>{{'Administrators authorized to change user passwords' | translate}}:</label>
+                <label>{{'Administrators authorized to change user passwords:' | translate}}</label>
                 <ol class="selection-list">
                     <li *ngFor="let user of userData">
                         <span>{{user.name}}</span>
@@ -55,7 +55,7 @@
         <div class="form-group">
             <label>
                 <input [(ngModel)]="nodeResolver.dataModel.show_contexts_in_alphabetical_order" type="checkbox" />
-                <span>{{ 'Show contexts in alphabetical order' | translate }}</span>
+                <span>{{ 'Show channels in alphabetical order' | translate }}</span>
             </label>
         </div>
         <div class="form-group">

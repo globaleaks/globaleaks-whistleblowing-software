@@ -25,13 +25,13 @@ describe("globaLeaks setup wizard", () => {
     cy.get('[name="admin_name"]').type("Admin");
     cy.get('[name="admin_mail_address"]').type("globaleaks-admin@mailinator.com");
     cy.get('[name="admin_password"]').type(Cypress.env('user_password'));
-    cy.get('[name="checkpassword"]').type(Cypress.env('user_password'));
+    cy.get('[name="admin_password_check"]').type(Cypress.env('user_password'));
 
     cy.get(".ButtonNext").click();
 
     cy.takeScreenshot("wizard/4");
 
-    cy.get('[name="skip_recipient_account_creation"]').click();
+    cy.get('[name="skip_recipient_account_creation_checkbox"]').click();
 
     cy.get(".ButtonNext").click();
 

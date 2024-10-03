@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { EOInfo } from "@app/models/accreditor/organization-data";
 import { HttpService } from "@app/shared/services/http.service";
+import { Location } from '@angular/common'; 
 
 @Component({
     selector: 'src-accreditation-request',
@@ -16,7 +17,7 @@ export class AccreditationRequestComponent {
     };
     isFormValid: boolean = false;
 
-    constructor(private httpService: HttpService) {}
+    constructor(private httpService: HttpService, private location: Location) {}
 
     onFormValidityChange(isValid: boolean) {
         this.isFormValid = isValid;
@@ -27,7 +28,7 @@ export class AccreditationRequestComponent {
             console.log(this.organizationInfo);
             this.httpService.sendAccreditationRequest(this.organizationInfo).subscribe({
                 next: () => {
-                //   this.loadOrganizationData();
+                    this.location.back();
                 },
                 error: (err) => {
                   console.error("Errore durante la richiesta di aggiornamento", err);

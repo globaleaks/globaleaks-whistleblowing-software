@@ -37,7 +37,7 @@ export class QuestionnairesListComponent {
   }
 
   exportQuestionnaire(questionnaire: questionnaireResolverModel) {
-    this.utilsService.saveAs(this.authenticationService, questionnaire.name, "api/admin/questionnaires/" + questionnaire.id,);
+    this.utilsService.saveAs(this.authenticationService, questionnaire.name + ".json", "api/admin/questionnaires/" + questionnaire.id + "?multilang=1");
   }
 
   duplicateQuestionnaire(questionnaire: questionnaireResolverModel) {

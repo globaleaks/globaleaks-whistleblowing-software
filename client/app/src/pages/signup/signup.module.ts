@@ -1,4 +1,5 @@
 import {NgModule} from "@angular/core";
+import {MarkdownModule} from "ngx-markdown";
 import {CommonModule} from "@angular/common";
 import {SignupComponent} from "@app/pages/signup/signup/signup.component";
 import {TranslateModule} from "@ngx-translate/core";
@@ -21,6 +22,7 @@ import {ActivationComponent} from "@app/pages/signup/templates/activation/activa
   ],
   imports: [
     CommonModule,
+    MarkdownModule,
     TranslateModule,
     FormsModule,
     ReactiveFormsModule,

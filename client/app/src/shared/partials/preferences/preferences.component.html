@@ -1,10 +1,10 @@
 <div class="reveal">
     <ul ngbNav class="nav-tabs">
         <li ngbNavItem>
-            <a ngbNavLink (click)="activeTab = 'tab1'">Preferences</a>
+            <a ngbNavLink (click)="activeTab = 'tab1'">{{ 'Preferences' | translate }}</a>
         </li>
         <li ngbNavItem>
-            <a ngbNavLink class="password" (click)="activeTab = 'tab2'">Password</a>
+            <a ngbNavLink class="password" (click)="activeTab = 'tab2'">{{ 'Password' | translate }}</a>
         </li>
     </ul>
     <br>

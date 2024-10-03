@@ -99,11 +99,11 @@ msgstr "Quản trị viên có quyền thay đổi mật mã người dùng"
 msgid "Advanced"
 msgstr "Nâng cao"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Cho phép người nhận xóa báo cáo"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "Cho phép người nhận hoãn thời điểm hết hạn của báo cáo"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Cho phép người tố giác thêm tập tin đính kèm"
@@ -204,8 +204,8 @@ msgstr "Trước khi tiếp tục, hãy cài mật khẩu mới"
 msgid "Block the submission"
 msgstr "Chặn-không nhận báo cáo"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Khi xác nhận, bạn sẽ hoãn ngày hết hạn đến:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Khi xác nhận, bạn sẽ ấn định nhắc nhở vào ngày:"
@@ -276,9 +276,6 @@ msgid "Configure"
 msgstr "Cấu hình"
 
 msgid "Confirm"
-msgstr "Xác nhận"
-
-msgid "Confirmation"
 msgstr "Xác nhận"
 
 msgid "Congratulations!"
@@ -414,6 +411,9 @@ msgstr "Ngày chọn được sớm nhất"
 
 msgid "Edit"
 msgstr "Chỉnh sửa"
+
+msgid "Edit the expiration date"
+msgstr "Hoãn ngày hết hạn"
 
 msgid "Email"
 msgstr "Email"
@@ -912,9 +912,6 @@ msgstr "Xin lưu ý là tất cả các dữ liệu liên quan sẽ bị xóa v�
 
 msgid "Please select your account:"
 msgstr "Xin chọn tài khoản của bạn:"
-
-msgid "Postpone the expiration date"
-msgstr "Hoãn ngày hết hạn"
 
 msgid "Preferences"
 msgstr "Chọn lựa"

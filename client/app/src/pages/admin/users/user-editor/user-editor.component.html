@@ -8,6 +8,7 @@
                     <span *ngSwitchCase="'receiver'">{{ 'Recipient' | translate }}</span>
                     <span *ngSwitchCase="'custodian'">{{ 'Custodian' | translate }}</span>
                     <span *ngSwitchCase="'analyst'">{{ 'Analyst' | translate }}</span>
+                    <span *ngSwitchCase="'accreditor'">{{ 'Accreditation Manager' | translate }}</span>
                 </ng-container>
             </span>
             <span class="badge bg-secondary" *ngIf="!user.enabled">{{ 'Disabled' | translate }}</span>
@@ -101,9 +102,7 @@
                             </span>
                         </span>
                         <src-password-meter *ngIf="passwordStrengthScore>0" [passwordStrengthScore]="passwordStrengthScore"></src-password-meter>
-                        <div class="text-danger" *ngIf="passwordStrengthScore && passwordStrengthScore < 2">
-                            <p translate>The chosen password is too weak. A valid password should be at least 12 characters long and contain a variety of characters including at least a lowercase character, a capital character, a number and a special character.</p>
-                        </div>
+                        <div class="text-danger" *ngIf="passwordStrengthScore && passwordStrengthScore < 2">{{ 'The chosen password is too weak. A valid password should be at least 12 characters long and contain a variety of characters including at least a lowercase character, a capital character, a number and a special character.' | translate }}</div>
                     </div>
                 </div>
                 <div class="form-group">

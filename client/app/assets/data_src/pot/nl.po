@@ -128,11 +128,11 @@ msgstr "Beheerders die gemachtigd zijn om gebruikerswachtwoorden te wijzigen:"
 msgid "Advanced"
 msgstr "Geavanceerd"
 
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr ""
+
 msgid "Allow the recipient to delete reports"
 msgstr "Sta ontvangers toe tips te verwijderen"
-
-msgid "Allow the recipient to postpone the report expiration date"
-msgstr "De ontvanger mag de einddatum van de inzending uitstellen"
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "De klokkenluider toestaan bestanden toe te voegen aan een inzending"
@@ -233,8 +233,8 @@ msgstr "Voor je verdergaat, stel alsjeblieft een nieuw wachtwoord in."
 msgid "Block the submission"
 msgstr "Blokkeer de inzending"
 
-msgid "By confirming, you will postpone the expiration date to:"
-msgstr "Door te bevestigen, verander je de vervaldatum van de tip in:"
+msgid "By confirming, you will edit the expiration date to:"
+msgstr ""
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr ""
@@ -306,9 +306,6 @@ msgstr "Configureer"
 
 msgid "Confirm"
 msgstr "Bevestig extentie"
-
-msgid "Confirmation"
-msgstr "Bevestiging"
 
 msgid "Congratulations!"
 msgstr "Gefeliciteerd!"
@@ -443,6 +440,9 @@ msgstr "Vroegst mogelijke datum"
 
 msgid "Edit"
 msgstr "Bewerken"
+
+msgid "Edit the expiration date"
+msgstr "Vervaldatum uitstellen"
 
 msgid "Email"
 msgstr "E-mail"
@@ -941,9 +941,6 @@ msgstr "Let op dat alle hiermee verbonden gegevens definitief verwijderd zullen 
 
 msgid "Please select your account:"
 msgstr "Selecteer je account:"
-
-msgid "Postpone the expiration date"
-msgstr "Vervaldatum uitstellen"
 
 msgid "Preferences"
 msgstr "Voorkeuren"

@@ -19,21 +19,21 @@ class WhistleblowerPage {
 
     if(arg && arg =="single_file_upload"){
       cy.get("#step-0-field-5-0-input-0 input[type='file']").selectFile({
-        contents: "./cypress/fixtures/files/evidence-1.pdf",
-        fileName: "evidence-1.pdf",
+        contents: "./cypress/fixtures/files/test.pdf",
+        fileName: "test.pdf",
         mimeType: "application/pdf"
       }, {"force": true});
       
     } else {
       cy.get("#step-0-field-5-0-input-0 input[type='file']").selectFile({
-        contents: "./cypress/fixtures/files/evidence-1.pdf",
-        fileName: "evidence-1.pdf",
+        contents: "./cypress/fixtures/files/test.pdf",
+        fileName: "test.pdf",
         mimeType: "application/pdf"
       }, {"force": true});
   
       cy.get("#step-0-field-5-0-input-0 input[type='file']").selectFile({
-        contents: "./cypress/fixtures/files/evidence-2.zip",
-        fileName: "evidence-2.zip",
+        contents: "./cypress/fixtures/files/test.zip",
+        fileName: "test.zip",
         mimeType: "application/zip"
       }, {"force": true});
     }
@@ -44,7 +44,13 @@ class WhistleblowerPage {
     cy.wait(1000);
     cy.get("#SubmitButton").should("be.visible");
 
+    cy.takeScreenshot("whistleblower/submission");
+
     cy.get("#SubmitButton").click();
+
+    cy.get("#ReceiptCode").should("be.visible");
+
+    cy.takeScreenshot("whistleblower/receipt");
 
     return cy.get('#ReceiptCode').invoke('val').then((value) => {
       return value;
