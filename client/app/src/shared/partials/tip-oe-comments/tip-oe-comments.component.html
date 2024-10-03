@@ -40,7 +40,7 @@
                         </div>
                         <div *ngIf="!comment.type" class="preformatted">{{comment.content}}</div>
                         <div *ngIf="comment.type === 'auditlog_update_report_status'">
-                            <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses) | translate}}</div>
+                            <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses)}}</div>
 			    <div *ngIf="comment.data.motivation">{{'Motivation'|translate}}: {{comment.data.motivation}}</div>
                         </div>
                         <div *ngIf="comment.type === 'auditlog_update_report_expiration'">{{'Expiration date'|translate}}: {{comment.data.curr_expiration_date * 1000 | date:'dd-MM-yyyy'}}</div>

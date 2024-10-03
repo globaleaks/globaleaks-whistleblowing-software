@@ -176,8 +176,8 @@
                     [key]="'oe'" [organizations]="selectedMap"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'oe'" [organizations]="selectedOe"></src-tip-comments>
+                    <src-tip-oe-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+                        [redactMode]="redactMode" [key]="'oe'" ></src-tip-oe-comments>
                 </ng-container>
             </div>
         </ng-template>

@@ -96,6 +96,7 @@ import { SendtipDetailFilesComponent } from "@app/shared/partials/sendtip-detail
 import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
 import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
+import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe-comments.component";
 
 @NgModule({
   imports: [
@@ -151,6 +152,7 @@ import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdow
     RFileUploadButtonComponent,
     RFileUploadStatusComponent,
     TipCommentsComponent,
+    TipOeCommentsComponent,
     LimitToPipe,
     OrderByPipe,
     TipReceiverListComponent,
@@ -237,6 +239,7 @@ import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdow
     TipFilesWhistleblowerComponent,
     WidgetWbFilesComponent,
     TipCommentsComponent,
+    TipOeCommentsComponent,
     TipReceiverListComponent,
     RFileUploadStatusComponent,
     RFileUploadButtonComponent,

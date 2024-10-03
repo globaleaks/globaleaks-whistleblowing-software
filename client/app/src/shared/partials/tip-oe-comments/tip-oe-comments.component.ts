@@ -1,18 +1,18 @@
-import {AppDataService} from "@app/app-data.service";
-import {ChangeDetectorRef, Component, Input, OnInit} from "@angular/core";
-import {WbtipService} from "@app/services/helper/wbtip.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {UtilsService} from "@app/shared/services/utils.service";
-import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { AppDataService } from '@app/app-data.service';
+import { AuthenticationService } from '@app/services/helper/authentication.service';
+import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
+import { WbtipService } from '@app/services/helper/wbtip.service';
+import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
+import { MaskService } from '@app/shared/services/mask.service';
+import { UtilsService } from '@app/shared/services/utils.service';
 import {Comment} from "@app/models/app/shared-public-model";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {MaskService} from "@app/shared/services/mask.service";
 
 @Component({
-  selector: "src-tip-comments",
-  templateUrl: "./tip-comments.component.html"
+  selector: 'src-tip-oe-comments',
+  templateUrl: './tip-oe-comments.component.html'
 })
-export class TipCommentsComponent implements OnInit {
+export class TipOeCommentsComponent {
   @Input() tipService: ReceiverTipService | WbtipService;
   @Input() key: string;
   @Input() redactMode: boolean;
