@@ -174,7 +174,7 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
 
 
 class QuestionnairesCollection(BaseHandler):
-    check_roles = ['admin', 'receiver']
+    check_roles = 'admin'
     invalidate_cache = True
 
     def get(self):

@@ -5,6 +5,8 @@ import base64
 from code import interact
 import os
 import json
+from globaleaks.handlers.public import serialize_questionnaire
+from globaleaks.handlers.admin.tenant import db_get_tenant_list
 from globaleaks.settings import Settings
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.models import serializers
@@ -17,6 +19,7 @@ from globaleaks.utils.utility import datetime_now, get_expiration
 from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
+from sqlalchemy import or_
 
 
 def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id):
@@ -53,15 +56,14 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
     return file_forwarding
 
 
-def validate_steps(session, tid, questionnaire_id):
+def validate_forwarding_questionnaire(session, questionnaire_id):
     questionnaire = db_get(session, models.Questionnaire,
-                           (models.Questionnaire.id == questionnaire_id))
+                (models.Questionnaire.id == questionnaire_id))
     steps = db_get_questionnaire(
-        session, tid, questionnaire.id, None, True)['steps']
+        session, 1, questionnaire.id, None, True)['steps']
     first_field = steps[0]['children'][0]
     if first_field['type'] != 'textarea' or bool(first_field['editable']):
-        raise errors.InputValidationError(
-            "Unable to forward the submission with this questionnaire")
+        return None
     return steps
 
 
@@ -252,6 +254,11 @@ class ForwardSubmission(BaseHandler):
         original_itip_private_key = GCE.asymmetric_decrypt(
             self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
+        steps = validate_forwarding_questionnaire(
+                session, request['questionnaire_id'])
+        if steps is None:
+            raise errors.InputValidationError("Unable to forward the submission with this questionnaire")
+
         for tid in request['tids']:
             previous_forwarding = session.query(models.InternalTipForwarding)\
                 .filter(models.InternalTipForwarding.tid == tid, models.InternalTipForwarding.internaltip_id == itip.id)\
@@ -260,8 +267,6 @@ class ForwardSubmission(BaseHandler):
                 raise errors.InputValidationError(
                     "Forwarding already present for one or more selected tenants")
 
-            steps = validate_steps(
-                session, tid, request['questionnaire_id'])
             answers = set_answer(request['text'], steps)
             questionnaire_hash = db_archive_questionnaire_schema(
                 session, steps)
@@ -325,3 +330,39 @@ class ForwardSubmission(BaseHandler):
         request = self.validate_request(
             self.request.content.read(), requests.ForwardSubmissionDesc)
         return self.forward_submission(request, itip_id, self.session)
+
+class ForwardingsTenantCollection(BaseHandler):
+    """
+    Handler responsible for collect external tenants to forward tips
+    """
+    check_roles = 'receiver'
+
+    @transact
+    def get_esternal_tenants(self, session):
+        return db_get_tenant_list(session, True)
+
+    def get(self):
+        return self.get_esternal_tenants()
+
+class ForwardingsQuestionnaireCollection(BaseHandler):
+    """
+    Handler responsible for collect valid questionaire to be used in send tip process
+    """
+    check_roles = 'receiver'
+
+    @transact
+    def get_questionnaires(self, session, tid, language):
+        valid_questionnaires = []
+        questionnaires = session.query(models.Questionnaire) \
+                            .filter(models.Questionnaire.tid.in_({1, tid}),
+                                    or_(models.Context.questionnaire_id == models.Questionnaire.id,
+                                        models.Context.additional_questionnaire_id == models.Questionnaire.id),
+                                    models.Context.tid == tid)
+        for q in questionnaires:
+            steps = validate_forwarding_questionnaire(session, q.id)
+            if steps is not None:
+                valid_questionnaires.append(q)
+        return [serialize_questionnaire(session, tid, questionnaire, language) for questionnaire in valid_questionnaires]
+
+    def get(self):
+        return self.get_questionnaires(self.request.tid, self.request.language)
