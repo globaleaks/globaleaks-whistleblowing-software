@@ -317,6 +317,7 @@ def serialize_rtip(session, itip, rtip, language):
     internaltip_forwardings = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip.id).all()
     for internaltip_forwarding in internaltip_forwardings:
         forwarding = dict()
+        forwarding['id'] = internaltip_forwarding.oe_internaltip_id
         forwarding['tid'] = internaltip_forwarding.tid
         forwarding['name'] = db_get(session, models.Config, (models.Config.tid == internaltip_forwarding.tid, models.Config.var_name == 'name')).value
         forwarding['state'] = internaltip_forwarding.state
