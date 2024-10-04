@@ -84,7 +84,7 @@ def create_and_initialize(session, desc, *args, **kwargs):
     return serializers.serialize_tenant(session, t)
 
 
-def db_get_tenant_list(session):
+def db_get_tenant_list(session, external:bool=False):
     ret = []
 
     configs = db_get_configs(session, 'tenant')
@@ -97,7 +97,7 @@ def db_get_tenant_list(session):
              )
 
     for t, s in query:
-        if not t.external:
+        if t.external == external:
             tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
             if s:
                 tenant_dict['signup'] = serializers.serialize_signup(s)
