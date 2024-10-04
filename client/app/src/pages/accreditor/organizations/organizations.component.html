@@ -36,10 +36,10 @@
                         </span>
                     </th>                    
                     <th class="ReqInfoDenomination">
-                        <span (click)="sortKey = 'denomination'; sortReverse = !sortReverse">
+                        <span (click)="sortKey = 'organization_name'; sortReverse = !sortReverse">
                             <i class="fa-solid fa-address-card"></i>
                             <span>{{'Denomination' | translate}}</span>
-                            <span *ngIf="sortKey === 'denomination'">
+                            <span *ngIf="sortKey === 'organization_name'">
                                 <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
                                 <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
                             </span>
@@ -79,10 +79,10 @@
                     </th>
 
                     <th class="ReqInfoTipsCount">
-                        <span (click)="sortKey = 'num_tip'; sortReverse = !sortReverse">
+                        <span (click)="sortKey = 'opened_tips'; sortReverse = !sortReverse">
                           <i class="fa-solid fa-file"></i>
                           <span>{{'Tips' | translate}}</span>
-                          <span *ngIf="sortKey === 'num_tip'">
+                          <span *ngIf="sortKey === 'opened_tips'">
                             <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
                             <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
                           </span>
@@ -90,10 +90,10 @@
                     </th>
 
                     <th class="ReqInfoClosedCount">
-                        <span (click)="sortKey = 'closed'; sortReverse = !sortReverse">
+                        <span (click)="sortKey = 'closed_tips'; sortReverse = !sortReverse">
                           <i class="fa-solid fa-lock"></i>
                           <span>{{'Closed' | translate}}</span>
-                          <span *ngIf="sortKey === 'closed'">
+                          <span *ngIf="sortKey === 'closed_tips'">
                             <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
                             <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
                           </span>
