@@ -327,11 +327,20 @@ def serialize_rtip(session, itip, rtip, language):
         comments = []
         for content in contents:
             if content.content_origin == models.EnumContentForwarding.comment.name:
-                comments.append(content.content_id)
+                comment = dict()
+                comment['id'] = content.content_id
+                comment['author_type'] = content.author_type
+                comments.append(comment)
             elif content.content_origin == models.EnumContentForwarding.internal_file.name:
-                files.append(content.content_id)
+                internal_file = dict()
+                internal_file['id'] = content.content_id
+                internal_file['author_type'] = content.author_type
+                files.append(internal_file)
             elif content.content_origin == models.EnumContentForwarding.receiver_file.name:
-                files.append(content.content_id)
+                rfile = dict()
+                rfile['id'] = content.content_id
+                rfile['author_type'] = content.author_type
+                files.append(rfile)
         forwarding['files'] = files
         forwarding['comments'] = comments
         forwardings.append(forwarding)
