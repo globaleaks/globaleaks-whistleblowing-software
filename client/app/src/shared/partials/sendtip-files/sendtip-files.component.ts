@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
+import { RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
 import { ReceiverTipService } from "@app/services/helper/receiver-tip.service";
 import { TranslateService } from "@ngx-translate/core";
@@ -9,7 +10,7 @@ import { TranslateService } from "@ngx-translate/core";
   templateUrl: "./sendtip-files.component.html"
 })
 export class SendtipFilesComponent implements OnInit {
-  // @Input() files: FileItem[] = [];
+  @Input() tip: RecieverTipData;
   @Input() selectedFiles: AttachmentFile[] = [];
 
   @Input() isSelectable: boolean = true;
@@ -18,13 +19,12 @@ export class SendtipFilesComponent implements OnInit {
   files: FileItem[] = [];
   
 
-  constructor(private rtipService: ReceiverTipService, private translate: TranslateService) {
-    this.rfiles = rtipService.tip.rfiles;
-    this.wbfiles = rtipService.tip.wbfiles;
-    this.prepareFilesToDisplay();
-  }
+  constructor(private translate: TranslateService) {}
 
   ngOnInit(): void {
+    this.rfiles = this.tip.rfiles;
+    this.wbfiles = this.tip.wbfiles;
+    this.prepareFilesToDisplay();
   }
 
   toggleFileSelection(file: FileItem) {
@@ -38,6 +38,7 @@ export class SendtipFilesComponent implements OnInit {
   }
   
   prepareFilesToDisplay(): void {
+    // Mappiamo rfiles aggiungendo scanStatus, origin e altre proprietà richieste
     const rfilesMapped = this.rfiles
       .filter(file => file.visibility !== 'personal' /*&& file.state === 'verificato'*/) // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
@@ -71,7 +72,7 @@ export class SendtipFilesComponent implements OnInit {
     this.files = [...rfilesMapped, ...wbfilesMapped];
   }
 
-  mapVisibility(visibility: string): string { // TODO: manage translations
+  mapVisibility(visibility: string): string {
     switch (visibility) {
       case 'public':
       case 'internal':

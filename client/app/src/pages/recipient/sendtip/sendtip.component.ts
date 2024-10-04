@@ -4,7 +4,7 @@ import { FileItem, SendTip } from "@app/models/reciever/sendtip-data";
 import { HttpService } from '@app/shared/services/http.service';
 import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
-import { Forwarding } from '@app/models/reciever/reciever-tip-data';
+import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 
 @Component({
@@ -23,10 +23,12 @@ export class SendtipComponent implements OnInit {
   checkingFile: boolean = false;
 
   uploadedFiles: FileItem[] = [];
+  tip: RecieverTipData;
 
   constructor(private _location: Location, private httpService: HttpService,
     private rtipService: ReceiverTipService){
       this.sendTipRequest.tip_id = this.rtipService.tip.id;
+      this.tip = this.rtipService.tip;
     }
 
   backClicked() {
