@@ -22,6 +22,7 @@ export class preferenceResolverModel {
   pgp_key_remove: boolean;
   picture: boolean;
   tid: number;
+  t_external: boolean = true;
   notification: boolean;
   encryption: boolean;
   escrow: boolean;

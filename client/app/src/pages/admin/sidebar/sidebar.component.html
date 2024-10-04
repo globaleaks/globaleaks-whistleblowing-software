@@ -3,7 +3,7 @@
     <i class="fa fa-home"></i>
     <span>{{'Home'|translate}}</span>
 </a>
-<div *ngIf="authenticationService.session.t_type == 0">
+<div *ngIf="!preferenceResolver.dataModel.t_external">
 <a routerLink="/admin/settings" routerLinkActive="active" id="admin_settings" [attr.aria-current]="isActive('/admin/settings') ? 'page' : 'false'">
     <i class="fa-solid fa-sliders"></i>
     <span>{{'Settings'|translate}}</span>
@@ -13,7 +13,7 @@
     <i class="fa fa-users"></i>
     <span>{{'Users'|translate}}</span>
 </a>
-<div *ngIf="authenticationService.session.t_type == 0">
+<div *ngIf="!preferenceResolver.dataModel.t_external">
 <a routerLink="/admin/questionnaires" routerLinkActive="active" id="admin_questionnaires" [attr.aria-current]="isActive('/admin/questionnaires') ? 'page' : 'false'">
     <i class="fa fa-circle-question"></i>
     <span>{{'Questionnaires'|translate}}</span>

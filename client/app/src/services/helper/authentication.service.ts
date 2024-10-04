@@ -62,8 +62,6 @@ export class AuthenticationService {
       this.session.preferencespage = "/" + role + "/preferences";
       window.sessionStorage.setItem("session", JSON.stringify(this.session));
     }
-    // TODO only for testing TO REMOVE if/else block
-    this.session.t_type = 0; // 0 anac - 1 OE
   }
 
   resetPassword(username: string) {

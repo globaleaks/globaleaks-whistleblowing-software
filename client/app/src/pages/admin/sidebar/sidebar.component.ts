@@ -11,20 +11,10 @@ import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 })
 export class SidebarComponent {
 
-  constructor(private router: Router, protected nodeResolver: NodeResolver, protected authenticationService: AuthenticationService) {
+  constructor(private router: Router, protected nodeResolver: NodeResolver, protected authenticationService: AuthenticationService, protected preferenceResolver: PreferenceResolver) {
   }
 
-  // TODO only for testing TO REMOVE
-  ngOnInit(): void {
-    if(this.authenticationService.session.user_name === "adminOE") {
-      console.log("adminOE");
-      
-      this.authenticationService.session.t_type = 1;
-    } else {
-      console.log("admin");
-      this.authenticationService.session.t_type = 0;
-    }
-  }
+  
 
   isActive(route: string): boolean {
     return this.router.isActive(route, {

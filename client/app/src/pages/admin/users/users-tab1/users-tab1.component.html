@@ -13,7 +13,7 @@
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>
                     <select name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
-                        <ng-container *ngIf="authenticationService.session.t_type == 0; else restrictedOptions">
+                        <ng-container *ngIf="!preferenceData.t_external; else restrictedOptions">
                             <option value="admin">{{ 'Admin' | translate }}</option>
                             <option value="analyst">{{ 'Analyst' | translate }}</option>
                             <option value="custodian">{{ 'Custodian' | translate }}</option>
@@ -69,7 +69,7 @@
 <ng-container *ngIf="usersData.length > 0">
     <div class="userList" *ngFor="let user of usersData | orderBy:'name'; let index = index">
         <form id="user-{{index}}" name="editUser" #editUser="ngForm" novalidate>
-            <src-user-editor [user]="user" [editUser]="editUser" [index]="index" [users]="usersData"></src-user-editor>
+            <src-user-editor [user]="user" [editUser]="editUser" [index]="index" [users]="usersData" [preferenceData]="preferenceData"></src-user-editor>
         </form>
     </div>
 </ng-container>

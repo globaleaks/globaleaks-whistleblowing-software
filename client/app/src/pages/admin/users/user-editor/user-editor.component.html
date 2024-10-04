@@ -178,7 +178,7 @@
             </div>
         </div>
         <div class="row" *ngIf="user.role === 'receiver'">
-            <ng-container *ngIf="authenticationService.session.t_type == 0">
+            <ng-container *ngIf="!preferenceData.t_external">
                 <div class="col-md-12">
                     <div class="form-group">
                         <input [(ngModel)]="user.forcefully_selected" type="checkbox">
@@ -215,7 +215,7 @@
                 </div>
             </ng-container>         
         </div>
-        <div class="row" *ngIf="user.role !== 'admin' && authenticationService.session.t_type != 1">
+        <div class="row" *ngIf="user.role !== 'admin' && !preferenceData.t_external">
             <div class="col-md-12">
                 <label>{{ 'Give the user administrative access to the following features:' | translate }}</label>
                 <div class="form-group">
