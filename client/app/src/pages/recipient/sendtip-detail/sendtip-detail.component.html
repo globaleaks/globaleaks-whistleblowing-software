@@ -75,6 +75,8 @@
     <src-tip-upload-wbfile [tip]="tip" 
                     [key]="'oe'" ></src-tip-upload-wbfile>
 
-    <src-tip-oe-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" [organizations]="[detail]"></src-tip-oe-comments>
+    <!--TODO qui non dovrebbe servire usare la componente con filtro su oe, basta la visibility (sono già sulla segnalazione inoltrata)
+    IN ALTERNATIVA, CON COMPONENTE SRC-TIP-OE-COMMENTS FUNZIONA-->
+    <src-tip-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" ></src-tip-comments>
   </div>
 </div>
