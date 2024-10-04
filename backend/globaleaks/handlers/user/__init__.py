@@ -47,6 +47,10 @@ def user_serialize_user(session, user, language):
     """
     picture = session.query(models.File).filter(models.File.name == user.id).one_or_none() is not None
 
+    tenant = session.query(models.Tenant).filter(models.Tenant.id == user.tid).one_or_none()
+
+    t_external = None if not tenant else tenant.external
+
     # take only contexts for the current tenant
     contexts = [x[0] for x in session.query(models.ReceiverContext.context_id)
                                      .filter(models.ReceiverContext.receiver_id == user.id)]
@@ -72,6 +76,7 @@ def user_serialize_user(session, user, language):
         'pgp_key_remove': False,
         'picture': picture,
         'tid': user.tid,
+        't_external': t_external,
         'notification': user.notification,
         'encryption': user.crypto_pub_key != '',
         'escrow': user.crypto_escrow_prv_key != '',
