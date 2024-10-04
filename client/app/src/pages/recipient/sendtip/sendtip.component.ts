@@ -5,6 +5,7 @@ import { HttpService } from '@app/shared/services/http.service';
 import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-model';
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
 import { Forwarding } from '@app/models/reciever/reciever-tip-data';
+import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 
 @Component({
   selector: "src-sendtip",
@@ -13,7 +14,6 @@ import { Forwarding } from '@app/models/reciever/reciever-tip-data';
 export class SendtipComponent implements OnInit {
   organizations: Forwarding[] = [];
   reviewForms: questionnaireResolverModel[] = [];
-  files: FileItem[] = [];
 
   sendTipRequest: SendTip = new SendTip();
 
@@ -24,7 +24,10 @@ export class SendtipComponent implements OnInit {
 
   uploadedFiles: FileItem[] = [];
 
-  constructor(private _location: Location, private httpService: HttpService){}
+  constructor(private _location: Location, private httpService: HttpService,
+    private rtipService: ReceiverTipService){
+      this.sendTipRequest.tip_id = this.rtipService.tip.id;
+    }
 
   backClicked() {
     this._location.back();
@@ -33,7 +36,7 @@ export class SendtipComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrganizations();
     this.loadReviewForms();
-    this.loadFiles();
+    // this.loadFiles();
   }
 
   loadOrganizations() {
@@ -51,21 +54,11 @@ export class SendtipComponent implements OnInit {
       });
   }
 
-  loadFiles() {
-    setTimeout(() => {
-      this.files = [
-        { id: 'uuid-1', name: 'file1.txt', scanStatus: 'Verificato', origin: 'Segnalante', uploadDate: '01-01-2023 12:00', size: '1 KB', infected: false, loading: false },
-        { id: 'uuid-2', name: 'file2.txt', scanStatus: 'Verificato', origin: 'Organizzazione Esterna', uploadDate: '02-01-2023 13:00', size: '2 KB', infected: false, loading: false },
-        { id: 'uuid-3', name: 'file3.txt', scanStatus: 'Verificato', origin: 'Istruttore', uploadDate: '03-01-2023 14:00', size: '3 KB', infected: false, loading: false },
-      ];
-    }, 500);
-  }
 
-
-  addOrganization(oe_id: number) {
+  addOrganization(oe_id: Forwarding) {
 
     if (oe_id) {
-      const selected = this.organizations.find(org => org.tid == oe_id);
+      const selected = this.organizations.find(org => org.tid == oe_id.tid);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
         this.sendTipRequest.tids.push(selected.tid)
@@ -88,26 +81,22 @@ export class SendtipComponent implements OnInit {
   isFormValid(): boolean {
     return (
       this.sendTipRequest.tids.length > 0 &&
-      this.sendTipRequest.questionnaire_id !== null &&
-      this.sendTipRequest.files.length > 0 &&
-      this.sendTipRequest.text.trim().length > 0
+      this.sendTipRequest.questionnaire_id != null &&
+      // this.sendTipRequest.files.length > 0 && // TODO: check if files are required
+      this.sendTipRequest.text?.trim().length > 0
     );
   }
 
   sendForm() {
     if (this.isFormValid()) {
-      //todo: lista dei file solo come id-origin???
-      console.log("Form :" , this.sendTipRequest);
-      console.log("todo: inviare file appena caricati")
-      // TODO: send files
-      // this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
-      //   next: () => {
-      //     // TODO: redirect to the moon
-      //   },
-      //   error: (err) => {
-      //     console.error("Errore durante l'inoltro della segnalazione'", err);
-      //   }
-      // }); 
+      this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
+        next: () => {
+          // TODO: redirect to the moon
+        },
+        error: (err) => {
+          console.error("Errore durante l'inoltro della segnalazione'", err);
+        }
+      }); 
     }
   }
 }

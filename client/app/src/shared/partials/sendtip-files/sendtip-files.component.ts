@@ -9,13 +9,13 @@ import { TranslateService } from "@ngx-translate/core";
   templateUrl: "./sendtip-files.component.html"
 })
 export class SendtipFilesComponent implements OnInit {
-  @Input() files: FileItem[] = []; // TODO: mock data to be removed
+  // @Input() files: FileItem[] = [];
   @Input() selectedFiles: AttachmentFile[] = [];
 
   @Input() isSelectable: boolean = true;
   rfiles: RFile[];
   wbfiles: WbFile[];
-  filesToDisplay: FileItem[] = [];
+  files: FileItem[] = [];
   
 
   constructor(private rtipService: ReceiverTipService, private translate: TranslateService) {
@@ -32,7 +32,8 @@ export class SendtipFilesComponent implements OnInit {
     if (index > -1) {
       this.selectedFiles.splice(index, 1);
     } else {
-      this.selectedFiles.push(file);
+      const { id, origin } = file;
+      this.selectedFiles.push({ id, origin });
     }
   }
   
@@ -67,7 +68,7 @@ export class SendtipFilesComponent implements OnInit {
     }));
 
     // Uniamo gli array
-    this.filesToDisplay = [...rfilesMapped, ...wbfilesMapped];
+    this.files = [...rfilesMapped, ...wbfilesMapped];
   }
 
   mapVisibility(visibility: string): string { // TODO: manage translations
