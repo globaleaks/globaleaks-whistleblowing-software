@@ -177,7 +177,7 @@
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-oe-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'oe'" ></src-tip-oe-comments>
+                        [redactMode]="redactMode" [key]="'oe'" [organizations]="selectedOe"></src-tip-oe-comments>
                 </ng-container>
             </div>
         </ng-template>

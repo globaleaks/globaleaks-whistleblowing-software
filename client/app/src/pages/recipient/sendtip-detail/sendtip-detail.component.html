@@ -75,6 +75,6 @@
     <src-tip-upload-wbfile [tip]="tip" 
                     [key]="'oe'" ></src-tip-upload-wbfile>
 
-    <src-tip-oe-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" ></src-tip-oe-comments>
+    <src-tip-oe-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" [organizations]="[detail]"></src-tip-oe-comments>
   </div>
 </div>

@@ -56,7 +56,10 @@ export class TipComponent implements OnInit {
   redactOperationTitle: string;
   tabs: Tab[];
   organizationList: Forwarding[] = [];
-  selectedOe: Forwarding[] = [];
+  selectedOe: Forwarding[] = [];  
+  selectedMap: number[] = []
+
+  protected readonly JSON = JSON;
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -94,8 +97,8 @@ export class TipComponent implements OnInit {
           //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
           //TODO FINE
           
-          //mockup
-          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"], comments:["2fefd545-932b-4941-86d7-cbe809278dee", "02b9002b-1342-4846-b634-f9b4c72da2e1", "2425fdb0-8bab-4702-a63e-24869d3abc82", "4bb10faa-202d-470d-add7-98e77880d183", "7445da88-5ef8-4514-be31-63c3f4dfa592"]})
+          //todo mockup
+          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["0cefa9ca-f455-40f7-9b75-b34533ff9daf"], comments:["9809493f-aadb-4b0d-83c0-7831ced27777", "669cdc71-7788-4345-ad89-ba272b2d3449"]})
           this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"], comments:["e271bff7-a177-4b8a-933b-7529e46ea885","f8f02df0-0226-426c-b620-1c7c96177d26"]})
 
           if(this.tip.forwardings && this.tip.forwardings.length > 0)

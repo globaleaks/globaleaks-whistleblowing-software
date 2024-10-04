@@ -7,6 +7,7 @@ import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
 import { MaskService } from '@app/shared/services/mask.service';
 import { UtilsService } from '@app/shared/services/utils.service';
 import {Comment} from "@app/models/app/shared-public-model";
+import { Forwarding } from '@app/models/reciever/reciever-tip-data';
 
 @Component({
   selector: 'src-tip-oe-comments',
@@ -18,6 +19,8 @@ export class TipOeCommentsComponent {
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
 
+  @Input() organizations: Forwarding[];
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;
@@ -25,7 +28,7 @@ export class TipOeCommentsComponent {
   comments: Comment[] = [];
   newComments: Comment;
 
-  constructor(private maskService:MaskService,protected preferenceResolver:PreferenceResolver, private rTipService: ReceiverTipService, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
+  constructor(private maskService:MaskService,protected preferenceResolver:PreferenceResolver, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
 
   }
 
@@ -38,7 +41,7 @@ export class TipOeCommentsComponent {
   }
 
   newComment() {
-    const response = this.tipService.newComment(this.newCommentContent, this.key, []);
+    const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations.map(_ => _.tid));
     this.newCommentContent = "";
 
     response.subscribe(
@@ -52,6 +55,7 @@ export class TipOeCommentsComponent {
   }
 
   getSortedComments(data: Comment[]): Comment[] {
+    data = data.filter(comment => this.organizations.map(_=>_.comments).flat().includes(comment.id))
     return data;
   }
 

@@ -42,7 +42,7 @@ export class SendtipComponent implements OnInit {
   }
 
   loadOrganizations() {
-
+    //todo aggiornare servizio
     return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
       this.organizations = response.map(v => { return {name: v.name, tid: v.id} }) as Forwarding[];
     });
@@ -51,9 +51,10 @@ export class SendtipComponent implements OnInit {
 
 
   loadReviewForms() {
-      return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
-        this.reviewForms = response;
-      });
+    //todo aggiornare servizio
+    return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
+      this.reviewForms = response;
+    });
   }
 
 
