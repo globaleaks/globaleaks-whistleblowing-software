@@ -58,7 +58,7 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
 
 def validate_forwarding_questionnaire(session, questionnaire_id):
     questionnaire = db_get(session, models.Questionnaire,
-                (models.Questionnaire.id == questionnaire_id))
+                           (models.Questionnaire.id == questionnaire_id))
     steps = db_get_questionnaire(
         session, 1, questionnaire.id, None, True)['steps']
     first_field = steps[0]['children'][0]
@@ -255,9 +255,10 @@ class ForwardSubmission(BaseHandler):
             self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
         steps = validate_forwarding_questionnaire(
-                session, request['questionnaire_id'])
+            session, request['questionnaire_id'])
         if steps is None:
-            raise errors.InputValidationError("Unable to forward the submission with this questionnaire")
+            raise errors.InputValidationError(
+                "Unable to forward the submission with this questionnaire")
 
         for tid in request['tids']:
             previous_forwarding = session.query(models.InternalTipForwarding)\
@@ -331,11 +332,13 @@ class ForwardSubmission(BaseHandler):
             self.request.content.read(), requests.ForwardSubmissionDesc)
         return self.forward_submission(request, itip_id, self.session)
 
+
 class ForwardingsTenantCollection(BaseHandler):
     """
     Handler responsible for collect external tenants to forward tips
     """
     check_roles = 'receiver'
+    invalidate_cache = True
 
     @transact
     def get_esternal_tenants(self, session):
@@ -344,20 +347,20 @@ class ForwardingsTenantCollection(BaseHandler):
     def get(self):
         return self.get_esternal_tenants()
 
+
 class ForwardingsQuestionnaireCollection(BaseHandler):
     """
     Handler responsible for collect valid questionaire to be used in send tip process
     """
     check_roles = 'receiver'
+    invalidate_cache = True
 
     @transact
     def get_questionnaires(self, session, tid, language):
         valid_questionnaires = []
         questionnaires = session.query(models.Questionnaire) \
-                            .filter(models.Questionnaire.tid.in_({1, tid}),
-                                    or_(models.Context.questionnaire_id == models.Questionnaire.id,
-                                        models.Context.additional_questionnaire_id == models.Questionnaire.id),
-                                    models.Context.tid == tid)
+            .filter(models.Questionnaire.tid == 1).all()
+
         for q in questionnaires:
             steps = validate_forwarding_questionnaire(session, q.id)
             if steps is not None:
