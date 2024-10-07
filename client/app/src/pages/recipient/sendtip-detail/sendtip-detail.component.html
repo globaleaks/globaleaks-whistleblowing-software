@@ -69,14 +69,14 @@
     >
     </src-sendtip-details-files> -->
 
-    <sendtip-files [tip]="tip" [isSelectable]="false" ></sendtip-files>
+    <sendtip-files *ngIf="tip" [tip]="tip" [isSelectable]="false" ></sendtip-files>
 
     <!--TODO: key='oe' [organizations]="organizations"; ricaricare dati dell'inoltro a valle del caricamento? (dataToParent)="listenToFields()" -->
-    <src-tip-upload-wbfile [tip]="tip" 
-                    [key]="'oe'" ></src-tip-upload-wbfile>
+    <!-- <src-tip-upload-wbfile [tip]="tip" [key]="'oe'" (dataToParent)="listenToFields()" [organizations]="[detail]"></src-tip-upload-wbfile> -->
 
+    <sendtip-file-upload [tip]="tip"></sendtip-file-upload>
     <!--TODO qui non dovrebbe servire usare la componente con filtro su oe, basta la visibility (sono già sulla segnalazione inoltrata)
     IN ALTERNATIVA, CON COMPONENTE SRC-TIP-OE-COMMENTS FUNZIONA-->
-    <src-tip-comments *ngIf="!loading" [tipService]="RTipService" [key]="'oe'" ></src-tip-comments>
+    <src-tip-comments  *ngIf="tip" [tipService]="RTipService" [key]="'oe'" ></src-tip-comments>
   </div>
 </div>

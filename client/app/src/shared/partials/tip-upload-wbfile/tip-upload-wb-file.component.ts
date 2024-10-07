@@ -2,8 +2,7 @@ import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import * as Flow from "@flowjs/flow.js";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {Forwarding, RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import { RFile } from "@app/models/app/shared-public-model";
 import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
@@ -12,12 +11,12 @@ import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
   selector: "src-tip-upload-wbfile",
   templateUrl: "./tip-upload-wb-file.component.html"
 })
-export class TipUploadWbFileComponent {
+export class TipUploadWbFileComponent{
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
   @Input() tip: RecieverTipData;
   @Input() key: string;
   @Input() canUpload: boolean = true;
-  @Input() organizations: number[] = [];
+  @Input() organizations: Forwarding[] = [];
 
   @Output() dataToParent = new EventEmitter<string>();
   collapsed = false;
@@ -29,13 +28,15 @@ export class TipUploadWbFileComponent {
 recentFile: RFile;
 
   //TODO: IN INPUT LISTA DELLE OE A CUI INOLTRARE IL FILE. 
-  
+
   constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
   }
 
+
   onFileSelected(files: FileList | null) {
     if (files && files.length > 0) {
+      
       const file = files[0];
       this.recentFile = {
         id: this.tip.id,
@@ -60,6 +61,7 @@ recentFile: RFile;
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: this.organizations},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
+            debugger
             this.recentFile.isLoading = false;
             this.dataToParent.emit();
         this.errorFile = null;
@@ -89,4 +91,16 @@ recentFile: RFile;
   protected dismissError() {
     this.showError = false;
   }
+
+
+  getFiles(data: RFile[]): RFile[] {
+
+    if(this.key === 'oe')
+      data = data.filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
+
+    return data;
+  }
+
+
+
 }

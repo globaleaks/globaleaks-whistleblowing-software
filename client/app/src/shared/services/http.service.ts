@@ -182,6 +182,10 @@ export class HttpService {
     return this.httpClient.get<questionnaireResolverModel[]>("api/admin/questionnaires");
   }
 
+  requestForwardingQuestionnairesResource(): Observable<questionnaireResolverModel[]> {
+    return this.httpClient.get<questionnaireResolverModel[]>("api/recipient/questionnaires/forwarding");
+  }
+
   requestTipResource(): Observable<tipsResolverModel> {
     return this.httpClient.get<tipsResolverModel>("api/admin/auditlog/tips");
   }
@@ -342,6 +346,10 @@ export class HttpService {
 
   fetchTenant(): Observable<tenantResolverModel[]> {
     return this.httpClient.get<tenantResolverModel[]>("api/admin/tenants");
+  }
+
+  fetchForwardingTenants(): Observable<tenantResolverModel[]> {
+    return this.httpClient.get<tenantResolverModel[]>("api/recipient/tenants/forwarding");
   }
 
   addTenant(param: {

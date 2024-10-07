@@ -58,11 +58,11 @@
             </span>
             <input type="text" class="form-control" id="upload_description" [(ngModel)]="newFileDescription"/>
             <span class="input-group-append">
-              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': newFileDescription == null}">
+              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': newFileDescription == null || tip?.status === 'closed'}">
                 <i class="fa-solid fa-upload"></i>
                 <span>{{'Upload'|translate}}</span>
               </label>
-              <input #uploader id="customFile" type="file" (change)="addFile($event)" style="display: none;" />
+              <input #uploader id="customFile" type="file" (change)="addFile(uploader.files)" style="display: none;" />
             </span>
           </div>
         </div>

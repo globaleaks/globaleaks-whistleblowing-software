@@ -64,7 +64,7 @@ export class SendtipDetailComponent implements OnInit {
           this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
 
           this.tipService.preprocessTipAnswers(this.tip, true);
-          
+
           this.loading = false;
         }
       }
@@ -82,5 +82,9 @@ export class SendtipDetailComponent implements OnInit {
 
   onFileDeleted(deletedFile: FileItem) {
     this.files = this.files.filter(file => file.id !== deletedFile.id);
+  }
+
+  listenToFields(){
+    this.loadDetail();
   }
 }

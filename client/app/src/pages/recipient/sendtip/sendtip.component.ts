@@ -42,12 +42,11 @@ export class SendtipComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrganizations();
     this.loadReviewForms();
-    // this.loadFiles();
   }
 
   loadOrganizations() {
-    //todo aggiornare servizio
-    return this.httpService.fetchTenant().subscribe((response: tenantResolverModel[]) =>{
+    
+    return this.httpService.fetchForwardingTenants().subscribe((response: tenantResolverModel[]) =>{
       this.organizations = response.map(v => { return {name: v.name, tid: v.id} }) as Forwarding[];
     });
   }
@@ -55,8 +54,7 @@ export class SendtipComponent implements OnInit {
 
 
   loadReviewForms() {
-    //todo aggiornare servizio
-    return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
+    return this.httpService.requestForwardingQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
       this.reviewForms = response;
     });
   }
