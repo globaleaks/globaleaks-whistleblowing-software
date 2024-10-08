@@ -36,7 +36,7 @@ export class SendTipFileUploadComponent {
 
         flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
         flowJsInstance.opts.singleFile = true;
-        flowJsInstance.opts.query = { description: this.newFileDescription, visibility: "oe", fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: null },
+        flowJsInstance.opts.query = { description: this.newFileDescription, visibility: "oe", fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: null };
         flowJsInstance.opts.headers = { "X-Session": this.authenticationService.session.id };
         flowJsInstance.on("fileSuccess", (_, message) => {
           
