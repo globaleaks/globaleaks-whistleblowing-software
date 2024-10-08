@@ -506,8 +506,8 @@ export class HttpService {
     return this.httpClient.post<void>(`/api/accreditation/request/instructor_request`, dataToStore);
   }
 
-  sendTipRequest(data: SendTip): Observable<void> {
-    return this.httpClient.put<void>(`api/recipient/wbtip/${data.tip_id}/send`, data);
+  sendTipRequest(data: SendTip): Observable<string> {
+    return this.httpClient.put<string>(`api/recipient/wbtip/${data.tip_id}/send`, data);
   }
 
 }

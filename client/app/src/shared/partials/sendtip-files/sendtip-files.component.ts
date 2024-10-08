@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
 import { RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
@@ -12,8 +12,8 @@ import { TranslateService } from "@ngx-translate/core";
 export class SendtipFilesComponent implements OnInit {
   @Input() tip: RecieverTipData;
   @Input() selectedFiles: AttachmentFile[] = [];
-
   @Input() isSelectable: boolean = true;
+  @Output() selectedFilesChange = new EventEmitter<AttachmentFile[]>();
   rfiles: RFile[];
   wbfiles: WbFile[];
   files: FileItem[] = [];
@@ -35,6 +35,7 @@ export class SendtipFilesComponent implements OnInit {
       const { id, origin } = file;
       this.selectedFiles.push({ id, origin });
     }
+    this.selectedFilesChange.emit(this.selectedFiles);
   }
   
   prepareFilesToDisplay(): void {
@@ -45,7 +46,7 @@ export class SendtipFilesComponent implements OnInit {
         id: file.id,
         name: file.name,
         scanStatus: '-', // TODO per il momento trattino poi file.state
-        origin: this.mapVisibility(file.visibility),
+        origin: this.mapVisibility(file.visibility, 'file.authorType'), // TODO: da implementare file.authorType
         uploadDate: file.creation_date,
         size: file.size.toString(),
         infected: false, // TODO per il momento false
@@ -72,13 +73,17 @@ export class SendtipFilesComponent implements OnInit {
     this.files = [...rfilesMapped, ...wbfilesMapped];
   }
 
-  mapVisibility(visibility: string): string {
+  mapVisibility(visibility: string, authorType: string): string {
     switch (visibility) {
       case 'public':
       case 'internal':
         return this.translate.instant('Instructor');
       case 'oe':
-        return this.translate.instant('External Organization');
+        if (authorType === 'anac') { // TODO: da implementare file.authorType
+          return this.translate.instant('To External Organization');
+        } else {
+          return this.translate.instant('By External Organization');
+        }
       default:
         return 'UNKNOWN';
     }

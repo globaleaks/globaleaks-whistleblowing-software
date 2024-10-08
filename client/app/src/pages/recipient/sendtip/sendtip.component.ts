@@ -6,6 +6,9 @@ import { questionnaireResolverModel } from '@app/models/resolvers/questionnaire-
 import { tenantResolverModel } from '@app/models/resolvers/tenant-resolver-model';
 import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
+import { UtilsService } from '@app/shared/services/utils.service';
+import { AuthenticationService } from '@app/services/helper/authentication.service';
+import { AppDataService } from '@app/app-data.service';
 
 @Component({
   selector: "src-sendtip",
@@ -26,7 +29,8 @@ export class SendtipComponent implements OnInit {
   tip: RecieverTipData;
 
   constructor(private _location: Location, private httpService: HttpService,
-    private rtipService: ReceiverTipService){
+    private rtipService: ReceiverTipService, protected utilsService: UtilsService,
+    private authenticationService: AuthenticationService, protected appDataService: AppDataService){
       this.sendTipRequest.tip_id = this.rtipService.tip.id;
       this.tip = this.rtipService.tip;
     }
@@ -92,14 +96,55 @@ export class SendtipComponent implements OnInit {
 
   sendForm() {
     if (this.isFormValid()) {
+      console.log('uploadedFiles', this.uploadedFiles);
       this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
-        next: () => {
-          // TODO: redirect to the moon
+        next: (uuid: string) => {
+          console.log(`UUID ricevuto: ${uuid}`);
+          this.uploadFiles(uuid);
+          this._location.back();
         },
         error: (err) => {
           console.error("Errore durante l'inoltro della segnalazione'", err);
         }
       }); 
+    }
+  }
+
+  uploadFiles(uuid: string) {
+    if (this.uploadedFiles && this.uploadedFiles.length > 0) {
+      const flowJsInstance = this.utilsService.flowDefault;
+
+      flowJsInstance.opts.target = `api/recipient/tips/${uuid}/files`;
+      flowJsInstance.opts.singleFile = true;
+      flowJsInstance.opts.headers = {
+        "X-Session": this.authenticationService.session.id
+      };
+
+      flowJsInstance.on("fileSuccess", (file) => {
+        console.log(`File ${file.name} caricato con successo.`);
+      });
+
+      flowJsInstance.on("fileError", (file, message) => {
+        console.error(`Errore durante il caricamento del file ${file.name}: ${message}`);
+      });
+
+      this.uploadedFiles.forEach(file => {
+        if (file.file) {
+          flowJsInstance.opts.query = {
+            description: file.description,
+            visibility: 'oe',
+            fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024,
+            tids: this.selectedOrganizations
+          };
+  
+          flowJsInstance.addFile(file.file);
+        }
+        
+      });
+
+      flowJsInstance.upload();
+    } else {
+      console.log('Nessun file selezionato per il caricamento.');
     }
   }
 }

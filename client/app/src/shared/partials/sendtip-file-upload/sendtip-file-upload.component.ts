@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FileItem } from '@app/models/reciever/sendtip-data';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { UtilsService } from '@app/shared/services/utils.service';
@@ -11,6 +11,7 @@ export class SendTipFileUploadComponent {
 
 
   @Input() files: FileItem[] = [];
+  @Output() filesChange = new EventEmitter<FileItem[]>();
 
   collapsed = false;
 
@@ -38,6 +39,7 @@ export class SendTipFileUploadComponent {
       }
     
       this.files.push(item);
+      this.filesChange.emit(this.files);
       this.newFileDescription = "";
     
     }
@@ -46,5 +48,6 @@ export class SendTipFileUploadComponent {
 
   removeFile(index: number){
     this.files.splice(index, 1);
+    this.filesChange.emit(this.files);
   }
 }
