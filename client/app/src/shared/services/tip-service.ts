@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TipService {
 
-  constructor(private fieldUtilities: FieldUtilitiesService) {
+  constructor(private fieldUtilities: FieldUtilitiesService, private utilsService: UtilsService) {
   }
 
   filterNotTriggeredField(tip: any, parent: any, field: any, answers: any): void {
@@ -58,4 +59,16 @@ export class TipService {
       }
     }
   }
+
+
+  /* processFilesVerificationStatus(wbFiles: any[]){
+    let i;
+    for(i=0; i< wbFiles.length; i++){
+      let expiration_date = this.utilsService.sumDaysToDate(wbFiles[i]['last_verification_date'], 10)
+      if(this.utilsService.isDatePassed(expiration_date.toISOString()))
+        wbFiles[i]['verification_status']="PENDING"
+    }
+  } */
+
+
 }

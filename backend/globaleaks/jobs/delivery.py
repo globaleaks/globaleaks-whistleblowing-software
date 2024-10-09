@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
-
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
+from globaleaks.models import EnumStateFile
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.file_analysis import FileAnalysis
+from globaleaks.utils.file_analysis.utils import save_status_file_scanning
 from globaleaks.utils.log import log
 from globaleaks.utils.pgp import PGPContext
-
 
 __all__ = ['Delivery']
 
@@ -27,16 +30,16 @@ def file_delivery(session):
     whistleblowerfiles_maps = {}
 
     for ifile, itip in session.query(models.InternalFile, models.InternalTip) \
-                              .filter(models.InternalFile.new.is_(True),
-                                      models.InternalTip.id == models.InternalFile.internaltip_id) \
-                              .order_by(models.InternalFile.creation_date) \
-                              .limit(20):
+            .filter(models.InternalFile.new.is_(True),
+                    models.InternalTip.id == models.InternalFile.internaltip_id) \
+            .order_by(models.InternalFile.creation_date) \
+            .limit(20):
         ifile.new = False
         src = ifile.id
 
         for rtip, user in session.query(models.ReceiverTip, models.User) \
-                                 .filter(models.ReceiverTip.internaltip_id == ifile.internaltip_id,
-                                         models.User.id == models.ReceiverTip.receiver_id):
+                .filter(models.ReceiverTip.internaltip_id == ifile.internaltip_id,
+                        models.User.id == models.ReceiverTip.receiver_id):
             receiverfile = models.WhistleblowerFile()
             receiverfile.internalfile_id = ifile.id
             receiverfile.receivertip_id = rtip.id
@@ -44,7 +47,7 @@ def file_delivery(session):
             # https://github.com/globaleaks/whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
-            receiverfile.new = not ifile.creation_date == itip.creation_date
+            receiverfile.new = ifile.creation_date != itip.creation_date
 
             session.add(receiverfile)
 
@@ -60,11 +63,11 @@ def file_delivery(session):
                 'pgp_key_public': user.pgp_key_public
             })
 
-    for rfile, itip in session.query(models.ReceiverFile, models.InternalTip)\
-                               .filter(models.ReceiverFile.new.is_(True),
-                                       models.ReceiverFile.internaltip_id == models.InternalTip.id) \
-                               .order_by(models.ReceiverFile.creation_date) \
-                               .limit(20):
+    for rfile, itip in session.query(models.ReceiverFile, models.InternalTip) \
+            .filter(models.ReceiverFile.new.is_(True),
+                    models.ReceiverFile.internaltip_id == models.InternalTip.id) \
+            .order_by(models.ReceiverFile.creation_date) \
+            .limit(20):
         rfile.new = False
         src = rfile.id
 
@@ -91,21 +94,30 @@ def write_plaintext_file(sf, dest_path):
         log.err("Unable to create plaintext file %s: %s", dest_path, excep)
 
 
-def write_encrypted_file(key, sf, dest_path):
+def write_encrypted_file(session, key, sf, dest_path):
+    url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+    af = FileAnalysis(url = url_clam_av)
+    status_file = EnumStateFile.verified
     try:
-        with sf.open('rb') as encrypted_file, \
-             GCE.streaming_encryption_open('ENCRYPT', key, dest_path) as seo:
+        with sf.open('rb') as encrypted_file, GCE.streaming_encryption_open('ENCRYPT', key, dest_path) as seo:
+            id_file = dest_path.split('/')[-1]
             chunk = encrypted_file.read(abstract.FileDescriptor.bufferSize)
             while chunk:
+                if status_file == EnumStateFile.verified:
+                    status_file = af.wrap_scanning(
+                        file_name=id_file,
+                        data_bytes=chunk
+                    )
                 seo.encrypt_chunk(chunk, 0)
                 chunk = encrypted_file.read(abstract.FileDescriptor.bufferSize)
-
             seo.encrypt_chunk(b'', 1)
+            save_status_file_scanning(id_file, status_file)
     except Exception as excep:
         log.err("Unable to create plaintext file %s: %s", dest_path, excep)
 
 
-def process_receiverfiles(state, files_maps):
+@transact
+def process_receiverfiles(session, state, files_maps):
     """
     Function that process uploaded receiverfiles
 
@@ -118,17 +130,18 @@ def process_receiverfiles(state, files_maps):
         for rcounter, rf in enumerate(m['wbfiles']):
             try:
                 if m['key']:
-                    write_encrypted_file(m['key'], sf, rf['dst'])
+                    write_encrypted_file(session, m['key'], sf, rf['dst'])
                 elif rf['pgp_key_public']:
                     with sf.open('rb') as encrypted_file:
                         PGPContext(rf['pgp_key_public']).encrypt_file(encrypted_file, rf['dst'])
                 else:
                     write_plaintext_file(sf, rf['dst'])
-            except:
-                pass
+            except Exception as e:
+                logging.debug(e)
 
 
-def process_whistleblowerfiles(state, files_maps):
+@transact
+def process_whistleblowerfiles(session, state, files_maps):
     """
     Function that process uploaded whistleblowerfiles
 
@@ -140,11 +153,11 @@ def process_whistleblowerfiles(state, files_maps):
             sf = state.get_tmp_file_by_name(m['src'])
 
             if m['key']:
-                write_encrypted_file(m['key'], sf, m['dst'])
+                write_encrypted_file(session, m['key'], sf, m['dst'])
             else:
                 write_plaintext_file(sf, m['dst'])
-        except:
-            pass
+        except Exception as e:
+            logging.debug(e)
 
 
 class Delivery(LoopingJob):

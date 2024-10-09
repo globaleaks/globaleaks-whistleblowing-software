@@ -49,13 +49,52 @@
         </div>
     </span>
     <div *ngSwitchCase="'fileupload'">
-        <ng-container *ngFor="let wbFile of filteredWbFiles">
-            <div class="mb-2">
-                <span>{{wbFile.name}}</span>
-                <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" *ngIf="utilsService.supportedViewTypes.includes(wbFile.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
-                <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
+        <ng-container *ngIf="filteredWbFiles.length == 1">
+            <ol class="selection-list w-75">
+                <li>
+                    <span class="pe-2">{{filteredWbFiles[0].name}}</span>
+                    <span class="pt-3">
+                        <button class="btn btn-sm btn-primary tip-action-views-file" *ngIf="utilsService.supportedViewTypes.includes(filteredWbFiles[0].type)" data-toggle="tooltip" 
+                        [disabled]="filteredWbFiles[0].status ==='PENDING' || (filteredWbFiles[0].status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)"
+                        [title]="'View' | translate" (click)="utilsService.viewRFile(filteredWbFiles[0])">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" 
+                        [disabled]="filteredWbFiles[0].status ==='PENDING' || (filteredWbFiles[0].status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)"
+                        (click)="utilsService.downloadRFile(filteredWbFiles[0])">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                    </span>
+                </li>
+            </ol>
+        </ng-container>
+        <ng-container *ngIf="filteredWbFiles.length > 1">
+            <ng-select [items]="filteredWbFiles" [attr.data-cy]="'file_selection'" class="w-25 pt-3" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="selectedFile($event)">
+                <ng-template ng-label-tmp let-item="item">
+                    {{ item.name }}
+                </ng-template>
+                <ng-template ng-option-tmp let-item="item">
+                    <span [innerHTML]="item.name"></span>
+                </ng-template>
+            </ng-select>
+            <br>
+            <div *ngIf="wbfile">
+                <ol class="selection-list w-75 pt-3">
+                    <li>
+                        <span class="pe-2">{{wbfile.name}}</span>
+                        <span class="pt-3">
+                            <button class="btn btn-sm btn-primary tip-action-views-file" *ngIf="utilsService.supportedViewTypes.includes(wbfile.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(wbfile)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                        </span>
+                    </li>
+                </ol>
             </div>
         </ng-container>
+       
     </div>
     <span *ngSwitchDefault class="entry-text">
         <span *ngIf="entry['value']">

@@ -82,9 +82,12 @@ export class TipComponent implements OnInit {
           this.showEditLabelInput = this.tip.label === "";
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-          setTimeout(() => {
-              this.initNavBar();
-          });
+          //TODO MOCKUP - PROCESS WBFILES E RFILES VERIFICATION_STATUS
+          //this.tipServices.processFilesVerificationStatus()
+          //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
+          //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
+          //TODO FINE
+          this.initNavBar()
         }
       }
     );
@@ -319,6 +322,7 @@ export class TipComponent implements OnInit {
         minDate: new Date(this.tip.creation_date)
       },
       opened: false,
+
     };
   }
 

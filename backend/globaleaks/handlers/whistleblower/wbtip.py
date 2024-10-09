@@ -20,6 +20,8 @@ from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import Base64Encoder, GCE
+from globaleaks.utils.file_analysis import FileAnalysis
+from globaleaks.utils.file_analysis.utils import save_status_file_scanning
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -231,11 +233,11 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalTip.id == user_id))
         log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
 
-        return ifile.name, ifile.id, itip.crypto_tip_prv_key
+        return ifile.name, ifile.id, itip.crypto_tip_prv_key, ifile.state
 
     @inlineCallbacks
     def get(self, wbfile_id):
-        name, ifile_id, tip_prv_key = yield self.download_wbfile(self.request.tid, self.session.user_id, wbfile_id)
+        name, ifile_id, tip_prv_key, state = yield self.download_wbfile(self.request.tid, self.session.user_id, wbfile_id)
 
         filelocation = os.path.join(self.state.settings.attachments_path, ifile_id)
 
@@ -252,6 +254,10 @@ class WhistleblowerFileDownload(BaseHandler):
             except:
                 pass
 
+        af = FileAnalysis()
+        status = af.read_file_for_scanning(filelocation, name, state)
+        if status.name != state:
+            save_status_file_scanning(name, status)
         yield self.write_file_as_download(name, filelocation)
 
 
@@ -276,11 +282,11 @@ class ReceiverFileDownload(BaseHandler):
         log.debug("Download of file %s by whistleblower %s",
                   rfile.id, self.session.user_id)
 
-        return rfile.name, rfile.id, base64.b64decode(wbtip.crypto_tip_prv_key), ''
+        return rfile.name, rfile.id, base64.b64decode(wbtip.crypto_tip_prv_key), '', rfile.state
 
     @inlineCallbacks
     def get(self, rfile_id):
-        name, filelocation, tip_prv_key, pgp_key = yield self.download_rfile(self.request.tid, rfile_id)
+        name, filelocation, tip_prv_key, pgp_key, state = yield self.download_rfile(self.request.tid, rfile_id)
 
         filelocation = os.path.join(self.state.settings.attachments_path, filelocation)
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
@@ -290,6 +296,10 @@ class ReceiverFileDownload(BaseHandler):
             name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
             filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
 
+        af = FileAnalysis()
+        status = af.read_file_for_scanning(filelocation, name, state)
+        if status.name != state:
+            save_status_file_scanning(name, status)
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
 

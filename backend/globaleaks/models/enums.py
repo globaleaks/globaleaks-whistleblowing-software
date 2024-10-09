@@ -62,7 +62,6 @@ class EnumSubscriberStatus(_Enum):
     suspended = 5 #6
     approved = 6 # 1
 
-
 class EnumOriginFile(_Enum):
     internal_file = 0
     receiver_file = 1

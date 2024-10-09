@@ -142,6 +142,8 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
+        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
+        'verification_date': ifile.verification_date,
         'error': error
     }
 
@@ -166,6 +168,8 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
+        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
+        'verification_date': ifile.verification_date,
         'error': error
     }
 
@@ -188,7 +192,9 @@ def serialize_rfile(session, rfile):
         'type': rfile.content_type,
         'description': rfile.description,
         'visibility': rfile.visibility,
-        'error': error
+        'error': error,
+        'status': "PENDING" if rfile.state is None or rfile.state == '' else rfile.state.upper(),
+        'verification_date': rfile.verification_date
     }
 
 def serialize_itip(session, internaltip, language):
@@ -213,7 +219,7 @@ def serialize_itip(session, internaltip, language):
         'questionnaires': questionnaires,
         'tor': internaltip.tor,
         'mobile': internaltip.mobile,
-        'reminder_date' : internaltip.reminder_date,
+        'reminder_date': internaltip.reminder_date,
         'enable_whistleblower_identity': internaltip.enable_whistleblower_identity,
         'enable_whistleblower_download': not internaltip.deprecated_crypto_files_pub_key,
         'last_access': internaltip.last_access,
@@ -238,7 +244,6 @@ def serialize_itip(session, internaltip, language):
         ret['redactions'].append(serialize_redaction(session, redaction))
 
     return ret
-
 
 
 def serialize_rtip(session, itip, rtip, language):

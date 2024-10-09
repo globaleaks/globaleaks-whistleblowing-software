@@ -12,6 +12,7 @@
                 <thead>
                 <tr>
                     <th>{{'Filename'|translate}}</th>
+                    <th>{{ 'Verification Status' | translate}}</th>
                     <th *ngIf="wbTipService.tip.enable_whistleblower_download">{{'Download' | translate}}</th>
                     <th>{{'Upload date'|translate}}</th>
                     <th>{{'Type'|translate}}</th>
@@ -21,9 +22,10 @@
                 <tbody id="fileListBody">
                 <tr id="file-{{index}}" *ngFor="let file of getSortedWBFiles(wbTipService.tip.wbfiles | orderBy:'creation_date'); let index = index">
                     <td>{{file.name}}</td>
+                    <td>{{ file.status}}</td>
                     <td *ngIf="wbTipService.tip.enable_whistleblower_download">
                         <button class="btn btn-sm btn-primary tip-action-download-file"
-                                [disabled]="file.error"
+                                [disabled]="file.error || file.status === 'PENDING' || file.status ==='INFECTED'"
                                 data-toggle="tooltip" title="{{'Download' | translate}}"
                                 (click)="downloadWBFile(file)">
                             <i class="fa-solid fa-download"></i>

@@ -37,4 +37,5 @@ export class userResolverModel {
   can_reopen_reports: boolean;
   can_mask_information: boolean;
   can_redact_information: boolean;
+  can_download_infected: boolean;
 }

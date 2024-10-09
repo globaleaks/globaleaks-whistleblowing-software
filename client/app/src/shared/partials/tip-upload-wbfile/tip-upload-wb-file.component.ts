@@ -5,6 +5,8 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import * as Flow from "@flowjs/flow.js";
 import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
+import { RFile } from "@app/models/app/shared-public-model";
+import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
   selector: "src-tip-upload-wbfile",
@@ -21,13 +23,38 @@ export class TipUploadWbFileComponent {
   showError: boolean = false;
   errorFile: FlowFile | null;
 
-  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
+  recentFile: RFile;
 
+  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService, protected preferenceResolver:PreferenceResolver) {
+
+  }
+
+  // Metodo per filtrare e ordinare i file
+  getFilteredAndSortedFiles(): RFile[] {
+    return this.tip.rfiles
+      .filter(file => file.visibility === this.key)
+      .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
   }
 
   onFileSelected(files: FileList | null) {
     if (files && files.length > 0) {
       const file = files[0];
+      this.recentFile = {
+        id: this.tip.id,
+        creation_date: new Date().toISOString(),
+        name: file.name,
+        size: file.size,
+        type: '',
+        description: this.file_upload_description,
+        visibility: this.key,
+        error: false,
+        author: '',
+        downloads: 0,
+        status: 'PENDING',
+        isLoading: true
+      };
+      this.tip.rfiles.push(this.recentFile);
+
       const flowJsInstance = this.utilsService.flowDefault;
 
       flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
@@ -35,16 +62,21 @@ export class TipUploadWbFileComponent {
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
-        this.dataToParent.emit()
-        this.errorFile = null;
+            this.recentFile.isLoading = false;
+            this.dataToParent.emit();
+            this.errorFile = null;
       });
       flowJsInstance.on("fileError", (file, _) => {
-        this.showError = true;
-        this.errorFile = file;
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
-        }
-        this.cdr.detectChanges();
+          const index = this.tip.rfiles.indexOf(this.recentFile);
+          if (index > -1) {
+            this.tip.rfiles.splice(index, 1);
+          }
+          this.showError = true;
+          this.errorFile = file;
+          if (this.uploaderInput) {
+            this.uploaderInput.nativeElement.value = "";
+          }
+          this.cdr.detectChanges();
       });
 
       this.utilsService.onFlowUpload(flowJsInstance, file);

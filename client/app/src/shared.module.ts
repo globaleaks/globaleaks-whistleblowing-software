@@ -83,6 +83,7 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {OperationComponent} from "@app/shared/partials/operation/operation.component";
 import {RedactInformationComponent} from "@app/shared/modals/redact-information/redact-information.component";
+import { DownloadConfirmationComponent } from "./shared/modals/download-confirmation/download-confirmation.component";
 import { OrgInfoComponent } from "@app/shared/partials/org-info/org-info.component";
 import { OrgAdminInfoComponent } from "@app/shared/partials/org-admin-info/org-admin-info.component";
 import { OrgRecipientInfoComponent } from "@app/shared/partials/org-recipient-info/org-recipient-info.component";
@@ -198,6 +199,7 @@ import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.
     OtkcAccessComponent,
     OperationComponent,
     RedactInformationComponent,
+    DownloadConfirmationComponent,
     OrgInfoComponent,
     OrgRecipientInfoComponent,
     OrgAdminInfoComponent,
@@ -238,6 +240,7 @@ import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.
     GrantAccessComponent,
     RevokeAccessComponent,
     DeleteConfirmationComponent,
+    DownloadConfirmationComponent,
     DateRangeSelectorComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,

@@ -1,0 +1,19 @@
+<div class="modal-header">
+    <div class="modal-title">{{ 'Attenzione' | translate }}</div>
+    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+        <i class="fa-solid fa-times"></i>
+    </button>
+</div>
+<div class="modal-body">
+    {{text ? text : confirmationText | translate}}
+</div>
+<div class="modal-footer">
+    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg)">
+        <i class="fa-solid fa-check"></i>
+        <span>{{ 'Yes' | translate }}</span>
+    </button>
+    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+        <i class="fa-solid fa-times"></i>
+        <span>{{ 'No' | translate }}</span>
+    </button>
+</div>
