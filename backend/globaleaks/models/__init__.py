@@ -1036,7 +1036,7 @@ class _InternalTipForwarding(Model):
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
-            )
+            ),
         )
 
 
@@ -1079,6 +1079,7 @@ class _User(Model):
     can_postpone_expiration = Column(Boolean, default=True, nullable=False)
     can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
     can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_download_infected = Column(Boolean, default=False, nullable=False)
     can_redact_information = Column(Boolean, default=False, nullable=False)
     can_mask_information = Column(Boolean, default=True, nullable=False)
     can_reopen_reports = Column(Boolean, default=True, nullable=False)
