@@ -1,11 +1,13 @@
 # -*- coding: utf-8
+import logging
+
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import parse_pgp_options, \
                                      user_serialize_user
-from globaleaks.models import fill_localized_keys
+from globaleaks.models import fill_localized_keys, EnumUserRole
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
@@ -37,6 +39,32 @@ def db_set_user_password(session, tid, user, password):
             if crypto_escrow_pub_key_tenant_n:
                 user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
 
+def generate_analyst_key_pair(session, user):
+    if user.role != EnumUserRole.analyst.name:
+        return
+    try:
+        global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
+        global_stat_pub_key_config = session.query(models.Config).filter(
+            models.Config.tid == 1,
+            models.Config.var_name == 'global_stat_pub_key'
+        ).first()
+        if not global_stat_pub_key_config:
+            raise ValueError("Config not found")
+
+        global_stat_pub_key_config.value = global_stat_pub_key
+        encrypted_global_stat_prv_key = GCE.asymmetric_encrypt(
+            user.crypto_pub_key, global_stat_prv_key
+        )
+        crypto_stat_key_encoded = Base64Encoder.encode(encrypted_global_stat_prv_key).decode()
+        session.query(models.User).filter(
+            models.User.id == user.id
+        ).update(
+            {'crypto_global_stat_prv_key': crypto_stat_key_encoded}
+        )
+    except Exception as e:
+        logging.error(e)
+        session.rollback()
+        raise errors.InternalServerError
 
 
 def db_create_user(session, tid, user_session, request, language):
@@ -77,8 +105,9 @@ def db_create_user(session, tid, user_session, request, language):
         db_set_user_password(session, tid, user, generateRandomPassword(16))
 
     session.add(user)
-
     session.flush()
+
+    generate_analyst_key_pair(session, user)
 
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
@@ -87,13 +116,15 @@ def db_create_user(session, tid, user_session, request, language):
 
 
 def db_delete_user(session, tid, user_session, user_id):
-    current_user = db_get(session, models.User, models.User.id == user_session.user_id)
+    db_get(session, models.User, models.User.id == user_session.user_id)
     user_to_be_deleted = db_get(session, models.User, models.User.id == user_id)
+
 
     if user_session.user_id == user_id:
         # Prevent users to delete themeselves
         raise errors.ForbiddenOperation
-    elif user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
+
+    if user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
 
@@ -143,7 +174,8 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
 
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
-
+    if user.role != request['role'] and request['role'] == EnumUserRole.analyst.name:
+        generate_analyst_key_pair(session, user)
     user.update(request)
 
     return user_serialize_user(session, user, language)
