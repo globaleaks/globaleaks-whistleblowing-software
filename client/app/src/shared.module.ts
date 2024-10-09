@@ -97,6 +97,7 @@ import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list
 import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
 import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe-comments.component";
+import { TipOeRfilesReceiverComponent } from "./shared/partials/tip-oe-rfiles-receiver/tip-oe-rfiles-receiver.component";
 
 @NgModule({
   imports: [
@@ -181,6 +182,7 @@ import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe
     ConfirmationWith2faComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
+    TipOeRfilesReceiverComponent,
     TipOeListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,
@@ -260,6 +262,7 @@ import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe
     DateRangeSelectorComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
+    TipOeRfilesReceiverComponent,
     TipOeListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,

@@ -56,6 +56,7 @@
         </div>
         <div class="col-md-6">
             <src-tip-oe-form [fields]="questionnaireData.reviewFormFields"></src-tip-oe-form>
+            <!-- <src-form [identity_provided]=false (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads"  [fileUploadUrl]="fileUploadUrl" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="step" [submission]="submission" [index]="index"></src-form> -->
         </div>
     </div>
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
@@ -72,18 +73,23 @@
     <div class="row">
         <ng-template #tab1>
             <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'public'" [canUpload]="false"></src-tip-upload-wbfile>
+
+                <src-tip-files-receiver [redactMode]="redactMode" [forwardings]="tip.forwardings"></src-tip-files-receiver>
+
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
+                        [redactMode]="redactMode" [key]="'whistleblower'"></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>
         <ng-template #tab2>
             <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'oe'" [canUpload]="false"></src-tip-upload-wbfile>
+
+                <!-- <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'oe'" [canUpload]="false"></src-tip-upload-wbfile> -->
+                <src-tip-oe-rfiles-receiver [key]="'oe'"></src-tip-oe-rfiles-receiver>
+
+
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'oe'"></src-tip-comments>
@@ -92,8 +98,11 @@
         </ng-template>
         <ng-template #tab3>
             <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'internal'"></src-tip-upload-wbfile>
+
+                <!-- <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'internal'"></src-tip-upload-wbfile> -->
+                <src-tip-oe-rfiles-receiver [key]="'internal'"></src-tip-oe-rfiles-receiver>
+
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
@@ -102,8 +111,11 @@
         </ng-template>
         <ng-template #tab4>
             <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'personal'"></src-tip-upload-wbfile>
+                <!-- <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'personal'"></src-tip-upload-wbfile> -->
+                
+                <src-tip-oe-rfiles-receiver [key]="'personal'"></src-tip-oe-rfiles-receiver>
+
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
                         [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>

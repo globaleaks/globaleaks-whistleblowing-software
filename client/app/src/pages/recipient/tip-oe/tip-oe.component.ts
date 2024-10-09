@@ -91,7 +91,6 @@ export class TipOeComponent implements OnInit {
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           this.initNavBar()
-          console.log(this.tip);
           this.populateQuestionnaireData()
         }
       }

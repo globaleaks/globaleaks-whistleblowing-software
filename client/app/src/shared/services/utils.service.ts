@@ -29,7 +29,7 @@ import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FlowFile} from "@flowjs/flow.js";
 import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/accept-agreement.component";
-import {WbFile} from "@app/models/app/shared-public-model";
+import {RFile, WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import { DownloadConfirmationComponent } from "../modals/download-confirmation/download-confirmation.component";
@@ -435,6 +435,19 @@ export class UtilsService {
     window.print();
   }
 
+  saveAs(authenticationService: AuthenticationService, filename: any, url: string): void {
+
+    const headers = new HttpHeaders({
+      "X-Session": authenticationService.session.id
+    });
+
+    this.http.get(url, {responseType: "blob", headers: headers}).subscribe(
+      response => {
+        this.saveBlobAs(filename, response);
+      }
+    );
+  }
+
   saveBlobAs(filename:string,response:Blob){
     const blob = new Blob([response], {type: "text/plain;charset=utf-8"});
     const blobUrl = URL.createObjectURL(blob);
@@ -784,7 +797,7 @@ export class UtilsService {
       )
       };
       return modalRef.result;
-    }
+  }
 
     
 
