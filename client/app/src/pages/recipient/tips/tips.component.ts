@@ -192,20 +192,8 @@ export class TipsComponent implements OnInit {
     this.appConfigServices.localInitialization(true, reloadCallback);
   }
 
-  // La seguente funzione sceglie l'ui per mostrare la segnalazione a seconda di che si tratti di anac o di un oe
   showTipDetails(id: string): void{
-
-    // switch(this.t_type){
-    //   case 0:
-        this.utils.go('/reports/' + id)
-        // break;
-
-      // case 1:
-      //   this.utils.go('/reports-oe/' + id)
-      //   break;
-    // }
-
-    
+    this.utils.go('/recipient/reports/' + id);
   }
 
   tipSwitch(id: string): void {

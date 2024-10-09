@@ -19,6 +19,8 @@ import {NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import { SendtipDetailComponent } from "@app/pages/recipient/sendtip-detail/sendtip-detail.component";
 import { TipOeComponent } from "./tip-oe/tip-oe.component";
 import { AccreditationRequestComponent } from "@app/pages/recipient/accreditation-request/accreditation-request.component";
+import { RecipientRoutingModule } from "./recipient-routing.module";
+import { RecipientRoutingGuard } from "./recipient.guard";
 
 @NgModule({
   declarations: [
@@ -34,10 +36,13 @@ import { AccreditationRequestComponent } from "@app/pages/recipient/accreditatio
     AccreditationRequestComponent,
   ],
   imports: [
-    CommonModule, RouterModule, TranslateModule, SharedModule, FormsModule,
+    CommonModule, RouterModule, RecipientRoutingModule, TranslateModule, SharedModule, FormsModule,
     NgbModule, NgbNavModule,
     NgbDatepickerModule, NgbDropdownModule, NgMultiSelectDropDownModule.forRoot()
 
+  ],
+  providers: [
+    RecipientRoutingGuard
   ],
   exports: [SidebarComponent]
 })

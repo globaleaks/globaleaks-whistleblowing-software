@@ -8,6 +8,9 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import { AccreditationRequestComponent } from "@app/pages/recipient/accreditation-request/accreditation-request.component";
+import { RecipientRoutingGuard } from "./recipient.guard";
+import { TipOeComponent } from "./tip-oe/tip-oe.component";
+import { TipComponent } from "./tip/tip.component";
 
 const routes: Routes = [
   {
@@ -63,12 +66,29 @@ const routes: Routes = [
       PreferenceResolver, RTipsResolver
     },
     data: {pageTitle: "Preferences"},
+  },
+  {
+    path: 'reports/:tip_id',
+    component: TipComponent,
+    canActivate: [RecipientRoutingGuard],
+    resolve: {
+      PreferenceResolver
+    },
+  },
+  {
+    path: 'tip/:tip_id',
+    component: TipComponent,
+  },
+  {
+    path: 'tip-oe/:tip_id',
+    component: TipOeComponent,
   }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
+  providers: [RecipientRoutingGuard]
 })
 export class RecipientRoutingModule {
 }
