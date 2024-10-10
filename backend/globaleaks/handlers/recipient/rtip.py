@@ -1538,20 +1538,18 @@ class ReceiverFileUpload(BaseHandler):
         if rtip is None:
             raise errors.ForbiddenOperation()
 
-            source_itip_private_key = GCE.asymmetric_decrypt(
-                self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
+        source_itip_private_key = GCE.asymmetric_decrypt(
+            self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
-            internaltip_forwarding_from_oe = db_query(
-                session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
-            internaltip_forwarding_from_main = session.query(models.InternalTipForwarding)\
-                .filter(models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids)).all()
+        internaltip_forwarding_from_oe = db_query(
+            session, models.InternalTipForwarding, models.InternalTipForwarding.oe_internaltip_id == itip_id).one_or_none()
+        internaltip_forwarding_from_main = session.query(models.InternalTipForwarding)\
+            .filter(models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids)).all()
 
-            if internaltip_forwarding_from_oe is not None and internaltip_forwarding_from_oe:
+        if internaltip_forwarding_from_oe is not None and internaltip_forwarding_from_oe:
             return self.forward_rfile_from_oe(session, internaltip_forwarding_from_oe, visibility, rfile_id, source_itip_private_key)
         elif internaltip_forwarding_from_main is not None and internaltip_forwarding_from_main:
             return self.forward_rfile_from_main(session, internaltip_forwarding_from_main, visibility, rfile_id, source_itip_private_key)
-        else:
-                return
         return None
 
     @transact
