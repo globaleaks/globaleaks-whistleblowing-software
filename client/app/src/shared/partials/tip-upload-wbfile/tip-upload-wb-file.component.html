@@ -20,9 +20,9 @@
                     <span class="input-group-prepend">
                         <span class="input-group-text rounded-end-0">{{'Description'|translate}}</span>
                     </span>
-                    <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
+                    <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" [disabled]="key === 'oe' && (!organizations || organizations.length == 0) ? true : false"/>
                     <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description }">
-                        <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input inputelem" (change)="onFileSelected(uploader.files)" />
+                        <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input inputelem" (change)="onFileSelected(uploader.files)" [disabled]="key === 'oe' && (!organizations || organizations.length == 0) ? true : false" />
                         <label [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">
                             <i class="fa-solid fa-upload "></i>
                             <span>{{'Upload'|translate}}</span>
