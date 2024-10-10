@@ -62,7 +62,7 @@ def validate_forwarding_questionnaire(session, questionnaire_id):
     steps = db_get_questionnaire(
         session, 1, questionnaire.id, None, True)['steps']
     first_field = steps[0]['children'][0]
-    if first_field['type'] != 'textarea' or bool(first_field['editable']):
+    if first_field['type'] != 'textarea' or not bool(first_field['editable']):
         return None
     return steps
 
