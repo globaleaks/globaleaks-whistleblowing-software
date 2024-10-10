@@ -789,8 +789,6 @@ export class UtilsService {
       return modalRef.result;
   }
 
-    
-
   }
 
 
@@ -819,6 +817,37 @@ export class UtilsService {
 
     return final_date;
 
+  }
+
+
+  public viewWBFile(file: RFile) {
+    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.args = {
+      file: file,
+      loaded: false,
+      iframeHeight: window.innerHeight * 0.75
+    };
+  }
+
+  public downloadWBFile(wbFile: RFile) {
+
+    const param = JSON.stringify({});
+    this.httpService.requestToken(param).subscribe(
+      {
+        next: async token => {
+          this.cryptoService.proofOfWork(token.id).subscribe(
+            (ans) => {
+              if (this.authenticationService.session.role === "receiver") {
+                window.open("api/recipient/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
+              } else {
+                window.open("api/whistleblower/wbtip/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
+              }
+              this.appDataService.updateShowLoadingPanel(false);
+            }
+          );
+        }
+      }
+    );
   }
 
 
