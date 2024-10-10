@@ -31,7 +31,7 @@
             <span>{{'Register new organization'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
-            <button class="btn btn-sm btn-primary" id="add-organization" (click)="null;">
+            <button class="btn btn-sm btn-primary" id="add-organization"  (click)="utilsService.go('/recipient/accreditation')">
               <i class="fa-solid fa-check"></i>
               <span>{{ 'Register OE' | translate }}</span>
             </button>
