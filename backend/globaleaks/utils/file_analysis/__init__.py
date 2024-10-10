@@ -1,4 +1,3 @@
-import aiohttp
 import requests
 import json
 
