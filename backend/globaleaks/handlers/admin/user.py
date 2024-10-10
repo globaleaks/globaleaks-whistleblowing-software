@@ -40,7 +40,7 @@ def db_set_user_password(session, tid, user, password):
                 user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
 
 def generate_analyst_key_pair(session, user):
-    if user.role != EnumUserRole.analyst.name:
+    if user.role not in [EnumUserRole.analyst.name, EnumUserRole.admin.name]:
         return
     try:
         global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
@@ -174,7 +174,7 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
 
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
-    if user.role != request['role'] and request['role'] == EnumUserRole.analyst.name:
+    if user.role != request['role']:
         generate_analyst_key_pair(session, user)
     user.update(request)
 
