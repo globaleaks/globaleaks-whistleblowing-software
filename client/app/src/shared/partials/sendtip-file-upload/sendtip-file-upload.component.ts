@@ -15,6 +15,8 @@ export class SendTipFileUploadComponent {
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
 
   @Input() files: FileItem[] = [];
+
+  @Input() tip: RecieverTipData
   @Output() filesChange = new EventEmitter<FileItem[]>();
 
   collapsed = false;
@@ -84,6 +86,7 @@ export class SendTipFileUploadComponent {
     
     }
   }
+}
 
 
   removeFile(index: number) {
@@ -92,15 +95,15 @@ export class SendTipFileUploadComponent {
         {
           next: async _ => {
             // this.dataToParent.emit(wbFile)
-    this.files.splice(index, 1);
-    this.filesChange.emit(this.files);
-  }
+            this.files.splice(index, 1);
+          }
         }
       );
 
     }
     else
       this.files.splice(index, 1);
+    this.filesChange.emit(this.files);
   }
 
 
