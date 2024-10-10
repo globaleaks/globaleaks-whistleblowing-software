@@ -31,8 +31,6 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
-import { Organization } from "@app/models/reciever/sendtip-data";
-import { tenantResolverModel } from "@app/models/resolvers/tenant-resolver-model";
 
 
 @Component({
@@ -91,11 +89,6 @@ export class TipComponent implements OnInit {
           this.showEditLabelInput = this.tip.label === "";
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-          //TODO MOCKUP - PROCESS WBFILES E RFILES VERIFICATION_STATUS
-          //this.tipServices.processFilesVerificationStatus()
-          //this.tipService.processFilesVerificationStatus(this.tip.wbfiles);
-          //this.tipService.processFilesVerificationStatus(this.tip.rfiles);
-          //TODO FINE
           
           //todo mockup
           this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["81e261d5-735c-412e-bcb4-922c44e9d6f9", "e7f38a64-0d40-430a-8cb3-d1ae9c8f1a93"], comments:["9809493f-aadb-4b0d-83c0-7831ced27777", "669cdc71-7788-4345-ad89-ba272b2d3449"]})
@@ -117,9 +110,6 @@ export class TipComponent implements OnInit {
 
     this.organizationList = this.organizationList.concat(forwardings)
 
-    });
-  
-      return orgList.concat(temp);
   }
 
     // let orgList: Organization[] = [{tid: 0, name:"All"}]
@@ -423,11 +413,7 @@ export class TipComponent implements OnInit {
     else
       this.selectedOe = this.organizationList.slice(1);
 
-    // console.log("ho selezionato le oe: ", this.selectedOe)
-
     this.selectedMap = this.selectedOe.map(_=> _.tid)
   }
 
-  selectedMap: number[] = []
-  protected readonly JSON = JSON;
 }
