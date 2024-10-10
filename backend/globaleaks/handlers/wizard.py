@@ -81,7 +81,7 @@ def db_wizard(session, tid, hostname, request):
         admin_desc['language'] = language
         admin_desc['role'] = 'admin'
         admin_desc['pgp_key_remove'] = False
-        admin_user = db_create_user(session, tid, None, admin_desc, language)
+        admin_user = db_create_user(session, tid, None, admin_desc, language, wizard=True)
         db_set_user_password(session, tid, admin_user, request['admin_password'])
         admin_user.password_change_needed = (tid != 1)
         if tid == 1:

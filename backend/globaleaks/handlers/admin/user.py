@@ -67,7 +67,7 @@ def generate_analyst_key_pair(session, user):
         raise errors.InternalServerError
 
 
-def db_create_user(session, tid, user_session, request, language):
+def db_create_user(session, tid, user_session, request, language, wizard: bool = False):
     """
     Transaction for creating a new user
 
@@ -76,6 +76,7 @@ def db_create_user(session, tid, user_session, request, language):
     :param user_session: The session of the user performing the operation
     :param request: The request data
     :param language: The language of the request
+    :param wizard: Creation of first admin
     :return: The serialized descriptor of the created object
     """
     request['tid'] = tid
@@ -106,8 +107,8 @@ def db_create_user(session, tid, user_session, request, language):
 
     session.add(user)
     session.flush()
-
-    generate_analyst_key_pair(session, user)
+    if not wizard:
+        generate_analyst_key_pair(session, user)
 
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
