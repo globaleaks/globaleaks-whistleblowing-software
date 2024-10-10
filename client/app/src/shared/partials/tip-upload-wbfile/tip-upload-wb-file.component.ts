@@ -25,13 +25,34 @@ export class TipUploadWbFileComponent{
   showError: boolean = false;
   errorFile: FlowFile | null;
 
-recentFile: RFile;
-
-  //TODO: IN INPUT LISTA DELLE OE A CUI INOLTRARE IL FILE. 
+  recentFile: RFile;
 
   constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
   }
+
+  // Metodo per filtrare e ordinare i file
+  getFilteredAndSortedFiles(): RFile[] {
+
+    if(this.key === 'oe')
+      return this.tip.rfiles
+                .filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
+                .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
+    else 
+      return this.tip.rfiles
+        .filter(file => file.visibility === this.key)
+        .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
+  }
+
+  
+  // getFiles(data: RFile[]): RFile[] {
+
+  //   if(this.key === 'oe')
+  //     data = data.filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
+  //                .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
+
+  //   return data;
+  // }
 
 
   onFileSelected(files: FileList | null) {
@@ -61,9 +82,8 @@ recentFile: RFile;
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: this.organizations},
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
-            debugger
-            this.recentFile.isLoading = false;
-            this.dataToParent.emit();
+        this.recentFile.isLoading = false;
+        this.dataToParent.emit();
         this.errorFile = null;
       });
       flowJsInstance.on("fileError", (file, _) => {
@@ -92,14 +112,6 @@ recentFile: RFile;
     this.showError = false;
   }
 
-
-  getFiles(data: RFile[]): RFile[] {
-
-    if(this.key === 'oe')
-      data = data.filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
-
-    return data;
-  }
 
 
 
