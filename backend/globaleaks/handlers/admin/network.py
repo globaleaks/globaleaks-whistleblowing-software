@@ -30,7 +30,7 @@ def db_update_network(session, tid, user_session, request):
     :return: Return the serialized configuration for the specified tenant
     """
     # Validate that IP addresses/ranges we're getting are good
-    for k in ['admin', 'analyst', 'custodian', 'receiver']:
+    for k in ['admin', 'analyst', 'custodian', 'receiver', 'accreditor']:
         if 'ip_filter_' + k in request and request['ip_filter_' + k + '_enable'] and request['ip_filter_' + k]:
             parse_csv_ip_ranges_to_ip_networks(request['ip_filter_' + k])
 
