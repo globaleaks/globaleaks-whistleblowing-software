@@ -139,6 +139,7 @@ AdminUserDesc = {
     'pgp_key_public': str,
     'language': str,
     'notification': bool,
+    'can_download_infected': bool,
     'can_edit_general_settings': bool,
     'can_delete_submission': bool,
     'can_postpone_expiration': bool,

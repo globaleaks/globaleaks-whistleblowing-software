@@ -4,6 +4,7 @@
 import base64
 import copy
 import json
+import logging
 import os
 from pyexpat import model
 import re
@@ -189,6 +190,28 @@ def transfer_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
         db_log(session, tid=tid, type='transfer_access',
                user_id=user_id, object_id=itip.id, data=log_data)
 
+@transact
+def is_download(session, file_location, name, state, can_download_infected):
+    url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
+    af = FileAnalysis(url=url_clam_av)
+    try:
+        status = af.read_file_for_scanning(file_location, name, state)
+    except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
+        logging.debug(e_p)
+        status = EnumStateFile.pending if isinstance(e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
+        if can_download_infected:
+            save_status_file_scanning(name, status)
+            return status, True
+        return status, False
+    except Exception as e:
+        logging.debug(e)
+        status = EnumStateFile.pending
+        if can_download_infected:
+            return status, True
+        return status, False
+    if status.name != state:
+        save_status_file_scanning(name, status)
+    return status, True
 
 def get_ttl(session, orm_object_model, orm_object_id):
     """
@@ -1400,31 +1423,24 @@ class WhistleblowerFileDownload(BaseHandler):
         log.debug("Download of file %s by receiver %s" %
                   (wbfile.internalfile_id, rtip.receiver_id))
 
-        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public, ifile.state
+        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public, ifile.state, user.can_download_infected
 
-    @transact
-    def scan_and_download(self, session, file_location, name, state, pgp_key):
-        url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
-        af = FileAnalysis(url=url_clam_av)
-        status = af.read_file_for_scanning(file_location, name, state)
-        if status.name != state:
-            save_status_file_scanning(name, status)
-        yield self.write_file_as_download(name, file_location, pgp_key)
 
     @inlineCallbacks
     def get(self, wbfile_id):
-        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key, state = yield self.download_wbfile(self.request.tid,
-                                                                                                   self.session.user_id,
-                                                                                                   wbfile_id)
+        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key, state, dl_infected = yield self.download_wbfile(
+            self.request.tid,
+            self.session.user_id,
+            wbfile_id
+        )
 
-        filelocation = os.path.join(
-            self.state.settings.attachments_path, wbfile_id)
+        filelocation = os.path.join(self.state.settings.attachments_path, wbfile_id)
+        aux_file = os.path.join(self.state.settings.attachments_path, wbfile_id)
         if not os.path.exists(filelocation):
-            filelocation = os.path.join(
-                self.state.settings.attachments_path, ifile_id)
+            filelocation = os.path.join(self.state.settings.attachments_path, ifile_id)
+            aux_file = os.path.join(self.state.settings.attachments_path, ifile_id)
 
-        directory_traversal_check(
-            self.state.settings.attachments_path, filelocation)
+        directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         if tip_prv_key:
@@ -1435,18 +1451,24 @@ class WhistleblowerFileDownload(BaseHandler):
 
             try:
                 # First attempt
-                filelocation = GCE.streaming_encryption_open(
-                    'DECRYPT', tip_prv_key, filelocation)
+                aux_path = filelocation
+                filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                aux_file = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, aux_path)
             except:
                 # Second attempt
                 if not tip_prv_key2:
                     raise
 
-                files_prv_key2 = GCE.asymmetric_decrypt(
-                    self.session.cc, base64.b64decode(tip_prv_key2))
-                filelocation = GCE.streaming_encryption_open(
-                    'DECRYPT', files_prv_key2, filelocation)
-        yield self.scan_and_download(filelocation, name, state, pgp_key)
+                files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key2))
+                aux_path = filelocation
+                filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+                aux_file = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, aux_path)
+            status, run_download = yield is_download(aux_file, name, state, dl_infected)
+            if not run_download:
+                if status == EnumStateFile.infected:
+                    raise errors.FileInfectedDownloadPermissionDenied
+                raise errors.FilePendingDownloadPermissionDenied
+            yield self.write_file_as_download(name, filelocation, pgp_key)
 
 
 class ReceiverFileUpload(BaseHandler):
@@ -1580,53 +1602,47 @@ class ReceiverFileDownload(BaseHandler):
     @transact
     def download_rfile(self, session, tid, user_id, file_id):
         try:
-            rfile, rtip, pgp_key = db_get(session,
-                                          (models.ReceiverFile,
-                                           models.ReceiverTip,
-                                           models.User.pgp_key_public),
-                                          (models.User.id == user_id,
-                                           models.User.id == models.ReceiverTip.receiver_id,
-                                           models.ReceiverFile.id == file_id,
-                                           models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
+            rfile, rtip, pgp_key, can_download_infected = db_get(session,
+                                                                 (models.ReceiverFile,
+                                                                  models.ReceiverTip,
+                                                                  models.User.pgp_key_public,
+                                                                  models.User.can_download_infected),
+                                                                 (models.User.id == user_id,
+                                                                  models.User.id == models.ReceiverTip.receiver_id,
+                                                                  models.ReceiverFile.id == file_id,
+                                                                  models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
         except:
             raise errors.ResourceNotFound
         else:
-            return rfile.name, rfile.id, base64.b64decode(rtip.crypto_tip_prv_key), pgp_key, rfile.state
-
-    @transact
-    def scan_and_download(self, session, file_location, name, state, pgp_key):
-        url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
-        af = FileAnalysis(url=url_clam_av)
-        status = af.read_file_for_scanning(file_location, name, state)
-        if status.name != state:
-            save_status_file_scanning(name, status)
-        yield self.write_file_as_download(name, file_location, pgp_key)
+            return rfile.name, rfile.id, base64.b64decode(
+                rtip.crypto_tip_prv_key), pgp_key, rfile.state, can_download_infected
 
     @inlineCallbacks
     def get(self, rfile_id):
-        name, filename, tip_prv_key, pgp_key, state = yield self.download_rfile(self.request.tid, self.session.user_id,
-                                                                         rfile_id)
+        name, filename, tip_prv_key, pgp_key, state, dl_infected = yield self.download_rfile(
+            self.request.tid,
+            self.session.user_id,
+            rfile_id
+        )
 
-        filelocation = os.path.join(
-            self.state.settings.attachments_path, filename)
-        if not os.path.exists(filelocation):
-            filelocation = os.path.join(
-                self.state.settings.attachments_path, filename)
+        filelocation = os.path.join(self.state.settings.attachments_path, filename)
+        aux_file = os.path.join(self.state.settings.attachments_path, filename)
 
-        filelocation = os.path.join(
-            self.state.settings.attachments_path, filename)
-        directory_traversal_check(
-            self.state.settings.attachments_path, filelocation)
+        directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, tip_prv_key)
-            name = GCE.asymmetric_decrypt(
-                tip_prv_key, base64.b64decode(name.encode())).decode()
-            filelocation = GCE.streaming_encryption_open(
-                'DECRYPT', tip_prv_key, filelocation)
-
-        yield self.scan_and_download(filelocation, name, state, pgp_key)
+            name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
+            aux_path = filelocation
+            filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+            aux_file = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, aux_path)
+        status, run_download = yield is_download(aux_file, name, state, dl_infected)
+        if not run_download:
+            if status == EnumStateFile.infected:
+                raise errors.FileInfectedDownloadPermissionDenied
+            raise errors.FilePendingDownloadPermissionDenied
+        yield self.write_file_as_download(name, filelocation, pgp_key)
 
     def delete(self, file_id):
         """

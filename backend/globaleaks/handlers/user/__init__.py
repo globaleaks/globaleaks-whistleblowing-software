@@ -82,6 +82,7 @@ def user_serialize_user(session, user, language):
         'escrow': user.crypto_escrow_prv_key != '',
         'two_factor': user.two_factor_secret != '',
         'forcefully_selected': user.forcefully_selected,
+        'can_download_infected': user.can_download_infected,
         'can_postpone_expiration': user.can_postpone_expiration,
         'can_delete_submission': user.can_delete_submission,
         'can_grant_access_to_reports': user.can_grant_access_to_reports,
