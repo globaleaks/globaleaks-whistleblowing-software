@@ -34,7 +34,7 @@
                         </button>
                     </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
-                        {{ file.uploadDate }}
+                        {{ file.uploadDate | date:'dd-MM-yyyy HH:mm'}}
                     </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
                         {{ file.size }}

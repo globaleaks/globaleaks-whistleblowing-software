@@ -26,7 +26,7 @@
                         <td>{{ item.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
                         <td>{{ item.files?.length }}</td>
                         <td>{{ item.comments?.length }}</td>
-                        <td>{{ item.state }}</td>
+                        <td>{{ item.state | translate}}</td>
                     </tr>
                 </ng-container>
                 </tbody>

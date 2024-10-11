@@ -91,8 +91,7 @@ export class TipComponent implements OnInit {
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           
           //todo mockup
-          this.tip.forwardings.push({"tid": 10, "name":"ciaociao", files: ["81e261d5-735c-412e-bcb4-922c44e9d6f9", "e7f38a64-0d40-430a-8cb3-d1ae9c8f1a93"], comments:["9809493f-aadb-4b0d-83c0-7831ced27777", "669cdc71-7788-4345-ad89-ba272b2d3449"]})
-          this.tip.forwardings.push({"tid": 11, "name":"test", files: ["fmnoiqrh"], comments:["e271bff7-a177-4b8a-933b-7529e46ea885","f8f02df0-0226-426c-b620-1c7c96177d26"]})
+          this.tip.forwardings.push({"id":"default-test", "state":"open", "tid": 10, "name":"ciaociao", files: ["81e261d5-735c-412e-bcb4-922c44e9d6f9", "e7f38a64-0d40-430a-8cb3-d1ae9c8f1a93"], comments:["9809493f-aadb-4b0d-83c0-7831ced27777", "669cdc71-7788-4345-ad89-ba272b2d3449"]})
 
           if(this.tip.forwardings && this.tip.forwardings.length > 0 && this.organizationList.length == 0)
             this.getForwardedOEList(this.tip.forwardings);
@@ -106,27 +105,12 @@ export class TipComponent implements OnInit {
 
   getForwardedOEList(forwardings: Forwarding[]){
 
-    this.organizationList.push({"tid":0, "name":"All"});
+    this.organizationList.push({"id": "", "tid":0, "name":"All", "state": ''});
 
     this.organizationList = this.organizationList.concat(forwardings)
 
   }
 
-    // let orgList: Organization[] = [{tid: 0, name:"All"}]
-
-    // if(forwardings){
-    //   let temp = forwardings.map(obj => {
-    //     let org = {
-    //       name: obj.name,
-    //       tid : obj.tid
-    //     }
-    //     return org;
-    //   });
-  
-    //   return orgList.concat(temp);
-    // }
-    
-    // else return orgList;
 
 
   initNavBar() {
@@ -414,6 +398,12 @@ export class TipComponent implements OnInit {
       this.selectedOe = this.organizationList.slice(1);
 
     this.selectedMap = this.selectedOe.map(_=> _.tid)
+  }
+  
+
+  goToSendtipDetail(forw: Forwarding){
+    this.RTipService.forwarding = forw;
+    this.router.navigateByUrl("sendtip-detail/"+forw.id).then();
   }
 
 }

@@ -311,10 +311,11 @@ export interface ReceiversById {
 }
 
 export class Forwarding {
+  id: string;
   tid: number;
   name: string;
   creation_date?: string;
   files?: string[];
   comments?: string[];
-  state?: string;
+  state: string;
 }
