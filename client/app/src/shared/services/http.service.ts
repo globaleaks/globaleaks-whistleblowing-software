@@ -515,7 +515,7 @@ export class HttpService {
   }
 
   sendTipRequest(data: SendTip): Observable<string> {
-    return this.httpClient.put<string>(`api/recipient/wbtip/${data.tip_id}/send`, data);
+    return this.httpClient.post<string>(`api/recipient/wbtip/${data.tip_id}/send`, data);
   }
 
 }

@@ -19,9 +19,6 @@ export class SendtipFilesComponent implements OnInit {
   wbfiles: WbFile[];
   files: FileItem[] = [];
   
-
-  constructor(private translate: TranslateService) {}
-
   ngOnInit(): void {
     this.rfiles = this.tip.rfiles;
     this.wbfiles = this.tip.wbfiles;
@@ -46,7 +43,7 @@ export class SendtipFilesComponent implements OnInit {
       .map(file => ({
         id: file.id,
         name: file.name,
-        status: file.status, //TODO "INFECTED",
+        status: file.status, 
         origin: this.mapVisibility(file.visibility, 'file.authorType'), // TODO: da implementare file.authorType
         uploadDate: file.creation_date,
         size: file.size.toString(),
@@ -61,7 +58,7 @@ export class SendtipFilesComponent implements OnInit {
         id: file.id,
         name: file.name,
         status: file.status,
-        origin: this.translate.instant('Whistleblower'), // TODO add traslation?
+        origin: 'whistleblower',
         uploadDate: file.creation_date,
         size: file.size.toString(),
         file: undefined, // TODO per download file
@@ -76,12 +73,12 @@ export class SendtipFilesComponent implements OnInit {
     switch (visibility) {
       case 'public':
       case 'internal':
-        return this.translate.instant('Instructor');
+        return 'recipient'
       case 'oe':
         if (authorType === 'anac') { // TODO: da implementare file.authorType
-          return this.translate.instant('To External Organization');
+          return 'recipient';
         } else {
-          return this.translate.instant('By External Organization');
+          return 'oe';
         }
       default:
         return 'UNKNOWN';

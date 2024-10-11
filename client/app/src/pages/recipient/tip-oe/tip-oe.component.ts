@@ -363,26 +363,6 @@ export class TipOeComponent implements OnInit {
     };
   }
 
-  exportTip(tipId: string) {
-    const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
-        next: async token => {
-          this.cryptoService.proofOfWork(token.id).subscribe(
-            (result: number) => {
-              window.open("api/recipient/rtips/" + tipId + "/export" + "?token=" + token.id + ":" + result);
-              this.appDataService.updateShowLoadingPanel(false);
-            }
-          );
-        }
-      }
-    );
-  }
-
-  toggleRedactMode() {
-    this.redactMode = !this.redactMode;
-  }
 
   listenToFields() {
     this.loadTipDate();
