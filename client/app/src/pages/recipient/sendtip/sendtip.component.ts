@@ -9,6 +9,7 @@ import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { AppDataService } from '@app/app-data.service';
+import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
 
 @Component({
   selector: "src-sendtip",
@@ -28,9 +29,12 @@ export class SendtipComponent implements OnInit {
   uploadedFiles: FileItem[] = [];
   tip: RecieverTipData;
 
+  data: any;
+
   constructor(private _location: Location, private httpService: HttpService,
     private rtipService: ReceiverTipService, protected utilsService: UtilsService,
-    private authenticationService: AuthenticationService, protected appDataService: AppDataService){
+    private authenticationService: AuthenticationService, protected appDataService: AppDataService,
+    protected preferenceResolver: PreferenceResolver){
       this.sendTipRequest.tip_id = this.rtipService.tip.id;
       this.tip = this.rtipService.tip;
     }

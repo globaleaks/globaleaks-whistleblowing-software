@@ -187,9 +187,6 @@ const routes: Routes = [
   {
     path: "sendtip/:tip_id",
     data: {pageTitle: "Send tip"},
-    resolve: {
-      PreferenceResolver,
-    },
     component: SendtipComponent,
     canActivate: [SessionGuard],
     pathMatch: "full",
@@ -197,9 +194,6 @@ const routes: Routes = [
   {
     path: "sendtip-detail/:tip_id",
     data: {pageTitle: "Sent tip detail"},
-    resolve: {
-      PreferenceResolver,
-    },
     component: SendtipDetailComponent,
     canActivate: [SessionGuard],
     pathMatch: "full",

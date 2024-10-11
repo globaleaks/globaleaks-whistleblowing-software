@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
 import { RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
-import { ReceiverTipService } from "@app/services/helper/receiver-tip.service";
 import { TranslateService } from "@ngx-translate/core";
 
 @Component({
@@ -13,6 +12,8 @@ export class SendtipFilesComponent implements OnInit {
   @Input() tip: RecieverTipData;
   @Input() selectedFiles: AttachmentFile[] = [];
   @Input() isSelectable: boolean = true;
+  @Input() canDownloadInfected: boolean = false;
+
   @Output() selectedFilesChange = new EventEmitter<AttachmentFile[]>();
   rfiles: RFile[];
   wbfiles: WbFile[];
