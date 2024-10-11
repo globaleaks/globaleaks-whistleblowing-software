@@ -49,12 +49,10 @@ export class SendTipFileUploadComponent {
             description: this.newFileDescription,
             id: response.id,
             name: file.name,
-            scanStatus: 'PENDING', // Status iniziale
+            status: 'PENDING', // Status iniziale
             origin: 'recipient',
             uploadDate: new Date().toLocaleString(),
-            size: `${file.size}`,
-            infected: false,
-            loading: true
+            size: `${file.size}`
           });
           this.newFileDescription = "";
         });
@@ -73,12 +71,10 @@ export class SendTipFileUploadComponent {
         description: this.newFileDescription,
         id: 'uuid-' + (Math.random() * 10000).toFixed(0),
         name: file.name,
-        scanStatus: 'PENDING', // Status iniziale
+        status: 'PENDING', // Status iniziale
         origin: 'recipient',
         uploadDate: new Date().toLocaleString(),
-        size: `${file.size}`,
-        infected: false,
-        loading: true
+        size: `${file.size}`
       }
       this.files.push(item);
       this.filesChange.emit(this.files);

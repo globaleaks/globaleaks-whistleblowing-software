@@ -19,23 +19,21 @@
           </thead>
           <tbody id="fileListBody">
             <tr *ngFor="let file of files">
-              <td [ngClass]="{ 'text-danger': file.infected }">
+              <td [ngClass]="{ 'text-danger': file.status ==='INFECTED' }">
                 {{ file.name }}
               </td>
-              <td [ngClass]="{ 'text-danger': file.infected }">
-                <ng-container *ngIf="!file.loading; else loadingTemplate">
-                  {{ file.scanStatus }}
-                </ng-container>
+              <td [ngClass]="{ 'text-danger': file.status ==='INFECTED' }">
+                  {{ file.status }}
                 <ng-template #loadingTemplate>
                   <i class="fa fa-spinner fa-spin"></i>
                 </ng-template>
               </td>
-              <td [ngClass]="{ 'text-danger': file.infected }">
+              <td [ngClass]="{ 'text-danger': file.status ==='INFECTED' }">
                 {{ file.origin }}
               </td>
               <td>
                 <button
-                  *ngIf="!file.infected && !file.loading"
+                  *ngIf="file.status ==='INFECTED'"
                   class="btn btn-sm btn-primary tip-action-download-file"
                   data-toggle="tooltip"
                   title="{{ 'Scarica' | translate }}"
@@ -53,15 +51,11 @@
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </td>
-              <td [ngClass]="{ 'text-danger': file.infected }">
-                <ng-container *ngIf="!file.loading; else placeholderTemplate">
+              <td [ngClass]="{ 'text-danger': file.status ==='INFECTED' }">
                   {{ file.uploadDate }}
-                </ng-container>
               </td>
-              <td [ngClass]="{ 'text-danger': file.infected }">
-                <ng-container *ngIf="!file.loading; else placeholderTemplate">
+              <td [ngClass]="{ 'text-danger': file.status ==='INFECTED' }">
                   {{ file.size }}
-                </ng-container>
               </td>
             </tr>
           </tbody>

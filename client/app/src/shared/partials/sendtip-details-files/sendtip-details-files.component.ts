@@ -21,21 +21,18 @@ export class SendtipDetailFilesComponent {
       const loadingFile: FileItem = {
         id: 'uuid-' + (Math.random() * 10000).toFixed(0),
         name: file.name,
-        scanStatus: 'In attesa',
+        status: 'In attesa',
         origin: 'Nuovo',
         uploadDate: new Date().toLocaleString(),
-        size: `${file.size} bytes`,
-        infected: false,
-        loading: true
+        size: `${file.size} bytes`
       };
 
       this.fileUploaded.emit(loadingFile);
 
       setTimeout(() => {
-        loadingFile.scanStatus = 'Verificato';
-        loadingFile.loading = false;
+        loadingFile.status = 'Verificato';
         this.checkingFile = false;
-        this.fileVerified.emit(loadingFile.scanStatus)
+        this.fileVerified.emit(loadingFile.status)
       }, 3000);
     }
   }
