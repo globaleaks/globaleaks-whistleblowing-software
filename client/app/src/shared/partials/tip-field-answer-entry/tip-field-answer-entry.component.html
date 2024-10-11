@@ -55,12 +55,12 @@
                     <span class="pe-2">{{filteredWbFiles[0].name}}</span>
                     <span class="pt-3">
                         <button class="btn btn-sm btn-primary tip-action-views-file" *ngIf="utilsService.supportedViewTypes.includes(filteredWbFiles[0].type)" data-toggle="tooltip" 
-                        [disabled]="filteredWbFiles[0].status ==='PENDING' || (filteredWbFiles[0].status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)"
+                        [disabled]="((filteredWbFiles[0].status ==='PENDING' || filteredWbFiles[0].status ==='INFECTED') && !preferenceResolver.dataModel.can_download_infected)"
                         [title]="'View' | translate" (click)="utilsService.viewRFile(filteredWbFiles[0])">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                         <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" 
-                        [disabled]="filteredWbFiles[0].status ==='PENDING' || (filteredWbFiles[0].status ==='INFECTED' && !preferenceResolver.dataModel.can_download_infected)"
+                        [disabled]="((filteredWbFiles[0].status ==='PENDING' || filteredWbFiles[0].status ==='INFECTED') && !preferenceResolver.dataModel.can_download_infected)"
                         (click)="utilsService.downloadRFile(filteredWbFiles[0])">
                             <i class="fa-solid fa-download"></i>
                         </button>
