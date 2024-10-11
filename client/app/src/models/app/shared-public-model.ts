@@ -166,6 +166,7 @@ export interface RFile {
   downloads: number;
   status: string;
   isLoading: boolean;
+  verification_date: string | null;
 }
 
 export interface QuestionWhistleblowerIdentityName {

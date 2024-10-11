@@ -71,7 +71,8 @@ export class TipUploadWbFileComponent{
         author: '',
         downloads: 0,
         status: 'PENDING',
-        isLoading: true
+        isLoading: true,
+        verification_date: null
       };
       this.tip.rfiles.push(this.recentFile);
 
