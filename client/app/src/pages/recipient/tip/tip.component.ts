@@ -90,9 +90,6 @@ export class TipComponent implements OnInit {
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           
-          //todo mockup
-          this.tip.forwardings.push({"id":"default-test", "state":"open", "tid": 10, "name":"ciaociao", files: ["81e261d5-735c-412e-bcb4-922c44e9d6f9", "e7f38a64-0d40-430a-8cb3-d1ae9c8f1a93"], comments:["9809493f-aadb-4b0d-83c0-7831ced27777", "669cdc71-7788-4345-ad89-ba272b2d3449"]})
-
           if(this.tip.forwardings && this.tip.forwardings.length > 0 && this.organizationList.length == 0)
             this.getForwardedOEList(this.tip.forwardings);
           
