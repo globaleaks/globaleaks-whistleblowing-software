@@ -41,32 +41,30 @@ export class SendtipFilesComponent implements OnInit {
   prepareFilesToDisplay(): void {
     // Mappiamo rfiles aggiungendo scanStatus, origin e altre proprietà richieste
     const rfilesMapped = this.rfiles
-      .filter(file => file.visibility !== 'personal' /*&& file.state === 'verificato'*/) // TODO: da scommentare appena si aggiunge file.state
+      .filter(file => file.visibility !== 'personal' /*&& file.status === 'VERIFIED'*/) // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
         id: file.id,
         name: file.name,
-        scanStatus: '-', // TODO per il momento trattino poi file.state
+        status: file.status, //TODO "INFECTED",
         origin: this.mapVisibility(file.visibility, 'file.authorType'), // TODO: da implementare file.authorType
         uploadDate: file.creation_date,
         size: file.size.toString(),
-        infected: false, // TODO per il momento false
-        loading: false, // TODO per il momento false
-        file: undefined // TODO per download file
+        file: undefined, // TODO per download file
+        verification_date: file.verification_date
     }));
 
     // Mappiamo wbfiles aggiungendo scanStatus, origin e altre proprietà richieste
     const wbfilesMapped = this.wbfiles
-      //.filter(file => file.state === 'verificato') // TODO: da scommentare appena si aggiunge file.state
+      //.filter(file => file.status === 'VERIFIED') // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
         id: file.id,
         name: file.name,
-        scanStatus: '-', // TODO per il momento trattino poi file.state
+        status: file.status,
         origin: this.translate.instant('Whistleblower'), // TODO add traslation?
         uploadDate: file.creation_date,
         size: file.size.toString(),
-        infected: false, // TODO per il momento false
-        loading: false, // TODO per il momento false
-        file: undefined // TODO per download file
+        file: undefined, // TODO per download file
+        verification_date: file.verification_date
     }));
 
     // Uniamo gli array

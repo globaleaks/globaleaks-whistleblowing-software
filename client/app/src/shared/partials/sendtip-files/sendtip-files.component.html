@@ -8,45 +8,36 @@
                 <thead>
                 <tr>
                     <th *ngIf="isSelectable"></th>
-                    <th>{{ 'Nome file' | translate }}</th>
-                    <th>{{ 'Scansione' | translate }}</th>
-                    <th>{{ 'Origine' | translate }}</th>
-                    <th>{{ 'Scarica' | translate }}</th>
-                    <th>{{ 'Data caricamento' | translate }}</th>
-                    <th>{{ 'Dimensione' | translate }}</th>
+                    <th>{{ 'Filename' | translate }}</th>
+                    <th>{{ 'Verification Status' | translate}}</th>
+                    <th>{{ 'Origin' | translate }}</th>
+                    <th>{{ 'Download' | translate }}</th>
+                    <th>{{ 'Upload date' | translate }}</th>
+                    <th>{{ 'File size' | translate }}</th>
                 </tr>
                 </thead>
                 <tbody id="fileListBody">
                 <tr *ngFor="let file of files">
                     <td *ngIf="isSelectable">
-                        <ng-container *ngIf="!file.loading">
-                          <input *ngIf="!file.infected" type="checkbox" (change)="toggleFileSelection(file)" [checked]="selectedFiles.includes(file)">
-                        </ng-container>
+                        <input *ngIf="file.status !== 'INFECTED'" type="checkbox" (change)="toggleFileSelection(file)" [checked]="selectedFiles.includes(file)">
                       </td>
-                    <td [ngClass]="{'text-danger': file.infected}">{{ file.name }}</td>
-                    <td [ngClass]="{'text-danger': file.infected}">
-                        <ng-container *ngIf="!file.loading; else loadingTemplate">
-                            {{ file.scanStatus }}
-                        </ng-container>
-                        <ng-template #loadingTemplate>
-                            <i class="fa fa-spinner fa-spin"></i> <!-- Icona di caricamento -->
-                        </ng-template>
+                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.name }}</td>
+                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
+                        {{ file.status==='PENDING' && file.verification_date ? 'Verifica Scaduta' : file.status | translate }}
                     </td>
-                    <td [ngClass]="{'text-danger': file.infected}">{{ file.origin }}</td>
+                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.origin | translate }}</td>
                     <td>
-                        <button *ngIf="!file.infected && !file.loading" class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" title="{{ 'Scarica' | translate }}">
+                        <button class="btn btn-sm btn-primary tip-action-download-file" 
+                            data-toggle="tooltip" title="{{ 'Download' | translate }}"
+                            [disabled]="file.status === 'INFECTED'">
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </td>
-                    <td [ngClass]="{'text-danger': file.infected}">
-                        <ng-container *ngIf="!file.loading; else placeholderTemplate">
-                            {{ file.uploadDate }}
-                        </ng-container>
+                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
+                        {{ file.uploadDate }}
                     </td>
-                    <td [ngClass]="{'text-danger': file.infected}">
-                        <ng-container *ngIf="!file.loading; else placeholderTemplate">
-                            {{ file.size }}
-                        </ng-container>
+                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
+                        {{ file.size }}
                     </td>
                 </tr>
                 </tbody>

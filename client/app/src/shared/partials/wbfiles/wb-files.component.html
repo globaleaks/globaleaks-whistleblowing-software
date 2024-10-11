@@ -56,7 +56,7 @@
                     </span>
                 </div>
                 <div>
-                    <span>{{'Verification Status'| translate}}</span>:
+                    <span class="px-1">{{'Verification Status'| translate}}</span>:
                     <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
                         <span>{{wbFile.status | translate}}</span>
                     </ng-container>
@@ -84,7 +84,7 @@
             </span>
         </div>
                 <div>
-                    <span>{{'Verification Status'|translate}}</span>: <span>{{wbFile.status | translate}}</span>
+                    <span class="px-1">{{'Verification Status'|translate}}</span>: <span>{{wbFile.status | translate}}</span>
                 </div>
             </ng-template>
         </div>

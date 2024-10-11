@@ -5,7 +5,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {Forwarding, RecieverTipData} from "@app/models/reciever/reciever-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import { RFile } from "@app/models/app/shared-public-model";
-import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
   selector: "src-tip-upload-wbfile",
@@ -71,7 +70,8 @@ export class TipUploadWbFileComponent{
         author: '',
         downloads: 0,
         status: 'PENDING',
-        isLoading: true
+        isLoading: true,
+        verification_date: null
       };
       this.tip.rfiles.push(this.recentFile);
 

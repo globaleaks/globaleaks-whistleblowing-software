@@ -20,14 +20,13 @@ export interface ReviewForm {
 export interface FileItem {
     id: string,
     name: string;
-    scanStatus: string;
+    status: string;
     origin: string;
     uploadDate: string;
     size: string;
-    infected: boolean;
-    loading: boolean;
     file?: File;
     description?: string;
+    verification_date?: string | null;
   }
   
 export interface SentTipDetail {
