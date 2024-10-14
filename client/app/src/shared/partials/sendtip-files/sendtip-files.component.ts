@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
 import { FileReference, Forwarding, RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
-import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "sendtip-files",
@@ -72,7 +71,6 @@ export class SendtipFilesComponent implements OnInit {
 
     if(this.forwardingDetailFiles){
       this.files = this.files.filter(file => this.forwardingDetailFiles.some(i => i?.id === file.id))
-      debugger
     }
   }
 
@@ -82,7 +80,7 @@ export class SendtipFilesComponent implements OnInit {
       case 'internal':
         return 'recipient'
       case 'oe':
-        if (authorType === 'anac') { // TODO: da implementare file.authorType
+        if (authorType === 'main') {
           return 'recipient';
         } else {
           return 'oe';
