@@ -102,7 +102,11 @@ export class TipComponent implements OnInit {
 
   getForwardedOEList(forwardings: Forwarding[]){
 
-    this.organizationList.push({"id": "", "tid":0, "name":"All", "state": ''});
+    let allForw = new Forwarding();
+    allForw.tid=0;
+    allForw.name="All"
+    
+    this.organizationList.push(allForw);
 
     this.organizationList = this.organizationList.concat(forwardings)
 

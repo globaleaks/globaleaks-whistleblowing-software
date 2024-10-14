@@ -1,0 +1,23 @@
+<div id="TipQuestionnaireAnswersBox" class="card card-default" [attr.aria-expanded]="collapsed">
+    <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+        <span>{{label |translate}}</span>
+        <span class="">
+            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+        </span>
+    </div>
+    <div class="card-body" *ngIf="!collapsed">
+            
+            <div *ngFor="let step of questionnaire.steps | orderBy:'order'; let questionare_steps = index">
+                
+                <div *ngIf="step.enabled">
+                    <div *ngFor="let field of step.children | orderBy:['y', 'x']; let index_step = index">
+                        <ng-container>
+                            <src-tip-field [fieldAnswers]="questionnaire.answers" [fields]="field" [index]="index_step"></src-tip-field>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+        
+    </div>
+</div>

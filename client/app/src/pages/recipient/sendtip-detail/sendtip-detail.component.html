@@ -49,25 +49,25 @@
           </div>
           <div class="card-body">
             <span id="TipDetailText">
-              {{ tip && tip.questionnaires && tip.questionnaires.length > 0 ? (tip.questionnaires[0].steps[0].children[0].type==='textarea' ? tip.questionnaires[0].answers[tip.questionnaires[0].steps[0].children[0].id][0].value : null) : null }}
+              {{ detail.questionnaire ? (detail.questionnaire.steps[0].children[0].type==='textarea' ? detail.questionnaire.answers[detail.questionnaire.steps[0].children[0].id][0].value : null) : null }}
             </span>
           </div>
         </div>
       </div>
       <div class="col-6">          
-        <src-tip-questionnaire-answers [tipService]="RTipService" 
-                [redactMode]="false" [label]="'Form Istruttoria'"></src-tip-questionnaire-answers>
+        <src-sendtip-detail-questionnaire-answers [questionnaire]="detail.questionnaire" 
+                 [label]="'Form Istruttoria'"></src-sendtip-detail-questionnaire-answers>
       </div>
     </div>
 
-    <sendtip-files *ngIf="tip" [tip]="tip" [isSelectable]="false" ></sendtip-files>
+    <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" [isSelectable]="false" [forwardingDetailFiles]="detail.files"></sendtip-files>
 
     <!--TODO: key='oe' [organizations]="organizations"; ricaricare dati dell'inoltro a valle del caricamento? (dataToParent)="listenToFields()" -->
-    <!-- <src-tip-upload-wbfile [tip]="tip" [key]="'oe'" (dataToParent)="listenToFields()" [organizations]="[detail]"></src-tip-upload-wbfile> -->
+    <src-tip-upload-wbfile [tip]="tip" [key]="'oe'" (dataToParent)="listenToFields()" [organizations]="[detail]"></src-tip-upload-wbfile>
 
-    <sendtip-file-upload [tip]="tip"></sendtip-file-upload>
-    <!--TODO qui non dovrebbe servire usare la componente con filtro su oe, basta la visibility (sono già sulla segnalazione inoltrata)
-    IN ALTERNATIVA, CON COMPONENTE SRC-TIP-OE-COMMENTS FUNZIONA-->
-    <src-tip-comments  *ngIf="tip" [tipService]="RTipService" [key]="'oe'" ></src-tip-comments>
+    <!-- <sendtip-file-upload [tip]="tip"></sendtip-file-upload> -->
+
+    <src-tip-oe-comments  *ngIf="tip" [tipService]="RTipService" [key]="'oe'"  [organizations]="[detail]" ></src-tip-oe-comments>
+  
   </div>
 </div>

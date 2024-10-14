@@ -315,9 +315,10 @@ export class Forwarding {
   tid: number;
   name: string;
   creation_date?: string;
-  files?: FileReference[];
+  files: FileReference[];
   comments?: CommentReference[];
   state: string;
+  questionnaire: Questionnaire;
 }
 
 export interface CommentReference {

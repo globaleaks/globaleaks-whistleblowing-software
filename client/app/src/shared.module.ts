@@ -98,6 +98,7 @@ import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
 import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe-comments.component";
 import { TipOeRfilesReceiverComponent } from "./shared/partials/tip-oe-rfiles-receiver/tip-oe-rfiles-receiver.component";
+import { SendtipDetailQuestionnaireAnswersComponent } from "./shared/partials/sendtip-detail-questionnaire-answers/sendtip-detail-questionnaire-answers.component";
 
 @NgModule({
   imports: [
@@ -142,6 +143,7 @@ import { TipOeRfilesReceiverComponent } from "./shared/partials/tip-oe-rfiles-re
     TipInfoComponent,
     TipOeFormComponent,
     TipQuestionnaireAnswersComponent,
+    SendtipDetailQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
     TipFieldComponent,
     TipFieldAnswerEntryComponent,
@@ -236,6 +238,7 @@ import { TipOeRfilesReceiverComponent } from "./shared/partials/tip-oe-rfiles-re
     TipInfoComponent,
     TipOeFormComponent,
     TipQuestionnaireAnswersComponent,
+    SendtipDetailQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
     TipFieldComponent,
     TipFilesWhistleblowerComponent,

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
-import { RecieverTipData } from "@app/models/reciever/reciever-tip-data";
+import { FileReference, Forwarding, RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
 import { TranslateService } from "@ngx-translate/core";
 
@@ -13,6 +13,8 @@ export class SendtipFilesComponent implements OnInit {
   @Input() selectedFiles: AttachmentFile[] = [];
   @Input() isSelectable: boolean = true;
   @Input() canDownloadInfected: boolean = false;
+
+  @Input() forwardingDetailFiles: FileReference[];
 
   @Output() selectedFilesChange = new EventEmitter<AttachmentFile[]>();
   rfiles: RFile[];
@@ -67,6 +69,11 @@ export class SendtipFilesComponent implements OnInit {
 
     // Uniamo gli array
     this.files = [...rfilesMapped, ...wbfilesMapped];
+
+    if(this.forwardingDetailFiles){
+      this.files = this.files.filter(file => this.forwardingDetailFiles.some(i => i?.id === file.id))
+      debugger
+    }
   }
 
   mapVisibility(visibility: string, authorType: string): string {
