@@ -1005,7 +1005,7 @@ class _InternalTipForwarding(Model):
     questionnaire_id = Column(UnicodeText(36), nullable=False, index=True)
     state = Column(Enum(EnumForwardingState), default='open', nullable=False)
     stat_data = Column(JSON, default=dict, nullable=False)
-    questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    questionnaire_hash = Column(UnicodeText(64), nullable=True)
 
     @declared_attr
     def __table_args__(self):
