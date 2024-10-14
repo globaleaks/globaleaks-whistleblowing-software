@@ -431,6 +431,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'triggered_by_score': field.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'field', field.id),
         'options': [serialize_field_option(o, language) for o in data['options'].get(f_to_serialize.id, [])],
+        'statistical': field.statistical,
         'children': children
     }
 

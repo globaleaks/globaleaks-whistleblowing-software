@@ -218,6 +218,7 @@ def db_create_field(session, tid, request, language):
 
     if not request.get('template_id'):
         field = db_add(session, models.Field, request)
+        field.statistical = request.get('statistical', False)
 
         attrs = request.get('attrs')
         if not attrs:
@@ -331,7 +332,8 @@ def db_update_field(session, tid, field_id, request, language):
             'x': request['x'],
             'y': request['y'],
             'width': request['width'],
-            'required': request['required']
+            'required': request['required'],
+            'statistical': request['statistical']
         })
 
     return field

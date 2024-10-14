@@ -32,6 +32,7 @@ def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, d
     internaltip_forwarding.data = data
     internaltip_forwarding.questionnaire_id = questionnaire_id
     internaltip_forwarding.state = models.EnumForwardingState.open.value
+    internaltip_forwarding.stat_data = '{}'
     session.add(internaltip_forwarding)
 
     return internaltip_forwarding

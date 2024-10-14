@@ -328,7 +328,8 @@ AdminFieldDesc = {
     'options': [AdminFieldOptionDesc],
     'children': list,
     'triggered_by_score': int,
-    'triggered_by_options': list
+    'triggered_by_options': list,
+    'statistical': bool
 }
 
 AdminFieldDescRaw = get_multilang_request_format(AdminFieldDesc, models.Field.localized_keys)
