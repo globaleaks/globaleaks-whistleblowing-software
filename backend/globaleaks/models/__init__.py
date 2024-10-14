@@ -438,7 +438,7 @@ class _Field(Model):
     unicode_keys = ['type', 'instance', 'key']
     int_keys = ['x', 'y', 'width', 'triggered_by_score']
     localized_keys = ['label', 'description', 'hint', 'placeholder']
-    bool_keys = ['multi_entry', 'required']
+    bool_keys = ['multi_entry', 'required', 'statistical']
     optional_references = ['template_id', 'step_id', 'fieldgroup_id', 'template_override_id']
 
 
