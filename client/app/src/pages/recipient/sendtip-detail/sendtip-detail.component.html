@@ -62,10 +62,7 @@
 
     <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" [isSelectable]="false" [forwardingDetailFiles]="detail.files"></sendtip-files>
 
-    <!--TODO: key='oe' [organizations]="organizations"; ricaricare dati dell'inoltro a valle del caricamento? (dataToParent)="listenToFields()" -->
     <src-tip-upload-wbfile [tip]="tip" [key]="'oe'" (dataToParent)="listenToFields()" [organizations]="[detail]"></src-tip-upload-wbfile>
-
-    <!-- <sendtip-file-upload [tip]="tip"></sendtip-file-upload> -->
 
     <src-tip-oe-comments  *ngIf="tip" [tipService]="RTipService" [key]="'oe'"  [organizations]="[detail]" ></src-tip-oe-comments>
   

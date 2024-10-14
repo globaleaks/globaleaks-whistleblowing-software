@@ -49,6 +49,9 @@ export class TipOeCommentsComponent {
         this.comments = this.tipService.tip.comments;
         this.tipService.tip.comments.push(data);
         this.comments = [...this.comments, this.newComments];
+
+        this.organizations.map(org => org.comments?.push({"id": data.id, "author_type":"main"}))
+
         this.cdr.detectChanges();
       }
     );

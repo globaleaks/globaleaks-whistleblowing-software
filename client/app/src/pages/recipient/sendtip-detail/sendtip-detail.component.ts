@@ -8,6 +8,7 @@ import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { TranslateService } from '@ngx-translate/core';
 import { UtilsService } from '@app/shared/services/utils.service';
+import { Observable } from 'rxjs';
 @Component({
   selector: "src-sendtip-detail",
   templateUrl: "./sendtip-detail.component.html",
@@ -33,15 +34,31 @@ export class SendtipDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDetail();
-  }
-
-  loadDetail() {
     this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
 
     this.tip = this.RTipService.tip;
 
     this.detail = this.RTipService.forwarding;
+  }
+
+  loadDetail() {
+    
+    const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
+    this.loading = true;
+    this.RTipService.reset();
+    requestObservable.subscribe(
+      {
+        next: (response: RecieverTipData) => {
+          this.loading = false;
+          this.RTipService.initialize(response);
+          this.tip = this.RTipService.tip;
+          this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
+            this.tip.tip_id = params["tip_id"];
+          });
+
+        }
+      }
+    );
 
   }
 
