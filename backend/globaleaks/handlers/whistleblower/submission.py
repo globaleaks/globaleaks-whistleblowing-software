@@ -85,6 +85,10 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 if k == 'size':
                     x[k] = int(x[k])
 
+    for f in tip['forwardings']:
+        f['questionnaire']['answers'] = json.loads(GCE.asymmetric_decrypt(tip_key, base64.b64decode(f['questionnaire']['answers'].encode())).decode())
+        index_answers(f['questionnaire']['answers'])
+
     return tip
 
 

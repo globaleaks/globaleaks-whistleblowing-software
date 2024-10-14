@@ -343,6 +343,17 @@ def serialize_rtip(session, itip, rtip, language):
                 files.append(rfile)
         forwarding['files'] = files
         forwarding['comments'] = comments
+
+        ita = internaltip_forwarding.data
+        aqs = session.query(models.ArchivedSchema) \
+            .filter(models.ArchivedSchema.hash == internaltip_forwarding.questionnaire_hash) \
+            .one_or_none()
+
+        forwarding['questionnaire'] = {
+                'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
+                'answers': ita.answers
+            }
+
         forwardings.append(forwarding)
     ret['forwardings'] = forwardings
 

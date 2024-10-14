@@ -22,7 +22,7 @@ from globaleaks.rest import requests, errors
 from sqlalchemy import or_
 
 
-def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id):
+def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id, questionnaire_hash):
     internaltip_forwarding = models.InternalTipForwarding()
     internaltip_forwarding.internaltip_id = original_itip_id
     internaltip_forwarding.oe_internaltip_id = forwarded_itip.id
@@ -33,6 +33,7 @@ def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, d
     internaltip_forwarding.questionnaire_id = questionnaire_id
     internaltip_forwarding.state = models.EnumForwardingState.open.value
     internaltip_forwarding.stat_data = '{}'
+    internaltip_forwarding.questionnaire_hash = questionnaire_hash
     session.add(internaltip_forwarding)
 
     return internaltip_forwarding
@@ -318,7 +319,7 @@ class ForwardSubmission(BaseHandler):
                 db_create_receivertip(session, user, forwarded_itip, _tip_key)
 
             internaltip_forwarding = add_internaltip_forwarding(
-                session, tid, itip_id, forwarded_itip, crypto_forwarded_answers, request['questionnaire_id'])
+                session, tid, itip_id, forwarded_itip, crypto_forwarded_answers, request['questionnaire_id'], questionnaire_hash)
             for file in request['files']:
                 copied_file = self.forward_file(
                     session, forwarded_itip, file, original_itip_private_key)
