@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
-import { FileItem, SentTipDetail } from "@app/models/reciever/sendtip-data";
-import { ActivatedRoute, Router } from '@angular/router';
+import { FileItem } from "@app/models/reciever/sendtip-data";
+import { ActivatedRoute } from '@angular/router';
 import { TipService } from '@app/shared/services/tip-service';
 import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
 import { Observable } from 'rxjs';
@@ -9,7 +9,6 @@ import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { TranslateService } from '@ngx-translate/core';
 import { UtilsService } from '@app/shared/services/utils.service';
-
 @Component({
   selector: "src-sendtip-detail",
   templateUrl: "./sendtip-detail.component.html",
@@ -24,9 +23,9 @@ export class SendtipDetailComponent implements OnInit {
   tip_id: string | null;
   tip: RecieverTipData;
 
+
   loading = true;
 
-  redactOperationTitle: string;
 
   constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, private translateService: TranslateService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
 
@@ -44,8 +43,6 @@ export class SendtipDetailComponent implements OnInit {
     this.detail = this.RTipService.forwarding;
     this.organizations.push(this.detail);
 
-    this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
-    
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
     this.RTipService.reset();
@@ -56,7 +53,6 @@ export class SendtipDetailComponent implements OnInit {
           
           this.RTipService.initialize(response);
           this.tip = this.RTipService.tip;
-
           this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
             this.tip.tip_id = params["tip_id"];
           });
@@ -69,8 +65,8 @@ export class SendtipDetailComponent implements OnInit {
         }
       }
     );
-
   }
+
 
   onFileUploaded(newFile: FileItem) {
     this.files.push(newFile);
