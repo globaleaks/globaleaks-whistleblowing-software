@@ -55,7 +55,7 @@ export class TipOeCommentsComponent {
   }
 
   getSortedComments(data: Comment[]): Comment[] {
-    data = data.filter(comment => this.organizations.map(_=>_.comments).flat().includes(comment.id))
+    data = data.filter(comment => this.organizations.map(_=>_.comments).flat().some(i => i?.id === comment.id))
     return data;
   }
 

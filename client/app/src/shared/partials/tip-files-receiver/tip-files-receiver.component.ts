@@ -59,7 +59,7 @@ export class TipFilesReceiverComponent implements OnInit {
 
   checkForwarded(file: WbFile){
 
-    let foundForwardedFiles = this.forwardings.filter(f => f.files?.some(i => i === file.id));
+    let foundForwardedFiles = this.forwardings.filter(f => f.files?.some(i => i.id === file.id));
 
     return foundForwardedFiles.map(_ => _.name).join(', ');
   }

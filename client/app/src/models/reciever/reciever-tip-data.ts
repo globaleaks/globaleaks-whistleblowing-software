@@ -315,7 +315,17 @@ export class Forwarding {
   tid: number;
   name: string;
   creation_date?: string;
-  files?: string[];
-  comments?: string[];
+  files?: FileReference[];
+  comments?: CommentReference[];
   state: string;
+}
+
+export interface CommentReference {
+  id: string;
+  author_type: string;
+}
+
+export interface FileReference {
+  id: string;
+  author_type: string;
 }

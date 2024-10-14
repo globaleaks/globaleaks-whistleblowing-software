@@ -35,7 +35,7 @@ export class TipUploadWbFileComponent{
 
     if(this.key === 'oe')
       return this.tip.rfiles
-                .filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
+                .filter(file => this.organizations.map(_=>_.files).flat().some(i => i?.id === file.id))
                 .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
     else 
       return this.tip.rfiles
