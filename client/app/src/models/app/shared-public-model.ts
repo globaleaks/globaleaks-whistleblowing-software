@@ -24,6 +24,7 @@ export interface Children {
   multi_entry: boolean;
   required: boolean;
   preview: boolean;
+  isStatField: boolean;
   attrs: Attrs;
   x: number;
   y: number;

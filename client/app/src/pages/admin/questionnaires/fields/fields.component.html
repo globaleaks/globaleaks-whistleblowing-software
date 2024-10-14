@@ -136,6 +136,10 @@
                         <input [(ngModel)]="field.preview" type="checkbox">
                         <label>{{ 'Preview' | translate }}</label>
                     </div>
+                    <div class="form-group" *ngIf="fieldIsMarkableSubjectToStats">
+                        <input [(ngModel)]="field.isStatField" type="checkbox">
+                        <label>{{ 'Field of Statistical Interest' | translate }}</label>
+                    </div>
                     <div class="form-group">
                         <label>
                           <span>{{ 'Width' | translate }}</span>

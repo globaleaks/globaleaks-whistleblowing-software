@@ -189,7 +189,7 @@ export class FieldsComponent implements OnInit {
   }
 
   isMarkableSubjectToStats(field: Step | Field): boolean {
-    return ["inputbox", "textarea", "fieldgroup"].indexOf(field.type) === -1;
+    return ["inputbox", "textarea", "fieldgroup", "tos", "voice"].indexOf(field.type) === -1;
   }
 
   isMarkableSubjectToPreview(field: Step | Field): boolean {
