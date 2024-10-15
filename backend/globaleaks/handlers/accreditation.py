@@ -159,12 +159,13 @@ def count_user_tip(session, accreditation_item):
         accreditation_item: The Subscriber object.
     Returns:
         A tuple containing the count of tips and users.
-    """
+
     count_tip = (
         session.query(func.count(distinct(InternalTipForwarding.id)))
         .filter(InternalTipForwarding.oe_internaltip_id == accreditation_item.tid)
         .scalar()
     )
+    """
     count_user = (
         session.query(
             func.count(distinct(User.id))
@@ -173,7 +174,16 @@ def count_user_tip(session, accreditation_item):
         .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
         .scalar()
     )
-    return count_tip, count_user
+    count_tip = (
+        session.query(
+            InternalTipForwarding.state,
+            func.count(distinct(InternalTipForwarding.id))
+        )
+        .filter(InternalTipForwarding.oe_internaltip_id == accreditation_item.tid)
+        .group_by(InternalTipForwarding.state)
+        .all()
+    )
+    return dict(count_tip), count_user
 
 
 def add_user_primary(accreditation_item, dict_element):
@@ -199,8 +209,7 @@ def add_user_primary(accreditation_item, dict_element):
         'recipient_fiscal_code': accreditation_item.recipient_fiscal_code,
         'recipient_email': accreditation_item.email,
         'tos1': accreditation_item.tos1,
-        'tos2': accreditation_item.tos2,
-        'closed_tips': 0
+        'tos2': accreditation_item.tos2
     })
     return dict_element
 
@@ -281,8 +290,8 @@ def get_all_accreditation(session):
         for accreditation_item in (session.query(Subscriber).filter(Subscriber.organization_name.isnot(None))):
             t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())
             count_tip, count_user = count_user_tip(session, accreditation_item)
-            element = serialize_element(accreditation_item, count_tip, count_user, t)
-            element['closed_tips'] = 0
+            element = serialize_element(accreditation_item, count_tip.get('open', 0), count_user, t)
+            element['closed_tips'] = count_tip.get('closed', 0)
             request_accreditation.append(element)
         return request_accreditation
     except Exception as e:
@@ -453,8 +462,9 @@ def accreditation_by_id(session, accreditation_id):
             .one()
         )
         count_tip, count_user = count_user_tip(session, accreditation_item)
-        element = serialize_element(accreditation_item, count_tip, count_user, t)
+        element = serialize_element(accreditation_item, count_tip.get('open', 0), count_user, t)
         element = add_user_primary(accreditation_item, element)
+        element['closed_tips'] = count_tip.get('closed', 0)
         element['users'] = extract_user(session, accreditation_item)
         return element
     except NoResultFound:

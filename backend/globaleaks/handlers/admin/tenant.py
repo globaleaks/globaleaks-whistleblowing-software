@@ -97,12 +97,12 @@ def db_get_tenant_list(session, external:bool=False):
              )
 
     for t, s in query:
-        if t.external == external:
-            tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
-            if s:
-                tenant_dict['signup'] = serializers.serialize_signup(s)
+        if t.external == external and (not t.external or t.status):
+                tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+                if s:
+                    tenant_dict['signup'] = serializers.serialize_signup(s)
 
-            ret.append(tenant_dict)
+                ret.append(tenant_dict)
 
     return ret
 
