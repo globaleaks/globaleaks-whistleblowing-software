@@ -100,9 +100,8 @@ export class SendtipComponent implements OnInit {
     if (this.isFormValid()) {
       console.log('uploadedFiles', this.uploadedFiles);
       this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
-        next: (uuid: string) => {
-          console.log(`UUID ricevuto: ${uuid}`);
-          this.uploadFiles(uuid);
+        next: (res) => {
+          this.uploadFiles();
           this._location.back();
         },
         error: (err) => {
@@ -112,17 +111,17 @@ export class SendtipComponent implements OnInit {
     }
   }
 
-  uploadFiles(uuid: string) {
+  uploadFiles() {
     if (this.uploadedFiles && this.uploadedFiles.length > 0) {
       const flowJsInstance = this.utilsService.flowDefault;
 
-      flowJsInstance.opts.target = `api/recipient/tips/${uuid}/files`;
+      flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";;
       flowJsInstance.opts.singleFile = true;
       flowJsInstance.opts.headers = {
         "X-Session": this.authenticationService.session.id
       };
 
-      flowJsInstance.on("fileSuccess", (file) => {
+      flowJsInstance.on("fileSuccess", (file, message) => {
         console.log(`File ${file.name} caricato con successo.`);
       });
 
@@ -136,7 +135,7 @@ export class SendtipComponent implements OnInit {
             description: file.description,
             visibility: 'oe',
             fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024,
-            tids: this.selectedOrganizations
+            tids: "["+this.selectedOrganizations.map(_=> _.tid).toString()+"]"
           };
   
           flowJsInstance.addFile(file.file);

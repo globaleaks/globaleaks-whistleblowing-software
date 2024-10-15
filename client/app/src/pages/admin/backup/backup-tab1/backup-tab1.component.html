@@ -1,0 +1,25 @@
+<ng-container>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="backup-enable">{{ 'Enable Backup' | translate }}</label>
+            <input type="checkbox" [(ngModel)]="backupEnable" id="backup-enable" />
+        </div>
+    
+        <div class="form-group">
+            <label for="backup-time">{{ 'Backup Time (hh:mm)' | translate }}</label>
+            <input type="time" [(ngModel)]="backupTime" id="backup-time" class="form-control" />
+        </div>
+    
+        <div class="form-group">
+            <label for="backup-destination">{{ 'Backup Destination Path' | translate }}</label>
+            <input type="text" [(ngModel)]="backupDestinationPath" id="backup-destination" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <button class="btn btn-primary" id="save_settings" (click)="save()" type="submit">
+                <i class="fa-solid fa-check"></i>
+                <span>{{ 'Save' | translate }}</span>
+            </button>
+        </div>
+    </div>
+</ng-container>

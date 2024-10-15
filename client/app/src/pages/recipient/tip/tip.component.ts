@@ -404,7 +404,7 @@ export class TipComponent implements OnInit {
 
   goToSendtipDetail(forw: Forwarding){
     this.RTipService.forwarding = forw;
-    this.router.navigateByUrl("sendtip-detail/"+forw.id).then();
+    this.router.navigateByUrl("sendtip-detail").then();
   }
 
 }

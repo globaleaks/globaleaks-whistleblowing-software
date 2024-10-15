@@ -46,6 +46,7 @@ export class SendtipDetailComponent implements OnInit {
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
     this.RTipService.reset();
+    
     requestObservable.subscribe(
       {
         next: (response: RecieverTipData) => {
@@ -76,6 +77,6 @@ export class SendtipDetailComponent implements OnInit {
   }
 
   listenToFields(){
-    this.loadDetail();
+    // this.loadDetail();
   }
 }

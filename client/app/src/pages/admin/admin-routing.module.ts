@@ -24,6 +24,7 @@ import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {RedirectsResolver} from "@app/shared/resolvers/redirects.resolver";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {StatusResolver} from "@app/shared/resolvers/statuses.resolver";
+import { BackupModule } from "@app/pages/admin/backup/backup.module";
 
 const routes: Routes = [
   {
@@ -133,6 +134,15 @@ const routes: Routes = [
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Network"},
+  },
+  {
+    path: "backup",
+    loadChildren: () => BackupModule,
+    resolve: {
+      NodeResolver, PreferenceResolver
+    },
+    pathMatch: "full",
+    data: {sidebar: "admin-sidebar", pageTitle: "Backup"},
   }
 ];
 

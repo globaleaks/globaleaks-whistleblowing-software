@@ -14,7 +14,7 @@ import { Forwarding } from '@app/models/reciever/reciever-tip-data';
   templateUrl: './tip-oe-comments.component.html'
 })
 export class TipOeCommentsComponent {
-  @Input() tipService: ReceiverTipService | WbtipService;
+  @Input() tipService: ReceiverTipService ;
   @Input() key: string;
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
@@ -51,6 +51,14 @@ export class TipOeCommentsComponent {
         this.comments = [...this.comments, this.newComments];
 
         this.organizations.map(org => org.comments?.push({"id": data.id, "author_type":"main"}))
+
+        if(this.tipService.forwarding){
+
+          if(!this.tipService.forwarding.comments)
+            this.tipService.forwarding.comments = [];
+          
+          this.tipService.forwarding.comments?.push({"id": data.id, "author_type":"main"})
+        }
 
         this.cdr.detectChanges();
       }
