@@ -83,8 +83,7 @@ class StatisticalInterest(BaseHandler):
     """
     Handler for statistics fetch
     """
-    check_roles = ['analyst', 'admin']
+    check_roles = ['analyst']
 
     def get(self):
-        x = 0
         return get_stats_fields(self.session.tid)
