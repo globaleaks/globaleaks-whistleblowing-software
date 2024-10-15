@@ -4,6 +4,7 @@
 import base64
 import json
 import re
+import uuid
 
 from nacl.encoding import Base64Encoder
 from nacl.public import PrivateKey
@@ -92,7 +93,7 @@ def decrypt_tip(user_key, tip_prv_key, tip):
     return tip
 
 
-def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, date=None):
+def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, stat_answers, date=None):
     x = session.query(models.InternalTipAnswers) \
                .filter(models.InternalTipAnswers.internaltip_id == itip_id,
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
@@ -104,6 +105,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, da
     ita.internaltip_id = itip_id
     ita.questionnaire_hash = questionnaire_hash
     ita.answers = answers
+    ita.stat_answers = stat_answers
 
     if date:
         ita.creation_date = date
@@ -164,10 +166,35 @@ def db_create_receivertip(session, receiver, internaltip, tip_key):
     session.add(receivertip)
     return receivertip
 
+def is_valid_uuid(value):
+    try:
+        return str(uuid.UUID(value, version=4)) == value
+    except ValueError:
+        return False
+
+def find_statistical_info(session, tid:str, answers:dict, default_language:str):
+    answers_dict = dict()
+    for k, v in answers.items():
+        field = db_get(session, models.Field, (models.Field.id == k, models.Field.tid == tid))
+        if not field or not field.statistical:
+            continue
+
+        value_id = v[0].get('value')
+
+        if not is_valid_uuid(value_id):
+            answers_dict[k] = value_id
+            continue
+
+        field_value = db_get(session, models.FieldOption, (models.FieldOption.id == value_id))
+        answers_dict[k] = field_value.label.get(default_language[0]) if field_value else None
+    return answers_dict
+
+
 
 def db_create_submission(session, tid, request, user_session, client_using_tor, client_using_mobile):
     encryption = db_get(session, models.Config, (models.Config.tid == tid, models.Config.var_name == 'encryption'))
-
+    analyst_encrypt = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'global_stat_pub_key'))
+    default_language = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'default_language'))
     crypto_is_available = encryption.value
 
     context, questionnaire = db_get(session,
@@ -263,9 +290,19 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date)
 
     if crypto_is_available:
-        answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
+        stat_answers = find_statistical_info(session, tid, answers, default_language)
+        stat_answers = base64.b64encode(
+            GCE.asymmetric_encrypt(
+                analyst_encrypt[0],
+                json.dumps(stat_answers, cls=JSONEncoder).encode()
+            )
+        ).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, itip.creation_date)
+        answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
+    else:
+        stat_answers = {}
+
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_answers, itip.creation_date)
 
     for uploaded_file in user_session.files:
         if crypto_is_available:
