@@ -5,6 +5,7 @@ from sqlalchemy.sql.expression import func, and_
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 
 
@@ -57,6 +58,16 @@ def get_stats(session, tid):
         "reports_tor": num_tips_tor
     }
 
+@transact
+def get_stats_fields(session, tid):
+    tid_lang = ConfigFactory(session, tid).get_val('default_language')
+    fields = session.query(models.Field).filter(
+        models.Field.statistical == True,
+        models.Field.tid == tid
+    ).all()
+    return [{'id': x.id, 'label': x.label.get(tid_lang)} for x in fields]
+
+
 
 class Statistics(BaseHandler):
     """
@@ -66,3 +77,14 @@ class Statistics(BaseHandler):
 
     def get(self):
         return get_stats(self.session.tid)
+
+
+class StatisticalInterest(BaseHandler):
+    """
+    Handler for statistics fetch
+    """
+    check_roles = ['analyst', 'admin']
+
+    def get(self):
+        x = 0
+        return get_stats_fields(self.session.tid)
