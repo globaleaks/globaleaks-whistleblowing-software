@@ -6,10 +6,12 @@
         <!-- TODO Aggiungere un selettore di form a partire dal valore in questionnaireData.selectboxAnswer -->
         <form>
             <div *ngFor="let field of fields" class="form-group">
+
+                <div *ngIf="field.enabled">
                 <label [for]="field.id">{{ field.label }}</label>
                 <ng-container [ngSwitch]="field.type">
-                    <select *ngSwitchCase="'selectbox'" class="form-control" [id]="field.id" [name]="field.id">
-                        <option *ngFor="let option of field.options" [value]="option.label">{{ option.label }}</option>
+                    <select *ngSwitchCase="'selectbox'" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
+                        <option *ngFor="let option of field.options" [value]="option.id">{{ option.label }}</option>
                     </select>
                     <div *ngSwitchCase="'checkbox'">
                         <div *ngFor="let option of field.options">
@@ -23,10 +25,10 @@
                             <label [for]="option.label">{{ option.label }}</label>
                         </div>
                     </div>
-                    <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.id" [name]="field.id" />
-                    <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" />
+                    <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value"/>
+                    <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                     <div *ngSwitchCase="'textarea'">
-                        <textarea [id]="field.id" [name]="field.id" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder" ></textarea>
+                        <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" [name]="field.id" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
                         <!-- <div class="clearfix" *ngIf="entry['value']">
                             <div *ngIf="entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value'].length) <= 50" class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
                             </div>
@@ -95,7 +97,9 @@
                         </div>
                         <src-form (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]="identity_provided" [fileUploadUrl] = fileUploadUrl [fieldEntry]="fieldEntry" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="rows" [submission]="submission" [index]="index" [uploads]="uploads"></src-form>
                     </div> -->
+                
                 </ng-container>
+            </div>
             </div>                                            
         </form>                    
     </div>

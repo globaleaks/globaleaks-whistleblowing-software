@@ -9,7 +9,7 @@ import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
   templateUrl: "./tip-oe-form.component.html"
 })
 export class TipOeFormComponent {
-  @Input() fields: Children3[];
+  @Input() fields: any;
   @Input() uploads: { [key: string]: any };
   @Input() fileUploadUrl: string;
   @Input() campo: any;
@@ -19,6 +19,8 @@ export class TipOeFormComponent {
   @Input() entryIndex: number;
   // @Input() submission: SubmissionService;
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+
+  @Input() fieldAnswers: any;
 
   input_date: NgbDateStruct;
   input_start_date: any;

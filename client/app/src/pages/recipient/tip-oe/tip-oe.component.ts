@@ -60,6 +60,8 @@ export class TipOeComponent implements OnInit {
     reviewFormFields: []
   };
 
+  answers: any
+
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
 
@@ -88,6 +90,7 @@ export class TipOeComponent implements OnInit {
           this.score = this.tip.score;
           this.ctx = "rtip";
           this.showEditLabelInput = this.tip.label === "";
+          
           this.preprocessTipAnswers(this.tip);
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           this.initNavBar()
@@ -99,11 +102,13 @@ export class TipOeComponent implements OnInit {
 
   populateQuestionnaireData() {
     const answerId = this.tip.questionnaires[0].steps[0].children
-    const answers = this.tip.questionnaires[0].answers
 
-    this.questionnaireData.textareaAnswer = answers[answerId[0].id][0].value;
-    this.questionnaireData.reviewFormFields = this.tip.questionnaire.steps[1].children
-    console.log(this.questionnaireData)
+    this.answers = this.tip.questionnaires[0].answers //todo step 1
+
+    this.questionnaireData.textareaAnswer = this.tip.questionnaires[0].answers[answerId[0].id][0].value;
+    this.questionnaireData.reviewFormFields = this.tip.questionnaire.steps[0].children //todo step 1 -> DEVO PRENDERE I DATI MODIFICATI DOPO IL PROCESS DELLE ANSWERS
+
+    console.log(JSON.stringify(this.questionnaireData.reviewFormFields))
   }
 
   initNavBar() {
@@ -117,17 +122,23 @@ export class TipOeComponent implements OnInit {
         {
           title: "ANAC",
           component: this.tab2
-        },
-        {
+        }
+      ];
+
+      if(!this.preferencesService.dataModel.t_external) {
+        
+        this.tabs = [...this.tabs, ...[{
           title: "Internal",
-          component: this.tab3
+          component: this.tab1
         },
         {
           title: "Only me",
-          component: this.tab4
-        },
-      ];
+          component: this.tab2
+        }]];
+      }
     });
+
+
   }
 
   submitForm(): void {
