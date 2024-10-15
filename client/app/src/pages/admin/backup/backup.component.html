@@ -1,0 +1,16 @@
+<div id="SectionContent" name="contentForm" novalidate class="reveal">
+    <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
+        <ng-container *ngFor="let tab of tabs">
+            <li [ngbNavItem]="tab.title">
+                <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
+                <ng-template ngbNavContent>
+                    <ng-container *ngTemplateOutlet="tab.component"></ng-container>
+                </ng-template>
+            </li>
+        </ng-container>
+    </ul>
+    <div [ngbNavOutlet]="nav" class="mt-2"></div>
+    <ng-template #tab1>
+        <src-backup-tab1></src-backup-tab1>
+    </ng-template>
+</div>
