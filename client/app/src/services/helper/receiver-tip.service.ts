@@ -18,7 +18,7 @@ export class ReceiverTipService {
 
   reset() {
     this.tip = new RecieverTipData();
-    this.forwarding = new Forwarding();
+    // this.forwarding = new Forwarding();
   }
 
   initialize(response: RecieverTipData) {

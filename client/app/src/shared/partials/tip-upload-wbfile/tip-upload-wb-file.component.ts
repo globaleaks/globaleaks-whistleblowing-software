@@ -17,6 +17,8 @@ export class TipUploadWbFileComponent{
   @Input() canUpload: boolean = true;
   @Input() organizations: Forwarding[] = [];
 
+  @Input() onlyNew: boolean = false;
+
   @Output() dataToParent = new EventEmitter<string>();
   collapsed = false;
   file_upload_description: string = "";
@@ -26,33 +28,26 @@ export class TipUploadWbFileComponent{
 
   recentFile: RFile;
 
+  newFiles: RFile[] = [];
+
   constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
   }
 
   // Metodo per filtrare e ordinare i file
-  getFilteredAndSortedFiles(): RFile[] {
+  getFilteredAndSortedFiles(files: RFile[]): RFile[] {
 
     if(this.key === 'oe')
-      return this.tip.rfiles
+      return files
                 .filter(file => file.visibility === this.key)
                 .filter(file => this.organizations.map(_=>_.files).flat().some(i => i?.id === file.id))
                 .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
     else 
-      return this.tip.rfiles
+      return files
         .filter(file => file.visibility === this.key)
         .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
   }
 
-  
-  // getFiles(data: RFile[]): RFile[] {
-
-  //   if(this.key === 'oe')
-  //     data = data.filter(file => this.organizations.map(_=>_.files).flat().includes(file.id))
-  //                .sort((a, b) => new Date(a.creation_date).getTime() - new Date(b.creation_date).getTime());
-
-  //   return data;
-  // }
 
 
   onFileSelected(files: FileList | null) {
@@ -74,7 +69,7 @@ export class TipUploadWbFileComponent{
         isLoading: true,
         verification_date: null
       };
-      this.tip.rfiles.push(this.recentFile);
+      
 
       const flowJsInstance = this.utilsService.flowDefault;
 
@@ -86,6 +81,12 @@ export class TipUploadWbFileComponent{
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
         this.recentFile.isLoading = false   
+
+        this.tip.rfiles.push(this.recentFile);
+        this.newFiles.push(this.recentFile);
+
+        this.organizations.forEach(org => org.files?.push({"id": this.recentFile.id, "author_type":"main"}))
+
         this.dataToParent.emit();
         this.errorFile = null;
       });
