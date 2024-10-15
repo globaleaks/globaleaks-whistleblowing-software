@@ -22,4 +22,5 @@ export class NewField {
   template_override_id = "";
   triggered_by_score = 0;
   triggered_by_options = [];
+  statistical = false;
 }
