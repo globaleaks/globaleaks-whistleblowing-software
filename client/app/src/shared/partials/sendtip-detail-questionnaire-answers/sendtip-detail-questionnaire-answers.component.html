@@ -10,13 +10,12 @@
             
             <div *ngFor="let step of questionnaire.steps | orderBy:'order'; let questionare_steps = index">
                 
-                <div *ngIf="step.enabled">
-                    <div *ngFor="let field of step.children | orderBy:['y', 'x']; let index_step = index">
-                        <ng-container>
-                            <src-tip-field [fieldAnswers]="questionnaire.answers" [fields]="field" [index]="index_step"></src-tip-field>
-                        </ng-container>
-                    </div>
+                <div *ngFor="let field of step.children | orderBy:['y', 'x']; let index_step = index">
+                    <ng-container *ngIf="questionare_steps > 0" >
+                        <src-tip-field [fieldAnswers]="questionnaire.answers" [fields]="field" [index]="index_step"></src-tip-field>
+                    </ng-container>
                 </div>
+                
             </div>
         
     </div>
