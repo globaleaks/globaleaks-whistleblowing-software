@@ -17,6 +17,7 @@ export class TipOeFormComponent{
 
   @Input() fieldAnswers: any;
 
+  @Input() displayErrors: boolean;
 
   validateUploadSubmission() {
     // return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));

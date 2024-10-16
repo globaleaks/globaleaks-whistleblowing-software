@@ -1,4 +1,4 @@
-import { Component, Injectable, Input } from '@angular/core';
+import { Component, Injectable, Input, OnInit } from '@angular/core';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 /**
@@ -9,11 +9,11 @@ export class CustomAdapter extends NgbDateAdapter<string> {
 
 	fromModel(value: string | null): NgbDateStruct | null {
 		if (value) {
-			const date = new Date (value);
+			const date = new Date(value);
 			return {
-				day: date.getUTCDate() ,
-				month: date.getUTCMonth() + 1,
-				year: date.getUTCFullYear(),
+				day: date.getDate(),
+				month: date.getMonth() + 1,
+				year: date.getFullYear(),
 			};
 		}
 		return null;
@@ -69,17 +69,32 @@ export class CustomDateParserFormatter extends NgbDateParserFormatter {
 		{ provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
 	]
 })
-export class TipFieldQuestionEntryComponent {
+export class TipFieldQuestionEntryComponent implements OnInit{
+
 
   @Input() field: any;
   @Input() fieldAnswers: any;
+  @Input() displayErrors: boolean;
 
   input_start_date: any;
-  input_end_date: NgbDateStruct;
+  input_end_date: any;
   dateRange: { start: string, end: string } = {"start": "", "end": ""};
   dateOptions1: NgbDateStruct;
   dateOptions2: NgbDateStruct;
   dateOptions: {min_date:NgbDateStruct,max_date:NgbDateStruct}={min_date:{year:0,month:0,day:0},max_date:{year:0,month:0,day:0}}
+
+
+  ngOnInit(): void {
+
+   if(this.field.type==='daterange'){
+    this.input_start_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[0]);
+    this.input_end_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[1]);
+   }
+   else if (this.field.type==='tos'){
+    console.log(this.fieldAnswers[this.field.id][0]);
+   }
+  }
+
 
 
   clearDateRange() {

@@ -1,15 +1,20 @@
 <div *ngIf="field.enabled">
     <label [for]="field.id">{{ field.label }}</label>
     <ng-container [ngSwitch]="field.type">
+
+        <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+
         <select *ngSwitchCase="'selectbox'" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
             <option *ngFor="let option of field.options" [value]="option.id">{{ option.label }}</option>
         </select>
+
         <div *ngSwitchCase="'checkbox'">
             <div *ngFor="let option of field.options">
                 <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
         </div>
+
         <div *ngSwitchCase="'multichoice'">
             <div *ngFor="let option of field.options">
                 <input type="radio" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
@@ -28,21 +33,22 @@
             </div>
         </div>
 
-        <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+
         <div *ngSwitchCase="'textarea'">
-            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" [name]="field.id" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
-            <!-- <div class="clearfix" *ngIf="entry['value']">
-                <div *ngIf="entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value'].length) <= 50" class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
+            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" #textarea="ngModel" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
+            <div class="clearfix" *ngIf="fieldAnswers[field.id][0].value">
+                <div *ngIf="fieldAnswers[field.id][0].value.length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - fieldAnswers[field.id][0].value.length) <= 50" class="float-end">{{fieldAnswers[field.id][0].value.length}}/{{field.attrs.max_len.value}}
                 </div>
             </div>
             <div *ngIf="displayErrors" class="text-danger">
                 <span *ngIf="textarea?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
                 <span *ngIf="textarea?.errors?.['minlength']">{{'The answer is too short'|translate}}</span>
-            </div> -->
+            </div>
         </div>
+
         <div *ngSwitchCase="'daterange'" class="form-inline d-inline-flex align-items-center">
             <span class="form-group">
-                <label>{{'From'|translate}}</label>
+                <label>{{'From'|translate}}</label>                
                 <div class="input-group mx-1">
                     <input [id]="field.id+'-startDate'" [name]="field.id+'-startDate'" 
                     [(ngModel)]="input_start_date" 
@@ -74,21 +80,24 @@
                 </button>
             </span>
         </div>
-        <!-- <div *ngSwitchCase="'tos'">
+
+
+        <div *ngSwitchCase="'tos'">
             <markdown class="form-group tos-text" [data]="field.attrs.text.value | stripHtml"></markdown>
             <div *ngIf="field.attrs.attachment.value">
                 <a [href]="field.attrs.attachment_url.value" rel="noreferrer" target="_blank">{{field.attrs.attachment_text.value}}</a>
             </div>
             <div class="form-check">
-                    <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{field.value}}" type="checkbox" />
+                    <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" />
                     <label for="{{field.id}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
             </div>
-        </div> -->
+        </div>
 
         <!-- <div [id]="field.id" *ngSwitchCase="'voice'">
             <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="campo" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry"></src-voice-recorder>
-        </div>
-        <div [id]="field.id" *ngSwitchCase="'fileupload'">
+        </div> -->
+
+        <!--<div [id]="field.id" *ngSwitchCase="'fileupload'">
             <src-rfile-upload-button [file_id]="fieldEntry" (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="campo" [formUploader]="true"></src-rfile-upload-button>
         </div> -->
 
