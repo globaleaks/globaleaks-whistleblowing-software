@@ -86,7 +86,7 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 if k == 'size':
                     x[k] = int(x[k])
 
-    for f in tip['forwardings']:
+    for f in tip.get('forwardings', []):
         f['questionnaire']['answers'] = json.loads(GCE.asymmetric_decrypt(tip_key, base64.b64decode(f['questionnaire']['answers'].encode())).decode())
         index_answers(f['questionnaire']['answers'])
 
@@ -300,7 +300,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
     else:
-        stat_answers = {}
+        stat_answers = ''
 
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_answers, itip.creation_date)
 
