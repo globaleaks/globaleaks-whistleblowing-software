@@ -124,6 +124,14 @@ SubmissionDesc = {
     'score': int
 }
 
+StatisticalInterestTable = {
+    'pg_num': int,
+    'pg_size': int,
+    'date_from': DateType,
+    'date_to': DateType,
+    'is_oe': bool
+}
+
 AdminUserDesc = {
     'username': str,
     'name': str,
