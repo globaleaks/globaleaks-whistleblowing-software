@@ -3,7 +3,6 @@
         <span>Review Form</span>
     </div>
     <div class="card-body">
-        <!-- TODO Aggiungere un selettore di form a partire dal valore in questionnaireData.selectboxAnswer -->
         <form>
             <div *ngFor="let field of fields" class="form-group">
 
@@ -15,17 +14,28 @@
                     </select>
                     <div *ngSwitchCase="'checkbox'">
                         <div *ngFor="let option of field.options">
-                            <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.label" />
+                            <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                             <label [for]="option.label">{{ option.label }}</label>
                         </div>
                     </div>
                     <div *ngSwitchCase="'multichoice'">
                         <div *ngFor="let option of field.options">
-                            <input type="radio" [id]="option.label" [name]="field.id" [value]="option.label" />
+                            <input type="radio" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                             <label [for]="option.label">{{ option.label }}</label>
                         </div>
                     </div>
-                    <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value"/>
+
+                    <div *ngSwitchCase="'date'">
+                        <div class="input-group">
+                            <input class="form-control inputelem" [id]="field.id" [name]="field.id" 
+                            [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" 
+                            [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" />
+                            <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
+                                <i class="fa-solid fa-calendar"></i>
+                            </span>
+                        </div>
+                    </div>
+
                     <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                     <div *ngSwitchCase="'textarea'">
                         <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" [name]="field.id" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
@@ -100,7 +110,9 @@
                 
                 </ng-container>
             </div>
-            </div>                                            
+            </div>     
+            
+            <button id="SubmitButton" class="btn btn-primary" [disabled]="tipStatus === 'closed'" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
         </form>                    
     </div>
 </div>

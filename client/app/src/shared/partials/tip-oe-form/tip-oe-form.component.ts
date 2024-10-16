@@ -1,14 +1,78 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {Component, EventEmitter, Injectable, Input, OnInit, Output} from "@angular/core";
 import { Step } from "@app/models/app/shared-public-model";
-import { Children3 } from "@app/models/reciever/reciever-tip-data";
-import { Field } from "@app/models/resolvers/field-template-model";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+
+
+/**
+ * This Service handles how the date is represented in scripts i.e. ngModel.
+ */
+@Injectable()
+export class CustomAdapter extends NgbDateAdapter<string> {
+
+	fromModel(value: string | null): NgbDateStruct | null {
+		if (value) {
+			const date = new Date (value);
+			return {
+				day: date.getUTCDate() ,
+				month: date.getUTCMonth() + 1,
+				year: date.getUTCFullYear(),
+			};
+		}
+		return null;
+	}
+
+	toModel(date: NgbDateStruct | null): string | null {
+		if (date){
+      const utcDate = Date.UTC(date.year, date.month - 1, date.day);
+      const jsDate = new Date(utcDate);
+      return jsDate.toISOString();
+    }
+    else 
+      return null;
+	}
+}
+
+/**
+ * This Service handles how the date is rendered and parsed from keyboard i.e. in the bound input field.
+ */
+@Injectable()
+export class CustomDateParserFormatter extends NgbDateParserFormatter {
+	readonly DELIMITER = '/';
+
+	parse(value: string): NgbDateStruct | null {
+		if (value) {
+			const date = value.split(this.DELIMITER);
+			return {
+				day: parseInt(date[0], 10),
+				month: parseInt(date[1], 10),
+				year: parseInt(date[2], 10),
+			};
+		}
+		return null;
+	}
+
+	format(date: NgbDateStruct | null): string {
+
+    if (date){
+      return String(date.day).padStart(2,"0") + this.DELIMITER + String(date.month).padStart(2,"0") + this.DELIMITER + date.year;
+    }
+    else 
+      return  '';
+	}
+}
+
+
 
 @Component({
   selector: "src-tip-oe-form",
-  templateUrl: "./tip-oe-form.component.html"
+  templateUrl: "./tip-oe-form.component.html",
+  providers: [
+		{ provide: NgbDateAdapter, useClass: CustomAdapter },
+		{ provide: NgbDateParserFormatter, useClass: CustomDateParserFormatter },
+	]
 })
-export class TipOeFormComponent {
+export class TipOeFormComponent implements OnInit{
+
   @Input() fields: any;
   @Input() uploads: { [key: string]: any };
   @Input() fileUploadUrl: string;
@@ -19,6 +83,8 @@ export class TipOeFormComponent {
   @Input() entryIndex: number;
   // @Input() submission: SubmissionService;
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+
+  @Input() tipStatus: string = 'opened';
 
   @Input() fieldAnswers: any;
 
@@ -41,9 +107,14 @@ export class TipOeFormComponent {
     // this.entry.value = "";
   }
 
+  ngOnInit(): void {
+    throw new Error("Method not implemented.");
+  }
 
-  onDateSelection() {
-    // this.entry.value = this.convertNgbDateToISOString(this.input_date);
+
+  onDateSelection(value: NgbDateStruct, field: any) {
+
+    field.value = this.convertNgbDateToISOString(value);
   }
 
   convertNgbDateToISOString(date: NgbDateStruct): string {
@@ -81,3 +152,5 @@ export class TipOeFormComponent {
     }
   }
 }
+
+
