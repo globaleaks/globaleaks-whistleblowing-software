@@ -106,9 +106,8 @@ export class TipOeComponent implements OnInit {
     this.answers = this.tip.questionnaires[0].answers //todo step 1
 
     this.questionnaireData.textareaAnswer = this.tip.questionnaires[0].answers[answerId[0].id][0].value;
-    this.questionnaireData.reviewFormFields = this.tip.questionnaire.steps[0].children //todo step 1 -> DEVO PRENDERE I DATI MODIFICATI DOPO IL PROCESS DELLE ANSWERS
+    this.questionnaireData.reviewFormFields = this.tip.questionnaires[0].steps[0].children //todo prendere step 1
 
-    console.log(JSON.stringify(this.questionnaireData.reviewFormFields))
   }
 
   initNavBar() {
