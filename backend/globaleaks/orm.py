@@ -12,6 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from twisted.internet import reactor
 from twisted.internet.threads import deferToThreadPool
 
+from globaleaks.utils.backup import write_audit_log_on_file
 from globaleaks.models import AuditLog
 
 
@@ -137,8 +138,8 @@ def db_log(session, **kwargs):
 
     for key, value in kwargs.items():
          setattr(entry, key, value)
-
     session.add(entry)
+    write_audit_log_on_file(session, entry)
 
 
 class transact(object):

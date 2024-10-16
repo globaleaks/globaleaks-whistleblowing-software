@@ -186,6 +186,7 @@ class MigrationScript(MigrationBase):
         global_stat_pub_key_config = self.model_to['Config']()
         global_stat_pub_key_config.var_name = 'global_stat_pub_key'
         global_stat_pub_key_config.value = global_stat_pub_key
+        global_stat_pub_key_config.tid = 1
         self.session_new.add(global_stat_pub_key_config)
         self.entries_count['Config'] += 1
         self.add_global_stat_prv_key_to_users(global_stat_prv_key)
@@ -194,10 +195,33 @@ class MigrationScript(MigrationBase):
         file_analisys_config = self.model_to['Config']()
         file_analisys_config.var_name = 'url_file_analysis'
         file_analisys_config.value = 'http://localhost/api/v1/scan'
+        file_analisys_config.tid = 1
         self.session_new.add(file_analisys_config)
-        log.info("FILE ANALISYS %s" % file_analisys_config.value)
+        self.entries_count['Config'] += 1
+
+    def add_backup_configs(self):
+        backup_enable_config = self.model_to['Config']()
+        backup_enable_config.var_name = 'backup_enable'
+        backup_enable_config.value = False
+        backup_enable_config.tid = 1
+        self.session_new.add(backup_enable_config)
+        self.entries_count['Config'] += 1
+
+        backup_time_config = self.model_to['Config']()
+        backup_time_config.var_name = 'backup_time_ISO_8601'
+        backup_time_config.value = '2:00'
+        backup_time_config.tid = 1
+        self.session_new.add(backup_time_config)
+        self.entries_count['Config'] += 1
+
+        backup_destination_path_config = self.model_to['Config']()
+        backup_destination_path_config.var_name = 'backup_destination_path'
+        backup_destination_path_config.value = '/var/globaleaks/backup/'
+        backup_destination_path_config.tid = 1
+        self.session_new.add(backup_destination_path_config)
         self.entries_count['Config'] += 1
 
     def epilogue(self):
         self.add_file_analisys_url()
         self.add_global_stat_keys()
+        self.add_backup_configs()
