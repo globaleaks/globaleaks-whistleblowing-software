@@ -19,14 +19,14 @@ export class TipService {
     }
   }
 
-  preprocessTipAnswers(tip: any, isFormIstruttoria: boolean = false) {
+  preprocessTipAnswers(tip: any) {
     let x, i, j, k, step;
 
     for (x = 0; x < tip.questionnaires.length; x++) {
       let questionnaire = tip.questionnaires[x];
       this.fieldUtilities.parseQuestionnaire(questionnaire, {fields: [], fields_by_id: {}, options_by_id: {}});
 
-      for (isFormIstruttoria? i=1 : i = 0; i < questionnaire.steps.length; i++) {
+      for (i = 0; i < questionnaire.steps.length; i++) {
         step = questionnaire.steps[i];
         if (this.fieldUtilities.isFieldTriggered(null, step, questionnaire.answers, tip.score)) {
           for (j = 0; j < step.children.length; j++) {
@@ -35,7 +35,7 @@ export class TipService {
         }
       }
 
-      for (isFormIstruttoria? i=1 : i = 0; i < questionnaire.steps.length; i++) {
+      for (i = 0; i < questionnaire.steps.length; i++) {
         step = questionnaire.steps[i];
         j = step.children.length;
         while (j--) {
@@ -60,6 +60,25 @@ export class TipService {
     }
   }
 
+
+  preprocessForwardingAnswers(forwarding: any){
+
+    let i, step, j;
+
+    let questionnaire = forwarding.questionnaire;
+    this.fieldUtilities.parseQuestionnaire(questionnaire, {fields: [], fields_by_id: {}, options_by_id: {}});
+
+    for (i = 0; i < questionnaire.steps.length; i++) {
+      step = questionnaire.steps[i];
+      if (this.fieldUtilities.isFieldTriggered(null, step, questionnaire.answers, 0)) {
+        for (j = 0; j < step.children.length; j++) {
+          this.filterNotTriggeredField({score: 0}, step, step.children[j], questionnaire.answers);
+        }
+      }
+    }
+
+
+  }
 
   /* processFilesVerificationStatus(wbFiles: any[]){
     let i;

@@ -6,7 +6,7 @@ import { UtilsService } from '@app/shared/services/utils.service';
   selector: 'src-sendtip-detail-questionnaire-answers',
   templateUrl: './sendtip-detail-questionnaire-answers.component.html'
 })
-export class SendtipDetailQuestionnaireAnswersComponent {
+export class SendtipDetailQuestionnaireAnswersComponent{
 
   @Input() questionnaire: Questionnaire;
 
@@ -16,6 +16,7 @@ export class SendtipDetailQuestionnaireAnswersComponent {
 
   constructor(protected utilsService: UtilsService) {
   }
+
 
   public toggleCollapse() {
     this.collapsed = !this.collapsed;

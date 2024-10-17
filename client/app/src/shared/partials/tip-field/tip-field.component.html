@@ -3,10 +3,11 @@
         <span *ngIf="!fields">{{index + 1}}</span>
         <span>{{fields.label |translate}}</span>
     </div>
+
     <div *ngIf="fieldAnswers && fieldAnswers[fields.id]">
         <div *ngIf="!hasMultipleEntries(fieldAnswers[fields.id])">
             <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"
-                [field]="fields" [fieldAnswers]=fieldAnswers
+                [field]="fields" [fieldAnswers]="fieldAnswers"
                 [entry]="fieldAnswers[fields.id][0]"></src-tip-field-answer-entry>
         </div>
         <div *ngIf="hasMultipleEntries(fieldAnswers[fields.id])">

@@ -15,19 +15,20 @@ import { Observable } from 'rxjs';
 })
 export class SendtipDetailComponent implements OnInit {
 
-  detail: Forwarding;
+  detail: any;
   organizations: Forwarding[] = []
 
   files: FileItem[] = [];
 
   tip_id: string | null;
-  tip: RecieverTipData;
+  tip: any;
+
 
 
   loading = true;
 
 
-  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, private translateService: TranslateService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
+  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
 
   backClicked() {
     this._location.back();
@@ -39,6 +40,12 @@ export class SendtipDetailComponent implements OnInit {
     this.tip = this.RTipService.tip;
 
     this.detail = this.RTipService.forwarding;
+
+    if (typeof this.detail.questionnaire.answers  === 'string' || this.detail.questionnaire.answers instanceof String)
+      this.detail.questionnaire.answers = JSON.parse(this.detail.questionnaire.answers)
+
+    this.tipService.preprocessForwardingAnswers(this.detail);
+
   }
 
   loadDetail() {
