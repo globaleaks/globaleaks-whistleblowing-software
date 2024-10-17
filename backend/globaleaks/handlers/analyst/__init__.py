@@ -88,13 +88,13 @@ def get_all_element(session, param_session, request):
     total_count = session.query(model).filter(
         model.creation_date > date_from,
         model.creation_date <= date_to,
-        getattr(model, stat_field) != {}
+        getattr(model, stat_field) != '{}'
     ).count()
 
     answers = session.query( getattr(model, stat_field), model.internaltip_id).filter(
         model.creation_date > date_from,
         model.creation_date <= date_to,
-        getattr(model, stat_field) != {}
+        getattr(model, stat_field) != '{}'
     ).limit(pg_size).offset(offset).all()
 
     total_pages = (total_count + pg_size - 1) // pg_size
