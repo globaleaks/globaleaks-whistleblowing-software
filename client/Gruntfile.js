@@ -50,6 +50,7 @@ module.exports = function(grunt) {
           {dest: "build/viewer/", cwd: ".", src: ["app/viewer/*"], expand: true, flatten: true},
           {dest: "build/index.html", cwd: ".", src: ["tmp/index.html"], expand: false, flatten: true},
           {dest: "build/license.txt", cwd: ".", src: ["../LICENSE"], expand: false, flatten: true},
+          {dest: "build/secret.html", cwd: ".", src: ["app/secret.html"], expand: false, flatten: true },
         ]
       },
 
