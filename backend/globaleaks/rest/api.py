@@ -26,6 +26,7 @@ from globaleaks.handlers import admin, \
     recipient, \
     redirect, \
     robots, \
+    secret, \
     security, \
     signup, \
     sitemap, \
@@ -50,6 +51,8 @@ api_spec = [
 
     # Public API
     (r'/api/public', public.PublicResource),
+
+    (r'/api/secret', secret.Secret),
 
     # Authentication Handlers
     (r'/api/auth/token', auth.token.TokenHandler),

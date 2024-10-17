@@ -264,6 +264,7 @@ def db_serialize_node(session, tid, language):
     ret.update(ConfigL10NFactory(session, tid,).serialize('public_node', language))
 
     ret['start_time'] = State.start_time
+    ret['secret_loaded'] = False if not State.secret else True
     ret['root_tenant'] = tid == 1
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
