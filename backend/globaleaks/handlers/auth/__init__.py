@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Handlers dealing with platform authentication
+import logging
 from datetime import timedelta
 from random import SystemRandom
 from sqlalchemy import or_
@@ -66,11 +67,11 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     :param receipt: A provided receipt
     :return: Returns a user session in case of success
     """
-    hash = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
+    hash_pwd = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
 
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
-                          InternalTip.receipt_hash == hash).one_or_none()
+                          InternalTip.receipt_hash == hash_pwd).one_or_none()
 
     if itip is None:
         db_login_failure(session, tid, 1)
@@ -264,8 +265,8 @@ class SessionHandler(BaseHandler):
         try:
             self.session.token.validate(request['token'].encode())
             Sessions.reset_timeout(self.session)
-        except:
-            pass
+        except Exception as e:
+            logging.debug(e)
         else:
             self.session.token = self.state.tokens.new(self.request.tid)
 

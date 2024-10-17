@@ -945,7 +945,6 @@ class _Subscriber(Model):
     tos1 = Column(UnicodeText, default='', nullable=False)
     tos2 = Column(UnicodeText, default='', nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    # Todo: Integer to Enum
     state = Column(Integer, default=None, nullable=True)
     organization_email = Column(UnicodeText, nullable=True)
     organization_institutional_site = Column(UnicodeText, default='', nullable=False)
