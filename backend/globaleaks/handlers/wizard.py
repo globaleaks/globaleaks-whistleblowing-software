@@ -16,7 +16,7 @@ from globaleaks.utils.sock import isIPAddress
 def generate_analyst_key_pair(session, admin_user):
     global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
     global_stat_pub_key_config = session.query(models.Config) \
-        .filter(models.Config.tid == 1, models.Config.var_name == 'global_stat_pub_key')
+        .filter(models.Config.tid == 1, models.Config.var_name == 'global_stat_pub_key').one()
     global_stat_pub_key_config.value = global_stat_pub_key
 
     crypto_stat_key = Base64Encoder.encode(

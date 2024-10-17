@@ -68,7 +68,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     :return: Returns a user session in case of success
     """
     old_hash = False
-    hash = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
+    hash_pwd = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
 
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
@@ -93,7 +93,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
         user_key = GCE.derive_key(receipt.encode(), State.tenants[tid].cache.receipt_salt)
 
         if old_hash:
-            itip.receipt_hash = hash
+            itip.receipt_hash = hash_pwd
             secret_key = GCE.derive_key(State.secret_key, State.tenants[tid].cache.receipt_salt)
             crypto_prv_key = GCE.symmetric_decrypt(secret_key, Base64Encoder.decode(itip.crypto_prv_key))
             itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(user_key, crypto_prv_key))

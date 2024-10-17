@@ -291,16 +291,18 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     if crypto_is_available:
         stat_answers = find_statistical_info(session, tid, answers, default_language)
-        stat_answers = base64.b64encode(
-            GCE.asymmetric_encrypt(
-                analyst_encrypt[0],
-                json.dumps(stat_answers, cls=JSONEncoder).encode()
-            )
-        ).decode()
-
+        if stat_answers != {}:
+            stat_answers = base64.b64encode(
+                GCE.asymmetric_encrypt(
+                    analyst_encrypt[0],
+                    json.dumps(stat_answers, cls=JSONEncoder).encode()
+                )
+            ).decode()
+        else:
+            stat_answers = '{}'
         answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
     else:
-        stat_answers = ''
+        stat_answers = '{}'
 
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_answers, itip.creation_date)
 
