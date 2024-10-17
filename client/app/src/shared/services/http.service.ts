@@ -146,7 +146,7 @@ export class HttpService {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
 
-  requestForwardedReportClosing(uuid:string, param: string): Observable<{ receipt: string }>{
+  requestForwardedReportClosing(uuid:string, param: any): Observable<{ receipt: string }>{
     const body = {answers: param}
     console.log("api/recipient/wbtip/"+uuid+"/close")
     return this.httpClient.post<{ receipt: string }>("api/recipient/wbtip/"+uuid+"/close", body);
