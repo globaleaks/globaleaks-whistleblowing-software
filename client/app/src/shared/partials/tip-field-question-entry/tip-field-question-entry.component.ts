@@ -1,4 +1,5 @@
-import { Component, Injectable, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 /**
@@ -71,6 +72,10 @@ export class CustomDateParserFormatter extends NgbDateParserFormatter {
 })
 export class TipFieldQuestionEntryComponent implements OnInit{
 
+  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+  @Input() fileUploadUrl: string;
+
+  @Input() editField: NgForm;
 
   @Input() field: any;
   @Input() fieldAnswers: any;
@@ -115,6 +120,8 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   }
 
   onStartDateSelection(date: NgbDateStruct): void {
+    console.log(this.editField)
+    console.log(this.editField.form.get(this.field.id))
     const startDate = new Date(date.year, date.month - 1, date.day);
     this.dateRange.start = startDate.getTime().toString();
     this.field.value = `${this.dateRange.start}:${this.dateRange.end}`;

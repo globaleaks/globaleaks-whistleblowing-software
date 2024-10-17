@@ -1,28 +1,33 @@
 <div *ngIf="field.enabled">
-    <label [for]="field.id">{{ field.label }}</label>
+    <label [for]="field.id">{{ field.label }}{{field.required ? ' - *' : ''}}</label>
     <ng-container [ngSwitch]="field.type">
 
-        <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+        <div class="form-group">
+            <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+        </div>
+        
+        <div class="form-group" *ngSwitchCase="'selectbox'">
+            <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
+                <option *ngFor="let option of field.options" [value]="option.id">{{ option.label }}</option>
+            </select>
+        </div>
+        
 
-        <select *ngSwitchCase="'selectbox'" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
-            <option *ngFor="let option of field.options" [value]="option.id">{{ option.label }}</option>
-        </select>
-
-        <div *ngSwitchCase="'checkbox'">
+        <div *ngSwitchCase="'checkbox'" class="form-group">
             <div *ngFor="let option of field.options">
                 <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
         </div>
 
-        <div *ngSwitchCase="'multichoice'">
+        <div *ngSwitchCase="'multichoice'" class="form-group">
             <div *ngFor="let option of field.options">
                 <input type="radio" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
         </div>
 
-        <div *ngSwitchCase="'date'">
+        <div *ngSwitchCase="'date'" class="form-group">
             <div class="input-group">
                 <input class="form-control inputelem" [id]="field.id" [name]="field.id" 
                 [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" 
@@ -34,14 +39,14 @@
         </div>
 
 
-        <div *ngSwitchCase="'textarea'">
-            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" #textarea="ngModel" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
+        <div *ngSwitchCase="'textarea'" class="form-group">
+            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" name="description" #textarea="ngModel" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
             <div class="clearfix" *ngIf="fieldAnswers[field.id][0].value">
                 <div *ngIf="fieldAnswers[field.id][0].value.length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - fieldAnswers[field.id][0].value.length) <= 50" class="float-end">{{fieldAnswers[field.id][0].value.length}}/{{field.attrs.max_len.value}}
                 </div>
             </div>
             <div *ngIf="displayErrors" class="text-danger">
-                <span *ngIf="textarea?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
+                <span *ngIf="editField.form.get('description')?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
                 <span *ngIf="textarea?.errors?.['minlength']">{{'The answer is too short'|translate}}</span>
             </div>
         </div>
@@ -97,8 +102,8 @@
             <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="campo" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry"></src-voice-recorder>
         </div> -->
 
-        <!--<div [id]="field.id" *ngSwitchCase="'fileupload'">
-            <src-rfile-upload-button [file_id]="fieldEntry" (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="campo" [formUploader]="true"></src-rfile-upload-button>
+        <!-- <div [id]="field.id" *ngSwitchCase="'fileupload'">
+            <src-rfile-upload-button [file_id]="field.id" (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="fieldAnswers[field.id]"></src-rfile-upload-button>
         </div> -->
 
         <!-- <div *ngSwitchCase="'fieldgroup'">

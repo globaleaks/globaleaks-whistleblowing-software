@@ -137,12 +137,8 @@ export class TipOeComponent implements OnInit {
       }
     });
 
-
   }
 
-  submitForm(): void {
-    console.log("Submit form");
-  }
 
   openGrantTipAccessModal(): void {
     this.utils.runUserOperation("get_users_names", {}, false).subscribe({
@@ -379,4 +375,17 @@ export class TipOeComponent implements OnInit {
   }
 
   protected readonly JSON = JSON;
+
+  closeForwardedReport(){
+    this.loading = true;
+    this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.RTipService.tip.status = 'closed'
+        console.log("sumbit ok, provo a fare reload della segnalazione")
+        this.loadTipDate();
+      }
+    });
+          
+  }
 }
