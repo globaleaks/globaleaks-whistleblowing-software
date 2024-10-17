@@ -13,17 +13,25 @@ from globaleaks.utils.crypto import Base64Encoder, GCE
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import isIPAddress
 
-def generate_analyst_key_pair(session, admin_user):
+def generate_analyst_key_pair(session, admin_user, tid) -> bool:
+    tenant = session.query(models.Tenant).filter(
+        models.Tenant.external == False,
+        models.Tenant.id == tid
+    ).one_or_none()
+    if not tenant:
+        return False
     global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
     global_stat_pub_key_config = session.query(models.Config) \
-        .filter(models.Config.tid == 1, models.Config.var_name == 'global_stat_pub_key').one()
+        .filter(models.Config.tid == tid, models.Config.var_name == 'global_stat_pub_key').one()
     global_stat_pub_key_config.value = global_stat_pub_key
 
-    crypto_stat_key = Base64Encoder.encode(
-                GCE.asymmetric_encrypt(admin_user.crypto_pub_key, global_stat_prv_key)).decode()
-    session.query(models.User) \
-            .filter(models.User.id == admin_user.id)\
-            .update({'crypto_global_stat_prv_key': crypto_stat_key})
+    if admin_user:
+        crypto_stat_key = Base64Encoder.encode(
+                    GCE.asymmetric_encrypt(admin_user.crypto_pub_key, global_stat_prv_key)).decode()
+        session.query(models.User) \
+                .filter(models.User.id == admin_user.id)\
+                .update({'crypto_global_stat_prv_key': crypto_stat_key})
+    return True
 
 def db_wizard(session, tid, hostname, request):
     """
@@ -76,6 +84,8 @@ def db_wizard(session, tid, hostname, request):
         if  tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
             node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
 
+    admin_user = None
+
     if not request['skip_admin_account_creation']:
         admin_desc = models.User().dict(language)
         admin_desc['username'] = request['admin_username']
@@ -87,12 +97,12 @@ def db_wizard(session, tid, hostname, request):
         admin_user = db_create_user(session, tid, None, admin_desc, language, wizard=True)
         db_set_user_password(session, tid, admin_user, request['admin_password'])
         admin_user.password_change_needed = (tid != 1)
-        if tid == 1:
-            generate_analyst_key_pair(session, admin_user)
 
         if encryption and escrow:
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
             admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
+
+    is_tenant_anac = generate_analyst_key_pair(session, admin_user, tid)
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)
@@ -102,6 +112,8 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['language'] = language
         receiver_desc['role'] = 'receiver'
         receiver_desc['pgp_key_remove'] = False
+        receiver_desc['can_grant_access_to_reports'] = not is_tenant_anac
+        receiver_desc['can_transfer_access_to_reports'] = not is_tenant_anac
         receiver_user = db_create_user(session, tid, None, receiver_desc, language)
         db_set_user_password(session, tid, receiver_user, request['receiver_password'])
         receiver_user.password_change_needed = (tid != 1)

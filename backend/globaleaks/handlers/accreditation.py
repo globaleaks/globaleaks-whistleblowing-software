@@ -162,7 +162,7 @@ def accreditation(session, request, is_instructor=False):
         raise errors.InternalServerError
 
 
-def count_user_tip(session, accreditation_item):
+def count_user_tip(session, accreditation_item:models.Subscriber):
     """
     Count the number of tips and users for a given accreditation item.
     Args:
@@ -177,12 +177,15 @@ def count_user_tip(session, accreditation_item):
         .scalar()
     )
     """
+    status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
+        accreditation_item.state).name
+    if status != EnumSubscriberStatus.accredited:
+        return {}, 2
     count_user = (
         session.query(
             func.count(distinct(User.id))
         )
         .filter(User.tid == accreditation_item.tid)
-        .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))
         .scalar()
     )
     count_tip = (
@@ -277,7 +280,7 @@ def serialize_element(accreditation_item, count_tip, count_user, t):
         'accreditation_date': accreditation_item.creation_date,
         'state': accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
             accreditation_item.state).name,
-        'num_user_profiled': count_user + 2,
+        'num_user_profiled': count_user,
         'opened_tips': count_tip
     }
 
