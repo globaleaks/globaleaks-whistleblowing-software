@@ -43,7 +43,7 @@ export class TipOeComponent implements OnInit {
   @ViewChild("tab4") tab4!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
 
   tip_id: string | null;
-  tip: RecieverTipData;
+  tip: any;
   score: number;
   ctx: string;
   showEditLabelInput: boolean;
@@ -103,10 +103,13 @@ export class TipOeComponent implements OnInit {
   populateQuestionnaireData() {
     const answerId = this.tip.questionnaires[0].steps[0].children
 
-    this.answers = this.tip.questionnaires[0].answers 
+    if (typeof this.tip.questionnaires[0].answers  === 'string' || this.tip.questionnaires[0].answers instanceof String)
+      this.answers = JSON.parse(this.tip.questionnaires[0].answers)
+    else
+      this.answers = this.tip.questionnaires[0].answers 
 
-    this.questionnaireData.textareaAnswer = this.tip.questionnaires[0].answers[answerId[0].id][0].value;
-    this.questionnaireData.reviewFormFields = this.tip.questionnaires[0].steps[1].children //todo prendere step 1
+    this.questionnaireData.textareaAnswer = this.answers[answerId[0].id][0].value;
+    this.questionnaireData.reviewFormFields = this.tip.questionnaires[0].steps[1].children 
 
   }
 
@@ -378,7 +381,7 @@ export class TipOeComponent implements OnInit {
 
   closeForwardedReport(){
     this.loading = true;
-    this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, this.answers).subscribe({
+    this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
       next: (response) => {
         this.loading = false;
         this.RTipService.tip.status = 'closed'
