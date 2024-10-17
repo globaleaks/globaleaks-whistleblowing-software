@@ -42,6 +42,9 @@ def db_wizard(session, tid, hostname, request):
         node = root_tenant_node
         encryption = True
         escrow = request['admin_escrow']
+        node.set_val('backup_enable', False)
+        node.set_val('backup_time_ISO_8601', '2:00')
+        node.set_val('backup_destination_path', '/var/globaleaks/backup/')
     else:
         node = config.ConfigFactory(session, tid)
         encryption = root_tenant_node.get_val('encryption')

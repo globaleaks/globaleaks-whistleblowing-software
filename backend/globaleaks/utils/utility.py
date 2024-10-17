@@ -98,6 +98,15 @@ def datetime_to_ISO8601(date):
 
     return date.isoformat() + "Z"  # Z means that the date is in UTC
 
+def iso8601_to_datetime(string_date):
+    """
+    Convert a ISO8601 string into datetime date
+    """
+    if string_date is None:
+        return datetime_null()
+
+    return datetime.fromisoformat(string_date)
+
 
 def datetime_to_pretty_str(date):
     """

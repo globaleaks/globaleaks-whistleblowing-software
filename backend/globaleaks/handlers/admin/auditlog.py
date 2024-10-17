@@ -4,6 +4,7 @@ import os
 
 from sqlalchemy.sql.expression import distinct, func
 
+from globaleaks.utils.backup import get_list_from_audit_log_file
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import transact
@@ -18,6 +19,13 @@ def serialize_log(log):
         'object_id': log.object_id,
         'data': log.data
     }
+
+
+@transact
+def get_audit_log_since_last_backup(session, tid):
+    logs = get_list_from_audit_log_file(session)
+
+    return [serialize_log(log) for log in logs]
 
 
 @transact
@@ -130,6 +138,16 @@ class AuditLog(BaseHandler):
 
     def get(self):
         return get_audit_log(self.request.tid)
+
+
+class BackupLog(BaseHandler):
+    """
+    Handler that provide access to the audit log since last backup
+    """
+    check_roles = 'admin'
+
+    def get(self):
+        return get_audit_log_since_last_backup(self.request.tid)
 
 
 class AccessLog(BaseHandler):

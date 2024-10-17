@@ -124,6 +124,7 @@ api_spec = [
     (r'/api/admin/redirects', admin.redirect.RedirectCollection),
     (r'/api/admin/redirects/' + uuid_regexp, admin.redirect.RedirectInstance),
     (r'/api/admin/auditlog', admin.auditlog.AuditLog),
+    (r'/api/admin/auditlog/backup', admin.auditlog.BackupLog),
     (r'/api/admin/auditlog/access', admin.auditlog.AccessLog),
     (r'/api/admin/auditlog/debug', admin.auditlog.DebugLog),
     (r'/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
