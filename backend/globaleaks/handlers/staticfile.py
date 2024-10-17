@@ -40,5 +40,13 @@ class StaticFileHandler(BaseHandler):
                                    b"media-src 'self';"
                                    b"script-src 'self' 'sha256-l4srTx31TC+tE2K4jVVCnC9XfHivkiSs/v+DPWccDDM=';"
                                    b"style-src 'self' 'sha256-pru43GdcNLwb4MwzOriCI9/9cKBzE5xeoLWHlKai1As=';")
+        elif filename == 'secret.html':
+                self.request.setHeader(b'Content-Security-Policy',
+                                       b"base-uri 'none';"
+                                       b"connect-src 'self';"
+                                       b"default-src 'none';"
+                                       b"font-src 'self' data:;"
+                                       b"form-action 'self';"
+                                       b"frame-ancestors 'none';")
 
         return self.write_file(filename, abspath)

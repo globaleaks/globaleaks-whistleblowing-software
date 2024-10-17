@@ -67,11 +67,20 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     :param receipt: A provided receipt
     :return: Returns a user session in case of success
     """
-    hash_pwd = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
+    old_hash = False
+    hash = GCE.hash_password(receipt, State.tenants[tid].cache.receipt_salt)
 
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
                           InternalTip.receipt_hash == hash_pwd).one_or_none()
+
+    if itip is None and State.secret_key:
+        import binascii
+        import scrypt
+        old_hash = binascii.hexlify(scrypt.hash(receipt.encode(), State.tenants[tid].cache.receipt_salt)).decode()
+        itip = session.query(InternalTip) \
+                      .filter(InternalTip.tid == tid,
+                              InternalTip.receipt_hash == old_hash).one_or_none()
 
     if itip is None:
         db_login_failure(session, tid, 1)
@@ -82,7 +91,14 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     crypto_prv_key = ''
     if itip.crypto_pub_key:
         user_key = GCE.derive_key(receipt.encode(), State.tenants[tid].cache.receipt_salt)
-        crypto_prv_key = GCE.symmetric_decrypt(user_key, Base64Encoder.decode(itip.crypto_prv_key))
+
+        if old_hash:
+            itip.receipt_hash = hash
+            secret_key = GCE.derive_key(State.secret_key, State.tenants[tid].cache.receipt_salt)
+            crypto_prv_key = GCE.symmetric_decrypt(secret_key, Base64Encoder.decode(itip.crypto_prv_key))
+            itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(user_key, crypto_prv_key))
+        else:
+            crypto_prv_key = GCE.symmetric_decrypt(user_key, Base64Encoder.decode(itip.crypto_prv_key))
 
     itip.access_count += 1
     if operator_id is not None:

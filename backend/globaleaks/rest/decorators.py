@@ -84,7 +84,7 @@ def decorator_rate_limit(f):
 def decorator_require_session_or_token(f):
     # Decorator that ensures a token or a session is included in the request
     def wrapper(self, *args, **kwargs):
-        if not self.request.path == b"/api/auth/token" and not self.token and not self.session:
+        if not self.request.path in [b"/api/auth/token", b"/api/secret"] and not self.token and not self.session:
             raise errors.InternalServerError("Invalid request: No token and no session")
 
         return f(self, *args, **kwargs)

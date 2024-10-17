@@ -21,7 +21,7 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
-from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword
+from globaleaks.utils.crypto import generateRandomPassword
 from globaleaks.utils.log import log
 
 
@@ -34,6 +34,17 @@ def create_tenant():
 
 
 def revert_tenant(session, accreditation_id: str):
+    """
+    Toggles the activation status of a Tenant object associated with a given accreditation_id.
+
+    Args:
+        session: The database session (typically an instance of SQLAlchemy Session) used to execute the query.
+        accreditation_id (str): The accreditation ID used to filter the corresponding Subscriber.
+
+    Raises:
+        sqlalchemy.orm.exc.NoResultFound: If no Tenant is found associated with the provided accreditation_id.
+        sqlalchemy.orm.exc.MultipleResultsFound: If more than one Tenant is found associated with the provided accreditation_id.
+    """
     t = (
         session.query(Tenant)
         .join(Subscriber, Tenant.id == Subscriber.tid)

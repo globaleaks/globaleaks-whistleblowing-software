@@ -103,10 +103,10 @@ export class TipOeComponent implements OnInit {
   populateQuestionnaireData() {
     const answerId = this.tip.questionnaires[0].steps[0].children
 
-    this.answers = this.tip.questionnaires[0].answers //todo step 1
+    this.answers = this.tip.questionnaires[1].answers //todo step 1
 
     this.questionnaireData.textareaAnswer = this.tip.questionnaires[0].answers[answerId[0].id][0].value;
-    this.questionnaireData.reviewFormFields = this.tip.questionnaires[0].steps[0].children //todo prendere step 1
+    this.questionnaireData.reviewFormFields = this.tip.questionnaires[0].steps[1].children //todo prendere step 1
 
   }
 
@@ -137,12 +137,8 @@ export class TipOeComponent implements OnInit {
       }
     });
 
-
   }
 
-  submitForm(): void {
-    console.log("Submit form");
-  }
 
   openGrantTipAccessModal(): void {
     this.utils.runUserOperation("get_users_names", {}, false).subscribe({
@@ -379,4 +375,17 @@ export class TipOeComponent implements OnInit {
   }
 
   protected readonly JSON = JSON;
+
+  closeForwardedReport(){
+    this.loading = true;
+    this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.RTipService.tip.status = 'closed'
+        console.log("sumbit ok, provo a fare reload della segnalazione")
+        this.loadTipDate();
+      }
+    });
+          
+  }
 }
