@@ -58,7 +58,7 @@
             </span>
             <input type="text" class="form-control" id="upload_description" [(ngModel)]="newFileDescription"/>
             <span class="input-group-append">
-              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': newFileDescription == null || tip?.status === 'closed'}">
+              <label for="customFile" class="btn btn-primary rounded-start-0 m-0"  [ngClass]="{'disabled': newFileDescription == null || (tip && tip.status === 'closed')}">
                 <i class="fa-solid fa-upload"></i>
                 <span>{{'Upload'|translate}}</span>
               </label>

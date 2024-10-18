@@ -31,15 +31,7 @@ export class SendtipDetailComponent implements OnInit {
   loading = true;
 
 
-  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute, protected preferencesService: PreferenceResolver){}
-
-  backClicked() {
-    this._location.back();
-  }
-
-  ngOnInit(): void {
-    this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
-
+  constructor(private readonly _location: Location, private readonly tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private readonly httpService: HttpService, private readonly activatedRoute: ActivatedRoute, protected preferencesService: PreferenceResolver){
     this.tip = this.RTipService.tip;
 
     this.detail = this.RTipService.forwarding;
@@ -48,6 +40,18 @@ export class SendtipDetailComponent implements OnInit {
       this.detail.questionnaire.answers = JSON.parse(this.detail.questionnaire.answers)
 
     this.tipService.preprocessForwardingAnswers(this.detail);
+  }
+
+  backClicked() {
+    this._location.back();
+  }
+
+  ngOnInit(): void {    
+
+    // if (typeof this.detail.questionnaire.answers  === 'string' || this.detail.questionnaire.answers instanceof String)
+    //   this.detail.questionnaire.answers = JSON.parse(this.detail.questionnaire.answers)
+
+    // this.tipService.preprocessForwardingAnswers(this.detail);
 
   }
 

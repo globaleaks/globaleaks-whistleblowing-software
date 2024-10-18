@@ -20,12 +20,11 @@
                 </thead>
                 <tbody>
                 <ng-container *ngFor="let item of forwardings">
-                    <!-- TODO MOCKUP <tr role="button" (click)="utils.go('/sendtip-detail/' + item.tid)"> -->
                         <tr role="button" (click)="goToDetailPage(item)">
                         <td>{{ item.name }}</td>
                         <td>{{ item.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
-                        <td>{{ item.files?.length }}</td>
-                        <td>{{ item.comments?.length }}</td>
+                        <td>{{ item.files? item.files.length : '-' }}</td>
+                        <td>{{ item.comments? item.comments.length : '-' }}</td>
                         <td>{{ item.state | translate}}</td>
                     </tr>
                 </ng-container>

@@ -17,7 +17,7 @@ export class AccreditationRequestComponent {
     };
     isFormValid: boolean = false;
 
-    constructor(private httpService: HttpService, private location: Location) {}
+    constructor(private readonly httpService: HttpService, private readonly location: Location) {}
 
     onFormValidityChange(isValid: boolean) {
         this.isFormValid = isValid;

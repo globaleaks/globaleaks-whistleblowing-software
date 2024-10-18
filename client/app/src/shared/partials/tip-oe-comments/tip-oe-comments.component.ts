@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { AppDataService } from '@app/app-data.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
-import { WbtipService } from '@app/services/helper/wbtip.service';
 import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
 import { MaskService } from '@app/shared/services/mask.service';
 import { UtilsService } from '@app/shared/services/utils.service';
@@ -28,12 +27,14 @@ export class TipOeCommentsComponent {
   comments: Comment[] = [];
   newComments: Comment;
 
-  constructor(private maskService:MaskService,protected preferenceResolver:PreferenceResolver, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
+
+  constructor(private readonly maskService:MaskService, protected preferenceResolver:PreferenceResolver, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private readonly cdr: ChangeDetectorRef, public appDataService: AppDataService) {
 
   }
 
   ngOnInit() {
     this.comments = this.tipService.tip.comments;
+
   }
 
   public toggleCollapse() {
@@ -50,7 +51,7 @@ export class TipOeCommentsComponent {
         this.tipService.tip.comments.push(data);
         this.comments = [...this.comments, this.newComments];
 
-        this.organizations.map(org => org.comments?.push({"id": data.id, "author_type":"main"}))
+        this.organizations.forEach(org => org.comments?.push({"id": data.id, "author_type":"main"}))
 
         if(this.tipService.forwarding){
 

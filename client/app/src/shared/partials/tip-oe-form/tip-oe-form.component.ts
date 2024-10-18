@@ -1,6 +1,4 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
-import { HttpService } from "@app/shared/services/http.service";
-
 
 @Component({
   selector: "src-tip-oe-form",
@@ -9,7 +7,7 @@ import { HttpService } from "@app/shared/services/http.service";
 export class TipOeFormComponent{
 
   @Input() fields: any;
-  // @Input() submission: SubmissionService;
+  
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
 
   @Output() sumbitFormEvent: EventEmitter<any> = new EventEmitter<any>();

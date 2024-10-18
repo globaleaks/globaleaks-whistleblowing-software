@@ -60,7 +60,7 @@ export class TipOeComponent implements OnInit {
 
   answers: any
 
-  constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
+  constructor(private readonly translateService: TranslateService,private readonly tipService: TipService, private readonly appConfigServices: AppConfigService, private readonly router: Router, private readonly cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private readonly activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
 
   ngOnInit() {

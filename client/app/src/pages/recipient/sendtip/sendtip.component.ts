@@ -31,9 +31,9 @@ export class SendtipComponent implements OnInit {
 
   data: any;
 
-  constructor(private _location: Location, private httpService: HttpService,
-    private rtipService: ReceiverTipService, protected utilsService: UtilsService,
-    private authenticationService: AuthenticationService, protected appDataService: AppDataService,
+  constructor(private readonly _location: Location, private readonly httpService: HttpService,
+    private readonly rtipService: ReceiverTipService, protected utilsService: UtilsService,
+    private readonly authenticationService: AuthenticationService, protected appDataService: AppDataService,
     protected preferenceResolver: PreferenceResolver){
       this.sendTipRequest.tip_id = this.rtipService.tip.id;
       this.tip = this.rtipService.tip;
