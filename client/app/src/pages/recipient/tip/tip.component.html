@@ -123,7 +123,7 @@
         </div>
     </div>
 
-    <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
+    <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active" (navChange)="navChanged()">
         <ng-container *ngFor="let tab of tabs">
             <li [ngbNavItem]="tab.title">
                 <button ngbNavLink>{{ tab.title | translate }}</button>

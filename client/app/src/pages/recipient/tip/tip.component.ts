@@ -407,4 +407,8 @@ export class TipComponent implements OnInit {
     this.router.navigateByUrl("sendtip-detail").then();
   }
 
+  navChanged(){
+    this.selectedOe = [];
+  }
+
 }
