@@ -29,7 +29,7 @@
                     <td>
                         <button class="btn btn-sm btn-primary tip-action-download-file" 
                             data-toggle="tooltip" title="{{ 'Download' | translate }}"
-                            [disabled]="file.status === 'INFECTED' && !canDownloadInfected">
+                            [disabled]="(file.status === 'INFECTED' || file.status === 'PENDING') && !canDownloadInfected">
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </td>

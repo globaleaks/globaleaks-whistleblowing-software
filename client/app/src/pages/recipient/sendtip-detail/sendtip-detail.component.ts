@@ -3,12 +3,15 @@ import {Location} from '@angular/common';
 import { FileItem } from "@app/models/reciever/sendtip-data";
 import { ActivatedRoute } from '@angular/router';
 import { TipService } from '@app/shared/services/tip-service';
-import { Forwarding, Questionnaire, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
+import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-data';
 import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
-import { TranslateService } from '@ngx-translate/core';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { Observable } from 'rxjs';
+import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
+
+
+
 @Component({
   selector: "src-sendtip-detail",
   templateUrl: "./sendtip-detail.component.html",
@@ -28,7 +31,7 @@ export class SendtipDetailComponent implements OnInit {
   loading = true;
 
 
-  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute){}
+  constructor(private _location: Location, private tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private httpService: HttpService, private activatedRoute: ActivatedRoute, protected preferencesService: PreferenceResolver){}
 
   backClicked() {
     this._location.back();

@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" [isSelectable]="false" [forwardingDetailFiles]="detail.files"></sendtip-files>
+    <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" [canDownloadInfected]="preferencesService.dataModel.can_download_infected" [isSelectable]="false" [forwardingDetailFiles]="detail.files"></sendtip-files>
 
     <src-tip-upload-wbfile [tip]="tip" [key]="'oe'" (dataToParent)="listenToFields()" [organizations]="[detail]" [onlyNew]="true" ></src-tip-upload-wbfile>
 
