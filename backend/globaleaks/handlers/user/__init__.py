@@ -50,6 +50,7 @@ def user_serialize_user(session, user, language):
     tenant = session.query(models.Tenant).filter(models.Tenant.id == user.tid).one_or_none()
 
     t_external = None if not tenant else tenant.external
+    t_affiliated = None if not tenant else tenant.affiliated
 
     # take only contexts for the current tenant
     contexts = [x[0] for x in session.query(models.ReceiverContext.context_id)
@@ -77,6 +78,7 @@ def user_serialize_user(session, user, language):
         'picture': picture,
         'tid': user.tid,
         't_external': t_external,
+        't_affiliated': t_affiliated,
         'notification': user.notification,
         'encryption': user.crypto_pub_key != '',
         'escrow': user.crypto_escrow_prv_key != '',
@@ -94,7 +96,6 @@ def user_serialize_user(session, user, language):
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
         'contexts': contexts
-
     }
 
     if State.tenants[user.tid].cache.two_factor and \

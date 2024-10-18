@@ -3,10 +3,11 @@
 # Handlers dealing with analyst user functionalities
 import base64
 import json
+import logging
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 
-from sqlalchemy.sql.expression import func, and_
+from sqlalchemy.sql.expression import func, and_, distinct
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -72,54 +73,109 @@ def get_stats_fields(session, tid):
         models.Field.statistical == True,
         models.Field.tid == tid
     ).all()
-    return [{'id': x.id, 'label': x.label.get(tid_lang)} for x in fields]
+    fields_dict = [{'id': x.id, 'label': x.label.get(tid_lang)} for x in fields]
+
+    aux = ['internal_tip_id', 'internal_tip_creation_date', 'receiving_tip_access_date', 'internal_tip_last_access',
+           'internal_tip_update_date', 'internal_tip_expiration_date', 'internal_tip_reminder_date', 'tip_updated',
+           'internal_tip_context_id', 'internal_tip_tor', 'internal_tip_status', 'internal_tip_sub_status',
+           'internal_tip_file_count', 'internal_tip_comment_count', 'internal_tip_receiver_count']
+    for i in aux:
+        fields_dict.append(
+            {
+                'id': i,
+                'label': i
+            }
+        )
+    return fields_dict
+
+def get_base_stats(session, internal_tip_id):
+    internal_tip = session.query(models.InternalTip).filter(
+        models.InternalTip.id == internal_tip_id
+    ).one_or_none()
+    count_comment = session.query(
+        func.count(distinct(models.Comment.id))).filter(
+        models.Comment.internaltip_id == internal_tip_id,
+        models.Comment.visibility == models.EnumVisibility.public.value
+    ).scalar()
+    count_files = session.query(func.count(distinct(models.InternalFile.id))).filter(
+        models.InternalFile.internaltip_id == internal_tip_id
+    ).scalar()
+    count_receivers = session.query(func.count(distinct(models.ReceiverTip.id))).filter(
+        models.ReceiverTip.internaltip_id == internal_tip_id
+    ).scalar()
+    return {
+        'internal_tip_id': internal_tip.id,
+        'internal_tip_status': internal_tip.status,
+        'internal_tip_creation_date': internal_tip.creation_date,
+        'internal_tip_update_date': internal_tip.update_date,
+        'internal_tip_expiration_date': internal_tip.expiration_date,
+        'internal_tip_tor': internal_tip.tor,
+        'internal_tip_file_count': count_files,
+        'internal_tip_comment_count': count_comment,
+        'internal_tip_receiver_count': count_receivers
+    }
+
+def transform_base_tip_into_statistical(base_tip: dict) -> list:
+    base_list = []
+    for k, v in base_tip.items():
+        base_list.append(
+            {
+                'id': k,
+                'label': k,
+                'value': v
+            }
+        )
+    return base_list
+
+
+def parse_dates(request):
+    date_to = datetime.strptime(request.get('date_to', datetime.now()), "%Y-%m-%d") + timedelta(days=1)
+    date_from = datetime.strptime(request.get('date_from', date_to - timedelta(weeks=1)), "%Y-%m-%d")
+    return date_to, date_from
+
+def get_model_and_field(is_oe):
+    if is_oe:
+        return models.InternalTipForwarding, 'stat_data'
+    return models.InternalTipAnswers, 'stat_answers'
 
 @transact
 def get_all_element(session, param_session, request):
-    date_to = datetime.strptime(request.get('date_to', datetime.now()), "%Y-%m-%d") + timedelta(days=1)
-    date_from = datetime.strptime(request.get('date_from', date_to - timedelta(weeks=1)), "%Y-%m-%d")
-    pg_num = max(request.get('pg_num', 0), 0)
-    pg_size = max(request.get('pg_size', 10), 1)
-    offset = max((pg_num - 1) * pg_size, 0)
+    date_to, date_from = parse_dates(request)
     is_oe = request.get('is_oe', False)
-    model = models.InternalTipForwarding if is_oe else models.InternalTipAnswers
-    stat_field = 'stat_data' if is_oe else 'stat_answers'
+    model, stat_field = get_model_and_field(is_oe)
 
-    total_count = session.query(model).filter(
+    answers = session.query(getattr(model, stat_field), model.internaltip_id).filter(
         model.creation_date > date_from,
-        model.creation_date <= date_to,
-        getattr(model, stat_field) != '{}'
-    ).count()
-
-    answers = session.query( getattr(model, stat_field), model.internaltip_id).filter(
-        model.creation_date > date_from,
-        model.creation_date <= date_to,
-        getattr(model, stat_field) != '{}'
-    ).limit(pg_size).offset(offset).all()
-
-    total_pages = (total_count + pg_size - 1) // pg_size
+        model.creation_date <= date_to
+    ).all()
 
     results = []
 
     user = db_get(session, models.User, models.User.id == param_session['user_id'])
     sts_prv_key = base64.b64decode(user.crypto_global_stat_prv_key)
     sts_key = GCE.asymmetric_decrypt(param_session['key_user_prv'], sts_prv_key)
+
     for answer in answers:
-        row = []
-        for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():
-            label = session.query(models.Field.label).filter(
-                models.Field.id == k,
-                models.Field.tid == param_session['tid']
-            ).one_or_none()
-            if label:
-                row.append(
-                    {
-                        'id': k,
-                        'label':label[0][param_session['default_language']],
-                        'value': v
-                    }
-                )
-        results.append(row)
+        base_dict = get_base_stats(session, answer[1])
+        row = transform_base_tip_into_statistical(base_dict)
+        try:
+            for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():
+                label = session.query(models.Field.label).filter(
+                    models.Field.id == k,
+                    models.Field.tid == param_session['tid']
+                ).one_or_none()
+                if label:
+                    row.append(
+                        {
+                            'id': k,
+                            'label':label[0][param_session['default_language']],
+                            'value': v
+                        }
+                    )
+        except Exception as e:
+            logging.debug(e)
+        finally:
+            results.append(row)
 
     summary = defaultdict(Counter)
 
@@ -127,18 +183,13 @@ def get_all_element(session, param_session, request):
         for entry in group:
             entry_id = entry["id"]
             entry_value = entry["value"]
-            summary[entry_id][entry_value] += 1
+            if type(entry_value) in [str, int, float, bool]:
+                summary[entry_id][entry_value] += 1
     summary = {k: dict(v) for k, v in summary.items()}
 
     return {
         "results": results,
-        "summary": summary,
-        "pagination":{
-            "total_count": total_count,
-            "total_pages": total_pages,
-            "current_page": pg_num,
-            "page_size": pg_size
-        }
+        "summary": summary
     }
 
 

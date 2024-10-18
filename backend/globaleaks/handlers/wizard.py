@@ -1,6 +1,8 @@
 # -*- coding: utf-8
 #
 # Handlers implementing platform wizard
+import json
+
 from globaleaks import models
 from globaleaks.handlers.admin.context import db_create_context
 from globaleaks.handlers.admin.node import db_update_enabled_languages
@@ -23,7 +25,8 @@ def generate_analyst_key_pair(session, admin_user, tid) -> bool:
     global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
     global_stat_pub_key_config = session.query(models.Config) \
         .filter(models.Config.tid == tid, models.Config.var_name == 'global_stat_pub_key').one()
-    global_stat_pub_key_config.value = global_stat_pub_key
+    if global_stat_pub_key_config.value == '':
+        global_stat_pub_key_config.value = global_stat_pub_key
 
     if admin_user:
         crypto_stat_key = Base64Encoder.encode(
@@ -102,7 +105,7 @@ def db_wizard(session, tid, hostname, request):
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
             admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
 
-    is_tenant_anac = generate_analyst_key_pair(session, admin_user, tid)
+        is_tenant_anac = generate_analyst_key_pair(session, admin_user, tid)
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)

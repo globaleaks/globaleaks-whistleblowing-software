@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+import base64
 import logging
 
 from twisted.internet.defer import inlineCallbacks
@@ -39,19 +40,33 @@ def db_set_user_password(session, tid, user, password):
             if crypto_escrow_pub_key_tenant_n:
                 user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
 
-def generate_analyst_key_pair(session, user):
+def generate_analyst_key_pair(session, user, user_session):
     if user.role not in [EnumUserRole.analyst.name, EnumUserRole.admin.name]:
         return
     try:
         global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
+
         global_stat_pub_key_config = session.query(models.Config).filter(
-            models.Config.tid == 1,
+            models.Config.tid == user.tid,
             models.Config.var_name == 'global_stat_pub_key'
         ).first()
+
         if not global_stat_pub_key_config:
             raise ValueError("Config not found")
 
-        global_stat_pub_key_config.value = global_stat_pub_key
+        if not global_stat_pub_key_config.value:
+            global_stat_pub_key_config.value = global_stat_pub_key
+        else:
+            user_admin = session.query(models.User).filter(
+                models.User.id == user_session.attrs.get('user_id'),
+                models.User.tid == user.tid
+            ).one_or_none()
+
+            if not user_admin:
+                raise ValueError("Admin user for decryption not found")
+
+            sts_prv_key = base64.b64decode(user_admin.crypto_global_stat_prv_key)
+            global_stat_prv_key = GCE.asymmetric_decrypt(user_session.cc, sts_prv_key)
         encrypted_global_stat_prv_key = GCE.asymmetric_encrypt(
             user.crypto_pub_key, global_stat_prv_key
         )
@@ -61,6 +76,9 @@ def generate_analyst_key_pair(session, user):
         ).update(
             {'crypto_global_stat_prv_key': crypto_stat_key_encoded}
         )
+    except ValueError as e:
+        logging.error(e)
+        raise errors.ForbiddenOperation
     except Exception as e:
         logging.error(e)
         session.rollback()
@@ -107,8 +125,8 @@ def db_create_user(session, tid, user_session, request, language, wizard: bool =
 
     session.add(user)
     session.flush()
-    if not wizard:
-        generate_analyst_key_pair(session, user)
+    if not wizard and tid == 1:
+        generate_analyst_key_pair(session, user, user_session)
 
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
@@ -140,6 +158,7 @@ def create_user(session, tid, user_session, request, language):
 
     :param session: An ORM session
     :param tid: A tenant ID
+    :param user_session: A user session
     :param request: The request data
     :param language: The language of the request
     :return: The serialized descriptor of the created object
@@ -176,8 +195,8 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
 
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
-    if user.role != request['role']:
-        generate_analyst_key_pair(session, user)
+    if user.role != request['role'] and tid == 1:
+        generate_analyst_key_pair(session, user, user_session)
     user.update(request)
 
     return user_serialize_user(session, user, language)
