@@ -5,8 +5,7 @@ import {
   RFile,
   WbFile,
   WhistleblowerIdentity,
-  Comment,
-  ForwardedFile
+  Comment
 } from "@app/models/app/shared-public-model";
 import {IarData} from "@app/models/reciever/Iar-data";
 import {RedactionData} from "@app/models/component-model/redaction";
