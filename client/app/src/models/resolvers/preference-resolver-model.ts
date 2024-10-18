@@ -23,7 +23,7 @@ export class preferenceResolverModel {
   picture: boolean;
   tid: number;
   t_external: boolean = false;
-  t_affiliated: boolean = false;
+  t_affiliated: boolean = true;
   notification: boolean;
   encryption: boolean;
   escrow: boolean;

@@ -86,12 +86,10 @@ export class SendtipComponent implements OnInit {
   }
 
 
-  // Form validation and send
   isFormValid(): boolean {
     return (
       this.sendTipRequest.tids.length > 0 &&
       this.sendTipRequest.questionnaire_id != null &&
-      // this.sendTipRequest.files.length > 0 && // TODO: check if files are required
       this.sendTipRequest.text?.trim().length > 0
     );
   }

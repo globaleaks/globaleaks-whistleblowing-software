@@ -13,7 +13,8 @@
                 <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
             </div>
             <div class="col-md-12 clearfix">
-                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
+                <!-- TODO: prendere valore massimo dei commenti da configurazione -->
+                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent || (preferenceResolver.dataModel.t_external && (key === 'oe' || key === 'whistleblower') && (comments | orderBy:'creation_date': true | filter : 'visibility' : key).length >= 1)">
                     <i class="fa-solid fa-comment"></i>
                     <span>{{'Send'|translate}}</span>
                 </button>
