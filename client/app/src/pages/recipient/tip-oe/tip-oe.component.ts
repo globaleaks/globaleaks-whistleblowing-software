@@ -19,7 +19,6 @@ import {HttpClient} from "@angular/common/http";
 import {
   TipOperationPostponeComponent
 } from "@app/shared/modals/tip-operation-postpone/tip-operation-postpone.component";
-import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
@@ -61,7 +60,7 @@ export class TipOeComponent implements OnInit {
 
   answers: any
 
-  constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
+  constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
 
   ngOnInit() {
@@ -130,11 +129,11 @@ export class TipOeComponent implements OnInit {
         
         this.tabs = [...this.tabs, ...[{
           title: "Internal",
-          component: this.tab1
+          component: this.tab3
         },
         {
           title: "Only me",
-          component: this.tab2
+          component: this.tab4
         }]];
       }
     });

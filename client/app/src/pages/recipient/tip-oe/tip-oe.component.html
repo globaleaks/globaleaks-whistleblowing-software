@@ -115,7 +115,9 @@
         </ng-template>
         <ng-template #tab3>
             <div class="col-md-12">
-                <src-tip-oe-rfiles-receiver [key]="'internal'"></src-tip-oe-rfiles-receiver>
+
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                    [key]="'internal'"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService"  [key]="'internal'"></src-tip-comments>
@@ -125,7 +127,8 @@
         <ng-template #tab4>
             <div class="col-md-12">
                 
-                <src-tip-oe-rfiles-receiver [key]="'personal'"></src-tip-oe-rfiles-receiver>
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                [key]="'personal'"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [key]="'personal'"></src-tip-comments>
