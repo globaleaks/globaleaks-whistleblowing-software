@@ -75,10 +75,10 @@ def get_stats_fields(session, tid):
     ).all()
     fields_dict = [{'id': x.id, 'label': x.label.get(tid_lang)} for x in fields]
 
-    aux = ['internal_tip_id', 'internal_tip_creation_date', 'receiving_tip_access_date', 'internal_tip_last_access',
-           'internal_tip_update_date', 'internal_tip_expiration_date', 'internal_tip_reminder_date', 'tip_updated',
-           'internal_tip_context_id', 'internal_tip_tor', 'internal_tip_status', 'internal_tip_sub_status',
-           'internal_tip_file_count', 'internal_tip_comment_count', 'internal_tip_receiver_count']
+    aux = ['internal_tip_id', 'internal_tip_creation_date','internal_tip_update_date', 'internal_tip_expiration_date',
+            'internal_tip_tor', 'internal_tip_status', 'internal_tip_file_count', 'internal_tip_comment_count',
+           'internal_tip_receiver_count'
+           ]
     for i in aux:
         fields_dict.append(
             {
