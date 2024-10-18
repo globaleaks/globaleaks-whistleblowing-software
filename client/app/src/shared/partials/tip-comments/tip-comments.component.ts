@@ -25,7 +25,7 @@ export class TipCommentsComponent implements OnInit {
   comments: Comment[] = [];
   newComments: Comment;
 
-  constructor(private maskService:MaskService,protected preferenceResolver:PreferenceResolver, private rTipService: ReceiverTipService, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
+  constructor(private maskService:MaskService, protected preferenceResolver:PreferenceResolver, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
 
   }
 

@@ -34,7 +34,7 @@ export class TipUploadWbFileComponent{
 
   }
 
-  // Metodo per filtrare e ordinare i file
+
   getFilteredAndSortedFiles(files: RFile[]): RFile[] {
 
     if(this.key === 'oe')

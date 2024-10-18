@@ -23,14 +23,13 @@ import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {RecieverTipData, Children3} from "@app/models/reciever/reciever-tip-data";
 import {Receiver} from "@app/models/app/public-model";
 import {TipUploadWbFileComponent} from "@app/shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
-import { Children3 } from "@app/models/reciever/reciever-tip-data";
 
 @Component({
   selector: "src-tip-oe",
@@ -127,7 +126,7 @@ export class TipOeComponent implements OnInit {
         }
       ];
 
-      if(!this.preferencesService.dataModel.t_external) {
+      if(this.preferencesService.dataModel.t_affiliated) {
         
         this.tabs = [...this.tabs, ...[{
           title: "Internal",
