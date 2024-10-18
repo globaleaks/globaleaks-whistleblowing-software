@@ -8,7 +8,7 @@
                 <src-tip-field-question-entry [editField]="submissionForm" [field]="field" [fieldAnswers]="fieldAnswers" [fileUploadUrl]="fileUploadUrl"></src-tip-field-question-entry>
             </div>     
             
-            <button id="SubmitButton" class="btn btn-primary" [disabled]="submissionForm.invalid" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
+            <button id="SubmitButton" class="btn btn-primary" [disabled]="tipStatus !== 'opened'" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
         </form>                    
     </div>
 </div>
