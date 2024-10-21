@@ -124,7 +124,7 @@ ConfigDescriptor = {
     'global_stat_pub_key': Unicode(default=''),
     'backup_enable': Bool(default=False),
     'backup_time_ISO_8601': Unicode(default='2:00'),
-    'backup_destination_path': Unicode(default='/var/globaleaks/backup/')
+    'backup_destination_path': Unicode(default='/var/backup/')
 
 }
 

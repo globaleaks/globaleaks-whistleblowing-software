@@ -216,7 +216,7 @@ class MigrationScript(MigrationBase):
 
         backup_destination_path_config = self.model_to['Config']()
         backup_destination_path_config.var_name = 'backup_destination_path'
-        backup_destination_path_config.value = '/var/globaleaks/backup/'
+        backup_destination_path_config.value = '/var/backup/'
         backup_destination_path_config.tid = 1
         self.session_new.add(backup_destination_path_config)
         self.entries_count['Config'] += 1
