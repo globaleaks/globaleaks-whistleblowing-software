@@ -20,6 +20,8 @@ export class TipOeCommentsComponent {
 
   @Input() organizations: Forwarding[];
 
+  @Input() tids: number[];
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;
@@ -34,7 +36,6 @@ export class TipOeCommentsComponent {
 
   ngOnInit() {
     this.comments = this.tipService.tip.comments;
-
   }
 
   public toggleCollapse() {
@@ -42,14 +43,18 @@ export class TipOeCommentsComponent {
   }
 
   newComment() {
-    const response = this.tipService.newComment(this.newCommentContent, this.key, this.organizations.map(_ => _.tid));
+
+    let tidsToForw = this.tids ? this.tids : this.organizations? this.organizations.map(_ => _.tid) : []
+
+    const response = this.tipService.newComment(this.newCommentContent, this.key, tidsToForw);
     this.newCommentContent = "";
 
     response.subscribe(
       (data) => {
-        this.comments = this.tipService.tip.comments;
+        // this.comments = this.tipService.tip.comments;
         this.tipService.tip.comments.push(data);
-        this.comments = [...this.comments, this.newComments];
+        this.comments = this.tipService.tip.comments;
+        // this.comments = [...this.comments, this.newComments];
 
         this.organizations.forEach(org => org.comments?.push({"id": data.id, "author_type":"main"}))
 
@@ -67,7 +72,9 @@ export class TipOeCommentsComponent {
   }
 
   getSortedComments(data: Comment[]): Comment[] {
-    data = data.filter(comment => this.organizations.map(_=>_.comments).flat().some(i => i?.id === comment.id))
+    if(this.organizations)
+      data = data.filter(comment => this.organizations.map(_=>_.comments).flat().some(i => i?.id === comment.id))
+
     return data;
   }
 
