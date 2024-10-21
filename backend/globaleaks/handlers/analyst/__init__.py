@@ -76,8 +76,7 @@ def get_stats_fields(session, tid):
     fields_dict = [{'id': x.id, 'label': x.label.get(tid_lang)} for x in fields]
 
     aux = ['internal_tip_id', 'internal_tip_creation_date','internal_tip_update_date', 'internal_tip_expiration_date',
-            'internal_tip_tor', 'internal_tip_status', 'internal_tip_file_count', 'internal_tip_comment_count',
-           'internal_tip_receiver_count'
+           'internal_tip_receiver_count', 'last_access'
            ]
     for i in aux:
         fields_dict.append(
@@ -109,7 +108,7 @@ def get_base_stats(session, internal_tip_id):
         'internal_tip_creation_date': internal_tip.creation_date,
         'internal_tip_update_date': internal_tip.update_date,
         'internal_tip_expiration_date': internal_tip.expiration_date,
-        'internal_tip_tor': internal_tip.tor,
+        'last_access': internal_tip.last_access,
         'internal_tip_file_count': count_files,
         'internal_tip_comment_count': count_comment,
         'internal_tip_receiver_count': count_receivers
