@@ -194,7 +194,7 @@ class CloseForwardedSubmission(BaseHandler):
         itip_answers.answers = crypto_answers
 
         itip.update_date = now
-        itip.state = 'closed'
+        itip.status = 'closed'
 
         # TODO inserire i campi di interesse statistico in apposita colonna
         internaltip_forwarding.state = models.EnumForwardingState.closed.value
