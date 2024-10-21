@@ -2,6 +2,10 @@
     <i class="fa fa-home me-2"></i>
     <span>{{'Home' | translate}}</span>
 </a>
+<a routerLink="/analyst/reports" routerLinkActive="active" id="analyst_reports" [attr.aria-current]="isActive('/analyst/reports') ? 'page' : 'false'">
+    <i class="fa fa-chart-bar me-2"></i>
+    <span>{{'Reports' | translate}}</span>
+</a>
 <a routerLink="/analyst/statistics" routerLinkActive="active" id="analyst_statistics" [attr.aria-current]="isActive('/analyst/statistics') ? 'page' : 'false'">
     <i class="fa fa-pie-chart me-2"></i> 
     <span>{{'Statistics' | translate}}</span>

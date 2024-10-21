@@ -1,0 +1,162 @@
+<div class="row">
+    <form #reports="ngForm" class="col-md-6" (ngSubmit)="searchReports(reports)">
+        <div class="form-group">
+            <label>{{ 'Report' | translate }}</label>
+            <select name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
+                <option value="" disabled>{{ 'Scegli report' | translate }}</option>
+                <option value="tips">{{ 'Tips' | translate }}</option>
+                <option value="tipsOE">{{ 'Tips OE' | translate }}</option>
+            </select>
+            <div *ngIf="reportSelect.invalid && reportSelect.touched" class="text-danger">
+                {{ 'Questo campo è obbligatorio' | translate }}
+            </div>
+        </div>
+
+        <div class="form-inline d-inline-flex align-items-center">
+            <span class="form-group">
+                <label>{{ 'From' | translate }}</label>
+                <div class="input-group mx-1">
+                    <input id="reportsFrom" class="form-control inputelem" type="text" [readonly]="true"
+                        [(ngModel)]="input_start_date" name="startDate" ngbDatepicker #datepickerstart="ngbDatepicker"
+                        (click)="datepickerstart.toggle()" [maxDate]="maxDate" (ngModelChange)="onDateChange()" required />                    
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
+                        <i class="fa-solid fa-calendar"></i>
+                    </span>
+                </div>
+            </span>
+
+            <span class="form-group mx-1">
+                <label>{{ 'To' | translate }}</label>
+                <div class="input-group mx-1">
+                    <input id="reportsTo" class="form-control inputelem" type="text" [readonly]="true"
+                        [(ngModel)]="input_end_date" name="endDate" ngbDatepicker #datepickerend="ngbDatepicker"
+                        (click)="datepickerend.toggle()" [maxDate]="maxDate" (ngModelChange)="onDateChange()" required />
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerend.toggle()">
+                        <i class="fa-solid fa-calendar"></i>
+                    </span>
+                </div>
+            </span>
+
+            <span class="ms-1 mt-2 d-inline-flex align-items-center">
+                <button type="button" class="btn btn-outline-secondary" (click)="clearDateRange()">
+                    <i class="fa-solid fa-times-circle"></i>
+                </button>
+            </span>
+        </div>
+
+        <div class="form-group mt-3">
+            <button id="add-btn" class="btn btn-primary" type="submit" [disabled]="!reports.valid">
+                <span>{{ 'Cerca' | translate }}</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12" *ngIf="isSearchInitiated">
+        <div class="col-12 mb-3">
+            <button class="btn btn-primary" (click)="addChart()">Aggiungi Grafico</button>
+        </div>
+
+        <div class="row justify-content-start">
+            <div class="col-md-3 mb-4 d-inline-flex align-items-stretch" *ngFor="let chart of charts; let i = index">
+                <div class="card w-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Grafico {{ i + 1 }}</span>
+                        <button type="button" class="btn-close" aria-label="Close" (click)="removeChart(i)"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="chartType">Tipo di Grafico:</label>
+                            <select id="chartType" class="form-control" [(ngModel)]="chart.type" (change)="updateCharts()">
+                                <option value="bar">Barre</option>
+                                <option value="pie">Torta</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chartColumn">Colonna da Visualizzare:</label>
+                            <select id="chartColumn" class="form-control" [(ngModel)]="chart.columnId" (change)="updateCharts()">
+                                <option *ngFor="let key of summaryKeys" [value]="key.id">{{ key.label }}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <canvas baseChart [datasets]="chart.datasets" [data]="chart.data"
+                                [type]="chart.type"[options]="chart.options"style="width: 100%; height: 300px;">
+                            </canvas>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+
+        <table class="table table-bordered table-striped table-hover" *ngIf="tableHeaders.length > 0">
+            <thead>
+                <tr>
+                    <th *ngFor="let header of tableHeaders">
+                        <ng-container [ngSwitch]="header">
+                            <span *ngSwitchCase="'internal_tip_id'">
+                                <i class="fa-solid fa-hashtag"></i>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_status'">
+                                <i class="fa-solid fa-dot-circle"></i>
+                                <span>{{'Status' | translate}}</span>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_creation_date'">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>{{'Report date' | translate}}</span>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_update_date'">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>{{'Last update' | translate}}</span>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_expiration_date'">
+                                <i class="fa-solid fa-hourglass"></i>
+                                <span>{{'Expiration date' | translate}}</span>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_read_receip'">
+                                <i class="fa-solid fa-envelope-circle-check"></i>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_comment_count'">
+                                <i class="fa-solid fa-comment"></i>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_file_count'">
+                                <i class="fa-solid fa-file"></i>
+                            </span>
+                            <span *ngSwitchCase="'internal_tip_receiver_count'">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+                            <span *ngSwitchDefault>{{ header }}</span>
+                        </ng-container>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of tableRows">
+                    <td *ngFor="let cell of row">{{ cell }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="tableHeaders.length === 0" class="alert alert-info mt-3">
+            Nessun risultato trovato.
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3" *ngIf="isSearchInitiated && allResults.length > pageSize">
+    <div class="col-12 d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" [class.disabled]="currentPage === 0">
+                    <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+                    [class.active]="i === currentPage">
+                    <a class="page-link" (click)="changePage(i)">{{ i + 1 }}</a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                    <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -6,6 +6,7 @@ import {PreferencesComponent} from "@app/shared/partials/preferences/preferences
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
+import { ReportsComponent } from "@app/pages/analyst/reports/reports.component";
 const routes: Routes = [
   {
     path: "",
@@ -39,6 +40,12 @@ const routes: Routes = [
       PreferenceResolver, RTipsResolver
     },
     data: {pageTitle: "Preferences"},
+  },
+  {
+    path: "reports",
+    component: ReportsComponent,
+    pathMatch: "full",
+    data: {pageTitle: "Reports"},
   }
 ];
 
