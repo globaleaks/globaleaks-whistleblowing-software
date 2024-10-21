@@ -13,11 +13,11 @@
                 <span>{{index + 1}}</span>
             </div>
             <div *ngFor="let step of questionnaire.steps | orderBy:'order'; let questionare_steps = index">
-                <dt id="step={{questionare_steps}}" *ngIf="questionnaire.steps.length > 1 && tipService.tip.context.show_steps_navigation_interface && step.enabled">
+                <dt id="step={{questionare_steps}}" *ngIf="!isForwarding && questionnaire.steps.length > 1 && tipService.tip.context.show_steps_navigation_interface && step.enabled">
                     <span>{{'Step'|translate}}</span>
                     <span>{{questionare_steps + 1}}: {{step.label}}</span>
                 </dt>
-                <div *ngIf="step.enabled">
+                <div *ngIf="isForwarding ? questionare_steps > 0 && step.enabled : step.enabled">
                     <div *ngFor="let field of step.children | orderBy:['y', 'x']; let index_step = index">
                         <ng-container>
                             <src-tip-field [fieldAnswers]="questionnaire.answers" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [fields]="field" [index]="index_step"></src-tip-field>

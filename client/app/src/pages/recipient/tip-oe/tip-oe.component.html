@@ -77,7 +77,11 @@
             </div>
         </div>
         <div class="col-md-6">
-            <src-tip-oe-form (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [fileUploadUrl]="'api/recipient/rtips/'+tip.id+'/rfiles'" [displayErrors]="true"></src-tip-oe-form>
+            
+                <src-tip-questionnaire-answers *ngIf="tip.status==='closed'" [tipService]="RTipService" [isForwarding]="true"></src-tip-questionnaire-answers>
+
+                <src-tip-oe-form *ngIf="tip.status!=='closed'" (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [fileUploadUrl]="'api/recipient/rtips/'+tip.id+'/rfiles'" [displayErrors]="true"></src-tip-oe-form>
+
         </div>
     </div>
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">

@@ -13,6 +13,8 @@ export class TipQuestionnaireAnswersComponent {
   @Input() redactMode: boolean;
   @Input() label: string = 'Questionnaire answers';
 
+  @Input() isForwarding: boolean = false;
+
   collapsed = false;
 
   constructor(protected utilsService: UtilsService) {
