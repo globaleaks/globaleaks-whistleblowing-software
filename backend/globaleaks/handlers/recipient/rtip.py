@@ -1151,7 +1151,6 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0, tids_t
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
-    # TODO prendere il valore dalla config globale
     max_oe_to_whistleblower_comments = 1
 
     rtip.last_access = datetime_now()
@@ -1543,6 +1542,7 @@ class ReceiverFileUpload(BaseHandler):
                 destination_id = self.fs_copy_file(source_id, source_prv_key)
                 success = True
             except Exception as e:
+                logging.debug(e)
                 wait = retries * interval
                 time.sleep(wait)
                 retries += 1
