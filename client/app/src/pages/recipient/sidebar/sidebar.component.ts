@@ -1,16 +1,21 @@
-import {Component} from "@angular/core";
-import {Router} from "@angular/router";
+import { Component, inject } from "@angular/core";
+import { Router, RouterLink, RouterLinkActive } from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
+import { NgClass } from "@angular/common";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-receipt-sidebar",
-  templateUrl: "./sidebar.component.html"
+    selector: "src-receipt-sidebar",
+    templateUrl: "./sidebar.component.html",
+    standalone: true,
+    imports: [RouterLink, RouterLinkActive, NgClass, TranslateModule, TranslatorPipe]
 })
-export class SidebarComponent {
-  message: string;
+export class ReceiptSidebarComponent {
+  private router = inject(Router);
+  protected preferenceResolver = inject(PreferenceResolver);
 
-  constructor(private router: Router, protected preferenceResolver: PreferenceResolver) {
-  }
+  message: string;
 
   isActive(route: string): boolean {
     return this.router.isActive(route, {

@@ -1,4 +1,4 @@
-import {ElementRef, Injectable} from '@angular/core';
+import { ElementRef, Injectable, inject } from '@angular/core';
 import {RecieverTipData} from '@app/models/reciever/reciever-tip-data';
 import {WbTipData} from '@app/models/whistleblower/wb-tip-data';
 import {RedactInformationComponent} from '@app/shared/modals/redact-information/redact-information.component';
@@ -8,8 +8,8 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
   providedIn: 'root', 
 })
 export class MaskService {
+  private modalService = inject(NgbModal);
 
-  constructor(private modalService: NgbModal){}
 
   getSelectedRanges(select: boolean, selected_ranges: any[],redactTextArea:ElementRef) {
     

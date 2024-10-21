@@ -1,19 +1,21 @@
 <div class="reveal">
-    <ul ngbNav class="nav-tabs">
-        <li ngbNavItem>
-            <a ngbNavLink (click)="activeTab = 'tab1'">{{ 'Preferences' | translate }}</a>
-        </li>
-        <li ngbNavItem>
-            <a ngbNavLink class="password" (click)="activeTab = 'tab2'">{{ 'Password' | translate }}</a>
-        </li>
-    </ul>
-    <br>
-    <div [ngSwitch]="activeTab">
-        <ng-template ngSwitchCase="tab1">
-            <src-preference-tab1></src-preference-tab1>
-        </ng-template>
-        <ng-template ngSwitchCase="tab2">
-            <src-preference-tab2></src-preference-tab2>
-        </ng-template>
+  <ul ngbNav class="nav-tabs">
+    <li ngbNavItem>
+      <a ngbNavLink (click)="activeTab = 'tab1'">{{ 'Preferences' | translate }}</a>
+    </li>
+    <li ngbNavItem>
+      <a ngbNavLink class="password" (click)="activeTab = 'tab2'">{{ 'Password' | translate }}</a>
+    </li>
+  </ul>
+  <br>
+    <div>
+      @switch (activeTab) {
+        @case ('tab1') {
+          <src-preference-tab1></src-preference-tab1>
+        }
+        @case ('tab2') {
+          <src-preference-tab2></src-preference-tab2>
+        }
+      }
     </div>
-</div>
+  </div>

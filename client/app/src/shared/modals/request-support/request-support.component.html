@@ -1,38 +1,50 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Request support'|translate}}</div>
-    <button type="button" class="btn close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close'|translate">
-         <i class="fa-solid fa-times"></i>
-    </button>
+  <div class="modal-title">{{'Request support'|translate}}</div>
+  <button type="button" class="btn close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close'|translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 <div class="modal-body">
-    <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
-        <div *ngIf="!sent">
-            <div class="form-group">
-                <label>{{'Email address'|translate}}</label>
-                <input class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
-                <div class="text-danger" *ngIf="SupportRequest.form.get('email')?.errors?.['required']">{{'This field is mandatory'|translate}}</div>
-                <div class="text-danger" *ngIf="SupportRequest.form.get('email')?.errors?.['pattern']">{{'Invalid email address'|translate}}</div>
-            </div>
-            <div class="form-group">
-                <label>{{'Text'|translate}}</label>
-                <div>
-                    <textarea class="form-control" name="message" [(ngModel)]="arg.text" required></textarea>
-                </div>
-                <div class="text-danger" *ngIf="SupportRequest.form.get('message')?.errors?.['required']">{{'This field is mandatory'|translate}}</div>
-            </div>
+  <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
+    @if (!sent) {
+      <div>
+        <div class="form-group">
+          <label>{{'Email address'|translate}}</label>
+          <input class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
+          @if (SupportRequest.form.get('email')?.errors?.['required']) {
+            <div class="text-danger">{{'This field is mandatory'|translate}}</div>
+          }
+          @if (SupportRequest.form.get('email')?.errors?.['pattern']) {
+            <div class="text-danger">{{'Invalid email address'|translate}}</div>
+          }
         </div>
-    </form>
-    <div *ngIf="sent" id="sent" class="alert alert-secondary">
-        <span>{{'Thank you.'|translate}}</span>
-        <span>{{'We will try to get back to you as soon as possible.'|translate}}</span>
+        <div class="form-group">
+          <label>{{'Text'|translate}}</label>
+          <div>
+            <textarea class="form-control" name="message" [(ngModel)]="arg.text" required></textarea>
+          </div>
+          @if (SupportRequest.form.get('message')?.errors?.['required']) {
+            <div class="text-danger">{{'This field is mandatory'|translate}}</div>
+          }
+        </div>
+      </div>
+    }
+  </form>
+  @if (sent) {
+    <div id="sent" class="alert alert-secondary">
+      <span>{{'Thank you.'|translate}}</span>
+      <span>{{'We will try to get back to you as soon as possible.'|translate}}</span>
     </div>
+  }
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" *ngIf="!sent" [disabled]="SupportRequest.form.invalid" (click)="sent=true; utilsService.submitSupportRequest(arg);">
-        <span>{{'Submit'|translate}}</span>
+  @if (!sent) {
+    <button id="modal-action-ok" class="btn btn-primary" [disabled]="SupportRequest.form.invalid" (click)="sent=true; utilsService.submitSupportRequest(arg);">
+      <span>{{'Submit'|translate}}</span>
     </button>
-    <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{'Close'|translate}}</span>
-    </a>
+  }
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+    <i class="fa-solid fa-times"></i>
+    <span>{{'Close'|translate}}</span>
+  </a>
 </div>

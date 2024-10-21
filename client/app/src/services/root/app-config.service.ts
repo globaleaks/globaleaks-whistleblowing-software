@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
@@ -9,26 +9,31 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {CustomFileLoaderServiceService} from "@app/services/helper/custom-file-loader-service.service";
+import {NgZone} from "@angular/core";
 import {mockEngine} from "@app/services/helper/mocks";
 
 @Injectable({
   providedIn: "root"
 })
 export class AppConfigService {
-  public sidebar: string = "";
-  private firstLoad = true;
+  private customFileLoaderServiceService = inject(CustomFileLoaderServiceService);
+  private titleService = inject(TitleService);
+  authenticationService = inject(AuthenticationService);
+  private translationService = inject(TranslationService);
+  private utilsService = inject(UtilsService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
+  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private ngZone = inject(NgZone);
   private isRunning: boolean = false;
 
-  constructor(private ngZone: NgZone, private customFileLoaderServiceService: CustomFileLoaderServiceService, private titleService: TitleService, public authenticationService: AuthenticationService, private translationService: TranslationService, private utilsService: UtilsService, private router: Router, private activatedRoute: ActivatedRoute, private httpService: HttpService, private appDataService: AppDataService, private fieldUtilitiesService: FieldUtilitiesService) {
-    this.init();
-  }
+  public sidebar: string = "";
+  private firstLoad = true;
 
-  init() {
-    this.activatedRoute.paramMap.subscribe(_ => {
-      const currentURL = window.location.hash.substring(2).split("?")[0];
-      this.initRoutes(currentURL);
-      this.localInitialization();
-    });
+  constructor() {
+    this.init();
   }
 
   private monitorChangeDetection(): void {
@@ -42,6 +47,14 @@ export class AppConfigService {
       } finally {
         this.isRunning = false;
       }
+    });
+  }
+
+  init() {
+    this.activatedRoute.paramMap.subscribe(_ => {
+      const currentURL = window.location.hash.substring(2).split("?")[0];
+      this.initRoutes(currentURL);
+      this.localInitialization();
     });
   }
 
@@ -185,9 +198,6 @@ export class AppConfigService {
   routeChangeListener() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        if (event.url === '/') {
-          this.customFileLoaderServiceService.loadCustomFiles();
-        }
         this.onValidateInitialConfiguration();
         const lastChildRoute = this.findLastChildRoute(this.router.routerState.root);
         if (lastChildRoute && lastChildRoute.snapshot.data && lastChildRoute.snapshot.data["pageTitle"]) {

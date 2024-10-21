@@ -1,68 +1,106 @@
-<ng-container *ngIf="submissionService">
-    <div *ngIf="selectable_contexts.length && !submissionService.context">
-        <src-context-selection (selectContext)="selectContext($event)" [selectable_contexts]=selectable_contexts [contextsOrderPredicate]=contextsOrderPredicate></src-context-selection>
+@if (submissionService) {
+  @if (selectable_contexts.length && !submissionService.context) {
+    <div>
+      <src-context-selection (selectContext)="selectContext($event)" [selectable_contexts]=selectable_contexts [contextsOrderPredicate]=contextsOrderPredicate></src-context-selection>
     </div>
-    <div *ngIf="submissionService.context">
-        <div *ngIf="selectable_contexts.length > 1 || context_id">
-            <div class="title">{{submissionService.context.name}}</div>
-            <div class="row">
-                <div class="col-md-2" *ngIf="submissionService.context.picture">
-                    <img class="context-image" alt="context picture" src="/s/{{submissionService.context.id}}" />
-                </div>
-            </div>
+  }
+  @if (submissionService.context) {
+    <div>
+      @if (selectable_contexts.length > 1 || context_id) {
+        <div>
+          <div class="title">{{submissionService.context.name}}</div>
+          <div class="row">
+            @if (submissionService.context.picture) {
+              <div class="col-md-2">
+                <img class="context-image" alt="context picture" src="/s/{{submissionService.context.id}}" />
+              </div>
+            }
+          </div>
         </div>
-        <form #submissionForm="ngForm" id="SubmissionForm" [ngClass]="{'was-validated': displaySubmissionErrors()}" autocomplete="off" novalidate>
-            <div class="tabbable tabs-below mb-3">
-                <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" *ngIf="submissionService.context.show_steps_navigation_interface && submissionService.context.questionnaire.steps.length > 1" role="tablist">
-                    <li *ngIf="submissionService.context.allow_recipients_selection" id="step-recipient-selection-tab" class="nav-item" role="presentation">
-                        <button id="receiver-selection-link" [ngClass]="{active: navigation === -1}" class="nav-link nav-link-custom" (click)="goToStep(-1)" [attr.aria-selected]="navigation === -1" [attr.aria-current]="navigation === -1 ? 'step' : 'false'" aria-controls="step-recipient-selection" role="tab">
-                            <span class="step-index" [ngClass]="{'step-index-selected': navigation === -1}">1</span>
-                            <span class="step-label">{{'Recipient selection'|translate}}</span>
-                        </button>
-                    </li>
-                    <li id="context-{{index}}" *ngFor="let step of (submissionService.context.questionnaire.steps | orderBy:'order');let index = index" class="nav-item" role="presentation">
-                        <button *ngIf="step.enabled" id="step-{{index}}-link" [ngClass]="{active: navigation === index}" class="nav-link nav-link-custom" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-current]="navigation === index ? 'step' : 'false'" [attr.aria-controls]="'step-' + index" role="tab">
-                            <span class="step-index" [ngClass]="{'step-index-selected': navigation === index}">{{index + (submissionService.context.allow_recipients_selection ? 2 : 1)}}</span>
-                            <span class="step-label">{{step.label}}</span>
-                        </button>
-                    </li>
-                </ul>
-                <div id="SubmissionTabsContentBox" class="tab-content">
-                    <div *ngIf="validate[navigation] && !hasPreviousStepValue && !areReceiversSelectedValue">
-                        <div id="SubmissionErrors" class="alert alert-secondary mb-2" role="alert">
-                            <p>{{'You must select at least one recipient.'|translate}}</p>
-                        </div>
-                    </div>
-                    <div id="step-receiver-selection" *ngIf="submissionService.context.allow_recipients_selection && navigation === -1" role="tabpanel">
-                        <src-receiver-selection (switchSelection)="switchSelection($event)" [receiversOrderPredicate]="receiversOrderPredicate" [submission]="submissionService" [show_steps_navigation_bar]="show_steps_navigation_bar"></src-receiver-selection>
-                    </div>
-                    <div *ngIf="navigation !== -1">
-                        <div *ngFor="let step of submissionService.context.questionnaire.steps | orderBy:'order'; let index = index">
-                            <div *ngIf="step && step.enabled && submissionService" id="step-{{index}}"  [class.hidden]="navigation !== index" role="tabpanel">
-                                <div ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-                                    <div *ngIf="validate[navigation] && stepForm.invalid">
-                                        <src-step-error [navigation]="navigation" [field_id_map]="field_id_map" [stepForm]="stepForm"></src-step-error>
-                                    </div>
-                                    <markdown *ngIf="step.description" class="description" [data]="step.description | stripHtml"></markdown>
-                                    <src-form (notifyFileUpload)="notifyFileUpload($event)" [fileUploadUrl]="'api/whistleblower/submission/attachment'" [identity_provided]=identity_provided [uploads]="uploads" [displayErrors]="displayErrors()" [answers]="answers" [submission]="submissionService" [step]="step" [index]="index"></src-form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      }
+      <form #submissionForm="ngForm" id="SubmissionForm" [ngClass]="{'was-validated': displaySubmissionErrors()}" autocomplete="off" novalidate>
+        <div class="tabbable tabs-below mb-3">
+          @if (submissionService.context.show_steps_navigation_interface && submissionService.context.questionnaire.steps.length > 1) {
+            <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" role="tablist">
+              @if (submissionService.context.allow_recipients_selection) {
+                <li id="step-recipient-selection-tab" class="nav-item" role="presentation">
+                  <button id="receiver-selection-link" [ngClass]="{active: navigation === -1}" class="nav-link nav-link-custom" (click)="goToStep(-1)" [attr.aria-selected]="navigation === -1" [attr.aria-current]="navigation === -1 ? 'step' : 'false'" aria-controls="step-recipient-selection" role="tab">
+                    <span class="step-index" [ngClass]="{'step-index-selected': navigation === -1}">1</span>
+                    <span class="step-label">{{'Recipient selection'|translate}}</span>
+                  </button>
+                </li>
+              }
+              @for (step of (submissionService.context.questionnaire.steps | orderBy:'order'); track step; let index = $index) {
+                <li id="context-{{index}}" class="nav-item" role="presentation">
+                  @if (step.enabled) {
+                    <button id="step-{{index}}-link" [ngClass]="{active: navigation === index}" class="nav-link nav-link-custom" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-current]="navigation === index ? 'step' : 'false'" [attr.aria-controls]="'step-' + index" role="tab">
+                      <span class="step-index" [ngClass]="{'step-index-selected': navigation === index}">{{index + (submissionService.context.allow_recipients_selection ? 2 : 1)}}</span>
+                      <span class="step-label">{{step.label}}</span>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          }
+          <div id="SubmissionTabsContentBox" class="tab-content">
+            @if (validate[navigation] && !hasPreviousStepValue && !areReceiversSelectedValue) {
+              <div>
+                <div id="SubmissionErrors" class="alert alert-secondary mb-2" role="alert">
+                  <p>{{'You must select at least one recipient.'|translate}}</p>
                 </div>
-            </div>
-            <div id="SubmissionButtons">
-                <button id="PreviousStepButton" class="btn btn-outline-secondary" *ngIf="hasPreviousStep()" (click)="whistleblowerSubmissionService.decrementStep(this)">
-                    <i class="fa-solid fa-arrow-circle-left"></i>
-                    <span>{{'Previous'|translate}}</span>
-                </button>
-                <button id="NextStepButton" class="btn btn-outline-secondary" *ngIf="hasNextStep()" [disabled]="submissionService.blocked" (click)="whistleblowerSubmissionService.incrementStep(this)">
-                    <span>{{'Next'|translate}}</span>
-                    <i class="fa-solid fa-arrow-circle-right"></i>
-                </button>
-                <src-rfiles-upload-status [progress]="calculateProgress()" [estimatedTime]="calculateEstimatedTime()" [uploading]="uploading()" *ngIf="!hasNextStep() && uploading()"></src-rfiles-upload-status>
-                <button id="SubmitButton" class="btn btn-primary" *ngIf="!hasNextStep()" (click)="completeSubmission()" [disabled]="!authenticationService.session || submissionService.blocked || done" type="submit">{{'Submit'|translate}}</button>
-            </div>
-        </form>
+              </div>
+            }
+            @if (submissionService.context.allow_recipients_selection && navigation === -1) {
+              <div id="step-receiver-selection" role="tabpanel">
+                <src-receiver-selection (switchSelection)="switchSelection($event)" [receiversOrderPredicate]="receiversOrderPredicate" [submission]="submissionService" [show_steps_navigation_bar]="show_steps_navigation_bar"></src-receiver-selection>
+              </div>
+            }
+            @if (navigation !== -1) {
+              <div>
+                @for (step of submissionService.context.questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+                  <div>
+                    @if (step && step.enabled && submissionService) {
+                      <div id="step-{{index}}"  [class.hidden]="navigation !== index" role="tabpanel">
+                        <div ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                          @if (validate[navigation] && stepForm.invalid) {
+                            <div>
+                              <src-step-error [navigation]="navigation" [field_id_map]="field_id_map" [stepForm]="stepForm"></src-step-error>
+                            </div>
+                          }
+                          @if (step.description) {
+                            <markdown class="description" [data]="step.description | stripHtml"></markdown>
+                          }
+                          <src-form (notifyFileUpload)="notifyFileUpload($event)" [fileUploadUrl]="'api/whistleblower/submission/attachment'" [identity_provided]=identity_provided [uploads]="uploads" [displayErrors]="displayErrors()" [answers]="answers" [submission]="submissionService" [step]="step" [index]="index"></src-form>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div id="SubmissionButtons">
+          @if (hasPreviousStep()) {
+            <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
+              <i class="fa-solid fa-arrow-circle-left"></i>
+              <span>{{'Previous'|translate}}</span>
+            </button>
+          }
+          @if (hasNextStep()) {
+            <button id="NextStepButton" class="btn btn-outline-secondary" [disabled]="submissionService.blocked" (click)="whistleblowerSubmissionService.incrementStep(this)">
+              <span>{{'Next'|translate}}</span>
+              <i class="fa-solid fa-arrow-circle-right"></i>
+            </button>
+          }
+          @if (!hasNextStep() && uploading()) {
+            <src-rfiles-upload-status [progress]="calculateProgress()" [estimatedTime]="calculateEstimatedTime()" [uploading]="uploading()"></src-rfiles-upload-status>
+          }
+          @if (!hasNextStep()) {
+            <button id="SubmitButton" class="btn btn-primary" (click)="completeSubmission()" [disabled]="!authenticationService.session || submissionService.blocked || done" type="submit">{{'Submit'|translate}}</button>
+          }
+        </div>
+      </form>
     </div>
-</ng-container>
+  }
+}

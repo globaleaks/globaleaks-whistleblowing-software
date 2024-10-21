@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {Observable, from, switchMap} from "rxjs";
@@ -7,11 +7,11 @@ import {Observable, from, switchMap} from "rxjs";
   providedIn: "root"
 })
 export class TokenResource {
+  private cryptoService = inject(CryptoService);
+  private http = inject(HttpClient);
+
 
   private baseUrl = "api/token/:id";
-
-  constructor(private cryptoService: CryptoService, private http: HttpClient) {
-  }
 
   getWithProofOfWork(): Observable<any> {
     return from(this.http.post("api/auth/token", {})).pipe(

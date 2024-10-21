@@ -1,34 +1,40 @@
-<ng-container *ngIf="this.users.slice">
-    <table id="userList" class="table table-condensed table-striped">
-        <thead>
+@if (this.users.slice()) {
+  <table id="userList" class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>{{'ID'|translate}}</th>
+        <th>{{'Username'|translate}}</th>
+        <th>{{'Role'|translate}}</th>
+        <th>{{'Name'|translate}}</th>
+        <th>2FA</th>
+        <th>{{'Creation date'|translate}}</th>
+        <th>{{'Last access'|translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of getPaginatedData(); track data) {
         <tr>
-            <th>{{'ID'|translate}}</th>
-            <th>{{'Username'|translate}}</th>
-            <th>{{'Role'|translate}}</th>
-            <th>{{'Name'|translate}}</th>
-            <th>2FA</th>
-            <th>{{'Creation date'|translate}}</th>
-            <th>{{'Last access'|translate}}</th>
+          <td>{{data.id}}</td>
+          <td>{{data.username}}</td>
+          <td>{{data.role}}</td>
+          <td>{{data.name}}</td>
+          <td> <i class="fa" [ngClass]="{'fa-check': data.two_factor, 'fa-times': !data.two_factor}"></i> </td>
+          <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+          <td>{{data.last_login | date:'dd-MM-yyyy HH:mm'}}</td>
         </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let data of getPaginatedData()">
-            <td>{{data.id}}</td>
-            <td>{{data.username}}</td>
-            <td>{{data.role}}</td>
-            <td>{{data.name}}</td>
-            <td> <i class="fa" [ngClass]="{'fa-check': data.two_factor, 'fa-times': !data.two_factor}"></i> </td>
-            <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td>{{data.last_login | date:'dd-MM-yyyy HH:mm'}}</td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="float-start" *ngIf="users.length > pageSize">
-        <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="users.length">
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" title="{{'First' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" title="{{'Previous' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" title="{{'Next' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" title="{{'Last' | translate}}"></i></ng-template>
-        </ngb-pagination>
-    </div> <div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
-</ng-container>
+      }
+    </tbody>
+  </table>
+  @if (users.length > pageSize) {
+    <div class="float-start">
+      <ngb-pagination [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="users.length" [boundaryLinks]="true">
+        <ng-template ngbPaginationPrevious>
+        < {{'Previous' | translate}}</ng-template>
+        <ng-template ngbPaginationNext>{{'Next' | translate}} ></ng-template>
+        <ng-template ngbPaginationFirst>
+        << {{'First' | translate}}</ng-template>
+        <ng-template ngbPaginationLast>{{'Last' | translate}} >></ng-template>
+      </ngb-pagination>
+    </div>
+    } <div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
+  }

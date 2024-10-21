@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import { Component, ElementRef, forwardRef, Input, OnInit, ViewChild, inject } from "@angular/core";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {AppDataService} from "@app/app-data.service";
 import {WbFile} from "@app/models/app/shared-public-model";
@@ -11,12 +11,32 @@ import {HttpService} from "@app/shared/services/http.service";
 import {MaskService} from "@app/shared/services/mask.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import { DatePipe } from "@angular/common";
+import { TipFieldComponent } from "../tip-field/tip-field.component";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { SplitPipe } from "@app/shared/pipes/split.pipe";
+import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
 
 @Component({
-  selector: "src-tip-field-answer-entry",
-  templateUrl: "./tip-field-answer-entry.component.html"
+    selector: "src-tip-field-answer-entry",
+    templateUrl: "./tip-field-answer-entry.component.html",
+    standalone: true,
+    imports: [forwardRef(() => TipFieldComponent), DatePipe, TranslateModule, TranslatorPipe, SplitPipe, OrderByPipe]
 })
 export class TipFieldAnswerEntryComponent implements OnInit {
+  protected httpService = inject(HttpService);
+  protected appDataService = inject(AppDataService);
+  protected modalService = inject(NgbModal);
+  protected utilsService = inject(UtilsService);
+  private maskService = inject(MaskService);
+  protected preferenceResolver = inject(PreferenceResolver);
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  protected authenticationService = inject(AuthenticationService);
+  private wbTipService = inject(WbtipService);
+  private rTipService = inject(ReceiverTipService);
+
   @Input() entry: any;
   @Input() field: any;
   @Input() fieldAnswers: any;
@@ -31,8 +51,6 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   tipService:WbtipService|ReceiverTipService;
   filteredWbFiles: WbFile[];
   wbfile:WbFile;
-  constructor(protected httpService: HttpService, protected appDataService: AppDataService,protected modalService: NgbModal,protected utilsService: UtilsService,private maskService:MaskService,protected preferenceResolver:PreferenceResolver,private http: HttpClient, private sanitizer: DomSanitizer, protected authenticationService: AuthenticationService, private wbTipService: WbtipService,private rTipService: ReceiverTipService) {
-  }
 
   ngOnInit(): void {
     if (this.authenticationService.session.role === "whistleblower") {

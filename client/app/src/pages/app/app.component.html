@@ -1,67 +1,85 @@
-<ng-container *ngIf="!supportedBrowser">
-    <div id="BrowserNotSupported">
-        <h1>Error!</h1><br/> <br/>
-        <div> You are running an unsupported and potentially vulnerable browser. <br/> <br/> In order to use GlobaLeaks you
-            are strongly advised to download and install the Tor Browser. <br/> The Tor Browser includes various privacy and
-            security enhancements not present in other browsers. <br/> <br/>
-            <a href="https://www.torproject.org/download/" rel="noreferrer" target="_blank" class="text-center">[ Download
-                the Tor Browser ]</a> <br/> <br/> This is the list of the other supported browsers: <br/>
-            <ul>
-                <li>Mozilla Firefox &gt;= 38</li>
-                <li>Google Chrome &gt;= 45</li>
-                <li>Brave &gt;= 1.20.110</li>
-                <li>Edge (any)</li>
-                <li>Internet Explorer 11</li>
-                <li>Safari: &gt;= 8</li>
-                <li>iOS &gt;= 9</li>
-                <li>Android &gt;= 4.4</li>
-            </ul>
-        </div>
+@if (!supportedBrowser) {
+  <div id="BrowserNotSupported">
+    <h1>Error!</h1><br/> <br/>
+    <div> You are running an unsupported and potentially vulnerable browser. <br/> <br/> In order to use GlobaLeaks you
+      are strongly advised to download and install the Tor Browser. <br/> The Tor Browser includes various privacy and
+      security enhancements not present in other browsers. <br/> <br/>
+      <a href="https://www.torproject.org/download/" rel="noreferrer" target="_blank" class="text-center">[ Download
+      the Tor Browser ]</a> <br/> <br/> This is the list of the other supported browsers: <br/>
+      <ul>
+        <li>Mozilla Firefox &gt;= 38</li>
+        <li>Google Chrome &gt;= 45</li>
+        <li>Brave &gt;= 1.20.110</li>
+        <li>Edge (any)</li>
+        <li>Internet Explorer 11</li>
+        <li>Safari: &gt;= 8</li>
+        <li>iOS &gt;= 9</li>
+        <li>Android &gt;= 4.4</li>
+      </ul>
     </div>
-</ng-container>
+  </div>
+}
 <div id="Skip"><a href="#Content" tabindex="0">{{'Skip to content'|translate}}</a></div>
-<div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay" *ngIf="showLoadingPanel" [@fadeInOut]="!showLoadingPanel ? 'void' : ''">
+@if (showLoadingPanel) {
+  <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay" [@fadeInOut]="!showLoadingPanel ? 'void' : ''">
     <div id="Loader"></div>
-</div>
-<ng-container *ngIf="appDataService.public.node">
-    <div [dir]="utilsService.getDirection(translate.currentLang)" class="reveal" [ngClass]="{'public': isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
-        <div *ngIf="authenticationService.session?.properties?.operator_session">
-            <src-operation></src-operation>
-        </div>
-        <div *ngIf="!appDataService.public.node.root_tenant && appDataService.public.node.mode === 'demo'">
-            <src-demo></src-demo>
-        </div>
-        <div *ngIf="isWhistleblowerPage() && location.hash!=='#/admin/' && !appDataService.public.node.disable_privacy_badge">
-            <src-privacybadge></src-privacybadge>
-        </div>
-        <views-header></views-header>
-        <messageconsole id="MessagesConsoleBox"></messageconsole>
-        <div id="PageContent">
-            <div id="ContentBox">
-                <div class="row">
-                    <div *ngIf="appConfig.sidebar && showSidebar" id="Sidebar" class="col-lg-2 col-md-4 col-sm-12" role="navigation">
-                        <nav class="navbar navbar-expand-md p-0" role="navigation">
-                            <div class="navbar-header">
-                                <button type="button" class="navbar-toggler" (click)="isNavCollapsed = !isNavCollapsed">
-                                    <i class="fa-solid fa-bars"></i>
-                                </button>
-                            </div>
-                            <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
-                                <div class="navbar-nav">
-                                    <src-receipt-sidebar class="nav-items" *ngIf="appConfig.sidebar==='recipient-sidebar'"></src-receipt-sidebar>
-                                    <src-custodian-sidebar class="nav-items" *ngIf="appConfig.sidebar==='custodian-sidebar'"></src-custodian-sidebar>
-                                    <src-analyst-sidebar class="nav-items" *ngIf="appConfig.sidebar==='analyst-sidebar'"></src-analyst-sidebar>
-                                    <src-admin-sidebar class="nav-items" *ngIf="appConfig.sidebar==='admin-sidebar'"></src-admin-sidebar>
-                                </div>
-                            </div>
-                        </nav>
-                    </div>
-                    <main id="Content" [ngClass]="{'col-lg-10 col-md-8 col-sm-12': appConfig.sidebar && showSidebar , 'col-md-12': !appConfig.sidebar}">
-                        <router-outlet></router-outlet>
-                    </main>
+  </div>
+}
+@if (appDataService.public.node) {
+  <div [dir]="utilsService.getDirection(translate.currentLang)" class="reveal" [ngClass]="{'public': isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
+    @if (authenticationService.session?.properties?.operator_session) {
+      <div>
+        <src-operation></src-operation>
+      </div>
+    }
+    @if (!appDataService.public.node.root_tenant && appDataService.public.node.mode === 'demo') {
+      <div>
+        <src-demo></src-demo>
+      </div>
+    }
+    @if (isWhistleblowerPage() && location.hash!=='#/admin/' && !appDataService.public.node.disable_privacy_badge) {
+      <div>
+        <src-privacybadge></src-privacybadge>
+      </div>
+    }
+    <views-header></views-header>
+    <messageconsole id="MessagesConsoleBox"></messageconsole>
+    <div id="PageContent">
+      <div id="ContentBox">
+        <div class="row">
+          @if (appConfig.sidebar && showSidebar) {
+            <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12" role="navigation">
+              <nav class="navbar navbar-expand-md p-0" role="navigation">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggler" (click)="isNavCollapsed = !isNavCollapsed">
+                    <i class="fa-solid fa-bars"></i>
+                  </button>
                 </div>
+                <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
+                  <div class="navbar-nav">
+                    @if (appConfig.sidebar==='recipient-sidebar') {
+                      <src-receipt-sidebar class="nav-items"></src-receipt-sidebar>
+                    }
+                    @if (appConfig.sidebar==='custodian-sidebar') {
+                      <src-custodian-sidebar class="nav-items"></src-custodian-sidebar>
+                    }
+                    @if (appConfig.sidebar==='analyst-sidebar') {
+                      <src-analyst-sidebar class="nav-items"></src-analyst-sidebar>
+                    }
+                    @if (appConfig.sidebar==='admin-sidebar') {
+                      <src-admin-sidebar class="nav-items"></src-admin-sidebar>
+                    }
+                  </div>
+                </div>
+              </nav>
             </div>
+          }
+          <main id="Content" [ngClass]="{'col-lg-10 col-md-8 col-sm-12': appConfig.sidebar && showSidebar , 'col-md-12': !appConfig.sidebar}">
+            <router-outlet></router-outlet>
+          </main>
         </div>
+      </div>
     </div>
-    <app-footer class="footer mt-auto " dir="ltr"></app-footer>
-</ng-container>
+  </div>
+  <app-footer class="footer mt-auto " dir="ltr"></app-footer>
+}

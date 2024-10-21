@@ -1,14 +1,22 @@
-import {Component, Input, OnInit} from "@angular/core";
-import {NgForm} from "@angular/forms";
+import { Component, Input, OnInit, inject } from "@angular/core";
+import { NgForm, FormsModule } from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
+import { NgClass } from "@angular/common";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
-  selector: "src-tab4",
-  templateUrl: "./tab4.component.html"
+    selector: "src-tab4",
+    templateUrl: "./tab4.component.html",
+    standalone: true,
+    imports: [FormsModule, NgClass, TranslatorPipe, TranslateModule]
 })
 export class Tab4Component implements OnInit {
+  protected utilsService = inject(UtilsService);
+  protected nodeResolver = inject(NodeResolver);
+
   @Input() contentForm: NgForm;
 
   vars: { language_to_customize: string, text_to_customize: string, custom_text: string } = {
@@ -21,10 +29,6 @@ export class Tab4Component implements OnInit {
   custom_texts_selector: { key: string; value: string; }[] = [];
   customTextsExist: boolean = false;
   languageUtils: LanguageUtils
-
-
-  constructor(protected utilsService: UtilsService, protected nodeResolver: NodeResolver) {
-  }
 
   ngOnInit(): void {
     this.initLanguages();

@@ -1,43 +1,55 @@
 <div id="TipPageRFileUpload" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header clearfix" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
-        <span>{{'Files attached by recipients'|translate}}</span>
-        <span class="float-end">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" [title]="'Collapse' | translate"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" [title]="'Expand' | translate"></i>
-        </span>
-    </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div *ngFor="let rfile of tip.rfiles | filter : 'visibility' : key | orderBy: 'creation_date' as index">
-            <div id="rfile-{{index}}" data-wbfile data-ctx="'rtip'">
-                <src-wbfiles [ctx]="'rtip'" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="{}" [wbFile]="rfile"></src-wbfiles>
-            </div>
+  <div class="card-header clearfix" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
+    <span>{{'Files attached by recipients'|translate}}</span>
+    <span class="float-end">
+      @if (!collapsed) {
+        <i class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
+      }
+      @if (collapsed) {
+        <i class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
+      }
+    </span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      @for (rfile of tip.rfiles | filter : 'visibility' : key | orderBy: 'creation_date'; track rfile; let index = $index) {
+        <div>
+          <div id="rfile-{{index}}" data-wbfile data-ctx="'rtip'">
+            <src-wbfiles [ctx]="'rtip'" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="{}" [wbFile]="rfile"></src-wbfiles>
+          </div>
         </div>
-        <div *ngIf="tip.status !== 'closed'">
-            <div>{{'Upload a file:'|translate}}</div>
-            <div class="form">
-                <div class="input-group">
-                    <span class="input-group-prepend">
-                        <span class="input-group-text rounded-end-0">{{'Description'|translate}}</span>
-                    </span>
-                    <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
-                    <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description}">
-                        <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
-                        <label [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">
-                            <i class="fa-solid fa-upload "></i>
-                            <span>{{'Upload'|translate}}</span>
-                        </label>
-                    </span>
-                </div>
-                <div *ngIf="showError">
-                    <br>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <div>
-                            <span>{{'File size not accepted.'|translate}}</span> {{errorFile?.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile?.cancel(); showError=false"></button>
+      }
+      @if (tip.status !== 'closed') {
+        <div>
+          <div>{{'Upload a file:'|translate}}</div>
+          <div class="form">
+            <div class="input-group">
+              <span class="input-group-prepend">
+                <span class="input-group-text rounded-end-0">{{'Description'|translate}}</span>
+              </span>
+              <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
+              <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description}">
+                <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
+                <label [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">
+                  <i class="fa-solid fa-upload "></i>
+                  <span>{{'Upload'|translate}}</span>
+                </label>
+              </span>
+            </div>
+            @if (showError) {
+              <div>
+                <br>
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div>
+                      <span>{{'File size not accepted.'|translate}}</span> {{errorFile?.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
                     </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile?.cancel(); showError=false"></button>
+                  </div>
                 </div>
+              }
             </div>
-        </div>
-    </div>
-</div>
+          </div>
+        }
+      </div>
+    }
+  </div>

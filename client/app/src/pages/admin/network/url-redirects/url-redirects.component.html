@@ -1,52 +1,54 @@
 <div class="row">
-    <div class="col-md-12">
-        <form name="redirectAddForm" #redirectAddForm="ngForm" class="form-inline">
-            <div class="form-group d-inline-flex align-items-center">
-                <div class="input-group">
-                    <span class="input-group-prepend">
-                        <span class="input-group-text rounded-0 rounded-start">{{ 'From' | translate }}</span>
-                    </span>
-                    <input type="text" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" />
-                </div>
-            </div>
-            <div class="form-group d-inline-flex align-items-center ms-2">
-                <span class="input-group">
-                    <span class="input-group-prepend">
-                        <span class="input-group-text rounded-0 rounded-start">{{ 'To' | translate }}</span>
-                    </span>
-                    <input type="text" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" />
-                </span>
-            </div>
-            <button type="submit" id="add_redirect" class="btn btn-primary ms-2 mb-1" [disabled]="redirectAddForm.invalid" (click)="addRedirect()">
-                <i class="fa-solid fa-plus"></i>
-                <span>{{ 'Add' | translate }}</span>
-            </button>
-        </form>
-    </div>
+  <div class="col-md-12">
+    <form name="redirectAddForm" #redirectAddForm="ngForm" class="form-inline">
+      <div class="form-group d-inline-flex align-items-center">
+        <div class="input-group">
+          <span class="input-group-prepend">
+            <span class="input-group-text rounded-0 rounded-start">{{ 'From' | translate }}</span>
+          </span>
+          <input type="text" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" />
+        </div>
+      </div>
+      <div class="form-group d-inline-flex align-items-center ms-2">
+        <span class="input-group">
+          <span class="input-group-prepend">
+            <span class="input-group-text rounded-0 rounded-start">{{ 'To' | translate }}</span>
+          </span>
+          <input type="text" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" />
+        </span>
+      </div>
+      <button type="submit" id="add_redirect" class="btn btn-primary ms-2 mb-1" [disabled]="redirectAddForm.invalid" (click)="addRedirect()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ 'Add' | translate }}</span>
+      </button>
+    </form>
+  </div>
 </div>
 <br />
 <div class="row">
-    <div class="col-md-12">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>{{ 'From' | translate }}</th>
-                <th>{{ 'To' | translate }}</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let redirect of redirectData | orderBy:'path1'">
-                <td>{{redirectPath(redirect, 1)}}</td>
-                <td>{{redirectPath(redirect, 2)}}</td>
-                <td>
-                    <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
-                        <i class="fa-solid fa-trash"></i>
-                        <span>{{ 'Delete' | translate }}</span>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+  <div class="col-md-12">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ 'From' | translate }}</th>
+          <th>{{ 'To' | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (redirect of redirectData | orderBy:'path1'; track redirect) {
+          <tr>
+            <td>{{redirectPath(redirect, 1)}}</td>
+            <td>{{redirectPath(redirect, 2)}}</td>
+            <td>
+              <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
+                <i class="fa-solid fa-trash"></i>
+                <span>{{ 'Delete' | translate }}</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 </div>

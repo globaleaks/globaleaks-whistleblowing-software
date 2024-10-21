@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {PasswordRecoveryResponseModel} from "@app/models/authentication/password-recovery-response-model";
@@ -41,9 +41,9 @@ import { RedactionData } from "@app/models/component-model/redaction";
   providedIn: "root"
 })
 export class HttpService {
+  private httpClient = inject(HttpClient);
+  private router = inject(Router);
 
-  constructor(private httpClient: HttpClient, private router: Router) {
-  }
 
   getPublicResource(): Observable<HttpResponse<Root>> {
     return this.httpClient.get<Root>("api/public", {observe: "response"});

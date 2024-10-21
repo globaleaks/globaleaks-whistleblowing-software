@@ -1,45 +1,70 @@
-<div *ngIf="appDataService.errorCodes.code != -1 && ![4, 9, 11, 13, 10].includes(appDataService.errorCodes.code)">
+@if (appDataService.errorCodes.code != -1 && ![4, 9, 11, 13, 10].includes(appDataService.errorCodes.code)) {
+  <div>
     <div class="alert alert-danger alert-danger-console alert-dismissible fade show" (close)="dismissError()">
-        <button type="button" class="close close-btn bg-transparent custom-close-button" (click)="dismissError()" data-bs-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-
-        <div *ngIf="appDataService.errorCodes.code !== 15">
-            <div>{{'Error!'|translate}}</div>
+      <button type="button" class="close close-btn bg-transparent custom-close-button" (click)="dismissError()" data-bs-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      @if (appDataService.errorCodes.code !== 15) {
+        <div>
+          <div>{{'Error!'|translate}}</div>
         </div>
-        <ng-container [ngSwitch]="appDataService.errorCodes.code">
-            <div *ngSwitchCase="1">
-                <span>{{ 'Error on input validation' | translate }}</span>
-                <span *ngIf="appDataService.errorCodes.arguments && appDataService.errorCodes.arguments.length > 0">
-                    {{ appDataService.errorCodes.arguments[0] }}
-                </span>
-            </div>
-            <div *ngSwitchCase="3">
-                <span>{{ 'Error on input validation' | translate }}</span>
-                <span *ngIf="appDataService.errorCodes.arguments && appDataService.errorCodes.arguments.length > 0"> [{{ appDataService.errorCodes.arguments[0] }}] </span>
-            </div>
-            <div *ngSwitchCase="6">
-                <span>{{'Resource not found'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="8">
-                <span>{{'Forbidden operation'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="12">
-                <span>{{'The specified old password is not valid'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="13">
-                <span>{{'Resource can only be accessed via the Tor network'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="14">
-                <span>{{'The upload request exceeds the size limit'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="17">
-                <span>{{'A user with this username already exists'|translate}}</span>
-            </div>
-            <div *ngSwitchCase="15">
-                <strong><span class="text-danger">{{'Error loading custom files'|translate}}</span></strong>
-                <span>{{appDataService.errorCodes.message|translate}}</span>
-            </div>
-        </ng-container>
+      }
+      @switch (appDataService.errorCodes.code) {
+        @case (1) {
+          <div>
+            <span>{{ 'Error on input validation' | translate }}</span>
+            @if (appDataService.errorCodes.arguments && appDataService.errorCodes.arguments.length > 0) {
+              <span>
+                {{ appDataService.errorCodes.arguments[0] }}
+              </span>
+            }
+          </div>
+        }
+        @case (3) {
+          <div>
+            <span>{{ 'Error on input validation' | translate }}</span>
+            @if (appDataService.errorCodes.arguments && appDataService.errorCodes.arguments.length > 0) {
+              <span> [{{ appDataService.errorCodes.arguments[0] }}] </span>
+            }
+          </div>
+        }
+        @case (6) {
+          <div>
+            <span>{{'Resource not found'|translate}}</span>
+          </div>
+        }
+        @case (8) {
+          <div>
+            <span>{{'Forbidden operation'|translate}}</span>
+          </div>
+        }
+        @case (12) {
+          <div>
+            <span>{{'The specified old password is not valid'|translate}}</span>
+          </div>
+        }
+        @case (13) {
+          <div>
+            <span>{{'Resource can only be accessed via the Tor network'|translate}}</span>
+          </div>
+        }
+        @case (14) {
+          <div>
+            <span>{{'The upload request exceeds the size limit'|translate}}</span>
+          </div>
+        }
+        @case (17) {
+          <div>
+            <span>{{'A user with this username already exists'|translate}}</span>
+          </div>
+        }
+        @case (15) {
+          <div>
+            <strong><span class="text-danger">{{'Error loading custom files'|translate}}</span></strong>
+            <span>{{appDataService.errorCodes.message|translate}}</span>
+          </div>
+        }
+      }
     </div>
-</div>
+  </div>
+}

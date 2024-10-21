@@ -1,155 +1,175 @@
-<div class="reveal">
-    <div id="Toolbar" class="row" *ngIf="tip">
-        <div class="col-md-12">
-            <a id="link-tiplist" href="#/recipient/reports" title="{{'Reports' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-arrow-left"></i>
-            </a>
-            <span id="tip-action-star" (click)="tipToggleStar()"
-                title="{{'Mark as important' | translate}}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
+@if (tip) {
+  <div class="reveal">
+    <div id="Toolbar" class="row">
+      <div class="col-md-12">
+        <a id="link-tiplist" href="#/recipient/reports" data-toggle="tooltip" title="{{'Reports' | translate}}"
+          class="btn btn-outline-secondary">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <span id="tip-action-star" (click)="tipToggleStar()" data-toggle="tooltip"
+          title="{{'Mark as important' | translate}}" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
+        </span>
+        <span id="tip-action-reminder" (click)="setReminder()" data-toggle="tooltip"
+          title="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
+          <i class="fa-solid" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
+        </span>
+        @if (tip && !tip.enable_notifications) {
+          <span id="tip-action-notify" (click)="tipNotify(true)"
+            data-toggle="tooltip" title="{{'Turn on email notifications' | translate}}"
+            class="btn btn-outline-secondary active">
+            <i class="fa-solid fa-volume-mute"></i>
+          </span>
+        }
+        @if (!tip || tip.enable_notifications) {
+          <span id="tip-action-silence" (click)="tipNotify(false)"
+            data-toggle="tooltip" title="{{'Silence email notifications' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-volume-down"></i>
+          </span>
+        }
+        @if (preferencesService.dataModel.can_grant_access_to_reports) {
+          <span id="tip-action-grant-access"
+            (click)="openGrantTipAccessModal()" data-toggle="tooltip" title="{{'Grant access' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-user-plus"></i>
+          </span>
+        }
+        @if (preferencesService.dataModel.can_grant_access_to_reports) {
+          <span id="tip-action-revoke-access"
+            (click)="openRevokeTipAccessModal()" data-toggle="tooltip" title="{{'Revoke access' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-user-minus"></i>
+          </span>
+        }
+        @if (preferencesService.dataModel.can_transfer_access_to_reports) {
+          <span id="tip-action-transfer-access"
+            (click)="openTipTransferModal()" data-toggle="tooltip" title="{{'Transfer access' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-people-arrows"></i>
+          </span>
+        }
+        @if (!tip || tip.context) {
+          @if (!tip || preferencesService.dataModel.can_postpone_expiration && tip.context.tip_timetolive > 0) {
+            <span id="tip-action-postpone"
+              (click)="tipPostpone()" data-toggle="tooltip" title="{{'Edit the expiration date' | translate}}"
+              class="btn btn-outline-secondary">
+              <i class="fa-solid fa-clock"></i>
             </span>
-            <span id="tip-action-reminder" (click)="setReminder()"
-                title="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-                <i class="fa-solid" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
-            </span>
-            <span id="tip-action-notify" *ngIf="tip && !tip.enable_notifications" (click)="tipNotify(true)" title="{{'Turn on email notifications' | translate}}"
-                class="btn btn-outline-secondary active">
-                <i class="fa-solid fa-volume-mute"></i>
-            </span>
-            <span id="tip-action-silence" *ngIf="!tip || tip.enable_notifications" (click)="tipNotify(false)" title="{{'Silence email notifications' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-volume-down"></i>
-            </span>
-            <span id="tip-action-grant-access" *ngIf="preferencesService.dataModel.can_grant_access_to_reports"
-                (click)="openGrantTipAccessModal()" title="{{'Grant access' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-user-plus"></i>
-            </span>
-            <span id="tip-action-revoke-access" *ngIf="preferencesService.dataModel.can_grant_access_to_reports"
-                (click)="openRevokeTipAccessModal()" title="{{'Revoke access' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-user-minus"></i>
-            </span>
-            <span id="tip-action-transfer-access" *ngIf="preferencesService.dataModel.can_transfer_access_to_reports"
-                (click)="openTipTransferModal()" title="{{'Transfer access' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-people-arrows"></i>
-            </span>
-            <ng-container *ngIf="!tip || tip.context">
-                <span id="tip-action-postpone"
-                    *ngIf="!tip || preferencesService.dataModel.can_postpone_expiration && tip.context.tip_timetolive > 0"
-                    (click)="tipPostpone()" title="{{'Edit the expiration date' | translate}}"
-                    class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-clock"></i>
-                </span>
-            </ng-container>
-            <span id="tip-action-delete" *ngIf="preferencesService.dataModel.can_delete_submission"
-                (click)="tipDelete()" title="{{'Delete' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-trash"></i>
-            </span>
-            <span id="tip-action-mask"
-                *ngIf="(preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)"
-                (click)="toggleRedactMode()" title="{{redactOperationTitle | translate}}"
-                class="btn btn-outline-secondary" [ngClass]="{'active': redactMode}">
-                <i class="fa-solid fa-eraser"></i>
-            </span>
-            <ng-container *ngIf="tip?.status !== 'closed'">
-                <span id="tip-action-change-status" (click)="openModalChangeState()"
-                    title="{{'Change status' | translate}}" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-dot-circle"></i>
-                </span>
-            </ng-container>
-            <ng-container *ngIf="preferencesService.dataModel.can_reopen_reports && tip?.status === 'closed'">
-                <span id="tip-action-reopen-status" (click)="openModalReopen()"
-                    title="{{'Reopen' | translate}}" class="btn btn-outline-secondary">
-                    <i class="fa-solid fa-dot-circle"></i>
-                </span>
-            </ng-container>
-            <span id="tip-action-print" (click)="utils.print()" title="{{'Print' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-print"></i>
-            </span>
-            <span id="tip-action-export" (click)="exportTip(tip.id)"
-                title="{{'Export' | translate}}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-download"></i>
-            </span>
-            <span id="link-reload" (click)="reload()" title="{{'Refresh' | translate}}"
-                class="btn btn-outline-secondary">
-                <i class="fa-solid fa-sync"></i>
-            </span>
-        </div>
+          }
+        }
+        @if (preferencesService.dataModel.can_delete_submission) {
+          <span id="tip-action-delete"
+            (click)="tipDelete()" data-toggle="tooltip" title="{{'Delete' | translate}}"
+            class="btn btn-outline-secondary">
+            <i class="fa-solid fa-trash"></i>
+          </span>
+        }
+        @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
+          <span id="tip-action-mask"
+            (click)="toggleRedactMode()" data-toggle="tooltip" title="{{redactOperationTitle | translate}}"
+            class="btn btn-outline-secondary" [ngClass]="{'active': redactMode}">
+            <i class="fa-solid fa-eraser"></i>
+          </span>
+        }
+        @if (tip.status !== 'closed') {
+          <span id="tip-action-change-status" (click)="openModalChangeState()" data-toggle="tooltip"
+            title="{{'Change status' | translate}}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-dot-circle"></i>
+          </span>
+        }
+        @if (preferencesService.dataModel.can_reopen_reports && tip.status === 'closed') {
+          <span id="tip-action-reopen-status" (click)="openModalReopen()" data-toggle="tooltip"
+            title="{{'Reopen' | translate}}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-dot-circle"></i>
+          </span>
+        }
+        <span id="tip-action-print" (click)="utils.print()" data-toggle="tooltip" title="{{'Print' | translate}}"
+          class="btn btn-outline-secondary">
+          <i class="fa-solid fa-print"></i>
+        </span>
+        <span id="tip-action-export" (click)="exportTip(tip.id)" data-toggle="tooltip"
+          title="{{'Export' | translate}}" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-download"></i>
+        </span>
+        <span id="link-reload" (click)="reload()" data-toggle="tooltip" title="{{'Refresh' | translate}}"
+          class="btn btn-outline-secondary">
+          <i class="fa-solid fa-sync"></i>
+        </span>
+      </div>
     </div>
     <div class="row mt-2">
-        <div class="col-md-12">
-            <src-tip-info [loading]="loading" [tipService]="RTipService"></src-tip-info>
-        </div>
+      <div class="col-md-12">
+        <src-tip-info [loading]="loading" [tipService]="RTipService"></src-tip-info>
+      </div>
     </div>
-    <ng-container *ngIf="tip && tip.receivers">
-        <div class="row" *ngIf="tip.receivers.length > 1">
-            <div class="col-md-12">
-                <src-tip-receiver-list [tipService]="RTipService"></src-tip-receiver-list>
-            </div>
+    @if (tip && tip.receivers) {
+      @if (tip.receivers.length > 1) {
+        <div class="row">
+          <div class="col-md-12">
+            <src-tip-receiver-list [tipService]="RTipService"></src-tip-receiver-list>
+          </div>
         </div>
-    </ng-container>
+      }
+    }
     <div class="row">
-        <div [ngClass]="{'col-md-12': !(tip && tip.enable_whistleblower_identity),'col-md-6': (tip && tip.enable_whistleblower_identity)}">
-            <src-tip-questionnaire-answers [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                [redactMode]="redactMode"></src-tip-questionnaire-answers>
+      <div [ngClass]="{'col-md-12': !(tip && tip.enable_whistleblower_identity),'col-md-6': (tip && tip.enable_whistleblower_identity)}">
+        <src-tip-questionnaire-answers [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+        [redactMode]="redactMode"></src-tip-questionnaire-answers>
+      </div>
+      @if (tip && tip.enable_whistleblower_identity) {
+        <div class="col-md-6">
+          <src-whistleblower-identity-reciever [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"></src-whistleblower-identity-reciever>
         </div>
-        <ng-container *ngIf="tip && tip.enable_whistleblower_identity">
-            <div class="col-md-6">
-                <src-whistleblower-identity-reciever [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"></src-whistleblower-identity-reciever>
-            </div>
-        </ng-container>
+      }
     </div>
     <div class="row">
-        <div class="col-md-12">
-            <src-tip-files-receiver [redactMode]="redactMode"></src-tip-files-receiver>
-        </div>
+      <div class="col-md-12">
+        <src-tip-files-receiver [redactMode]="redactMode"></src-tip-files-receiver>
+      </div>
     </div>
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-        <ng-container *ngFor="let tab of tabs">
-            <li [ngbNavItem]="tab.title">
-                <button ngbNavLink>{{ tab.title | translate }}</button>
-                <ng-template ngbNavContent>
-                    <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-                </ng-template>
-            </li>
-        </ng-container>
+      @for (tab of tabs; track tab) {
+        <li [ngbNavItem]="tab.title">
+          <button ngbNavLink>{{ tab.title | translate }}</button>
+          <ng-template ngbNavContent>
+            <ng-container *ngTemplateOutlet="tab.component"></ng-container>
+          </ng-template>
+        </li>
+      }
     </ul>
     <div [ngbNavOutlet]="nav" class="mt-2"></div>
     <div class="row">
-        <ng-template #tab1>
-            <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'public'"></src-tip-upload-wbfile>
-                <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
-                </ng-container>
-            </div>
-        </ng-template>
-        <ng-template #tab2>
-            <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'internal'"></src-tip-upload-wbfile>
-                <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
-                </ng-container>
-            </div>
-        </ng-template>
-        <ng-template #tab3>
-            <div class="col-md-12">
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
-                    [key]="'personal'"></src-tip-upload-wbfile>
-                <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
-                </ng-container>
-            </div>
-        </ng-template>
+      <ng-template #tab1>
+        <div class="col-md-12">
+          <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+          [key]="'public'"></src-tip-upload-wbfile>
+          @if (tip && tip.context) {
+            <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+            [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
+          }
+        </div>
+      </ng-template>
+      <ng-template #tab2>
+        <div class="col-md-12">
+          <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+          [key]="'internal'"></src-tip-upload-wbfile>
+          @if (tip && tip.context) {
+            <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+            [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
+          }
+        </div>
+      </ng-template>
+      <ng-template #tab3>
+        <div class="col-md-12">
+          <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+          [key]="'personal'"></src-tip-upload-wbfile>
+          @if (tip && tip.context) {
+            <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+            [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
+          }
+        </div>
+      </ng-template>
     </div>
-</div>
+  </div>
+}

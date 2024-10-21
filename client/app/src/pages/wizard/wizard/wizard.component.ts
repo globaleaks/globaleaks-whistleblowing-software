@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import {Constants} from "@app/shared/constants/constants";
 import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
@@ -9,12 +9,31 @@ import {TranslationService} from "@app/services/helper/translation.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TitleService} from "@app/shared/services/title.service";
 import {UtilsService} from "@app/shared/services/utils.service";
+import { FormsModule } from "@angular/forms";
+import { NgClass } from "@angular/common";
+import { ProfileComponent } from "./template/profile/profile.component";
+import { PasswordStrengthValidatorDirective } from "../../../shared/directive/password-strength-validator.directive";
+import { PasswordMeterComponent } from "../../../shared/components/password-meter/password-meter.component";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-wizard",
-  templateUrl: "./wizard.component.html"
+    selector: "src-wizard",
+    templateUrl: "./wizard.component.html",
+    standalone: true,
+    imports: [FormsModule, NgClass, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
 })
 export class WizardComponent implements OnInit {
+  private titleService = inject(TitleService);
+  private translationService = inject(TranslationService);
+  private router = inject(Router);
+  private http = inject(HttpClient);
+  private authenticationService = inject(AuthenticationService);
+  private httpService = inject(HttpService);
+  protected appDataService = inject(AppDataService);
+  protected appConfigService = inject(AppConfigService);
+  private utilsService = inject(UtilsService);
+
   step: number = 1;
   emailRegexp = Constants.emailRegexp;
   password_score = 0;
@@ -48,9 +67,6 @@ export class WizardComponent implements OnInit {
     "profile": "default",
     "enable_developers_exception_notification": false
   };
-
-  constructor(private titleService: TitleService, private translationService: TranslationService, private router: Router, private http: HttpClient, private authenticationService: AuthenticationService, private httpService: HttpService, protected appDataService: AppDataService, protected appConfigService: AppConfigService, private utilsService: UtilsService) {
-  }
 
   ngOnInit() {
     if (this.appDataService.public.node.wizard_done) {

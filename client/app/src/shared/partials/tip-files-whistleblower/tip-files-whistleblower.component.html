@@ -1,43 +1,58 @@
 <div id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header clearfix" (click)="toggleColLapse()">
-        <span>{{'Attachments'|translate}}</span>
-        <span class="float-end">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" title="{{'Collapse' | translate}}"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" title="{{'Expand' | translate}}"></i>
-        </span>
-    </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div class="table-responsive">
-            <table class="table table-striped" id="fileList">
-                <thead>
-                <tr>
-                    <th>{{'Filename'|translate}}</th>
-                    <th *ngIf="wbTipService.tip.enable_whistleblower_download">{{'Download' | translate}}</th>
-                    <th>{{'Upload date'|translate}}</th>
-                    <th>{{'Type'|translate}}</th>
-                    <th>{{'File size'|translate}}</th>
-                </tr>
-                </thead>
-                <tbody id="fileListBody">
-                <tr id="file-{{index}}" *ngFor="let file of getSortedWBFiles(wbTipService.tip.wbfiles | orderBy:'creation_date'); let index = index">
-                    <td>{{file.name}}</td>
-                    <td *ngIf="wbTipService.tip.enable_whistleblower_download">
-                        <button class="btn btn-sm btn-primary tip-action-download-file"
-                                [disabled]="file.error" title="{{'Download' | translate}}"
-                                (click)="downloadWBFile(file)">
-                            <i class="fa-solid fa-download"></i>
-                        </button>
-                    </td>
-                    <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-                    <td>{{file.type}}</td>
-                    <td>{{file.size | byteFmt:2}}</td>
-                </tr>
-                </tbody>
-            </table>
+  <div class="card-header clearfix" (click)="toggleColLapse()">
+    <span>{{'Attachments'|translate}}</span>
+    <span class="float-end">
+      @if (!collapsed) {
+        <i class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+      }
+      @if (collapsed) {
+        <i class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+      }
+    </span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped" id="fileList">
+          <thead>
+            <tr>
+              <th>{{'Filename'|translate}}</th>
+              @if (wbTipService.tip.enable_whistleblower_download) {
+                <th>{{'Download' | translate}}</th>
+              }
+              <th>{{'Upload date'|translate}}</th>
+              <th>{{'Type'|translate}}</th>
+              <th>{{'File size'|translate}}</th>
+            </tr>
+          </thead>
+          <tbody id="fileListBody">
+            @for (file of getSortedWBFiles(wbTipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
+              <tr id="file-{{index}}">
+                <td>{{file.name}}</td>
+                @if (wbTipService.tip.enable_whistleblower_download) {
+                  <td>
+                    <button class="btn btn-sm btn-primary tip-action-download-file"
+                      [disabled]="file.error"
+                      data-toggle="tooltip" title="{{'Download' | translate}}"
+                      (click)="downloadWBFile(file)">
+                      <i class="fa-solid fa-download"></i>
+                    </button>
+                  </td>
+                }
+                <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+                <td>{{file.type}}</td>
+                <td>{{file.size | byteFmt:2}}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <br />
+      @if (wbTipService.tip.status !== 'closed') {
+        <div>
+          <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl"></src-rfile-upload-button>
         </div>
-        <br />
-        <div *ngIf="wbTipService.tip.status !== 'closed'">
-            <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl"></src-rfile-upload-button>
-        </div>
+      }
     </div>
+  }
 </div>

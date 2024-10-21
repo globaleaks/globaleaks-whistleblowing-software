@@ -2,12 +2,13 @@ import {Directive, HostListener} from "@angular/core";
 import {AbstractControl, Validator, NG_VALIDATORS, ValidationErrors} from "@angular/forms";
 
 @Directive({
-  selector: "[customReceiptValidator]",
-  providers: [{
-    provide: NG_VALIDATORS,
-    useExisting: ReceiptValidatorDirective,
-    multi: true
-  }]
+    selector: "[customReceiptValidator]",
+    providers: [{
+            provide: NG_VALIDATORS,
+            useExisting: ReceiptValidatorDirective,
+            multi: true
+        }],
+    standalone: true
 })
 export class ReceiptValidatorDirective implements Validator {
 

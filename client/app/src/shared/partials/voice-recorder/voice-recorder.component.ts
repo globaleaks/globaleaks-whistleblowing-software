@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
 import * as Flow from "@flowjs/flow.js";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -6,12 +6,22 @@ import {Observable} from "rxjs";
 import {Field} from "@app/models/resolvers/field-template-model";
 import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 import { UtilsService } from "@app/shared/services/utils.service";
+import { NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
-  selector: "src-voice-recorder",
-  templateUrl: "./voice-recorder.component.html"
+    selector: "src-voice-recorder",
+    templateUrl: "./voice-recorder.component.html",
+    standalone: true,
+    imports: [NgClass, FormsModule]
 })
 export class VoiceRecorderComponent implements OnInit {
+  private cd = inject(ChangeDetectorRef);
+  private utilsService = inject(UtilsService);
+  private sanitizer = inject(DomSanitizer);
+  protected authenticationService = inject(AuthenticationService);
+  private submissionService = inject(SubmissionService);
+
   @Input() uploads: any;
   @Input() field: Field;
   @Input() fileUploadUrl: string;
@@ -37,9 +47,6 @@ export class VoiceRecorderComponent implements OnInit {
   entry: any;
   iframeUrl: SafeResourceUrl;
   @ViewChild("viewer") viewerFrame: ElementRef;
-
-  constructor(private cd: ChangeDetectorRef,private utilsService: UtilsService,private sanitizer: DomSanitizer, protected authenticationService: AuthenticationService, private submissionService: SubmissionService) {
-  }
 
   ngOnInit(): void {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");

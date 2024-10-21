@@ -1,64 +1,68 @@
 <form #signupform="ngForm" [ngClass]="{ 'was-validated': validated }" novalidate>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="title">{{'Sign up'|translate}}</div>
-        </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="title">{{'Sign up'|translate}}</div>
     </div>
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <label>
-                <span>{{'Site'|translate}}</span>
-                <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-            </label>
-            <div class="input-group">
-                <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" subdomainvalidators required>
-                <span class="input-group-append">
-                    <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
-                </span>
-            </div>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 form-group">
+      <label>
+        <span>{{'Site'|translate}}</span>
+        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      </label>
+      <div class="input-group">
+        <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" subdomainvalidators required>
+        <span class="input-group-append">
+          <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
+        </span>
+      </div>
     </div>
-    <div class="row">
-        <div class="col-md-6 form-group">
-            <label>{{'Name'|translate}}</label>
-            <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-            <input name="name" class="form-control" [(ngModel)]="signup.name" type="text" required>
-        </div>
-        <div class="col-md-6 form-group">
-            <label>{{'Surname'|translate}}</label>
-            <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-            <input name="surname" class="form-control" [(ngModel)]="signup.surname" type="text" required>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 form-group">
+      <label>{{'Name'|translate}}</label>
+      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <input name="name" class="form-control" [(ngModel)]="signup.name" type="text" required>
     </div>
-    <div class="row">
-        <div class="col-md-6 form-group">
-            <label>
-                <span>{{'Email address'|translate}}</span>
-                <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-            </label>
-            <input #mail_address="ngModel" name="mail_address" class="form-control" [(ngModel)]="signup.email" type="email" [ngClass]="{'is-invalid': validated && mail_address.invalid}" [pattern]="emailRegex" required>
-            <div class="text-danger" *ngIf="validated && mail_address?.errors?.['pattern']">
-                <span>{{'Invalid email address'|translate}}</span>
-            </div>
-        </div>
-        <div class="col-md-6 form-group">
-            <label>
-                <span>{{'Email address'|translate}} ({{'Confirmation'|translate}})</span>
-                <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-            </label>
-            <input name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp="" type="email" [ngClass]="{'is-invalid': validated && signup.email !== confirmation_email}" required>
-            <div class="text-danger" *ngIf="validated && signupform && mail_address.valid && signup.email !== confirmation_email">
-                <span>{{'Invalid confirmation'|translate}}</span>
-            </div>
-        </div>
+    <div class="col-md-6 form-group">
+      <label>{{'Surname'|translate}}</label>
+      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <input name="surname" class="form-control" [(ngModel)]="signup.surname" type="text" required>
     </div>
-    <src-tos [signup]="signup" [signupform]="signupform"></src-tos>
-    <div class="row">
-        <div class="col-md-12">
-            <button class="ButtonNext btn btn-primary" type="submit" (click)="(validated = true) && !signupform.invalid && complete.emit()">
-                <i class="fa-solid fa-check"></i>
-                <span>{{'Proceed'|translate}}</span>
-            </button>
+  </div>
+  <div class="row">
+    <div class="col-md-6 form-group">
+      <label>
+        <span>{{'Email address'|translate}}</span>
+        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      </label>
+      <input #mail_address="ngModel" name="mail_address" class="form-control" [(ngModel)]="signup.email" type="email" [ngClass]="{'is-invalid': validated && mail_address.invalid}" [pattern]="emailRegex" required>
+      @if (validated && mail_address?.errors?.['pattern']) {
+        <div class="text-danger">
+          <span>{{'Invalid email address'|translate}}</span>
         </div>
+      }
     </div>
+    <div class="col-md-6 form-group">
+      <label>
+        <span>{{'Email address'|translate}} ({{'Confirmation'|translate}})</span>
+        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      </label>
+      <input name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp="" type="email" [ngClass]="{'is-invalid': validated && signup.email !== confirmation_email}" required>
+      @if (validated && signupform && mail_address.valid && signup.email !== confirmation_email) {
+        <div class="text-danger">
+          <span>{{'Invalid confirmation'|translate}}</span>
+        </div>
+      }
+    </div>
+  </div>
+  <src-tos [signup]="signup" [signupform]="signupform"></src-tos>
+  <div class="row">
+    <div class="col-md-12">
+      <button class="ButtonNext btn btn-primary" type="submit" (click)="(validated = true) && !signupform.invalid && complete.emit()">
+        <i class="fa-solid fa-check"></i>
+        <span>{{'Proceed'|translate}}</span>
+      </button>
+    </div>
+  </div>
 </form>

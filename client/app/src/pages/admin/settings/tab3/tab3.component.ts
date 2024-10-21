@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from "@angular/core";
-import {NgForm} from "@angular/forms";
+import { Component, Input, OnInit, inject } from "@angular/core";
+import { NgForm, FormsModule } from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -8,20 +8,30 @@ import {TranslationService} from "@app/services/helper/translation.service";
 import {AppDataService} from "@app/app-data.service";
 import {LanguagesSupported} from "@app/models/app/public-model";
 
+import { NgSelectComponent, NgOptionTemplateDirective } from "@ng-select/ng-select";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { FilterPipe } from "@app/shared/pipes/filter.pipe";
+import { TranslateModule } from "@ngx-translate/core";
+
 @Component({
-  selector: "src-tab3",
-  templateUrl: "./tab3.component.html"
+    selector: "src-tab3",
+    templateUrl: "./tab3.component.html",
+    standalone: true,
+    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, TranslatorPipe, FilterPipe, TranslateModule]
 })
 export class Tab3Component implements OnInit {
+  private appDataService = inject(AppDataService);
+  private translationService = inject(TranslationService);
+  private appConfigService = inject(AppConfigService);
+  private utilsService = inject(UtilsService);
+  protected nodeResolver = inject(NodeResolver);
+
   @Input() contentForm: NgForm;
 
   showLangSelect = false;
   selected = {value: []};
   languageUtils: LanguageUtils
   languagesNotEnabled: LanguagesSupported[];
-
-  constructor(private appDataService: AppDataService, private translationService: TranslationService, private appConfigService: AppConfigService, private utilsService: UtilsService, protected nodeResolver: NodeResolver) {
-  }
 
   ngOnInit(): void {
     this.updateLanguages();

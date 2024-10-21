@@ -1,12 +1,22 @@
-<span *ngIf="uploading">{{'Uploading files…'|translate}}</span>
-<span *ngIf="!uploading && progress==100">{{'Upload completed successfully!'|translate}}</span>
+@if (uploading) {
+  <span>{{'Uploading files…'|translate}}</span>
+}
+@if (!uploading && progress==100) {
+  <span>{{'Upload completed successfully!'|translate}}</span>
+}
 <div id="FileUpoloadsInfo">
-    <div *ngIf="estimatedTime && uploading">
-        <span>{{'Estimated upload time:'|translate}}</span>
-        <span *ngIf="isFinite(estimatedTime)">{{estimatedTime}}</span>
-        <span>{{'seconds'|translate}}</span>
-        <div class="progress progress-striped;active" *ngIf="progress">
-           <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
+  @if (estimatedTime && uploading) {
+    <div>
+      <span>{{'Estimated upload time:'|translate}}</span>
+      @if (isFinite(estimatedTime)) {
+        <span>{{estimatedTime}}</span>
+      }
+      <span>{{'seconds'|translate}}</span>
+      @if (progress) {
+        <div class="progress progress-striped;active">
+          <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
         </div>
+      }
     </div>
+  }
 </div><br>

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 import { Observable, of, throwError } from "rxjs";
 import { HttpService } from "@app/shared/services/http.service";
@@ -11,14 +11,12 @@ import {Router} from "@angular/router";
   providedIn: "root"
 })
 export class NodeResolver {
-  dataModel: nodeResolverModel = new nodeResolverModel();
+  private router = inject(Router);
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
+  private preferenceResolver = inject(PreferenceResolver);
 
-  constructor(
-      private router: Router,
-      private httpService: HttpService,
-      private authenticationService: AuthenticationService,
-      private preferenceResolver: PreferenceResolver
-  ) {}
+  dataModel: nodeResolverModel = new nodeResolverModel();
 
   resolve(): Observable<boolean> {
     if (

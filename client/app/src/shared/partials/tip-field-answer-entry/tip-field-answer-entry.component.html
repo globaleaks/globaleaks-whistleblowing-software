@@ -1,68 +1,124 @@
-<div [ngSwitch]="field.type" class="nested">
-    <div *ngSwitchCase="'checkbox'">
-        <span *ngIf="entry">
-            <div [ngSwitch]="field.type">
-                <div *ngFor="let option of field.options">
-                    <div *ngIf="entry[option.id] === true">
+<div class="nested">
+  @switch (field.type) {
+    @case ('checkbox') {
+      <div>
+        @if (entry) {
+          <span>
+            @if (field.type) {
+              <div>
+                @for (option of field.options; track option) {
+                  <div>
+                    @if (entry[option.id] === true) {
+                      <div>
                         <i class="fa-solid fa-check-square"></i>
                         <span>{{ option.label }}</span>
-                    </div>
-                </div>
-            </div>
-        </span>
-    </div>
-    <div *ngSwitchCase="'voice'">
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </span>
+        }
+      </div>
+    }
+    @case ('voice') {
+      <div>
         <div class="audio-player-wrapper">
-            <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+          <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
         </div>
-    </div>
-    <div *ngSwitchCase="'selectbox'">
-        <div *ngFor="let option of field.options">
-            <span *ngIf="entry['value'] === option.id">{{option.label}}</span>
-        </div>
-    </div>
-    <div *ngSwitchCase="'multichoice'">
-        <div *ngFor="let option of field.options">
-            <span *ngIf="entry['value'] === option.id">{{option.label}}</span>
-        </div>
-    </div>
-    <span *ngSwitchCase="'date'">
-        <div *ngIf="entry['value']">
+      </div>
+    }
+    @case ('selectbox') {
+      <div>
+        @for (option of field.options; track option) {
+          <div>
+            @if (entry['value'] === option.id) {
+              <span>{{option.label}}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+    @case ('multichoice') {
+      <div>
+        @for (option of field.options; track option) {
+          <div>
+            @if (entry['value'] === option.id) {
+              <span>{{option.label}}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+    @case ('date') {
+      <span>
+        @if (entry['value']) {
+          <div>
             {{entry['value'] | date:'dd-MM-yyyy'}}
-        </div>
-    </span>
-    <span *ngSwitchCase="'daterange'">
-        <span *ngIf="entry['value']">
+          </div>
+        }
+      </span>
+    }
+    @case ('daterange') {
+      <span>
+        @if (entry['value']) {
+          <span>
             <span>{{'From:'|translate}}</span> {{entry['value'] | split: [":", 0] | date:'dd-MM-yyyy'}}
             <span>{{'To:'|translate}}</span> {{entry['value'] | split: [":", 1] |  date:'dd-MM-yyyy'}}
-        </span>
-    </span>
-    <span *ngSwitchCase="'tos'">
-        <span *ngIf="entry['value']">
-            <i *ngIf="entry['value'] === true" class="fa-solid fa-check-square"></i>
-            <i *ngIf="entry['value'] === false" class="fa-solid fa-square"></i>
-        </span>
-    </span>
-    <span *ngSwitchCase="'fieldgroup'">
-        <div *ngFor="let field of field.children | orderBy:['y', 'x']">
+          </span>
+        }
+      </span>
+    }
+    @case ('tos') {
+      <span>
+        @if (entry['value']) {
+          <span>
+            @if (entry['value'] === true) {
+              <i class="fa-solid fa-check-square"></i>
+            }
+            @if (entry['value'] === false) {
+              <i class="fa-solid fa-square"></i>
+            }
+          </span>
+        }
+      </span>
+    }
+    @case ('fieldgroup') {
+      <span>
+        @for (field of field.children | orderBy:['y', 'x']; track field) {
+          <div>
             <src-tip-field [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [fields]=field [fieldAnswers]=entry></src-tip-field>
-        </div>
-    </span>
-    <div *ngSwitchCase="'fileupload'">
-        <ng-container *ngFor="let wbFile of filteredWbFiles">
-            <div class="mb-2">
-                <span>{{wbFile.name}}</span>
-                <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" *ngIf="utilsService.supportedViewTypes.includes(wbFile.type)" [title]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
-                <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [title]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
-            </div>
-        </ng-container>
-    </div>
-    <span *ngSwitchDefault class="entry-text">
-        <span *ngIf="entry['value']">
+          </div>
+        }
+      </span>
+    }
+    @case ('fileupload') {
+      <div>
+        @for (wbFile of filteredWbFiles; track wbFile) {
+          <div class="mb-2">
+            <span>{{wbFile.name}}</span>
+            @if (utilsService.supportedViewTypes.includes(wbFile.type)) {
+              <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
+            }
+            <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
+          </div>
+        }
+      </div>
+    }
+    @default {
+      <span class="entry-text">
+        @if (entry['value']) {
+          <span>
             <span class="preformatted">{{maskContent(field.id, entry['index'], entry['value'])}}</span>
-            <span class="float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" *ngIf="redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)" title="{{redactOperationTitle | translate}}">
-              <i class="fa-solid fa-eraser"></i>
-            </span>
-        </span>
-    </span>
+            @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+              <span class="float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" data-toggle="tooltip" title="{{redactOperationTitle | translate}}">
+                <i class="fa-solid fa-eraser"></i>
+              </span>
+            }
+          </span>
+        }
+      </span>
+    }
+  }
 </div>

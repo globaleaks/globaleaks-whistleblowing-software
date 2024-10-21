@@ -1,43 +1,51 @@
 <div id="Toolbar" class="row">
-    <div class="col-md-12">
-        <span id="link-reload" (click)="onReload()" title="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-sync"></i>
-        </span>
-    </div>
+  <div class="col-md-12">
+    <span id="link-reload" (click)="onReload()" data-toggle="tooltip" title="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
+      <i class="fa-solid fa-sync"></i>
+    </span>
+  </div>
 </div>
-<div class="row" *ngIf="wbTipService.tip.status !== 'closed' && wbTipService.tip.context?.additional_questionnaire_id && wbTipService.tip.questionnaires.length === 1">
+@if (shouldShowAdditionalQuestionnaire()) {
+  <div class="row">
     <div class="col-md-12">
-        <src-tip-additional-questionnaire-invite></src-tip-additional-questionnaire-invite>
+      <src-tip-additional-questionnaire-invite></src-tip-additional-questionnaire-invite>
     </div>
+  </div>
+}
+<div class="row">
+  <div class="col-md-12">
+    <src-tip-info [tipService]="wbTipService"></src-tip-info>
+  </div>
+</div>
+@if (wbTipService.tip.receivers && wbTipService.tip.receivers.length > 1) {
+  <div class="row">
+    <div class="col-md-12">
+      <src-tip-receiver-list [tipService]="wbTipService"></src-tip-receiver-list>
+    </div>
+  </div>
+}
+<div class="row">
+  <div [ngClass]="{'col-md-12': !wbTipService.tip.enable_whistleblower_identity,'col-md-6': wbTipService.tip.enable_whistleblower_identity}">
+    <src-tip-questionnaire-answers [tipService]="wbTipService"></src-tip-questionnaire-answers>
+  </div>
+  @if (wbTipService.tip.enable_whistleblower_identity) {
+    <div class="col-md-6">
+      <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (onFormUpdate)="onFormChange()" (provideIdentityInformation)=provideIdentityInformation($event) [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field"></src-whistleblower-identity>
+    </div>
+  }
 </div>
 <div class="row">
-    <div class="col-md-12">
-        <src-tip-info [tipService]="wbTipService"></src-tip-info>
-    </div>
-</div>
-<div class="row" *ngIf="wbTipService.tip.receivers && wbTipService.tip.receivers.length > 1">
-    <div class="col-md-12">
-        <src-tip-receiver-list [tipService]="wbTipService"></src-tip-receiver-list>
-    </div>
+  <div class="col-md-12">
+    <src-tip-files-whistleblower [fileUploadUrl]="fileUploadUrl"></src-tip-files-whistleblower>
+    @if (wbTipService.tip.wbfiles && wbTipService.tip.wbfiles.length) {
+      <src-widget-wbfiles [receivers_by_id]="tip.receivers_by_id" [ctx]="ctx"></src-widget-wbfiles>
+    }
+  </div>
 </div>
 <div class="row">
-    <div [ngClass]="{'col-md-12': !wbTipService.tip.enable_whistleblower_identity,'col-md-6': wbTipService.tip.enable_whistleblower_identity}">
-        <src-tip-questionnaire-answers [tipService]="wbTipService"></src-tip-questionnaire-answers>
-    </div>
-    <div class="col-md-6" *ngIf="wbTipService.tip.enable_whistleblower_identity">
-        <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (onFormUpdate)="onFormChange()" (provideIdentityInformation)=provideIdentityInformation($event) [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field"></src-whistleblower-identity>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <src-tip-files-whistleblower [fileUploadUrl]="fileUploadUrl"></src-tip-files-whistleblower>
-        <src-widget-wbfiles [receivers_by_id]="tip.receivers_by_id" [ctx]="ctx" *ngIf="wbTipService.tip.wbfiles && wbTipService.tip.wbfiles.length"></src-widget-wbfiles>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <ng-container *ngIf="wbTipService">
-            <src-tip-comments [tipService]="wbTipService" [key]="'public'"></src-tip-comments>
-        </ng-container>
-    </div>
+  <div class="col-md-12">
+    @if (wbTipService) {
+      <src-tip-comments [tipService]="wbTipService" [key]="'public'"></src-tip-comments>
+    }
+  </div>
 </div>

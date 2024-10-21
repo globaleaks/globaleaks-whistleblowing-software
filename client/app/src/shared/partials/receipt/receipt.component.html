@@ -1,23 +1,25 @@
 <form id="WhistleblowerLoginForm" autocomplete="off" novalidate>
-    <div>
-        <label id="WhistleblowerLoginQuestion" for="receipt-input">
-            {{'Have you already filed a report? Enter your receipt.'|translate}}
-        </label>
+  <div>
+    <label id="WhistleblowerLoginQuestion" for="receipt-input">
+      {{'Have you already filed a report? Enter your receipt.'|translate}}
+    </label>
+  </div>
+  <div class="d-flex justify-content-start">
+    <div class="form-group d-block mx-auto">
+      <div class="input-group">
+        <input class="d-none" type="password" name="disable-autocomplete" />
+        <input [autocomplete]="'off'" #receiptinput="ngModel" [(ngModel)]="formattedReceipt" id="receipt-input" class="form-control text-center rounded-start" type="text" autocomplete="receipt" name="receipt" maxlength="19" size="19" customReceiptValidator>
+        <button [disabled]="formattedReceipt.length < 16 || authenticationService.loginInProgress || !receiptinput.errors?.['receiptvalidator']" (click)="viewReport()" id="ReceiptButton" class="btn btn-primary" type="submit">
+          <span>
+            {{'Log in'|translate}}
+          </span>
+        </button>
+      </div>
     </div>
-    <div class="d-flex justify-content-start">
-        <div class="form-group d-block mx-auto">
-            <div class="input-group">
-                <input class="d-none" type="password" name="disable-autocomplete" />
-                <input [autocomplete]="'off'" #receiptinput="ngModel" [(ngModel)]="formattedReceipt" id="receipt-input" class="form-control text-center rounded-start" type="text" autocomplete="receipt" name="receipt" maxlength="19" size="19" customReceiptValidator>
-                <button [disabled]="formattedReceipt.length < 16 || authenticationService.loginInProgress || !receiptinput.errors?.['receiptvalidator']" (click)="viewReport()" id="ReceiptButton" class="btn btn-primary" type="submit">
-                    <span>
-                        {{'Log in'|translate}}
-                    </span>
-                </button>
-            </div>
-        </div>
-    </div>
+  </div>
 </form>
-<div *ngIf="appDataService.errorCodes.code === 9" class="login-error-box-homepage text-danger">
+@if (appDataService.errorCodes.code === 9) {
+  <div class="login-error-box-homepage text-danger">
     {{'The receipt is either invalid or the report has expired.'|translate}}
-</div>
+  </div>
+}

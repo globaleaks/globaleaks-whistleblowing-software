@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable, Renderer2} from "@angular/core";
+import { EventEmitter, Injectable, Renderer2, inject } from "@angular/core";
 import * as Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -36,10 +36,20 @@ import {CryptoService} from "@app/shared/services/crypto.service";
   providedIn: "root"
 })
 export class UtilsService {
-  supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
+  private authenticationService = inject(AuthenticationService);
+  private activatedRoute = inject(ActivatedRoute);
+  protected appDataService = inject(AppDataService);
+  private cryptoService = inject(CryptoService);
+  private tokenResource = inject(TokenResource);
+  private translateService = inject(TranslateService);
+  private clipboardService = inject(ClipboardService);
+  private http = inject(HttpClient);
+  private httpService = inject(HttpService);
+  private modalService = inject(NgbModal);
+  private preferenceResolver = inject(PreferenceResolver);
+  private router = inject(Router);
 
-  constructor(private authenticationService: AuthenticationService,private activatedRoute: ActivatedRoute,protected appDataService: AppDataService,private cryptoService: CryptoService, private tokenResource: TokenResource,private translateService: TranslateService, private clipboardService: ClipboardService, private http: HttpClient, private httpService: HttpService, private modalService: NgbModal, private preferenceResolver: PreferenceResolver, private router: Router) {
-  }
+  supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
   updateNode(nodeResolverModel:nodeResolverModel) {
     this.httpService.updateNodeResource(nodeResolverModel).subscribe();
@@ -292,7 +302,7 @@ export class UtilsService {
     let text;
     for (let i = 0; i < submission_statuses.length; i++) {
       if (submission_statuses[i].id === status) {
-        text = this.translateService.instant(submission_statuses[i].label ? submission_statuses[i].label : '');
+        text = this.translateService.instant(submission_statuses[i].label);
 
         const subStatus = submission_statuses[i].substatuses;
         for (let j = 0; j < subStatus.length; j++) {
@@ -308,19 +318,20 @@ export class UtilsService {
   }
 
   searchInObject(obj: any, searchTerm: string) {
-    try {
-        // Convert object to a string
-        const objString = JSON.stringify(obj);
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
 
-        // Create a regular expression for the search term with 'i' flag for case-insensitive search
-        const regex = new RegExp(searchTerm, 'i');
-
-        // Test if the search term is found in the object string
-        return regex.test(objString);
-    } catch (error) {
-        // Return false in case of any exception (e.g., cyclic reference or BigInt error)
-        return false;
+        if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return true;
+        } else if (typeof value === 'object') {
+          if (this.searchInObject(value, searchTerm)) {
+            return true;
+          }
+        }
+      }
     }
+    return false;
   }
 
   isDatePassed(time: string) {
@@ -709,21 +720,12 @@ export class UtilsService {
 
     const headers = Object.keys(data[0] || {});
     const newHeader = headerx.join(',');
+    const csvContent = `${newHeader ? `${newHeader}\n` : ""}${data.map(row => headers.map(header => row[header]).join(',')).join('\n')}`;
 
-    // Create CSV content with custom headers and stringified objects
-    const csvContent = [
-      headers.join(','), // First line: headers
-      ...data.map(row => headers.map(header => {
-        const value = row[header];
-
-        // Check if the value is an object or an array and stringify it
-        if (typeof value === 'object' && value !== null) {
-          return `"${JSON.stringify(value).replace(/"/g, '""')}"`; // Escape quotes and stringify
-        }
-
-        return `"${value !== undefined ? String(value).replace(/"/g, '""') : ''}"`; // Escape quotes for normal strings
-      }).join(','))
-    ].join('\n');
+    if (!csvContent.trim()) {
+      console.warn('No data to export');
+      return;
+    }
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const link = document.createElement('a');

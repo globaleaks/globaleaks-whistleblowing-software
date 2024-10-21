@@ -1,50 +1,60 @@
 <div class="fileUploadBox mt-2 mb-2">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="file-preview">
-                <div class="file-buttons" *ngIf="!formUploader || (!file.flowFile.isComplete() && !file.flowFile.isUploading())">
-                    <div *ngIf="appDataService.page === 'submissionpage' || !file.complete" class="removeFileButton text-danger">
-                        <div class="btn btn-sm btn-danger" (click)="file.flowFile.cancel()">
-                            <i class="fa-solid fa-times" aria-label="{'Remove' | translate}"></i>
-                        </div>
-                    </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="file-preview">
+        @if (!formUploader || (!file.flowFile.isComplete() && !file.flowFile.isUploading())) {
+          <div class="file-buttons">
+            @if (appDataService.page === 'submissionpage' || !file.complete) {
+              <div class="removeFileButton text-danger">
+                <div class="btn btn-sm btn-danger" (click)="file.flowFile.cancel()">
+                  <i class="fa-solid fa-times" aria-label="{'Remove' | translate}"></i>
                 </div>
-                <div class="file-upload">
-                    <div>
-                        <div class="file-upload-icon" *ngIf="file.error">
-                            <i class="fa-solid fa-ban-circle"></i>
-                        </div>
-                        <div class="file-upload-icon" *ngIf="!file.error && !file.complete">
-                            <i class="fa-solid fa-file"></i>
-                        </div>
-                        <div class="file-upload-icon" *ngIf="!file.error && file.complete">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                    </div>
-                    <div class="file-upload-progress progress progress-striped" [ngClass]="{'invisible': file.paused || file.progress === 0}">
-                        <ng-container *ngIf="file.progress !== 1">
-                            <div class="progress-bar" role="progressbar" [ngStyle]="{'width': (file.progress * 100) + '%'}"></div>
-                        </ng-container>
-                        <ng-container *ngIf="file.progress === 1">
-                            <div class="progress-bar progress-bar-complete" [attr.data-cy]="'progress-bar-complete'" role="progressbar" [ngStyle]="{'width': (file.progress * 100) + '%'}"></div>
-                        </ng-container>
-                    </div>
-                </div>
-            </div>
+              </div>
+            }
+          </div>
+        }
+        <div class="file-upload">
+          <div>
+            @if (file.error) {
+              <div class="file-upload-icon">
+                <i class="fa-solid fa-ban-circle"></i>
+              </div>
+            }
+            @if (!file.error && !file.complete) {
+              <div class="file-upload-icon">
+                <i class="fa-solid fa-file"></i>
+              </div>
+            }
+            @if (!file.error && file.complete) {
+              <div class="file-upload-icon">
+                <i class="fa-solid fa-check"></i>
+              </div>
+            }
+          </div>
+          <div class="file-upload-progress progress progress-striped" [ngClass]="{'invisible': file.paused || file.progress === 0}">
+            @if (file.progress !== 1) {
+              <div class="progress-bar" role="progressbar" [ngStyle]="{'width': (file.progress * 100) + '%'}"></div>
+            }
+            @if (file.progress === 1) {
+              <div class="progress-bar progress-bar-complete" [attr.data-cy]="'progress-bar-complete'" role="progressbar" [ngStyle]="{'width': (file.progress * 100) + '%'}"></div>
+            }
+          </div>
         </div>
-        <div class="col-md-8">
-            <div class="pl-2 pr-2">
-                <div>
-                    <label class="fileName">{{file.name}}</label>
-                </div>
-                <div>
-                    <label class="fileSize">
-                        <span>{{'Size:'|translate}}</span>
-                        <span>{{file.size | byteFmt:2}}</span>
-                    </label>
-                </div>
-                <br />
-            </div>
-        </div>
+      </div>
     </div>
+    <div class="col-md-8">
+      <div class="pl-2 pr-2">
+        <div>
+          <label class="fileName">{{file.name}}</label>
+        </div>
+        <div>
+          <label class="fileSize">
+            <span>{{'Size:'|translate}}</span>
+            <span>{{file.size | byteFmt:2}}</span>
+          </label>
+        </div>
+        <br />
+      </div>
+    </div>
+  </div>
 </div>

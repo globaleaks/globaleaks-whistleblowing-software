@@ -1,14 +1,22 @@
 <div id="TipPageReceiversInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header d-flex justify-content-between" (click)="toggleCollapse();utilsService.stopPropagation($event)">
-        <span>{{'Recipients'|translate}}</span>
-        <span class="">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" title="{{'Collapse' | translate}}"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" title="{{'Expand' | translate}}"></i>
-        </span>
-    </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div *ngFor="let receiver of tipService.tip.receivers">
-            <div>{{tipService.tip.receivers_by_id[receiver.id].name}}</div>
+  <div class="card-header d-flex justify-content-between" (click)="toggleCollapse();utilsService.stopPropagation($event)">
+    <span>{{'Recipients'|translate}}</span>
+    <span class="">
+      @if (!collapsed) {
+        <i class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+      }
+      @if (collapsed) {
+        <i class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+      }
+    </span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      @for (receiver of tipService.tip.receivers; track receiver) {
+        <div>
+          <div>{{tipService.tip.receivers_by_id[receiver.id].name}}</div>
         </div>
+      }
     </div>
+  }
 </div>

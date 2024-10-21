@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild, inject } from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -6,18 +6,27 @@ import * as Flow from "@flowjs/flow.js";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {AdminFile} from "@app/models/component-model/admin-file";
+import { NgClass } from "@angular/common";
+import { NgxFlowModule } from "@flowjs/ngx-flow";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-admin-file",
-  templateUrl: "./admin-file.component.html"
+    selector: "src-admin-file",
+    templateUrl: "./admin-file.component.html",
+    standalone: true,
+    imports: [NgClass, NgxFlowModule, TranslateModule, TranslatorPipe]
 })
 export class AdminFileComponent implements OnInit {
+  protected node = inject(NodeResolver);
+  protected appConfigService = inject(AppConfigService);
+  protected appDataService = inject(AppDataService);
+  protected utilsService = inject(UtilsService);
+  protected authenticationService = inject(AuthenticationService);
+
   @Input() adminFile: AdminFile;
   nodeData: { [key: string]: string[] | boolean } = {};
   @ViewChild("uploader") uploaderInput!: ElementRef<HTMLInputElement>;
-
-  constructor(protected node: NodeResolver, protected appConfigService: AppConfigService, protected appDataService: AppDataService, protected utilsService: UtilsService, protected authenticationService: AuthenticationService) {
-  }
 
   ngOnInit() {
     this.nodeData["css"] = this.appDataService.public.node.css;

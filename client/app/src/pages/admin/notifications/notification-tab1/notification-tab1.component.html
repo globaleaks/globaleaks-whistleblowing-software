@@ -1,102 +1,108 @@
 <div id="UserWarnings">
-    <div class="alert alert-secondary" *ngIf="notificationResolver.dataModel.smtp_server === 'mail.globaleaks.org'">
-        <i class="fa-solid fa-exclamation-circle"></i>
-        <span>{{ 'Default mail configuration in use. Please consider using a private mail server.' | translate }}</span>
+  @if (notificationResolver.dataModel.smtp_server === 'mail.globaleaks.org') {
+    <div class="alert alert-secondary">
+      <i class="fa-solid fa-exclamation-circle"></i>
+      <span>{{ 'Default mail configuration in use. Please consider using a private mail server.' | translate }}</span>
     </div>
+  }
 </div>
 <div class="row">
-    <div class="col-md-12">
-        <div class="form-group">
-            <label>{{ 'SMTP email address' | translate }}</label>
-            <input class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp_source_email" [pattern]="Constants.emailRegexp" type="text" />
-        </div>
-        <div class="text-danger" *ngIf="source_email?.errors?.['pattern']">
-            <span>{{ 'Invalid email address' | translate }}</span>
-        </div>
-        <div class="form-group">
-            <label>{{ 'SMTP server address' | translate }}</label>
-            <input class="form-control" name="notification.dataModel.smtp_server" [(ngModel)]="notificationResolver.dataModel.smtp_server" type="text" />
-        </div>
-        <div class="form-group">
-            <label>{{ 'SMTP server port' | translate }}</label>
-            <input class="form-control" name="notification.dataModel.smtp_port" [(ngModel)]="notificationResolver.dataModel.smtp_port" type="number" />
-        </div>
-        <div class="form-group">
-            <label>{{ 'Security' | translate }}</label>
-            <select class="form-select-custom" name="notification.dataModel.smtp_security" [(ngModel)]="notificationResolver.dataModel.smtp_security">
-                <option value="PLAIN">PLAIN</option>
-                <option value="SSL">SMTPS</option>
-                <option value="TLS">SMTP/TLS</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input class="form-check-input" name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
-            <label>{{ 'Require authentication' | translate }}</label>
-        </div>
-        <div *ngIf="notificationResolver.dataModel.smtp_authentication">
-            <div class="form-group">
-                <label>{{ 'Username' | translate }}</label>
-                <input class="form-control" name="notification.dataModel.smtp_username" [(ngModel)]="notificationResolver.dataModel.smtp_username" type="text" />
-            </div>
-            <div class="form-group">
-                <label>{{ 'Password' | translate }}</label>
-                <input class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label>{{ 'Notifications' | translate }}</label>
-        </div>
-        <table class="table table-bordered">
-            <thead>
-              <th>{{ 'Role' | translate }}</th>
-              <th>{{ 'Enabled' | translate }}</th>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{{ 'Admin' | translate }}</td>
-                <td>
-                  <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_admin_notification_emails" type="checkbox">
-                </td>
-              </tr>
-              <tr>
-                <td>{{ 'Analyst' | translate }}</td>
-                <td>
-                  <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_analyst_notification_emails" type="checkbox">
-                </td>
-              </tr>
-              <tr>
-                <td>{{ 'Custodian' | translate }}</td>
-                <td>
-                  <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_custodian_notification_emails" type="checkbox">
-                </td>
-              </tr>
-              <tr>
-                <td>{{ 'Recipient' | translate }}</td>
-                <td>
-                  <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_receiver_notification_emails" type="checkbox">
-                </td>
-              </tr>
-            </tbody>
-        </table>
-        <div class="form-group">
-            <label>{{ 'Number of hours before sending a report expiration alert' | translate }}</label>
-            <input class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold" type="number" />
-        </div>
-        <div class="form-group">
-            <button class="btn btn-primary" [disabled]="notificationForm.invalid" (click)="updateNotification(notificationResolver.dataModel)" type="submit">
-                <i class="fa-solid fa-check"></i>
-                <span id="save_notification">{{ 'Save' | translate }}</span>
-            </button>
-            <button title="{{'Send a test email to your email address.' | translate}}" (click)="updateThenTestMail(notificationResolver.dataModel)" class="btn btn-primary">
-                <i class="fa-solid fa-envelope"></i>
-                <span>{{ 'Test the configuration' | translate }}</span>
-            </button>
-            <button (click)="resetSMTPSettings()" class="btn btn-primary">
-                <span>{{ 'Reset SMTP configuration' | translate }}</span>
-            </button>
-            <button (click)="resetTemplates()" class="btn btn-primary">
-                <span>{{ 'Reset notification templates to default' | translate }}</span>
-            </button>
-        </div>
+  <div class="col-md-12">
+    <div class="form-group">
+      <label>{{ 'SMTP email address' | translate }}</label>
+      <input class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp_source_email" [pattern]="Constants.emailRegexp" type="text" />
     </div>
+    @if (source_email?.errors?.['pattern']) {
+      <div class="text-danger">
+        <span>{{ 'Invalid email address' | translate }}</span>
+      </div>
+    }
+    <div class="form-group">
+      <label>{{ 'SMTP server address' | translate }}</label>
+      <input class="form-control" name="notification.dataModel.smtp_server" [(ngModel)]="notificationResolver.dataModel.smtp_server" type="text" />
+    </div>
+    <div class="form-group">
+      <label>{{ 'SMTP server port' | translate }}</label>
+      <input class="form-control" name="notification.dataModel.smtp_port" [(ngModel)]="notificationResolver.dataModel.smtp_port" type="number" />
+    </div>
+    <div class="form-group">
+      <label>{{ 'Security' | translate }}</label>
+      <select class="form-select-custom" name="notification.dataModel.smtp_security" [(ngModel)]="notificationResolver.dataModel.smtp_security">
+        <option value="PLAIN">PLAIN</option>
+        <option value="SSL">SMTPS</option>
+        <option value="TLS">SMTP/TLS</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <input class="form-check-input" name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
+      <label>{{ 'Require authentication' | translate }}</label>
+    </div>
+    @if (notificationResolver.dataModel.smtp_authentication) {
+      <div>
+        <div class="form-group">
+          <label>{{ 'Username' | translate }}</label>
+          <input class="form-control" name="notification.dataModel.smtp_username" [(ngModel)]="notificationResolver.dataModel.smtp_username" type="text" />
+        </div>
+        <div class="form-group">
+          <label>{{ 'Password' | translate }}</label>
+          <input class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
+        </div>
+      </div>
+    }
+    <div class="form-group">
+      <label>{{ 'Notifications' | translate }}</label>
+    </div>
+    <table class="table table-bordered">
+      <thead>
+        <th>{{ 'Role' | translate }}</th>
+        <th>{{ 'Enabled' | translate }}</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ 'Admin' | translate }}</td>
+          <td>
+            <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_admin_notification_emails" type="checkbox">
+          </td>
+        </tr>
+        <tr>
+          <td>{{ 'Analyst' | translate }}</td>
+          <td>
+            <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_analyst_notification_emails" type="checkbox">
+          </td>
+        </tr>
+        <tr>
+          <td>{{ 'Custodian' | translate }}</td>
+          <td>
+            <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_custodian_notification_emails" type="checkbox">
+          </td>
+        </tr>
+        <tr>
+          <td>{{ 'Recipient' | translate }}</td>
+          <td>
+            <input class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_receiver_notification_emails" type="checkbox">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="form-group">
+      <label>{{ 'Number of hours before sending a report expiration alert' | translate }}</label>
+      <input class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold" type="number" />
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary" [disabled]="notificationForm.invalid" (click)="updateNotification(notificationResolver.dataModel)" type="submit">
+        <i class="fa-solid fa-check"></i>
+        <span id="save_notification">{{ 'Save' | translate }}</span>
+      </button>
+      <button data-toggle="tooltip" title="{{'Send a test email to your email address.' | translate}}" (click)="updateThenTestMail(notificationResolver.dataModel)" class="btn btn-primary">
+        <i class="fa-solid fa-envelope"></i>
+        <span>{{ 'Test the configuration' | translate }}</span>
+      </button>
+      <button (click)="resetSMTPSettings()" class="btn btn-primary">
+        <span>{{ 'Reset SMTP configuration' | translate }}</span>
+      </button>
+      <button (click)="resetTemplates()" class="btn btn-primary">
+        <span>{{ 'Reset notification templates to default' | translate }}</span>
+      </button>
+    </div>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable, of} from "rxjs";
 import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -10,6 +10,10 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class RTipsResolver {
+  private utilsService = inject(UtilsService);
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
+
   dataModel: rtipResolverModel[] = [];
 
   reload() {
@@ -19,9 +23,6 @@ export class RTipsResolver {
         this.utilsService.reloadComponent();
       }
     );
-  }
-
-  constructor(private utilsService: UtilsService, private httpService: HttpService, private authenticationService: AuthenticationService) {
   }
 
   resolve(): Observable<boolean> {

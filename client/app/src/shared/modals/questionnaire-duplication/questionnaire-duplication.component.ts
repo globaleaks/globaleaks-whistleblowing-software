@@ -1,20 +1,26 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Input} from "@angular/core";
+import { Component, Input, inject } from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import { FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-questionnaire-duplication",
-  templateUrl: "./questionnaire-duplication.component.html"
+    selector: "src-questionnaire-duplication",
+    templateUrl: "./questionnaire-duplication.component.html",
+    standalone: true,
+    imports: [FormsModule, TranslateModule, TranslatorPipe]
 })
 export class QuestionnaireDuplicationComponent {
+  private utilsService = inject(UtilsService);
+  private http = inject(HttpClient);
+  private modalService = inject(NgbModal);
+
   @Input() questionnaire: questionnaireResolverModel;
   @Input() operation: string;
   duplicate_questionnaire: { name: string } = {name: ""};
-
-  constructor(private utilsService: UtilsService, private http: HttpClient, private modalService: NgbModal) {
-  }
 
   cancel() {
     this.modalService.dismissAll();

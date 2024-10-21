@@ -1,27 +1,29 @@
 <div class="modal-header">
-    <div class="modal-title">{{ 'Change status' | translate }}</div>
+  <div class="modal-title">{{ 'Change status' | translate }}</div>
 </div>
 <div class="modal-body">
-    <div>{{ 'Status:' | translate }}</div>
-    <select id="assignSubmissionStatus" class="form-control" [(ngModel)]="arg.status">
-        <option *ngFor="let state of arg.submission_statuses.slice(1)" [ngValue]="state">
-            {{ state.label | translate }}
-        </option>
-    </select>
-    <div class="mt-2">
-        <span>{{ 'Motivation' | translate }}</span>
-    </div>
-    <div class="form-group">
-        <textarea name="reason" class="form-control" [(ngModel)]="arg.motivation"></textarea>
-    </div>
+  <div>{{ 'Status:' | translate }}</div>
+  <select id="assignSubmissionStatus" class="form-control" [(ngModel)]="arg.status">
+    @for (state of arg.submission_statuses.slice(1); track state) {
+      <option [ngValue]="state">
+        {{ state.label | translate }}
+      </option>
+    }
+  </select>
+  <div class="mt-2">
+    <span>{{ 'Motivation' | translate }}</span>
+  </div>
+  <div class="form-group">
+    <textarea name="reason" class="form-control" [(ngModel)]="arg.motivation"></textarea>
+  </div>
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg.status,arg.motivation)">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Confirm' | translate }}</span>
-    </button>
-    <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{ 'Cancel' | translate }}</span>
-    </span>
+  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg.status,arg.motivation)">
+    <i class="fa-solid fa-check"></i>
+    <span>{{ 'Confirm' | translate }}</span>
+  </button>
+  <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fa-solid fa-times"></i>
+    <span>{{ 'Cancel' | translate }}</span>
+  </span>
 </div>

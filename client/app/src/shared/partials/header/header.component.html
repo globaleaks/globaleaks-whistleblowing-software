@@ -1,23 +1,25 @@
 <header id="HeaderBox" class="p-3">
-    <div class="d-flex flex-wrap justify-content-between">
-        <div id="HeaderBox1">
-            <div id="LogoBox" class="mb-3" (click)="appConfig.setHomepage()">
-                <img class="img-fluid pointer" [alt]="appDataService.projectTitle" src="{{appDataService.public.node.logo ? 's/logo' : 'data/logo.png'}}" />
-            </div>
-            <div id="TitleBox">
-                <ng-container *ngIf="appDataService.projectTitle || appDataService.pageTitle">
-                    <h1>
-                        <span id="ProjectTitle" (click)="appConfig.setHomepage()">
-                            <a href="">{{appDataService.projectTitle}}</a>
-                        </span>
-                        <span class="TitleSeparator" *ngIf="appDataService.projectTitle && appDataService.pageTitle"> - </span>
-                        <span id="PageTitle">{{appDataService ? appDataService.pageTitle ? appDataService.pageTitle : '' : '' | translate}}</span>
-                    </h1>
-                </ng-container>
-            </div>
-        </div>
-        <div id="HeaderBox2">
-            <views-user id="UserBox"></views-user>
-        </div>
+  <div class="d-flex flex-wrap justify-content-between">
+    <div id="HeaderBox1">
+      <div id="LogoBox" class="mb-3" (click)="appConfig.setHomepage()">
+        <img class="img-fluid pointer" [alt]="appDataService.projectTitle" src="{{appDataService.public.node.logo ? 's/logo' : 'data/logo.png'}}" />
+      </div>
+      <div id="TitleBox">
+        @if (appDataService.projectTitle || appDataService.pageTitle) {
+          <h1>
+            <span id="ProjectTitle" (click)="appConfig.setHomepage()">
+              <a href="">{{appDataService.projectTitle}}</a>
+            </span>
+            @if (appDataService.projectTitle && appDataService.pageTitle) {
+              <span class="TitleSeparator"> - </span>
+            }
+            <span id="PageTitle">{{appDataService ? appDataService.pageTitle ? appDataService.pageTitle : '' : '' | translate}}</span>
+          </h1>
+        }
+      </div>
     </div>
+    <div id="HeaderBox2">
+      <views-user id="UserBox"></views-user>
+    </div>
+  </div>
 </header>

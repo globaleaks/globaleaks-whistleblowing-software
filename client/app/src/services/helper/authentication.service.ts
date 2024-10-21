@@ -1,4 +1,4 @@
-import {Injectable, SecurityContext} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {Observable} from "rxjs";
@@ -10,20 +10,26 @@ import {TitleService} from "@app/shared/services/title.service";
 import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
-import {DomSanitizer} from '@angular/platform-browser';
-
 
 @Injectable({
   providedIn: "root"
 })
 export class AuthenticationService {
+  private http = inject(HttpClient);
+  private modalService = inject(NgbModal);
+  private titleService = inject(TitleService);
+  private activatedRoute = inject(ActivatedRoute);
+  private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
+  private router = inject(Router);
+
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
   loginInProgress: boolean = false;
   requireAuthCode: boolean = false;
   loginData: LoginDataRef = new LoginDataRef();
 
-  constructor(private http: HttpClient, private modalService: NgbModal,private titleService: TitleService, private activatedRoute: ActivatedRoute, private httpService: HttpService, private appDataService: AppDataService, private router: Router, private sanitizer: DomSanitizer) {
+  constructor() {
     this.init();
   }
 
@@ -103,11 +109,9 @@ export class AuthenticationService {
     requestObservable.subscribe(
       {
         next: (response: Session) => {
+          this.reset()
           if (response.redirect) {
-            response.redirect = this.sanitizer.sanitize(SecurityContext.URL, response.redirect) || '';
-	    if (response.redirect) {
-              this.router.navigate([response.redirect]).then();
-	    }
+            this.router.navigate([response.redirect]).then();
           }
           this.setSession(response);
           if (response && response && response.properties && response.properties.new_receipt) {
@@ -130,39 +134,36 @@ export class AuthenticationService {
             };
             return;
           }
-
-          if (this.session.role === "whistleblower") {
-            if (password) {
-              this.appDataService.receipt = password;
-              this.titleService.setPage("tippage");
-            } else if (this.session.properties.operator_session) {
-              this.router.navigate(['/']);
-            }
+          const src = this.activatedRoute.snapshot.queryParams['src'];
+          if (src) {
+            this.router.navigate([src]).then();
+            location.replace(src);
           } else {
-            if (!callback) {
-              this.reset();
-
-              let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || undefined;
-              redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
-              redirect = decodeURIComponent(redirect);
-
-	      if (redirect !== "/") {
-                redirect = this.sanitizer.sanitize(SecurityContext.URL, redirect) || '';
-
-		// Honor only local redirects
-                if (redirect.startsWith("/")) {
-                  this.router.navigate([redirect]);
-		}
-              } else {
-                this.appDataService.updateShowLoadingPanel(true);
-                this.router.navigate([this.session.homepage], {
-                  queryParams: this.activatedRoute.snapshot.queryParams,
-                  queryParamsHandling: "merge"
-                }).then();
+            if (this.session.role === "whistleblower") {
+              if (password) {
+                this.appDataService.receipt = password;
+                this.titleService.setPage("tippage");
+              } else if (this.session.properties.operator_session) {
+                this.router.navigate(['/']);
+              }
+            } else {
+              if (!callback) {
+                let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || undefined;
+                this.reset();
+                redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
+                const redirectURL = decodeURIComponent(redirect);
+                if (redirectURL !== "/") {
+                  this.router.navigate([redirectURL]);
+                } else {
+                  this.appDataService.updateShowLoadingPanel(true);
+                  this.router.navigate([this.session.homepage], {
+                    queryParams: this.activatedRoute.snapshot.queryParams,
+                    queryParamsHandling: "merge"
+                  }).then();
+                }
               }
             }
           }
-
           if (callback) {
             callback();
           }

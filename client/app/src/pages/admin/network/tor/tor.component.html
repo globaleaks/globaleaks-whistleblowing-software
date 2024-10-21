@@ -1,94 +1,98 @@
-<ng-container *ngIf="networkData">
-    <div class="form-group">
-        <div class="input-group">
-            <span class="input-group-prepend">
-                <span class="input-group-text rounded-end-0">{{ 'Tor Onion Service' | translate }}</span>
-            </span>
-            <input name="onionservice" class="form-control" type="text" [value]="networkData.onionservice" disabled />
-            <span class="input-group-append">
-                <button class="btn btn-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
-                    (click)="resetOnionPrivateKey()">
-                    <i class="fa-solid fa-sync"></i>
-                    <span>{{ 'Regenerate' | translate }}</span>
-                </button>
-            </span>
-        </div>
+@if (networkData) {
+  <div class="form-group">
+    <div class="input-group">
+      <span class="input-group-prepend">
+        <span class="input-group-text rounded-end-0">{{ 'Tor Onion Service' | translate }}</span>
+      </span>
+      <input name="onionservice" class="form-control" type="text" [value]="networkData.onionservice" disabled />
+      <span class="input-group-append">
+        <button class="btn btn-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
+          (click)="resetOnionPrivateKey()">
+          <i class="fa-solid fa-sync"></i>
+          <span>{{ 'Regenerate' | translate }}</span>
+        </button>
+      </span>
     </div>
-    <div class="card card-default">
-        <div class="card-body">
-            <form #adminNetForm="ngForm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group" *ngIf="nodeResolver.dataModel.root_tenant">
-                            <input class="form-check-input" [(ngModel)]="networkData.anonymize_outgoing_connections"
-                                name="anonymize_outgoing_connections" type="checkbox">
-                            <label>{{ 'Anonymize outgoing connections' | translate }}</label>
-                        </div>
-                        <div class="form-group">
-                            <input class="form-check-input" [(ngModel)]="networkData.reachable_via_web" name="reachable_via_web" type="checkbox">
-                            <label>{{ 'Let the platform be reachable without Tor' | translate }}</label>
-                        </div>
-                        <div *ngIf="networkData.reachable_via_web">
-                            <div class="form-group">
-                                <label>{{ 'Roles enabled to use the platform without Tor' | translate }}</label>
-                            </div>
-                            <table class="table table-bordered">
-                                <thead>
-                                    <th>{{ 'Role' | translate }}</th>
-                                    <th>{{ 'Enabled' | translate }}</th>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>{{ 'Admin' | translate }}</td>
-                                        <td>
-                                            <input class="form-check-input" [(ngModel)]="networkData.https_admin" name="https_admin"
-                                                type="checkbox">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ 'Analyst' | translate }}</td>
-                                        <td>
-                                            <input class="form-check-input" [(ngModel)]="networkData.https_analyst" name="https_analyst"
-                                                type="checkbox">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ 'Custodian' | translate }}</td>
-                                        <td>
-                                            <input class="form-check-input" [(ngModel)]="networkData.https_custodian" name="https_custodian"
-                                                type="checkbox">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ 'Recipient' | translate }}</td>
-                                        <td>
-                                            <input class="form-check-input" [(ngModel)]="networkData.https_receiver" name="https_receiver"
-                                                type="checkbox">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{ 'Whistleblower' | translate }}</td>
-                                        <td>
-                                            <input class="form-check-input" [(ngModel)]="networkData.https_whistleblower"
-                                                name="https_whistleblower" type="checkbox">
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+  </div>
+  <div class="card card-default">
+    <div class="card-body">
+      <form #adminNetForm="ngForm">
+        <div class="row">
+          <div class="col-md-12">
+            @if (nodeResolver.dataModel.root_tenant) {
+              <div class="form-group">
+                <input class="form-check-input" [(ngModel)]="networkData.anonymize_outgoing_connections"
+                  name="anonymize_outgoing_connections" type="checkbox">
+                <label>{{ 'Anonymize outgoing connections' | translate }}</label>
+              </div>
+            }
+            <div class="form-group">
+              <input class="form-check-input" [(ngModel)]="networkData.reachable_via_web" name="reachable_via_web" type="checkbox">
+              <label>{{ 'Let the platform be reachable without Tor' | translate }}</label>
+            </div>
+            @if (networkData.reachable_via_web) {
+              <div>
+                <div class="form-group">
+                  <label>{{ 'Roles enabled to use the platform without Tor' | translate }}</label>
                 </div>
-                <hr />
-                <div class="row">
-                    <div class="col-md-6">
-                        <button class="btn btn-primary" [disabled]="adminNetForm.invalid"
-                            (click)="updateTor(networkData)" type="submit">
-                            <i class="fa-solid fa-check"></i>
-                            <span>{{ 'Save' | translate }}</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
+                <table class="table table-bordered">
+                  <thead>
+                    <th>{{ 'Role' | translate }}</th>
+                    <th>{{ 'Enabled' | translate }}</th>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>{{ 'Admin' | translate }}</td>
+                      <td>
+                        <input class="form-check-input" [(ngModel)]="networkData.https_admin" name="https_admin"
+                          type="checkbox">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'Analyst' | translate }}</td>
+                      <td>
+                        <input class="form-check-input" [(ngModel)]="networkData.https_analyst" name="https_analyst"
+                          type="checkbox">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'Custodian' | translate }}</td>
+                      <td>
+                        <input class="form-check-input" [(ngModel)]="networkData.https_custodian" name="https_custodian"
+                          type="checkbox">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'Recipient' | translate }}</td>
+                      <td>
+                        <input class="form-check-input" [(ngModel)]="networkData.https_receiver" name="https_receiver"
+                          type="checkbox">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'Whistleblower' | translate }}</td>
+                      <td>
+                        <input class="form-check-input" [(ngModel)]="networkData.https_whistleblower"
+                          name="https_whistleblower" type="checkbox">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
         </div>
+        <hr />
+        <div class="row">
+          <div class="col-md-6">
+            <button class="btn btn-primary" [disabled]="adminNetForm.invalid"
+              (click)="updateTor(networkData)" type="submit">
+              <i class="fa-solid fa-check"></i>
+              <span>{{ 'Save' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
-</ng-container>
+  </div>
+}

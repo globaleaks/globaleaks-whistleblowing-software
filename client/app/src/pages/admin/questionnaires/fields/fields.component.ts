@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
-import {NgForm} from "@angular/forms";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import { Component, EventEmitter, Input, OnInit, Output, inject } from "@angular/core";
+import { NgForm, FormsModule } from "@angular/forms";
+import { NgbModal, NgbInputDatepicker } from "@ng-bootstrap/ng-bootstrap";
 import {AddOptionHintComponent} from "@app/shared/modals/add-option-hint/add-option-hint.component";
 import {AssignScorePointsComponent} from "@app/shared/modals/assign-score-points/assign-score-points.component";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
@@ -17,12 +17,29 @@ import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Children, Option, TriggeredByOption} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
+import { NgClass, DatePipe } from "@angular/common";
+import { AddFieldComponent } from "../add-field/add-field.component";
+import { AddFieldFromTemplateComponent } from "../add-field-from-template/add-field-from-template.component";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
+import { TranslateModule } from "@ngx-translate/core";
 
 @Component({
-  selector: "src-fields",
-  templateUrl: "./fields.component.html"
+    selector: "src-fields",
+    templateUrl: "./fields.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbInputDatepicker, NgClass, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, TranslatorPipe, OrderByPipe, TranslateModule]
 })
 export class FieldsComponent implements OnInit {
+  private authenticationService = inject(AuthenticationService);
+  private questionnaireService = inject(QuestionnaireService);
+  private modalService = inject(NgbModal);
+  nodeResolver = inject(NodeResolver);
+  private httpService = inject(HttpService);
+  private utilsService = inject(UtilsService);
+  private fieldTemplates = inject(FieldTemplatesResolver);
+  private fieldUtilities = inject(FieldUtilitiesService);
+
   @Input() editField: NgForm;
   @Input() field: Children | Step | Field;
   @Input() fields: Children[] | Field[] | Step[];
@@ -47,9 +64,6 @@ export class FieldsComponent implements OnInit {
     sufficient: false,
   };
   instance: string;
-
-  constructor(private authenticationService: AuthenticationService,private questionnaireService: QuestionnaireService, private modalService: NgbModal, public nodeResolver: NodeResolver, private httpService: HttpService, private utilsService: UtilsService, private fieldTemplates: FieldTemplatesResolver, private fieldUtilities: FieldUtilitiesService,) {
-  }
 
   ngOnInit(): void {
     if (Array.isArray(this.fieldTemplates.dataModel)) {
@@ -339,5 +353,9 @@ export class FieldsComponent implements OnInit {
 
   listenToAddFieldFormTemplate() {
     this.showAddQuestionFromTemplate = false;
+  }
+
+  isCustomValidation(field: Step | Field): boolean {
+    return field?.attrs?.input_validation?.value === 'custom';
   }
 }

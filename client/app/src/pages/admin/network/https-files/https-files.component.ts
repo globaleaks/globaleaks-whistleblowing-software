@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
@@ -8,12 +8,23 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {FileResource, FileResources} from "@app/models/component-model/file-resources";
+import { DatePipe } from "@angular/common";
+import { HttpsCsrGenComponent } from "../https-csr-gen/https-csr-gen.component";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-https-files",
-  templateUrl: "./https-files.component.html"
+    selector: "src-https-files",
+    templateUrl: "./https-files.component.html",
+    standalone: true,
+    imports: [HttpsCsrGenComponent, DatePipe, TranslatorPipe]
 })
 export class HttpsFilesComponent implements OnInit {
+  private authenticationService = inject(AuthenticationService);
+  private nodeResolver = inject(NodeResolver);
+  private httpService = inject(HttpService);
+  private modalService = inject(NgbModal);
+  private utilsService = inject(UtilsService);
+
   @Output() dataToParent = new EventEmitter<string>();
   @Input() tlsConfig: TlsConfig;
   @Input() state: number = 0;
@@ -31,9 +42,6 @@ export class HttpsFilesComponent implements OnInit {
   csr_state = {
     open: false
   };
-
-  constructor(private authenticationService: AuthenticationService, private nodeResolver: NodeResolver, private httpService: HttpService, private modalService: NgbModal, private utilsService: UtilsService) {
-  }
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
@@ -116,5 +124,9 @@ export class HttpsFilesComponent implements OnInit {
       });
     };
     return modalRef.result;
+  }
+
+  isCsrSet(): boolean {
+    return !!this.tlsConfig.files.csr?.set;
   }
 }

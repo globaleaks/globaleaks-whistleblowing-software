@@ -1,14 +1,20 @@
 <div>
-    <div *ngIf="!field.required">
-            <input id="whistleblower_identity_radio_1" class="form-check-input" type="radio" (click)="changeIdentitySetting(true)" [checked]="identity_provided" [value]="identity_provided" />
-            <label class="form-check-inline" for="whistleblower_identity_radio_1">{{'Yes'|translate}}</label>
-            <input id="whistleblower_identity_radio_2" class="form-check-input" type="radio" (click)="changeIdentitySetting(false)" [checked]="!identity_provided" [value]="!identity_provided" />
-            <label class="form-check-inline" for="whistleblower_identity_radio_2">{{'No'|translate}}</label>
+  @if (!field.required) {
+    <div>
+      <input id="whistleblower_identity_radio_1" class="form-check-input" type="radio" (click)="changeIdentitySetting(true)" [checked]="identity_provided" [value]="identity_provided" />
+      <label class="form-check-inline" for="whistleblower_identity_radio_1">{{'Yes'|translate}}</label>
+      <input id="whistleblower_identity_radio_2" class="form-check-input" type="radio" (click)="changeIdentitySetting(false)" [checked]="!identity_provided" [value]="!identity_provided" />
+      <label class="form-check-inline" for="whistleblower_identity_radio_2">{{'No'|translate}}</label>
     </div>
-    <div *ngIf="!identity_provided && field.attrs.text_shown_upon_negative_answer.value" class="alert alert-secondary">
-        <div>{{field.attrs.text_shown_upon_negative_answer.value|translate}}</div>
+  }
+  @if (!identity_provided && field.attrs.text_shown_upon_negative_answer.value) {
+    <div class="alert alert-secondary">
+      <div>{{field.attrs.text_shown_upon_negative_answer.value|translate}}</div>
     </div>
-    <div *ngIf="identity_provided">
-        <src-form [identity_provided]=false (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads"  [fileUploadUrl]="fileUploadUrl" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="step" [submission]="submission" [index]="index"></src-form>
+  }
+  @if (identity_provided) {
+    <div>
+      <src-form [identity_provided]=false (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads"  [fileUploadUrl]="fileUploadUrl" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="step" [submission]="submission" [index]="index"></src-form>
     </div>
+  }
 </div>

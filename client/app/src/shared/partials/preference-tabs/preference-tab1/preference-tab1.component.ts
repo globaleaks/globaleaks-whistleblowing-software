@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -13,17 +13,34 @@ import {
   EncryptionRecoveryKeyComponent
 } from "@app/shared/modals/encryption-recovery-key/encryption-recovery-key.component";
 import {TranslationService} from "@app/services/helper/translation.service";
-import {TranslateService} from "@ngx-translate/core";
+import { TranslateService, TranslateModule } from "@ngx-translate/core";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {
   ConfirmationWithPasswordComponent
 } from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
+import { NgClass, DatePipe } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-preference-tab1",
-  templateUrl: "./preference-tab1.component.html"
+    selector: "src-preference-tab1",
+    templateUrl: "./preference-tab1.component.html",
+    standalone: true,
+    imports: [FormsModule, NgClass, DatePipe, TranslateModule, TranslatorPipe]
 })
 export class PreferenceTab1Component implements OnInit {
+  private translationService = inject(TranslationService);
+  protected appConfigService = inject(AppConfigService);
+  private cdr = inject(ChangeDetectorRef);
+  private translateService = inject(TranslateService);
+  private httpService = inject(HttpService);
+  private twoFactorAuthData = inject(TwoFactorAuthData);
+  private modalService = inject(NgbModal);
+  appDataService = inject(AppDataService);
+  protected preferenceResolver = inject(PreferenceResolver);
+  private utilsService = inject(UtilsService);
+  protected authenticationService = inject(AuthenticationService);
+
 
   protected readonly Constants = Constants;
 
@@ -34,13 +51,13 @@ export class PreferenceTab1Component implements OnInit {
   role = "";
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
 
-  constructor(private translationService: TranslationService, protected appConfigService: AppConfigService, private cdr: ChangeDetectorRef, private translateService: TranslateService, private httpService: HttpService, private twoFactorAuthData: TwoFactorAuthData, private modalService: NgbModal, public appDataService: AppDataService, protected preferenceResolver: PreferenceResolver, private utilsService: UtilsService, protected authenticationService: AuthenticationService) {
+  constructor() {
     this.languageModel = this.preferenceResolver.dataModel.language;
   }
 
   ngOnInit(): void {
     this.role = this.utilsService.rolel10n(this.authenticationService.session.role);
-    this.role = this.role ? this.translateService.instant(this.role) : '';
+    this.role = this.translateService.instant(this.role);
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
     }, 150);

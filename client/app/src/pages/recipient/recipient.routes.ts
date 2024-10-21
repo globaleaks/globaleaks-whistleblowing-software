@@ -1,17 +1,12 @@
-import {NgModule} from "@angular/core";
-import {RouterModule, Routes} from "@angular/router";
-import {HomeComponent} from "@app/pages/recipient/home/home.component";
-import {TipsComponent} from "@app/pages/recipient/tips/tips.component";
-import {SettingsComponent} from "@app/pages/recipient/settings/settings.component";
-import {PreferencesComponent} from "@app/shared/partials/preferences/preferences.component";
+import {Routes} from "@angular/router";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 
-const routes: Routes = [
+export const recipientRoutes: Routes = [
   {
     path: "",
-    component: HomeComponent,
+    loadComponent: () => import('@app/pages/recipient/home/home.component').then(m => m.HomeComponent),
     pathMatch: "full",
     data: {pageTitle: "Home"},
     resolve: {
@@ -20,7 +15,7 @@ const routes: Routes = [
   },
   {
     path: "home",
-    component: HomeComponent,
+    loadComponent: () => import('@app/pages/recipient/home/home.component').then(m => m.HomeComponent),
     pathMatch: "full",
     resolve: {
       PreferenceResolver, RTipsResolver
@@ -29,7 +24,7 @@ const routes: Routes = [
   },
   {
     path: "reports",
-    component: TipsComponent,
+    loadComponent: () => import('@app/pages/recipient/tips/tips.component').then(m => m.TipsComponent),
     pathMatch: "full",
     resolve: {
       PreferenceResolver, RTipsResolver
@@ -38,7 +33,7 @@ const routes: Routes = [
   },
   {
     path: "settings",
-    component: SettingsComponent,
+    loadComponent: () => import('@app/pages/recipient/settings/settings.component').then(m => m.RecipientSettingsComponent),
     resolve: {
       NodeResolver
     },
@@ -47,7 +42,7 @@ const routes: Routes = [
   },
   {
     path: "preferences",
-    component: PreferencesComponent,
+    loadComponent: () => import('@app/shared/partials/preferences/preferences.component').then(m => m.PreferencesComponent),
     pathMatch: "full",
     resolve: {
       PreferenceResolver, RTipsResolver
@@ -55,10 +50,3 @@ const routes: Routes = [
     data: {pageTitle: "Preferences"},
   }
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class RecipientRoutingModule {
-}

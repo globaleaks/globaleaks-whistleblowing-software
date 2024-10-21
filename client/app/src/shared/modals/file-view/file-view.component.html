@@ -1,17 +1,21 @@
 <div class="modal-header">
-    <div class="modal-title">
-        <h2>{{args.file.name}}</h2>
-    </div>
-    <button type="button" class="close btn" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <div class="modal-title">
+    <h2>{{args.file.name}}</h2>
+  </div>
+  <button type="button" class="close btn" (click)="cancel()">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 <div class="modal-body">
-    <div *ngIf="!args.loaded" class="Loader"></div>
-    <iframe #viewer *ngIf="args.loaded" id="viewer" class="w-100" [src]="iframeUrl" title="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
+  @if (!args.loaded) {
+    <div class="Loader"></div>
+  }
+  @if (args.loaded) {
+    <iframe #viewer id="viewer" class="w-100" [src]="iframeUrl" title="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
+  }
 </div>
 <div class="modal-footer">
-    <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <span>{{'Close'|translate}}</span>
-    </a>
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <span>{{'Close'|translate}}</span>
+  </a>
 </div>

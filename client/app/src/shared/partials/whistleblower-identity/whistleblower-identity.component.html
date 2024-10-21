@@ -1,41 +1,65 @@
 <div id="TipInfoBox" class="card card-default">
-    <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
-        <div>
-            <span class="d-flex justify-content-between">
-                <span>
-                    <span *ngIf="wbTipService.tip.data.whistleblower_identity">{{'Identity'|translate}}</span>
-                    <span *ngIf="!wbTipService.tip.data.whistleblower_identity">{{wbTipService.tip.whistleblower_identity_field.label}}</span>
-                    <span *ngIf="wbTipService.tip.data.whistleblower_identity_provided" class="btn btn-sm btn-link">
-                        <span *ngIf="collapsed">{{'Show'|translate}}</span>
-                        <span *ngIf="!collapsed">{{'Hide'|translate}}</span>
-                    </span>
-                </span>
-                <span class="float-end">
-                    <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" title="{{'Collapse' | translate}}"></i>
-                    <i *ngIf="collapsed" class="fa-solid fa-chevron-down" title="{{'Expand' | translate}}"></i>
-                </span>
+  <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+    <div>
+      <span class="d-flex justify-content-between">
+        <span>
+          @if (wbTipService.tip.data.whistleblower_identity) {
+            <span>{{'Identity'|translate}}</span>
+          }
+          @if (!wbTipService.tip.data.whistleblower_identity) {
+            <span>{{wbTipService.tip.whistleblower_identity_field.label}}</span>
+          }
+          @if (wbTipService.tip.data.whistleblower_identity_provided) {
+            <span class="btn btn-sm btn-link">
+              @if (collapsed) {
+                <span>{{'Show'|translate}}</span>
+              }
+              @if (!collapsed) {
+                <span>{{'Hide'|translate}}</span>
+              }
             </span>
-        </div>
+          }
+        </span>
+        <span class="float-end">
+          @if (!collapsed) {
+            <i class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+          }
+          @if (collapsed) {
+            <i class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+          }
+        </span>
+      </span>
     </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div *ngIf="wbTipService.tip.data.whistleblower_identity">
-            <div *ngFor="let field of wbTipService.tip.whistleblower_identity_field.children; let index = index">
-                <src-tip-field [fields]=field [fieldAnswers]=wbTipService.tip.data.whistleblower_identity [index]="index"></src-tip-field>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      @if (wbTipService.tip.data.whistleblower_identity) {
+        <div>
+          @for (field of wbTipService.tip.whistleblower_identity_field.children; track field; let index = $index) {
+            <div>
+              <src-tip-field [fields]=field [fieldAnswers]=wbTipService.tip.data.whistleblower_identity [index]="index"></src-tip-field>
             </div>
+          }
         </div>
-        <div *ngIf="wbTipService.tip.status !== 'closed' && !wbTipService.tip.data.whistleblower_identity">
-            <form #wbform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-                <ng-container *ngIf="identity_provided">
-                    <src-whistleblower-identity-field [step]="step" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [identity_provided]="identity_provided" [answers]="answers" [field]="field" [index]="0"></src-whistleblower-identity-field>
-                </ng-container>
-                <src-rfiles-upload-status [progress]="uploadProgress" [estimatedTime]="uploadEstimateTime" [uploading]="isUploading"></src-rfiles-upload-status>
-                <div id="SubmitBox">
-                    <button *ngIf="identity_provided" id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers })" [disabled]="wbform.invalid" type="submit">
-                        <i id="SubmitIconOK" class="fa-solid fa-check"></i>
-                        <span>{{'Submit'|translate}}</span>
-                    </button>
-                </div>
-            </form>
+      }
+      @if (wbTipService.tip.status !== 'closed' && !wbTipService.tip.data.whistleblower_identity) {
+        <div>
+          <form #wbform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+            @if (identity_provided) {
+              <src-whistleblower-identity-field [step]="step" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [identity_provided]="identity_provided" [answers]="answers" [field]="field" [index]="0"></src-whistleblower-identity-field>
+            }
+            <src-rfiles-upload-status [progress]="uploadProgress" [estimatedTime]="uploadEstimateTime" [uploading]="isUploading"></src-rfiles-upload-status>
+            <div id="SubmitBox">
+              @if (identity_provided) {
+                <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers })" [disabled]="wbform.invalid" type="submit">
+                  <i id="SubmitIconOK" class="fa-solid fa-check"></i>
+                  <span>{{'Submit'|translate}}</span>
+                </button>
+              }
+            </div>
+          </form>
         </div>
+      }
     </div>
+  }
 </div>

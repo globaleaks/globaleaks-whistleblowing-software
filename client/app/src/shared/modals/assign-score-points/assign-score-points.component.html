@@ -1,35 +1,37 @@
 <div class="modal-header">
-    <div class="modal-title">{{ 'Assign score points' | translate }}</div>
-    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <div class="modal-title">{{ 'Assign score points' | translate }}</div>
+  <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 <div class="modal-body">
-    <span class="">
-        <span>{{ 'Type' | translate }}</span>
-        <select class="form-control" [(ngModel)]="arg.score_type">
-            <option value="none">{{ 'None' | translate }}</option>
-            <option value="addition">{{ 'Addition' | translate }}</option>
-            <option value="multiplier">{{ 'Multiplier' | translate }}</option>
-        </select>
-        <br>
-        <div *ngIf="arg.score_type !== 'none'">
-            <span>{{ 'Value' | translate }}</span>
-            <input id="score_points" class="form-control" [(ngModel)]="arg.score_points" type="number" />
+  <span class="">
+    <span>{{ 'Type' | translate }}</span>
+    <select class="form-control" [(ngModel)]="arg.score_type">
+      <option value="none">{{ 'None' | translate }}</option>
+      <option value="addition">{{ 'Addition' | translate }}</option>
+      <option value="multiplier">{{ 'Multiplier' | translate }}</option>
+    </select>
+    <br>
+      @if (arg.score_type !== 'none') {
+        <div>
+          <span>{{ 'Value' | translate }}</span>
+          <input id="score_points" class="form-control" [(ngModel)]="arg.score_points" type="number" />
         </div>
+      }
     </span>
-</div>
-<div class="modal-footer">
+  </div>
+  <div class="modal-footer">
     <a id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Confirm' | translate }}</span>
+      <i class="fa-solid fa-check"></i>
+      <span>{{ 'Confirm' | translate }}</span>
     </a>
     <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{ 'Cancel' | translate }}</span>
+      <i class="fa-solid fa-times"></i>
+      <span>{{ 'Cancel' | translate }}</span>
     </a>
     <a id="modal-action-reset" class="btn btn-danger" (click)="arg.score_type = 'none'; arg.score_points = 0; cancel()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Reset' | translate }}</span>
+      <i class="fa-solid fa-check"></i>
+      <span>{{ 'Reset' | translate }}</span>
     </a>
-</div>
+  </div>

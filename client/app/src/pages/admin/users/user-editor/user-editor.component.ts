@@ -1,5 +1,5 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from "@angular/core";
-import {NgForm} from "@angular/forms";
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
+import { NgForm, FormsModule } from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -12,12 +12,26 @@ import {Observable} from "rxjs";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
+import { NgClass, DatePipe } from "@angular/common";
+import { ImageUploadDirective } from "../../../../shared/directive/image-upload.directive";
+import { PasswordStrengthValidatorDirective } from "../../../../shared/directive/password-strength-validator.directive";
+import { PasswordMeterComponent } from "../../../../shared/components/password-meter/password-meter.component";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-user-editor",
-  templateUrl: "./user-editor.component.html"
+    selector: "src-user-editor",
+    templateUrl: "./user-editor.component.html",
+    standalone: true,
+    imports: [ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
 })
 export class UserEditorComponent implements OnInit {
+  private modalService = inject(NgbModal);
+  private appDataService = inject(AppDataService);
+  private preference = inject(PreferenceResolver);
+  private authenticationService = inject(AuthenticationService);
+  private nodeResolver = inject(NodeResolver);
+  private utilsService = inject(UtilsService);
+
   @Input() user: userResolverModel;
   @Input() users: userResolverModel[];
   @Input() index: number;
@@ -33,9 +47,6 @@ export class UserEditorComponent implements OnInit {
   authenticationData: AuthenticationService;
   appServiceData: AppDataService;
   protected readonly Constants = Constants;
-
-  constructor(private modalService: NgbModal, private appDataService: AppDataService, private preference: PreferenceResolver, private authenticationService: AuthenticationService, private nodeResolver: NodeResolver, private utilsService: UtilsService) {
-  }
 
   ngOnInit(): void {
     if (this.nodeResolver.dataModel) {

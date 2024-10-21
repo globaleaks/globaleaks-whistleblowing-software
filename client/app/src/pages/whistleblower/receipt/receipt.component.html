@@ -1,32 +1,36 @@
-<div class="row" *ngIf="appDataService.page === 'receiptpage'">
+@if (appDataService.page === 'receiptpage') {
+  <div class="row">
     <div id="ReceiptText" class="col-md-12">
-        <span>{{'Thank you.' | translate}}</span>
-        <span>{{'Your report was successful.' | translate}}</span>
-        <span>{{'We will try to get back to you as soon as possible.' | translate}}</span>
+      <span>{{'Thank you.' | translate}}</span>
+      <span>{{'Your report was successful.' | translate}}</span>
+      <span>{{'We will try to get back to you as soon as possible.' | translate}}</span>
     </div>
-</div>
+  </div>
+}
 <div class="row">
-    <div class="col-md-12">
-        <div class="card card-secondary">
-            <label for="ReceiptCode" class="card-header">{{'Remember your receipt for this report.' | translate}}</label>
-            <div class="card-body">
-                <span class="form-inline" title="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(receipt)">
-                    <div class="form-group d-block mx-auto receipt-input">
-                        <div class="input-group">
-                            <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" name="formatted_receipt" size="19" [(ngModel)]="receiptId" [readOnly]="appDataService.page !== 'tippage'">
-                            <span class="input-group-append">
-                                <button id="ReceiptButton" (click)="utilsService.copyToClipboard(receipt)" class="btn btn-primary m-0 rounded-start-0" type="button" [attr.aria-label]="'Copy to clipboard' | translate">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                </span>
-                <div class="mt-md-1 text-center">{{'Use the 16 digit receipt to log in. It will allow you to view any messages we sent you, and also to add extra info.' | translate}}</div>
-                <div class="mt-md-3 clearfix" *ngIf="appDataService.page === 'receiptpage'">
-                    <button id="ReceiptButton" class="btn btn-primary float-end " (click)="viewReport()">{{'View your report' | translate}}</button>
-                </div>
+  <div class="col-md-12">
+    <div class="card card-secondary">
+      <label for="ReceiptCode" class="card-header">{{'Remember your receipt for this report.' | translate}}</label>
+      <div class="card-body">
+        <span class="form-inline" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(receipt)">
+          <div class="form-group d-block mx-auto receipt-input">
+            <div class="input-group">
+              <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" name="formatted_receipt" size="19" [(ngModel)]="receiptId" [readOnly]="appDataService.page !== 'tippage'">
+              <span class="input-group-append">
+                <button id="ReceiptButton" (click)="utilsService.copyToClipboard(receipt)" class="btn btn-primary m-0 rounded-start-0" type="button" [attr.aria-label]="'Copy to clipboard' | translate">
+                  <i class="fa-solid fa-copy"></i>
+                </button>
+              </span>
             </div>
-        </div>
+          </div>
+        </span>
+        <div class="mt-md-1 text-center">{{'Use the 16 digit receipt to log in. It will allow you to view any messages we sent you, and also to add extra info.' | translate}}</div>
+        @if (appDataService.page === 'receiptpage') {
+          <div class="mt-md-3 clearfix">
+            <button id="ReceiptButton" class="btn btn-primary float-end " (click)="viewReport()">{{'View your report' | translate}}</button>
+          </div>
+        }
+      </div>
     </div>
+  </div>
 </div>

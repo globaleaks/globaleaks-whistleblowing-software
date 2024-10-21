@@ -1,43 +1,49 @@
 <div id="StepsEditBox">
-    <div class="row">
-        <span class="col-md-8">
-            <span>{{ 'Steps' | translate }}</span>
-            <button class="btn btn-sm btn-primary show-add-step-btn" name="new_step" (click)="toggleAddStep()">
-                <i class="fa-solid fa-plus"></i>
-                <span>{{ 'Add' | translate }}</span>
-            </button>
-        </span>
+  <div class="row">
+    <span class="col-md-8">
+      <span>{{ 'Steps' | translate }}</span>
+      <button class="btn btn-sm btn-primary show-add-step-btn" name="new_step" (click)="toggleAddStep()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ 'Add' | translate }}</span>
+      </button>
+    </span>
+  </div>
+  @if (showAddStep) {
+    <div id="StepAddBox" class="row">
+      <div class="col-md-6">
+        <form #newStepForm="ngForm" (ngSubmit)="addStep(); toggleAddStep()">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>{{ 'Label' | translate }}</label>
+                <input name="new_step.label" class="form-control" [(ngModel)]="new_step.label" type="text" required>
+                @if (newStepForm.form.get('label')?.errors?.['required']) {
+                  <div class="text-danger">
+                    <span>{{ 'This field is mandatory' | translate }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group clearfix">
+                <button id="add-step-btn" class="float-start btn btn-primary" [disabled]="newStepForm.invalid">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>{{ 'Add' | translate }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
-    <div id="StepAddBox" class="row" *ngIf="showAddStep">
-        <div class="col-md-6">
-            <form #newStepForm="ngForm" (ngSubmit)="addStep(); toggleAddStep()">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>{{ 'Label' | translate }}</label>
-                            <input name="new_step.label" class="form-control" [(ngModel)]="new_step.label" type="text" required>
-                            <div class="text-danger" *ngIf="newStepForm.form.get('label')?.errors?.['required']">
-                                <span>{{ 'This field is mandatory' | translate }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group clearfix">
-                            <button id="add-step-btn" class="float-start btn btn-primary" [disabled]="newStepForm.invalid">
-                                <i class="fa-solid fa-plus"></i>
-                                <span>{{ 'Add' | translate }}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        <div *ngFor="let stepData of questionnaire.steps; let index = index" class="col-md-12">
-            <src-steps-list [step]="stepData" [questionnaire]="questionnaire" [steps]="questionnaire.steps" [index]="index"></src-steps-list>
-        </div>
-    </div>
+  }
+  <div class="row">
+    @for (stepData of questionnaire.steps; track stepData; let index = $index) {
+      <div class="col-md-12">
+        <src-steps-list [step]="stepData" [questionnaire]="questionnaire" [steps]="questionnaire.steps" [index]="index"></src-steps-list>
+      </div>
+    }
+  </div>
 </div>

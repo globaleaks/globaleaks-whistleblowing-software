@@ -1,41 +1,51 @@
 <div class="whistle-blower-file card card-default">
-    <div class="card-body">
-        <div class="top-row clearfix">
-            <span class="float-start">
-                <span class="text-muted" *ngIf="ctx === 'download'">
-                    <span>{{'Filename'|translate}}</span>: </span>
-                <span class="filename px-1">{{wbFile.name}}</span>
+  <div class="card-body">
+    <div class="top-row clearfix">
+      <span class="float-start">
+        @if (ctx === 'download') {
+          <span class="text-muted">
+            <span>{{'Filename'|translate}}</span>: </span>
+          }
+          <span class="filename px-1">{{wbFile.name}}</span>
+        </span>
+        <span class="float-end">
+          <span>
+            <span class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)">
+              <i class="fa-solid fa-download"></i>
             </span>
-            <span class="float-end">
-                <span>
-                    <span class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)">
-                        <i class="fa-solid fa-download"></i>
-                    </span>
-                    <button *ngIf="authenticationService.session?.role === 'receiver'" class="btn btn-sm btn-danger" (click)="deleteWBFile(wbFile)">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </span>
-            </span>
-        </div>
-        <div class="file-info-row">
-            <span *ngIf="receivers_by_id[wbFile.author]">
-                <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
-            </span>
-            <span class="px-1">
-                <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
-            </span>
-            <span class="px-1">
-                <span>{{'Size:'|translate}}</span>
-                <span>{{wbFile.size | byteFmt:2}}</span>
-            </span>
-            <span class="px-1" *ngIf="ctx === 'rtip'">
-                <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
-            </span>
-        </div>
-        <div *ngIf="wbFile.description">
-            <span>
-                <span class="px-1">{{'Description'|translate}}</span>: </span>
+            @if (authenticationService.session?.role === 'receiver') {
+              <button class="btn btn-sm btn-danger" (click)="deleteWBFile(wbFile)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            }
+          </span>
+        </span>
+      </div>
+      <div class="file-info-row">
+        @if (receivers_by_id[wbFile.author]) {
+          <span>
+            <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
+          </span>
+        }
+        <span class="px-1">
+          <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
+        </span>
+        <span class="px-1">
+          <span>{{'Size:'|translate}}</span>
+          <span>{{wbFile.size | byteFmt:2}}</span>
+        </span>
+        @if (ctx === 'rtip') {
+          <span class="px-1">
+            <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
+          </span>
+        }
+      </div>
+      @if (wbFile.description) {
+        <div>
+          <span>
+            <span class="px-1">{{'Description'|translate}}</span>: </span>
             <span> {{wbFile.description}} </span>
-        </div>
+          </div>
+        }
+      </div>
     </div>
-</div>

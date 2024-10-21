@@ -1,16 +1,22 @@
 <div class="select-card" [ngClass]="{ 'selected':submission.selected_receivers[receiverModel.id] || receiverModel.forcefully_selected}">
-    <div class="row mb-1">
-        <div class="col-md-12">
-            <input type="checkbox" class="btn-checkbox form-check-input" [id]="'recipient-' + receiverModel.id" [name]="'recipient-' + receiverModel.id" [(ngModel)]="submission.selected_receivers[receiverModel.id]" (change)="switchSelection(receiverModel)" *ngIf="!receiverModel.forcefully_selected">
-            <label [for]="'recipient-' + receiverModel.id" class="title">{{receiverModel.name}}</label>
-        </div>
+  <div class="row mb-1">
+    <div class="col-md-12">
+      @if (!receiverModel.forcefully_selected) {
+        <input type="checkbox" class="btn-checkbox form-check-input" [id]="'recipient-' + receiverModel.id" [name]="'recipient-' + receiverModel.id" [(ngModel)]="submission.selected_receivers[receiverModel.id]" (change)="switchSelection(receiverModel)">
+      }
+      <label [for]="'recipient-' + receiverModel.id" class="title">{{receiverModel.name}}</label>
     </div>
-    <div class="row">
-        <div class="col-md-4" *ngIf="receiverModel.picture">
-            <img class="receiver-image" alt="receiver picture" width="500" height="500" ngSrc="/s/{{receiverModel.id}}" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 description" *ngIf="receiverModel.description">{{receiverModel.description}}</div>
-    </div>
+  </div>
+  <div class="row">
+    @if (receiverModel.picture) {
+      <div class="col-md-4">
+        <img class="receiver-image" alt="receiver picture" width="500" height="500" ngSrc="/s/{{receiverModel.id}}" />
+      </div>
+    }
+  </div>
+  <div class="row">
+    @if (receiverModel.description) {
+      <div class="col-md-12 description">{{receiverModel.description}}</div>
+    }
+  </div>
 </div>

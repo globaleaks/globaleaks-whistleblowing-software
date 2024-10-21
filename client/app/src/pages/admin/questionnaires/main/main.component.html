@@ -1,43 +1,47 @@
 <div class="config-section row">
-    <div class="col-md-12">
-        <div>
-            <span>{{ 'Questionnaires' | translate }}</span>
-            <button class="btn btn-sm btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
-                <i class="fa-solid fa-plus"></i>
-                <span>{{ 'Add' | translate }}</span>
-            </button>
-            <span class="custom-file">
-                <input type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
-                <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
-                    <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
-                </label>
-            </span>
-        </div>
-        <div class="config-section row" *ngIf="showAddQuestionnaire">
-            <form id="newQuestionnaire" #newQuestionnaire="ngForm" class="addQuestionnaire col-md-6" novalidate>
-                <div class="form-group">
-                    <label>
-                        <span>{{ 'Name' | translate }}</span>
-                        <span class="text-danger" title="{{'This field is mandatory' | translate}}">*</span>
-                    </label>
-                    <div>
-                        <input name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [ngClass]="{'is-invalid': newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']}" required />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>{{ 'Add' | translate }}</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-        <ng-container *ngIf="questionnairesData.length > 0">
-            <div *ngFor="let questionnaire of questionnairesData | orderBy:'name'; let index = index;trackBy: trackByFn">
-                <form id="questionnaire-{{index}}" class="config-item" #editQuestionnaire="ngForm" novalidate>
-                    <src-questionnaires-list [questionnaire]="questionnaire" [editQuestionnaire]="editQuestionnaire" [questionnaires]="questionnairesData"></src-questionnaires-list>
-                </form>
-            </div>
-        </ng-container>
+  <div class="col-md-12">
+    <div>
+      <span>{{ 'Questionnaires' | translate }}</span>
+      <button class="btn btn-sm btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ 'Add' | translate }}</span>
+      </button>
+      <span class="custom-file">
+        <input type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
+        <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+        </label>
+      </span>
     </div>
+    @if (showAddQuestionnaire) {
+      <div class="config-section row">
+        <form id="newQuestionnaire" #newQuestionnaire="ngForm" class="addQuestionnaire col-md-6" novalidate>
+          <div class="form-group">
+            <label>
+              <span>{{ 'Name' | translate }}</span>
+              <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+            </label>
+            <div>
+              <input name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [ngClass]="{'is-invalid': newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']}" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
+              <i class="fa-solid fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+    @if (questionnairesData.length > 0) {
+      @for (questionnaire of questionnairesData | orderBy:'name'; track trackByFn(index, questionnaire); let index = $index) {
+        <div>
+          <form id="questionnaire-{{index}}" class="config-item" #editQuestionnaire="ngForm" novalidate>
+            <src-questionnaires-list [questionnaire]="questionnaire" [editQuestionnaire]="editQuestionnaire" [questionnaires]="questionnairesData"></src-questionnaires-list>
+          </form>
+        </div>
+      }
+    }
+  </div>
 </div>

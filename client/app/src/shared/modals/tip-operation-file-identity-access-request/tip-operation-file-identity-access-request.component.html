@@ -6,7 +6,7 @@
 </div>
 <div class="modal-body">
     <label>{{ 'Motivation' | translate }}</label>
-    <span class="text-danger" [title]="'This field is mandatory' | translate">*</span>
+    <span class="text-danger" data-toggle="tooltip" [title]="'This field is mandatory' | translate">*</span>
     <textarea class="form-control" name="request_motivation" [(ngModel)]="request_motivation" [placeholder]="'Motivation' | translate"></textarea>
 </div>
 <div class="modal-footer">

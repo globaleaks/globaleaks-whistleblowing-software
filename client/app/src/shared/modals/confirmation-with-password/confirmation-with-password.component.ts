@@ -1,15 +1,19 @@
-import {Component} from "@angular/core";
+import { Component, inject } from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import { FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-confirmation-with-password",
-  templateUrl: "./confirmation-with-password.component.html"
+    selector: "src-confirmation-with-password",
+    templateUrl: "./confirmation-with-password.component.html",
+    standalone: true,
+    imports: [FormsModule, TranslateModule, TranslatorPipe]
 })
 export class ConfirmationWithPasswordComponent {
-  secret: string;
+  private activeModal = inject(NgbActiveModal);
 
-  constructor(private activeModal: NgbActiveModal) {
-  }
+  secret: string;
 
   confirmFunction: (secret: string) => void;
 

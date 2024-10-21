@@ -1,43 +1,55 @@
-<ng-container *ngIf="this.tips.slice">
-    <table id="ReportsTable" class="table table-condensed table-striped">
-        <thead>
+@if (this.tips.slice()) {
+  <table id="ReportsTable" class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th><i class="fa-solid fa-hashtag"></i></th>
+        <th>{{'Date'|translate}}</th>
+        <th>{{'Last update'|translate}}</th>
+        <th>{{'Expiration date'|translate}}</th>
+        <th>{{'Channel'|translate}}</th>
+        <th>{{'Status'|translate}}</th>
+        <th>{{'Tor'|translate}}</th>
+        <th>{{'Comments'|translate}}</th>
+        <th>{{'Files'|translate}}</th>
+        <th>{{'Receivers'|translate}}</th>
+        <th>{{'Whistleblower\'s last access'|translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of getPaginatedData(); track data) {
         <tr>
-            <th><i class="fa-solid fa-hashtag"></i></th>
-            <th>{{'Date'|translate}}</th>
-            <th>{{'Last update'|translate}}</th>
-            <th>{{'Expiration date'|translate}}</th>
-            <th>{{'Channel'|translate}}</th>
-            <th>{{'Status'|translate}}</th>
-            <th>{{'Tor'|translate}}</th>
-            <th>{{'Comments'|translate}}</th>
-            <th>{{'Files'|translate}}</th>
-            <th>{{'Receivers'|translate}}</th>
-            <th>{{'Whistleblower\'s last access'|translate}}</th>
+          <td>{{data.progressive}}</td>
+          <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+          <td>{{data.last_update | date:'dd-MM-yyyy HH:mm'}}</td>
+          <td>{{data.expiration_date | date:'dd-MM-yyyy HH:mm'}}</td>
+          @if (appDataService.contexts_by_id[data.context_id]) {
+            <td>{{appDataService.contexts_by_id[data.context_id]['name']}}</td>
+          }
+          @if (!appDataService.contexts_by_id[data.context_id]) {
+            <td></td>
+          }
+          <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>
+          <td>@if (data.tor) {
+            <i class="fa-solid fa-check"></i>
+          }</td>
+          <td>{{data.comments}}</td>
+          <td>{{data.files}}</td>
+          <td>{{data.receiver_count}}</td>
+          <td>{{data.last_access | date:'dd-MM-yyyy HH:mm'}}</td>
         </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let data of getPaginatedData()">
-            <td>{{data.progressive}}</td>
-            <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td>{{data.last_update | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td>{{data.expiration_date | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td *ngIf="appDataService.contexts_by_id[data.context_id]">{{appDataService.contexts_by_id[data.context_id]['name']}}</td>
-            <td *ngIf="!appDataService.contexts_by_id[data.context_id]"></td>
-            <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>
-            <td><i *ngIf="data.tor" class="fa-solid fa-check"></i></td>
-            <td>{{data.comments}}</td>
-            <td>{{data.files}}</td>
-            <td>{{data.receiver_count}}</td>
-            <td>{{data.last_access | date:'dd-MM-yyyy HH:mm'}}</td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="float-start" *ngIf="tips.length > pageSize">
-        <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="tips.length">
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" title="{{'First' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" title="{{'Previous' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" title="{{'Next' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" title="{{'Last' | translate}}"></i></ng-template>
-        </ngb-pagination>
-    </div><div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
-</ng-container>
+      }
+    </tbody>
+  </table>
+  @if (tips.length > pageSize) {
+    <div class="float-start">
+      <ngb-pagination [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="tips.length" [boundaryLinks]="true">
+        <ng-template ngbPaginationPrevious>
+        < {{'Previous' | translate}}</ng-template>
+        <ng-template ngbPaginationNext>{{'Next' | translate}} ></ng-template>
+        <ng-template ngbPaginationFirst>
+        << {{'First' | translate}}</ng-template>
+        <ng-template ngbPaginationLast>{{'Last' | translate}} >></ng-template>
+      </ngb-pagination>
+    </div>
+    }<div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
+  }

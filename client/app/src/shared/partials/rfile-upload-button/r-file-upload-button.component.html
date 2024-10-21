@@ -1,40 +1,50 @@
 <div>
-    <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
-    <div class="drag-drop" flowDrop [flow]="flow.flowJs">
-        <div class="custom-file">
-            <input [attr.id]="'customFile-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="field && field.required" />
-            <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
-                <i class="fa-solid fa-upload"></i>
-                <span> {{'Upload'|translate}}</span>
-            </label>
-            <span class="mx-2">{{'Select a file or drag it here.'|translate}}</span>
+  <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
+  <div class="drag-drop" flowDrop [flow]="flow.flowJs">
+    <div class="custom-file">
+      <input [attr.id]="'customFile-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="field && field.required" />
+      <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
+        <i class="fa-solid fa-upload"></i>
+        <span> {{'Upload'|translate}}</span>
+      </label>
+      <span class="mx-2">{{'Select a file or drag it here.'|translate}}</span>
+    </div>
+    @if (showError) {
+      <div>
+        <br>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @if (errorFile) {
+              <div>
+                <span>{{'File size not accepted.' | translate}}</span> {{errorFile.flowFile.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
+              </div>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile.flowFile.cancel(); showError=false"></button>
+          </div>
         </div>
-        <div *ngIf="showError">
-            <br>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <div *ngIf="errorFile">
-                    <span>{{'File size not accepted.' | translate}}</span> {{errorFile.flowFile.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile.flowFile.cancel(); showError=false"></button>
-            </div>
-        </div>
+      }
     </div>
     <div class="transfers">
-        <div data-flow-name="flow" class="row">
-            <div [ngClass]="{'col-md-12': (flow.transfers$ | async)?.transfers?.length === 1, 'col-md-6 col-sm-12': (flow.transfers$ | async)?.transfers?.length !== 1}" *ngFor="let transfer of (flow.transfers$ | async)?.transfers">
-                <div class="fileUploadBox mt-2 mb-2">
-                    <div *ngIf="appDataService.public.node.maximum_filesize >= (transfer.size/1000000)">
-                        <src-rfile-upload-status [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
-                    </div>
+      <div data-flow-name="flow" class="row">
+        @for (transfer of (flow.transfers$ | async)?.transfers; track transfer) {
+          <div [ngClass]="{'col-md-12': (flow.transfers$ | async)?.transfers?.length === 1, 'col-md-6 col-sm-12': (flow.transfers$ | async)?.transfers?.length !== 1}">
+            <div class="fileUploadBox mt-2 mb-2">
+              @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
+                <div>
+                  <src-rfile-upload-status [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
                 </div>
+              }
             </div>
-        </div>
+          </div>
+        }
+      </div>
     </div>
-    <ng-container *ngIf="confirmButton && !formUploader">
-        <button id="files-action-confirm" class="btn btn-sm btn-outline-secondary" (click)="onConfirmClick()">
-            <i class="fa-solid fa-upload"></i>
-            <span>{{'Confirm'|translate}}</span>
-        </button>
-    </ng-container>
-    <src-rfiles-upload-status *ngIf="!formUploader && (flow.transfers$ | async)?.flow?.files" [estimatedTime]="(flow.transfers$ | async)?.flow?.timeRemaining()" [progress]="(flow.transfers$ | async)?.totalProgress" [uploading]="(flow.transfers$ | async)?.flow?.isUploading()"></src-rfiles-upload-status>
-</div>
+    @if (confirmButton && !formUploader) {
+      <button id="files-action-confirm" class="btn btn-sm btn-outline-secondary" (click)="onConfirmClick()">
+        <i class="fa-solid fa-upload"></i>
+        <span>{{'Confirm'|translate}}</span>
+      </button>
+    }
+    @if (!formUploader && (flow.transfers$ | async)?.flow?.files) {
+      <src-rfiles-upload-status [estimatedTime]="(flow.transfers$ | async)?.flow?.timeRemaining()" [progress]="(flow.transfers$ | async)?.totalProgress" [uploading]="(flow.transfers$ | async)?.flow?.isUploading()"></src-rfiles-upload-status>
+    }
+  </div>

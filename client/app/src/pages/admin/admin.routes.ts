@@ -1,16 +1,4 @@
-import {NgModule} from "@angular/core";
-import {RouterModule, Routes} from "@angular/router";
-import {adminHomeComponent} from "@app/pages/admin/home/admin-home.component";
-import {SettingsModule} from "@app/pages/admin/settings/settings.module";
-import {UsersModule} from "@app/pages/admin/users/users.module";
-import {ContextsModule} from "@app/pages/admin/contexts/contexts.module";
-import {CaseManagementModule} from "@app/pages/admin/casemanagement/case-management.module";
-import {AuditLogModule} from "@app/pages/admin/auditlog/audit-log.module";
-import {NotificationsModule} from "@app/pages/admin/notifications/notifications.module";
-import {SitesModule} from "@app/pages/admin/sites/sites.module";
-import {NetworkModule} from "@app/pages/admin/network/network.module";
-import {QuestionnairesModule} from "@app/pages/admin/questionnaires/questionnaires.module";
-import {AdminPreferencesComponent} from "@app/pages/admin/admin-preferences/admin-preferences.component";
+import {Routes} from "@angular/router";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
@@ -25,10 +13,10 @@ import {RedirectsResolver} from "@app/shared/resolvers/redirects.resolver";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {StatusResolver} from "@app/shared/resolvers/statuses.resolver";
 
-const routes: Routes = [
+export const adminRoutes: Routes = [
   {
     path: "",
-    component: adminHomeComponent,
+    loadComponent: () => import('@app/pages/admin/home/admin-home.component').then(m => m.adminHomeComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver
     },
@@ -37,7 +25,7 @@ const routes: Routes = [
   },
   {
     path: "home",
-    component: adminHomeComponent,
+    loadComponent: () => import('@app/pages/admin/home/admin-home.component').then(m => m.adminHomeComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver
     },
@@ -46,7 +34,7 @@ const routes: Routes = [
   },
   {
     path: "preferences",
-    component: AdminPreferencesComponent,
+    loadComponent: () => import('@app/pages/admin/admin-preferences/admin-preferences.component').then(m => m.AdminPreferencesComponent),
     resolve: {
       NodeResolver, PreferenceResolver
     },
@@ -55,7 +43,7 @@ const routes: Routes = [
   },
   {
     path: "settings",
-    loadChildren: () => SettingsModule,
+    loadComponent: () => import('@app/pages/admin/settings/settings.component').then(m => m.AdminSettingsComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver
     },
@@ -64,7 +52,7 @@ const routes: Routes = [
   },
   {
     path: "sites",
-    loadChildren: () => SitesModule,
+    loadComponent: () => import('@app/pages/admin/sites/sites.component').then(m => m.SitesComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, JobResolver, TipsResolver, QuestionnairesResolver, StatusResolver
     },
@@ -73,7 +61,7 @@ const routes: Routes = [
   },
   {
     path: "users",
-    loadChildren: () => UsersModule,
+    loadComponent: () => import('@app/pages/admin/users/users.component').then(m => m.UsersComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver
     },
@@ -82,7 +70,7 @@ const routes: Routes = [
   },
   {
     path: "questionnaires",
-    loadChildren: () => QuestionnairesModule,
+    loadComponent: () => import('@app/pages/admin/questionnaires/questionnaires.component').then(m => m.QuestionnairesComponent),
     resolve: {
       NodeResolver, PreferenceResolver, ContextsResolver, UsersResolver, QuestionnairesResolver, FieldTemplatesResolver
     },
@@ -91,7 +79,7 @@ const routes: Routes = [
   },
   {
     path: "channels",
-    loadChildren: () => ContextsModule,
+    loadComponent: () => import('@app/pages/admin/contexts/contexts.component').then(m => m.ContextsComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver, ContextsResolver
     },
@@ -100,7 +88,7 @@ const routes: Routes = [
   },
   {
     path: "casemanagement",
-    loadChildren: () => CaseManagementModule,
+    loadComponent: () => import('@app/pages/admin/casemanagement/case-management.component').then(m => m.CaseManagementComponent),
     resolve: {
       NodeResolver, PreferenceResolver, StatuseResolver: StatusResolver
     },
@@ -109,7 +97,7 @@ const routes: Routes = [
   },
   {
     path: "auditlog",
-    loadChildren: () => AuditLogModule,
+    loadComponent: () => import('@app/pages/admin/auditlog/audit-log.component').then(m => m.AuditLogComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, AuditlogResolver: AuditLogResolver, JobResolver, TipsResolver
     },
@@ -118,7 +106,7 @@ const routes: Routes = [
   },
   {
     path: "notifications",
-    loadChildren: () => NotificationsModule,
+    loadComponent: () => import('@app/pages/admin/notifications/notifications.component').then(m => m.NotificationsComponent),
     resolve: {
       NodeResolver, PreferenceResolver, NotificationsResolver
     },
@@ -127,7 +115,7 @@ const routes: Routes = [
   },
   {
     path: "network",
-    loadChildren: () => NetworkModule,
+    loadComponent: () => import('@app/pages/admin/network/network.component').then(m => m.NetworkComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, NetworkResolver, RedirectsResolver
     },
@@ -135,10 +123,3 @@ const routes: Routes = [
     data: {sidebar: "admin-sidebar", pageTitle: "Network"},
   }
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class AdminRoutingModule {
-}

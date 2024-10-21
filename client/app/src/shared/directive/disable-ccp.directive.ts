@@ -1,7 +1,8 @@
 import {Directive, HostListener} from "@angular/core";
 
 @Directive({
-  selector: "[disableCcp]"
+    selector: "[disableCcp]",
+    standalone: true
 })
 export class DisableCcpDirective {
   @HostListener("cut", ["$event"])

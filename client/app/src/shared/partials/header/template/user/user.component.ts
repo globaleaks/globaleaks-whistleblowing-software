@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component} from "@angular/core";
+import { ChangeDetectorRef, Component, inject } from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -7,15 +7,35 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import { NgClass } from "@angular/common";
+import { NgSelectComponent, NgOptionComponent } from "@ng-select/ng-select";
+import { FormsModule } from "@angular/forms";
+import { ReceiptComponent } from "../../../receipt/receipt.component";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
 
 @Component({
-  selector: "views-user",
-  templateUrl: "./user.component.html"
+    selector: "views-user",
+    templateUrl: "./user.component.html",
+    standalone: true,
+    imports: [NgClass, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, TranslatorPipe, OrderByPipe]
 })
 export class UserComponent {
+  protected activatedRoute = inject(ActivatedRoute);
+  protected httpService = inject(HttpService);
+  protected appConfigService = inject(AppConfigService);
+  private cdr = inject(ChangeDetectorRef);
+  protected authentication = inject(AuthenticationService);
+  protected preferences = inject(PreferenceResolver);
+  protected utils = inject(UtilsService);
+  protected appDataService = inject(AppDataService);
+  protected translationService = inject(TranslationService);
+  private router = inject(Router);
+
   private lastLang: string | null = null;
 
-  constructor(protected activatedRoute: ActivatedRoute, protected httpService: HttpService, protected appConfigService: AppConfigService, private cdr: ChangeDetectorRef, protected authentication: AuthenticationService, protected preferences: PreferenceResolver, protected utils: UtilsService, protected appDataService: AppDataService, protected translationService: TranslationService, private router: Router) {
+  constructor() {
     this.onQueryParameterChangeListener();
   }
 

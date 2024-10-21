@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {
   HttpInterceptor,
   HttpEvent,
@@ -28,8 +28,11 @@ const protectedUrls = [
 
 @Injectable()
 export class appInterceptor implements HttpInterceptor {
-  constructor(private authenticationService: AuthenticationService, private httpClient: HttpClient, private cryptoService: CryptoService, private translationService: TranslationService) {
-  }
+  private authenticationService = inject(AuthenticationService);
+  private httpClient = inject(HttpClient);
+  private cryptoService = inject(CryptoService);
+  private translationService = inject(TranslationService);
+
 
   private getAcceptLanguageHeader(): string | null {
     if (this.translationService.language) {
@@ -85,9 +88,9 @@ export class appInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class ErrorCatchingInterceptor implements HttpInterceptor {
+  private authenticationService = inject(AuthenticationService);
+  private appDataService = inject(AppDataService);
 
-  constructor(private authenticationService: AuthenticationService, private appDataService: AppDataService) {
-  }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -114,10 +117,9 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class CompletedInterceptor implements HttpInterceptor {
-  count = 0;
+  private appDataService = inject(AppDataService);
 
-  constructor(private appDataService: AppDataService) {
-  }
+  count = 0;
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (req.url !== "api/auth/authentication") {

@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable, of} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpService} from "@app/shared/services/http.service";
@@ -9,10 +9,10 @@ import {IarData} from "@app/models/reciever/Iar-data";
   providedIn: "root"
 })
 export class IarResolver {
-  dataModel: IarData[] = [];
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
 
-  constructor(private httpService: HttpService, private authenticationService: AuthenticationService) {
-  }
+  dataModel: IarData[] = [];
 
   reload() {
     this.httpService.iarResource().subscribe(

@@ -1,49 +1,61 @@
-<div *ngIf="!authentication.requireAuthCode">
-    <div *ngIf="appDataService.public.receivers.length === 1">
+@if (!authentication.requireAuthCode) {
+  <div>
+    @if (appDataService.public.receivers.length === 1) {
+      <div>
         <div class="form-group">
-            <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" autofocus required />
+          <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" autofocus required />
         </div>
         <div class="form-group">
-            <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginPassword.length==0" (click)="authentication.login(0, appDataService.public.receivers[0].id, authentication.loginData.loginPassword)" type="submit">
+          <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginPassword.length==0" (click)="authentication.login(0, appDataService.public.receivers[0].id, authentication.loginData.loginPassword)" type="submit">
+            <i class="fa-solid fa-sign-in-alt"></i>
+            <span>{{'Log in'|translate}}</span>
+          </button>
+          <span id="forgot-button">
+            <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
+          </span>
+        </div>
+      </div>
+    }
+    @if (appDataService.public.receivers.length !== 1) {
+      <div>
+        <div class="form-group">
+          <label>{{'Please select your account:'|translate}}</label>
+          <ng-select name="authentication.loginData.loginUsername" [clearable]="false" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginUsername">
+            @for (item of appDataService.public.receivers; track item) {
+              <ng-option [value]="item.id">{{item.name}}</ng-option>
+            }
+          </ng-select>
+        </div>
+        @if (authentication.loginData.loginUsername) {
+          <div>
+            <div class="form-group">
+              <label>{{'Now type your password, then click \'Log in\':'|translate}}</label>
+              <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
+            </div>
+            <div class="form-group">
+              <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginPassword.length==0" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
                 <i class="fa-solid fa-sign-in-alt"></i>
                 <span>{{'Log in'|translate}}</span>
-            </button>
-            <span id="forgot-button">
-                <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
-            </span>
-        </div>
-    </div>
-    <div *ngIf="appDataService.public.receivers.length !== 1">
-        <div class="form-group">
-            <label>{{'Please select your account:'|translate}}</label>
-            <ng-select name="authentication.loginData.loginUsername" [clearable]="false" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginUsername">
-                <ng-option *ngFor="let item of appDataService.public.receivers" [value]="item.id">{{item.name}}</ng-option>
-            </ng-select>
-        </div>
-        <div *ngIf="authentication.loginData.loginUsername">
-            <div class="form-group">
-                <label>{{'Now type your password, then click \'Log in\':'|translate}}</label>
-                <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
+              </button>
+              <span id="forgot-button">
+                <a class="btn btn-outline-secondary" id="passwordreset" href="/#/login/passwordreset">{{'Forgot password?'|translate}}</a>
+              </span>
             </div>
-            <div class="form-group">
-                <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginPassword.length==0" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-                    <i class="fa-solid fa-sign-in-alt"></i>
-                    <span>{{'Log in'|translate}}</span>
-                </button>
-                <span id="forgot-button">
-                    <a class="btn btn-outline-secondary" id="passwordreset" href="/#/login/passwordreset">{{'Forgot password?'|translate}}</a>
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-<div *ngIf="authentication.requireAuthCode">
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+@if (authentication.requireAuthCode) {
+  <div>
     <div class="form-group">
-        <label>{{'Enter the two factor authentication code'|translate}}</label>
-        <input class="form-control" name="authentication.loginData.loginAuthCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
+      <label>{{'Enter the two factor authentication code'|translate}}</label>
+      <input class="form-control" name="authentication.loginData.loginAuthCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
     </div>
     <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginUsername.length === 0" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
-        <i class="fa-solid fa-sign-in-alt"></i>
-        <span>{{'Log in'|translate}}</span>
+      <i class="fa-solid fa-sign-in-alt"></i>
+      <span>{{'Log in'|translate}}</span>
     </button>
-</div>
+  </div>
+}

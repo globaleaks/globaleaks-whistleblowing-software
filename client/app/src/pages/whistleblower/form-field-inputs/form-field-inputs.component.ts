@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import { Component, EventEmitter, forwardRef, Input, OnInit, Output, inject } from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -6,13 +6,30 @@ import {Answers} from "@app/models/reciever/reciever-tip-data";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {cloneDeep} from "lodash-es";
+import { NgClass } from "@angular/common";
+import { MarkdownComponent } from "ngx-markdown";
+import { FormFieldInputComponent } from "../form-field-input/form-field-input.component";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
+import { StripHtmlPipe } from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
-  selector: "src-form-field-inputs",
-  templateUrl: "./form-field-inputs.component.html",
-  viewProviders: [{provide: ControlContainer, useExisting: NgForm}],
+    selector: "src-form-field-inputs",
+    templateUrl: "./form-field-inputs.component.html",
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [
+    MarkdownComponent,
+    NgClass,
+    forwardRef(() => FormFieldInputComponent),
+    TranslateModule,
+    TranslatorPipe,
+    StripHtmlPipe
+],
 })
 export class FormFieldInputsComponent implements OnInit {
+  protected utilsService = inject(UtilsService);
+
   @Input() field: Field;
   @Input() fieldRow: number;
   @Input() fieldCol: number;
@@ -32,9 +49,6 @@ export class FormFieldInputsComponent implements OnInit {
 
   fieldId: string;
   entries: { [key: string]: Field }[] = [];
-
-  constructor(protected utilsService: UtilsService) {
-  }
 
   ngOnInit(): void {
     if(!this.fieldEntry){

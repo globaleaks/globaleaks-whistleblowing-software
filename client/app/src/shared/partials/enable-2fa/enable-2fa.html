@@ -1,50 +1,54 @@
 <div class="row">
-    <div class="col-md-12">
-        <div>
-            <span class="badge bg-primary">1</span>
-            <span>{{'Install an authenticator app on your phone'|translate}}</span>
-        </div>
+  <div class="col-md-12">
+    <div>
+      <span class="badge bg-primary">1</span>
+      <span>{{'Install an authenticator app on your phone'|translate}}</span>
     </div>
+  </div>
 </div>
 <div class="row mt-3">
-    <div class="col-md-12">
-        <div>
-            <div>
-                <span class="badge bg-primary">2</span>
-                <span>{{'Scan the QR code with the app'|translate}}</span>
+  <div class="col-md-12">
+    <div>
+      <div>
+        <span class="badge bg-primary">2</span>
+        <span>{{'Scan the QR code with the app'|translate}}</span>
+      </div>
+      <br />
+      <div class="text-center">
+        <qrcode data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
+        <form id="OTPSecretForm" [formGroup]="OTPSecretForm" class="form-inline">
+          <div class="form-group d-block mx-auto">
+            <div class="input-group">
+              <input [ngModelOptions]="{standalone: true}" [ngClass]="{'is-invalid': OTPSecretForm.invalid}" class="form-control" name="secret" (ngModelChange)="onSecretKeyChanged()" [(ngModel)]="twoFactorAuthData.totp.secret" [disabled]="!twoFactorAuthData.totp.edit" type="text" [minlength]="32" [maxLength]="32" maxlength="32" size="32" required />
+              @if (twoFactorAuthData.totp.edit) {
+                <span class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" data-toggle="tooltip" title="{{'Save' | translate}}">
+                  <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="OTPSecretForm.invalid">
+                    <i class="fa-solid fa-save"></i>
+                  </button>
+                </span>
+              }
+              @if (!twoFactorAuthData.totp.edit) {
+                <span class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" data-toggle="tooltip" title="{{'Edit' | translate}}">
+                  <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="twoFactorAuthData.totp.secret.length !== 32">
+                    <i class="fa-solid fa-edit"></i>
+                  </button>
+                </span>
+              }
             </div>
-            <br />
-            <div class="text-center">
-                <qrcode title="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
-                <form id="OTPSecretForm" [formGroup]="OTPSecretForm" class="form-inline">
-                    <div class="form-group d-block mx-auto">
-                        <div class="input-group">
-                            <input [ngModelOptions]="{standalone: true}" [ngClass]="{'is-invalid': OTPSecretForm.invalid}" class="form-control" name="secret" (ngModelChange)="onSecretKeyChanged()" [(ngModel)]="twoFactorAuthData.totp.secret" [disabled]="!twoFactorAuthData.totp.edit" type="text" [minlength]="32" [maxLength]="32" maxlength="32" size="32" required />
-                            <span *ngIf="twoFactorAuthData.totp.edit" class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" title="{{'Save' | translate}}">
-                                <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="OTPSecretForm.invalid">
-                                    <i class="fa-solid fa-save"></i>
-                                </button>
-                            </span>
-                            <span *ngIf="!twoFactorAuthData.totp.edit" class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" title="{{'Edit' | translate}}">
-                                <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="twoFactorAuthData.totp.secret.length !== 32">
-                                    <i class="fa-solid fa-edit"></i>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 <div class="row mt-3">
-    <div class="col-md-12">
-        <div class="form-group">
-            <div>
-                <span class="badge bg-primary">3</span>
-                <span>{{'Enter the two factor authentication code'|translate}}</span>
-            </div>
-            <input class="form-control" [(ngModel)]="twoFactorAuthData.totp.token" type="text" size="6" maxlength="6" />
-        </div>
+  <div class="col-md-12">
+    <div class="form-group">
+      <div>
+        <span class="badge bg-primary">3</span>
+        <span>{{'Enter the two factor authentication code'|translate}}</span>
+      </div>
+      <input class="form-control" [(ngModel)]="twoFactorAuthData.totp.token" type="text" size="6" maxlength="6" />
     </div>
+  </div>
 </div>

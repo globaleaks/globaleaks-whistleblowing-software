@@ -1,28 +1,28 @@
 <form name="contentForm" #contentForm="ngForm" novalidate class="reveal">
-    <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-        <ng-container *ngFor="let tab of tabs">
-            <li [ngbNavItem]="tab.title">
-                <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
-                <ng-template ngbNavContent>
-                    <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-                </ng-template>
-            </li>
-        </ng-container>
-    </ul>
-    <div [ngbNavOutlet]="nav" class="mt-2"></div>
-    <ng-template #tab1>
-        <src-tab1 [contentForm]="contentForm"></src-tab1>
-    </ng-template>
-    <ng-template #tab2>
-        <src-tab2 [contentForm]="contentForm"></src-tab2>
-    </ng-template>
-    <ng-template #tab3>
-        <src-tab3 [contentForm]="contentForm"></src-tab3>
-    </ng-template>
-    <ng-template #tab4>
-        <src-tab4 [contentForm]="contentForm"></src-tab4>
-    </ng-template>
-    <ng-template #tab5>
-        <src-tab5 [contentForm]="contentForm"></src-tab5>
-    </ng-template>
+  <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
+    @for (tab of tabs; track tab) {
+      <li [ngbNavItem]="tab.title">
+        <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
+        <ng-template ngbNavContent>
+          <ng-container *ngTemplateOutlet="tab.component"></ng-container>
+        </ng-template>
+      </li>
+    }
+  </ul>
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+  <ng-template #tab1>
+    <src-tab1 [contentForm]="contentForm"></src-tab1>
+  </ng-template>
+  <ng-template #tab2>
+    <src-tab2 [contentForm]="contentForm"></src-tab2>
+  </ng-template>
+  <ng-template #tab3>
+    <src-tab3 [contentForm]="contentForm"></src-tab3>
+  </ng-template>
+  <ng-template #tab4>
+    <src-tab4 [contentForm]="contentForm"></src-tab4>
+  </ng-template>
+  <ng-template #tab5>
+    <src-tab5 [contentForm]="contentForm"></src-tab5>
+  </ng-template>
 </form>

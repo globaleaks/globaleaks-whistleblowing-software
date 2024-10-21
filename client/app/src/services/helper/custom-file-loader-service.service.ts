@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {AppDataService} from "@app/app-data.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomFileLoaderServiceService {
+  private appDataService = inject(AppDataService);
 
-  constructor(private appDataService: AppDataService) {}
 
   loadCustomFiles(): void {
     if (window.location.pathname === '/' && this.appDataService.public.node) {

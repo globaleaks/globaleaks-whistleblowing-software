@@ -1,14 +1,16 @@
 <div id="TipInfoBox" class="card card.bg-primary" [attr.aria-expanded]="collapsed">
-    <div class="card-header" (click)="toggleColLapse(); utilsService.stopPropagation($event)">
-        <span>{{'Additional questionnaire'|translate}}</span>
+  <div class="card-header" (click)="toggleColLapse(); utilsService.stopPropagation($event)">
+    <span>{{'Additional questionnaire'|translate}}</span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body d-flex justify-content-between">
+      <div>{{'Recipients have requested you to fill an additional questionnaire.'|translate}}</div>
+      <div class="">
+        <button class="btn btn-primary" id="open_additional_questionnaire" (click)="tipOpenAdditionalQuestionnaire()">
+          <i class="fa-solid fa-check"></i>
+          <span>{{'Fill the additional questionnaire'|translate}}</span>
+        </button>
+      </div>
     </div>
-    <div class="card-body d-flex justify-content-between" *ngIf="!collapsed">
-        <div>{{'Recipients have requested you to fill an additional questionnaire.'|translate}}</div>
-        <div class="">
-            <button class="btn btn-primary" id="open_additional_questionnaire" (click)="tipOpenAdditionalQuestionnaire()">
-                <i class="fa-solid fa-check"></i>
-                <span>{{'Fill the additional questionnaire'|translate}}</span>
-            </button>
-        </div>
-    </div>
+  }
 </div>

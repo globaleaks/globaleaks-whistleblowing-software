@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Context} from "@app/models/reciever/reciever-tip-data";
@@ -8,6 +8,9 @@ import {submissionResourceModel} from "@app/models/whistleblower/submission-reso
   providedIn: "root",
 })
 export class SubmissionService {
+  private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
+
   submission: submissionResourceModel = new submissionResourceModel();
   context: Context;
   receivers: string[] = [];
@@ -18,9 +21,6 @@ export class SubmissionService {
   blocked = false;
   uploads: { [key: string]: any };
   private sharedData: Flow[] = [];
-
-  constructor(private httpService: HttpService, private appDataService: AppDataService) {
-  }
 
   setContextReceivers(context_id: number) {
     this.context = this.appDataService.contexts_by_id[context_id];

@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable, of} from "rxjs";
 import {switchMap} from "rxjs/operators";
 import {HttpService} from "@app/shared/services/http.service";
@@ -9,10 +9,10 @@ import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-mod
   providedIn: "root"
 })
 export class AuditLogResolver {
-  dataModel: auditlogResolverModel = new auditlogResolverModel();
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
 
-  constructor(private httpService: HttpService, private authenticationService: AuthenticationService) {
-  }
+  dataModel: auditlogResolverModel = new auditlogResolverModel();
 
   resolve(): Observable<boolean> {
     if (this.authenticationService.session.role === "admin") {

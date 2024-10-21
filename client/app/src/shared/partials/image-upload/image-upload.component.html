@@ -1,16 +1,24 @@
 <form action="">
-    <div id="projectImageLoader" class="image-upload">
-        <ng-container #flowAdvanced="flow" flowDrop [flowConfig]="flowConfig"></ng-container>
-        <input #uploader id="projectImageLoader" (change)="onFileSelected(uploader.files)" type="file" flowButton [style.display]="'none'" [flowAttributes]="{ accept: 'image/*' }" class="custom-file-input" />
-        <label for="projectImageLoader" class="change-picture-button text-primary" *ngIf="!imageUploadModel[imageUploadModelAttr]" title="{{'Edit' | translate}}" (click)="triggerFileInputClick()">
-            <i class="fa-solid fa-edit"></i>
-        </label>
-        <label [attr.id]="'projectImageLoader'" class="change-picture-button text-danger" (click)="deletePicture()" *ngIf="imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length" title="{{'Delete' | translate}}">
-            <i class="fa-solid fa-times"></i>
-        </label>
-        <div class="embed-responsive embed-responsive-16by9">
-            <img *ngIf="filemodel" class="embed-responsive-item logo-image" alt="image" width="500" height="500" ngSrc="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
-            <div *ngIf="!filemodel" class="logo-image-empty"></div>
-        </div>
+  <div id="projectImageLoader" class="image-upload">
+    <ng-container #flowAdvanced="flow" flowDrop [flowConfig]="flowConfig"></ng-container>
+    <input #uploader id="projectImageLoader" (change)="onFileSelected(uploader.files)" type="file" flowButton [style.display]="'none'" [flowAttributes]="{ accept: 'image/*' }" class="custom-file-input" />
+    @if (!imageUploadModel[imageUploadModelAttr]) {
+      <label for="projectImageLoader" class="change-picture-button text-primary" data-toggle="tooltip" title="{{'Edit' | translate}}" (click)="triggerFileInputClick()">
+        <i class="fa-solid fa-edit"></i>
+      </label>
+    }
+    @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
+      <label [attr.id]="'projectImageLoader'" class="change-picture-button text-danger" (click)="deletePicture()" data-toggle="tooltip" title="{{'Delete' | translate}}">
+        <i class="fa-solid fa-times"></i>
+      </label>
+    }
+    <div class="embed-responsive embed-responsive-16by9">
+      @if (filemodel) {
+        <img class="embed-responsive-item logo-image" alt="image" width="500" height="500" ngSrc="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
+      }
+      @if (!filemodel) {
+        <div class="logo-image-empty"></div>
+      }
     </div>
+  </div>
 </form>

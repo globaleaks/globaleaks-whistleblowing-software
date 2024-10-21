@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree} from "@angular/router";
 import {Observable} from "rxjs";
 import {AppDataService} from "@app/app-data.service";
@@ -8,8 +8,10 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
   providedIn: "root"
 })
 export class Pageguard {
-  constructor(private authenticationService: AuthenticationService, private router: Router, private appDataService: AppDataService) {
-  }
+  private authenticationService = inject(AuthenticationService);
+  private router = inject(Router);
+  private appDataService = inject(AppDataService);
+
 
   canActivate(_: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 

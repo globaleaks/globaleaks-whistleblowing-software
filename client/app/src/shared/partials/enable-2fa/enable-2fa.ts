@@ -1,20 +1,31 @@
-import {Component, OnInit} from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
+import { QRCodeModule } from "angularx-qrcode";
+import { NgClass } from "@angular/common";
+import { TranslateModule } from "@ngx-translate/core";
+import { TranslatorPipe } from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-enable-2fa",
-  templateUrl: "./enable-2fa.html"
+    selector: "src-enable-2fa",
+    templateUrl: "./enable-2fa.html",
+    standalone: true,
+    imports: [QRCodeModule, FormsModule, ReactiveFormsModule, NgClass, TranslateModule, TranslatorPipe]
 })
 export class Enable2fa implements OnInit{
+  protected utils = inject(UtilsService);
+  protected preferenceResolver = inject(PreferenceResolver);
+  private builder = inject(FormBuilder);
+  protected twoFactorAuthData = inject(TwoFactorAuthData);
+
 
   symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   array = new Uint32Array(32);
   OTPSecretForm: FormGroup;
 
-  constructor(protected utils: UtilsService, protected preferenceResolver: PreferenceResolver, private builder: FormBuilder, protected twoFactorAuthData: TwoFactorAuthData) {
+  constructor() {
     this.initialization();
   }
 

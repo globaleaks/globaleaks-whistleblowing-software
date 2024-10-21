@@ -1,44 +1,48 @@
 <div class="modal-header">
-    <div class="modal-title">{{ 'Recipients' | translate }}</div>
-    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <div class="modal-title">{{ 'Recipients' | translate }}</div>
+  <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 <div class="modal-body">
-    <div>{{ 'Recipients' | translate }}</div>
-    <ng-select [items]="userData | filter: 'role': 'receiver'" [attr.data-cy]="'reciever_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)">
-        <ng-template ng-label-tmp let-item="item">
-            {{ item.name }}
-        </ng-template>
-        <ng-template ng-option-tmp let-item="item">
-            <span [innerHTML]="item.name"></span>
-        </ng-template>
-    </ng-select>
-    <div *ngIf="arg.trigger_receiver">
-        <br />
-        <ol class="selection-list">
-            <li *ngFor="let user of arg.trigger_receiver; let i = index">
-                <span class="action-btns">
-                    <span (click)="removeReceiver(i)" title="{{'Remove' | translate}}">
-                        <i class="fa-solid fa-times"></i>
-                    </span>
-                </span>
-                <span>{{ admin_receivers_by_id[user].name }}</span>
-            </li>
-        </ol>
+  <div>{{ 'Recipients' | translate }}</div>
+  <ng-select [items]="userData | filter: 'role': 'receiver'" [attr.data-cy]="'reciever_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)">
+    <ng-template ng-label-tmp let-item="item">
+      {{ item.name }}
+    </ng-template>
+    <ng-template ng-option-tmp let-item="item">
+      <span [innerHTML]="item.name"></span>
+    </ng-template>
+  </ng-select>
+  @if (arg.trigger_receiver) {
+    <div>
+      <br />
+      <ol class="selection-list">
+        @for (user of arg.trigger_receiver; track user; let i = $index) {
+          <li>
+            <span class="action-btns">
+              <span (click)="removeReceiver(i)" data-toggle="tooltip" title="{{'Remove' | translate}}">
+                <i class="fa-solid fa-times"></i>
+              </span>
+            </span>
+            <span>{{ admin_receivers_by_id[user].name }}</span>
+          </li>
+        }
+      </ol>
     </div>
+  }
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Confirm' | translate }}</span>
-    </button>
-    <button id="modal-action-reset" class="btn btn-danger" (click)="resetRecipients()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Reset' | translate }}</span>
-    </button>
-    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{ 'Cancel' | translate }}</span>
-    </button>
+  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
+    <i class="fa-solid fa-check"></i>
+    <span>{{ 'Confirm' | translate }}</span>
+  </button>
+  <button id="modal-action-reset" class="btn btn-danger" (click)="resetRecipients()">
+    <i class="fa-solid fa-check"></i>
+    <span>{{ 'Reset' | translate }}</span>
+  </button>
+  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fa-solid fa-times"></i>
+    <span>{{ 'Cancel' | translate }}</span>
+  </button>
 </div>

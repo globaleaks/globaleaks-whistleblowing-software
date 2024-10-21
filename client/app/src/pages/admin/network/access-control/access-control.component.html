@@ -1,76 +1,84 @@
 <div class="card card-default">
-    <div class="card-body">
-        <form name="adminIPAccessControlForm" #adminIPAccessControlForm="ngForm">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label>{{ 'Restrict access to specific IP addresses' | translate }}</label>
-                    </div>
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th>{{ 'Role' | translate }}</th>
-                            <th>{{ 'Enabled' | translate }}</th>
-                            <th>{{ 'Allowed IP addresses' | translate }}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>{{ 'Admin' | translate }}</td>
-                            <td>
-                                <input class="form-check-input" [(ngModel)]="networkData.ip_filter_admin_enable" type="checkbox" name="ip_filter_admin_enable" />
-                            </td>
-                            <td>
-                                <input *ngIf="networkData.ip_filter_admin_enable" class="form-control" name="ip_filter_admin" [(ngModel)]="networkData.ip_filter_admin" type="text" autocomplete="off" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{{ 'Analyst' | translate }}</td>
-                            <td>
-                                <input class="form-check-input" [(ngModel)]="networkData.ip_filter_analyst_enable" type="checkbox" name="ip_filter_list" />
-                            </td>
-                            <td>
-                                <input *ngIf="networkData.ip_filter_analyst_enable" class="form-control" name="ip_filter_list" [(ngModel)]="networkData.ip_filter_analyst" type="text" autocomplete="off" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{{ 'Custodian' | translate }}</td>
-                            <td>
-                                <input class="form-check-input" [(ngModel)]="networkData.ip_filter_custodian_enable" type="checkbox" name="ip_filter_custodian_enable" />
-                            </td>
-                            <td>
-                                <input *ngIf="networkData.ip_filter_custodian_enable" class="form-control" name="ip_filter_custodian" [(ngModel)]="networkData.ip_filter_custodian" type="text" autocomplete="off" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{{ 'Recipient' | translate }}</td>
-                            <td>
-                                <input class="form-check-input" [(ngModel)]="networkData.ip_filter_receiver_enable" type="checkbox" name="ip_filter_receiver_enable" />
-                            </td>
-                            <td>
-                                <input *ngIf="networkData.ip_filter_receiver_enable" class="form-control" name="ip_filter_receiver" [(ngModel)]="networkData.ip_filter_receiver" type="text" autocomplete="off" />
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div>
-                        <div>{{ 'Each entry must be separated with a comma.' | translate }}</div>
-                        <div>
-                            <span>{{ 'Example' | translate }}:</span>
-                            <span>212.35.212.87,192.0.2.0/24,2001:db8::/32</span>
-                        </div>
-                    </div>
-                </div>
+  <div class="card-body">
+    <form name="adminIPAccessControlForm" #adminIPAccessControlForm="ngForm">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label>{{ 'Restrict access to specific IP addresses' | translate }}</label>
+          </div>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>{{ 'Role' | translate }}</th>
+                <th>{{ 'Enabled' | translate }}</th>
+                <th>{{ 'Allowed IP addresses' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ 'Admin' | translate }}</td>
+                <td>
+                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_admin_enable" type="checkbox" name="ip_filter_admin_enable" />
+                </td>
+                <td>
+                  @if (networkData.ip_filter_admin_enable) {
+                    <input class="form-control" name="ip_filter_admin" [(ngModel)]="networkData.ip_filter_admin" type="text" autocomplete="off" />
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td>{{ 'Analyst' | translate }}</td>
+                <td>
+                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_analyst_enable" type="checkbox" name="ip_filter_list" />
+                </td>
+                <td>
+                  @if (networkData.ip_filter_analyst_enable) {
+                    <input class="form-control" name="ip_filter_list" [(ngModel)]="networkData.ip_filter_analyst" type="text" autocomplete="off" />
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td>{{ 'Custodian' | translate }}</td>
+                <td>
+                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_custodian_enable" type="checkbox" name="ip_filter_custodian_enable" />
+                </td>
+                <td>
+                  @if (networkData.ip_filter_custodian_enable) {
+                    <input class="form-control" name="ip_filter_custodian" [(ngModel)]="networkData.ip_filter_custodian" type="text" autocomplete="off" />
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td>{{ 'Recipient' | translate }}</td>
+                <td>
+                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_receiver_enable" type="checkbox" name="ip_filter_receiver_enable" />
+                </td>
+                <td>
+                  @if (networkData.ip_filter_receiver_enable) {
+                    <input class="form-control" name="ip_filter_receiver" [(ngModel)]="networkData.ip_filter_receiver" type="text" autocomplete="off" />
+                  }
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+            <div>{{ 'Each entry must be separated with a comma.' | translate }}</div>
+            <div>
+              <span>{{ 'Example' | translate }}:</span>
+              <span>212.35.212.87,192.0.2.0/24,2001:db8::/32</span>
             </div>
-            <hr />
-            <div class="row">
-                <div class="col-md-6">
-                    <button id="AccessControlSave" class="btn btn-primary" [disabled]="adminIPAccessControlForm.invalid" (click)="updateAccessControl(networkData)" type="submit">
-                        <i class="fa-solid fa-check"></i>
-                        <span>{{ 'Save' | translate }}</span>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="col-md-6">
+          <button id="AccessControlSave" class="btn btn-primary" [disabled]="adminIPAccessControlForm.invalid" (click)="updateAccessControl(networkData)" type="submit">
+            <i class="fa-solid fa-check"></i>
+            <span>{{ 'Save' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

@@ -2,12 +2,13 @@ import {Directive, Input, Output, EventEmitter} from "@angular/core";
 import {NG_VALIDATORS, AbstractControl, Validator, ValidationErrors} from "@angular/forms";
 
 @Directive({
-  selector: "[passwordStrengthValidator]",
-  providers: [{
-    provide: NG_VALIDATORS,
-    useExisting: PasswordStrengthValidatorDirective,
-    multi: true
-  }]
+    selector: "[passwordStrengthValidator]",
+    providers: [{
+            provide: NG_VALIDATORS,
+            useExisting: PasswordStrengthValidatorDirective,
+            multi: true
+        }],
+    standalone: true
 })
 export class PasswordStrengthValidatorDirective implements Validator {
   @Input("passwordStrengthValidator") passwordStrength: string;

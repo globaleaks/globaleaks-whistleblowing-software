@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable, of} from "rxjs";
 import {map} from "rxjs/operators";
 import {HttpService} from "@app/shared/services/http.service";
@@ -9,10 +9,10 @@ import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-
   providedIn: "root"
 })
 export class FieldTemplatesResolver {
-  dataModel: fieldtemplatesResolverModel[];
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
 
-  constructor(private httpService: HttpService, private authenticationService: AuthenticationService) {
-  }
+  dataModel: fieldtemplatesResolverModel[];
 
   resolve(): Observable<boolean> {
     if (this.authenticationService.session.role === "admin") {
