@@ -56,7 +56,7 @@ export class SendtipFilesComponent implements OnInit {
     const wbfilesMapped = this.wbfiles
       //.filter(file => file.status === 'VERIFIED') // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
-        id: file.id,
+        id: file.ifile_id,
         name: file.name,
         status: file.status,
         origin: 'whistleblower',

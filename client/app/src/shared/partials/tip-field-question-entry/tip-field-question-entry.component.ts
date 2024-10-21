@@ -91,13 +91,11 @@ export class TipFieldQuestionEntryComponent implements OnInit{
 
   ngOnInit(): void {
 
-   if(this.field.type==='daterange'){
+   if(this.field.type==='daterange' && this.fieldAnswers[this.field.id][0].value){
     this.input_start_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[0]);
     this.input_end_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[1]);
    }
-   else if (this.field.type==='tos'){
-    console.log(this.fieldAnswers[this.field.id][0]);
-   }
+   
   }
 
 
