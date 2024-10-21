@@ -24,7 +24,7 @@ export class SendtipDetailFilesComponent {
         status: 'In attesa',
         origin: 'Nuovo',
         uploadDate: new Date().toLocaleString(),
-        size: `${file.size} bytes`
+        size: file.size 
       };
 
       this.fileUploaded.emit(loadingFile);

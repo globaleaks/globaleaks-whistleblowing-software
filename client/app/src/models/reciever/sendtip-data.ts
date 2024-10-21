@@ -23,7 +23,7 @@ export interface FileItem {
     status: string;
     origin: string;
     uploadDate: string;
-    size: string;
+    size: number;
     file?: File;
     description?: string;
     verification_date?: string | null;

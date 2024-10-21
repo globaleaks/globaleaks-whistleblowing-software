@@ -52,7 +52,7 @@ export class SendTipFileUploadComponent {
             status: 'PENDING', // Status iniziale
             origin: 'recipient',
             uploadDate: new Date().toLocaleString(),
-            size: `${file.size}`
+            size: file.size
           });
           this.newFileDescription = "";
         });
@@ -74,7 +74,7 @@ export class SendTipFileUploadComponent {
         status: 'PENDING', // Status iniziale
         origin: 'recipient',
         uploadDate: new Date().toLocaleString(),
-        size: `${file.size}`
+        size: file.size
       }
       this.files.push(item);
       this.filesChange.emit(this.files);

@@ -47,7 +47,7 @@ export class SendtipFilesComponent implements OnInit {
         status: file.status, 
         origin: this.mapVisibility(file.visibility, 'file.authorType'), // TODO: da implementare file.authorType
         uploadDate: file.creation_date,
-        size: file.size.toString(),
+        size: file.size,
         file: undefined, // TODO per download file
         verification_date: file.verification_date
     }));
@@ -61,7 +61,7 @@ export class SendtipFilesComponent implements OnInit {
         status: file.status,
         origin: 'whistleblower',
         uploadDate: file.creation_date,
-        size: file.size.toString(),
+        size: file.size,
         file: undefined, // TODO per download file
         verification_date: file.verification_date
     }));

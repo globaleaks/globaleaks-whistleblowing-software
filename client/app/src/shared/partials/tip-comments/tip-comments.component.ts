@@ -18,6 +18,8 @@ export class TipCommentsComponent implements OnInit {
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
 
+  @Input() tids: number[] = []
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;
@@ -38,7 +40,7 @@ export class TipCommentsComponent implements OnInit {
   }
 
   newComment() {
-    const response = this.tipService.newComment(this.newCommentContent, this.key, []);
+    const response = this.tipService.newComment(this.newCommentContent, this.key, this.tids);
     this.newCommentContent = "";
 
     response.subscribe(
