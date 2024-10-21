@@ -37,7 +37,7 @@
                         {{ file.uploadDate | date:'dd-MM-yyyy HH:mm'}}
                     </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
-                        {{ file.size }}
+                        {{ file.size | byteFmt:2}}
                     </td>
                 </tr>
                 </tbody>
