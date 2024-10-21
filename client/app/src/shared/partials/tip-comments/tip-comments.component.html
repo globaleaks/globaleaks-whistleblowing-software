@@ -14,7 +14,7 @@
             </div>
             <div class="col-md-12 clearfix">
                 <!-- TODO: prendere valore massimo dei commenti da configurazione -->
-                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent || (preferenceResolver.dataModel.t_external && (key === 'oe' || key === 'whistleblower') && (comments | orderBy:'creation_date': true | filter : 'visibility' : key).length >= 1)">
+                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
                     <i class="fa-solid fa-comment"></i>
                     <span>{{'Send'|translate}}</span>
                 </button>
