@@ -1611,7 +1611,8 @@ class ReceiverFileDownload(BaseHandler):
                                                                   models.User.id == models.ReceiverTip.receiver_id,
                                                                   models.ReceiverFile.id == file_id,
                                                                   models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
-        except:
+        except Exception as e:
+            logging.debug(e)
             raise errors.ResourceNotFound
         else:
             return rfile.name, rfile.id, base64.b64decode(
