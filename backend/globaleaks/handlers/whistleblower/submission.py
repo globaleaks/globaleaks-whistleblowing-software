@@ -300,7 +300,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                 )
             ).decode()
         answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
-        
+
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_answers, itip.creation_date)
 
     for uploaded_file in user_session.files:
