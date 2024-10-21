@@ -1,9 +1,9 @@
+import logging
 from datetime import datetime
 
 from globaleaks import models
 from globaleaks.models import EnumStateFile
 from globaleaks.orm import transact
-from globaleaks.utils.log import log
 
 
 @transact
@@ -21,7 +21,7 @@ def save_status_file_scanning(session, file_id: str, status_file: EnumStateFile)
             session.commit()
             return True
         except Exception as e:
-            log.err(f"Unexpected error updating {model.__name__} with id {file_id}: {e}")
+            logging.debug(f"Unexpected error updating {model.__name__} with id {file_id}: {e}")
             session.rollback()
         return False
 

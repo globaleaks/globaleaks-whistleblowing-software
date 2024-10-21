@@ -564,12 +564,18 @@ class SubmitAccreditationHandler(BaseHandler):
 
     def post(self):
         fiscal_code = self.request.headers.get(b'x-idp-userid')
+        body_req = self.request.content.read()
         request = self.validate_request(
-            self.request.content.read(),
+            body_req,
             requests.SubmitAccreditation)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
         request['admin_fiscal_code'] = fiscal_code
+        try:
+            request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
+        except Exception as e:
+            logging.debug(e)
+            request['organization_institutional_site'] = None
         return accreditation(request)
 
 
