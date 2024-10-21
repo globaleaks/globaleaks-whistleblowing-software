@@ -1,14 +1,14 @@
-import { Component, TemplateRef, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef, inject } from "@angular/core";
+import {Component, TemplateRef, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef, inject} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
 import {SitesTab1Component} from "@app/pages/admin/sites/sites-tab1/sites-tab1.component";
 import {SitesTab2Component} from "@app/pages/admin/sites/sites-tab2/sites-tab2.component";
-import { FormsModule } from "@angular/forms";
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from "@ng-bootstrap/ng-bootstrap";
-import { NgTemplateOutlet } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {FormsModule} from "@angular/forms";
+import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
+import {NgTemplateOutlet} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-sites",

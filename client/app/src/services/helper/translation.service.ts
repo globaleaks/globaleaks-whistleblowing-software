@@ -1,5 +1,5 @@
 import {BehaviorSubject} from 'rxjs';
-import { Injectable, Renderer2, inject } from "@angular/core";
+import {Injectable, Renderer2, inject} from "@angular/core";
 import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DOCUMENT} from "@angular/common";
@@ -25,27 +25,6 @@ export class TranslationService {
 
   constructor() {
     this.currentDirection = this.utilsService.getDirection(this.translate.currentLang);
-  }
-
-  handleLTRandRTLStyling(event: LangChangeEvent, renderer: Renderer2) {
-    let waitForLoader = false;
-    const newDirection = this.utilsService.getDirection(event.lang);
-    if (newDirection !== this.currentDirection) {
-      waitForLoader = true;
-      this.utilsService.removeStyles(renderer, this.document, "css/styles-" + this.currentDirection + ".css");
-
-      const lang = this.translate.currentLang;
-      const cssFilename = ['ar', 'dv', 'fa', 'fa_AF', 'he', 'ps', 'ug', 'ur'].includes(lang) ? 'styles-rtl.css' : 'styles-ltr.css';
-      const cssPath = `css/${cssFilename}`;
-      const newLinkElement = renderer.createElement('link');
-      renderer.setAttribute(newLinkElement, 'rel', 'stylesheet');
-      renderer.setAttribute(newLinkElement, 'type', 'text/css');
-      renderer.setAttribute(newLinkElement, 'href', cssPath);
-      const firstLink = this.document.head.querySelector('link');
-      renderer.insertBefore(this.document.head, newLinkElement, firstLink);
-      this.currentDirection = newDirection;
-    }
-    return waitForLoader;
   }
 
   onChange(changedLanguage: string, callback?: () => void) {

@@ -6,7 +6,7 @@
 </div>
 <div class="modal-body">
   <div>{{ 'Recipients' | translate }}</div>
-  <ng-select [items]="userData | filter: 'role': 'receiver'" [attr.data-cy]="'reciever_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)">
+  <ng-select [items]="userData | filter: 'role': 'receiver'" [attr.data-cy]="'receiver_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)">
     <ng-template ng-label-tmp let-item="item">
       {{ item.name }}
     </ng-template>
@@ -21,7 +21,7 @@
         @for (user of arg.trigger_receiver; track user; let i = $index) {
           <li>
             <span class="action-btns">
-              <span (click)="removeReceiver(i)" data-toggle="tooltip" title="{{'Remove' | translate}}">
+              <span (click)="removeReceiver(i)" ngbTooltip="{{'Remove' | translate}}">
                 <i class="fa-solid fa-times"></i>
               </span>
             </span>

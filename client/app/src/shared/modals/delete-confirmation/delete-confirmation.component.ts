@@ -1,10 +1,10 @@
 import {HttpClient} from "@angular/common/http";
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Router} from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({

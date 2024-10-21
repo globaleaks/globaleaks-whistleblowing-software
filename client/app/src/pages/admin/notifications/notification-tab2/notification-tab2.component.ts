@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
+import {Component, Input, OnInit, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-notification-tab2",

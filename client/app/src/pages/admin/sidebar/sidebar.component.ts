@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { Router, RouterLink, RouterLinkActive } from "@angular/router";
+import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
+import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-admin-sidebar",

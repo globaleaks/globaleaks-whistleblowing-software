@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -13,14 +13,14 @@ import {
   EncryptionRecoveryKeyComponent
 } from "@app/shared/modals/encryption-recovery-key/encryption-recovery-key.component";
 import {TranslationService} from "@app/services/helper/translation.service";
-import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import {TranslateService, TranslateModule} from "@ngx-translate/core";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {
   ConfirmationWithPasswordComponent
 } from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
-import { NgClass, DatePipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgClass, DatePipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-preference-tab1",
@@ -57,7 +57,7 @@ export class PreferenceTab1Component implements OnInit {
 
   ngOnInit(): void {
     this.role = this.utilsService.rolel10n(this.authenticationService.session.role);
-    this.role = this.translateService.instant(this.role);
+    this.role = this.role ? this.translateService.instant(this.role) : '';
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
     }, 150);

@@ -1,6 +1,6 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
@@ -12,17 +12,17 @@ import {Observable} from "rxjs";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
-import { NgClass, DatePipe } from "@angular/common";
-import { ImageUploadDirective } from "../../../../shared/directive/image-upload.directive";
-import { PasswordStrengthValidatorDirective } from "../../../../shared/directive/password-strength-validator.directive";
-import { PasswordMeterComponent } from "../../../../shared/components/password-meter/password-meter.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgClass, DatePipe} from "@angular/common";
+import {ImageUploadDirective} from "../../../../shared/directive/image-upload.directive";
+import {PasswordStrengthValidatorDirective} from "../../../../shared/directive/password-strength-validator.directive";
+import {PasswordMeterComponent} from "../../../../shared/components/password-meter/password-meter.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
+    imports: [ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgbTooltipModule, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);

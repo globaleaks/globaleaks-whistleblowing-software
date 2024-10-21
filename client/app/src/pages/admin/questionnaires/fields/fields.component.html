@@ -60,12 +60,12 @@
             <span class="badge bg-default text-dark">
               @switch (field.type) {
                 @case ('fileupload') {
-                  <span data-toggle="tooltip" title="{{'Accept multiple file uploads' | translate}}">
+                  <span ngbTooltip="{{'Accept multiple file uploads' | translate}}">
                     <i class="fa-solid fa-option-horizontal"></i>
                   </span>
                 }
                 @default {
-                  <span data-toggle="tooltip" title="{{'Accept multiple answers for the field' | translate}}">
+                  <span ngbTooltip="{{'Accept multiple answers for the field' | translate}}">
                     <i class="fa-solid fa-option-horizontal"></i>
                   </span>
                 }
@@ -74,7 +74,7 @@
           }
           @if (field.required) {
             <span class="badge bg-danger">
-              <span data-toggle="tooltip" title="{{'Mandatory' | translate}}">
+              <span ngbTooltip="{{'Mandatory' | translate}}">
                 <i class="fa-solid fa-asterisk"></i>
               </span>
             </span>
@@ -109,16 +109,16 @@
               }
               @if (field.step_id || field.fieldgroup_id) {
                 <span>
-                  <button class="btn btn-sm btn-primary" (click)="moveLeftAndSave(field); $event.stopPropagation();" data-toggle="tooltip" title="{{'Move left' | translate}}">
+                  <button class="btn btn-sm btn-primary" (click)="moveLeftAndSave(field); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
                     <i class="fa-solid fa-chevron-left"></i>
                   </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveRightAndSave(field); $event.stopPropagation();" data-toggle="tooltip" title="{{'Move right' | translate}}">
+                  <button class="btn btn-sm btn-primary" (click)="moveRightAndSave(field); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
                     <i class="fa-solid fa-chevron-right"></i>
                   </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveUpAndSave(field); $event.stopPropagation();" data-toggle="tooltip" title="{{'Move up' | translate}}">
+                  <button class="btn btn-sm btn-primary" (click)="moveUpAndSave(field); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
                     <i class="fa-solid fa-chevron-up"></i>
                   </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveDownAndSave(field); $event.stopPropagation();" data-toggle="tooltip" title="{{'Move down' | translate}}">
+                  <button class="btn btn-sm btn-primary" (click)="moveDownAndSave(field); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
                     <i class="fa-solid fa-chevron-down"></i>
                   </button>
                 </span>
@@ -328,7 +328,7 @@
                   </div>
                 }
                 @if (field.type === 'date' || field.type === 'daterange') {
-                  <div data-toggle="tooltip" title="{{'Accept multiple file uploads' | translate}}">
+                  <div ngbTooltip="{{'Accept multiple file uploads' | translate}}">
                     <div class="form-group">
                       <input class="form-control" placeholder="yyyy-mm-dd" name="minDate" [(ngModel)]="field.attrs.min_date.value" ngbDatepicker #minDate="ngbDatepicker" (click)="toggleMinDate() ; minDate.toggle()" />
                       <label>{{ 'Earliest selectable date' | translate }}:</label>
@@ -487,30 +487,30 @@
                           <button name="delOption" class="btn btn-sm btn-danger" (click)="delOption(option)">
                             <i class="fa-solid fa-times"></i>
                           </button>
-                          <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" data-toggle="tooltip" title="{{'Move up' | translate}}">
+                          <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
                             <i class="fa-solid fa-chevron-up"></i>
                           </button>
-                          <button [disabled]="i === field.options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" data-toggle="tooltip" title="{{'Move down' | translate}}">
+                          <button [disabled]="i === field.options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
                             <i class="fa-solid fa-chevron-down"></i>
                           </button>
                           <span>
-                            <button class="btn btn-sm" id="option_hint" [ngClass]="option.hint1 || option.hint2 ? 'btn-primary' : 'btn-outline-secondary'" (click)="addOptionHintDialog(option)" data-toggle="tooltip" title="{{'Hint' | translate}}">
+                            <button class="btn btn-sm" id="option_hint" [ngClass]="option.hint1 || option.hint2 ? 'btn-primary' : 'btn-outline-secondary'" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
                               <i class="fa-solid fa-question-circle"></i>
                             </button>
                           </span>
                           <span>
-                            <button class="btn btn-sm" id="option_block_submission" [ngClass]="option.block_submission ? 'btn-danger' : 'btn-outline-secondary'" (click)="flipBlockSubmission(option)" data-toggle="tooltip" title="{{'Block the submission' | translate}}">
+                            <button class="btn btn-sm" id="option_block_submission" [ngClass]="option.block_submission ? 'btn-danger' : 'btn-outline-secondary'" (click)="flipBlockSubmission(option)" ngbTooltip="{{'Block the submission' | translate}}">
                               <i class="fa-solid fa-ban"></i>
                             </button>
                           </span>
                           <span>
-                            <button class="btn btn-sm" id="option_trigger_receiver" [ngClass]="option.trigger_receiver.length ? 'btn-primary' : 'btn-outline-secondary'" (click)="triggerReceiverDialog(option)" data-toggle="tooltip" title="{{'Recipients' | translate}}">
+                            <button class="btn btn-sm" id="option_trigger_receiver" [ngClass]="option.trigger_receiver.length ? 'btn-primary' : 'btn-outline-secondary'" (click)="triggerReceiverDialog(option)" ngbTooltip="{{'Recipients' | translate}}">
                               <i class="fa-solid fa-user"></i>
                             </button>
                           </span>
                           @if (nodeResolver.dataModel.enable_scoring_system) {
                             <span>
-                              <button class="btn btn-sm" id="option_score" [ngClass]="option.score_type !== 'none' ? 'btn-primary' : 'btn-outline-secondary'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" title="{{'Recipients' | translate}}">
+                              <button class="btn btn-sm" id="option_score" [ngClass]="option.score_type !== 'none' ? 'btn-primary' : 'btn-outline-secondary'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" ngbTooltip="{{'Recipients' | translate}}">
                                 <i class="fa-solid fa-bolt"></i>
                                 @if (option.score_type !== 'none') {
                                   <span>

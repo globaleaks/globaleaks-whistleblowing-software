@@ -1,34 +1,33 @@
-import { AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Renderer2, inject } from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Renderer2, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { LangChangeEvent, TranslateService, TranslateModule } from "@ngx-translate/core";
-import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
+import {LangChangeEvent, TranslateService, TranslateModule} from "@ngx-translate/core";
+import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {TranslationService} from "@app/services/helper/translation.service";
-import { DOCUMENT, NgClass } from "@angular/common";
+import {DOCUMENT, NgClass} from "@angular/common";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import { HeaderComponent } from "../../shared/partials/header/header.component";
-import { NgbCollapse } from "@ng-bootstrap/ng-bootstrap";
-import { TranslatorPipe } from "../../shared/pipes/translate";
-import { FooterComponent } from "@app/shared/partials/footer/footer.component";
-import { PrivacyBadgeComponent } from "@app/shared/partials/privacybadge/privacy-badge.component";
-import { DemoComponent } from "@app/shared/partials/demo/demo.component";
-import { MessageConsoleComponent } from "@app/shared/partials/messageconsole/message-console.component";
-import { OperationComponent } from "@app/shared/partials/operation/operation.component";
-import { AdminSidebarComponent } from "../admin/sidebar/sidebar.component";
-import { AnalystSidebarComponent } from "../analyst/sidebar/sidebar.component";
-import { CustodianSidebarComponent } from "../custodian/sidebar/sidebar.component";
-import { ReceiptSidebarComponent } from "../recipient/sidebar/sidebar.component";
-import { HttpClient } from "@angular/common/http";
-import { registerLocales } from "@app/services/helper/locale-provider";
-import { mockEngine } from "@app/services/helper/mocks";
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
-import { DEFAULT_INTERRUPTSOURCES, Idle } from "@ng-idle/core";
-import { CryptoService } from "@app/shared/services/crypto.service";
-import { HttpService } from "@app/shared/services/http.service";
-import { Keepalive } from "@ng-idle/keepalive";
+import {HeaderComponent} from "../../shared/partials/header/header.component";
+import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
+import {TranslatorPipe} from "../../shared/pipes/translate";
+import {FooterComponent} from "@app/shared/partials/footer/footer.component";
+import {PrivacyBadgeComponent} from "@app/shared/partials/privacybadge/privacy-badge.component";
+import {DemoComponent} from "@app/shared/partials/demo/demo.component";
+import {MessageConsoleComponent} from "@app/shared/partials/messageconsole/message-console.component";
+import {OperationComponent} from "@app/shared/partials/operation/operation.component";
+import {AdminSidebarComponent} from "../admin/sidebar/sidebar.component";
+import {AnalystSidebarComponent} from "../analyst/sidebar/sidebar.component";
+import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component";
+import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
+import {HttpClient} from "@angular/common/http";
+import {registerLocales} from "@app/services/helper/locale-provider";
+import {mockEngine} from "@app/services/helper/mocks";
+import {TranslateHttpLoader} from "@ngx-translate/http-loader";
+import {DEFAULT_INTERRUPTSOURCES, Idle} from "@ng-idle/core";
+import {CryptoService} from "@app/shared/services/crypto.service";
+import {HttpService} from "@app/shared/services/http.service";
+import {Keepalive} from "@ng-idle/keepalive";
 registerLocales();
 
 export function createTranslateLoader(http: HttpClient) {
@@ -69,7 +68,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   protected browserCheckService = inject(BrowserCheckService);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private router = inject(Router);
-  protected translationService = inject(TranslationService);
   protected translate = inject(TranslateService);
   protected appConfig = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
@@ -96,7 +94,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   watchLanguage() {
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       document.getElementsByTagName("html")[0].setAttribute("lang", this.translate.currentLang);
-      this.translationService.handleLTRandRTLStyling(event, this.renderer);
     });
   }
 

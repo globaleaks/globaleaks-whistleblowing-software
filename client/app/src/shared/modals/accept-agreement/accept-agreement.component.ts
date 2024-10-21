@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AppDataService} from "@app/app-data.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 
-import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-accept-agreement",

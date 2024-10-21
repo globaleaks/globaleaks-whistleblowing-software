@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'app-switch',

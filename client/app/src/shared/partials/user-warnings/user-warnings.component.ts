@@ -1,10 +1,10 @@
-import { Component, inject } from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-user-warnings",

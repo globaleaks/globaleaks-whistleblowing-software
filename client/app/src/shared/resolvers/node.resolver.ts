@@ -1,10 +1,10 @@
-import { Injectable, inject } from "@angular/core";
-import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
-import { Observable, of, throwError } from "rxjs";
-import { HttpService } from "@app/shared/services/http.service";
-import { nodeResolverModel } from "@app/models/resolvers/node-resolver-model";
-import { AuthenticationService } from "@app/services/helper/authentication.service";
-import { map, catchError } from "rxjs/operators";
+import {Injectable, inject} from "@angular/core";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
+import {Observable, of, throwError} from "rxjs";
+import {HttpService} from "@app/shared/services/http.service";
+import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {map, catchError} from "rxjs/operators";
 import {Router} from "@angular/router";
 
 @Injectable({

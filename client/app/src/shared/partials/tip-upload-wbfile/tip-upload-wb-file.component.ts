@@ -1,24 +1,25 @@
-import { Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output, inject } from "@angular/core";
+import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import * as Flow from "@flowjs/flow.js";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
-import { NgClass } from "@angular/common";
-import { WbFilesComponent } from "../wbfiles/wb-files.component";
-import { FormsModule } from "@angular/forms";
-import { NgxFlowModule } from "@flowjs/ngx-flow";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
-import { FilterPipe } from "@app/shared/pipes/filter.pipe";
+import {NgClass} from "@angular/common";
+import {WbFilesComponent} from "../wbfiles/wb-files.component";
+import {FormsModule} from "@angular/forms";
+import {NgxFlowModule} from "@flowjs/ngx-flow";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {FilterPipe} from "@app/shared/pipes/filter.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-tip-upload-wbfile",
     templateUrl: "./tip-upload-wb-file.component.html",
     standalone: true,
-    imports: [WbFilesComponent, FormsModule, NgClass, NgxFlowModule, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
+    imports: [WbFilesComponent, FormsModule, NgbTooltipModule, NgClass, NgxFlowModule, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
 })
 export class TipUploadWbFileComponent {
   private cdr = inject(ChangeDetectorRef);

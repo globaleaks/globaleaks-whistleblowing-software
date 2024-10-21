@@ -1,4 +1,4 @@
-import { ComponentFactoryResolver, Directive, Input, ViewContainerRef, OnInit, inject } from "@angular/core";
+import {ComponentFactoryResolver, Directive, Input, ViewContainerRef, OnInit, inject} from "@angular/core";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";

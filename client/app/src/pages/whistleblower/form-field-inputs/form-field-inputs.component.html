@@ -1,6 +1,6 @@
 @if ((['checkbox', 'fieldgroup', 'multichoice'].indexOf(field.type) === -1) && (['whistleblower_identity'].indexOf(field.template_id) === -1)) {
   <div id="{{fieldId}}" class="question">
-    <label class="question-label" data-content="field.hint" data-toggle="tooltip" [title]="field.hint" for="{{fieldId + '-input-' + 0}}">
+    <label class="question-label" data-content="field.hint" [ngbTooltip]="field.hint" for="{{fieldId + '-input-' + 0}}">
       @if (field.label) {
         <span class="title">{{field.label|translate}}</span>
       }
@@ -8,7 +8,7 @@
         <i class="fa-solid fa-question-circle"></i>
       }
       @if (field.required) {
-        <span class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       }
     </label>
     <div class="question-body">
@@ -26,7 +26,7 @@
                   </label>
                 </span>
                 <span class="float-end">
-                  <span class="text-danger" data-toggle="tooltip" title="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
+                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
                     <i class="fa-solid fa-times"></i>
                   </span>
                 </span>
@@ -55,7 +55,7 @@
       <i class="fa-solid fa-question-circle"></i>
     }
     @if (field.required) {
-      <span class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
     }
     <div class="question-body">
       @if (field.description) {
@@ -72,7 +72,7 @@
                   </label>
                 </span>
                 <span class="float-end">
-                  <span class="text-danger" data-toggle="tooltip" title="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
+                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
                     <i class="fa-solid fa-times"></i>
                   </span>
                 </span>

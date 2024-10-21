@@ -1,11 +1,11 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {Transfer} from "@flowjs/ngx-flow";
-import { NgClass, NgStyle } from "@angular/common";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { ByteFmtPipe } from "@app/shared/pipes/byte-fmt.pipe";
+import {NgClass, NgStyle} from "@angular/common";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 
 @Component({
     selector: "src-rfile-upload-status",

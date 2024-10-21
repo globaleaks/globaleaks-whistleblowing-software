@@ -33,12 +33,12 @@
                   </span>
                 }
                 @if (lang_code !== nodeResolver.dataModel.default_language) {
-                  <span class="non-default-language" data-toggle="tooltip" title="{{'Use as default' | translate}}" (click)="nodeResolver.dataModel.default_language = lang_code">
+                  <span class="non-default-language" ngbTooltip="{{'Use as default' | translate}}" (click)="nodeResolver.dataModel.default_language = lang_code">
                     <i class="fa-solid fa-check"></i>
                   </span>
                 }
                 @if (lang_code !== nodeResolver.dataModel.default_language) {
-                  <span (click)="removeLang(index, lang_code)" data-toggle="tooltip" title="{{'Remove' | translate}}" class="remove-lang-btn">
+                  <span (click)="removeLang(index, lang_code)" ngbTooltip="{{'Remove' | translate}}" class="remove-lang-btn">
                     <i class="fa-solid fa-times"></i>
                   </span>
                 }

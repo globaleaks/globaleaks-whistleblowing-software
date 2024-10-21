@@ -39,7 +39,7 @@ import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient, HttpClien
 import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor } from "@app/services/root/app-interceptor.service";
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy, NgOptimizedImage } from "@angular/common";
 import { FlowInjectionToken, NgxFlowModule } from "@flowjs/ngx-flow";
-import { NgbDatepickerI18n, NgbModule } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDatepickerI18n, NgbModule, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import { CustomDatepickerI18n } from "@app/shared/services/custom-datepicker-i18n";
 import { appRoutes } from "@app/app.routes";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
@@ -56,7 +56,7 @@ import {provideRouter} from "@angular/router";
 bootstrapApplication(AppComponent, {
     providers: [
         provideRouter(appRoutes),
-        importProvidersFrom(NgbModule, BrowserModule, translationModule, NgSelectModule, FormsModule, NgIdleKeepaliveModule.forRoot(), MarkdownModule.forRoot({
+        importProvidersFrom(NgbModule, BrowserModule, translationModule, NgSelectModule, FormsModule, NgbTooltipModule, NgIdleKeepaliveModule.forRoot(), MarkdownModule.forRoot({
             markedOptions: {
                 provide: MARKED_OPTIONS,
                 useValue: {

@@ -12,7 +12,7 @@
     <div class="card card-secondary">
       <label for="ReceiptCode" class="card-header">{{'Remember your receipt for this report.' | translate}}</label>
       <div class="card-body">
-        <span class="form-inline" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(receipt)">
+        <span class="form-inline" ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(receipt)">
           <div class="form-group d-block mx-auto receipt-input">
             <div class="input-group">
               <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" name="formatted_receipt" size="19" [(ngModel)]="receiptId" [readOnly]="appDataService.page !== 'tippage'">

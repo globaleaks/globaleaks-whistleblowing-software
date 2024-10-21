@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -9,16 +9,19 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
 import {RedactionData} from "@app/models/component-model/redaction";
-import { NgClass, DatePipe } from "@angular/common";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { ByteFmtPipe } from "@app/shared/pipes/byte-fmt.pipe";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
+import {NgClass, DatePipe} from "@angular/common";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+
+
 @Component({
     selector: "src-tip-files-receiver",
     templateUrl: "./tip-files-receiver.component.html",
     standalone: true,
-    imports: [NgClass, DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe, OrderByPipe]
+    imports: [NgClass, DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesReceiverComponent implements OnInit {
   protected maskService = inject(MaskService);

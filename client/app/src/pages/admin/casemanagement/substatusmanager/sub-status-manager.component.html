@@ -6,12 +6,12 @@
         <span class="col-md-5 clearfix">
           <span class="float-end">
             @if (!first) {
-              <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" data-toggle="tooltip" title="{{'Move up' | translate}}">
+              <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
                 <i class="fa-solid fa-chevron-up"></i>
               </button>
             }
             @if (!last) {
-              <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" data-toggle="tooltip" title="{{'Move down' | translate}}">
+              <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
             }

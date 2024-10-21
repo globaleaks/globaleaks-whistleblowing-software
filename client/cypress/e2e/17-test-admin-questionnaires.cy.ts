@@ -30,7 +30,7 @@ describe("admin add, configure and delete questionnaires", () => {
           cy.get('#option_block_submission').first().click();
 
           cy.get('#option_trigger_receiver').first().click();
-          cy.get('[data-cy="reciever_selection"]').click();
+          cy.get('[data-cy="receiver_selection"]').click();
           cy.get('.ng-option').eq(0).click();
           cy.get('#modal-action-ok').click();
 

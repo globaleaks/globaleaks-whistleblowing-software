@@ -1,12 +1,12 @@
-import { Component, TemplateRef, ViewChild, AfterViewInit, ChangeDetectorRef, inject } from "@angular/core";
+import {Component, TemplateRef, ViewChild, AfterViewInit, ChangeDetectorRef, inject} from "@angular/core";
 import {Tab} from "@app/models/component-model/tab";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NotificationTab1Component} from "@app/pages/admin/notifications/notification-tab1/notification-tab1.component";
 import {NotificationTab2Component} from "@app/pages/admin/notifications/notification-tab2/notification-tab2.component";
-import { FormsModule } from "@angular/forms";
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from "@ng-bootstrap/ng-bootstrap";
-import { NgTemplateOutlet } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
+import {NgTemplateOutlet} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-notifications",

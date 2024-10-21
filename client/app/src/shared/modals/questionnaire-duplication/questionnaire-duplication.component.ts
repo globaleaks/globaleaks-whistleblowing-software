@@ -1,11 +1,11 @@
 import {HttpClient} from "@angular/common/http";
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-questionnaire-duplication",

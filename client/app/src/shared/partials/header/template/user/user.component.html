@@ -16,7 +16,7 @@
       <span id="HomeLinkBox">
         @if (authentication.session.role !== 'whistleblower') {
           <span>
-            <a id="HomepageLink" [href]="'#'+authentication.session.homepage" title="{{'Home' | translate }}">
+            <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}">
               <i class="fa-solid fa-fw fa-home"></i>
             </a>
             <span class="text-separator">|</span>
@@ -25,7 +25,7 @@
       </span>
       @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
         <span id="PreferencesLinkBox">
-          <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" title="{{'Preferences' | translate}}">
+          <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}">
             <i class="fa-solid fa-fw fa-user"></i>
           </a>
           <span class="text-separator">|</span>
@@ -33,7 +33,7 @@
       }
       @if (authentication.session && authentication.session.role !== 'whistleblower') {
         <span id="SupportLinkBox">
-          <a id="SupportLink" (click)="utils.openSupportModal(appDataService)" title="{{'Request support' | translate}}">
+          <a id="SupportLink" (click)="utils.openSupportModal(appDataService)" ngbTooltip="{{'Request support' | translate}}">
             <i class="fa-solid fa-fw fa-life-ring"></i>
           </a>
           <span class="text-separator">|</span>
@@ -43,7 +43,7 @@
         <i class="glyphicon glyphicon-user"></i>
       </span>
       <span id="LogoutLinkBox">
-        <a href="#" id="LogoutLink" (click)="onLogout($event)" title="{{'Logout' | translate}}">
+        <a href="#" id="LogoutLink" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}">
           <i class="pointer fa-solid fa-fw fa-sign-out-alt"></i>
           @if (authentication.session.role === 'whistleblower') {
             <span>

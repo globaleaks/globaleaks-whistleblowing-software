@@ -1,14 +1,14 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppDataService} from "@app/app-data.service";
-import { FormsModule } from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 
-import { SimpleLoginComponent } from "./templates/simple-login/simple-login.component";
-import { DefaultLoginComponent } from "./templates/default-login/default-login.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {SimpleLoginComponent} from "./templates/simple-login/simple-login.component";
+import {DefaultLoginComponent} from "./templates/default-login/default-login.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({

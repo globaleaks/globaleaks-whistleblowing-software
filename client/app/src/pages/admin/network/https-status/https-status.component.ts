@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-status",

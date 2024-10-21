@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, Renderer2, inject } from "@angular/core";
+import {EventEmitter, Injectable, Renderer2, inject} from "@angular/core";
 import * as Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -302,7 +302,7 @@ export class UtilsService {
     let text;
     for (let i = 0; i < submission_statuses.length; i++) {
       if (submission_statuses[i].id === status) {
-        text = this.translateService.instant(submission_statuses[i].label);
+        text = this.translateService.instant(submission_statuses[i].label ? submission_statuses[i].label : '');
 
         const subStatus = submission_statuses[i].substatuses;
         for (let j = 0; j < subStatus.length; j++) {
@@ -318,18 +318,18 @@ export class UtilsService {
   }
 
   searchInObject(obj: any, searchTerm: string) {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
+    try {
+        // Convert object to a string
+        const objString = JSON.stringify(obj);
 
-        if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
-          return true;
-        } else if (typeof value === 'object') {
-          if (this.searchInObject(value, searchTerm)) {
-            return true;
-          }
-        }
-      }
+        // Create a regular expression for the search term with 'i' flag for case-insensitive search
+        const regex = new RegExp(searchTerm, 'i');
+
+        // Test if the search term is found in the object string
+        return regex.test(objString);
+    } catch (error) {
+        // Return false in case of any exception (e.g., cyclic reference or BigInt error)
+        return false;
     }
     return false;
   }

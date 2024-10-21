@@ -1,7 +1,7 @@
 import {HttpClient} from "@angular/common/http";
-import { Component, EventEmitter, Input, OnInit, Output, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
@@ -12,17 +12,17 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import { NgClass } from "@angular/common";
-import { ImageUploadDirective } from "../../../../shared/directive/image-upload.directive";
-import { NgSelectComponent, NgOptionTemplateDirective } from "@ng-select/ng-select";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { FilterPipe } from "@app/shared/pipes/filter.pipe";
+import {NgClass} from "@angular/common";
+import {ImageUploadDirective} from "../../../../shared/directive/image-upload.directive";
+import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe, FilterPipe]
+    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe, FilterPipe]
 })
 export class ContextEditorComponent implements OnInit {
   private http = inject(HttpClient);

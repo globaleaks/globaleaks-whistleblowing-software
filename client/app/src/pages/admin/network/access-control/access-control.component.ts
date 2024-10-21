@@ -1,11 +1,11 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { FormsModule } from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-access-control",

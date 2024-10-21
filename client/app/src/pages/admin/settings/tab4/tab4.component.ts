@@ -1,17 +1,18 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
+import {Component, Input, OnInit, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { NgClass } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {NgClass} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-tab4",
     templateUrl: "./tab4.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, NgClass, TranslatorPipe, TranslateModule]
 })
 export class Tab4Component implements OnInit {
   protected utilsService = inject(UtilsService);
@@ -25,6 +26,7 @@ export class Tab4Component implements OnInit {
     custom_text: ""
   };
   custom_texts: { [key: string]: string } = {}
+  custom_texts_keys: string[] = [];
   default_texts: { [key: string]: string } = {}
   custom_texts_selector: { key: string; value: string; }[] = [];
   customTextsExist: boolean = false;
@@ -49,10 +51,10 @@ export class Tab4Component implements OnInit {
     }
     this.utilsService.AdminL10NResource(lang).subscribe(res => {
       this.custom_texts = res;
+      this.updateCustomTextsKeys();
       this.customTextsExist = Object.keys(this.custom_texts).length > 0;
     });
 
-    this.customTextsKeys();
     this.utilsService.DefaultL10NResource(lang).subscribe(default_texts => {
       const list = [];
       for (const key in default_texts) {
@@ -69,8 +71,8 @@ export class Tab4Component implements OnInit {
     });
   }
 
-  customTextsKeys(): { key: string }[] {
-    return Object.keys(this.custom_texts).map(key => ({key}));
+  updateCustomTextsKeys(): void {
+    this.custom_texts_keys = Object.keys(this.custom_texts);
   }
 
   updateCustomText(data: { [key: string]: string }, lang: string) {

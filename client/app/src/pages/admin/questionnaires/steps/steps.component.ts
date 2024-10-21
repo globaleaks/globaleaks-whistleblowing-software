@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -6,10 +6,10 @@ import {NewStep} from "@app/models/admin/new-step";
 import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 
-import { FormsModule } from "@angular/forms";
-import { StepsListComponent } from "../steps-list/steps-list.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {FormsModule} from "@angular/forms";
+import {StepsListComponent} from "../steps-list/steps-list.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-steps",

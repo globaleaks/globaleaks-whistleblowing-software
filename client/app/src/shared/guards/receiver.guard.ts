@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {Router, UrlTree} from "@angular/router";
 import {Observable} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -19,7 +19,7 @@ export class ReceiverGuard {
     if (this.authenticationService.session) {
       if(this.authenticationService.session.role === "receiver"){
         this.appConfigService.setPage(this.router.url);
-      }else {
+      } else {
         this.router.navigateByUrl("/login").then();
       }
       return true;

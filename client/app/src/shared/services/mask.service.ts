@@ -1,5 +1,5 @@
-import { ElementRef, Injectable, inject } from '@angular/core';
-import {RecieverTipData} from '@app/models/reciever/reciever-tip-data';
+import {ElementRef, Injectable, inject} from '@angular/core';
+import {RecieverTipData} from '@app/models/receiver/receiver-tip-data';
 import {WbTipData} from '@app/models/whistleblower/wb-tip-data';
 import {RedactInformationComponent} from '@app/shared/modals/redact-information/redact-information.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';

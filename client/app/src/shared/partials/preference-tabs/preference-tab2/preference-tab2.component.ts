@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import { PasswordChangeComponent } from "../../password-change/password-change.component";
+import {PasswordChangeComponent} from "../../password-change/password-change.component";
 
 @Component({
     selector: "src-preference-tab2",

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {AppDataService} from "@app/app-data.service";
 
 @Injectable({

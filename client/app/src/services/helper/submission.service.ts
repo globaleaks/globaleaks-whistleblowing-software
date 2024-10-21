@@ -1,7 +1,7 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {Context} from "@app/models/reciever/reciever-tip-data";
+import {Context} from "@app/models/receiver/receiver-tip-data";
 import {submissionResourceModel} from "@app/models/whistleblower/submission-resource";
 
 @Injectable({

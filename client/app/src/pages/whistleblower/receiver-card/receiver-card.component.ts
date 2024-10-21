@@ -1,9 +1,9 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {Receiver} from "@app/models/app/public-model";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {TranslateService} from "@ngx-translate/core";
-import { NgClass, NgOptimizedImage } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import {NgClass, NgOptimizedImage} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 
 @Component({
     selector: "src-receiver-card",

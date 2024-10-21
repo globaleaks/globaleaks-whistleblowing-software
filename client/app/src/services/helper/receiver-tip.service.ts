@@ -1,9 +1,9 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {AppDataService} from "@app/app-data.service";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { RedactionData } from "@app/models/component-model/redaction";
+import {RedactionData} from "@app/models/component-model/redaction";
 
 @Injectable({
   providedIn: "root"

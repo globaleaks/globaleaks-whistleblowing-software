@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -11,16 +11,16 @@ import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionna
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {TriggeredByOption} from "@app/models/app/shared-public-model";
 
-import { FormsModule } from "@angular/forms";
-import { StepComponent } from "../step/step.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {FormsModule} from "@angular/forms";
+import {StepComponent} from "../step/step.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-steps-list",
     templateUrl: "./steps-list.component.html",
     standalone: true,
-    imports: [FormsModule, StepComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslatorPipe, TranslateModule]
 })
 export class StepsListComponent implements OnInit {
   private utilsService = inject(UtilsService);

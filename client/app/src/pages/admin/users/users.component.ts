@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, TemplateRef, ViewChild, ChangeDetectorRef, inject } from "@angular/core";
+import {AfterViewInit, Component, TemplateRef, ViewChild, ChangeDetectorRef, inject} from "@angular/core";
 import {Tab} from "@app/models/component-model/tab";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UsersTab1Component} from "@app/pages/admin/users/users-tab1/users-tab1.component";
 import {UsersTab2Component} from "@app/pages/admin/users/users-tab2/users-tab2.component";
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from "@ng-bootstrap/ng-bootstrap";
-import { NgTemplateOutlet } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
+import {NgTemplateOutlet} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-users",

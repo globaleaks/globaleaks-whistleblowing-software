@@ -468,7 +468,7 @@ h6 {
 }
 
 .message,
-.message-whistle-blower {
+.message-whistleblower {
   padding: 1em;
   border: 1px solid #c8d1e0;
 }
@@ -519,7 +519,7 @@ th:not(:first-child, :nth-last-child(-n+4)) {
   margin-top: 1em;
 }
 
-.whistle-blower-file .top-row {
+.whistleblower-file .top-row {
   min-height: 30px;
 }
 
@@ -1134,4 +1134,8 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 .alert-secondary {
   --bs-alert-color: #1D1F24;
   --bs-alert-bg: #EBEFF5;
+}
+
+.tooltip {
+  position: absolute;
 }

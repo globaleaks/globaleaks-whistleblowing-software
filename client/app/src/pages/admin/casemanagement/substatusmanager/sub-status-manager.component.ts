@@ -1,21 +1,21 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {Observable} from "rxjs";
 import {Status} from "@app/models/app/public-model";
-import { FormsModule } from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 
-import { SubStatusComponent } from "../substatuses/sub-status.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {SubStatusComponent} from "../substatuses/sub-status.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-substatusmanager",
     templateUrl: "./sub-status-manager.component.html",
     standalone: true,
-    imports: [FormsModule, SubStatusComponent, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, SubStatusComponent, TranslatorPipe]
 })
 export class SubStatusManagerComponent {
   private appDataServices = inject(AppDataService);

@@ -1,13 +1,13 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild, inject} from '@angular/core';
 import {ReceiverTipService} from '@app/services/helper/receiver-tip.service';
 import {PreferenceResolver} from '@app/shared/resolvers/preference.resolver';
 import {MaskService} from '@app/shared/services/mask.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {RedactionData} from "@app/models/component-model/redaction";
 
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-redact-information',

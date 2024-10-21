@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, inject } from "@angular/core";
+import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
 import {NgForm} from "@angular/forms";
 import * as Flow from "@flowjs/flow.js";
 import type {FlowFile} from "@flowjs/flow.js";
@@ -10,18 +10,20 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {AdminFile} from "@app/models/component-model/admin-file";
-import { NgClass } from "@angular/common";
-import { AdminFileComponent } from "../../../../shared/partials/admin-file/admin-file.component";
-import { SwitchComponent } from "../../../../shared/components/switch/switch.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
-import { TranslateModule } from "@ngx-translate/core";
+import {NgClass} from "@angular/common";
+import {AdminFileComponent} from "../../../../shared/partials/admin-file/admin-file.component";
+import {SwitchComponent} from "../../../../shared/components/switch/switch.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {TranslateModule} from "@ngx-translate/core";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+
 
 @Component({
     selector: "src-tab2",
     templateUrl: "./tab2.component.html",
     standalone: true,
-    imports: [NgClass, AdminFileComponent, SwitchComponent, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [NgbTooltipModule, NgClass, AdminFileComponent, SwitchComponent, TranslatorPipe, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
   private appConfigService = inject(AppConfigService);

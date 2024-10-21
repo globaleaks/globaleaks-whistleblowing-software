@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { UserHomeComponent } from "../../../shared/partials/user-home/user-home.component";
+import {UserHomeComponent} from "../../../shared/partials/user-home/user-home.component";
 
 @Component({
     selector: "src-custodian-home",

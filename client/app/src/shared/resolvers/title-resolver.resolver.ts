@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {ActivatedRouteSnapshot} from "@angular/router";
 import {Title} from "@angular/platform-browser";
 

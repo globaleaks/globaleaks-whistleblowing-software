@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
@@ -8,9 +8,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {FileResource, FileResources} from "@app/models/component-model/file-resources";
-import { DatePipe } from "@angular/common";
-import { HttpsCsrGenComponent } from "../https-csr-gen/https-csr-gen.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {DatePipe} from "@angular/common";
+import {HttpsCsrGenComponent} from "../https-csr-gen/https-csr-gen.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-files",

@@ -63,7 +63,7 @@
                 @for (option of field.options | orderBy:'order'; track option; let innerindex = $index) {
                   <div>
                     <input [name]="fieldEntry" id="{{fieldEntry + '-option-' + innerindex}}" class="form-control-inputform-check-input" type="radio" [(ngModel)]="entry['value']" value="{{option.id}}" [required]="field.required" />
-                    <label for="{{fieldEntry + '-option-' + innerindex}}" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
+                    <label for="{{fieldEntry + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
                   </div>
                 }
               </div>
@@ -73,7 +73,7 @@
                 @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
                   <div>
                     <input id="{{fieldEntry + '-option-' + index}}" [name]="fieldEntry" class="form-control-input inputelinem form-check-input" [(ngModel)]="entry[option.id]" value="{{option.id}}" [required]="entry.required_status" type="checkbox" />
-                    <label for="{{fieldEntry + '-option-' + index}}" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
+                    <label for="{{fieldEntry + '-option-' + index}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
                   </div>
                 }
               </div>

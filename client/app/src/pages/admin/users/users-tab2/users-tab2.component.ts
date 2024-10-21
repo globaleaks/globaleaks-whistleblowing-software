@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { FormsModule } from "@angular/forms";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-users-tab2",

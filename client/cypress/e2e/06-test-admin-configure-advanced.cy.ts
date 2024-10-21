@@ -116,7 +116,7 @@ describe("admin add and remove disclaimer", function () {
     cy.visit("/#/admin/settings");
     cy.get('textarea[name="nodeResolver.dataModel.disclaimer_text"]').type("disclaimer_text");
     cy.get("#save_settings").click();
-    cy.visit("#/");
+    cy.visit("/#/");
     cy.get("#WhistleblowingButton").click();
     cy.get('#modal-action-ok').click();
     cy.login_admin();

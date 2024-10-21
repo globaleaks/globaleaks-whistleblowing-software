@@ -1,4 +1,4 @@
-import { Directive, ElementRef, HostListener, inject } from "@angular/core";
+import {Directive, ElementRef, HostListener, inject} from "@angular/core";
 import {NgModel} from "@angular/forms";
 
 @Directive({

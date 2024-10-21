@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
+import {Component} from '@angular/core';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-operation',

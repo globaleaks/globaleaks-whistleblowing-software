@@ -11,7 +11,7 @@
     <div class="Loader"></div>
   }
   @if (args.loaded) {
-    <iframe #viewer id="viewer" class="w-100" [src]="iframeUrl" title="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
+    <iframe #viewer id="viewer" class="w-100" [src]="iframeUrl" ngbTooltip="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
   }
 </div>
 <div class="modal-footer">

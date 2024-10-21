@@ -1,41 +1,41 @@
 @if (RTips.dataModel && RTips.dataModel && filteredTips) {
   <div id="Toolbar" class="row">
     <div class="col-md-12">
-      <a id="link-home" routerLink="/recipient/home" data-toggle="tooltip" title="{{'Home' | translate}}" class="btn btn-outline-secondary">
+      <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary">
         <i class="fa-solid fa-arrow-left"></i>
       </a>
       @if (selectedTips.length !== RTips.dataModel.length ) {
-        <span id="tip-action-select-all" (click)="selectAll()" data-toggle="tooltip" title="{{'Select all' | translate}}" class="btn btn-outline-secondary">
+        <span id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}" class="btn btn-outline-secondary">
           <i class="fa-solid fa-square"></i>
         </span>
       }
       @if (selectedTips.length === RTips.dataModel.length) {
-        <span id="tip-action-select-all" (click)="deselectAll()" data-toggle="tooltip" title="{{'Deselect all' | translate}}" class="btn btn-outline-secondary">
+        <span id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}" class="btn btn-outline-secondary">
           <i class="fa-solid fa-check-square"></i>
         </span>
       }
       @if (selectedTips.length) {
         <span>
           @if (preference.dataModel.can_grant_access_to_reports) {
-            <span id="tip-action-grant-access-selected" (click)="openGrantAccessModal()" data-toggle="tooltip" title="{{'Grant access' | translate}}" class="btn btn-outline-secondary">
+            <span id="tip-action-grant-access-selected" (click)="openGrantAccessModal()" ngbTooltip="{{'Grant access' | translate}}" class="btn btn-outline-secondary">
               <i class="fa-solid fa-user-plus"></i>
             </span>
           }
           @if (preference.dataModel.can_grant_access_to_reports) {
-            <span id="tip-action-revoke-access-selected" (click)="openRevokeAccessModal()" data-toggle="tooltip" title="{{'Revoke access' | translate}}" class="btn btn-outline-secondary">
+            <span id="tip-action-revoke-access-selected" (click)="openRevokeAccessModal()" ngbTooltip="{{'Revoke access' | translate}}" class="btn btn-outline-secondary">
               <i class="fa-solid fa-user-minus"></i>
             </span>
           }
-          <span id="tip-action-export-selected" (click)="exportTips()" data-toggle="tooltip" title="{{'Export' | translate}}" class="btn btn-outline-secondary">
+          <span id="tip-action-export-selected" (click)="exportTips()" ngbTooltip="{{'Export' | translate}}" class="btn btn-outline-secondary">
             <i class="fa-solid fa-download"></i>
           </span>
         </span>
       }
-      <span id="tip-action-open-new-tab" (click)="actAsWhistleblower()" data-toggle="tooltip" title="{{'Act on behalf of a whistleblower' | translate}}"
+      <span id="tip-action-open-new-tab" (click)="actAsWhistleblower()" ngbTooltip="{{'Act on behalf of a whistleblower' | translate}}"
         class="btn btn-outline-secondary">
         <i class="fa-solid fa-handshake-angle"></i>
       </span>
-      <span id="tip-action-reload" (click)="reload()" data-toggle="tooltip" title="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
+      <span id="tip-action-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
         <i class="fa-solid fa-sync"></i>
       </span>
       <span id="SearchFilter" class="w-auto d-inline-block">
@@ -325,10 +325,10 @@
                 </td>
                 <td class="TipInfoLastAccess">
                   @if (tip.last_access >= tip.update_date) {
-                    <i class="fa-solid fa-check" data-toggle="tooltip" title="{{'The whistleblower has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>
+                    <i class="fa-solid fa-check" ngbTooltip="{{'The whistleblower has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>
                   }
                   @if (tip.last_access < tip.update_date) {
-                    <i class="fa-solid fa-times" data-toggle="tooltip" title="{{'The whistleblower has not read the last update yet' | translate}}">
+                    <i class="fa-solid fa-times" ngbTooltip="{{'The whistleblower has not read the last update yet' | translate}}">
                     </i>
                   }
                 </td>
@@ -344,10 +344,10 @@
                     }
                     @case (2) {
                       @if (tip.data) {
-                        <i class="fa-solid fa-check underline"  data-toggle="tooltip" title="{{'Subscription date: ' + (tip.data.whistleblower_identity_date | date:'dd-MM-yyyy HH:mm')}}"></i>
+                        <i class="fa-solid fa-check underline"  ngbTooltip="{{'Subscription date: ' + (tip.data.whistleblower_identity_date | date:'dd-MM-yyyy HH:mm')}}"></i>
                       }
                       @if (!tip.data) {
-                        <i class="fa-solid fa-check underline"  data-toggle="tooltip"></i>
+                        <i class="fa-solid fa-check underline"></i>
                       }
                     }
                   }
@@ -377,18 +377,16 @@
         </table>
         @if (filteredTips.length > itemsPerPage) {
           <div class="text-center">
-            <ngb-pagination class="pagination-sm" [collectionSize]="filteredTips.length" [(page)]="currentPage" [pageSize]="itemsPerPage" [maxSize]="10" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
-              <ng-template ngbPaginationPrevious> &lt; {{ 'Previous' | translate }}
-              </ng-template>
-              <ng-template ngbPaginationNext>
-                {{ 'Next' | translate }} &gt;
-              </ng-template>
-              <ng-template ngbPaginationFirst> &lt;&lt; {{ 'First' | translate }}
-              </ng-template>
-              <ng-template ngbPaginationLast>
-                {{ 'Last' | translate }} &gt;&gt;
-              </ng-template>
-            </ngb-pagination>
+              <ngb-pagination dir="ltr" class="d-flex justify-content-center" [collectionSize]="filteredTips.length" [(page)]="currentPage" [pageSize]="itemsPerPage">
+                  <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                  <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+              </ngb-pagination>
           </div>
         }
         <div class="float-end">

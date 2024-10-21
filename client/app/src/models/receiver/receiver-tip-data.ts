@@ -7,7 +7,7 @@ import {
   WhistleblowerIdentity,
   Comment
 } from "@app/models/app/shared-public-model";
-import {IarData} from "@app/models/reciever/Iar-data";
+import {IarData} from "@app/models/receiver/iar-data";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 export class RecieverTipData {

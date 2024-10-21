@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
+import {Component, Input, OnInit, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Constants} from "@app/shared/constants/constants";
 import {EnableEncryptionComponent} from "@app/shared/modals/enable-encryption/enable-encryption.component";
@@ -12,9 +12,9 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import { NgClass } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {NgClass} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tab5",

@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Option, WhistleblowerIdentity} from "@app/models/app/shared-public-model";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
-import {Answers} from "@app/models/reciever/reciever-tip-data";
+import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Step} from "@app/models/resolvers/questionnaire-model";
 import {Children} from "@app/models/whistleblower/wb-tip-data";
 import {Constants} from "@app/shared/constants/constants";

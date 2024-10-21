@@ -1,15 +1,15 @@
-import { Component, Input, inject } from "@angular/core";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, Input, inject} from "@angular/core";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
-import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-tip-operation-file-identity-access-reply",
     templateUrl: "./tip-operation-file-identity-access-reply.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
 })
 export class TipOperationFileIdentityAccessReplyComponent {
   private httpService = inject(HttpService);

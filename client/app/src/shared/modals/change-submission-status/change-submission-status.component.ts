@@ -1,11 +1,11 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {SubmissionStatus} from "@app/models/app/shared-public-model";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import { FormsModule } from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 @Component({
     selector: 'src-change-submission-status',
     templateUrl: './change-submission-status.component.html',

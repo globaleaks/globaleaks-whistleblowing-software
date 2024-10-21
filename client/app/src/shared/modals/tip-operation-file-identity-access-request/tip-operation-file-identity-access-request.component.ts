@@ -1,18 +1,18 @@
 import {HttpClient} from "@angular/common/http";
-import { Component, inject } from "@angular/core";
-import {NgbModal, NgbModalRef} from "@ng-bootstrap/ng-bootstrap";
+import {Component, inject} from "@angular/core";
+import {NgbModal, NgbModalRef, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
     selector: "src-tip-operation-file-identity-access-request",
     templateUrl: "./tip-operation-file-identity-access-request.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
 })
 export class TipOperationFileIdentityAccessRequestComponent {
   private modalService = inject(NgbModal);

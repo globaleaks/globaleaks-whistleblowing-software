@@ -1,13 +1,13 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
 import * as Flow from "@flowjs/flow.js";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {Observable} from "rxjs";
 import {Field} from "@app/models/resolvers/field-template-model";
-import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
-import { UtilsService } from "@app/shared/services/utils.service";
-import { NgClass } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {NgClass} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 
 @Component({
     selector: "src-voice-recorder",

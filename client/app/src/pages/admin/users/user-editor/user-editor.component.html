@@ -22,7 +22,7 @@
         <span class="badge bg-secondary">{{ 'Disabled' | translate }}</span>
       }
       @if (nodeData.encryption && !user.encryption) {
-        <span class="badge bg-default text-dark" data-toggle="tooltip" title="{{'This user has not performed the first login yet.' | translate}}">
+        <span class="badge bg-default text-dark" ngbTooltip="{{'This user has not performed the first login yet.' | translate}}">
           <i class="fa-solid fa-exclamation-circle"></i>
         </span>
       }
@@ -254,7 +254,7 @@
             @if (!nodeData.can_postpone_expiration) {
               <div  class="form-group">
                 <input class="form-check-input" name="can_postpone_expiration" [(ngModel)]="user.can_postpone_expiration" type="checkbox" />
-                <label>{{ 'Allow the recipient to edit the report expiration date' | translate }}</label>
+                <label>{{ 'Allow the recipient to edit the reports' expiration date' | translate }}</label>
               </div>
             }
             <div class="form-group">

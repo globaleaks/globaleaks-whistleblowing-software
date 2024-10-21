@@ -1,20 +1,22 @@
 import {HttpClient} from "@angular/common/http";
-import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
-import { FlowDirective, NgxFlowModule } from "@flowjs/ngx-flow";
+import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
+import {FlowDirective, NgxFlowModule} from "@flowjs/ngx-flow";
 import {Subscription} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FlowOptions} from "@flowjs/flow.js";
-import { UtilsService } from "@app/shared/services/utils.service";
-import { FormsModule } from "@angular/forms";
-import { NgOptimizedImage } from "@angular/common";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {FormsModule} from "@angular/forms";
+import {NgOptimizedImage} from "@angular/common";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+
 
 @Component({
     selector: "src-image-upload",
     templateUrl: "./image-upload.component.html",
     standalone: true,
-    imports: [FormsModule, NgxFlowModule, NgOptimizedImage, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, NgxFlowModule, NgOptimizedImage, TranslateModule, TranslatorPipe]
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   private http = inject(HttpClient);

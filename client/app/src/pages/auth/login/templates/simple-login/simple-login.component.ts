@@ -1,12 +1,12 @@
-import { Component, Input, OnInit, inject } from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
-import { NgForm, FormsModule } from "@angular/forms";
+import {NgForm, FormsModule} from "@angular/forms";
 import {AppDataService} from "@app/app-data.service";
 
-import { NgSelectComponent, NgOptionComponent } from "@ng-select/ng-select";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "app-simple-login",

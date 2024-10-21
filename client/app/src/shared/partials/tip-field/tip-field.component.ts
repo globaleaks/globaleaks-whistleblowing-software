@@ -1,9 +1,9 @@
 import {Component, forwardRef, Input} from "@angular/core";
 
-import { TipFieldAnswerEntryComponent } from "../tip-field-answer-entry/tip-field-answer-entry.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
+import {TipFieldAnswerEntryComponent} from "../tip-field-answer-entry/tip-field-answer-entry.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-tip-field",

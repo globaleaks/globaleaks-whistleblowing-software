@@ -2,7 +2,7 @@
     <div class="modal-title">{{'Account recovery key'|translate}}</div>
 </div>
 <div class="modal-body">
-    <div class="text-center font-weight-bold" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(erk)">
+    <div class="text-center font-weight-bold" ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(erk)">
         <b>{{erk}}</b></div>
     <br/>
     <div>{{'Make a copy and store it in a safe place. It will be necessary if you lose your password to recover the access to your account without data loss.'|translate}}</div>

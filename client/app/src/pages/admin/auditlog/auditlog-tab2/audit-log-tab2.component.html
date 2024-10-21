@@ -26,15 +26,18 @@
     </tbody>
   </table>
   @if (users.length > pageSize) {
-    <div class="float-start">
-      <ngb-pagination [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="users.length" [boundaryLinks]="true">
-        <ng-template ngbPaginationPrevious>
-        < {{'Previous' | translate}}</ng-template>
-        <ng-template ngbPaginationNext>{{'Next' | translate}} ></ng-template>
-        <ng-template ngbPaginationFirst>
-        << {{'First' | translate}}</ng-template>
-        <ng-template ngbPaginationLast>{{'Last' | translate}} >></ng-template>
-      </ngb-pagination>
+    <div>
+        <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="users.length">
+            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+         </ngb-pagination>
     </div>
-    } <div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
+    }
+    <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span></button></div>
   }

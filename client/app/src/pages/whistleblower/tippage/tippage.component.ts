@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {ActivatedRoute} from "@angular/router";
@@ -7,25 +7,26 @@ import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
-import {Answers, Questionnaire} from "@app/models/reciever/reciever-tip-data";
+import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
-import { NgClass } from "@angular/common";
-import { TipAdditionalQuestionnaireInviteComponent } from "../../../shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
-import { TipInfoComponent } from "../../../shared/partials/tip-info/tip-info.component";
-import { TipReceiverListComponent } from "../../../shared/partials/tip-receiver-list/tip-receiver-list.component";
-import { TipQuestionnaireAnswersComponent } from "../../../shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
-import { WhistleblowerIdentityComponent } from "../../../shared/partials/whistleblower-identity/whistleblower-identity.component";
-import { TipFilesWhistleblowerComponent } from "../../../shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
-import { WidgetWbFilesComponent } from "../../../shared/partials/widget-wbfiles/widget-wb-files.component";
-import { TipCommentsComponent } from "../../../shared/partials/tip-comments/tip-comments.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgClass} from "@angular/common";
+import {TipAdditionalQuestionnaireInviteComponent} from "../../../shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
+import {TipInfoComponent} from "../../../shared/partials/tip-info/tip-info.component";
+import {TipReceiverListComponent} from "../../../shared/partials/tip-receiver-list/tip-receiver-list.component";
+import {TipQuestionnaireAnswersComponent} from "../../../shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
+import {WhistleblowerIdentityComponent} from "../../../shared/partials/whistleblower-identity/whistleblower-identity.component";
+import {TipFilesWhistleblowerComponent} from "../../../shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
+import {WidgetWbFilesComponent} from "../../../shared/partials/widget-wbfiles/widget-wb-files.component";
+import {TipCommentsComponent} from "../../../shared/partials/tip-comments/tip-comments.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
 })
 export class TippageComponent implements OnInit {
   private fieldUtilities = inject(FieldUtilitiesService);

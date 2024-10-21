@@ -1,22 +1,22 @@
-import { Component, Input, inject } from "@angular/core";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, Input, inject} from "@angular/core";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {
   TipOperationFileIdentityAccessRequestComponent
-} from "@app/shared/modals/tip-operation-file-identity-access-request/tip-operation-file-identity-access-request.ompoent";
+} from "@app/shared/modals/tip-operation-file-identity-access-request/tip-operation-file-identity-access-request.component";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { NgClass, DatePipe } from "@angular/common";
-import { TipFieldComponent } from "../../../shared/partials/tip-field/tip-field.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgClass, DatePipe} from "@angular/common";
+import {TipFieldComponent} from "../../../shared/partials/tip-field/tip-field.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
-    selector: "src-whistleblower-identity-reciever",
-    templateUrl: "./whistle-blower-identity-receiver.component.html",
+    selector: "src-whistleblower-identity-receiver",
+    templateUrl: "./whistleblower-identity-receiver.component.html",
     standalone: true,
-    imports: [TipFieldComponent, NgClass, DatePipe, TranslateModule, TranslatorPipe]
+    imports: [TipFieldComponent, NgbTooltipModule, NgClass, DatePipe, TranslateModule, TranslatorPipe]
 })
 export class WhistleBlowerIdentityReceiverComponent {
   protected tipService = inject(ReceiverTipService);

@@ -138,9 +138,9 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get('#tip-action-select-all').click();
     cy.get('#tip-action-revoke-access-selected').click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient2').click();
     cy.get("#modal-action-ok").click();
 
@@ -148,9 +148,9 @@ describe("recipient admin tip actions", () => {
 
     cy.get('#tip-action-select-all').click();
     cy.get("#tip-action-grant-access-selected").click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient2').click();
     cy.get("#modal-action-ok").click();
     cy.logout();
@@ -161,9 +161,9 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get("#tip-action-revoke-access").should('be.visible').click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient2').click();
     cy.get("#modal-action-ok").click();
     cy.logout();
@@ -174,9 +174,9 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get("#tip-action-revoke-access").should('be.visible').click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient3').click();
     cy.get("#modal-action-ok").click();
     cy.logout();
@@ -187,9 +187,9 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get("#tip-action-grant-access").should('be.visible').click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient2').click();
     cy.get("#modal-action-ok").click();
     cy.logout();
@@ -200,9 +200,9 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get("#tip-action-transfer-access").should('be.visible').click();
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
-    cy.get('[data-cy="reciever_selection"]').click();
+    cy.get('[data-cy="receiver_selection"]').click();
     cy.contains('.ng-option', 'Recipient3').click();
     cy.get("#modal-action-ok").click();
     cy.logout();

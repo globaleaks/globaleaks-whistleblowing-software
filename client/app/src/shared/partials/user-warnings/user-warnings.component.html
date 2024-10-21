@@ -5,9 +5,8 @@
         <i class="fa-solid fa-exclamation-circle"></i>
         <span>{{'An update is available:' | translate}}</span>
         <span>
-          <a href="https://github.com/globaleaks/whistleblowing-software/blob/main/CHANGELOG" rel="noreferrer" target="_blank">
-            {{nodeResolver.dataModel.latest_version}} ( <span>{{'Changelog' | translate}}</span>) </a>
-          </span>
++           <a href="https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/CHANGELOG" rel="noreferrer" target="_blank">{{nodeResolver.dataModel.latest_version}} (<span>{{'Changelog' | translate}}</span>)</a>
+        </span>
         </div>
       }
       @if (preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key) {

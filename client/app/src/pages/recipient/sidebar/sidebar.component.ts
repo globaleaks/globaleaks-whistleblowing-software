@@ -1,9 +1,9 @@
-import { Component, inject } from "@angular/core";
-import { Router, RouterLink, RouterLinkActive } from "@angular/router";
+import {Component, inject} from "@angular/core";
+import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import { NgClass } from "@angular/common";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgClass} from "@angular/common";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-receipt-sidebar",

@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {Context} from "@app/models/app/public-model";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { NgOptimizedImage } from "@angular/common";
-import { MarkdownComponent } from "ngx-markdown";
-import { StripHtmlPipe } from "@app/shared/pipes/strip-html.pipe";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
+import {NgOptimizedImage} from "@angular/common";
+import {MarkdownComponent} from "ngx-markdown";
+import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-context-selection",

@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {Observable, from, switchMap} from "rxjs";

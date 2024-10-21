@@ -1,7 +1,7 @@
-import { Injectable, inject } from "@angular/core";
-import { formatDate } from "@angular/common"; // Use Angular's built-in date formatting
-import { TranslationService } from "@app/services/helper/translation.service";
-import { NgbDatepickerI18n, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {Injectable, inject} from "@angular/core";
+import {formatDate} from "@angular/common"; // Use Angular's built-in date formatting
+import {TranslationService} from "@app/services/helper/translation.service";
+import {NgbDatepickerI18n, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class CustomDatepickerI18n extends NgbDatepickerI18n {

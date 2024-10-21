@@ -8,7 +8,7 @@
     <div class="col-md-12 form-group">
       <label>
         <span>{{'Site'|translate}}</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div class="input-group">
         <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" subdomainvalidators required>
@@ -21,12 +21,12 @@
   <div class="row">
     <div class="col-md-6 form-group">
       <label>{{'Name'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="name" class="form-control" [(ngModel)]="signup.name" type="text" required>
     </div>
     <div class="col-md-6 form-group">
       <label>{{'Surname'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="surname" class="form-control" [(ngModel)]="signup.surname" type="text" required>
     </div>
   </div>
@@ -34,7 +34,7 @@
     <div class="col-md-6 form-group">
       <label>
         <span>{{'Email address'|translate}}</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <input #mail_address="ngModel" name="mail_address" class="form-control" [(ngModel)]="signup.email" type="email" [ngClass]="{'is-invalid': validated && mail_address.invalid}" [pattern]="emailRegex" required>
       @if (validated && mail_address?.errors?.['pattern']) {
@@ -46,7 +46,7 @@
     <div class="col-md-6 form-group">
       <label>
         <span>{{'Email address'|translate}} ({{'Confirmation'|translate}})</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <input name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp="" type="email" [ngClass]="{'is-invalid': validated && signup.email !== confirmation_email}" required>
       @if (validated && signupform && mail_address.valid && signup.email !== confirmation_email) {

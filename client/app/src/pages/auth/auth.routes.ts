@@ -15,7 +15,7 @@ export const authRoutes: Routes = [
   },
   {
     path: "passwordreset/requested",
-    loadComponent: () => import('@app/pages/auth/passwordreqested/password-requested.component').then(m => m.PasswordRequestedComponent),
+    loadComponent: () => import('@app/pages/auth/password-reset-requested/password-reset-requested.component').then(m => m.PasswordRequestedComponent),
     pathMatch: "full",
     data: {pageTitle: "Password reset"},
   }

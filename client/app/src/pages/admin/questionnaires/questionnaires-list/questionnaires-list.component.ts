@@ -1,5 +1,5 @@
-import { Component, Input, inject } from "@angular/core";
-import { NgForm, FormsModule } from "@angular/forms";
+import {Component, Input, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {
@@ -12,9 +12,9 @@ import {Observable} from "rxjs";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
-import { StepsComponent } from "../steps/steps.component";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {StepsComponent} from "../steps/steps.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-questionnaires-list",

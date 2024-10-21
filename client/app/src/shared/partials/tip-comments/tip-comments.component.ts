@@ -1,5 +1,5 @@
 import {AppDataService} from "@app/app-data.service";
-import { ChangeDetectorRef, Component, Input, OnInit, inject } from "@angular/core";
+import {ChangeDetectorRef, Component, Input, OnInit, inject} from "@angular/core";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -7,19 +7,19 @@ import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {Comment} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
-import { SlicePipe, DatePipe } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast } from "@ng-bootstrap/ng-bootstrap";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
-import { FilterPipe } from "@app/shared/pipes/filter.pipe";
+import {SlicePipe, DatePipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-tip-comments",
     templateUrl: "./tip-comments.component.html",
     standalone: true,
-    imports: [FormsModule, NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast, SlicePipe, DatePipe, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
+    imports: [FormsModule, NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast, NgbTooltipModule, SlicePipe, DatePipe, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
 })
 export class TipCommentsComponent implements OnInit {
   private maskService = inject(MaskService);

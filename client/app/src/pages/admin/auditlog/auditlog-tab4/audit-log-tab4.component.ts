@@ -1,10 +1,10 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {JobResolver} from "@app/shared/resolvers/job.resolver";
 import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { DatePipe } from "@angular/common";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateModule } from "@ngx-translate/core";
+import {DatePipe} from "@angular/common";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-auditlog-tab4",

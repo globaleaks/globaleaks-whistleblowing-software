@@ -1,32 +1,32 @@
-import { Component, OnInit, SimpleChanges, QueryList, ViewChild, ViewChildren, inject } from "@angular/core";
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnInit, SimpleChanges, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import { NgForm, FormsModule } from "@angular/forms";
+import {NgForm, FormsModule} from "@angular/forms";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Context, Questionnaire, Receiver} from "@app/models/app/public-model";
-import {Answers} from "@app/models/reciever/reciever-tip-data";
+import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import * as Flow from "@flowjs/flow.js";
 import {TitleService} from "@app/shared/services/title.service";
 import {Router} from "@angular/router";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
-import { NgClass } from "@angular/common";
-import { ContextSelectionComponent } from "../context-selection/context-selection.component";
-import { ReceiverSelectionComponent } from "../receiver-selection/receiver-selection.component";
-import { NgFormChangeDirective } from "../../../shared/directive/ng-form-change.directive";
-import { StepErrorComponent } from "../step-error/step-error.component";
-import { MarkdownComponent } from "ngx-markdown";
-import { FormComponent } from "../form/form.component";
-import { RFilesUploadStatusComponent } from "../../../shared/partials/rfiles-upload-status/r-files-upload-status.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { StripHtmlPipe } from "@app/shared/pipes/strip-html.pipe";
-import { OrderByPipe } from "@app/shared/pipes/order-by.pipe";
+import {NgClass} from "@angular/common";
+import {ContextSelectionComponent} from "../context-selection/context-selection.component";
+import {ReceiverSelectionComponent} from "../receiver-selection/receiver-selection.component";
+import {NgFormChangeDirective} from "../../../shared/directive/ng-form-change.directive";
+import {StepErrorComponent} from "../step-error/step-error.component";
+import {MarkdownComponent} from "ngx-markdown";
+import {FormComponent} from "../form/form.component";
+import {RFilesUploadStatusComponent} from "../../../shared/partials/rfiles-upload-status/r-files-upload-status.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-submission",

@@ -49,13 +49,13 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of customTextsKeys(); track item) {
-                <tr [ngClass]="{'bg-danger': !default_texts[item.key]}" data-toggle="tooltip" title="{{!default_texts[item.key] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
-                  <td class="preformatted">{{ item.key }}</td>
-                  <td class="preformatted">{{ default_texts[item.key] }}</td>
+              @for (item of custom_texts_keys; track item) {
+                <tr [ngClass]="{'bg-danger': !default_texts[item]}" ngbTooltip="{{!default_texts[item] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
+                  <td class="preformatted">{{ item }}</td>
+                  <td class="preformatted">{{ default_texts[item] }}</td>
                   <td class="clearfix">
-                    <span class="preformatted">{{ custom_texts[item.key] }}</span>
-                    <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item.key); updateCustomText(custom_texts,vars.language_to_customize)">
+                    <span class="preformatted">{{ custom_texts[item] }}</span>
+                    <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
                       <i class="fa fa-times"></i>
                     </button>
                   </td>

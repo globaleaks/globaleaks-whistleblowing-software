@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 
 @Injectable({

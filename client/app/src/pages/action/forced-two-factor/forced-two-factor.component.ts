@@ -1,12 +1,12 @@
-import { Component, inject } from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Router} from "@angular/router";
-import { Enable2fa } from "../../../shared/partials/enable-2fa/enable-2fa";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {Enable2fa} from "../../../shared/partials/enable-2fa/enable-2fa";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-forced-two-factor",

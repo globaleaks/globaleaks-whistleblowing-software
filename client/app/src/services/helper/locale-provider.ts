@@ -1,4 +1,4 @@
-import { registerLocaleData } from '@angular/common';
+import {registerLocaleData} from '@angular/common';
 
 // Importing locale data for each language
 import localeAm from '@angular/common/locales/am';

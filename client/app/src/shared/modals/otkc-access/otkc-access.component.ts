@@ -1,9 +1,9 @@
-import { Component, Input, inject } from '@angular/core';
-import { UtilsService } from '@app/shared/services/utils.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
+import {Component, Input, inject} from '@angular/core';
+import {UtilsService} from '@app/shared/services/utils.service';
+import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-otkc-access',
@@ -11,6 +11,7 @@ import { TranslatorPipe } from '@app/shared/pipes/translate';
     standalone: true,
     imports: [
         FormsModule,
+        NgbTooltipModule,
         TranslateModule,
         TranslatorPipe,
     ],

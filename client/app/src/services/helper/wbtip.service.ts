@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {Receiver, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {AppDataService} from "@app/app-data.service";

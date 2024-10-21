@@ -1,5 +1,5 @@
 import {RFile, WbFile, WhistleblowerIdentity, Comment} from "@app/models/app/shared-public-model";
-import {Context, Answers, Questionnaire3, Questionnaire} from "@app/models/reciever/reciever-tip-data";
+import {Context, Answers, Questionnaire3, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 export class WbTipData {

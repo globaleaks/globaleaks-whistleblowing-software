@@ -1,4 +1,4 @@
-import { Injectable, inject } from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Observable, of} from "rxjs";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";

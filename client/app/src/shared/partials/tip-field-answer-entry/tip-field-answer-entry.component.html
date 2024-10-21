@@ -99,9 +99,9 @@
           <div class="mb-2">
             <span>{{wbFile.name}}</span>
             @if (utilsService.supportedViewTypes.includes(wbFile.type)) {
-              <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
+              <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
             }
-            <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
+            <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
           </div>
         }
       </div>
@@ -112,7 +112,7 @@
           <span>
             <span class="preformatted">{{maskContent(field.id, entry['index'], entry['value'])}}</span>
             @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-              <span class="float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" data-toggle="tooltip" title="{{redactOperationTitle | translate}}">
+              <span class="float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" ngbTooltip="{{redactOperationTitle | translate}}">
                 <i class="fa-solid fa-eraser"></i>
               </span>
             }

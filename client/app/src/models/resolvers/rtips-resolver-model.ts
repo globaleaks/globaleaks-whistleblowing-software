@@ -1,4 +1,4 @@
-import {Data} from "@app/models/reciever/reciever-tip-data";
+import {Data} from "@app/models/receiver/receiver-tip-data";
 
 export interface rtipResolverModel {
   submissionStatusStr: string;

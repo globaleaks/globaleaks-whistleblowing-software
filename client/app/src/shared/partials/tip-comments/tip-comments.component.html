@@ -3,10 +3,10 @@
     <span>{{'Comments'|translate}}</span>
     <span class="">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
       }
     </span>
   </div>
@@ -32,14 +32,14 @@
             <div data-cy="SubmissionComments" id="SubmissionComments">
               <div id="comment-{{index}}" class="mt-2">
                 @if (!comment.author_id && !comment.type) {
-                  <div class="message-whistle-blower">
+                  <div class="message-whistleblower">
                     <div class="row">
                       <div class="col-md-6">{{'Whistleblower'|translate}}</div>
                       <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
                     <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
                     @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-                      <span class="float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" data-toggle="tooltip" title="{{redactOperationTitle | translate}}">
+                      <span class="float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{redactOperationTitle | translate}}">
                         <i class="fa-solid fa-eraser"></i>
                       </span>
                     }
@@ -76,10 +76,10 @@
       @if (tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage) {
         <div class="mt-2 text-center">
           <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" data-toggle="tooltip" [title]="'First' | translate"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" data-toggle="tooltip" [title]="'Previous' | translate"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward" data-toggle="tooltip" [title]="'Next' | translate"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" data-toggle="tooltip" [title]="'Last' | translate"></i></ng-template>
+            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" [ngbTooltip]="'First' | translate"></i></ng-template>
+            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" [ngbTooltip]="'Previous' | translate"></i></ng-template>
+            <ng-template ngbPaginationNext><i class="fa-solid fa-forward" [ngbTooltip]="'Next' | translate"></i></ng-template>
+            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" [ngbTooltip]="'Last' | translate"></i></ng-template>
           </ngb-pagination>
         </div>
       }

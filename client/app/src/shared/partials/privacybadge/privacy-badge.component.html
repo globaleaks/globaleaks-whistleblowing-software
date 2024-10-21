@@ -28,7 +28,7 @@
                 <span>
                   {{'Then, copy and paste the following address into the Tor Browser:'|translate}}
                 </span>
-                <span (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" class="onion-address" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}">
+                <span (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" class="onion-address" ngbTooltip="{{'Copy to clipboard' | translate}}">
                   {{appDataService.public.node.onionservice}}
                 </span>
               </div>

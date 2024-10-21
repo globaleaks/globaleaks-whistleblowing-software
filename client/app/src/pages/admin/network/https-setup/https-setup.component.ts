@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Output, inject } from "@angular/core";
+import {Component, EventEmitter, Output, inject} from "@angular/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-setup",

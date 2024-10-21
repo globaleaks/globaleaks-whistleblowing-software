@@ -12,7 +12,7 @@
         <div class="form-group">
           <label>
             <span>{{'Label'|translate}}</span>
-            <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
           <div [ngClass]="{'is-invalid': newSubmissionStatus?.errors?.['required']}">
             <input name="name" class="form-control" [(ngModel)]="newSubmissionsStatus.label" type="text" required />

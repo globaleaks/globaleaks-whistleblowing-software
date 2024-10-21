@@ -1,17 +1,17 @@
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject } from "@angular/core";
-import { FlowDirective, Transfer, NgxFlowModule } from "@flowjs/ngx-flow";
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {FlowDirective, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {FlowOptions} from "@flowjs/flow.js";
 import {Field} from "@app/models/resolvers/field-template-model";
-import { AuthenticationService } from "@app/services/helper/authentication.service";
-import { UtilsService } from "@app/shared/services/utils.service";
-import { NgClass, AsyncPipe } from "@angular/common";
-import { RFileUploadStatusComponent } from "../rfile-upload-status/r-file-upload-status.component";
-import { RFilesUploadStatusComponent } from "../rfiles-upload-status/r-files-upload-status.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {NgClass, AsyncPipe} from "@angular/common";
+import {RFileUploadStatusComponent} from "../rfile-upload-status/r-file-upload-status.component";
+import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-rfile-upload-button",

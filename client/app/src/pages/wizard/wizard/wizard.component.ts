@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {Constants} from "@app/shared/constants/constants";
 import {Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
@@ -9,19 +9,21 @@ import {TranslationService} from "@app/services/helper/translation.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TitleService} from "@app/shared/services/title.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import { FormsModule } from "@angular/forms";
-import { NgClass } from "@angular/common";
-import { ProfileComponent } from "./template/profile/profile.component";
-import { PasswordStrengthValidatorDirective } from "../../../shared/directive/password-strength-validator.directive";
-import { PasswordMeterComponent } from "../../../shared/components/password-meter/password-meter.component";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {FormsModule} from "@angular/forms";
+import {NgClass} from "@angular/common";
+import {ProfileComponent} from "./template/profile/profile.component";
+import {PasswordStrengthValidatorDirective} from "../../../shared/directive/password-strength-validator.directive";
+import {PasswordMeterComponent} from "../../../shared/components/password-meter/password-meter.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+
 
 @Component({
     selector: "src-wizard",
     templateUrl: "./wizard.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, NgClass, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
 })
 export class WizardComponent implements OnInit {
   private titleService = inject(TitleService);

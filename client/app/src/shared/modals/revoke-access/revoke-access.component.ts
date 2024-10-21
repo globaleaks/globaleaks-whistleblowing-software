@@ -1,12 +1,12 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Receiver} from "@app/models/app/public-model";
 import {cancelFun, ConfirmFunFunction} from "@app/shared/constants/types";
-import { NgSelectComponent, NgLabelTemplateDirective } from "@ng-select/ng-select";
-import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({

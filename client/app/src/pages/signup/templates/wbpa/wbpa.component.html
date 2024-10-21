@@ -7,19 +7,19 @@
   <div class="row">
     <div class="col-md-6 form-group">
       <label>{{'Name'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="name" class="form-control" [(ngModel)]="signup.name" type="text" required>
     </div>
     <div class="col-md-6 form-group">
       <label>{{'Surname'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="surname" class="form-control" [(ngModel)]="signup.surname" type="text" required>
     </div>
   </div>
   <div class="row">
     <div class="col-md-6 form-group">
       <label>{{'Phone number'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="phonenumber" #phone="ngModel" class="form-control" [(ngModel)]="signup.phone" type="text" [pattern]="Constants.Constants.phoneNumberRegexp" required>
       @if (phone?.errors?.['pattern']) {
         <div class="text-danger">
@@ -32,7 +32,7 @@
     <div class="col-md-6 form-group">
       <label>
         <span>{{'Email address'|translate}}</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div>
         <input name="email" #email="ngModel" class="form-control" [(ngModel)]="signup.email" [pattern]="Constants.Constants.emailRegexp" type="email" required>
@@ -46,7 +46,7 @@
     <div class="col-md-6 form-group">
       <label>
         <span>{{'Email address'|translate}} ({{'Confirm'|translate}})</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div>
         <input name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp type="email" required>
@@ -66,26 +66,26 @@
   <div class="row">
     <div class="col-md-12 form-group">
       <label>{{'Name'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="organization_name" class="form-control" [(ngModel)]="signup.organization_name" type="text" (ngModelChange)="updateSubdomain.emit()" required>
     </div>
   </div>
   <div class="row">
     <div class="col-md-12 form-group">
       <label>{{'Address'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="organization_location" class="form-control" [(ngModel)]="signup.organization_location" type="text" required>
     </div>
   </div>
   <div class="row">
     <div class="col-md-6 form-group">
       <label>{{'Fiscal code'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="tax_code" class="form-control" [(ngModel)]="signup.organization_tax_code" type="text" [required]="!signup.organization_tax_code && !signup.organization_vat_code">
     </div>
     <div class="col-md-6 form-group">
       <label>{{'Tax code'|translate}}</label>
-      <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       <input name="vat_code" class="form-control" [(ngModel)]="signup.organization_vat_code" type="text" [required]="!signup.organization_tax_code && !signup.organization_vat_code">
     </div>
   </div>
@@ -93,7 +93,7 @@
     <div class="col-md-12 form-group">
       <label>
         <span>{{'Site'|translate}}</span>
-        <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div class="input-group">
         <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" subdomainvalidators required>

@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
-import { NgStyle } from "@angular/common";
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {NgStyle} from "@angular/common";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-rfiles-upload-status",

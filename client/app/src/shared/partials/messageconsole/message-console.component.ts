@@ -1,9 +1,9 @@
-import { AfterViewChecked, Component, inject } from "@angular/core";
+import {AfterViewChecked, Component, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 
-import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "messageconsole",

@@ -93,7 +93,7 @@
         <i class="fa-solid fa-check"></i>
         <span id="save_notification">{{ 'Save' | translate }}</span>
       </button>
-      <button data-toggle="tooltip" title="{{'Send a test email to your email address.' | translate}}" (click)="updateThenTestMail(notificationResolver.dataModel)" class="btn btn-primary">
+      <button ngbTooltip="{{'Send a test email to your email address.' | translate}}" (click)="updateThenTestMail(notificationResolver.dataModel)" class="btn btn-primary">
         <i class="fa-solid fa-envelope"></i>
         <span>{{ 'Test the configuration' | translate }}</span>
       </button>

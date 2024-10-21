@@ -15,20 +15,20 @@
       </div>
       <br />
       <div class="text-center">
-        <qrcode data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
+        <qrcode ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
         <form id="OTPSecretForm" [formGroup]="OTPSecretForm" class="form-inline">
           <div class="form-group d-block mx-auto">
             <div class="input-group">
               <input [ngModelOptions]="{standalone: true}" [ngClass]="{'is-invalid': OTPSecretForm.invalid}" class="form-control" name="secret" (ngModelChange)="onSecretKeyChanged()" [(ngModel)]="twoFactorAuthData.totp.secret" [disabled]="!twoFactorAuthData.totp.edit" type="text" [minlength]="32" [maxLength]="32" maxlength="32" size="32" required />
               @if (twoFactorAuthData.totp.edit) {
-                <span class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" data-toggle="tooltip" title="{{'Save' | translate}}">
+                <span class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" ngbTooltip="{{'Save' | translate}}">
                   <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="OTPSecretForm.invalid">
                     <i class="fa-solid fa-save"></i>
                   </button>
                 </span>
               }
               @if (!twoFactorAuthData.totp.edit) {
-                <span class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" data-toggle="tooltip" title="{{'Edit' | translate}}">
+                <span class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" ngbTooltip="{{'Edit' | translate}}">
                   <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="twoFactorAuthData.totp.secret.length !== 32">
                     <i class="fa-solid fa-edit"></i>
                   </button>
