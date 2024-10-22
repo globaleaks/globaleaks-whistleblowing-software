@@ -836,7 +836,7 @@ export class UtilsService {
   private showAlertFileModal(wbFile: any, url: string){
     const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = JSON.stringify({});
-      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato non è verificato. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
+      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "The selected file is not verified. Proceed anyway with the download?" : "The selected file is infected. Proceed anyway with the download?" ;
       modalRef.componentInstance.confirmFunction = (arg: string) => {
         this.httpService.requestToken(arg).subscribe(
         {
