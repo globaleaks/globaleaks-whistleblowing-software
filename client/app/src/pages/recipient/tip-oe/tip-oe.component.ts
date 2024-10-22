@@ -29,6 +29,7 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
+import { FieldUtilitiesService } from "@app/shared/services/field-utilities.service";
 
 @Component({
   selector: "src-tip-oe",
@@ -58,9 +59,11 @@ export class TipOeComponent implements OnInit {
     reviewFormFields: []
   };
 
+  uploads: { [key: string]: any } = {};
+
   answers: any
 
-  constructor(private readonly translateService: TranslateService,private readonly tipService: TipService, private readonly appConfigServices: AppConfigService, private readonly router: Router, private readonly cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private readonly activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
+  constructor(private readonly fieldUtilitiesService: FieldUtilitiesService, private readonly translateService: TranslateService,private readonly tipService: TipService, private readonly appConfigServices: AppConfigService, private readonly router: Router, private readonly cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private readonly activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
 
   ngOnInit() {
@@ -379,6 +382,9 @@ export class TipOeComponent implements OnInit {
 
   closeForwardedReport(){
     this.loading = true;
+
+    //todo: invio dei files
+
     this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
       next: (response) => {
         this.loading = false;
@@ -389,4 +395,13 @@ export class TipOeComponent implements OnInit {
     });
           
   }
+
+  notifyFileUpload(uploads: any) {
+    if (uploads) {
+      this.uploads = uploads;
+      this.fieldUtilitiesService.onAnswersUpdate(this);
+    }
+  }
+
+
 }

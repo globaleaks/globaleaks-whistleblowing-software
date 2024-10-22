@@ -45,7 +45,7 @@ export class SubmissionComponent implements OnInit {
   hasPreviousStepValue: boolean;
   areReceiversSelectedValue: boolean;
 
-  constructor(private route:ActivatedRoute, protected whistleblowerSubmissionService:WhistleblowerSubmissionService,private titleService: TitleService, private router: Router, private appConfigService: AppConfigService, private whistleblowerLoginResolver: WhistleblowerLoginResolver, protected authenticationService: AuthenticationService, private appDataService: AppDataService, private utilsService: UtilsService, private fieldUtilitiesService: FieldUtilitiesService, public submissionService: SubmissionService) {
+  constructor(private readonly route:ActivatedRoute, protected whistleblowerSubmissionService:WhistleblowerSubmissionService ,private readonly titleService: TitleService, private readonly router: Router, private readonly appConfigService: AppConfigService, private readonly whistleblowerLoginResolver: WhistleblowerLoginResolver, protected authenticationService: AuthenticationService, private appDataService: AppDataService, private utilsService: UtilsService, private readonly fieldUtilitiesService: FieldUtilitiesService, public submissionService: SubmissionService) {
     this.selectable_contexts = [];
     this.receivedData = this.submissionService.getSharedData();
 

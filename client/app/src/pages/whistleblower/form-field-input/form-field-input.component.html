@@ -91,7 +91,7 @@
                 <src-rfile-upload-button [file_id]="fieldEntry" (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="field" [formUploader]="true"></src-rfile-upload-button>
             </div>
             <div *ngSwitchCase="'fieldgroup'">
-                <div [ngSwitch]="field.attrs.multimedia_type.value">
+                <div *ngIf="field.attrs.multimedia_type" [ngSwitch]="field.attrs.multimedia_type.value">
                     <div *ngSwitchCase="'image'">
                         <img alt="media" [src]="field.attrs.multimedia_url.value" />
                     </div>

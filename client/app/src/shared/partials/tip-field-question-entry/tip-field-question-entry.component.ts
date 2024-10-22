@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 /**
  * This Service handles how the date is represented in scripts i.e. ngModel.
@@ -89,6 +90,9 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   dateOptions: {min_date:NgbDateStruct,max_date:NgbDateStruct}={min_date:{year:0,month:0,day:0},max_date:{year:0,month:0,day:0}}
 
 
+  uploads: { [key: string]: any } = {};
+
+
   ngOnInit(): void {
 
    if(this.field.type==='daterange' && this.fieldAnswers[this.field.id][0].value){
@@ -98,6 +102,11 @@ export class TipFieldQuestionEntryComponent implements OnInit{
    
   }
 
+
+  testEvent(event: any){
+    //TODO: rinominare metodo
+    this.notifyFileUpload.emit(event)
+  }
 
 
   clearDateRange() {
