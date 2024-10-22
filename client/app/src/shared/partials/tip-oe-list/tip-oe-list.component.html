@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                 <ng-container *ngFor="let item of forwardings">
-                        <tr role="button" (click)="goToDetailPage(item)">
+                    <tr role="button" (click)="goToDetailPage(item)">
                         <td>{{ item.name }}</td>
                         <td>{{ item.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
                         <td>{{ item.files? item.files.length : '-' }}</td>
