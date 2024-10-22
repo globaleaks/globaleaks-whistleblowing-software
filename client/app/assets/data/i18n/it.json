@@ -618,5 +618,9 @@
   "This email is to remind you the presence of unread or updated reports.": "Questa email ti ricorda della presenza di segnalazioni non lette o aggiornate.",
   "Reminder about unread or updated reports": "Promemoria circa segnalazioni non lette o aggiornate",
   "Role: {Role}": "Ruolo: {Role}",
-  "Password: {Password}": "Password: {Password}"
+  "Password: {Password}": "Password: {Password}",
+  "VERIFIED": "Verificato",
+  "INFECTED": "Infetto",
+  "PENDING": "Da Verificare",
+   "Organizations": "Organizzazioni"
 }

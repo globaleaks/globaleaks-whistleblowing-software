@@ -635,5 +635,6 @@
   "Password: {Password}": "Password: {Password}",  
   "VERIFIED": "Verificato",
   "INFECTED": "Infetto",
-  "PENDING": "Da Verificare"
+  "PENDING": "Da Verificare",
+  "Organizations": "Organizzazioni"
 }

@@ -594,5 +594,9 @@
   "This email is to remind you the presence of unread or updated reports.": "This email is to remind you the presence of unread or updated reports.",
   "Reminder about unread or updated reports": "Reminder about unread or updated reports",
   "Role: {Role}": "Role: {Role}",
-  "Password: {Password}": "Password: {Password}"
+  "Password: {Password}": "Password: {Password}",
+  "VERIFIED": "Verified",
+  "INFECTED": "Infected",
+  "PENDING": "Pending",
+  "Organizations": "Organizations"
 }

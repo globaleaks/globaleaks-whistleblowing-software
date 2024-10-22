@@ -21,6 +21,7 @@ export class TipOeCommentsComponent {
   @Input() organizations: Forwarding[];
 
   @Input() tids: number[];
+  @Input() authorType: string = "main";
 
   collapsed = false;
   newCommentContent = "";
@@ -42,28 +43,34 @@ export class TipOeCommentsComponent {
     this.collapsed = !this.collapsed;
   }
 
+  private getTids() : number[]{
+    if (this.tids && this.tids.length > 0) {
+      return this.tids;
+    }
+    
+    return this.organizations? this.organizations.filter(org => org.state !== 'closed').map(_ =>  _.tid) : []
+  }
+
   newComment() {
 
-    let tidsToForw = this.tids ? this.tids : this.organizations? this.organizations.map(_ => _.tid) : []
+    let tidsToForw = this.getTids();
 
     const response = this.tipService.newComment(this.newCommentContent, this.key, tidsToForw);
     this.newCommentContent = "";
 
     response.subscribe(
       (data) => {
-        // this.comments = this.tipService.tip.comments;
         this.tipService.tip.comments.push(data);
         this.comments = this.tipService.tip.comments;
-        // this.comments = [...this.comments, this.newComments];
 
-        this.organizations.forEach(org => org.comments?.push({"id": data.id, "author_type":"main"}))
+        this.organizations.filter(org => org.state !== 'closed').forEach(org => org.comments?.push({"id": data.id, "author_type": this.authorType}))
 
         if(this.tipService.forwarding){
 
           if(!this.tipService.forwarding.comments)
             this.tipService.forwarding.comments = [];
           
-          this.tipService.forwarding.comments?.push({"id": data.id, "author_type":"main"})
+          this.tipService.forwarding.comments?.push({"id": data.id, "author_type": this.authorType})
         }
 
         this.cdr.detectChanges();

@@ -174,7 +174,7 @@
                 </div>
                 <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
 
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()"
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()" [canUpload]="selectedOe && selectedOe.length == 1 ? selectedOe[0].state !== 'closed' : true"
                     [key]="'oe'" [organizations]="selectedOe"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
