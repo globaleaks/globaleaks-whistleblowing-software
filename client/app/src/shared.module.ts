@@ -92,7 +92,6 @@ import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-u
 import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.component";
 import { SendtipFilesComponent } from "@app/shared/partials/sendtip-files/sendtip-files.component";
 import { SendTipFileUploadComponent } from "@app/shared/partials/sendtip-file-upload/sendtip-file-upload.component";
-import { SendtipDetailFilesComponent } from "@app/shared/partials/sendtip-details-files/sendtip-details-files.component";
 import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
 import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
@@ -190,7 +189,6 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     TipOeListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,
-    SendtipDetailFilesComponent,
     TipOperationSetReminderComponent,
     TipOperationPostponeComponent,
     FileViewComponent,
@@ -271,7 +269,6 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     TipOeListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,
-    SendtipDetailFilesComponent,
     TipOperationSetReminderComponent,
     TipUploadWbFileComponent,
     EnableEncryptionComponent,
