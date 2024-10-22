@@ -228,6 +228,7 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
 
     def epilogue(self):
+        self.add_msg_external_to_whistle()
         self.add_file_analisys_url()
         self.add_global_stat_keys()
         self.add_backup_configs()
