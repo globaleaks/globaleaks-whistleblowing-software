@@ -2,24 +2,20 @@
 #
 # Handlers dealing with forwarding submission to an external organization
 import base64
-from code import interact
-import os
+import logging
 import json
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.handlers.admin.tenant import db_get_tenant_list
-from globaleaks.settings import Settings
-from globaleaks.utils.securetempfile import SecureTemporaryFile
-from globaleaks.models import serializers
+from globaleaks.utils.json import JSONEncoder
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaire
-from globaleaks.handlers.whistleblower.submission import db_archive_questionnaire_schema, db_assign_submission_progressive, db_create_receivertip, db_set_internaltip_answers
-from globaleaks.utils.log import log
+from globaleaks.handlers.whistleblower.submission import db_archive_questionnaire_schema, \
+    db_assign_submission_progressive, db_create_receivertip, db_set_internaltip_answers, find_statistical_info
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now, get_expiration
 from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
-from sqlalchemy import or_
 
 
 def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id, questionnaire_hash):
@@ -183,6 +179,34 @@ class CloseForwardedSubmission(BaseHandler):
         original_itip = db_get(session, models.InternalTip,
                                models.InternalTip.id == internaltip_forwarding.internaltip_id)
         answers = request['answers']
+        try:
+            default_language = db_get(
+                session, models.Config.value,(
+                models.Config.tid == original_itip.tid,
+                models.Config.var_name == 'default_language')
+            )
+            analyst_encrypt = db_get(
+                session,
+                models.Config.value,(
+                    models.Config.tid == original_itip.tid,
+                    models.Config.var_name == 'global_stat_pub_key')
+            )
+            stat_answers = find_statistical_info(
+                session,
+                original_itip.tid,
+                answers,
+                default_language
+            )
+            if stat_answers != {}:
+                    stat_answers = base64.b64encode(
+                        GCE.asymmetric_encrypt(
+                            analyst_encrypt[0],
+                            json.dumps(stat_answers, cls=JSONEncoder).encode()
+                        )
+                    ).decode()
+        except Exception as e:
+            logging.debug(e)
+            stat_answers = '{}'
 
         crypto_answers = base64.b64encode(GCE.asymmetric_encrypt(
             itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
@@ -196,10 +220,11 @@ class CloseForwardedSubmission(BaseHandler):
         itip.update_date = now
         itip.status = 'closed'
 
-        # TODO inserire i campi di interesse statistico in apposita colonna
         internaltip_forwarding.state = models.EnumForwardingState.closed.value
         internaltip_forwarding.data = crypto_forwarded_answers
         internaltip_forwarding.update_date = now
+        internaltip_forwarding.stat_data = stat_answers
+
 
         session.flush()
 

@@ -121,6 +121,7 @@ ConfigDescriptor = {
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
     'url_file_analysis': Unicode(default='http://localhost/api/v1/scan'),
+    'max_msg_external_to_whistle': Int(default=1),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enable': Bool(default=False),
     'backup_time_ISO_8601': Unicode(default='2:00'),
@@ -252,7 +253,9 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'unread_reminder_time'
+        'unread_reminder_time',
+        'max_msg_external_to_whistle'
+
     ],
     'admin_network': [
         'anonymize_outgoing_connections',

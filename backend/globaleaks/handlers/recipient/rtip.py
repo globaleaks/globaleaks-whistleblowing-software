@@ -1151,7 +1151,7 @@ def create_comment(session, tid, user_id, itip_id, content, visibility=0, tids_t
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
-    max_oe_to_whistleblower_comments = 1
+    max_oe_to_whistleblower_comments = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
 
     rtip.last_access = datetime_now()
     if visibility == models.EnumVisibility.public.value:

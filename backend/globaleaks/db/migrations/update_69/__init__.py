@@ -2,10 +2,9 @@ from globaleaks import models
 from globaleaks.models.enums import EnumFieldInstance
 from globaleaks.utils.crypto import GCE, Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
-from globaleaks.models import Model, EnumSubscriberStatus, EnumStateFile, EnumVisibility, EnumUserRole, EnumUserStatus
+from globaleaks.models import Model, EnumVisibility, EnumUserRole
 from globaleaks.models.properties import *
-from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
-from globaleaks.utils.log import log
+from globaleaks.utils.utility import datetime_now, datetime_null
 
 
 class Subscriber_v_68(Model):
@@ -70,7 +69,6 @@ class InternalFile_v_68(Model):
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    # filename = Column(UnicodeText, default='', nullable=False)
     internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
     name = Column(UnicodeText, nullable=False)
     content_type = Column(JSON, default='', nullable=False)
@@ -195,6 +193,14 @@ class MigrationScript(MigrationBase):
         file_analisys_config = self.model_to['Config']()
         file_analisys_config.var_name = 'url_file_analysis'
         file_analisys_config.value = 'http://localhost/api/v1/scan'
+        file_analisys_config.tid = 1
+        self.session_new.add(file_analisys_config)
+        self.entries_count['Config'] += 1
+
+    def add_msg_external_to_whistle(self):
+        file_analisys_config = self.model_to['Config']()
+        file_analisys_config.var_name = 'max_msg_external_to_whistle'
+        file_analisys_config.value = 1
         file_analisys_config.tid = 1
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
