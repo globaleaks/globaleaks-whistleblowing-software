@@ -52,7 +52,7 @@ export class SendtipFilesComponent implements OnInit {
         uploadDate: file.creation_date,
         size: file.size,
         verification_date: file.verification_date,
-        download_url: "api/recipient/rfiles/"
+        download_url: "api/recipient/rfiles/"+file.id
     }));
 
 
@@ -66,7 +66,7 @@ export class SendtipFilesComponent implements OnInit {
         uploadDate: file.creation_date,
         size: file.size,
         verification_date: file.verification_date,
-        download_url: "api/recipient/wbfiles/"
+        download_url: "api/recipient/wbfiles/"+file.id
     }));
 
 

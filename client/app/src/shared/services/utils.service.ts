@@ -778,7 +778,7 @@ export class UtilsService {
     }
     else{
       const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
-      return this.showAlertFileModal(wbFile, url)
+      return this.showAlertFileModal(wbFile, url+ wbFile.id )
     }
 
   }
@@ -843,7 +843,7 @@ export class UtilsService {
           next: async token => {
             this.cryptoService.proofOfWork(token.id).subscribe(
               (ans) => {
-                  window.open(url + wbFile.id + "?token=" + token.id + ":" + ans);
+                  window.open(url + "?token=" + token.id + ":" + ans);
                   this.appDataService.updateShowLoadingPanel(false);
               }
             );
@@ -865,7 +865,7 @@ export class UtilsService {
           next: async token => {
             this.cryptoService.proofOfWork(token.id).subscribe(
               (ans) => {
-                window.open(file.download_url + file.id + "?token=" + token.id + ":" + ans);
+                window.open(file.download_url + "?token=" + token.id + ":" + ans);
                 this.appDataService.updateShowLoadingPanel(false);
               }
             );
