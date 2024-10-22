@@ -642,7 +642,7 @@ class AccreditationConfirmHandler(BaseHandler):
 
 
 class ToggleStatusActiveHandler(BaseHandler):
-    check_roles = 'accreditor'
+    check_roles = 'any'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -705,7 +705,7 @@ class ConfirmRequestHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'accreditor'
+    check_roles = 'any'
     root_tenant_only = True
     invalidate_cache = True
 
