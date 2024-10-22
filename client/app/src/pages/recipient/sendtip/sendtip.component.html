@@ -40,7 +40,6 @@
       </div>
     </div>
   
-    <!-- Form di testo e selezione del form di istruttoria -->
     <div class="row">
       <div class="col-12">
         <div class="row form-group">
@@ -70,19 +69,17 @@
           
       </div>
     </div>
-  
-    <!-- Sezione per la gestione dei file -->
+
     <div class="row mt-2">
       <sendtip-files [tip]="tip" [(selectedFiles)]="sendTipRequest.files" [canDownloadInfected]="preferenceResolver.dataModel.can_download_infected"></sendtip-files>
     </div>
   
-  
-    <!-- Pannello di caricamento dei file -->
+
     <div class="row mt-2">
         <sendtip-file-upload [(files)]="uploadedFiles"></sendtip-file-upload>
     </div>
   
-    <!-- Pulsanti di azione -->
+
     <div class="row">
       <div class="col-md-8"></div>
       <div class="col-md-4">
