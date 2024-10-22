@@ -583,7 +583,7 @@ class GetAllAccreditationHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -595,7 +595,7 @@ class AccreditationHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -620,7 +620,7 @@ class AccreditationApprovedHandler(BaseHandler):
     """
     This manager is responsible for confirm accreditation requests
     """
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
 
     def post(self, accreditation_id: str):
@@ -642,7 +642,7 @@ class AccreditationConfirmHandler(BaseHandler):
 
 
 class ToggleStatusActiveHandler(BaseHandler):
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -653,7 +653,7 @@ class SubmitInstructorRequestHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'any'
+    check_roles = 'receiver'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -705,7 +705,7 @@ class ConfirmRequestHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
     invalidate_cache = True
 
