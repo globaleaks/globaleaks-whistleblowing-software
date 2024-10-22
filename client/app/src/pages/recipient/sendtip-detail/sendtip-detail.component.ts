@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {Location} from '@angular/common';
 import { FileItem } from "@app/models/reciever/sendtip-data";
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +16,7 @@ import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
   selector: "src-sendtip-detail",
   templateUrl: "./sendtip-detail.component.html",
 })
-export class SendtipDetailComponent implements OnInit {
+export class SendtipDetailComponent{
 
   detail: any;
   organizations: Forwarding[] = []
@@ -46,14 +46,6 @@ export class SendtipDetailComponent implements OnInit {
     this._location.back();
   }
 
-  ngOnInit(): void {    
-
-    // if (typeof this.detail.questionnaire.answers  === 'string' || this.detail.questionnaire.answers instanceof String)
-    //   this.detail.questionnaire.answers = JSON.parse(this.detail.questionnaire.answers)
-
-    // this.tipService.preprocessForwardingAnswers(this.detail);
-
-  }
 
   loadDetail() {
     
