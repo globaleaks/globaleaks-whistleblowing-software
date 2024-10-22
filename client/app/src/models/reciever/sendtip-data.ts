@@ -27,6 +27,7 @@ export interface FileItem {
     file?: File;
     description?: string;
     verification_date?: string | null;
+    download_url?: string;
   }
   
 export interface SentTipDetail {

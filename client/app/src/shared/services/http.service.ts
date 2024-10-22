@@ -38,6 +38,7 @@ import { RedactionData } from "@app/models/component-model/redaction";
 import { SendTip } from "@app/models/reciever/sendtip-data";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
 import { AccreditationRequestModel, EOExtendedInfo, EOInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
+import { StatisticalRequestModel } from "@app/analyst/statistical-data";
 
 
 @Injectable({
@@ -522,6 +523,10 @@ export class HttpService {
 
   sendTipRequest(data: SendTip): Observable<string> {
     return this.httpClient.post<string>(`api/recipient/wbtip/${data.tip_id}/send`, data);
+  }
+
+  getStatisticalData(bodyReq: StatisticalRequestModel): Observable<any> {
+    return this.httpClient.post<any>('api/analyst/statistical', bodyReq);
   }
 
 }

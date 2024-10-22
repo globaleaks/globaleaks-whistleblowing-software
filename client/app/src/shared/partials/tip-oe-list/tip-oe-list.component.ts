@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Forwarding } from "@app/models/reciever/reciever-tip-data";
-import { ReceiverTipService } from "@app/services/helper/receiver-tip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 
 @Component({

@@ -7,7 +7,7 @@
         </span>
     </div>
     <div class="card-body" *ngIf="!collapsed">
-       <div *ngIf="tipService.tip.status !== 'closed'" class="row">
+       <div *ngIf="tipService.tip.status !== 'closed' && (organizations && organizations.length == 1 ? organizations[0].state !== 'closed' : true)" class="row">
            <div class="col-md-12 clearfix">
                 <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off" [disabled]="(!organizations || organizations.length == 0)"></textarea>
                 <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
@@ -20,7 +20,7 @@
             </div>
         </div>
         <div *ngIf="tipService.tip.comments && tipService.tip.comments.length">
-            <div data-cy="SubmissionComments" id="SubmissionComments" *ngFor="let comment of getSortedComments(comments | orderBy:'creation_date': true | filter : 'visibility' : key) | slice: (currentCommentsPage-1) * itemsPerPage : (currentCommentsPage-1) * itemsPerPage + itemsPerPage; let index = index">
+            <div data-cy="SubmissionComments" id="SubmissionComments" *ngFor="let comment of getSortedComments(comments) | orderBy:'creation_date': true | filter : 'visibility' : key | slice: (currentCommentsPage-1) * itemsPerPage : (currentCommentsPage-1) * itemsPerPage + itemsPerPage ; let index = index">
                 <div id="comment-{{index}}" class="mt-2">
                     <div *ngIf="!comment.author_id && !comment.type" class="message-whistle-blower">
                         <div class="row">
@@ -33,11 +33,12 @@
                         </span>
                         <br/>
                     </div>
-                    <div class="message" *ngIf="tipService.tip.receivers_by_id[comment.author_id]">
-                        <div class="row">
-                            <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
+                    <div class="message" >
+                        <div *ngIf="tipService.tip.receivers_by_id[comment.author_id]" class="row">
+                            <div  class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
                             <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                         </div>
+                        <div *ngIf="!tipService.tip.receivers_by_id[comment.author_id]" class="col-md-12 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                         <div *ngIf="!comment.type" class="preformatted">{{comment.content}}</div>
                         <div *ngIf="comment.type === 'auditlog_update_report_status'">
                             <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses)}}</div>
@@ -48,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="mt-2 text-center" *ngIf="tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage">
+        <div class="mt-2 text-center" *ngIf="tipService.tip.comments && (getSortedComments(comments) | filter : 'visibility' : key ).length > itemsPerPage">
             <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
                 <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" data-toggle="tooltip" [title]="'First' | translate"></i></ng-template>
                 <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" data-toggle="tooltip" [title]="'Previous' | translate"></i></ng-template>

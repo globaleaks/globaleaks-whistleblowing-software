@@ -10,13 +10,14 @@ import { HomeComponent } from '@app/pages/analyst/home/home.component';
 import { SidebarComponent } from '@app/pages/analyst/sidebar/sidebar.component';
 import { StatisticsComponent } from '@app/pages/analyst/statistics/statistics.component';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
-
+import { ReportsComponent } from "@app/pages/analyst/reports/reports.component";
 
 @NgModule({
   declarations:[
     HomeComponent,
     SidebarComponent,
-    StatisticsComponent
+    StatisticsComponent,
+    ReportsComponent
   ],
   imports: [
     CommonModule, RouterModule, TranslateModule, SharedModule, FormsModule,

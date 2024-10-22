@@ -34,6 +34,7 @@ import {FileViewComponent} from "@app/shared/modals/file-view/file-view.componen
 import {CryptoService} from "@app/shared/services/crypto.service";
 import { DownloadConfirmationComponent } from "../modals/download-confirmation/download-confirmation.component";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
+import { FileItem } from "@app/models/reciever/sendtip-data";
 @Injectable({
   providedIn: "root"
 })
@@ -746,6 +747,15 @@ export class UtilsService {
     };
   }
 
+  public viewWBFile(file: RFile) {
+    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.args = {
+      file: file,
+      loaded: false,
+      iframeHeight: window.innerHeight * 0.75
+    };
+  }
+
   public downloadRFile(wbFile: WbFile) {
 
     if(wbFile.status === "VERIFIED"){
@@ -765,29 +775,11 @@ export class UtilsService {
     );
 
       return null ;
-  }
+    }
     else{
-      const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = JSON.stringify({});
-      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "Il file selezionato non è verificato. Sei sicuro di voler procedere con il download?" : "Il file selezionato è infetto. Sei sicuro di voler procedere con il download?" ;
-      modalRef.componentInstance.confirmFunction = (arg: string) => {
-        this.httpService.requestToken(arg).subscribe
-      (
-        {
-          next: async token => {
-            this.cryptoService.proofOfWork(token.id).subscribe(
-              (ans) => {
-                const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
-                  window.open(url + wbFile.id + "?token=" + token.id + ":" + ans);
-                  this.appDataService.updateShowLoadingPanel(false);
-              }
-            );
-          }
-        }
-      )
-      };
-      return modalRef.result;
-  }
+      const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+      return this.showAlertFileModal(wbFile, url+ wbFile.id )
+    }
 
   }
 
@@ -820,15 +812,6 @@ export class UtilsService {
   }
 
 
-  public viewWBFile(file: RFile) {
-    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
-    modalRef.componentInstance.args = {
-      file: file,
-      loaded: false,
-      iframeHeight: window.innerHeight * 0.75
-    };
-  }
-
   public downloadWBFile(wbFile: RFile) {
 
     const param = JSON.stringify({});
@@ -848,6 +831,52 @@ export class UtilsService {
         }
       }
     );
+  }
+
+  private showAlertFileModal(wbFile: any, url: string){
+    const modalRef = this.modalService.open(DownloadConfirmationComponent, {backdrop: 'static', keyboard: false});
+      modalRef.componentInstance.arg = JSON.stringify({});
+      modalRef.componentInstance.text = wbFile.status==="PENDING" ? "The selected file is not verified. Proceed anyway with the download?" : "The selected file is infected. Proceed anyway with the download?" ;
+      modalRef.componentInstance.confirmFunction = (arg: string) => {
+        this.httpService.requestToken(arg).subscribe(
+        {
+          next: async token => {
+            this.cryptoService.proofOfWork(token.id).subscribe(
+              (ans) => {
+                  window.open(url + "?token=" + token.id + ":" + ans);
+                  this.appDataService.updateShowLoadingPanel(false);
+              }
+            );
+          }
+        }
+      )
+      };
+      return modalRef.result;
+  }
+
+
+  public downloadGenericFile(file: FileItem) {
+
+    if(file.status === "VERIFIED"){
+
+      const param = JSON.stringify({});
+      this.httpService.requestToken(param).subscribe(
+        {
+          next: async token => {
+            this.cryptoService.proofOfWork(token.id).subscribe(
+              (ans) => {
+                window.open(file.download_url + "?token=" + token.id + ":" + ans);
+                this.appDataService.updateShowLoadingPanel(false);
+              }
+            );
+          }
+        }
+      );
+      return null;
+    }
+    else{
+      return this.showAlertFileModal(file, file.download_url ? file.download_url : '');
+    }
   }
 
 

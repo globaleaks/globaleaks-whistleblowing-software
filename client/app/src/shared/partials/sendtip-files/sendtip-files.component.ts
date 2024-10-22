@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { RFile, WbFile } from "@app/models/app/shared-public-model";
-import { FileReference, Forwarding, RecieverTipData } from "@app/models/reciever/reciever-tip-data";
+import { FileReference, RecieverTipData } from "@app/models/reciever/reciever-tip-data";
 import { AttachmentFile, FileItem } from "@app/models/reciever/sendtip-data";
+import { UtilsService } from "@app/shared/services/utils.service";
 
 @Component({
   selector: "sendtip-files",
@@ -19,6 +20,9 @@ export class SendtipFilesComponent implements OnInit {
   rfiles: RFile[];
   wbfiles: WbFile[];
   files: FileItem[] = [];
+
+
+  constructor(protected utilsService: UtilsService){}
   
   ngOnInit(): void {
     this.rfiles = this.tip.rfiles;
@@ -38,21 +42,20 @@ export class SendtipFilesComponent implements OnInit {
   }
   
   prepareFilesToDisplay(): void {
-    // Mappiamo rfiles aggiungendo scanStatus, origin e altre proprietà richieste
     const rfilesMapped = this.rfiles
       .filter(file => file.visibility !== 'personal' /*&& file.status === 'VERIFIED'*/) // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
         id: file.id,
         name: file.name,
         status: file.status, 
-        origin: this.mapVisibility(file.visibility, 'file.authorType'), // TODO: da implementare file.authorType
+        origin: this.mapVisibility(file.visibility, 'file.authorType'), 
         uploadDate: file.creation_date,
         size: file.size,
-        file: undefined, // TODO per download file
-        verification_date: file.verification_date
+        verification_date: file.verification_date,
+        download_url: "api/recipient/rfiles/"+file.id
     }));
 
-    // Mappiamo wbfiles aggiungendo scanStatus, origin e altre proprietà richieste
+
     const wbfilesMapped = this.wbfiles
       //.filter(file => file.status === 'VERIFIED') // TODO: da scommentare appena si aggiunge file.state
       .map(file => ({
@@ -62,11 +65,11 @@ export class SendtipFilesComponent implements OnInit {
         origin: 'whistleblower',
         uploadDate: file.creation_date,
         size: file.size,
-        file: undefined, // TODO per download file
-        verification_date: file.verification_date
+        verification_date: file.verification_date,
+        download_url: "api/recipient/wbfiles/"+file.id
     }));
 
-    // Uniamo gli array
+
     this.files = [...rfilesMapped, ...wbfilesMapped];
 
     if(this.forwardingDetailFiles){
@@ -89,4 +92,5 @@ export class SendtipFilesComponent implements OnInit {
         return 'UNKNOWN';
     }
   }
+
 }
