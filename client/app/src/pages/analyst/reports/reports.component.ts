@@ -45,6 +45,12 @@ export class ReportsComponent implements OnInit {
         searchPlaceholderText: this.translateService.instant("Search")
     };
 
+    creationDatePicker: boolean = false;
+    creationDateModel: any;
+    minCreationDate: any;
+    maxCreationDate: any;
+    creationDateFilter: boolean = false;
+
     isSearchInitiated: boolean = false;
 
     allResults: Results = [];
@@ -116,11 +122,6 @@ export class ReportsComponent implements OnInit {
     searchReports(form: NgForm): void {
         if (form.valid) {
             this.isSearchInitiated = true;
-            console.log("Form data:", {
-                reportType: this.reportType,
-                startDate: this.input_start_date,
-                endDate: this.input_end_date
-            });
             
             const dateFrom = this.formatDate(this.input_start_date);
             const dateTo = this.formatDate(this.input_end_date);
@@ -170,9 +171,6 @@ export class ReportsComponent implements OnInit {
 
             this.currentPage = 0;
             this.updatePagination();
-
-            console.log("Intestazioni della tabella:", this.tableHeaders);
-            console.log("Righe della tabella:", this.tableRows);
         } else {
             this.tableHeaders = [];
             this.tableRows = [];
@@ -214,7 +212,6 @@ export class ReportsComponent implements OnInit {
     }
 
     private populateTableRows(results: ReportEntry[][]): void {
-        console.log('Headers:', this.tableHeaders);
         this.tableRows = results.map((reportArray: ReportEntry[]) => {
             const row: ResultsRow = {};
             let lastAccess = '';
@@ -239,17 +236,17 @@ export class ReportsComponent implements OnInit {
                 }
             });
     
-            console.log('Row content:', row);
             return row;
         });
     
-        this.populateStatusDropdown();
+        // this.populateStatusDropdown();
+        this.populateDropdownAndDateRanges();
         this.filteredRows = [...this.tableRows];
     }
 
-    toggleStatusDropdown(): void {
-        this.statusDropdownVisible = !this.statusDropdownVisible;
-        console.log("Status dropdown visibility:", this.statusDropdownVisible);
+    private populateDropdownAndDateRanges(): void {
+        this.populateStatusDropdown();
+        this.calculateCreationDateRange();
     }
 
     private populateStatusDropdown(): void {
@@ -257,13 +254,74 @@ export class ReportsComponent implements OnInit {
         const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
         console.log("Status index:", statusIndex);
         if (statusIndex !== -1) {
-            const statusSet = new Set(this.tableRows.map(row => row[statusIndex]));
+            const statusSet = new Set(this.tableRows.map(row => row['internal_tip_status']));
             this.dropdownStatusData = Array.from(statusSet).map((status, index) => ({
                 id: index + 1,
                 label: status
             }));
+            console.log("Status data:", this.dropdownStatusData);
         }
-        console.log("Status dropdown data:", this.dropdownStatusData);
+    }
+
+    parseDate(dateString: string): Date | null {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    private calculateCreationDateRange(): void {
+        const creationDateIndex = this.tableHeaders.indexOf('internal_tip_creation_date');
+        console.log('Creation date index:', creationDateIndex);
+        if (creationDateIndex !== -1) {
+            const creationDates = this.tableRows
+                .map(row => row['internal_tip_creation_date'])
+                .filter((dateString): dateString is string => dateString !== null)
+                .map(dateString => this.parseDate(dateString))
+                .filter(date => date !== null);
+            console.log('Creation dates:', creationDates);
+            if (creationDates.length > 0) {
+                this.minCreationDate = new Date(Math.min(...creationDates.map(date => date!.getTime())));
+                this.maxCreationDate = new Date(Math.max(...creationDates.map(date => date!.getTime())));
+                console.log('Creation date range:', this.minCreationDate, this.maxCreationDate);
+            }
+        }
+    }
+
+    toggleDatePicker(): void {
+        this.creationDatePicker = !this.creationDatePicker;
+    }
+
+    onCreationDateFilterChange(event: { fromDate: string | null, toDate: string | null }): void {
+        const {fromDate, toDate} = event;
+        console.log('From date:', fromDate, 'To date:', toDate);
+        if (!fromDate || !toDate) return;
+    
+        this.creationDateFilter = true;
+        
+        this.filteredRows = this.tableRows.filter(row => {
+            const creationDateIndex = this.tableHeaders.indexOf('internal_tip_creation_date');
+            console.log('Creation date index:', creationDateIndex);
+            if (creationDateIndex !== -1) {
+                const dateString = row['internal_tip_creation_date'];
+                const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
+                const start = this.parseDate(fromDate);
+                const end = this.parseDate(toDate);
+                console.log('Date:', date, 'Start:', start, 'End:', end);
+                return date && start && end && date >= start && date <= end;
+            }
+            return false;
+        });
+
+        console.log('Filtered rows:', this.filteredRows);
+
+        this.currentPage = 0;
+        this.updatePagination();
+    }
+
+    toggleStatusDropdown(): void {
+        this.statusDropdownVisible = !this.statusDropdownVisible;
     }
 
     onChanged(selectedStatuses: any[], filterType: string): void {
@@ -278,7 +336,7 @@ export class ReportsComponent implements OnInit {
         
         if (this.dropdownStatusModel.length > 0 && statusIndex !== -1) {
             this.filteredRows = filter(this.tableRows, (row) => {
-                return this.dropdownStatusModel.some(status => status.label === row[statusIndex]);
+                return this.dropdownStatusModel.some(status => status.label === row['internal_tip_status']);
             });
         } else {
             this.filteredRows = [...this.tableRows];
@@ -294,6 +352,10 @@ export class ReportsComponent implements OnInit {
 
     resetFilter(): void {
         this.dropdownStatusModel = [];
+        this.statusDropdownVisible = false;
+        this.creationDatePicker = false;
+        this.creationDateFilter = false;
+        this.creationDateModel = null;
         this.filteredRows = [...this.tableRows];
     }
 
@@ -482,17 +544,17 @@ export class ReportsComponent implements OnInit {
                 {
                     "id": "internal_tip_creation_date",
                     "label": "internal_tip_creation_date",
-                    "value": "2024-10-17T12:46:18.250330Z"
+                    "value": "2024-10-18T12:46:18.250330Z"
                 },
                 {
                     "id": "internal_tip_last_access",
                     "label": "internal_tip_last_access",
-                    "value": "2024-10-17T12:46:18.250346Z"
+                    "value": "2024-10-18T12:46:18.250346Z"
                 },
                 {
                     "id": "internal_tip_update_date",
                     "label": "internal_tip_update_date",
-                    "value": "2024-10-18T09:05:22.827534Z"
+                    "value": "2024-10-19T09:05:22.827534Z"
                 },
                 {
                     "id": "internal_tip_expiration_date",
@@ -549,17 +611,17 @@ export class ReportsComponent implements OnInit {
                 {
                     "id": "internal_tip_creation_date",
                     "label": "internal_tip_creation_date",
-                    "value": "2024-10-17T12:44:30.751036Z"
+                    "value": "2024-10-19T12:44:30.751036Z"
                 },
                 {
                     "id": "internal_tip_last_access",
                     "label": "internal_tip_last_access",
-                    "value": "2024-10-17T12:45:15.727464Z"
+                    "value": "2024-10-19T12:45:15.727464Z"
                 },
                 {
                     "id": "internal_tip_update_date",
                     "label": "internal_tip_update_date",
-                    "value": "2024-10-17T12:44:30.751045Z"
+                    "value": "2024-10-19T12:44:30.751045Z"
                 },
                 {
                     "id": "internal_tip_expiration_date",
@@ -616,17 +678,17 @@ export class ReportsComponent implements OnInit {
                 {
                     "id": "internal_tip_creation_date",
                     "label": "internal_tip_creation_date",
-                    "value": "2024-10-17T12:46:18.250330Z"
+                    "value": "2024-10-20T12:46:18.250330Z"
                 },
                 {
                     "id": "internal_tip_last_access",
                     "label": "internal_tip_last_access",
-                    "value": "2024-10-17T12:46:18.250346Z"
+                    "value": "2024-10-20T12:46:18.250346Z"
                 },
                 {
                     "id": "internal_tip_update_date",
                     "label": "internal_tip_update_date",
-                    "value": "2024-10-18T09:05:22.827534Z"
+                    "value": "2024-10-21T09:05:22.827534Z"
                 },
                 {
                     "id": "internal_tip_expiration_date",

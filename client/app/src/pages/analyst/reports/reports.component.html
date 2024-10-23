@@ -120,6 +120,16 @@
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-clock"></i>
                                     <span>{{'Report date' | translate}}</span>
+                                    <span class="ngb-dtepicker-container ms-1" *ngIf="minCreationDate !== maxCreationDate">
+                                        <i class="fas fa-calendar" [ngClass]="{'calendar-active': creationDateFilter}" 
+                                           (click)="toggleDatePicker()" (keydown)="toggleDatePicker()"></i>
+                                        <div [hidden]="!creationDatePicker">
+                                            <ngbd-datepicker-range class="position-absolute d-block"
+                                                [currentDates]="creationDateModel"
+                                                (emitDateSelection)="onCreationDateFilterChange($event)">
+                                            </ngbd-datepicker-range>
+                                        </div>
+                                    </span>
                                 </span>
                             </th>
                             <th class="TipInfoUpdateDate" *ngSwitchCase="'internal_tip_update_date'">
