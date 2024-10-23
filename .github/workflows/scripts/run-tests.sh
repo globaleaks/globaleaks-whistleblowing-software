@@ -2,21 +2,6 @@
 
 set -e
 
-LOGFILE="$GITHUB_WORKSPACE/backend/workingdir/log/globaleaks.log"
-ACCESSLOG="$GITHUB_WORKSPACE/backend/workingdir/log/access.log"
-
-function atexit {
-  if [[ -f $LOGFILE ]]; then
-    cat $LOGFILE
-  fi
-
-  if [[ -f $ACCESSLOG ]]; then
-    cat $ACCESSLOG
-  fi
-}
-
-trap atexit EXIT
-
 setupClient() {
   cd  $GITHUB_WORKSPACE/client  # to install frontend dependencies
   npm install -d
