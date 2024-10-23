@@ -2,7 +2,7 @@
   @if (appDataService.public.node.languages_enabled.length > 1) {
     <div id="LanguagePickerBox" class="order-2" [ngClass]="appDataService.public.node.wizard_done ? 'language-box' : 'language-box-extended'">
       <label for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
-      <ng-select id="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language">
+      <ng-select labelForId="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language">
         @for (lang of appDataService.languages_enabled_selector | orderBy: 'native'; track lang) {
           <ng-option [value]="lang.code">
             <span [attr.data-cy]="lang.code">{{lang.native}}</span>
