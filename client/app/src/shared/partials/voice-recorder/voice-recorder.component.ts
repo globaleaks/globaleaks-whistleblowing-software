@@ -83,9 +83,9 @@ export class VoiceRecorderComponent implements OnInit {
     this.seconds = 0;
     this.startTime = Date.now();
     this.flow = this.utilsService.flowDefault;
-    this.flow.opts.target =  this.fileUploadUrl,
+    this.flow.opts.target =  this.fileUploadUrl;
     this.flow.opts.singleFile =  this.field !== undefined && !this.field.multi_entry;
-    this.flow.opts.query = {type: "audio.webm", reference_id: fileId},
+    this.flow.opts.query = {type: "audio.webm", reference_id: fileId};
     this.flow.opts.headers = {"X-Session": this.authenticationService.session.id};
     this.secondsTracker = setInterval(() => {
       this.seconds += 1;

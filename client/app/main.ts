@@ -32,7 +32,7 @@ const translationModule = TranslateModule.forRoot({
 })();
 
 import { ReceiptValidatorDirective } from "@app/shared/directive/receipt-validator.directive";
-import { mockEngine } from "./src/services/helper/mocks";
+import { mockEngine } from "@app/services/helper/mocks";
 import { TranslatorPipe } from "@app/shared/pipes/translate";
 import { TranslateService, TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient, HttpClient } from "@angular/common/http";
@@ -48,7 +48,7 @@ import { NgSelectModule } from "@ng-select/ng-select";
 import { FormsModule } from "@angular/forms";
 import { NgIdleKeepaliveModule } from "@ng-idle/keepalive";
 import { MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
-import { AppComponent, createTranslateLoader } from "./src/pages/app/app.component";
+import { AppComponent, createTranslateLoader } from "@app/pages/app/app.component";
 import { importProvidersFrom } from "@angular/core";
 import * as Flow from "@flowjs/flow.js";
 import {provideRouter} from "@angular/router";

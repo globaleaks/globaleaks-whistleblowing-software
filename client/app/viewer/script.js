@@ -1,18 +1,18 @@
 /* eslint-disable no-undef */
 
-var mediaViewer = document.getElementById("media-viewer");
-var pdfViewer = document.getElementById("pdf-viewer");
-var pdfCanvas = document.getElementById("pdf-canvas");
-var pdfControlNext = document.getElementById("next-page-btn");
-var pdfControlPrev = document.getElementById("prev-page-btn");
-var pdfControlPage = document.getElementById("page-number");
-var pdfControlPageCount = document.getElementById("page-count");
-var pdfDoc = null;
-var pageNum = 1;
-var pageCount = 0;
+const mediaViewer = document.getElementById("media-viewer");
+const pdfViewer = document.getElementById("pdf-viewer");
+const pdfCanvas = document.getElementById("pdf-canvas");
+const pdfControlNext = document.getElementById("next-page-btn");
+const pdfControlPrev = document.getElementById("prev-page-btn");
+const pdfControlPage = document.getElementById("page-number");
+const pdfControlPageCount = document.getElementById("page-count");
+let pdfDoc = null;
+let pageNum = 1;
+let pageCount = 0;
 
 function receiveMessage(evt) {
-  var url = URL.createObjectURL(evt.data.blob);
+  const url = URL.createObjectURL(evt.data.blob);
   if (evt.data.tag === "pdf") {
     pdfViewer.style.display = "block";
     mediaViewer.style.display = "none";
@@ -54,18 +54,18 @@ function createPdfViewer(url) {
 function renderPage(num) {
   pdfDoc.getPage(num).then(function (page) {
     // find scale to fit page in canvas
-    var scale = pdfCanvas.clientWidth / page.getViewport({scale: 1.0}).width;
-    var viewport = page.getViewport({scale: scale});
-    var canvas = pdfCanvas;
-    var context = canvas.getContext("2d");
+    const scale = pdfCanvas.clientWidth / page.getViewport({scale: 1.0}).width;
+    const viewport = page.getViewport({scale: scale});
+    const canvas = pdfCanvas;
+    const context = canvas.getContext("2d");
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
-    var renderContext = {
+    const renderContext = {
       canvasContext: context,
       viewport: viewport,
     };
-    var renderTask = page.render(renderContext);
+    const renderTask = page.render(renderContext);
     renderTask.promise.then(function () {
       // updating label
       pdfControlPage.innerText = pageNum;

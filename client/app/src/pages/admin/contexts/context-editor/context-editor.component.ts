@@ -13,7 +13,7 @@ import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-mo
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NgClass} from "@angular/common";
-import {ImageUploadDirective} from "../../../../shared/directive/image-upload.directive";
+import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";

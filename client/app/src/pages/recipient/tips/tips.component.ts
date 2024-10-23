@@ -20,7 +20,7 @@ import {Observable, from, switchMap} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {formatDate, NgClass, SlicePipe, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {DateRangeSelectorComponent} from "../../../shared/components/date-selector/date-selector.component";
+import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 

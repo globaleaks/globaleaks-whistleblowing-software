@@ -6,7 +6,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
-import {ImageUploadDirective} from "../../../../shared/directive/image-upload.directive";
+import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgClass} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";

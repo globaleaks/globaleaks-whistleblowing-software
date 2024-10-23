@@ -1,4 +1,4 @@
-import {Component, OnInit, SimpleChanges, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
 import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
@@ -18,11 +18,11 @@ import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistlebl
 import {NgClass} from "@angular/common";
 import {ContextSelectionComponent} from "../context-selection/context-selection.component";
 import {ReceiverSelectionComponent} from "../receiver-selection/receiver-selection.component";
-import {NgFormChangeDirective} from "../../../shared/directive/ng-form-change.directive";
+import {NgFormChangeDirective} from "@app/shared/directive/ng-form-change.directive";
 import {StepErrorComponent} from "../step-error/step-error.component";
 import {MarkdownComponent} from "ngx-markdown";
 import {FormComponent} from "../form/form.component";
-import {RFilesUploadStatusComponent} from "../../../shared/partials/rfiles-upload-status/r-files-upload-status.component";
+import {RFilesUploadStatusComponent} from "@app/shared/partials/rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";

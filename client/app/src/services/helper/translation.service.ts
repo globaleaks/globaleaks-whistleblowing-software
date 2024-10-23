@@ -1,6 +1,6 @@
 import {BehaviorSubject} from 'rxjs';
-import {Injectable, Renderer2, inject} from "@angular/core";
-import {LangChangeEvent, TranslateService} from "@ngx-translate/core";
+import {Injectable, inject} from "@angular/core";
+import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DOCUMENT} from "@angular/common";
 

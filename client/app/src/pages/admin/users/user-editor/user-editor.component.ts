@@ -13,9 +13,9 @@ import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {NgClass, DatePipe} from "@angular/common";
-import {ImageUploadDirective} from "../../../../shared/directive/image-upload.directive";
-import {PasswordStrengthValidatorDirective} from "../../../../shared/directive/password-strength-validator.directive";
-import {PasswordMeterComponent} from "../../../../shared/components/password-meter/password-meter.component";
+import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
+import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
+import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({

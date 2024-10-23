@@ -31,11 +31,11 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
 import {NgClass, NgTemplateOutlet} from "@angular/common";
-import {TipInfoComponent} from "../../../shared/partials/tip-info/tip-info.component";
-import {TipReceiverListComponent} from "../../../shared/partials/tip-receiver-list/tip-receiver-list.component";
-import {TipQuestionnaireAnswersComponent} from "../../../shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
+import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
+import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
+import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
 import {WhistleBlowerIdentityReceiverComponent} from "../whistleblower-identity-receiver/whistleblower-identity-receiver.component";
-import {TipFilesReceiverComponent} from "../../../shared/partials/tip-files-receiver/tip-files-receiver.component";
+import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver/tip-files-receiver.component";
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";

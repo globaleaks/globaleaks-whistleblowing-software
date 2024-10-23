@@ -6,7 +6,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TipFieldComponent} from "../tip-field/tip-field.component";
 import {FormsModule} from "@angular/forms";
 import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
-import {WhistleblowerIdentityFieldComponent} from "../../../pages/whistleblower/fields/whistleblower-identity-field/whistleblower-identity-field.component";
+import {WhistleblowerIdentityFieldComponent} from "@app/pages/whistleblower/fields/whistleblower-identity-field/whistleblower-identity-field.component";
 import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";

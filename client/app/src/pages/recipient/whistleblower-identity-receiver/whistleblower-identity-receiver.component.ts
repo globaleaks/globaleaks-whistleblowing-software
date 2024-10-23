@@ -7,7 +7,7 @@ import {
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgClass, DatePipe} from "@angular/common";
-import {TipFieldComponent} from "../../../shared/partials/tip-field/tip-field.component";
+import {TipFieldComponent} from "@app/shared/partials/tip-field/tip-field.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 

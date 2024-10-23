@@ -44,7 +44,7 @@ export class TipUploadWbFileComponent {
 
       flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
       flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024},
+      flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024};
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
       flowJsInstance.on("fileSuccess", (_) => {
         this.dataToParent.emit()

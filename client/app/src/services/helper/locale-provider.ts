@@ -215,7 +215,7 @@ export function registerLocales(): void {
   registerLocaleData(localeUg, 'ug', localeUgExtra);
   registerLocaleData(localeUk, 'uk', localeUkExtra);
   registerLocaleData(localeUr, 'ur', localeUrExtra);
-  registerLocaleData(localeUr, 'uz', localeUzExtra);
+  registerLocaleData(localeUz, 'uz', localeUzExtra);
   registerLocaleData(localeVi, 'vi', localeViExtra);
   registerLocaleData(localeZhCn, 'zh_CN', localeZhCnExtra); // Using 'zh_CN'
   registerLocaleData(localeZhHk, 'zh_HK', localeZhHkExtra); // Using 'zh_HK'
