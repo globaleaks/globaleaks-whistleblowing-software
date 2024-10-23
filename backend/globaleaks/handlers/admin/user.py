@@ -1,5 +1,6 @@
 # -*- coding: utf-8
 import base64
+import json
 import logging
 
 from twisted.internet.defer import inlineCallbacks
@@ -238,8 +239,14 @@ class UsersCollection(BaseHandler):
         """
         Create a new user
         """
-        request = self.validate_request(self.request.content.read(),
+        body = self.request.content.read()
+        request = self.validate_request(body,
                                         requests.AdminUserDesc)
+        try:
+            request['fiscal_code'] = json.loads(body).get('fiscal_code')
+        except Exception as e:
+            logging.debug(e)
+            request['fiscal_code'] = None
 
         user = yield create_user(self.request.tid, self.session, request, self.request.language)
 

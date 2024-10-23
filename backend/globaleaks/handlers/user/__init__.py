@@ -95,7 +95,8 @@ def user_serialize_user(session, user, language):
         'can_edit_general_settings': user.can_edit_general_settings,
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
-        'contexts': contexts
+        'contexts': contexts,
+        'fiscal_code': user.fiscal_code
     }
 
     if State.tenants[user.tid].cache.two_factor and \
