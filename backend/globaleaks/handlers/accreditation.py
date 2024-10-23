@@ -64,13 +64,16 @@ def toggle_status_activate(session, accreditation_id: str, is_toggle=False):
     status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
         accreditation_item.state).name
 
-    status_mapping = {
-        'accredited': EnumSubscriberStatus.suspended,
-        'suspended': EnumSubscriberStatus.accredited,
-    }
     if not is_toggle:
-        status_mapping['requested'] = EnumSubscriberStatus.approved
-        status_mapping['instructor_request'] = EnumSubscriberStatus.invited
+        status_mapping = {
+            'requested': EnumSubscriberStatus.approved,
+            'instructor_request': EnumSubscriberStatus.invited
+        }
+    else:
+        status_mapping = {
+            'accredited': EnumSubscriberStatus.suspended,
+            'suspended': EnumSubscriberStatus.accredited,
+        }
 
     if status not in status_mapping:
         raise errors.ForbiddenOperation
@@ -103,7 +106,10 @@ def send_email(session, emails: list, language, accreditation_item, wizard):
         accreditation_item: The Subscriber object.
         wizard: Dictionary containing setup information.
     """
+    eo_uuid = session.query(models.Config).filter(models.Config.tid == accreditation_item.tid, models.Config.var_name == 'uuid').one()
     node = db_admin_serialize_node(session, 1, language)
+    node['is_eo'] = True
+    node['eo_uuid'] = eo_uuid.value
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
 
@@ -155,7 +161,6 @@ def accreditation(session, request, is_instructor=False):
 
         sub.subdomain = sub.sharing_id
         save_step(session, sub)
-
         return {'id': sub.sharing_id}
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
@@ -170,12 +175,6 @@ def count_user_tip(session, accreditation_item:models.Subscriber):
         accreditation_item: The Subscriber object.
     Returns:
         A tuple containing the count of tips and users.
-
-    count_tip = (
-        session.query(func.count(distinct(InternalTipForwarding.id)))
-        .filter(InternalTipForwarding.oe_internaltip_id == accreditation_item.tid)
-        .scalar()
-    )
     """
     status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
         accreditation_item.state).name
@@ -502,7 +501,6 @@ def activate_tenant(session, accreditation_id, request):
     Returns:
         A dictionary containing the activated accreditation's sharing ID.
     """
-    print(request['tos2'])
     config_element = ConfigFactory(session, 1)
     accreditation_item = (
         session.query(Subscriber)
@@ -510,6 +508,11 @@ def activate_tenant(session, accreditation_id, request):
         .filter(Subscriber.sharing_id == accreditation_id)
         .one()
     )
+    status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
+        accreditation_item.state).name
+
+    if status !=  EnumSubscriberStatus.approved.name:
+        raise errors.ResourceNotFound
 
     accreditation_item.activation_token = None
     t = (session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one())

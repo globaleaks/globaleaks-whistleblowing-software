@@ -182,6 +182,8 @@ class NodeKeyword(Keyword):
         return ''
 
     def UrlPath(self):
+        if self.data['node'].get('is_eo'):
+            return f"/t/{self.data['node'].get('eo_uuid')}/"
         return '/'
 
     def Url(self):
@@ -503,6 +505,8 @@ class PlatformSignupKeyword(NodeKeyword):
         return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
 
     def HTTPSSite(self):
+        if self.data['node'].get('is_eo'):
+            return f"https://{self.data['node']['hostname']}"
         return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
 
     def Site(self):
@@ -520,6 +524,8 @@ class PlatformSignupKeyword(NodeKeyword):
     def ActivationUrl(self):
         if self.data['node']['hostname']:
             site = 'https://' + self.data['node']['hostname']
+            if self.data['node'].get('is_eo'):
+                site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
         elif self.data['node']['onionservice']:
             site = 'http://' + self.data['node']['onionservice']
         else:
@@ -528,7 +534,10 @@ class PlatformSignupKeyword(NodeKeyword):
         return site + '/#/activation?token=' + self.data['signup']['activation_token']
 
     def LoginUrl(self):
-        return self.Site() + '/#/login'
+        site = self.Site()
+        if self.data['node'].get('is_eo'):
+            site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
+        return f"{site}/#/login"
 
     def ExpirationDate(self):
         date = self.data['signup']['registration_date'] + timedelta(30)
