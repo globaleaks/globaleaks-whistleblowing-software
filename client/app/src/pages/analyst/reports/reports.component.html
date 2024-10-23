@@ -1,8 +1,8 @@
 <div class="row">
     <form #reports="ngForm" class="col-md-6" (ngSubmit)="searchReports(reports)">
         <div class="form-group">
-            <label>{{ 'Report' | translate }}</label>
-            <select name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
+            <label for="reportType">{{ 'Report' | translate }}</label>
+            <select id="reportType" name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
                 <option value="" disabled>{{ 'Scegli report' | translate }}</option>
                 <option value="tips">{{ 'Tips' | translate }}</option>
                 <option value="tipsOE">{{ 'Tips OE' | translate }}</option>
@@ -14,24 +14,24 @@
 
         <div class="form-inline d-inline-flex align-items-center">
             <span class="form-group">
-                <label>{{ 'From' | translate }}</label>
+                <label for="reportsFrom">{{ 'From' | translate }}</label>
                 <div class="input-group mx-1">
                     <input id="reportsFrom" class="form-control inputelem" type="text" [readonly]="true"
                         [(ngModel)]="input_start_date" name="startDate" ngbDatepicker #datepickerstart="ngbDatepicker"
                         (click)="datepickerstart.toggle()" [maxDate]="maxDate" (ngModelChange)="onDateChange()" required />                    
-                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()" (keydown)="datepickerstart.toggle()">
                         <i class="fa-solid fa-calendar"></i>
                     </span>
                 </div>
             </span>
 
             <span class="form-group mx-1">
-                <label>{{ 'To' | translate }}</label>
+                <label for="reportsTo">{{ 'To' | translate }}</label>
                 <div class="input-group mx-1">
                     <input id="reportsTo" class="form-control inputelem" type="text" [readonly]="true"
                         [(ngModel)]="input_end_date" name="endDate" ngbDatepicker #datepickerend="ngbDatepicker"
                         (click)="datepickerend.toggle()" [maxDate]="maxDate" (ngModelChange)="onDateChange()" required />
-                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerend.toggle()">
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerend.toggle()" (keydown)="datepickerend.toggle()">
                         <i class="fa-solid fa-calendar"></i>
                     </span>
                 </div>
@@ -89,50 +89,80 @@
             </div>
         </div>
 
-        <table class="table table-bordered table-striped table-hover" *ngIf="tableHeaders.length > 0">
+        <table class="table table-striped" *ngIf="tableHeaders.length > 0">
             <thead>
                 <tr>
-                    <th *ngFor="let header of tableHeaders">
+                    <ng-container *ngFor="let header of tableHeaders">
                         <ng-container [ngSwitch]="header">
-                            <span *ngSwitchCase="'internal_tip_id'">
+                            <th class="TipInfoID" *ngSwitchCase="'internal_tip_id'">
                                 <i class="fa-solid fa-hashtag"></i>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_status'">
-                                <i class="fa-solid fa-dot-circle"></i>
-                                <span>{{'Status' | translate}}</span>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_creation_date'">
-                                <i class="fa-solid fa-clock"></i>
-                                <span>{{'Report date' | translate}}</span>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_update_date'">
-                                <i class="fa-solid fa-clock"></i>
-                                <span>{{'Last update' | translate}}</span>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_expiration_date'">
-                                <i class="fa-solid fa-hourglass"></i>
-                                <span>{{'Expiration date' | translate}}</span>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_read_receip'">
+                            </th>
+                            <th class="TipInfoStatus" *ngSwitchCase="'internal_tip_status'">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa-solid fa-dot-circle"></i>
+                                    <span>{{'Status' | translate}}</span>
+                                    <span class="dropdown-multi-select-container" *ngIf="dropdownStatusData.length > 0">
+                                        <i class="fa-solid fa-filter" [ngClass]="{ filterSelected: checkFilter() }" 
+                                        (click)="toggleStatusDropdown()" (keydown)="toggleStatusDropdown()"></i>
+                                        <span [class.hidden]="!statusDropdownVisible">
+                                            <ng-multiselect-dropdown 
+                                                [class.dropdown-visible]="statusDropdownVisible" 
+                                                [settings]="dropdownSettings" 
+                                                [data]="dropdownStatusData" 
+                                                [(ngModel)]="dropdownStatusModel" 
+                                                (ngModelChange)="onChanged(dropdownStatusModel, 'Status')">
+                                            </ng-multiselect-dropdown>
+                                        </span>
+                                    </span>
+                                </span>
+                            </th>
+                            <th class="TipInfoSubmissionDate" *ngSwitchCase="'internal_tip_creation_date'">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span>{{'Report date' | translate}}</span>
+                                </span>
+                            </th>
+                            <th class="TipInfoUpdateDate" *ngSwitchCase="'internal_tip_update_date'">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span>{{'Last update' | translate}}</span>
+                                </span>
+                            </th>
+                            <th class="TipInfoExpirationDate" *ngSwitchCase="'internal_tip_expiration_date'">
+                                <span class="d-inline-flex align-items-center">
+                                    <i class="fa-solid fa-hourglass"></i>
+                                    <span>{{'Expiration date' | translate}}</span>
+                                </span>
+                            </th>
+                            <th class="TipInfoReadReceipt" *ngSwitchCase="'internal_tip_read_receip'">
                                 <i class="fa-solid fa-envelope-circle-check"></i>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_comment_count'">
+                            </th>
+                            <th class="TipInfoComments" *ngSwitchCase="'internal_tip_comment_count'">
                                 <i class="fa-solid fa-comment"></i>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_file_count'">
+                            </th>
+                            <th class="TipInfoFiles" *ngSwitchCase="'internal_tip_file_count'">
                                 <i class="fa-solid fa-file"></i>
-                            </span>
-                            <span *ngSwitchCase="'internal_tip_receiver_count'">
+                            </th>
+                            <th class="TipInfoRecipientCount" *ngSwitchCase="'internal_tip_receiver_count'">
                                 <i class="fa-solid fa-users"></i>
-                            </span>
-                            <span *ngSwitchDefault>{{ header }}</span>
+                            </th>
+                            <th *ngSwitchDefault>
+                                <span>{{ header | translate}}</span>
+                            </th>
                         </ng-container>
-                    </th>
+                    </ng-container>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let row of tableRows">
-                    <td *ngFor="let cell of row">{{ cell }}</td>
+                <tr *ngFor="let row of filteredRowsPaginated">
+                    <td *ngFor="let key of tableHeaders">
+                        <ng-container [ngSwitch]="key">
+                            <td *ngSwitchCase="'internal_tip_creation_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="'internal_tip_update_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="'internal_tip_expiration_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchDefault>{{ (row[key] || '').toString() | translate}}</td>
+                        </ng-container>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -142,7 +172,7 @@
     </div>
 </div>
 
-<div class="row mt-3" *ngIf="isSearchInitiated && allResults.length > pageSize">
+<div class="row mt-3" *ngIf="isSearchInitiated && totalPages > 1">
     <div class="col-12 d-flex justify-content-center">
         <nav aria-label="Page navigation">
             <ul class="pagination">
@@ -150,7 +180,7 @@
                     <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
                 </li>
                 <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
-                    [class.active]="i === currentPage">
+                    [class.active]="i === currentPage" [class.disabled]="i >= totalPages">
                     <a class="page-link" (click)="changePage(i)">{{ i + 1 }}</a>
                 </li>
                 <li class="page-item" [class.disabled]="currentPage === totalPages - 1">

@@ -1,7 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
-import { ReportEntry, Results, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
+import {TranslateService} from "@ngx-translate/core";
+import {IDropdownSettings} from "ng-multiselect-dropdown";
+import {filter, orderBy} from "lodash-es";
+import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
 import { HttpService } from "@app/shared/services/http.service";
 
 @Component({
@@ -25,7 +28,22 @@ export class ReportsComponent implements OnInit {
     ];
     dinamicHeaders: string[] = [];
     tableHeaders: string[] = [];
-    tableRows: string[][] = [];
+    tableRows: ResultsRow[] = [];
+
+    dropdownStatusModel: any[] = [];
+    statusDropdownVisible: boolean = false;
+    dropdownStatusData: { id: number, label: string | number | null }[] = [];
+    filteredRows: ResultsRow[] = [];
+    filteredRowsPaginated: ResultsRow[] = [];
+    dropdownSettings: IDropdownSettings = {
+        idField: "id",
+        textField: "label",
+        itemsShowLimit: 5,
+        allowSearchFilter: true,
+        selectAllText: this.translateService.instant("Select all"),
+        unSelectAllText: this.translateService.instant("Deselect all"),
+        searchPlaceholderText: this.translateService.instant("Search")
+    };
 
     isSearchInitiated: boolean = false;
 
@@ -37,7 +55,7 @@ export class ReportsComponent implements OnInit {
     summary: Summary = {};
     summaryKeys: { id: string, label: string }[] = [];
     
-    constructor(private httpService: HttpService) {}
+    constructor(private httpService: HttpService, private translateService: TranslateService) {}
 
     ngOnInit(): void {
         this.today = new Date();
@@ -71,6 +89,7 @@ export class ReportsComponent implements OnInit {
             this.charts = [];
         }
         this.isSearchInitiated = false;
+        this.resetFilter();
     }
 
     onDateChange(): void {
@@ -164,10 +183,7 @@ export class ReportsComponent implements OnInit {
     updatePagination(): void {
         const startIndex = this.currentPage * this.pageSize;
         const endIndex = startIndex + this.pageSize;
-        const currentPageData = this.allResults.slice(startIndex, endIndex);
-      
-        this.populateTableHeaders(currentPageData);
-        this.populateTableRows(currentPageData);
+        this.filteredRowsPaginated = this.filteredRows.slice(startIndex, endIndex);
     }
 
     changePage(newPage: number): void {
@@ -178,7 +194,7 @@ export class ReportsComponent implements OnInit {
     }
 
     get totalPages(): number {
-        return Math.ceil(this.allResults.length / this.pageSize);
+        return Math.ceil(this.filteredRows.length / this.pageSize);
     }
 
     private populateTableHeaders(results: ReportEntry[][]): void {
@@ -198,28 +214,87 @@ export class ReportsComponent implements OnInit {
     }
 
     private populateTableRows(results: ReportEntry[][]): void {
+        console.log('Headers:', this.tableHeaders);
         this.tableRows = results.map((reportArray: ReportEntry[]) => {
-            const rowMap = new Map<string, string>();
+            const row: ResultsRow = {};
             let lastAccess = '';
             let updateDate = '';
-
+    
             reportArray.forEach((entry: ReportEntry) => {
                 if (entry.id === 'internal_tip_last_access') {
                     lastAccess = String(entry.value);
                 } else if (entry.id === 'internal_tip_update_date') {
                     updateDate = String(entry.value);
-                    rowMap.set(entry.label, updateDate);
+                    row[entry.id] = updateDate;
                 } else {
-                    rowMap.set(entry.label, String(entry.value));
-            }
+                    row[entry.label] = String(entry.value);
+                }                
             });
-
-            rowMap.set('internal_tip_read_receip', lastAccess >= updateDate ? '✔' : '✘');
-
-            return this.tableHeaders.map((header: string) => {
-                return rowMap.get(header) || '-';
+    
+            row['internal_tip_read_receip'] = lastAccess >= updateDate ? '✔' : '✘';
+    
+            this.tableHeaders.forEach((header: string) => {
+                if (!(header in row)) {
+                    row[header] = '-';
+                }
             });
+    
+            console.log('Row content:', row);
+            return row;
         });
+    
+        this.populateStatusDropdown();
+        this.filteredRows = [...this.tableRows];
+    }
+
+    toggleStatusDropdown(): void {
+        this.statusDropdownVisible = !this.statusDropdownVisible;
+        console.log("Status dropdown visibility:", this.statusDropdownVisible);
+    }
+
+    private populateStatusDropdown(): void {
+        console.log("Populating status dropdown");
+        const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
+        console.log("Status index:", statusIndex);
+        if (statusIndex !== -1) {
+            const statusSet = new Set(this.tableRows.map(row => row[statusIndex]));
+            this.dropdownStatusData = Array.from(statusSet).map((status, index) => ({
+                id: index + 1,
+                label: status
+            }));
+        }
+        console.log("Status dropdown data:", this.dropdownStatusData);
+    }
+
+    onChanged(selectedStatuses: any[], filterType: string): void {
+        if (filterType === 'Status') {
+            this.dropdownStatusModel = selectedStatuses;
+            this.applyFilter();
+        }
+    }
+
+    applyFilter(): void {
+        const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
+        
+        if (this.dropdownStatusModel.length > 0 && statusIndex !== -1) {
+            this.filteredRows = filter(this.tableRows, (row) => {
+                return this.dropdownStatusModel.some(status => status.label === row[statusIndex]);
+            });
+        } else {
+            this.filteredRows = [...this.tableRows];
+        }
+
+        this.currentPage = 0;
+        this.updatePagination();
+    }
+
+    checkFilter(): boolean {
+        return this.dropdownStatusModel.length > 0;
+    }
+
+    resetFilter(): void {
+        this.dropdownStatusModel = [];
+        this.filteredRows = [...this.tableRows];
     }
 
     addChart(): void {
