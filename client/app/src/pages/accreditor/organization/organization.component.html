@@ -64,12 +64,21 @@
         </div>
     </div>
 
-    <div class="row" *ngIf="!(isState('invited') || isState('approved'))">
+    <div class="row" *ngIf="(!isState('accredited') && !isState('suspended'))">
         <div class="col-md-12" id="organization-button">
             <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
                 {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
             </button>
         </div>
+    </div>
+
+    <div class="row form-check" *ngIf="organization && (isState('accredited') || isState('suspended') )">
+
+        <div class="col-md-12">
+            <input name="isAffiliated" type="checkbox" [(ngModel)]="isChecked" id="isAffiliated" [disabled]="true">
+            <label for="isAffiliated" class="tos-agreement-label form-check-label"> {{ 'AFFILIATED' | translate }}</label>    
+        </div>
+
     </div>
 
     <div class="row" *ngIf="organization">
@@ -78,7 +87,7 @@
         </div>
     </div>
     
-    <div class="row" *ngIf="organization?.users && organization.users.length > 0">
+    <div class="row" *ngIf="organization && organization.users && organization.users.length > 0">
         <div class="col-md-12">
             <src-org-users-list [users]="organization.users"></src-org-users-list>
         </div>

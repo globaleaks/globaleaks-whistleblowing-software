@@ -18,7 +18,8 @@ export class OrganizationComponent implements OnInit{
 
   organization: ExternalOrganization;
 
-  org_type: boolean = false;
+  isChecked: boolean = false;
+
 
   organizationInfo: EOInfo = {
     organization_name: '',
@@ -40,16 +41,16 @@ export class OrganizationComponent implements OnInit{
     email: ''
   };
 
-  private actionHandlers: { [key: string]: () => void } = {
+  private readonly actionHandlers: { [key: string]: () => void } = {
     'reload': () => this.loadOrganizationData(),
     'suspend': () => this.sospendiAttivaOrganizzazioneAccreditata(),
     'reactivate': () => this.sospendiAttivaOrganizzazioneAccreditata(),
     'delete': () => this.rifiuta()
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private httpService: HttpService,
-    private orgService : AccreditorOrgService, private authenticationService: AuthenticationService,
-    private modalService: NgbModal, private router: Router){
+  constructor(private readonly activatedRoute: ActivatedRoute, private readonly httpService: HttpService,
+    private readonly orgService : AccreditorOrgService, private readonly authenticationService: AuthenticationService,
+    private readonly modalService: NgbModal, private readonly router: Router){
 
   }
 
@@ -90,6 +91,9 @@ export class OrganizationComponent implements OnInit{
               container.addEventListener('click', this.onActionHandler.bind(this));
               container.addEventListener('keydown', this.onActionHandler.bind(this));
           }
+         
+          this.isAffiliated();
+
         },
         error: (err) => {
             console.error("Errore nel caricamento dei dati dell'organizzazione: ", err);
@@ -199,8 +203,11 @@ export class OrganizationComponent implements OnInit{
     return this.organization?.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
 
+
+
   isAffiliated(){
-    return this.organization?.type === "AFFILIATED"
+    this.isChecked = this.organization?.type === "AFFILIATED";
+    return this.isChecked
   }
 
 }
