@@ -1,6 +1,5 @@
 Features
 ========
-These are the key features of the software:
 
 User features
 -------------
@@ -26,7 +25,7 @@ User features
 Legal features
 --------------
 
-- Designed in adherence to `ISO 37002:2021 <https://www.iso.org/standard/65035.html>`_ and `EU Directive 2019/1937 <https://eur-lex.europa.eu/legal-content/en/TXT/?uri=CELEX%3A32019L1937>`_ recommendations for whistleblowing compliance
+- Designed in adherence to `ISO 37002:2021 <https://www.iso.org/standard/65035.html>`_ and `Directive (EU) 2019/1937 <https://eur-lex.europa.eu/legal-content/en/TXT/?uri=CELEX%3A32019L1937>`_ recommendations for whistleblowing compliance
 - Supports bidirectional anonymous communication (comments/messages)
 - Customizable case management workflow (statuses/sub-statuses)
 - Conditional reporting workflow based on whistleblower identity
@@ -43,7 +42,7 @@ Legal features
 Security features
 -----------------
 
-- Designed in adherence to `ISO 27001:2022 <https://www.iso.org/standard/82875.html>`_, `CSA STAR <https://cloudsecurityalliance.org/star>`_, and `OWASP <https://owasp.org/>`_ recommendations for security compliance
+- Designed in adherence to `ISO 27001:2022 <https://www.iso.org/standard/82875.html>`_, `General Data Protection Regulation (EU) 2016/679 <https://eur-lex.europa.eu/eli/reg/2016/679/oj>`_, `CSA STAR <https://cloudsecurityalliance.org/star>`_, and `OWASP <https://owasp.org/>`_ recommendations for privacy and security compliance
 - Full data encryption for whistleblower reports and recipient communications
 - Supports digital anonymity through `Tor <https://www.torproject.org/>`_ integration
 - Built-in HTTPS support with `TLS 1.3 <https://tools.ietf.org/html/rfc8446>`_ standard and `SSLabs A+ <https://www.ssllabs.com/ssltest/analyze.html?d=try.globaleaks.org>`_ rating
@@ -60,7 +59,7 @@ Security features
 Technical features
 ------------------
 
-- Designed in adherence to `Directive (EU) 2019/882 <https://eur-lex.europa.eu/legal-content/IT/TXT/?uri=CELEX%3A32019L0882>`_, `Directive (EU) 2016/2102 <https://eur-lex.europa.eu/legal-content/IT/TXT/?uri=CELEX%3A32016L2102>`_, `ETSI EN 301 549 <https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf>`_, `W3C WCAG 2.2 <https://www.w3.org/TR/WCAG22/>`_, and `WAI-ARIA 2.2 <https://www.w3.org/TR/wai-aria-1.2/>`_ recommendations for accessibility compliance
+- Designed in adherence to `ISO 27001:2022 <https://www.iso.org/standard/82875.html>`_, `Directive (EU) 2019/882 <https://eur-lex.europa.eu/legal-content/IT/TXT/?uri=CELEX%3A32019L0882>`_, `Directive (EU) 2016/2102 <https://eur-lex.europa.eu/legal-content/IT/TXT/?uri=CELEX%3A32016L2102>`_, `W3C WCAG 2.2 <https://www.w3.org/TR/WCAG22/>`_, and `WAI-ARIA 2.2 <https://www.w3.org/TR/wai-aria-1.2/>`_ recommendations for accessibility compliance
 - Multi-site support enabling the operation of multiple virtual sites on the same setup
 - Responsive user interfaces created with `Bootstrap <https://getbootstrap.com/>`_ CSS framework
 - Automated software quality measurement and continuous integration testing
