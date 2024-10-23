@@ -682,5 +682,7 @@
 	"Field of statistical interest": "Campo di interesse statistico",
 	"Enable Backup": "Abilita backup",
 	"Backup Time (hh:mm)": "Ora del backup (hh:mm)",
-	"Backup Destination Path": "Percorso di destinazione del backup"
+	"Backup Destination Path": "Percorso di destinazione del backup",
+  "Are you sure you want to reject?": "Sei sicuro di voler rifiutare?",
+	"Insert here the reason of the rejection:":"Inserisci qui la motivazione del rifiuto:"
 }

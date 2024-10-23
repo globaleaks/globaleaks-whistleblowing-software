@@ -133,8 +133,8 @@ export class OrganizationComponent implements OnInit{
   rifiuta(){
     if (this.authenticationService.session.role === "accreditor") {
       const modalRef = this.modalService.open(CustomModalComponent);
-      modalRef.componentInstance.title = "Sei sicuro di voler rifiutare?";
-      modalRef.componentInstance.message = "Inserisci qui la motivazione del rifiuto:"
+      modalRef.componentInstance.title = "Are you sure you want to reject?";
+      modalRef.componentInstance.message = "Insert here the reason of the rejection:"
       modalRef.componentInstance.arg = this.organization.id;
       modalRef.componentInstance.showInputText = true;
 
@@ -158,7 +158,6 @@ export class OrganizationComponent implements OnInit{
       if (target) {
         const action = target.getAttribute('data-action');
         
-        // Esegui l'azione corrispondente dalla mappa
         if (action && this.actionHandlers[action]) {
           this.actionHandlers[action]();
         }

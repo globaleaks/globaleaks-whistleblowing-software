@@ -659,5 +659,7 @@
 	"Field of statistical interest": "Field of statistical interest",
 	"Enable Backup": "Enable Backup",
 	"Backup Time (hh:mm)": "Backup Time (hh:mm)",
-	"Backup Destination Path": "Backup Destination Path"
+	"Backup Destination Path": "Backup Destination Path",
+  "Are you sure you want to reject?":"Are you sure you want to reject?",
+	"Insert here the reason of the rejection:":"Insert here the reason of the rejection:"
 }
