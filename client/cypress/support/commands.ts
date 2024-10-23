@@ -184,6 +184,8 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
   return cy.document().then((doc) => {
     cy.viewport(1920, doc.body.scrollHeight);
 
+    cy.wait(1000);
+
     cy.waitForPageIdle();
 
     if (locator && locator !== ".modal") {

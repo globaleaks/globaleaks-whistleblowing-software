@@ -29,8 +29,10 @@ describe("globaleaks process", function () {
 
     it("Recipient actions ", function () {
       cy.login_receiver();
-      cy.waitForUrl("/#/recipient/home");
+
       cy.visit("/#/recipient/reports");
+      cy.waitForUrl("/#/recipient/reports");
+      cy.takeScreenshot("/recipient/reports");
 
       cy.get("#tip-0").should('be.visible').first().click();
 
