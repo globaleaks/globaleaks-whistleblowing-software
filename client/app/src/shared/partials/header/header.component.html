@@ -7,9 +7,11 @@
       <div id="TitleBox">
         @if (appDataService.projectTitle || appDataService.pageTitle) {
           <h1>
-            <span id="ProjectTitle" (click)="appConfig.setHomepage()">
-              <a href="">{{appDataService.projectTitle}}</a>
-            </span>
+            @if (appDataService.projectTitle) {
+              <span id="ProjectTitle" (click)="appConfig.setHomepage()">
+                <a href="">{{appDataService.projectTitle}}</a>
+              </span>
+            }
             @if (appDataService.projectTitle && appDataService.pageTitle) {
               <span class="TitleSeparator"> - </span>
             }
