@@ -1,6 +1,6 @@
 <form class="add-field-from-template" #newField="ngForm">
     <div class="form-group">
-        <label>{{ 'Type' | translate }}</label>
+        <label for="template_id">{{ 'Type' | translate }}</label>
         <select name="template_id" class="form-select-custom" [(ngModel)]="new_field.template_id" required>
             <option *ngFor="let f of fieldTemplatesData" [value]="f.id">{{ f.label | translate }}</option>
         </select>

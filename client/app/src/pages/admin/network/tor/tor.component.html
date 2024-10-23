@@ -22,11 +22,11 @@
                         <div class="form-group" *ngIf="nodeResolver.dataModel.root_tenant">
                             <input [(ngModel)]="networkData.anonymize_outgoing_connections"
                                 name="anonymize_outgoing_connections" type="checkbox">
-                            <label>{{ 'Anonymize outgoing connections' | translate }}</label>
+                            <label for="anonymize_outgoing_connections">{{ 'Anonymize outgoing connections' | translate }}</label>
                         </div>
                         <div class="form-group">
                             <input [(ngModel)]="networkData.reachable_via_web" name="reachable_via_web" type="checkbox">
-                            <label>{{ 'Let the platform be reachable without Tor' | translate }}</label>
+                            <label for="reachable_via_web">{{ 'Let the platform be reachable without Tor' | translate }}</label>
                         </div>
                         <div *ngIf="networkData.reachable_via_web">
                             <div class="form-group">

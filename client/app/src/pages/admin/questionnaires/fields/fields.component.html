@@ -82,7 +82,7 @@
             <div class="row">
                 <div class="col-md-12" *ngIf="field.editable">
                     <div class="form-group" *ngIf="field.instance !== 'reference'">
-                        <label>{{ 'Name' | translate }}</label>
+                        <label for="label">{{ 'Name' | translate }}</label>
                         <input name="label" class="form-control" [(ngModel)]="field.label" type="text" required />
                         <div class="text-danger" *ngIf="editField.form.get('label')?.errors?.['required']">
                             <span>{{ 'This field is mandatory' | translate }}</span>
@@ -110,11 +110,11 @@
                         </select>
                     </div>
                     <div class="form-group" *ngIf="field.instance !== 'reference'">
-                        <label>{{ 'Hint' | translate }}</label>
+                        <label for="hint">{{ 'Hint' | translate }}</label>
                         <input name="hint" class="form-control" [(ngModel)]="field.hint" type="text">
                     </div>
                     <div class="form-group" *ngIf="field.instance !== 'reference'">
-                        <label>{{ 'Description' | translate }}</label>
+                        <label for="description">{{ 'Description' | translate }}</label>
                         <textarea name="description" class="form-control" [(ngModel)]="field.description"></textarea>
                     </div>
                     <div class="form-group" *ngIf="field.instance !== 'reference' && (field.type === 'inputbox' || field.type === 'textarea')">
@@ -133,22 +133,22 @@
                         </div>
                     </div>
                     <div class="form-group" *ngIf="fieldIsMarkableSubjectToPreview">
-                        <input [(ngModel)]="field.preview" type="checkbox">
-                        <label>{{ 'Preview' | translate }}</label>
+                        <input [(ngModel)]="field.preview" type="checkbox" name="preview">
+                        <label for="preview">{{ 'Preview' | translate }}</label>
                     </div>
                     <div class="form-group" *ngIf="fieldIsMarkableSubjectToStats">
-                        <input [(ngModel)]="field.statistical" type="checkbox">
-                        <label>{{ 'Field of Statistical Interest' | translate }}</label>
+                        <input [(ngModel)]="field.statistical" type="checkbox" name="statistical">
+                        <label for="statistical">{{ 'Field of Statistical Interest' | translate }}</label>
                     </div>
                     <div class="form-group">
-                        <label>
+                        <label for="width">
                           <span>{{ 'Width' | translate }}</span>
                           <span>(</span><span>{{ '0 = auto' | translate }}</span><span>)</span>
                          </label>
-                        <input class="form-control" [(ngModel)]="field.width" type="number" min="0" max="12">
+                        <input name="width" class="form-control" [(ngModel)]="field.width" type="number" min="0" max="12">
                     </div>
                     <div class="form-group" *ngIf="field.template_id">
-                        <label>{{ 'Template override' | translate }}</label>
+                        <label for="template_override_id">{{ 'Template override' | translate }}</label>
                         <input name="template_override_id" class="form-control" [(ngModel)]="field.template_override_id" type="text">
                     </div>
                 </div>
@@ -157,17 +157,17 @@
                 <div class="col-md-12">
                     <div *ngIf="field.type === 'inputbox' || field.type === 'textarea' || field.type === 'voice'">
                         <div class="form-group">
-                            <label>{{ 'Min' | translate }}</label>
-                            <input [(ngModel)]="field.attrs.min_len.value" type="text" class="form-control" [disabled]="!field.editable" />
+                            <label for="min">{{ 'Min' | translate }}</label>
+                            <input name="min" [(ngModel)]="field.attrs.min_len.value" type="text" class="form-control" [disabled]="!field.editable" />
                             <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
                         </div>
                         <div class="form-group">
-                            <label>{{ 'Max' | translate }}</label>
-                            <input [(ngModel)]="field.attrs.max_len.value" type="text" class="form-control" [disabled]="!field.editable" />
+                            <label for="max">{{ 'Max' | translate }}</label>
+                            <input name="max" [(ngModel)]="field.attrs.max_len.value" type="text" class="form-control" [disabled]="!field.editable" />
                             <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
                         </div>
                         <div class="form-group" *ngIf="field.attrs.input_validation">
-                            <label>{{ 'Input validation' | translate }}</label>
+                            <label for="type">{{ 'Input validation' | translate }}</label>
                             <select name="type" class="form-select-custom" [(ngModel)]="field.attrs.input_validation.value" required>
                                 <option value="none">{{ 'None' | translate }}</option>
                                 <option value="email">{{ 'Email address' | translate }}</option>
@@ -177,42 +177,42 @@
                             </select>
                         </div>
                         <div class="form-group" *ngIf="field.attrs.input_validation?.value === custom">
-                            <label>{{ 'Regular expression' | translate }}</label>
-                            <input [(ngModel)]="field.attrs.regexp.value" type="text" class="form-control" [disabled]="!field.editable" />
+                            <label for="regexp">{{ 'Regular expression' | translate }}</label>
+                            <input name="regexp" [(ngModel)]="field.attrs.regexp.value" type="text" class="form-control" [disabled]="!field.editable" />
                         </div>
                     </div>
                     <div *ngIf="field.type === 'tos'">
                         <div class="form-group">
-                            <label>{{ 'Text' | translate }}</label>
-                            <textarea [(ngModel)]="field.attrs.text.value" class="form-control" [disabled]="!field.editable"></textarea>
+                            <label for="tos_textarea">{{ 'Text' | translate }}</label>
+                            <textarea name="tos_textarea" [(ngModel)]="field.attrs.text.value" class="form-control" [disabled]="!field.editable"></textarea>
                         </div>
                         <div class="form-group">
-                            <label>{{ 'Checkbox label' | translate }}</label>
-                            <input [(ngModel)]="field.attrs.checkbox_label.value" type="text" class="form-control" />
+                            <label for="checkbox_label">{{ 'Checkbox label' | translate }}</label>
+                            <input name="checkbox_label" [(ngModel)]="field.attrs.checkbox_label.value" type="text" class="form-control" />
                         </div>
                         <div class="form-group">
-                            <input [(ngModel)]="field.attrs.attachment.value" type="checkbox" />
-                            <label>{{ 'Attachment' | translate }}</label>
+                            <input [(ngModel)]="field.attrs.attachment.value" type="checkbox" name="attach" />
+                            <label for="attach">{{ 'Attachment' | translate }}</label>
                         </div>
                         <div *ngIf="field.attrs.attachment.value" class="nested">
                             <div class="form-group">
-                                <label>{{ 'Text' | translate }}</label>
-                                <input [(ngModel)]="field.attrs.attachment_text.value" type="text" class="form-control" />
+                                <label for="text_attach">{{ 'Text' | translate }}</label>
+                                <input name="text_attach" [(ngModel)]="field.attrs.attachment_text.value" type="text" class="form-control" />
                             </div>
                             <div class="form-group">
-                                <label>URL</label>
-                                <input [(ngModel)]="field.attrs.attachment_url.value" type="text" class="form-control" />
+                                <label for="url">URL</label>
+                                <input [(ngModel)]="field.attrs.attachment_url.value" type="text" class="form-control" name="url" />
                             </div>
                         </div>
                     </div>
                     <div *ngIf="field.type === 'fieldgroup'">
                         <div class="form-group">
-                            <input [(ngModel)]="field.attrs.multimedia.value" type="checkbox">
-                            <label>{{ 'Add multimedia content' | translate }}</label>
+                            <input [(ngModel)]="field.attrs.multimedia.value" type="checkbox" name="multimedia">
+                            <label for="multimedia">{{ 'Add multimedia content' | translate }}</label>
                             <div *ngIf="field.attrs.multimedia.value" class="nested">
                                 <div class="form-group">
-                                    <label>{{ 'Type' | translate }}</label>
-                                    <select name="type" class="form-select-custom" [(ngModel)]="field.attrs.multimedia_type.value" required>
+                                    <label for="multi_type">{{ 'Type' | translate }}</label>
+                                    <select name="multi_type" name="type" class="form-select-custom" [(ngModel)]="field.attrs.multimedia_type.value" required>
                                         <option value="image">{{ 'Image' | translate }}</option>
                                         <option value="audio">{{ 'Audio' | translate }}</option>
                                         <option value="video">{{ 'Video' | translate }}</option>

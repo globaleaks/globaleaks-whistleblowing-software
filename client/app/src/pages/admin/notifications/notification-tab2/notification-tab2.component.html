@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
-            <label>{{ 'Template' | translate }}</label>
+            <label for="template">{{ 'Template' | translate }}</label>
             <select name="template" class="form-select-custom" [(ngModel)]="template">
                 <option *ngFor="let t of notificationData.templates" [value]="t">{{ t }}</option>
             </select>
