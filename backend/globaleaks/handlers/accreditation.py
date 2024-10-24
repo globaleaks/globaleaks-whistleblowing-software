@@ -178,7 +178,7 @@ def count_user_tip(session, accreditation_item:models.Subscriber):
     """
     status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
         accreditation_item.state).name
-    if status != EnumSubscriberStatus.accredited:
+    if status != EnumSubscriberStatus.accredited.name:
         return {}, 2
     count_user = (
         session.query(
@@ -240,7 +240,7 @@ def extract_user(session, accreditation_item):
     """
     query = (session.query(User)
              .filter(User.tid == accreditation_item.tid)
-             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email])))
+             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))).all()
     return [
         {
             'id': user.id,
