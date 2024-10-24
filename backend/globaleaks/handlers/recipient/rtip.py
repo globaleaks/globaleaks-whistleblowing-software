@@ -765,7 +765,7 @@ def redact_answers(answers, redactions):
 @transact
 def redact_report(session, user_id, report, enforce=False):
     user = session.query(models.User).get(user_id)
-
+    report['max_oe_to_whistleblower_comments'] = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
     redactions = session.query(models.Redaction).filter(
         models.Redaction.internaltip_id == report['id']).all()
 
