@@ -3,7 +3,6 @@ import { NgForm } from "@angular/forms";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import {TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings} from "ng-multiselect-dropdown";
-import {filter, orderBy} from "lodash-es";
 import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
 import { HttpService } from "@app/shared/services/http.service";
 
@@ -25,6 +24,11 @@ export class ReportsComponent implements OnInit {
         "internal_tip_expiration_date", "internal_tip_read_receip",
         "internal_tip_file_count", "internal_tip_comment_count",
         "internal_tip_receiver_count"
+    ];
+    excludedHeaders: string[] = [
+        'last_access',
+        'internal_tip_creation_date_years',
+        'internal_tip_creation_date_month'
     ];
     dinamicHeaders: string[] = [];
     tableHeaders: string[] = [];
@@ -64,8 +68,6 @@ export class ReportsComponent implements OnInit {
     constructor(private httpService: HttpService, private translateService: TranslateService) {}
 
     ngOnInit(): void {
-        this.today = new Date();
-
         this.maxDate = {
             year: this.today.getFullYear(),
             month: this.today.getMonth() + 1,
@@ -75,7 +77,6 @@ export class ReportsComponent implements OnInit {
     }
 
     clearDateRange(): void {
-        console.log("Clearing date range");
         const lastWeek = new Date(this.today);
         lastWeek.setDate(this.today.getDate() - 7);
         
@@ -109,7 +110,7 @@ export class ReportsComponent implements OnInit {
         }
     }
 
-    formatDate(date: NgbDateStruct): string {
+    private formatDate(date: NgbDateStruct): string {
         if (!date) {
             return '';
         }
@@ -155,6 +156,14 @@ export class ReportsComponent implements OnInit {
         }
     }
 
+    private generateSummaryKeys(): void {
+        this.summaryKeys = Object.keys(this.summary).map((key) => {
+          const entry = this.allResults[0].find((entry: ReportEntry) => entry.id === key);
+          const label = entry ? entry.label : key;
+          return { id: key, label: label };
+        });
+    }
+
     private processResponse(res: StatisticalResponseModel): void {
         if (res && res.results && res.results.length > 0) {
             this.allResults = res.results;
@@ -163,11 +172,8 @@ export class ReportsComponent implements OnInit {
             this.populateTableRows(this.allResults);
 
             this.summary = res.summary;
-            this.summaryKeys = Object.keys(this.summary).map((key) => {
-                const entry = this.allResults[0].find((entry: ReportEntry) => entry.id === key);
-                const label = entry ? entry.label : key;
-                return { id: key, label: label };
-            });
+            this.generateSummaryKeys();
+            console.log("Summary:", this.summary);
 
             this.currentPage = 0;
             this.updatePagination();
@@ -178,7 +184,7 @@ export class ReportsComponent implements OnInit {
         }
     }
 
-    updatePagination(): void {
+    private updatePagination(): void {
         const startIndex = this.currentPage * this.pageSize;
         const endIndex = startIndex + this.pageSize;
         this.filteredRowsPaginated = this.filteredRows.slice(startIndex, endIndex);
@@ -200,7 +206,7 @@ export class ReportsComponent implements OnInit {
       
         results.forEach((reportArray: ReportEntry[]) => {
             reportArray.forEach((entry: ReportEntry) => {
-                if (entry.id !== 'internal_tip_last_access' && !this.fixedHeaders.includes(entry.id)) {
+                if (!this.excludedHeaders.includes(entry.id) && !this.fixedHeaders.includes(entry.id)) {
                     dynamicHeadersSet.add(entry.label);
                 }
             });
@@ -211,35 +217,36 @@ export class ReportsComponent implements OnInit {
         this.tableHeaders = [...this.fixedHeaders, ...this.dinamicHeaders];
     }
 
-    private populateTableRows(results: ReportEntry[][]): void {
-        this.tableRows = results.map((reportArray: ReportEntry[]) => {
-            const row: ResultsRow = {};
-            let lastAccess = '';
-            let updateDate = '';
+    private buildTableRow(reportArray: ReportEntry[]): ResultsRow {
+        const row: ResultsRow = {};
+        let lastAccess = '';
+        let updateDate = '';
     
-            reportArray.forEach((entry: ReportEntry) => {
-                if (entry.id === 'internal_tip_last_access') {
-                    lastAccess = String(entry.value);
-                } else if (entry.id === 'internal_tip_update_date') {
-                    updateDate = String(entry.value);
-                    row[entry.id] = updateDate;
-                } else {
-                    row[entry.label] = String(entry.value);
-                }                
-            });
-    
-            row['internal_tip_read_receip'] = lastAccess >= updateDate ? '✔' : '✘';
-    
-            this.tableHeaders.forEach((header: string) => {
-                if (!(header in row)) {
-                    row[header] = '-';
-                }
-            });
-    
-            return row;
+        reportArray.forEach((entry: ReportEntry) => {
+            const value = String(entry.value);
+            if (entry.id === 'last_access') {
+                lastAccess = value;
+            } else if (entry.id === 'internal_tip_update_date') {
+                updateDate = value;
+                row[entry.id] = updateDate;
+            } else {
+                row[entry.label] = value;
+            }
         });
     
-        // this.populateStatusDropdown();
+        row['internal_tip_read_receip'] = lastAccess >= updateDate ? '✔' : '✘';
+    
+        this.tableHeaders.forEach(header => {
+            if (!(header in row)) {
+                row[header] = '-';
+            }
+        });
+    
+        return row;
+    }
+
+    private populateTableRows(results: ReportEntry[][]): void {
+        this.tableRows = results.map(this.buildTableRow.bind(this));
         this.populateDropdownAndDateRanges();
         this.filteredRows = [...this.tableRows];
     }
@@ -250,20 +257,17 @@ export class ReportsComponent implements OnInit {
     }
 
     private populateStatusDropdown(): void {
-        console.log("Populating status dropdown");
         const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
-        console.log("Status index:", statusIndex);
         if (statusIndex !== -1) {
             const statusSet = new Set(this.tableRows.map(row => row['internal_tip_status']));
             this.dropdownStatusData = Array.from(statusSet).map((status, index) => ({
                 id: index + 1,
                 label: status
             }));
-            console.log("Status data:", this.dropdownStatusData);
         }
     }
 
-    parseDate(dateString: string): Date | null {
+    private parseDate(dateString: string): Date | null {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return null;
 
@@ -271,21 +275,20 @@ export class ReportsComponent implements OnInit {
         return date;
     }
 
+    private isDateInRange(date: Date, startDate: Date, endDate: Date): boolean {
+        return date >= startDate && date <= endDate;
+    }
+
     private calculateCreationDateRange(): void {
-        const creationDateIndex = this.tableHeaders.indexOf('internal_tip_creation_date');
-        console.log('Creation date index:', creationDateIndex);
-        if (creationDateIndex !== -1) {
-            const creationDates = this.tableRows
-                .map(row => row['internal_tip_creation_date'])
-                .filter((dateString): dateString is string => dateString !== null)
-                .map(dateString => this.parseDate(dateString))
-                .filter(date => date !== null);
-            console.log('Creation dates:', creationDates);
-            if (creationDates.length > 0) {
-                this.minCreationDate = new Date(Math.min(...creationDates.map(date => date!.getTime())));
-                this.maxCreationDate = new Date(Math.max(...creationDates.map(date => date!.getTime())));
-                console.log('Creation date range:', this.minCreationDate, this.maxCreationDate);
-            }
+        const creationDates = this.tableRows
+            .map(row => row['internal_tip_creation_date'])
+            .filter((dateString): dateString is string => dateString !== null)
+            .map(dateString => this.parseDate(dateString))
+            .filter((date): date is Date => date !== null);
+    
+        if (creationDates.length > 0) {
+            this.minCreationDate = new Date(Math.min(...creationDates.map(date => date.getTime())));
+            this.maxCreationDate = new Date(Math.max(...creationDates.map(date => date.getTime())));
         }
     }
 
@@ -294,54 +297,55 @@ export class ReportsComponent implements OnInit {
     }
 
     onCreationDateFilterChange(event: { fromDate: string | null, toDate: string | null }): void {
-        const {fromDate, toDate} = event;
-        console.log('From date:', fromDate, 'To date:', toDate);
-        if (!fromDate || !toDate) return;
+        const { fromDate, toDate } = event;
+
+        if (!fromDate || !toDate) {
+            this.creationDateFilter = false;
+            this.creationDateModel = null;
+            this.filteredRows = [...this.tableRows];
+        } else {
+            this.creationDateFilter = true;
+            this.creationDateModel = { fromDate, toDate };
+        }
     
-        this.creationDateFilter = true;
-        
-        this.filteredRows = this.tableRows.filter(row => {
-            const creationDateIndex = this.tableHeaders.indexOf('internal_tip_creation_date');
-            console.log('Creation date index:', creationDateIndex);
-            if (creationDateIndex !== -1) {
-                const dateString = row['internal_tip_creation_date'];
-                const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
-                const start = this.parseDate(fromDate);
-                const end = this.parseDate(toDate);
-                console.log('Date:', date, 'Start:', start, 'End:', end);
-                return date && start && end && date >= start && date <= end;
-            }
-            return false;
-        });
-
-        console.log('Filtered rows:', this.filteredRows);
-
-        this.currentPage = 0;
-        this.updatePagination();
+        this.applyFilters();
     }
 
     toggleStatusDropdown(): void {
         this.statusDropdownVisible = !this.statusDropdownVisible;
     }
 
-    onChanged(selectedStatuses: any[], filterType: string): void {
+    onChangedStaus(selectedStatuses: { id: number; label: string }[], filterType: string): void {
         if (filterType === 'Status') {
             this.dropdownStatusModel = selectedStatuses;
-            this.applyFilter();
+            this.applyFilters();
         }
     }
 
-    applyFilter(): void {
-        const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
-        
-        if (this.dropdownStatusModel.length > 0 && statusIndex !== -1) {
-            this.filteredRows = filter(this.tableRows, (row) => {
-                return this.dropdownStatusModel.some(status => status.label === row['internal_tip_status']);
-            });
-        } else {
-            this.filteredRows = [...this.tableRows];
+    private applyFilters(): void {
+        let filtered = [...this.tableRows];
+    
+        // Filter by status
+        if (this.dropdownStatusModel.length > 0) {
+            const selectedStatuses = this.dropdownStatusModel.map(status => status.label);
+            filtered = filtered.filter(row => selectedStatuses.includes(row['internal_tip_status']));
         }
-
+    
+        // Filter by creation date
+        if (this.creationDateFilter && this.creationDateModel) {
+            const startDate = this.parseDate(this.creationDateModel.fromDate);
+            const endDate = this.parseDate(this.creationDateModel.toDate);
+    
+            if (startDate && endDate) {
+                filtered = filtered.filter(row => {
+                    const dateString = row['internal_tip_creation_date'];
+                    const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
+                    return date && this.isDateInRange(date, startDate, endDate);
+                });
+            }
+        }
+    
+        this.filteredRows = filtered;
         this.currentPage = 0;
         this.updatePagination();
     }
@@ -350,7 +354,7 @@ export class ReportsComponent implements OnInit {
         return this.dropdownStatusModel.length > 0;
     }
 
-    resetFilter(): void {
+    private resetFilter(): void {
         this.dropdownStatusModel = [];
         this.statusDropdownVisible = false;
         this.creationDatePicker = false;
@@ -359,54 +363,46 @@ export class ReportsComponent implements OnInit {
         this.filteredRows = [...this.tableRows];
     }
 
-    addChart(): void {
-        console.log("Aggiungi Grafico cliccato.");
-        const initialColumn = this.summaryKeys.length > 0 ? this.summaryKeys[0] : null;
-        this.charts.push({
-            type: 'pie',
-            columnId: initialColumn ? initialColumn.id : null,
-            data: this.getChartData(initialColumn?.id ?? ''),
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
+    private createChartConfig(columnId: string | null, chartType: string, columnLabel: string): any {
+        return {
+            type: chartType,
+            columnId,
+            data: this.getChartData(columnId ?? '', columnLabel),
+            options: this.getChartOptions()
+        };
+    }
+
+    private getChartOptions(): any {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    formatter: (value: number, context: any) => {
+                        const total = context.chart.data.datasets[0].data.reduce((acc: number, val: number) => acc + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(2);
+                        return `${percentage}%`;
+                    },
+                    color: '#fff',
+                    anchor: 'end',
+                    align: 'start',
+                    font: { weight: 'bold' }
+                }
             }
-        });
+        };
+    }
+
+    addChart(): void {
+        const initialColumn = this.summaryKeys[0]?.id || null;
+        const columnLabel = this.summaryKeys[0]?.label || '';
+        this.charts.push(this.createChartConfig(initialColumn, 'pie', columnLabel));
     }
 
     updateCharts(): void {
-        this.charts.forEach((chart, index) => {
-            console.log(`Aggiornamento grafico ${index + 1}`);
-            console.log(`Tipo di grafico: ${chart.type}`);
-            console.log(`ID colonna: ${chart.columnId}`);
-            
-            if (chart.columnId) {
-                const newChartData = this.getChartData(chart.columnId);
-                if (newChartData) {
-                    chart.data = newChartData;
-                    chart.options = {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            datalabels: {
-                                formatter: (value: any, context: any) => {
-                                    const dataset = context.chart.data.datasets[0];
-                                    const total = dataset.data.reduce((acc: number, val: number) => acc + val, 0);
-                                    const percentage = ((value / total) * 100).toFixed(2);
-                                    return `${percentage}%`;
-                                },
-                                color: '#fff',
-                                anchor: 'end',
-                                align: 'start',
-                                font: {
-                                    weight: 'bold'
-                                }
-                            }
-                        }
-                    };
-                } else {
-                    console.warn(`Nessun dato valido trovato per la colonna: ${chart.columnId}`);
-                }
-            }
+        this.charts = this.charts.map(chart => {
+            const selectedColumn = this.summaryKeys.find(key => key.id === chart.columnId);
+            console.log("Selected column:", selectedColumn);
+           return this.createChartConfig(selectedColumn?.id ?? '', chart.type, selectedColumn?.label ?? '')
         });
     }
 
@@ -416,7 +412,7 @@ export class ReportsComponent implements OnInit {
         }
     }
 
-    private getChartData(columnId: string): any {
+    private getChartData(columnId: string, columnLabel: string): any {
         if (!columnId || !this.summary[columnId]) {
             console.warn("getChartData() - Column ID non valido o non trovato");
             return this.createEmptyChartData('Nessun dato');
@@ -435,7 +431,7 @@ export class ReportsComponent implements OnInit {
             labels: labels,
             datasets: [
                 {
-                    label: columnId,
+                    label: columnLabel,
                     data: values,
                     backgroundColor: this.getDefaultBackgroundColors()
                 }
@@ -480,8 +476,8 @@ export class ReportsComponent implements OnInit {
                     "value": "2024-10-17T12:44:30.751036Z"
                 },
                 {
-                    "id": "internal_tip_last_access",
-                    "label": "internal_tip_last_access",
+                    "id": "last_access",
+                    "label": "last_access",
                     "value": "2024-10-17T12:45:15.727464Z"
                 },
                 {
@@ -547,8 +543,8 @@ export class ReportsComponent implements OnInit {
                     "value": "2024-10-18T12:46:18.250330Z"
                 },
                 {
-                    "id": "internal_tip_last_access",
-                    "label": "internal_tip_last_access",
+                    "id": "last_access",
+                    "label": "last_access",
                     "value": "2024-10-18T12:46:18.250346Z"
                 },
                 {
@@ -614,8 +610,8 @@ export class ReportsComponent implements OnInit {
                     "value": "2024-10-19T12:44:30.751036Z"
                 },
                 {
-                    "id": "internal_tip_last_access",
-                    "label": "internal_tip_last_access",
+                    "id": "last_access",
+                    "label": "last_access",
                     "value": "2024-10-19T12:45:15.727464Z"
                 },
                 {
@@ -681,8 +677,8 @@ export class ReportsComponent implements OnInit {
                     "value": "2024-10-20T12:46:18.250330Z"
                 },
                 {
-                    "id": "internal_tip_last_access",
-                    "label": "internal_tip_last_access",
+                    "id": "last_access",
+                    "label": "last_access",
                     "value": "2024-10-20T12:46:18.250346Z"
                 },
                 {
@@ -748,8 +744,8 @@ export class ReportsComponent implements OnInit {
                     "value": "2024-10-17T12:44:30.751036Z"
                 },
                 {
-                    "id": "internal_tip_last_access",
-                    "label": "internal_tip_last_access",
+                    "id": "last_access",
+                    "label": "last_access",
                     "value": "2024-10-17T12:45:15.727464Z"
                 },
                 {
@@ -765,7 +761,7 @@ export class ReportsComponent implements OnInit {
                 {
                     "id": "internal_tip_status",
                     "label": "internal_tip_status",
-                    "value": "new"
+                    "value": "opened"
                 },
                 {
                     "id": "internal_tip_file_count",
@@ -833,11 +829,11 @@ export class ReportsComponent implements OnInit {
                 "I was personally told by a direct witness": 1,
                 "It is a rumor I heard": 1
             },
-            "0f2c5077-90f3-4b0d-8346-21b5c3b8a627": {
+            "8562fe35-2f5b-4329-a356-707331603280": {
                 "Yes": 2,
                 "No": 3
             },
-            "8562fe35-2f5b-4329-a356-707331603280": {
+            "8562fe35-ab5b-4329-a356-707331603280": {
                 "Yes": 3,
                 "No": 2
             }

@@ -3,12 +3,12 @@
         <div class="form-group">
             <label for="reportType">{{ 'Report' | translate }}</label>
             <select id="reportType" name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
-                <option value="" disabled>{{ 'Scegli report' | translate }}</option>
+                <option value="" disabled>{{ 'Select report' | translate }}</option>
                 <option value="tips">{{ 'Tips' | translate }}</option>
-                <option value="tipsOE">{{ 'Tips OE' | translate }}</option>
+                <option value="tipsOE">{{ 'Tips EO' | translate }}</option>
             </select>
             <div *ngIf="reportSelect.invalid && reportSelect.touched" class="text-danger">
-                {{ 'Questo campo è obbligatorio' | translate }}
+                {{ 'This field is required' | translate }}
             </div>
         </div>
 
@@ -46,35 +46,35 @@
 
         <div class="form-group mt-3">
             <button id="add-btn" class="btn btn-primary" type="submit" [disabled]="!reports.valid">
-                <span>{{ 'Cerca' | translate }}</span>
+                <span>{{ 'Search' | translate }}</span>
             </button>
         </div>
     </form>
 </div>
 
-<div class="row mt-4">
-    <div class="col-12" *ngIf="isSearchInitiated">
+<div class="row mt-2">
+    <div class="col-md-12 table-responsive" *ngIf="isSearchInitiated">
         <div class="col-12 mb-3">
-            <button class="btn btn-primary" (click)="addChart()">Aggiungi Grafico</button>
+            <button class="btn btn-primary" (click)="addChart()"><span>{{ 'Add Chart' | translate }}</span></button>
         </div>
 
         <div class="row justify-content-start">
             <div class="col-md-3 mb-4 d-inline-flex align-items-stretch" *ngFor="let chart of charts; let i = index">
                 <div class="card w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Grafico {{ i + 1 }}</span>
+                        <span>{{ 'Chart' | translate }} {{ i + 1 }}</span>
                         <button type="button" class="btn-close" aria-label="Close" (click)="removeChart(i)"></button>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label for="chartType">Tipo di Grafico:</label>
+                            <label for="chartType">{{ 'Chart Type' | translate }}</label>
                             <select id="chartType" class="form-control" [(ngModel)]="chart.type" (change)="updateCharts()">
-                                <option value="bar">Barre</option>
-                                <option value="pie">Torta</option>
+                                <option value="bar">{{ 'Bar' | translate }}</option>
+                                <option value="pie">{{ 'Pie' | translate }}</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="chartColumn">Colonna da Visualizzare:</label>
+                            <label for="chartColumn">{{ 'Statistical field' | translate }}</label>
                             <select id="chartColumn" class="form-control" [(ngModel)]="chart.columnId" (change)="updateCharts()">
                                 <option *ngFor="let key of summaryKeys" [value]="key.id">{{ key.label }}</option>
                             </select>
@@ -110,7 +110,7 @@
                                                 [settings]="dropdownSettings" 
                                                 [data]="dropdownStatusData" 
                                                 [(ngModel)]="dropdownStatusModel" 
-                                                (ngModelChange)="onChanged(dropdownStatusModel, 'Status')">
+                                                (ngModelChange)="onChangedStaus(dropdownStatusModel, 'Status')">
                                             </ng-multiselect-dropdown>
                                         </span>
                                     </span>
@@ -177,7 +177,7 @@
             </tbody>
         </table>
         <div *ngIf="tableHeaders.length === 0" class="alert alert-info mt-3">
-            Nessun risultato trovato.
+            <span>{{ 'No results found.' | translate}}</span>
         </div>
     </div>
 </div>
