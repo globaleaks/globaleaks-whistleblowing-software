@@ -185,7 +185,7 @@ const routes: Routes = [
     pathMatch: "full",
   },
   {
-    path: "sendtip/:tip_id",
+    path: "sendtip",
     data: {pageTitle: "Send tip"},
     component: SendtipComponent,
     canActivate: [SessionGuard],
