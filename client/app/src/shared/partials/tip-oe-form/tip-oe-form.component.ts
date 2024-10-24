@@ -32,9 +32,7 @@ export class TipOeFormComponent{
   }
 
   onSubmit() { 
-    console.log("onSubmit");
-    debugger
-
+    
     this.sumbitFormEvent.emit();
     
   }

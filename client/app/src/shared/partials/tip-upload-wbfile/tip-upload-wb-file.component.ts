@@ -30,7 +30,7 @@ export class TipUploadWbFileComponent{
 
   newFiles: RFile[] = [];
 
-  constructor(private cdr: ChangeDetectorRef, private authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
+  constructor(private readonly cdr: ChangeDetectorRef, private readonly authenticationService: AuthenticationService, protected utilsService: UtilsService, protected appDataService: AppDataService) {
 
   }
 

@@ -7,7 +7,7 @@
         </span>
     </div>
     <div class="card-body" *ngIf="!collapsed">
-       <div *ngIf="tipService.tip.status !== 'closed'" class="row">
+       <div *ngIf="tipService.tip.status !== 'closed' && (key==='whistleblower'? (comments | filter : 'visibility' : key).length < tipService.tip.max_oe_to_whistleblower_comments : true)" class="row">
            <div class="col-md-12 clearfix">
                 <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off"></textarea>
                 <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>

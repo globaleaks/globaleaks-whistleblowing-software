@@ -96,7 +96,6 @@ export class SendtipComponent implements OnInit {
 
   sendForm() {
     if (this.isFormValid()) {
-      console.log('uploadedFiles', this.uploadedFiles);
       this.httpService.sendTipRequest(this.sendTipRequest).subscribe({
         next: (res) => {
           this.uploadFiles();
