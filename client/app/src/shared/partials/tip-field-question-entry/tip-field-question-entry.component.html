@@ -16,23 +16,21 @@
         
         <div class="form-group" *ngSwitchCase="'selectbox'">
             <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
-                <option *ngFor="let option of field.options" [value]="option.id">{{ option.label }}</option>
+                <option *ngFor="let option of field.options"  (change)="setOption(option, fieldAnswers[field.id][0])"  [value]="option.id">{{ option.label }}</option>
             </select>
         </div>
         
 
-        <div *ngSwitchCase="'checkbox'" class="form-group">
-            
+        <div *ngSwitchCase="'checkbox'" class="form-group">            
             <div *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; let index = index">
-                {{fieldAnswers[field.id][0][option.id]}}
-                <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0][option.id]" />
+                <input type="checkbox" (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0][option.id]" />
                 <label [for]="option.label" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
             </div>
         </div>
 
         <div *ngSwitchCase="'multichoice'" class="form-group">
             <div *ngFor="let option of field.options | orderBy:'order';let innerindex = index">
-                <input type="radio" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+                <input type="radio"  (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
         </div>
