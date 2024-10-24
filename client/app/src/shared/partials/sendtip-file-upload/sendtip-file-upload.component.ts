@@ -49,9 +49,9 @@ export class SendTipFileUploadComponent {
             description: this.newFileDescription,
             id: response.id,
             name: file.name,
-            status: 'PENDING', // Status iniziale
+            status: 'PENDING', 
             origin: 'recipient',
-            uploadDate: new Date().toLocaleString(),
+            uploadDate: new Date().toISOString(),
             size: file.size
           });
           this.newFileDescription = "";
@@ -71,9 +71,9 @@ export class SendTipFileUploadComponent {
         description: this.newFileDescription,
         id: 'uuid-' + (Math.random() * 10000).toFixed(0),
         name: file.name,
-        status: 'PENDING', // Status iniziale
+        status: 'PENDING', 
         origin: 'recipient',
-        uploadDate: new Date().toLocaleString(),
+        uploadDate: new Date().toISOString(),
         size: file.size
       }
       this.files.push(item);
@@ -90,7 +90,6 @@ export class SendTipFileUploadComponent {
       this.httpService.deleteDBFile(this.files[index].id).subscribe (
         {
           next: async _ => {
-            // this.dataToParent.emit(wbFile)
             this.files.splice(index, 1);
           }
         }
