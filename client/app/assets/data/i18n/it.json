@@ -684,5 +684,13 @@
 	"Backup Time (hh:mm)": "Ora del backup (hh:mm)",
 	"Backup Destination Path": "Percorso di destinazione del backup",
   "Are you sure you want to reject?": "Sei sicuro di voler rifiutare?",
-	"Insert here the reason of the rejection:":"Inserisci qui la motivazione del rifiuto:"
+	"Insert here the reason of the rejection:":"Inserisci qui la motivazione del rifiuto:",
+	"Tips": "Segnalazioni",
+	"Closed Tips": "Segnalazioni Chiuse",
+	"Convert in Not Affiliated": "Converti in Non Affiliata",
+	"Convert in Affiliated": "Converti in Affiliata",
+	"Origin": "Origine",
+	"Upload Date": "Data Caricamento",
+	"Verification Expired": "Verifica Scaduta",
+	"Select an organization": "Seleziona un'organizzazione"
 }

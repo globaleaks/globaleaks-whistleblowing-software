@@ -67,7 +67,7 @@
     <div class="row" *ngIf="(!isState('accredited') && !isState('suspended'))">
         <div class="col-md-12" id="organization-button">
             <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
-                {{ isAffiliated() ? ('Converti in non Affiliata' | translate) : ('Converti in Affiliata' | translate) }}
+                {{ isAffiliated() ? ('Convert in Not Affiliated' | translate) : ('Convert in Affiliated' | translate) }}
             </button>
         </div>
     </div>
@@ -99,14 +99,14 @@
         <div class="col-md-3" id="accept-button">
             <button class="btn btn-primary" (click)="invia()">
                 <i class="fa-solid fa-check"></i>
-                <span>{{(isState('requested')? 'Accetta Organizzazione Esterna': 'Inoltra Invito') | translate }}</span>
+                <span>{{(isState('requested')? 'Accept External Organization': 'Send Invitation') | translate }}</span>
             </button>
         </div>
         <div class="col-md-3" id="reject-button">
             <button class="btn btn-danger" (click)="rifiuta()"
             *ngIf="!isState('invited')">
                 <i class="fa-solid fa-xmark"></i>
-                <span>{{'Rifiuta Organizzazione Esterna' | translate}}</span>
+                <span>{{'Reject External Organization' | translate}}</span>
             </button>
         </div>
     </div>

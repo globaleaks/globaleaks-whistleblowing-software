@@ -661,5 +661,13 @@
 	"Backup Time (hh:mm)": "Backup Time (hh:mm)",
 	"Backup Destination Path": "Backup Destination Path",
   "Are you sure you want to reject?":"Are you sure you want to reject?",
-	"Insert here the reason of the rejection:":"Insert here the reason of the rejection:"
+	"Insert here the reason of the rejection:":"Insert here the reason of the rejection:",
+	"Tips": "Tips",
+	"Closed Tips": "Closed Tips",
+	"Convert in Not Affiliated": "Convert in Not Affiliated",
+	"Convert in Affiliated": "Convert in Affiliated",
+	"Origin": "Origin",
+	"Upload Date": "Upload Date",
+	"Verification Expired": "Verification Expired",
+	"Select an organization": "Select an organization"
 }

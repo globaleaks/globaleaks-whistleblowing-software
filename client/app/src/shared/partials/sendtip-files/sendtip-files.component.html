@@ -12,7 +12,7 @@
                     <th>{{ 'Verification Status' | translate}}</th>
                     <th>{{ 'Origin' | translate }}</th>
                     <th>{{ 'Download' | translate }}</th>
-                    <th>{{ 'Upload date' | translate }}</th>
+                    <th>{{ 'Upload Date' | translate }}</th>
                     <th>{{ 'File size' | translate }}</th>
                 </tr>
                 </thead>
@@ -23,7 +23,7 @@
                       </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.name }}</td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
-                        {{ file.status==='PENDING' && file.verification_date ? 'Verifica Scaduta' : file.status | translate }}
+                        {{ file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status | translate }}
                     </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.origin | translate }}</td>
                     <td>
