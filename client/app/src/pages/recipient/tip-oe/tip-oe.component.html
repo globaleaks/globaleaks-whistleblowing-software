@@ -80,7 +80,8 @@
             
                 <src-tip-questionnaire-answers *ngIf="tip.status==='closed'" [tipService]="RTipService" [isForwarding]="true"></src-tip-questionnaire-answers>
 
-                <src-tip-oe-form *ngIf="tip.status!=='closed'" (notifyFileUpload)="notifyFileUpload($event)" (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [fileUploadUrl]="'api/recipient/rtips/'+tip.id+'/rfiles'" [displayErrors]="true"></src-tip-oe-form>
+                <src-tip-oe-form *ngIf="tip.status!=='closed'" (notifyFileUpload)="notifyFileUpload($event)" 
+                (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [fileUploadUrl]="'api/recipient/rtips/'+tip.id+'/rfiles'" [displayErrors]="true"></src-tip-oe-form>
 
         </div>
     </div>                  

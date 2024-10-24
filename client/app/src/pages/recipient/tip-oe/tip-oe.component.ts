@@ -63,7 +63,9 @@ export class TipOeComponent implements OnInit {
 
   answers: any
 
-  constructor(private readonly fieldUtilitiesService: FieldUtilitiesService, private readonly translateService: TranslateService,private readonly tipService: TipService, private readonly appConfigServices: AppConfigService, private readonly router: Router, private readonly cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private readonly activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
+  done: boolean = false;
+
+  constructor(private readonly fieldUtilitiesService: FieldUtilitiesService, private readonly translateService: TranslateService,private readonly tipService: TipService, private readonly appConfigServices: AppConfigService, private readonly router: Router, private readonly cdr: ChangeDetectorRef, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private readonly activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, private utilsService: UtilsService, protected authenticationService: AuthenticationService) {
   }
 
   ngOnInit() {
@@ -384,16 +386,59 @@ export class TipOeComponent implements OnInit {
     this.loading = true;
 
     //todo: invio dei files
+    console.log(this.uploads)
+    console.log(this.answers)
 
-    this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
-      next: (response) => {
-        this.loading = false;
-        this.RTipService.tip.status = 'closed'
-        console.log("sumbit ok, provo a fare reload della segnalazione")
-        this.loadTipDate();
+    //PER VOICE RECORDS
+    // if (this.receivedData !== null && this.receivedData !== undefined && this.receivedData.length > 0) {
+    //    this.receivedData.forEach((item :Flow)=> {
+    //     item.upload();
+    //    });
+    // }
+
+    this.utilsService.resumeFileUploads(this.uploads);
+    this.done = true;
+
+    const intervalId = setInterval(() => {
+      if (this.uploads) {
+        for (const key in this.uploads) {
+
+          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
+            return;
+          }
+        }
       }
-    });
+      if (this.uploading()) {
+        return;
+      }
+
+    //  this.httpService.requestForwardedReportClosing(this.RTipService.tip.id, JSON.stringify(this.answers)).subscribe({
+    //   next: (response) => {
+    //     this.loading = false;
+    //     this.RTipService.tip.status = 'closed'
+    //     console.log("sumbit ok, provo a fare reload della segnalazione")
+    //     this.loadTipDate();
+    //   }
+    // });
+
+      clearInterval(intervalId);
+    }, 1000);
+
+    
           
+  }
+
+  uploading() {
+    let uploading = false;
+    if (this.uploads && this.done) {
+      for (const key in this.uploads) {
+        if (this.uploads[key].flowJs && this.uploads[key].flowJs.isUploading()) {
+          uploading = true;
+        }
+      }
+    }
+
+    return uploading;
   }
 
   notifyFileUpload(uploads: any) {
@@ -402,6 +447,7 @@ export class TipOeComponent implements OnInit {
       this.fieldUtilitiesService.onAnswersUpdate(this);
     }
   }
+
 
 
 }

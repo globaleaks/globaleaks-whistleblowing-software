@@ -1,5 +1,13 @@
 <div *ngIf="field.enabled">
-    <label [for]="field.id">{{ field.label }}{{field.required ? ' - *' : ''}}</label>
+
+
+    <label class="question-label" data-content="field.hint" data-toggle="tooltip" [title]="field.hint" [for]="field.id">
+        <span *ngIf="field.label" class="title">{{field.label|translate}}</span>
+        <i *ngIf="field.hint" class="fa-solid fa-question-circle"></i>
+        <span *ngIf="field.required" class="text-danger sup" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
+    </label>
+
+
     <ng-container [ngSwitch]="field.type">
 
         <div class="form-group">
@@ -14,14 +22,16 @@
         
 
         <div *ngSwitchCase="'checkbox'" class="form-group">
-            <div *ngFor="let option of field.options">
-                <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
-                <label [for]="option.label">{{ option.label }}</label>
+            
+            <div *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; let index = index">
+                {{fieldAnswers[field.id][0][option.id]}}
+                <input type="checkbox" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0][option.id]" />
+                <label [for]="option.label" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
             </div>
         </div>
 
         <div *ngSwitchCase="'multichoice'" class="form-group">
-            <div *ngFor="let option of field.options">
+            <div *ngFor="let option of field.options | orderBy:'order';let innerindex = index">
                 <input type="radio" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
@@ -93,8 +103,8 @@
                 <a [href]="field.attrs.attachment_url.value" rel="noreferrer" target="_blank">{{field.attrs.attachment_text.value}}</a>
             </div>
             <div class="form-check">
-                    <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" />
-                    <label for="{{field.id}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
+                <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" />
+                <label for="{{field.id}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
             </div>
         </div>
 
@@ -126,4 +136,25 @@
         </div> -->
     
     </ng-container>
+
+
+
+
+    <!-- && (displayErrors || validateUploadSubmission()) -->
+    <div *ngIf="field.type !== 'inputbox' && field.type !== 'textarea' && field.required " class="text-danger">{{'This field is mandatory'|translate}}</div>
+    
+    <div *ngIf="field.type === 'selectbox'">
+        <div *ngFor="let option of field.options">
+            <div *ngIf="option.set && option.hint1">
+                <i class="fa-solid fa-info-circle"></i> {{option.hint1}}
+            </div>
+        </div>
     </div>
+
+    <div *ngFor="let option of field.options">
+        <div *ngIf="option.set && option.hint2" [ngClass]="{'text-danger': option.block_submission}">
+            <i class="fa-solid fa-info-circle"></i> {{option.hint2}}
+        </div>
+    </div>
+
+</div>

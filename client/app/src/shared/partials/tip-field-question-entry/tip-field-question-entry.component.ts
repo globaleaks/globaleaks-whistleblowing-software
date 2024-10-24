@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { FieldUtilitiesService } from '@app/shared/services/field-utilities.service';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
@@ -89,16 +90,28 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   dateOptions2: NgbDateStruct;
   dateOptions: {min_date:NgbDateStruct,max_date:NgbDateStruct}={min_date:{year:0,month:0,day:0},max_date:{year:0,month:0,day:0}}
 
+  validator: string | RegExp;
 
   uploads: { [key: string]: any } = {};
 
+  constructor(private fieldUtilitiesService: FieldUtilitiesService){}
+
 
   ngOnInit(): void {
+
+    console.log(JSON.stringify(this.field))
 
    if(this.field.type==='daterange' && this.fieldAnswers[this.field.id][0].value){
     this.input_start_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[0]);
     this.input_end_date = new Date().setTime(this.fieldAnswers[this.field.id][0].value.split(":")[1]);
    }
+
+   if (this.field.type === "inputbox") {
+    const validator_regex = this.fieldUtilitiesService.getValidator(this.field);
+    if (validator_regex.length > 0) {
+      this.validator = validator_regex;
+    }
+  }
    
   }
 

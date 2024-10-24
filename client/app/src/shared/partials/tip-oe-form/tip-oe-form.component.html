@@ -3,7 +3,7 @@
         <span>Review Form</span>
     </div>
     <div class="card-body">
-        <form #submissionForm="ngForm" id="SubmissionForm" (ngSubmit)="onSubmit()">
+        <form #submissionForm="ngForm" id="SubmissionForm" (ngSubmit)="onSubmit()" (ngFormChange)="onFormChange()" >
             <div *ngFor="let field of fields" class="form-group">
                 <src-tip-field-question-entry (notifyFileUpload)="exampleNotify($event)" [editField]="submissionForm" [field]="field" [fieldAnswers]="fieldAnswers" [fileUploadUrl]="fileUploadUrl"></src-tip-field-question-entry>
             </div>     
