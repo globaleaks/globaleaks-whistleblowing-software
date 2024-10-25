@@ -1,13 +1,13 @@
 <div id="TipCommunicationComments" class="card card-default" [attr.aria-expanded]="collapsed">
     <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
-        <span>{{'Comments'|translate}}</span>
+        <span>{{ (title? title : 'Comments') |translate}}</span>
         <span class="">
             <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
             <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
         </span>
     </div>
     <div class="card-body" *ngIf="!collapsed">
-       <div *ngIf="tipService.tip.status !== 'closed' && (key==='whistleblower'? (comments | filter : 'visibility' : key).length < tipService.tip.max_oe_to_whistleblower_comments : true)" class="row">
+       <div *ngIf="!readonly && tipService.tip.status !== 'closed' && (key==='whistleblower'? (comments | filter : 'visibility' : key).length < tipService.tip.max_oe_to_whistleblower_comments : true)" class="row">
            <div class="col-md-12 clearfix">
                 <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off"></textarea>
                 <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>

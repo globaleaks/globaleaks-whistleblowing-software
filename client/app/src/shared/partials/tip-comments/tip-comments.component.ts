@@ -20,6 +20,9 @@ export class TipCommentsComponent implements OnInit {
 
   @Input() tids: number[] = []
 
+  @Input() title: string;
+  @Input() readonly: boolean = false;
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;

@@ -34,6 +34,8 @@
         <src-widget-wbfiles [receivers_by_id]="tip.receivers_by_id" [ctx]="ctx" *ngIf="wbTipService.tip.wbfiles && wbTipService.tip.wbfiles.length"></src-widget-wbfiles>
     </div>
 </div>
+
+
 <div class="row">
     <div class="col-md-12">
         <ng-container *ngIf="wbTipService">
@@ -42,11 +44,11 @@
     </div>
 </div>
 
-<!--todo COMMENTI DA OE VERSO WHISTLEBLOWER NON SALGONO SU SEGNALAZIONE PRINCIPALE -->
-<!-- <div class="row"> 
+
+<div class="row" *ngIf="wbTipService && (tip.comments | filter : 'visibility' : 'whistleblower').length > 0">
     <div class="col-md-12">
         <ng-container *ngIf="wbTipService">
-            <src-tip-comments [tipService]="wbTipService" [key]="'whistleblower'"></src-tip-comments>
+            <src-tip-comments [readonly]="true" [tipService]="wbTipService" [key]="'whistleblower'" [title]="'Comments from EO'"></src-tip-comments>
         </ng-container>
     </div>
-</div> -->
+</div>
