@@ -306,6 +306,10 @@ export class HttpService {
     return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog");
   }
 
+  requestAdminAuditLogResourceFromLastBackup(): Observable<auditlogResolverModel> {
+    return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog/backup");
+  }
+
   addQuestionnaire(param: NewQuestionare): Observable<questionnaireResolverModel> {
     return this.httpClient.post<questionnaireResolverModel>("api/admin/questionnaires", param);
   }
