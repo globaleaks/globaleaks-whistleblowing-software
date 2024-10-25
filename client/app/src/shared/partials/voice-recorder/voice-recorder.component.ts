@@ -18,6 +18,9 @@ export class VoiceRecorderComponent implements OnInit {
   @Input() fileUploadUrl: string = "api/whistleblower/submission/attachment";
   @Input() entryIndex: number;
   @Input() fieldEntry: string;
+
+  @Input() customQuery: any;
+
   _fakeModel: File;
   fileInput: string;
   seconds: number = 0;
@@ -79,7 +82,7 @@ export class VoiceRecorderComponent implements OnInit {
     this.flow = this.utilsService.flowDefault;
     this.flow.opts.target =  this.fileUploadUrl,
     this.flow.opts.singleFile =  this.field !== undefined && !this.field.multi_entry;
-    this.flow.opts.query = {type: "audio.webm", reference_id: fileId},
+    this.flow.opts.query = this.customQuery ? {...{type: "audio.webm", reference_id: fileId}, ...this.customQuery} : {type: "audio.webm", reference_id: fileId};
     this.flow.opts.headers = {"X-Session": this.authenticationService.session.id};
     this.secondsTracker = setInterval(() => {
       this.seconds += 1;

@@ -32,6 +32,8 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild("flow") flow: FlowDirective;
 
+  @Input() customQuery: any;
+
   autoUploadSubscription: Subscription;
   fileInput: string;
   showError: boolean = false;
@@ -48,7 +50,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
 
     this.flowConfig.target = this.fileUploadUrl;
     this.flowConfig.singleFile = (this.field !== undefined && !this.field.multi_entry);
-    this.flowConfig.query = {reference_id: this.field ? this.field.id:""};
+    this.flowConfig.query = this.customQuery ? this.customQuery : {reference_id: this.field ? this.field.id:""};
     this.flowConfig.headers = {"X-Session": this.authenticationService.session.id};
     this.fileInput = this.field ? this.field.id : "status_page";
   }

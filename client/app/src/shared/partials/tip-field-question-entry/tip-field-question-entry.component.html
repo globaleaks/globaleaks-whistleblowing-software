@@ -108,12 +108,19 @@
 
         <div [id]="field.id" *ngSwitchCase="'voice'">
             <src-voice-recorder (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" 
+            [customQuery]="{description:'', visibility:'oe', tids:[]}"
             [uploads]="uploads" [field]="field" [fieldEntry]="fieldAnswers[field.id][0]"></src-voice-recorder>
         </div>
 
         <div [id]="field.id" *ngSwitchCase="'fileupload'">
-            <src-rfile-upload-button [file_id]="field.id" (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads"></src-rfile-upload-button>
+            <src-rfile-upload-button [customQuery]="{reference_id: field ? field.id:'', description:'', visibility:'oe', tids:[]}"
+             [file_id]="field.id" (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads" ></src-rfile-upload-button>
         </div>
+
+        <!-- description: file.description,
+            visibility: 'oe',
+            fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024,
+            tids: "["+this.selectedOrganizations.map(_=> _.tid).toString()+"]" -->
 
         <!-- <div *ngSwitchCase="'fieldgroup'">
             <div [ngSwitch]="field.attrs.multimedia_type.value">
