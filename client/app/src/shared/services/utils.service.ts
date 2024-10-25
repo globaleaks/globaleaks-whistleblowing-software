@@ -893,7 +893,7 @@ export class UtilsService {
             return c.substring(cookieName.length, c.length);
         }
     }
-    return '';
+    return null;
   }
 
 }
