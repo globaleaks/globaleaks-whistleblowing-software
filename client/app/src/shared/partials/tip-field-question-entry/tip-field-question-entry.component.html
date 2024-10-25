@@ -117,10 +117,6 @@
              [file_id]="field.id" (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads" ></src-rfile-upload-button>
         </div>
 
-        <!-- description: file.description,
-            visibility: 'oe',
-            fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024,
-            tids: "["+this.selectedOrganizations.map(_=> _.tid).toString()+"]" -->
 
         <!-- <div *ngSwitchCase="'fieldgroup'">
             <div [ngSwitch]="field.attrs.multimedia_type.value">

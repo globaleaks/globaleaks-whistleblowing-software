@@ -53,9 +53,18 @@ export class AccredComponent implements OnInit{
 
   constructor(public router: Router, private activatedRoute: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService, private httpService: HttpService) {}
   
+
   
   ngOnInit(): void {
-   this.loadOrganizationData();
+    let cookie = this.utilsService.getCookie('x-idp-userid');
+
+    if(cookie == null)
+      this.router.navigate(['/']);
+    
+    
+    this.loadOrganizationData();
+    
+
   }
 
   loadOrganizationData(){
