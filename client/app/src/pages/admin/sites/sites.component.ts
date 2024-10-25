@@ -1,4 +1,4 @@
-import {Component, TemplateRef, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef} from "@angular/core";
+import {Component, TemplateRef, ViewChild, AfterViewInit, ChangeDetectorRef} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
@@ -9,7 +9,7 @@ import {SitesTab2Component} from "@app/pages/admin/sites/sites-tab2/sites-tab2.c
   selector: "src-sites",
   templateUrl: "./sites.component.html"
 })
-export class SitesComponent implements OnInit, AfterViewInit {
+export class SitesComponent implements AfterViewInit {
   @ViewChild("tab1") tab1!: TemplateRef<SitesTab1Component>;
   @ViewChild("tab2") tab2!: TemplateRef<SitesTab2Component>;
 
@@ -18,9 +18,6 @@ export class SitesComponent implements OnInit, AfterViewInit {
   active: string;
 
   constructor(public node: NodeResolver, public authenticationService: AuthenticationService, private cdr: ChangeDetectorRef) {
-  }
-
-  ngOnInit() {
   }
 
   ngAfterViewInit(): void {

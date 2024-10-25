@@ -6,7 +6,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
@@ -43,9 +42,7 @@ export class UserEditorComponent implements OnInit {
     if (this.nodeResolver.dataModel) {
       this.nodeData = this.nodeResolver.dataModel;
     }
-    // if (this.preference.dataModel) {
-    //   this.preferenceData = this.preference.dataModel;
-    // }
+
     if (this.authenticationService) {
       this.authenticationData = this.authenticationService;
     }

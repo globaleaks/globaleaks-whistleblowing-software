@@ -12,7 +12,6 @@ export class BackupComponent implements AfterViewInit {
     tabs: Tab[] = [];
     active: string;
 
-    constructor() {}
 
     ngAfterViewInit(): void {
         setTimeout(() => {

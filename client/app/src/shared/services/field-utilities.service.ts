@@ -11,8 +11,6 @@ import {Constants} from "@app/shared/constants/constants";
 })
 export class FieldUtilitiesService {
 
-  constructor() {
-  }
 
   parseQuestionnaire(questionnaire: any, parsedFields: ParsedFields) {
     questionnaire.steps.forEach((step: Step)=> {

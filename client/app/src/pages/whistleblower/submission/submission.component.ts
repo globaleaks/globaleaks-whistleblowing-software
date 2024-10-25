@@ -1,5 +1,5 @@
-import {Component, OnInit, SimpleChanges, QueryList, ViewChild, ViewChildren} from "@angular/core";
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import { ActivatedRoute, Router } from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
@@ -13,7 +13,6 @@ import {Answers} from "@app/models/reciever/reciever-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import * as Flow from "@flowjs/flow.js";
 import {TitleService} from "@app/shared/services/title.service";
-import {Router} from "@angular/router";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
 
 @Component({

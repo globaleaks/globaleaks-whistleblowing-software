@@ -146,7 +146,7 @@ export class TipOeComponent implements OnInit {
   }
 
 
-  openGrantTipAccessModal(): void {
+  openGrantTipAccessModal() {
     this.utils.runUserOperation("get_users_names", {}, false).subscribe({
       next: response => {
         const selectableRecipients: Receiver[] = [];

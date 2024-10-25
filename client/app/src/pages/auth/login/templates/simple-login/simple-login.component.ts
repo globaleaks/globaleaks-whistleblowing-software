@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {NgForm} from "@angular/forms";
@@ -8,7 +8,7 @@ import {AppDataService} from "@app/app-data.service";
   selector: "app-simple-login",
   templateUrl: "./simple-login.component.html",
 })
-export class SimpleLoginComponent implements OnInit {
+export class SimpleLoginComponent {
 
   @Input() loginData: LoginDataRef;
   @Input() loginValidator: NgForm;
@@ -16,7 +16,5 @@ export class SimpleLoginComponent implements OnInit {
   constructor(protected authentication: AuthenticationService, protected appDataService: AppDataService) {
   }
 
-  public ngOnInit(): void {
 
-  }
 }

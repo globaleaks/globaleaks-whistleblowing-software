@@ -15,8 +15,6 @@ export class BrowserCheckService {
     Android: 4.4,
   };
 
-  constructor() {
-  }
 
   checkBrowserSupport(): boolean {
     const browser = this.getBrowser();

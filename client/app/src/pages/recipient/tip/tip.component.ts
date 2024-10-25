@@ -138,7 +138,7 @@ export class TipComponent implements OnInit {
     });
   }
 
-  openGrantTipAccessModal(): void {
+  openGrantTipAccessModal() {
     this.utils.runUserOperation("get_users_names", {}, false).subscribe({
       next: response => {
         const selectableRecipients: Receiver[] = [];
