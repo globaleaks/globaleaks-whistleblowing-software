@@ -106,12 +106,13 @@
             </div>
         </div>
 
-        <!-- <div [id]="field.id" *ngSwitchCase="'voice'">
-            <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="campo" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry"></src-voice-recorder>
-        </div> -->
+        <div [id]="field.id" *ngSwitchCase="'voice'">
+            <src-voice-recorder (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" 
+            [uploads]="uploads" [field]="field" [fieldEntry]="fieldAnswers[field.id][0]"></src-voice-recorder>
+        </div>
 
         <div [id]="field.id" *ngSwitchCase="'fileupload'">
-            <src-rfile-upload-button [file_id]="field.id" (notifyFileUpload)="testEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads"></src-rfile-upload-button>
+            <src-rfile-upload-button [file_id]="field.id" (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads"></src-rfile-upload-button>
         </div>
 
         <!-- <div *ngSwitchCase="'fieldgroup'">

@@ -12,9 +12,10 @@ import { UtilsService } from "@app/shared/services/utils.service";
   templateUrl: "./voice-recorder.component.html"
 })
 export class VoiceRecorderComponent implements OnInit {
+
   @Input() uploads: any;
   @Input() field: Field;
-  @Input() fileUploadUrl: string;
+  @Input() fileUploadUrl: string = "api/whistleblower/submission/attachment";
   @Input() entryIndex: number;
   @Input() fieldEntry: string;
   _fakeModel: File;
@@ -45,7 +46,7 @@ export class VoiceRecorderComponent implements OnInit {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");
     this.fileInput = this.field ? this.field.id : "status_page";
     this.uploads={}
-    this.fileUploadUrl="api/whistleblower/submission/attachment";
+    // this.fileUploadUrl="api/whistleblower/submission/attachment";
     this.uploads[this.fileInput] = {files: []};
 
     this.initAudioContext()
@@ -192,7 +193,10 @@ export class VoiceRecorderComponent implements OnInit {
 
         this.audioPlayer = true;
         this.uploads[this.fileInput] = this.flow;
+
         this.submissionService.setSharedData(this.flow);
+      
+        this.notifyFileUpload.emit(this.uploads);
 
         if (this.entry) {
           if (!this.entry.files) {

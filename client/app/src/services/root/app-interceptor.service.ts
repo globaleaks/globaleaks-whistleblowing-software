@@ -65,8 +65,6 @@ export class appInterceptor implements HttpInterceptor {
       return next.handle(httpRequest);
     }
 
-    console.log("httpRequest", httpRequest); //TODO -> DA ELIMINARE
-
     const authHeader = this.authenticationService.getHeader();
     let authRequest = httpRequest;
 
@@ -81,7 +79,6 @@ export class appInterceptor implements HttpInterceptor {
       headers: authRequest.headers.set("Accept-Language", this.getAcceptLanguageHeader() || ""),
     });
 
-    console.log("authRequest", authRequest); //TODO -> DA ELIMINARE
 
     if (httpRequest.url.includes("api/signup") || httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session || protectedUrls.includes(httpRequest.url)
       || this.checkRegexProtectedUrl(httpRequest.url)) {

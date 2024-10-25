@@ -25,7 +25,6 @@ export class AccreditationRequestComponent {
 
     onSubmit() {
         if (this.isFormValid) {
-            console.log(this.organizationInfo);
             this.httpService.sendAccreditationRequest(this.organizationInfo).subscribe({
                 next: () => {
                     this.location.back();

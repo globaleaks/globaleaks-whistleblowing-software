@@ -149,7 +149,6 @@ export class HttpService {
 
   requestForwardedReportClosing(uuid:string, param: any): Observable<{ receipt: string }>{
     const body = {answers: param}
-    console.log("api/recipient/wbtip/"+uuid+"/close")
     return this.httpClient.post<{ receipt: string }>("api/recipient/wbtip/"+uuid+"/close", body);
   }
 

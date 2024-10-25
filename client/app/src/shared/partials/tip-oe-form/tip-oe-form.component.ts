@@ -22,25 +22,16 @@ export class TipOeFormComponent{
   @Input() fileUploadUrl: string;
 
 
-  constructor(private fieldUtilitiesService: FieldUtilitiesService){}
-
   validateUploadSubmission() {
     // return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
   }
 
   exampleNotify(event: any){
-    console.log("example notify in tipOEForm")
     this.notifyFileUpload.emit(event);
   }
 
-  onSubmit() { 
-    
-    this.sumbitFormEvent.emit();
-    
-  }
-
-  onFormChange(){
-    this.fieldUtilitiesService.onAnswersUpdate(this);
+  onSubmit() {
+    this.sumbitFormEvent.emit();  
   }
 
 
