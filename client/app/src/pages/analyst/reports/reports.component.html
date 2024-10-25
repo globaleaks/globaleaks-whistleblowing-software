@@ -193,7 +193,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let row of filteredRowsPaginated">
+                <tr *ngFor="let row of filteredRows | slice:((currentPage - 1) * itemsPerPage):((currentPage - 1) * itemsPerPage + itemsPerPage)">
                     <td *ngFor="let key of tableHeaders">
                         <ng-container [ngSwitch]="key">
                             <td *ngSwitchCase="INTERNAL_TIPS_CREATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
@@ -205,27 +205,30 @@
                 </tr>
             </tbody>
         </table>
+        <div class="d-flex justify-content-center" *ngIf="filteredRows.length > itemsPerPage">
+            <ngb-pagination class="pagination-sm" [collectionSize]="filteredRows.length" [(page)]="currentPage" [pageSize]="itemsPerPage" [maxSize]="10" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
+                <ng-template ngbPaginationPrevious>
+                     &lt; {{ 'Previous' | translate }}
+                </ng-template>
+                <ng-template ngbPaginationNext>
+                    {{ 'Next' | translate }} &gt;
+                </ng-template>
+                <ng-template ngbPaginationFirst>
+                     &lt;&lt; {{ 'First' | translate }}
+                </ng-template>
+                <ng-template ngbPaginationLast>
+                    {{ 'Last' | translate }} &gt;&gt;
+                </ng-template>
+            </ngb-pagination>
+        </div>
+        <div class="float-end">
+            <a class="btn btn-sm btn-link" type="button" *ngIf="filteredRows.length > 0" (click)="exportToCsv()">
+                <i class="fa-solid fa-download"></i>
+                <span>{{ 'Export' | translate }}</span>
+            </a>
+        </div>
         <div *ngIf="tableHeaders.length === 0" class="alert alert-info mt-3">
             <span>{{ 'No results found.' | translate}}</span>
         </div>
-    </div>
-</div>
-
-<div class="row mt-3" *ngIf="isSearchInitiated && totalPages > 1">
-    <div class="col-12 d-flex justify-content-center">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <li class="page-item" [class.disabled]="currentPage === 0">
-                    <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
-                </li>
-                <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
-                    [class.active]="i === currentPage" [class.disabled]="i >= totalPages">
-                    <a class="page-link" (click)="changePage(i)">{{ i + 1 }}</a>
-                </li>
-                <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-                    <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
-                </li>
-            </ul>
-        </nav>
     </div>
 </div>

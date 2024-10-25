@@ -5,6 +5,7 @@ import {TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings} from "ng-multiselect-dropdown";
 import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
 import { HttpService } from "@app/shared/services/http.service";
+import { UtilsService } from "@app/shared/services/utils.service";
 
 @Component({
     selector: "src-reports",
@@ -52,7 +53,6 @@ export class ReportsComponent implements OnInit {
     dropdownStatusData: { id: number, label: string | number | null }[] = [];
     
     filteredRows: ResultsRow[] = [];
-    filteredRowsPaginated: ResultsRow[] = [];
     dropdownSettings: IDropdownSettings = {
         idField: "id",
         textField: "label",
@@ -90,14 +90,14 @@ export class ReportsComponent implements OnInit {
     isSearchInitiated: boolean = false;
 
     allResults: Results = [];
-    currentPage: number = 0;
-    pageSize: number = 3;
+    currentPage: number = 1;
+    itemsPerPage: number = 20;
 
     charts: any[] = [];
     summary: Summary = {};
     summaryKeys: { id: string, label: string }[] = [];
     
-    constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService) {}
+    constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService, protected utils: UtilsService) {}
 
     ngOnInit(): void {
         this.maxDate = {
@@ -169,13 +169,10 @@ export class ReportsComponent implements OnInit {
                 date_to: dateTo
             };
 
-            console.log("Request body:", bodyReq);
-
             this.httpService.getStatisticalData(bodyReq).subscribe({
                 next: (res) => {
-                    console.log("Response:", res);
-
                     // TODO: to be removed only for testing
+                    // console.log("Response:", res);
                     // res = this.mockResponse;
                     // END TODO: to be removed only for testing
 
@@ -186,7 +183,7 @@ export class ReportsComponent implements OnInit {
                 }
             });
         } else {
-            console.log("Il form non è valido.");
+            console.log("Form is not valid.");
         }
     }
 
@@ -207,32 +204,12 @@ export class ReportsComponent implements OnInit {
 
             this.summary = res.summary;
             this.generateSummaryKeys();
-            console.log("Summary:", this.summary);
 
-            this.currentPage = 0;
-            this.updatePagination();
+            this.currentPage = 1;
         } else {
             this.tableHeaders = [];
             this.tableRows = [];
-            console.log("Nessun risultato trovato.");
         }
-    }
-
-    private updatePagination(): void {
-        const startIndex = this.currentPage * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-        this.filteredRowsPaginated = this.filteredRows.slice(startIndex, endIndex);
-    }
-
-    changePage(newPage: number): void {
-        if (newPage >= 0 && newPage < this.totalPages) {
-            this.currentPage = newPage;
-            this.updatePagination();
-        }
-    }
-
-    get totalPages(): number {
-        return Math.ceil(this.filteredRows.length / this.pageSize);
     }
 
     private populateTableHeaders(results: ReportEntry[][]): void {
@@ -307,10 +284,6 @@ export class ReportsComponent implements OnInit {
 
         date.setHours(0, 0, 0, 0);
         return date;
-    }
-
-    private isDateInRange(date: Date, startDate: Date, endDate: Date): boolean {
-        return date >= startDate && date <= endDate;
     }
 
     private getMinMaxDatesForField(dateField: string): { minDate: Date | null; maxDate: Date | null } {
@@ -421,8 +394,7 @@ export class ReportsComponent implements OnInit {
         });
     
         this.filteredRows = filtered;
-        this.currentPage = 0;
-        this.updatePagination();
+        this.currentPage = 1;
     }
 
     checkFilter(): boolean {
@@ -487,7 +459,6 @@ export class ReportsComponent implements OnInit {
     updateCharts(): void {
         this.charts = this.charts.map(chart => {
             const selectedColumn = this.summaryKeys.find(key => key.id === chart.columnId);
-            console.log("Selected column:", selectedColumn);
            return this.createChartConfig(selectedColumn?.id ?? '', chart.type, selectedColumn?.label ?? '')
         });
     }
@@ -510,7 +481,8 @@ export class ReportsComponent implements OnInit {
             return this.createEmptyChartData('Nessun dato');
         }
         
-        const labels = Object.keys(data);
+        // const labels = Object.keys(data);
+        const labels = Object.keys(data).map(key => `${key}: ${data[key]}`);
         const values = Object.values(data);
     
         return {
@@ -545,6 +517,30 @@ export class ReportsComponent implements OnInit {
             'rgba(255, 205, 86, 0.6)',
             'rgba(75, 192, 192, 0.6)'
         ];
+    }
+
+    getDataCsv(): any[] {
+        const fields = new Set<string>();
+        this.filteredRows.forEach(row => Object.keys(row).forEach(field => fields.add(field)));
+
+        return this.filteredRows.map(row => {
+            const dataRow: any = {};
+            fields.forEach(field => {
+                dataRow[field] = row[field] || '';
+            });
+            return dataRow;
+        });
+    }
+    
+    getDataCsvHeaders(): string[] {
+        const headers = new Set<string>();
+        this.filteredRows.forEach(row => Object.keys(row).forEach(field => headers.add(field)));
+    
+        return Array.from(headers);
+    }
+
+    exportToCsv(): void {
+        this.utils.generateCSV(JSON.stringify(this.getDataCsv()), 'reports',this.getDataCsvHeaders());
     }
 
     // TODO: to be removed only for testing
