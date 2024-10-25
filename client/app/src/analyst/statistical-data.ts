@@ -1,6 +1,4 @@
 export interface StatisticalRequestModel {
-    pg_size: number;
-    pg_num: number;
     is_oe: boolean;
     date_from: string;
     date_to: string;

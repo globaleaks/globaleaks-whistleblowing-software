@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
-import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDate, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 import {TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings} from "ng-multiselect-dropdown";
 import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
@@ -16,19 +16,32 @@ export class ReportsComponent implements OnInit {
     input_start_date: NgbDateStruct;
     input_end_date: NgbDateStruct;
 
-    reportType: string = '';    
+    reportType: string = '';
+
+    readonly INTERNAL_TIPS_ID: string = 'internal_tip_id';
+    readonly INTERNAL_TIPS_STATUS: string = 'internal_tip_status';
+    readonly INTERNAL_TIPS_CREATION_DATE: string = 'internal_tip_creation_date';
+    readonly INTERNAL_TIPS_UPDATE_DATE: string = 'internal_tip_update_date';
+    readonly INTERNAL_TIPS_EXPIRATION_DATE: string = 'internal_tip_expiration_date';
+    readonly INTERNAL_TIPS_READ_RECEIPT: string = 'internal_tip_read_receip';
+    readonly INTERNAL_TIPS_FILE_COUNT: string = 'internal_tip_file_count';
+    readonly INTERNAL_TIPS_COMMENT_COUNT: string = 'internal_tip_comment_count';
+    readonly INTERNAL_TIPS_RECEIVER_COUNT: string = 'internal_tip_receiver_count';
+    readonly INTERNAL_TIPS_CREATION_DATE_YEARS: string = 'internal_tip_creation_date_years';
+    readonly INTERNAL_TIPS_CREATION_DATE_MONTH: string = 'internal_tip_creation_date_month';
+    readonly LAST_ACCESS: string = 'last_access';
     
     fixedHeaders: string[] = [
-        "internal_tip_id", "internal_tip_status",
-        "internal_tip_creation_date", "internal_tip_update_date",
-        "internal_tip_expiration_date", "internal_tip_read_receip",
-        "internal_tip_file_count", "internal_tip_comment_count",
-        "internal_tip_receiver_count"
+        this.INTERNAL_TIPS_ID, this.INTERNAL_TIPS_STATUS,
+        this.INTERNAL_TIPS_CREATION_DATE, this.INTERNAL_TIPS_UPDATE_DATE,
+        this.INTERNAL_TIPS_EXPIRATION_DATE, this.INTERNAL_TIPS_READ_RECEIPT,
+        this.INTERNAL_TIPS_FILE_COUNT, this.INTERNAL_TIPS_COMMENT_COUNT,
+        this.INTERNAL_TIPS_RECEIVER_COUNT
     ];
     excludedHeaders: string[] = [
-        'last_access',
-        'internal_tip_creation_date_years',
-        'internal_tip_creation_date_month'
+        this.LAST_ACCESS,
+        this.INTERNAL_TIPS_CREATION_DATE_YEARS,
+        this.INTERNAL_TIPS_CREATION_DATE_MONTH
     ];
     dinamicHeaders: string[] = [];
     tableHeaders: string[] = [];
@@ -37,6 +50,7 @@ export class ReportsComponent implements OnInit {
     dropdownStatusModel: any[] = [];
     statusDropdownVisible: boolean = false;
     dropdownStatusData: { id: number, label: string | number | null }[] = [];
+    
     filteredRows: ResultsRow[] = [];
     filteredRowsPaginated: ResultsRow[] = [];
     dropdownSettings: IDropdownSettings = {
@@ -50,10 +64,28 @@ export class ReportsComponent implements OnInit {
     };
 
     creationDatePicker: boolean = false;
-    creationDateModel: any;
-    minCreationDate: any;
-    maxCreationDate: any;
-    creationDateFilter: boolean = false;
+    minCreationDate: Date | null;
+    maxCreationDate: Date | null;
+
+    updateDatePicker: boolean = false;
+    minUpdateDate: Date | null;
+    maxUpdateDate: Date | null;
+
+    expirationDatePicker: boolean = false;
+    minExpirationDate: Date | null;
+    maxExpirationDate: Date | null;
+
+    dateFilters: { [key: string]: boolean } = {
+        creation: false,
+        update: false,
+        expiration: false
+    };
+
+    dateModels: { [key: string]: { fromDate: Date | null, toDate: Date | null } | null } = {
+        creation: null,
+        update: null,
+        expiration: null
+    };
 
     isSearchInitiated: boolean = false;
 
@@ -65,7 +97,7 @@ export class ReportsComponent implements OnInit {
     summary: Summary = {};
     summaryKeys: { id: string, label: string }[] = [];
     
-    constructor(private httpService: HttpService, private translateService: TranslateService) {}
+    constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService) {}
 
     ngOnInit(): void {
         this.maxDate = {
@@ -110,26 +142,28 @@ export class ReportsComponent implements OnInit {
         }
     }
 
-    private formatDate(date: NgbDateStruct): string {
+    private fromNgbDateToString(date: NgbDateStruct | null): string {
         if (!date) {
             return '';
         }
-        const year = date.year;
-        const month = date.month.toString().padStart(2, '0');
-        const day = date.day.toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
+        return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+    }
+
+    fromDatetoNgbDate(date: Date | null): NgbDate | null {
+        if (!date) {
+            return null;
+        }
+        return new NgbDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
     }
 
     searchReports(form: NgForm): void {
         if (form.valid) {
             this.isSearchInitiated = true;
             
-            const dateFrom = this.formatDate(this.input_start_date);
-            const dateTo = this.formatDate(this.input_end_date);
+            const dateFrom = this.fromNgbDateToString(this.input_start_date);
+            const dateTo = this.fromNgbDateToString(this.input_end_date);
 
             const bodyReq: StatisticalRequestModel = {
-                pg_size: 3,
-                pg_num: 0,
                 is_oe: this.reportType === 'tipsOE',
                 date_from: dateFrom,
                 date_to: dateTo
@@ -142,7 +176,7 @@ export class ReportsComponent implements OnInit {
                     console.log("Response:", res);
 
                     // TODO: to be removed only for testing
-                    res = this.mockResponse;
+                    // res = this.mockResponse;
                     // END TODO: to be removed only for testing
 
                     this.processResponse(res);
@@ -165,7 +199,7 @@ export class ReportsComponent implements OnInit {
     }
 
     private processResponse(res: StatisticalResponseModel): void {
-        if (res && res.results && res.results.length > 0) {
+        if (res?.results?.length > 0) {
             this.allResults = res.results;
 
             this.populateTableHeaders(this.allResults);
@@ -224,9 +258,9 @@ export class ReportsComponent implements OnInit {
     
         reportArray.forEach((entry: ReportEntry) => {
             const value = String(entry.value);
-            if (entry.id === 'last_access') {
+            if (entry.id === this.LAST_ACCESS) {
                 lastAccess = value;
-            } else if (entry.id === 'internal_tip_update_date') {
+            } else if (entry.id === this.INTERNAL_TIPS_UPDATE_DATE) {
                 updateDate = value;
                 row[entry.id] = updateDate;
             } else {
@@ -234,7 +268,7 @@ export class ReportsComponent implements OnInit {
             }
         });
     
-        row['internal_tip_read_receip'] = lastAccess >= updateDate ? '✔' : '✘';
+        row[this.INTERNAL_TIPS_READ_RECEIPT] = lastAccess >= updateDate ? '✔' : '✘';
     
         this.tableHeaders.forEach(header => {
             if (!(header in row)) {
@@ -253,13 +287,13 @@ export class ReportsComponent implements OnInit {
 
     private populateDropdownAndDateRanges(): void {
         this.populateStatusDropdown();
-        this.calculateCreationDateRange();
+        this.calculateDataRange();
     }
 
     private populateStatusDropdown(): void {
-        const statusIndex = this.tableHeaders.indexOf('internal_tip_status');
+        const statusIndex = this.tableHeaders.indexOf(this.INTERNAL_TIPS_STATUS);
         if (statusIndex !== -1) {
-            const statusSet = new Set(this.tableRows.map(row => row['internal_tip_status']));
+            const statusSet = new Set(this.tableRows.map(row => row[this.INTERNAL_TIPS_STATUS]));
             this.dropdownStatusData = Array.from(statusSet).map((status, index) => ({
                 id: index + 1,
                 label: status
@@ -279,33 +313,65 @@ export class ReportsComponent implements OnInit {
         return date >= startDate && date <= endDate;
     }
 
-    private calculateCreationDateRange(): void {
-        const creationDates = this.tableRows
-            .map(row => row['internal_tip_creation_date'])
-            .filter((dateString): dateString is string => dateString !== null)
-            .map(dateString => this.parseDate(dateString))
-            .filter((date): date is Date => date !== null);
+    private getMinMaxDatesForField(dateField: string): { minDate: Date | null; maxDate: Date | null } {
+        let minDate: Date | null = null;
+        let maxDate: Date | null = null;
     
-        if (creationDates.length > 0) {
-            this.minCreationDate = new Date(Math.min(...creationDates.map(date => date.getTime())));
-            this.maxCreationDate = new Date(Math.max(...creationDates.map(date => date.getTime())));
+        this.tableRows.forEach(row => {
+            const dateString = row[dateField];
+            const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
+    
+            if (date) {
+                if (!minDate || date < minDate) {
+                    minDate = date;
+                }
+                if (!maxDate || date > maxDate) {
+                    maxDate = date;
+                }
+            }
+        });
+    
+        return { minDate, maxDate };
+    }
+
+    private calculateDataRange(): void {
+        const creationDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_CREATION_DATE);
+        const updateDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_UPDATE_DATE);
+        const expirationDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_EXPIRATION_DATE);
+    
+        this.minCreationDate = creationDates.minDate;
+        this.maxCreationDate = creationDates.maxDate;
+    
+        this.minUpdateDate = updateDates.minDate;
+        this.maxUpdateDate = updateDates.maxDate;
+    
+        this.minExpirationDate = expirationDates.minDate;
+        this.maxExpirationDate = expirationDates.maxDate;
+    }
+
+    toggleDatePicker(type: 'creation' | 'update' | 'expiration'): void {
+        switch (type) {
+            case 'creation':
+                this.creationDatePicker = !this.creationDatePicker;
+                break;
+            case 'update':
+                this.updateDatePicker = !this.updateDatePicker;
+                break;
+            case 'expiration':
+                this.expirationDatePicker = !this.expirationDatePicker;
+                break;
         }
     }
 
-    toggleDatePicker(): void {
-        this.creationDatePicker = !this.creationDatePicker;
-    }
-
-    onCreationDateFilterChange(event: { fromDate: string | null, toDate: string | null }): void {
-        const { fromDate, toDate } = event;
+    onDateFilterChange(dates: { fromDate: string | null, toDate: string | null }, type: 'creation' | 'update' | 'expiration'): void {
+        const { fromDate, toDate } = dates;
 
         if (!fromDate || !toDate) {
-            this.creationDateFilter = false;
-            this.creationDateModel = null;
-            this.filteredRows = [...this.tableRows];
+            this.dateFilters[type] = false;
+            this.dateModels[type] = null;
         } else {
-            this.creationDateFilter = true;
-            this.creationDateModel = { fromDate, toDate };
+            this.dateFilters[type] = true;
+            this.dateModels[type] = { fromDate: new Date(fromDate), toDate: new Date(toDate) };
         }
     
         this.applyFilters();
@@ -322,28 +388,37 @@ export class ReportsComponent implements OnInit {
         }
     }
 
+    private applyDateFilter(filteredRows: ResultsRow[], dateField: string, dateModel: { fromDate: Date | null; toDate: Date | null }): ResultsRow[] {
+        if (!dateModel.fromDate || !dateModel.toDate) return filteredRows;
+    
+        const startDate = dateModel.fromDate;
+        const endDate = dateModel.toDate;
+    
+        return filteredRows.filter(row => {
+            const dateString = row[dateField];
+            const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
+            return date && date >= startDate && date <= endDate;
+        });
+    }
+
     private applyFilters(): void {
         let filtered = [...this.tableRows];
     
         // Filter by status
         if (this.dropdownStatusModel.length > 0) {
             const selectedStatuses = this.dropdownStatusModel.map(status => status.label);
-            filtered = filtered.filter(row => selectedStatuses.includes(row['internal_tip_status']));
+            filtered = filtered.filter(row => selectedStatuses.includes(row[this.INTERNAL_TIPS_STATUS]));
         }
     
-        // Filter by creation date
-        if (this.creationDateFilter && this.creationDateModel) {
-            const startDate = this.parseDate(this.creationDateModel.fromDate);
-            const endDate = this.parseDate(this.creationDateModel.toDate);
-    
-            if (startDate && endDate) {
-                filtered = filtered.filter(row => {
-                    const dateString = row['internal_tip_creation_date'];
-                    const date = typeof dateString === 'string' ? this.parseDate(dateString) : null;
-                    return date && this.isDateInRange(date, startDate, endDate);
-                });
+        // Filter by date
+        const dateFields = ['creation', 'update', 'expiration'] as const;
+        dateFields.forEach(type => {
+            const dateModel = this.dateModels[type];
+            if (this.dateFilters[type] && dateModel) {
+                const dateField = `internal_tip_${type}_date`;
+                filtered = this.applyDateFilter(filtered, dateField, dateModel);
             }
-        }
+        });
     
         this.filteredRows = filtered;
         this.currentPage = 0;
@@ -358,8 +433,19 @@ export class ReportsComponent implements OnInit {
         this.dropdownStatusModel = [];
         this.statusDropdownVisible = false;
         this.creationDatePicker = false;
-        this.creationDateFilter = false;
-        this.creationDateModel = null;
+        this.minCreationDate = null;
+        this.maxCreationDate = null;
+        this.updateDatePicker = false;
+        this.minUpdateDate = null;
+        this.maxUpdateDate = null;
+        this.expirationDatePicker = false;
+        this.minExpirationDate = null;
+        this.maxExpirationDate = null;
+        const dateFields = ['creation', 'update', 'expiration'] as const;
+        dateFields.forEach(type => {
+            this.dateModels[type] = null;
+            this.dateFilters[type] = false;
+        });
         this.filteredRows = [...this.tableRows];
     }
 
@@ -488,7 +574,7 @@ export class ReportsComponent implements OnInit {
                 {
                     "id": "internal_tip_expiration_date",
                     "label": "internal_tip_expiration_date",
-                    "value": "2025-01-15T23:59:59Z"
+                    "value": "2024-12-30T23:59:59Z"
                 },
                 {
                     "id": "internal_tip_status",

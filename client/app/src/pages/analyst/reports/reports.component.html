@@ -94,10 +94,10 @@
                 <tr>
                     <ng-container *ngFor="let header of tableHeaders">
                         <ng-container [ngSwitch]="header">
-                            <th class="TipInfoID" *ngSwitchCase="'internal_tip_id'">
+                            <th class="TipInfoID" *ngSwitchCase="INTERNAL_TIPS_ID">
                                 <i class="fa-solid fa-hashtag"></i>
                             </th>
-                            <th class="TipInfoStatus" *ngSwitchCase="'internal_tip_status'">
+                            <th class="TipInfoStatus" *ngSwitchCase="INTERNAL_TIPS_STATUS">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-dot-circle"></i>
                                     <span>{{'Status' | translate}}</span>
@@ -116,44 +116,73 @@
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoSubmissionDate" *ngSwitchCase="'internal_tip_creation_date'">
+                            <th class="TipInfoSubmissionDate" *ngSwitchCase="INTERNAL_TIPS_CREATION_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-clock"></i>
                                     <span>{{'Report date' | translate}}</span>
                                     <span class="ngb-dtepicker-container ms-1" *ngIf="minCreationDate !== maxCreationDate">
-                                        <i class="fas fa-calendar" [ngClass]="{'calendar-active': creationDateFilter}" 
-                                           (click)="toggleDatePicker()" (keydown)="toggleDatePicker()"></i>
+                                        <i class="fas fa-calendar" [ngClass]="{'calendar-active': dateFilters['creation']}" 
+                                           (click)="toggleDatePicker('creation')" (keydown)="toggleDatePicker('creation')"></i>
                                         <div [hidden]="!creationDatePicker">
                                             <ngbd-datepicker-range class="position-absolute d-block"
-                                                [currentDates]="creationDateModel"
-                                                (emitDateSelection)="onCreationDateFilterChange($event)">
+                                                [currentDates]="{
+                                                    fromDate: fromDatetoNgbDate(dateModels['creation']?.fromDate || null), 
+                                                    toDate: fromDatetoNgbDate(dateModels['creation']?.toDate || null)
+                                                }"
+                                                (emitDateSelection)="onDateFilterChange($event, 'creation')">
                                             </ngbd-datepicker-range>
                                         </div>
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoUpdateDate" *ngSwitchCase="'internal_tip_update_date'">
+                            <th class="TipInfoUpdateDate" *ngSwitchCase="INTERNAL_TIPS_UPDATE_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-clock"></i>
                                     <span>{{'Last update' | translate}}</span>
+                                    <span class="ngb-dtepicker-container ms-1" *ngIf="minUpdateDate !== maxUpdateDate">
+                                        <i class="fas fa-calendar" [ngClass]="{'calendar-active': dateFilters['update']}" 
+                                           (click)="toggleDatePicker('update')" (keydown)="toggleDatePicker('update')"></i>
+                                        <div [hidden]="!updateDatePicker">
+                                            <ngbd-datepicker-range class="position-absolute d-block"
+                                                [currentDates]="{
+                                                    fromDate: fromDatetoNgbDate(dateModels['update']?.fromDate || null), 
+                                                    toDate: fromDatetoNgbDate(dateModels['update']?.toDate || null)
+                                                }"
+                                                (emitDateSelection)="onDateFilterChange($event, 'update')">
+                                            </ngbd-datepicker-range>
+                                        </div>
+                                    </span>
                                 </span>
                             </th>
-                            <th class="TipInfoExpirationDate" *ngSwitchCase="'internal_tip_expiration_date'">
+                            <th class="TipInfoExpirationDate" *ngSwitchCase="INTERNAL_TIPS_EXPIRATION_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-hourglass"></i>
                                     <span>{{'Expiration date' | translate}}</span>
+                                    <span class="ngb-dtepicker-container ms-1" *ngIf="minExpirationDate !== maxExpirationDate">
+                                        <i class="fas fa-calendar" [ngClass]="{'calendar-active': dateFilters['expiration']}" 
+                                           (click)="toggleDatePicker('expiration')" (keydown)="toggleDatePicker('expiration')"></i>
+                                        <div [hidden]="!expirationDatePicker">
+                                            <ngbd-datepicker-range class="position-absolute d-block"
+                                                [currentDates]="{
+                                                    fromDate: fromDatetoNgbDate(dateModels['expiration']?.fromDate || null), 
+                                                    toDate: fromDatetoNgbDate(dateModels['expiration']?.toDate || null)
+                                                }"
+                                                (emitDateSelection)="onDateFilterChange($event, 'expiration')">
+                                            </ngbd-datepicker-range>
+                                        </div>
+                                    </span>
                                 </span>
                             </th>
-                            <th class="TipInfoReadReceipt" *ngSwitchCase="'internal_tip_read_receip'">
+                            <th class="TipInfoReadReceipt" *ngSwitchCase="INTERNAL_TIPS_READ_RECEIPT">
                                 <i class="fa-solid fa-envelope-circle-check"></i>
                             </th>
-                            <th class="TipInfoComments" *ngSwitchCase="'internal_tip_comment_count'">
+                            <th class="TipInfoComments" *ngSwitchCase="INTERNAL_TIPS_COMMENT_COUNT">
                                 <i class="fa-solid fa-comment"></i>
                             </th>
-                            <th class="TipInfoFiles" *ngSwitchCase="'internal_tip_file_count'">
+                            <th class="TipInfoFiles" *ngSwitchCase="INTERNAL_TIPS_FILE_COUNT">
                                 <i class="fa-solid fa-file"></i>
                             </th>
-                            <th class="TipInfoRecipientCount" *ngSwitchCase="'internal_tip_receiver_count'">
+                            <th class="TipInfoRecipientCount" *ngSwitchCase="INTERNAL_TIPS_RECEIVER_COUNT">
                                 <i class="fa-solid fa-users"></i>
                             </th>
                             <th *ngSwitchDefault>
@@ -167,9 +196,9 @@
                 <tr *ngFor="let row of filteredRowsPaginated">
                     <td *ngFor="let key of tableHeaders">
                         <ng-container [ngSwitch]="key">
-                            <td *ngSwitchCase="'internal_tip_creation_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
-                            <td *ngSwitchCase="'internal_tip_update_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
-                            <td *ngSwitchCase="'internal_tip_expiration_date'">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIPS_CREATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIPS_UPDATE_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIPS_EXPIRATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
                             <td *ngSwitchDefault>{{ (row[key] || '').toString() | translate}}</td>
                         </ng-container>
                     </td>
