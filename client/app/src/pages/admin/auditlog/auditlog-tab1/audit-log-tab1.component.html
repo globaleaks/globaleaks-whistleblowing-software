@@ -1,4 +1,10 @@
 <ng-container *ngIf="this.auditLog.slice">
+    <div class="row">
+        <div class="form-group">
+            <input [(ngModel)]="fromLastBackup" (change)="onCheckboxChange()" type="checkbox" name="from-last-backup">
+            <label for="from-last-backup">{{ 'Changes since last Backup' | translate }}</label>
+        </div>
+    </div>
     <table id="userList" class="table table-condensed table-striped">
         <thead>
         <tr>
