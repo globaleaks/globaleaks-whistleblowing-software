@@ -90,7 +90,7 @@ def do_backup(session):
 
 
 class Backup(LoopingJob):
-    interval = 60
+    interval = 300
     monitor_interval = 600
 
     def operation(self):
