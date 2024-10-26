@@ -77,7 +77,6 @@ export class WizardComponent implements OnInit {
       return;
     }
     this.loadLicense();
-    this.wizard.node_language = this.translationService.language;
 
     if (this.appDataService.pageTitle === "") {
       this.titleService.setTitle();
@@ -88,7 +87,10 @@ export class WizardComponent implements OnInit {
     if (this.completed) {
       return;
     }
+
     this.completed = true;
+
+    this.wizard.node_language = this.translationService.language;
 
     const param = JSON.stringify(this.wizard);
     this.httpService.requestWizard(param).subscribe
