@@ -37,6 +37,8 @@ export default defineConfig({
       return require("./cypress/plugins/index.ts").default(on, config);
     },
     baseUrl: "https://127.0.0.1:8443",
+    viewportWidth: 1920,
+    viewportHeight: 1080
   },
   defaultCommandTimeout: 20000,
 });

@@ -199,12 +199,6 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     return;
   }
 
-  cy.get("html, body").invoke(
-    "attr",
-    "style",
-    "height: auto;"
-  );
-
   if (locator == '.modal') {
     cy.get(".modal").invoke(
       "attr",
@@ -219,6 +213,8 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     cy.wait(500);
 
     cy.waitForPageIdle();
+
+    cy.get('#FooterBox').scrollIntoView();
 
     if (locator && locator !== ".modal") {
       return cy.get(locator).screenshot("../" + filename, {overwrite: true, scale: true});
