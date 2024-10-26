@@ -4,7 +4,7 @@
 # Anh Phan <vietnamesel10n@gmail.com>, 2013-2014
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # Dong Quoc <huynhquocdong@gmail.com>, 2018-2019
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014,2016-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014,2016-2018,2020-2022
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013

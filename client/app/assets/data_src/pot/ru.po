@@ -9,7 +9,7 @@
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # Dina Solveig Jalkanen, 2017,2020
 # Dina Solveig Jalkanen, 2017,2020
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014,2016-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014,2016-2018,2020-2022
 # aylar b, 2022
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -36,7 +36,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014,2016-2018,2020-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014,2016-2018,2020-2022\n"
 "Language-Team: Russian (http://app.transifex.com/otf/globaleaks/language/ru/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

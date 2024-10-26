@@ -10,7 +10,7 @@
 # AO <ao@localizationlab.org>, 2016-2017
 # AO <ao@localizationlab.org>, 2016
 # AO <ao@localizationlab.org>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013

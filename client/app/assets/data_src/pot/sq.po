@@ -7,7 +7,7 @@
 # Bujar Tafili, 2015
 # Florent <fspahija@kdi-kosova.org>, 2021-2022
 # F Nilaj <activisti@protonmail.com>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2015-2022,2024
 # Jakub Srna <jaksrn@gmail.com>, 2014
 # Roman 'Kaktuxista' Benji <romanbeno273@gmail.com>, 2014
 # Tibor Deak <deaktib@gmail.com>, 2019,2021

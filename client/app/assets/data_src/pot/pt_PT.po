@@ -12,7 +12,7 @@
 # Drew Melim <nokostya.translation@gmail.com>, 2014,2018
 # e8f1a29f7bd45d2490d729ad149fc504_6eadd8e, 2015
 # fc2d9c36d73e741383fbbf46a4aac49f_013445b, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2018,2020-2024
 # João Paulo Macedo Batalha <joao.batalha@transparencia.pt>, 2015
 # José Anjos, 2022
 # lecalam, 2024

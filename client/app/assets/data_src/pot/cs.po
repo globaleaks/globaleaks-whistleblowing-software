@@ -2,7 +2,7 @@
 # Translators:
 # A5h8d0wf0x <littleslyfoxie28@gmail.com>, 2014
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013

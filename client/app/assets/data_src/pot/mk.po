@@ -2,13 +2,13 @@
 # Translators:
 # Aleksandra Blanusha <ablanusha@transparency.mk>, 2020-2021
 # Dimitar Poposki <poposkidimitar@gmail.com>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020-2022
 # Zarko Gjurov <zarkogjurov@gmail.com>, 2017-2018,2021
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2020-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020-2022\n"
 "Language-Team: Macedonian (http://app.transifex.com/otf/globaleaks/language/mk/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

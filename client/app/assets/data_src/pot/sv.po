@@ -10,7 +10,7 @@
 # Eva Simonsson, 2020-2021
 # flipchan <fkalebo@gmail.com>, 2017
 # flipchan <fkalebo@gmail.com>, 2017
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2015,2017,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2015,2017,2020-2022
 # Henrik Mattsson-Mårn <h@reglage.net>, 2016-2017,2020
 # John Andersson <johnandersson86@hotmail.com>, 2015
 # Jonas Hedberg <jonas@hedberg2.se>, 2015

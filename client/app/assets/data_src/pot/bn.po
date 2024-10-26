@@ -1,7 +1,7 @@
 # 
 # Translators:
 # code smite <codesmite@gmail.com>, 2021
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2021-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022
 # Mahmud Numan <mahmudnuman@gmail.com>, 2017
 # Nafiur Rahman, 2020
 # Nafiur Rahman, 2020
@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2021-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
 "Language-Team: Bengali (http://app.transifex.com/otf/globaleaks/language/bn/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

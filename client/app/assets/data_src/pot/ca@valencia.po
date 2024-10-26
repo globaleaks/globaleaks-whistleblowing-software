@@ -6,7 +6,7 @@
 # Enrique Blat Puchades <enrique.blat@antifraucv.es>, 2020
 # estrella1876lc <estrella1876lc@gmail.com>, 2014
 # Francisco Huerta <francisco.huerta@davinci-ti.es>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2018-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2018-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2016
 # Joan Bitlloch <joanbit@gmail.com>, 2017
 # José Javier Alamá Izquierdo, 2022-2024

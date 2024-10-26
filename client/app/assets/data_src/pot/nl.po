@@ -13,7 +13,7 @@
 # erinm, 2021
 # erinm, 2021
 # tyfjoh, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2023
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2023
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -50,7 +50,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2023\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2023\n"
 "Language-Team: Dutch (http://app.transifex.com/otf/globaleaks/language/nl/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

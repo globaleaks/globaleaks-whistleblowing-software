@@ -2,7 +2,7 @@
 # Translators:
 # Akseli Pihlajamaa <akselijuhanipihlajamaa@gmail.com>, 2020-2022
 # Eva Simonsson, 2020-2021,2023-2024
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2015-2018,2020-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2015-2018,2020-2022,2024
 # Jaakko Korhonen <jaakko.korhonen@gmail.com>, 2018
 # John Wild <ac@elephantleague.org>, 2015
 # Jorma Karvonen <karvonen.jorma@gmail.com>, 2015,2017,2020
