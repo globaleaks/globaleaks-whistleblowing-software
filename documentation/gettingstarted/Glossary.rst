@@ -9,8 +9,14 @@ This glossary defines jargon used in GlobaLeaks in a clear and consistent manner
    Channel
        A reporting channel used as a container for reports. Channels can be configured with specific questionnaires, recipients, and policies. They are typically used to organize the reporting process.
 
+   Free Software
+       Free Software is software that grants users the freedom to run, modify, and share it freely, without cost of licensing, promoting user control, transparency, and community-driven improvements.
+
    Notification
        An email sent to inform a recipient of a new report or an update to an existing report.
+
+   Open-Source Software
+       Open-Source Software is software with publicly accessible source code that can be used, modified, and distributed by anyone, benefiting from peer review and community-driven security audits to enhance code quality, transparency, and security.
 
    Platform
        A system running the GlobaLeaks software.
