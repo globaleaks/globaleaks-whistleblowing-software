@@ -14,7 +14,7 @@ As a contributor, here are the guidelines we would like you to read:
 ## <a name="coc"></a> Code of Conduct
 
 Help us keep GlobaLeaks community safe and inclusive.
-Please read and follow our [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/CODE_OF_CONDUCT.md).
+Please read and follow our [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md).
 
 ## <a name="question"></a> Got a Question or Problem?
 
@@ -81,7 +81,7 @@ Before you submit your Pull Request consider the following guidelines:
 
 9. In GitHub, send a pull request to `GlobaLeaks:main`.
 
-## <a name="donate"></a> Donations <img src="https://raw.githubusercontent.com/globaleaks/globaleaks-whistleblowing-software/main/brand/assets/heart.svg" alt="heart icon" width="24" />
+## <a name="donate"></a> Donations <img src="https://raw.githubusercontent.com/globaleaks/globaleaks-whistleblowing-software/stable/brand/assets/heart.svg" alt="heart icon" width="24" />
 As a pure community-driven project without major corporate backing, we also welcome [donations](https://github.com/sponsors/globaleaks).
 
 - [Help Us Protect Whistleblowers—Become a GlobaLeaks Donor](https://github.com/sponsors/globaleaks)

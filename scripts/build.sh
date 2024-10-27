@@ -4,7 +4,7 @@ set -e
 
 TARGETS="bionic bookworm bullseye buster focal jammy noble"
 DISTRIBUTION="bookworm"
-TAG="main"
+TAG="stable"
 LOCAL_ENV=0
 NOSIGN=0
 PUSH=0

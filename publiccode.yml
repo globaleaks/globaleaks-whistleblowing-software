@@ -3,7 +3,7 @@ releaseDate: '2024-10-20'
 publiccodeYmlVersion: '0.4.0'
 url: 'https://github.com/globaleaks/globaleaks-whistleblowing-software'
 landingURL: 'https://www.globaleaks.org/'
-roadmap: "https://docs.globaleaks.org/en/main/roadmap/"
+roadmap: "https://docs.globaleaks.org/en/stable/roadmap/"
 logo: brand/assets/globaleaks-icon-color.svg
 softwareVersion: 5.0.18
 softwareType: standalone/web

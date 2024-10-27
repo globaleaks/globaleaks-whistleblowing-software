@@ -37,7 +37,7 @@ Legal features
 - No IP address logging
 - Includes an audit log
 - Integrates with existing enterprise case management platforms
-- Free Software OSI Approved `AGPL 3.0 License <https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/LICENSE>`_
+- Free Software OSI Approved `AGPL 3.0 License <https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/LICENSE>`_
 
 Security features
 -----------------

@@ -479,10 +479,10 @@ class SoftwareUpdateKeyword(UserNodeKeyword):
         return '%s' % __version__
 
     def ChangeLogUrl(self):
-        return 'https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/CHANGELOG'
+        return 'https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG'
 
     def UpdateGuideUrl(self):
-        return 'https://docs.globaleaks.org/en/main/user/admin/UpgradeGuide.html'
+        return 'https://docs.globaleaks.org/en/stable/user/admin/UpgradeGuide.html'
 
 
 class UserCredentials(Keyword):

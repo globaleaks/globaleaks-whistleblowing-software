@@ -430,7 +430,7 @@ module.exports = function(grunt) {
     let gt = new Gettext(),
         translationStringRegexpJSON = /"en":\s?"(.+)"/gi;
 
-    gt.setTextDomain("main");
+    gt.setTextDomain("stable");
 
     function addString(str) {
       if (notranslate_strings.indexOf(str) !== -1) {
@@ -514,18 +514,18 @@ module.exports = function(grunt) {
       let gt = new Gettext(),
           lang_code;
 
-      gt.setTextDomain("main");
+      gt.setTextDomain("stable");
 
       fetchTxTranslations(function(supported_languages) {
         // Parse and load the PO file
-        gt.addTranslations("en", "main", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po")));
+        gt.addTranslations("en", "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po")));
         let strings = Object.keys(gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po"))["translations"][""]);
 
         // Process each supported language
         for (lang_code in supported_languages) {
           let translations = {}, output;
 
-          gt.addTranslations(lang_code, "main", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/" + lang_code + ".po")));
+          gt.addTranslations(lang_code, "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/" + lang_code + ".po")));
           gt.setLocale(lang_code);
 
           for (let i = 0; i < strings.length; i++) {
@@ -557,7 +557,7 @@ module.exports = function(grunt) {
       let gt = new Gettext(),
           supported_languages = [];
 
-      gt.setTextDomain("main");
+      gt.setTextDomain("stable");
 
       grunt.file.recurse("app/assets/data_src/pot/", function(absdir, rootdir, subdir, filename) {
         supported_languages.push(filename.replace(/.po$/, ""));
@@ -627,7 +627,7 @@ module.exports = function(grunt) {
         }
       };
 
-      gt.addTranslations("en", "main", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po")));
+      gt.addTranslations("en", "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po")));
 
       grunt.file.recurse("app/assets/data_src/txt", function(absdir, rootdir, subdir, filename) {
         let template_name = filename.split(".txt")[0],
@@ -638,7 +638,7 @@ module.exports = function(grunt) {
 
       supported_languages.forEach(function(lang_code) {
         gt.setLocale(lang_code);
-        gt.addTranslations(lang_code, "main", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/" + lang_code + ".po")));
+        gt.addTranslations(lang_code, "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/" + lang_code + ".po")));
 
         for (let template_name in templates_sources) {
           if (!(template_name in templates)) {

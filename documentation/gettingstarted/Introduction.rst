@@ -2,7 +2,7 @@ Introduction
 ============
 `GlobaLeaks <https://www.globaleaks.org/>`_ is free, open-source whistleblowing software that enables anyone to easily set up and maintain a secure reporting platform.
 
-As a `community-driven project <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_, the software features `public code <https://github.com/globaleaks/globaleaks-whistleblowing-software>`_, `open documentation <https://docs.globaleaks.org/>`_, `public application security specifications <https://docs.globaleaks.org/en/main/security/index.html>`_, `public peer review <https://github.com/globaleaks/globaleaks-whistleblowing-software>`_, and a large set of `independent security audits <https://docs.globaleaks.org/en/main/security/PenetrationTests.html>`_.
+As a `community-driven project <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_, the software features `public code <https://github.com/globaleaks/globaleaks-whistleblowing-software>`_, `open documentation <https://docs.globaleaks.org/>`_, `public application security specifications <https://docs.globaleaks.org/en/stable/security/index.html>`_, `public peer review <https://github.com/globaleaks/globaleaks-whistleblowing-software>`_, and a large set of `independent security audits <https://docs.globaleaks.org/en/stable/security/PenetrationTests.html>`_.
 
 Designed with high security and usability in mind, the software adheres to:
 
