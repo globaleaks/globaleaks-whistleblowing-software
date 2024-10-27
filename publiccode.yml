@@ -139,19 +139,19 @@ it:
 description:
   en:
     shortDescription: >-
-      GlobaLeaks is free, open-source whistleblowing software enabling anyone to easily set
-      up and maintain a secure reporting platform
+      GlobaLeaks is a free and open-source whistleblowing software enabling anyone to
+      easily set up and maintain a secure reporting platform
     longDescription: >-
-      [GlobaLeaks](https://www.globaleaks.org/) is free, open-souce whistleblowing software
-      enabling anyone to easily set up and maintain a secure reporting platform.
+      [GlobaLeaks](https://www.globaleaks.org/) is a free and open-source whistleblowing
+      software enabling anyone to easily set up and maintain a secure reporting platform.
       Thanks to GlobaLeaks even non-technical people are be able to setup their
       own anonymous whistleblowing project. Designed to be user-friendly the
       software is customizable up to own needs and protects the whistleblower's
       privacy and submissions. GlobaLeaks targets
       [many use cases](https://www.globaleaks.org/usecases/) and therefore
       it has been designed as a framework. Designed with flexibility in mind and
-      translated in [more than 50 languages](https://www.transifex.com/otf/globaleaks)
-      GlobaLeaks is nowadays adopted worldwide by more than 10000 projects.
+      translated in [more than 70 languages](https://www.transifex.com/otf/globaleaks)
+      GlobaLeaks is nowadays adopted worldwide by more than 30000 projects.
       The vast range of adopters includes independent media, activists, public
       agencies, corporations and more.
       The software is recognized by the
@@ -174,7 +174,7 @@ description:
       - PNRR/Misura/1.6
       - "Multi-user system with customizable user roles (whistleblower, recipient, administrator)"
       - "Entirely manageable from a web administration interface"
-      - "Support for more than 50 languages with Right-to-Left (RTL)"
+      - "Support for more than 70 languages with Right-to-Left (RTL)"
       - "Receive reports from whistleblower through structured multi-step questionnaire"
       - "Let whistleblowers decide if and when to confidentially declare their identity"
       - "Exchange multimedia files with whistleblower"
@@ -252,8 +252,8 @@ description:
       dei segnalanti. GlobaLeaks si rivolge a
       [molti casi d'uso](https://www.globaleaks.org/usecases/) e quindi è stato progettato
       come un framework. Progettato per essere altamente configurabile e tradotto in
-      [oltre 90 lingue](https://www.transifex.com/otf/globaleaks), GlobaLeaks è oggi adottato
-      in tutto il mondo da oltre 10000 progetti. La variegata gamma di utenti comprende media
+      [oltre 70 lingue](https://www.transifex.com/otf/globaleaks), GlobaLeaks è oggi adottato
+      in tutto il mondo da oltre 30000 progetti. La variegata gamma di utenti comprende media
       indipendenti, attivisti,  agenzie pubbliche, imprese private e altro.
       Il software è riconosciuto dalla
       [Digital Public Good Alliance](https://digitalpublicgoods.net/) come un
@@ -275,7 +275,7 @@ description:
       - PNRR/Misura/1.6
       - "Sistema multiutente con ruoli utente personalizzabili (segnalante, ricevente, amministratore)"
       - "Interamente gestibile da un'interfaccia di amministrazione web"
-      - "Supporto per oltre 90 lingue ed RTL"
+      - "Supporto per oltre 70 lingue ed RTL"
       - "Ricevi segnalazioni da un segnalante tramite un questionario strutturato in più passaggi"
       - "Possibilità per i segnalanti di decidere se e quando dichiarare la propria identità"
       - "Possibilità di scambio dile con il segnalante"
