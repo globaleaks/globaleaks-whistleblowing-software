@@ -26,8 +26,6 @@ if [[ "$1" != "" ]]; then
  -- GlobaLeaks software signing key <info@globaleaks.org>  $(date --rfc-email)\n\n$(cat debian/changelog)" > "$ROOTDIR"/debian/changelog
 
         git commit -a -m "Bump to version $1"
-
-        git tag -s v$1 -m 'GlobaLeaks version $1' --force
 else
 	echo -e "Please specify a version"
 	exit 1
