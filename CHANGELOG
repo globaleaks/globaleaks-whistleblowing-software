@@ -1,3 +1,15 @@
+Changes in version 5.0.19
+    Update codebase to use new angular 17 standalone components and control flow
+    Correct accessibility of language selector
+    Fix issue #4278
+    Revise colors of the application
+    Revise sticky footer implementation using Bootstrap 5 classes
+    Bump client dependencies to latest version
+    Update translations
+    Update brand assets
+    Rename main branch in stable
+    [ci] Revise tests to improve screenshots
+
 Changes in version 5.0.18
     Adopt OpenSSF Scorecard and implement most of the recommendations
     Add OpenSSF Scorecard to README.md
