@@ -11,9 +11,10 @@
     <ng-container [ngSwitch]="field.type">
 
         <div class="form-group" *ngSwitchCase="'selectbox'">
-            <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required">
+            <select #select="ngModel" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required">
                 <option *ngFor="let option of field.options"  (change)="setOption(option, fieldAnswers[field.id][0])"  [value]="option.id">{{ option.label }}</option>
             </select>
+            <div *ngIf="select?.errors?.['required']" class="text-danger">{{'This field is mandatory'|translate}}</div>
         </div>
         
 
@@ -29,17 +30,22 @@
                 <input type="radio"  (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required"/>
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
+
         </div>
 
         <div *ngSwitchCase="'date'" class="form-group">
             <div class="input-group">
-                <input class="form-control inputelem" [id]="field.id" [name]="field.id" 
+                <input #date="ngModel" class="form-control inputelem" [id]="field.id" [name]="field.id" 
                 [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" 
                 [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" />
                 <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
                     <i class="fa-solid fa-calendar"></i>
                 </span>
             </div>
+            <div *ngIf="field.required && !fieldAnswers[field.id][0].value" class="text-danger">{{'This field is mandatory'|translate}}</div>
+            <!--TODO SOLO UNO DEI DUE TRA QUESTO E IL DIV DI ERRORE A RIGRA SUPERIORE-->
+            <div *ngIf="date?.errors?.['required']" class="text-danger">{{'This field is mandatory'|translate}}</div> 
+    
         </div>
 
 
@@ -90,6 +96,8 @@
                     <i class="fa-solid fa-times-circle"></i>
                 </button>
             </span>
+            <div *ngIf="field.required && !(dateRange.start && dateRange.end)" class="text-danger">{{'This field is mandatory'|translate}}</div>
+            
         </div>
 
 
@@ -99,9 +107,11 @@
                 <a [href]="field.attrs.attachment_url.value" rel="noreferrer" target="_blank">{{field.attrs.attachment_text.value}}</a>
             </div>
             <div class="form-check">
-                <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" [required]="field.required" />
+                <input #tos="ngModel" [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" [required]="field.required" />
                 <label for="{{field.id}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
             </div>
+            <div *ngIf="tos?.errors?.['required']" class="text-danger">{{'This field is mandatory'|translate}}</div>
+    
         </div>
 
         <div [id]="field.id" *ngSwitchCase="'voice'">
@@ -136,7 +146,7 @@
         </div> -->
 
         <div class="form-group" *ngSwitchDefault>
-            <input  type="text" class="form-control" [required]="field.required" [id]="field.id" [pattern]="validator" [name]="field.id" #defaultinput="ngModel" [(ngModel)]="fieldAnswers[field.id][0].value" [placeholder]="field.placeholder" [attr.aria-label]="field.label"/>
+            <input type="text" class="form-control" [required]="field.required" [id]="field.id" [pattern]="validator" [name]="field.id" #defaultinput="ngModel" (ngModelChange)="checkFormValidity(subForm)" [(ngModel)]="fieldAnswers[field.id][0].value" [placeholder]="field.placeholder" [attr.aria-label]="field.label"/>
             <div class="clearfix">
                 <div *ngIf="fieldAnswers[field.id][0]['value'] && defaultinput?.errors?.['pattern'] && fieldAnswers[field.id][0]['value'].length && fieldAnswers[field.id][0]['value'].length>0 && field.attrs.input_validation.value === 'custom'" class="text-danger">{{'The specified input is not valid.'}}</div>
                 <div *ngIf="fieldAnswers[field.id][0]['value'] && defaultinput?.errors?.['pattern'] && fieldAnswers[field.id][0]['value'].length && fieldAnswers[field.id][0]['value'].length>0 && field.attrs.input_validation.value !== 'custom'">
@@ -158,9 +168,8 @@
     
     </ng-container>
 
-
-    <!-- TODO: displayErrors && validateUploadSubmission() - metodo con controlli puntiali su tutti i campi? -->
-    <div *ngIf="['inputbox', 'textarea'].indexOf(field.type) === -1 && field.required" class="text-danger">{{'This field is mandatory'|translate}}</div>
+    <!--TODO: VISIBILITA' DI QUESTO MESSAGGIO, IN BASE ALLE RISPOSTE DATE-->
+    <div *ngIf="['inputbox', 'textarea'].indexOf(field.type) === -1 && field.required && displayErrors && validateUploadSubmission()" class="text-danger">{{'This field is mandatory'|translate}}</div>
     
     <div *ngIf="field.type === 'selectbox'">
         <div *ngFor="let option of field.options">

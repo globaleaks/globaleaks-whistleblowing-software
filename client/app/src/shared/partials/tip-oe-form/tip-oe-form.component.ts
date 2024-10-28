@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, Output} from "@angular/core";
+import { NgForm } from "@angular/forms";
 import { FieldUtilitiesService } from "@app/shared/services/field-utilities.service";
 
 @Component({
@@ -26,6 +27,14 @@ export class TipOeFormComponent{
   validateUploadSubmission() {
     // return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
   }
+
+  
+  checkFormValidity(form: NgForm) {
+    console.log("input form", form.valid);
+    
+    
+  }
+
 
   exampleNotify(event: any){
     this.notifyFileUpload.emit(event);

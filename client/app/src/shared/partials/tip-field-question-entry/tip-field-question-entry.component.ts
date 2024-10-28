@@ -72,9 +72,8 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
   @Input() fileUploadUrl: string;
 
-  @Input() editField: NgForm;
+  @Input() subForm: NgForm;
 
-  contactForm: FormGroup;
 
   @Input() field: any;
   @Input() fieldAnswers: any;
@@ -115,6 +114,12 @@ export class TipFieldQuestionEntryComponent implements OnInit{
     this.notifyFileUpload.emit(event)
   }
 
+  checkFormValidity(form: NgForm) {
+    console.log("input form", form.valid);
+    
+    console.log("isValid: ", this.subForm.valid)
+    
+  }
 
   clearDateRange() {
     this.input_start_date = "";

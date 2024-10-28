@@ -3,9 +3,9 @@
         <span>Review Form</span>
     </div>
     <div class="card-body">
-        <form #submissionForm="ngForm" id="SubmissionForm" (ngFormChange)="onFormChange()" >
+        <form #submissionForm="ngForm" id="SubmissionForm" (ngFormChange)="onFormChange()" (ngModelChange)="checkFormValidity(submissionForm)" >
             <div *ngFor="let field of fields" class="form-group">
-                <src-tip-field-question-entry (notifyFileUpload)="exampleNotify($event)" [editField]="submissionForm" [field]="field" [fieldAnswers]="fieldAnswers" [fileUploadUrl]="fileUploadUrl"></src-tip-field-question-entry>
+                <src-tip-field-question-entry (notifyFileUpload)="exampleNotify($event)" [subForm]="submissionForm" [field]="field" [fieldAnswers]="fieldAnswers" [fileUploadUrl]="fileUploadUrl"></src-tip-field-question-entry>
             </div>     
             
             <button id="SubmitButton" class="btn btn-primary" (click)="onSubmit()" [disabled]="tipStatus !== 'opened'" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
