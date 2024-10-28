@@ -16,7 +16,7 @@ from globaleaks.handlers.admin.tenant import db_initialize_tenant_submission_sta
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.wizard import db_wizard
 from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus, config, InternalTipForwarding, \
-    User, serializers
+    User, serializers, EnumUserRole
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
@@ -95,7 +95,7 @@ def save_step(session, obj):
     session.flush()
 
 
-def send_email(session, emails: list, language, accreditation_item, wizard):
+def send_email_accreditation_user(session, emails: list, language, accreditation_item, wizard):
     """
     Send activation emails to the provided email addresses.
 
@@ -105,21 +105,23 @@ def send_email(session, emails: list, language, accreditation_item, wizard):
         language: The language for the email content.
         accreditation_item: The Subscriber object.
         wizard: Dictionary containing setup information.
+        mail_type: type of mail
     """
-    eo_uuid = session.query(models.Config).filter(models.Config.tid == accreditation_item.tid, models.Config.var_name == 'uuid').one()
+    eo_uuid = session.query(models.Config).filter(models.Config.tid == accreditation_item.tid, models.Config.var_name == 'uuid').one_or_none()
     node = db_admin_serialize_node(session, 1, language)
-    node['is_eo'] = True
-    node['eo_uuid'] = eo_uuid.value
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
-
+    node['is_eo'] = True
+    node['eo_uuid'] = eo_uuid.value if eo_uuid else ''
+    admin_pwd = 'None' if not wizard or not wizard.get('admin_password') else wizard.get('admin_password')
+    rec_pwd = 'None' if not wizard or not wizard.get('receiver_password') else wizard.get('receiver_password')
     template_vars = {
         'type': 'activation',
         'node': node,
         'notification': notification,
         'signup': signup,
-        'password_admin': wizard['admin_password'],
-        'password_recipient': wizard['receiver_password']
+        'password_admin': admin_pwd,
+        'password_recipient': rec_pwd
     }
 
     for email in emails:
@@ -160,7 +162,15 @@ def accreditation(session, request, is_instructor=False):
         save_step(session, sub)
 
         sub.subdomain = sub.sharing_id
+
+        accreditor = (session.query(models.User.mail_address)
+                      .filter(models.User.tid == 1)
+                      .filter(models.User.role == EnumUserRole.accreditor.name)).all()
+
         save_step(session, sub)
+
+        accreditor = [user[0] for user in accreditor]
+
         return {'id': sub.sharing_id}
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
@@ -548,7 +558,7 @@ def activate_tenant(session, accreditation_id, request):
     }
     db_wizard(session, accreditation_item.tid, '', wizard)
     deferToThread(sync_refresh_tenant_cache, t)
-    send_email(
+    send_email_accreditation_user(
         session, 
         [accreditation_item.admin_email, accreditation_item.email], 
         language, 
@@ -600,7 +610,7 @@ class AccreditationHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
     """
-    check_roles = 'accreditor'
+    check_roles = 'any'
     root_tenant_only = True
     invalidate_cache = True
 

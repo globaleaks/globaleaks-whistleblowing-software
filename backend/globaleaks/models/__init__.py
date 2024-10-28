@@ -1121,6 +1121,7 @@ class _User(Model):
                  'can_edit_general_settings',
                  'forcefully_selected',
                  'readonly',
+                 'can_download_infected',
                  'clicked_recovery_key']
 
     date_keys = ['accepted_privacy_policy',
