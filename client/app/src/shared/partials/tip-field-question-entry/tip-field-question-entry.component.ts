@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { FieldUtilitiesService } from '@app/shared/services/field-utilities.service';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
@@ -73,6 +73,8 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   @Input() fileUploadUrl: string;
 
   @Input() editField: NgForm;
+
+  contactForm: FormGroup;
 
   @Input() field: any;
   @Input() fieldAnswers: any;
@@ -165,7 +167,7 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   }
 
   validateUploadSubmission() {
-     return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
+    return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
   }
   
 

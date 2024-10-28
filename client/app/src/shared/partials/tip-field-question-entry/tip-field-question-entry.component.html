@@ -11,7 +11,7 @@
     <ng-container [ngSwitch]="field.type">
 
         <div class="form-group" *ngSwitchCase="'selectbox'">
-            <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
+            <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required">
                 <option *ngFor="let option of field.options"  (change)="setOption(option, fieldAnswers[field.id][0])"  [value]="option.id">{{ option.label }}</option>
             </select>
         </div>
@@ -19,14 +19,14 @@
 
         <div *ngSwitchCase="'checkbox'" class="form-group">            
             <div *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; let index = index">
-                <input type="checkbox" (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0][option.id]" />
+                <input type="checkbox" (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0][option.id]" [required]="field.required"/>
                 <label [for]="option.label" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
             </div>
         </div>
 
         <div *ngSwitchCase="'multichoice'" class="form-group">
             <div *ngFor="let option of field.options | orderBy:'order';let innerindex = index">
-                <input type="radio"  (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
+                <input type="radio"  (change)="setOption(option, fieldAnswers[field.id][0])" [id]="option.label" [name]="field.id" [value]="option.id" [(ngModel)]="fieldAnswers[field.id][0].value" [required]="field.required"/>
                 <label [for]="option.label">{{ option.label }}</label>
             </div>
         </div>
@@ -43,19 +43,21 @@
         </div>
 
 
-        <div *ngSwitchCase="'textarea'" class="form-group">
-            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" name="description" #textarea="ngModel" class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" [placeholder]="field.placeholder"></textarea>
+        <div *ngSwitchCase="'textarea'" class="form-group" >
+            <textarea [(ngModel)]="fieldAnswers[field.id][0].value" [id]="field.id" name="description" #textarea="ngModel" 
+            class="form-control inputelem" [required]="field.required" [attr.aria-label]="field.label" 
+            [placeholder]="field.placeholder" maxlength="{{field.attrs.max_len.value}}" minlength="{{field.attrs.min_len.value}}" ></textarea>
             <div class="clearfix" *ngIf="fieldAnswers[field.id][0].value">
                 <div *ngIf="fieldAnswers[field.id][0].value.length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - fieldAnswers[field.id][0].value.length) <= 50" class="float-end">{{fieldAnswers[field.id][0].value.length}}/{{field.attrs.max_len.value}}
                 </div>
             </div>
-            <div *ngIf="displayErrors" class="text-danger">
-                <span *ngIf="editField.form.get('description')?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
-                <span *ngIf="textarea?.errors?.['minlength']">{{'The answer is too short'|translate}}</span>
+            <div class="text-danger">
+                <span *ngIf="field.required && fieldAnswers[field.id][0].value.length==0">{{'This field is mandatory'|translate}}</span>
+                <span *ngIf="fieldAnswers[field.id][0].value.length!=0 && fieldAnswers[field.id][0].value.length < field.attrs.min_len.value">{{'The answer is too short'|translate}}</span>
             </div>
         </div>
 
-        <div *ngSwitchCase="'daterange'" class="form-inline d-inline-flex align-items-center">
+        <div *ngSwitchCase="'daterange'" class="form-inline align-items-center">
             <span class="form-group">
                 <label>{{'From'|translate}}</label>                
                 <div class="input-group mx-1">
@@ -97,7 +99,7 @@
                 <a [href]="field.attrs.attachment_url.value" rel="noreferrer" target="_blank">{{field.attrs.attachment_text.value}}</a>
             </div>
             <div class="form-check">
-                <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" />
+                <input [id]="field.id" [name]="field.id" class="inputelem" [required]="field.required" value="{{fieldAnswers[field.id][0].value}}" [(ngModel)]="fieldAnswers[field.id][0].value" type="checkbox" [required]="field.required" />
                 <label for="{{field.id}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
             </div>
         </div>
@@ -157,7 +159,8 @@
     </ng-container>
 
 
-    <div *ngIf="field.type !== 'inputbox' && field.type !== 'textarea' && fieldAnswers[field.id][0].required_status && validateUploadSubmission()" class="text-danger">{{'This field is mandatory'|translate}}</div>
+    <!-- TODO: displayErrors && validateUploadSubmission() - metodo con controlli puntiali su tutti i campi? -->
+    <div *ngIf="['inputbox', 'textarea'].indexOf(field.type) === -1 && field.required" class="text-danger">{{'This field is mandatory'|translate}}</div>
     
     <div *ngIf="field.type === 'selectbox'">
         <div *ngFor="let option of field.options">
