@@ -322,7 +322,7 @@ def get_all_accreditation(session):
         raise errors.InternalServerError
 
 
-def determine_type(data: Dict[str, Optional[str]]) -> bool:
+def determine_type(data: Dict[str, Optional[any]]) -> bool:
     type_value = data.get('type')
     return (
             isinstance(type_value, bool) and type_value or

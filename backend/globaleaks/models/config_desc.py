@@ -201,7 +201,10 @@ ConfigFilters = {
         'version',
         'version_db',
         'wizard_done',
-        'uuid'
+        'uuid',
+        'backup_destination_path',
+        'backup_enable',
+        'backup_time_ISO_8601'
     ],
     'admin_node': [
         'acme',
@@ -333,6 +336,9 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
+        'backup_destination_path',
+        'backup_enable',
+        'backup_time_ISO_8601'
     ],
     'tenant': [
         'hostname',
@@ -364,7 +370,7 @@ ConfigL10NFilters = {
         'signup_tos2_text',
         'signup_tos2_checkbox_label',
         'user_privacy_policy_text',
-        'user_privacy_policy_url',
+        'user_privacy_policy_url'
     ],
 
     'notification': [

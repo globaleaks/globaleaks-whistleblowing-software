@@ -188,6 +188,7 @@ def get_dummy_step():
     }
 
 
+
 def get_dummy_field():
     return {
         'id': '',
