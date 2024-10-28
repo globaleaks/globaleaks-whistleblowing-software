@@ -10,10 +10,6 @@
 
     <ng-container [ngSwitch]="field.type">
 
-        <div class="form-group">
-            <input *ngSwitchDefault type="text" class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value" />
-        </div>
-        
         <div class="form-group" *ngSwitchCase="'selectbox'">
             <select class="form-control" [id]="field.id" [name]="field.id" [(ngModel)]="fieldAnswers[field.id][0].value">
                 <option *ngFor="let option of field.options"  (change)="setOption(option, fieldAnswers[field.id][0])"  [value]="option.id">{{ option.label }}</option>
@@ -136,14 +132,32 @@
             </div>
             <src-form (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]="identity_provided" [fileUploadUrl] = fileUploadUrl [fieldEntry]="fieldEntry" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="rows" [submission]="submission" [index]="index" [uploads]="uploads"></src-form>
         </div> -->
+
+        <div class="form-group" *ngSwitchDefault>
+            <input  type="text" class="form-control" [required]="field.required" [id]="field.id" [pattern]="validator" [name]="field.id" #defaultinput="ngModel" [(ngModel)]="fieldAnswers[field.id][0].value" [placeholder]="field.placeholder" [attr.aria-label]="field.label"/>
+            <div class="clearfix">
+                <div *ngIf="fieldAnswers[field.id][0]['value'] && defaultinput?.errors?.['pattern'] && fieldAnswers[field.id][0]['value'].length && fieldAnswers[field.id][0]['value'].length>0 && field.attrs.input_validation.value === 'custom'" class="text-danger">{{'The specified input is not valid.'}}</div>
+                <div *ngIf="fieldAnswers[field.id][0]['value'] && defaultinput?.errors?.['pattern'] && fieldAnswers[field.id][0]['value'].length && fieldAnswers[field.id][0]['value'].length>0 && field.attrs.input_validation.value !== 'custom'">
+                    <span class="text-danger">{{'The specified input is not valid:'|translate}}</span>
+                    <span class="text-danger" [ngSwitch]="field.attrs.input_validation.value">
+                        <span *ngSwitchCase="'email'">{{'please enter a valid email address.'|translate}}</span>
+                        <span *ngSwitchCase="'number'" class="text-danger">{{'please enter numbers only.'|translate}}</span>
+                        <span *ngSwitchCase="'phonenumber'" class="text-danger">{{'please enter numbers only.'|translate}}</span>
+                    </span>
+                </div>
+                <div *ngIf="fieldAnswers[field.id][0]['value'] && fieldAnswers[field.id][0]['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - fieldAnswers[field.id][0]['value']) <= 50" class="float-end">{{fieldAnswers[field.id][0]['value'].length}}/{{field.attrs.max_len.value}}
+                </div>
+                <div *ngIf="fieldAnswers[field.id][0].required_status" class="float-start text-danger"></div>
+                
+                <span *ngIf="defaultinput?.errors?.['required']" class="text-danger">{{'This field is mandatory'|translate}}</span>
+                <span *ngIf="defaultinput?.errors?.['minlength']" class="text-danger">{{'The answer is too short'|translate}}</span>
+            </div>
+        </div>
     
     </ng-container>
 
 
-
-
-    <!-- && (displayErrors || validateUploadSubmission()) -->
-    <div *ngIf="field.type !== 'inputbox' && field.type !== 'textarea' && field.required " class="text-danger">{{'This field is mandatory'|translate}}</div>
+    <div *ngIf="field.type !== 'inputbox' && field.type !== 'textarea' && fieldAnswers[field.id][0].required_status && validateUploadSubmission()" class="text-danger">{{'This field is mandatory'|translate}}</div>
     
     <div *ngIf="field.type === 'selectbox'">
         <div *ngFor="let option of field.options">
