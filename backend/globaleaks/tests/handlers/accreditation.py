@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from twisted.conch.test.test_insults import Mock
+from twisted.internet.defer import inlineCallbacks
+
 from globaleaks import models
-from globaleaks.handlers.accreditation import create_tenant, determine_type, save_step, count_user_tip, toggle_status_activate
+from globaleaks.handlers.accreditation import create_tenant, determine_type, save_step, count_user_tip, \
+    toggle_status_activate, SubmitAccreditationHandler
 from globaleaks.models import EnumSubscriberStatus
 from globaleaks.tests import helpers
 
 
-class TestStepCollection(helpers.TestHandler):
+class TestStepAccreditation(helpers.TestHandler):
     def setUp(self):
         self.session_mock = Mock()
         self.tenant_mock = Mock()
@@ -76,4 +79,41 @@ class TestStepCollection(helpers.TestHandler):
         result = toggle_status_activate(self.session_mock, "test-id", False)
 
         self.assertIsNotNone(result)
+
+
+class TestRequestAccreditation(helpers.TestHandlerWithPopulatedDB):
+    _handler = SubmitAccreditationHandler
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @staticmethod
+    def post_dummy_request_accreditation():
+        return {
+            "admin_email": "emanuele.bosu@linksmt.it",
+            "admin_name": "Emanuele",
+            "admin_surname": "Bosu",
+            "organization_email": "emanuelebosu.eb@gmail.com",
+            "organization_name": "11cloud9221w15",
+            "organization_institutional_site": "http://www.non.so/",
+            "recipient_name": "Emanuele",
+            "recipient_surname": "Bosu",
+            "recipient_email": "twittog@gmail.com",
+            "recipient_fiscal_code": "BLLNNA90H69F284K",
+            "tos1": True
+        }
+
+    @inlineCallbacks
+    def test_post(self):
+        handler = self.request(
+            body=self.post_dummy_request_accreditation(),
+            headers={'x-idp-userid': 'admin_fiscal_code'},
+            role='analyst'
+        )
+        stats = yield handler.post()
+        self.assertTrue(stats)
+        self.assertTrue(stats.get('id'))
+
 
