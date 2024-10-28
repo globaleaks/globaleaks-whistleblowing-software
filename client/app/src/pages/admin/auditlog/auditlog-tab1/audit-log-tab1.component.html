@@ -1,5 +1,5 @@
 <ng-container *ngIf="this.auditLog.slice">
-    <div class="row">
+    <div class="row" *ngIf="isBackupEnabled">
         <div class="form-group">
             <input [(ngModel)]="fromLastBackup" (change)="onCheckboxChange()" type="checkbox" name="from-last-backup">
             <label for="from-last-backup">{{ 'Changes since last Backup' | translate }}</label>

@@ -16,7 +16,7 @@
         </div>
 
         <div class="form-group">
-            <button class="btn btn-primary" id="save_settings" (click)="save()" type="submit">
+            <button class="btn btn-primary" id="save_settings" [disabled]="!backupEnable" (click)="save()" type="submit">
                 <i class="fa-solid fa-check"></i>
                 <span>{{ 'Save' | translate }}</span>
             </button>

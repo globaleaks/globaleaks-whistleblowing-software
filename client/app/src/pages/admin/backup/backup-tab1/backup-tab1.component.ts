@@ -21,11 +21,6 @@ export class BackupTab1Component implements OnInit {
     }
 
     loadBackupInterval() {
-        // TODO: remove MOCK
-        this.nodeData.backup_enable = true;
-        this.nodeData.backup_time_ISO_8601 = "T23:00";
-        this.nodeData.backup_destination_path = "/mnt/backup";
-        // TODO: end remove MOCK
 
         this.backupEnable = this.nodeData.backup_enable;
         this.backupTime = this.formatBackupTime(this.nodeData.backup_time_ISO_8601);
@@ -33,27 +28,20 @@ export class BackupTab1Component implements OnInit {
     }
 
     formatBackupTime(iso8601: string): string {
-        const match = iso8601.match(/T(\d{2}):(\d{2})/);
+        const match = iso8601.match(/(?:T)?(\d{2}):(\d{2})/);
         return match ? `${match[1]}:${match[2]}` : '00:00';
     }
 
     save(): void {
-        // TODO: remove log and enable the following code
-        console.log("Salvataggio delle impostazioni di backup:", {
-            backupEnable: this.backupEnable,
-            backupTime: this.backupTime,
-            backupDestinationPath: this.backupDestinationPath
-        });
-
+        
         this.nodeData.backup_enable = this.backupEnable;
         this.nodeData.backup_time_ISO_8601 = this.backupTime;
         this.nodeData.backup_destination_path = this.backupDestinationPath;
 
-        // try {
-        //     this.utilsService.updateNode(this.nodeData);
-        //     console.log('Impostazioni di backup aggiornate con successo');
-        // } catch (error) {
-        //     console.error('Errore durante il salvataggio delle impostazioni di backup', error);
-        // }
+        try {
+            this.utilsService.updateNode(this.nodeData);
+        } catch (error) {
+            console.error('Error saving backup settings', error);
+        }
     }
 }

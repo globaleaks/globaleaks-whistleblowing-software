@@ -14,17 +14,18 @@ export class AuditLogTab1Component implements OnInit {
   currentPage = 1;
   pageSize = 20;
   auditLog: auditlogResolverModel[] = [];
+  isBackupEnabled: boolean = false;
   fromLastBackup: boolean = false;
 
   constructor(private readonly httpService: HttpService, protected authenticationService: AuthenticationService, private auditLogResolver: AuditLogResolver, protected nodeResolver: NodeResolver, protected utilsService: UtilsService) {
   }
 
   ngOnInit() {
+    this.isBackupEnabled = this.nodeResolver.dataModel.backup_enable;
     this.loadAuditLogData();
   }
 
   loadAuditLogData() {
-    console.log("Loading audit log data");
     if (Array.isArray(this.auditLogResolver.dataModel)) {
       this.auditLog = this.auditLogResolver.dataModel;
     } else {
@@ -33,23 +34,16 @@ export class AuditLogTab1Component implements OnInit {
   }
 
   fetchAuditLogData(): void {
-    console.log(this.fromLastBackup);
-    // TODO: remove
-    this.fromLastBackup = false;
-    // TODO: end remove
     if (this.fromLastBackup) {
       this.httpService.requestAdminAuditLogResourceFromLastBackup().subscribe((data) => {
         this.auditLog = Array.isArray(data) ? data : [data];
       });
-      console.log("AuditLog from last backup: ", this.auditLog);
     } else {
       this.loadAuditLogData();
-      console.log("AuditLog: ", this.auditLog);
     }
   }
 
   onCheckboxChange(): void {
-    console.log("Checkbox changed: ", this.fromLastBackup);
     this.fetchAuditLogData();
   }
 
