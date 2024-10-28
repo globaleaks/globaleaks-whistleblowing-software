@@ -56,22 +56,23 @@ export class AccredComponent implements OnInit{
 
   
   ngOnInit(): void {
-    let cookie = this.utilsService.getCookie('x-idp-userid');
 
-    if(cookie == null)
-      this.router.navigate(['/']);
-    
-    
-    this.loadOrganizationData();
-    
+    this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
 
+    if(this.org_id)
+      this.loadOrganizationData();
+
+    else{
+      let cookie = this.utilsService.getCookie('x-idp-userid');
+
+      if(cookie == null)
+        this.router.navigate(['/']);
+    }
+    
   }
 
   loadOrganizationData(){
 
-    this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
-    
-    if(this.org_id){
       const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
 
       requestObservable.subscribe(
@@ -101,9 +102,9 @@ export class AccredComponent implements OnInit{
           }
         }
       );
-    }
 
   }
+
 
   checkPecsMatch() {
     this.pecsMatch = this.organizationInfo.organization_email === this.pecConfirmed;
