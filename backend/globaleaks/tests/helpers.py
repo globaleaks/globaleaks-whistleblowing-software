@@ -807,10 +807,10 @@ class TestGLWithPopulatedDB(TestGL):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en', wizard = True)
 
         # fill_data/create_custodian
-        self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en')
+        self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en', wizard=True)
 
         # fill_data/create_custodian
         self.dummyCustodian = yield create_user(1, None, self.dummyCustodian, 'en')

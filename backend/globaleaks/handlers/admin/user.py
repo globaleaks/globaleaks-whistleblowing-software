@@ -153,7 +153,7 @@ def db_delete_user(session, tid, user_session, user_id):
 
 
 @transact
-def create_user(session, tid, user_session, request, language):
+def create_user(session, tid, user_session, request, language, wizard:bool = False):
     """
     Transaction for creating a new user
 
@@ -162,9 +162,10 @@ def create_user(session, tid, user_session, request, language):
     :param user_session: A user session
     :param request: The request data
     :param language: The language of the request
+    :param wizard: IS not wizard?
     :return: The serialized descriptor of the created object
     """
-    return user_serialize_user(session, db_create_user(session, tid, user_session, request, language), language)
+    return user_serialize_user(session, db_create_user(session, tid, user_session, request, language, wizard), language)
 
 
 def db_admin_update_user(session, tid, user_session, user_id, request, language):
