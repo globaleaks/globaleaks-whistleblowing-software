@@ -254,7 +254,10 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'unread_reminder_time',
-        'max_msg_external_to_whistle'
+        'max_msg_external_to_whistle',
+        'backup_destination_path',
+        'backup_enable',
+        'backup_time_ISO_8601'
 
     ],
     'admin_network': [
