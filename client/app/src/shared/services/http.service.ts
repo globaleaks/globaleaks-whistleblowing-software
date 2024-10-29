@@ -147,9 +147,9 @@ export class HttpService {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
 
-  requestForwardedReportClosing(uuid:string, param: any): Observable<{ receipt: string }>{
+  requestForwardedReportClosing(uuid:string, param: any): Observable<any>{
     const body = {answers: param}
-    return this.httpClient.post<{ receipt: string }>("api/recipient/wbtip/"+uuid+"/close", body);
+    return this.httpClient.post("api/recipient/wbtip/"+uuid+"/close", body, {responseType: "text"});
   }
 
   requestSupport(param: string): Observable<void> {
@@ -524,8 +524,8 @@ export class HttpService {
     return this.httpClient.post<void>(`/api/accreditation/request/instructor_request`, dataToStore);
   }
 
-  sendTipRequest(data: SendTip): Observable<string> {
-    return this.httpClient.post<string>(`api/recipient/wbtip/${data.tip_id}/send`, data);
+  sendTipRequest(data: SendTip): Observable<any> {
+    return this.httpClient.post(`api/recipient/wbtip/${data.tip_id}/send`, data, {responseType: "text"});
   }
 
   getStatisticalData(bodyReq: StatisticalRequestModel): Observable<any> {
