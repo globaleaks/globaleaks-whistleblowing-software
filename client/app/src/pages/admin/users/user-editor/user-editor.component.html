@@ -56,7 +56,7 @@
                 </div>
                 <div class="form-group">
                     <label>{{ 'Fiscal Code' | translate }}</label>
-                    <input class="form-control" name="fiscalcode" [(ngModel)]="user.fiscalcode" type="text" required />
+                    <input class="form-control" name="fiscalcode" [(ngModel)]="user.fiscal_code" type="text" required />
                     <div class="text-danger" *ngIf="editUser.form.get('fiscalcode')?.errors?.['required']">This field is mandatory </div>
                 </div>
                 <div class="form-group">

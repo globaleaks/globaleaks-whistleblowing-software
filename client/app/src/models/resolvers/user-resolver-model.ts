@@ -6,7 +6,7 @@ export class userResolverModel {
   role: string;
   enabled: boolean;
   last_login: string;
-  fiscalcode: string;
+  fiscal_code: string;
   name: string;
   description: string;
   public_name: string;

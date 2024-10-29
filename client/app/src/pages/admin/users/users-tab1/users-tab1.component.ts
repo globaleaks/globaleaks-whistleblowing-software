@@ -51,7 +51,7 @@ export class UsersTab1Component implements OnInit {
 
     user.username = typeof this.new_user.username !== "undefined" ? this.new_user.username : "";
     user.role = this.new_user.role;
-    user.fiscalcode = this.new_user.fiscalcode;
+    user.fiscal_code = this.new_user.fiscalcode;
     user.name = this.new_user.name;
     user.mail_address = this.new_user.email;
     user.language = this.nodeResolver.dataModel.default_language;
