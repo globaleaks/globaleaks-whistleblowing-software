@@ -45,9 +45,9 @@
 </div>
 
 
-<div class="row" *ngIf="wbTipService && (tip.comments | filter : 'visibility' : 'whistleblower').length > 0">
+<div class="row" *ngIf="wbTipService && tip && (tip.comments | filter : 'visibility' : 'whistleblower').length > 0">
     <div class="col-md-12">
-        <ng-container *ngIf="wbTipService">
+        <ng-container >
             <src-tip-comments [readonly]="true" [tipService]="wbTipService" [key]="'whistleblower'" [title]="'Comments from EO'"></src-tip-comments>
         </ng-container>
     </div>

@@ -33,11 +33,12 @@
                         </span>
                         <br/>
                     </div>
-                    <div class="message" *ngIf="tipService.tip.receivers_by_id[comment.author_id]">
-                        <div class="row">
-                            <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
+                    <div class="message" >
+                        <div *ngIf="tipService.tip.receivers_by_id[comment.author_id]" class="row">
+                            <div  class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
                             <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                         </div>
+                        <div *ngIf="!tipService.tip.receivers_by_id[comment.author_id]" class="col-md-12 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                         <div *ngIf="!comment.type" class="preformatted">{{comment.content}}</div>
                         <div *ngIf="comment.type === 'auditlog_update_report_status'">
                             <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses) | translate}}</div>
