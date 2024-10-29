@@ -23,7 +23,10 @@ def serialize_log(log):
 
 @transact
 def get_audit_log_since_last_backup(session, tid):
-    logs = get_list_from_audit_log_file(session)
+    if tid != 1:
+        logs = list()
+    else:
+        logs = get_list_from_audit_log_file(session)
 
     return [serialize_log(log) for log in logs]
 
