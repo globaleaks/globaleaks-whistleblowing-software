@@ -105,7 +105,6 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
         language: The language for the email content.
         accreditation_item: The Subscriber object.
         wizard: Dictionary containing setup information.
-        mail_type: type of mail
     """
     eo_uuid = session.query(models.Config).filter(models.Config.tid == accreditation_item.tid, models.Config.var_name == 'uuid').one_or_none()
     node = db_admin_serialize_node(session, 1, language)
@@ -126,6 +125,41 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
 
     for email in emails:
         State.format_and_send_mail(session, 1, email, template_vars)
+
+def send_email_request_accreditation(session, language, accreditation_item):
+    """
+    Send activation emails to the provided email addresses.
+
+    Args:
+        session: The database session.
+        language: The language for the email content.
+        accreditation_item: The Subscriber object.
+    """
+    node = db_admin_serialize_node(session, 1, language)
+    notification = db_get_notification(session, 1, language)
+    signup = serializers.serialize_signup(accreditation_item)
+    template_vars = {
+        'type': 'sign_up_external_organization',
+        'node': node,
+        'notification': notification,
+        'signup': signup
+    }
+    for email in [accreditation_item.organization_email, accreditation_item.admin_email]:
+        State.format_and_send_mail(session, 1, email, template_vars)
+
+def send_alert_accreditor_incoming_request(session, language, accreditation_item, accreditor_email):
+    notification = db_get_notification(session, 1, language)
+    node = db_admin_serialize_node(session, 1, language)
+    signup = serializers.serialize_signup(accreditation_item)
+    template_vars = {
+        'type': 'accreditor_signup_external_organization_alert',
+        'node': node,
+        'notification': notification,
+        'signup': signup
+    }
+    for email in accreditor_email:
+        State.format_and_send_mail(session, 1, email, template_vars)
+
 
 
 @transact
@@ -170,6 +204,22 @@ def accreditation(session, request, is_instructor=False):
         save_step(session, sub)
 
         accreditor = [user[0] for user in accreditor]
+
+        send_email_request_accreditation(
+            session=session,
+            language='en',
+            accreditation_item=sub
+        )
+
+        try:
+            send_alert_accreditor_incoming_request(
+                session=session,
+                language='en',
+                accreditation_item=sub,
+                accreditor_email=accreditor
+            )
+        except Exception as e:
+            logging.debug(e)
 
         return {'id': sub.sharing_id}
     except Exception as e:

@@ -126,6 +126,18 @@ account_activation_keywords = [
     '{AccountRecoveryKeyInstructions}'
 ]
 
+sign_up_external_organization = [
+    '{RecipientName}',
+    '{ActivationUrl}'
+]
+
+accreditor_signup_external_organization_alert = [
+    '{AccreditationId}',
+    '{AccreditationName}',
+    '{NodeName}'
+]
+
+
 
 def indent(n=1):
     return '  ' * n
@@ -610,6 +622,27 @@ class AccountActivationKeyword(UserNodeKeyword):
 
         return Templating().format_template(self.data['notification']['account_recovery_key_instructions'], data) + "\n"
 
+class SignUpExternalOrganization(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + sign_up_external_organization
+
+    def UrlPath(self):
+        return f"/#/accreditation-request/{self.data['signup']['subdomain']}"
+
+    def RecipientName(self):
+        return self.data['signup']['organization_name']
+
+    def ActivationUrl(self):
+        return f"{self.Site()}{self.UrlPath()}"
+
+class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + accreditor_signup_external_organization_alert
+    def AccreditationId(self):
+        return f"{self.data['signup']['subdomain']}"
+
+    def AccreditationName(self):
+        return f"{self.data['signup']['organization_name']}"
+
+
 
 class PasswordResetValidationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list
@@ -657,7 +690,9 @@ supported_template_types = {
     'user_credentials': UserCredentials,
     'identity_access_request': IdentityAccessRequestKeyword,
     'identity_access_authorized': TipKeyword,
-    'identity_access_denied': TipKeyword
+    'identity_access_denied': TipKeyword,
+    'sign_up_external_organization': SignUpExternalOrganization,
+    'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert
 }
 
 

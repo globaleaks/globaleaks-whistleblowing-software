@@ -427,7 +427,11 @@ ConfigL10NFilters = {
         'tip_update_mail_title',
         'unread_tips_mail_template',
         'unread_tips_mail_title',
-        'user_credentials'
+        'user_credentials',
+        'sign_up_external_organization_mail_template',
+        'sign_up_external_organization_mail_title',
+        'accreditor_signup_external_organization_alert_mail_template',
+        'accreditor_signup_external_organization_alert_mail_title'
     ]
 }
 
