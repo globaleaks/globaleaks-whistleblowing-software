@@ -577,8 +577,23 @@ class SubmitAccreditationHandler(BaseHandler):
     root_tenant_only = True
     invalidate_cache = True
 
-    def post(self):
+    @staticmethod
+    def cookies_to_dict(cookie_string):
+        cookies = [item.strip() for item in cookie_string.split(';') if item]
+        cookie_dict = dict(item.split('=', 1) for item in cookies)
+        return cookie_dict
+
+    def get_fiscal_code(self):
         fiscal_code = self.request.headers.get(b'x-idp-userid')
+        if fiscal_code:
+            return fiscal_code.decode()
+        cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
+        return cookies.get('x-idp-userid')
+
+    def post(self):
+        fiscal_code = self.get_fiscal_code()
+        if not fiscal_code:
+            raise errors.ForbiddenOperation
         body_req = self.request.content.read()
         request = self.validate_request(
             body_req,
