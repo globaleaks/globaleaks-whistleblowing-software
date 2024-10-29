@@ -1384,7 +1384,7 @@ class RTipCommentCollection(BaseHandler):
 
     def post(self, itip_id):
         request = self.validate_request(
-            self.request.content.read(), requests.CommentDesc)
+            self.request.content.read(), requests.RTipCommentDesc)
         return create_comment(self.request.tid, self.session.user_id, itip_id, request['content'], request['visibility'], request['tids'])
 
 

@@ -369,11 +369,11 @@ class ForwardingsTenantCollection(BaseHandler):
     invalidate_cache = True
 
     @transact
-    def get_esternal_tenants(self, session):
+    def get_external_tenants(self, session):
         return db_get_tenant_list(session, True)
 
     def get(self):
-        return self.get_esternal_tenants()
+        return self.get_external_tenants()
 
 
 class ForwardingsQuestionnaireCollection(BaseHandler):

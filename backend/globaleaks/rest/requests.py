@@ -173,7 +173,12 @@ UserUserDesc = {
     'notification': bool
 }
 
-CommentDesc = {
+WbTipCommentDesc = {
+    'content': str,
+    'visibility': str
+}
+
+RTipCommentDesc = {
     'content': str,
     'visibility': str,
     'tids': [int]

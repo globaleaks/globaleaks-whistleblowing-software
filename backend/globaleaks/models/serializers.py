@@ -379,9 +379,10 @@ def serialize_wbtip(session, itip, language):
                                  models.ReceiverFile.visibility == models.EnumVisibility.public.value):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
+
     for comment in session.query(models.Comment) \
                           .filter(models.Comment.internaltip_id == itip.id,
-                                  models.Comment.visibility in (models.EnumVisibility.public.value, models.EnumVisibility.whistleblower.value)):
+                                  models.Comment.visibility.in_([models.EnumVisibility.public.value, models.EnumVisibility.whistleblower.value])):
         ret['comments'].append(serialize_comment(session, comment))
 
     return ret

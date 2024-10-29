@@ -236,7 +236,7 @@ class WBTipCommentCollection(BaseHandler):
     check_roles = 'whistleblower'
 
     def post(self):
-        request = self.validate_request(self.request.content.read(), requests.CommentDesc)
+        request = self.validate_request(self.request.content.read(), requests.WbTipCommentDesc)
         return create_comment(self.request.tid, self.session.user_id, request['content'])
 
 
