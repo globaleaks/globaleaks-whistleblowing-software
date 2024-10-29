@@ -116,12 +116,12 @@
 
         <div [id]="field.id" *ngSwitchCase="'voice'">
             <src-voice-recorder (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" 
-            [customQuery]="{description:'', visibility:'oe', tids:[]}"
+            [customQuery]="{description:'', visibility:'oe', tids:'[]'}"
             [uploads]="uploads" [field]="field" [fieldEntry]="fieldAnswers[field.id][0]"></src-voice-recorder>
         </div>
 
         <div [id]="field.id" *ngSwitchCase="'fileupload'">
-            <src-rfile-upload-button [customQuery]="{reference_id: field ? field.id:'', description:'', visibility:'oe', tids:[]}"
+            <src-rfile-upload-button [customQuery]="{reference_id: field ? field.id:'', description:'', visibility:'oe', tids:'[]'}"
              [file_id]="field.id" (notifyFileUpload)="emitEvent($event)" [fileUploadUrl]="fileUploadUrl" [field]="field" [formUploader]="true" [uploads]="uploads" ></src-rfile-upload-button>
         </div>
 
