@@ -295,7 +295,13 @@ AdminNotificationDesc = {
     'enable_analyst_notification_emails': bool,
     'enable_custodian_notification_emails': bool,
     'enable_receiver_notification_emails': bool,
-    'tip_expiration_threshold': int
+    'tip_expiration_threshold': int,
+    'smtp2_password': str,
+    'smtp2_port': int,
+    'smtp2_security': str,
+    'smtp2_server': str,
+    'smtp2_source_email': email_regexp,
+    'smtp2_username': str
 }
 
 AdminNotificationDesc.update(
