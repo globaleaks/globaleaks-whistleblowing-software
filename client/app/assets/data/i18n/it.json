@@ -706,6 +706,9 @@
   "Chart": "Grafico",
   "Bar": "Barre",
   "Pie": "Torta",
-  "Allow the recipient to edit the report expiration date": "Dai a questo utente il permesso di modificare la data di scadenza della segnalazione"
-
+  "Allow the recipient to edit the report expiration date": "Dai a questo utente il permesso di modificare la data di scadenza della segnalazione",
+  "oe": "Organizzazione Esterna",
+  "whistleblower": "Segnalante",
+  "recipient": "Istruttore",
+  "UNKNOWN": "Sconosciuto"
 }

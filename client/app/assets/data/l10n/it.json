@@ -722,6 +722,10 @@
   "Bar": "Barre",
   "Pie": "Torta",
   "Allow the recipient to edit the report expiration date": "Dai a questo utente il permesso di modificare la data di scadenza della segnalazione",
-  "Only me": "Solo io"
+  "Only me": "Solo io",
+  "oe": "Organizzazione Esterna",
+  "whistleblower": "Segnalante",
+  "recipient": "Istruttore",
+  "UNKNOWN": "Sconosciuto"
 
 }

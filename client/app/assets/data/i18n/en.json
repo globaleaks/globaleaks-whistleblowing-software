@@ -682,5 +682,10 @@
   "Add Chart": "Add Chart",
   "Chart": "Chart",
   "Bar": "Bar",
-  "Pie": "Pie"
+  "Pie": "Pie",
+  "Allow the recipient to edit the report expiration date": "Allow the recipient to edit the report expiration date",
+  "oe": "External Organization",
+  "whistleblower": "Whistleblower",
+  "recipient": "Recipient",
+  "UNKNOWN": "Unknown"
 }
