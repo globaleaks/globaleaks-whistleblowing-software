@@ -263,7 +263,7 @@ class MigrationScript(MigrationBase):
         template_mail_config.tid = 1
         template_mail_config.lang = 'en'
         template_mail_config.var_name = 'sign_up_external_organization_info_mail_template'
-        template_mail_config.value = 'Dear {RecipientName},\n\nYour accreditation request is in status: {AccreditationStatus}\n\nKind regards,\n\n{NodeName}'
+        template_mail_config.value = 'Dear {RecipientName},\n\nYour accreditation request is in status: {AccreditationStatus}\n\n{AccreditationMotivationText}\n\nKind regards,\n\n{NodeName}'
         template_mail_config.update_date = datetime_now()
         self.session_new.add(template_mail_config)
         self.entries_count['ConfigL10N'] += 1
