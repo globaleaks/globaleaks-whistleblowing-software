@@ -694,7 +694,7 @@
 	"Accreditation Request": "Richiesta di Accreditamento",
 	"Reason": "Motivazione",
 	"External Organization": "Organizzazione Esterna",
-	"Field of statistical interest": "Campo di interesse statistico",
+	"Field of Statistical Interest": "Campo di interesse statistico",
 	"Enable Backup": "Abilita backup",
 	"Backup Time (hh:mm)": "Ora del backup (hh:mm)",
 	"Backup Destination Path": "Percorso di destinazione del backup",
@@ -721,7 +721,7 @@
   "Chart": "Grafico",
   "Bar": "Barre",
   "Pie": "Torta",
-  "Allow the recipient to edit the report expiration date": "Dai a questo utente il permesso di modificare la data di scadenza della segnalazione"
-
+  "Allow the recipient to edit the report expiration date": "Dai a questo utente il permesso di modificare la data di scadenza della segnalazione",
+  "Only me": "Solo io"
 
 }

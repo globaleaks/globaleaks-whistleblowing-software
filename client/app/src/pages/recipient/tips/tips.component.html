@@ -226,7 +226,7 @@
                             <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
                         </td>
-                        <td class="TipInfoSendNum">
+                        <td class="TipInfoSendNum"  data-toggle="tooltip" title="{{forwardingNames(tip.forwardings)}}">
                             {{tip.total_forwardings_eo}}
                         </td>
                         <td class="TipInfoLastAccess">
