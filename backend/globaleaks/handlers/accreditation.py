@@ -147,6 +147,27 @@ def send_email_request_accreditation(session, language, accreditation_item):
     for email in [accreditation_item.organization_email, accreditation_item.admin_email]:
         State.format_and_send_mail(session, 1, email, template_vars)
 
+def send_email_request_approved(session, language, accreditation_item):
+    """
+    Send activation emails to the provided email addresses.
+
+    Args:
+        session: The database session.
+        language: The language for the email content.
+        accreditation_item: The Subscriber object.
+    """
+    node = db_admin_serialize_node(session, 1, language)
+    notification = db_get_notification(session, 1, language)
+    signup = serializers.serialize_signup(accreditation_item)
+    template_vars = {
+        'type': 'sign_up_external_organization',
+        'node': node,
+        'notification': notification,
+        'signup': signup
+    }
+    for email in [accreditation_item.organization_email]:
+        State.format_and_send_mail(session, 1, email, template_vars)
+
 def send_alert_accreditor_incoming_request(session, language, accreditation_item, accreditor_email):
     notification = db_get_notification(session, 1, language)
     node = db_admin_serialize_node(session, 1, language)
@@ -493,6 +514,12 @@ def _change_status(session, accreditation_id: str, from_status: str, to_status: 
             .one()
         )
         accreditation_item.state = to_status
+        if to_status == EnumSubscriberStatus['approved'].value:
+            send_email_request_approved(
+                session=session,
+                language='en',
+                accreditation_item=accreditation_item
+            )
         return {'id': accreditation_item.sharing_id}
     except NoResultFound:
         log.err(f"Error: Accreditation with ID {accreditation_id} not found")
