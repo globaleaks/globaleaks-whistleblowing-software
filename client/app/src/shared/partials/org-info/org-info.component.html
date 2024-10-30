@@ -54,7 +54,7 @@
                     <span>{{'Reason'|translate}}</span>
                     <span class="text-danger">*</span>
                 </label>
-                <textarea name="accreditationReason" class="form-control" [placeholder]="'Institutional website' | translate" [(ngModel)]="orgInfo.organization_accreditation_reason" required #reason="ngModel"
+                <textarea name="accreditationReason" class="form-control" [placeholder]="'Reason' | translate" [(ngModel)]="orgInfo.organization_accreditation_reason" required #reason="ngModel"
                     id="accreditationReason" [ngClass]="{'is-invalid': isInvalid(reason), 'is-valid': isValid(reason)}" (ngModelChange)="checkFormValidity(orgForm)">
                 </textarea>
                 <div class="invalid-feedback" *ngIf="isInvalid(reason)">
