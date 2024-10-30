@@ -55,6 +55,7 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
 
 
 def validate_forwarding_questionnaire(session, questionnaire_id):
+    valid_field_type = ['inputbox', 'textarea', 'selectbox', 'multichoice', 'checkbox', 'number', 'email', 'date', 'daterange']
     questionnaire = db_get(session, models.Questionnaire,
                            (models.Questionnaire.id == questionnaire_id))
     steps = db_get_questionnaire(
@@ -62,6 +63,10 @@ def validate_forwarding_questionnaire(session, questionnaire_id):
     first_field = steps[0]['children'][0]
     if first_field['type'] != 'textarea' or not bool(first_field['editable']):
         return None
+    for s in steps:
+        for f in s['children']:
+            if f['type'] not in valid_field_type:
+                return None
     return steps
 
 
