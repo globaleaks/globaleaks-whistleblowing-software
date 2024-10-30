@@ -710,5 +710,6 @@
   "oe": "Organizzazione Esterna",
   "whistleblower": "Segnalante",
   "recipient": "Istruttore",
-  "UNKNOWN": "Sconosciuto"
+  "UNKNOWN": "Sconosciuto",
+  "Reports_analyst": "Report"
 }
