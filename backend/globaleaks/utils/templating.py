@@ -143,6 +143,7 @@ sign_up_external_organization_info = [
 accreditor_signup_external_organization_alert = [
     '{AccreditationId}',
     '{AccreditationName}',
+    '{AccreditationStatus}',
     '{NodeName}'
 ]
 
@@ -660,8 +661,12 @@ class SignUpExternalOrganizationInfo(NodeKeyword):
 
 class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
     keyword_list = NodeKeyword.data_keys + accreditor_signup_external_organization_alert
+
     def AccreditationId(self):
         return f"{self.data['signup']['subdomain']}"
+
+    def AccreditationStatus(self):
+        return self.data['signup']['status']
 
     def AccreditationName(self):
         return f"{self.data['signup']['organization_name']}"

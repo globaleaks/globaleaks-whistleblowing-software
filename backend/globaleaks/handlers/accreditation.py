@@ -152,6 +152,7 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
     }
     if not notify_email:
         notify_email = [accreditation_item.organization_email, accreditation_item.admin_email]
+    notify_email.remove(None)
     for email in notify_email:
         State.format_and_send_mail(session, 1, email, template_vars)
 
@@ -178,10 +179,16 @@ def send_email_request_approved(session, language, accreditation_item):
     for email in [accreditation_item.organization_email]:
         State.format_and_send_mail(session, 1, email, template_vars)
 
-def send_alert_accreditor_incoming_request(session, language, accreditation_item, accreditor_email):
+def send_alert_accreditor_incoming_request(session, language, accreditation_item):
+    accreditor = (session.query(models.User.mail_address)
+                  .filter(models.User.tid == 1)
+                  .filter(models.User.role == EnumUserRole.accreditor.name)).all()
+    accreditor_email = [user[0] for user in accreditor]
     notification = db_get_notification(session, 1, language)
     node = db_admin_serialize_node(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
+    status = accreditation_item.state
+    signup['status'] = status if isinstance(status, str) else EnumSubscriberStatus(status).name
     template_vars = {
         'type': 'accreditor_signup_external_organization_alert',
         'node': node,
@@ -228,13 +235,7 @@ def accreditation(session, request, is_instructor=False):
 
         sub.subdomain = sub.sharing_id
 
-        accreditor = (session.query(models.User.mail_address)
-                      .filter(models.User.tid == 1)
-                      .filter(models.User.role == EnumUserRole.accreditor.name)).all()
-
         save_step(session, sub)
-
-        accreditor = [user[0] for user in accreditor]
 
         send_email_request_accreditation(
             session=session,
@@ -246,8 +247,7 @@ def accreditation(session, request, is_instructor=False):
             send_alert_accreditor_incoming_request(
                 session=session,
                 language='en',
-                accreditation_item=sub,
-                accreditor_email=accreditor
+                accreditation_item=sub
             )
         except Exception as e:
             logging.debug(e)
