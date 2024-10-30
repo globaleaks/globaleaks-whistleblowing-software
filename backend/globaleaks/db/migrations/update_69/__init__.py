@@ -205,6 +205,16 @@ class MigrationScript(MigrationBase):
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
 
+    def add_pec_and_mail(self):
+        for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username']:
+            pec_config = self.model_to['Config']()
+            pec_config.var_name = i
+            pec_config.value = '' if i != 'smtp2_port' else 0
+            pec_config.tid = 1
+            self.session_new.add(pec_config)
+            self.entries_count['Config'] += 1
+        
+
     def add_backup_configs(self):
         backup_enable_config = self.model_to['Config']()
         backup_enable_config.var_name = 'backup_enable'
