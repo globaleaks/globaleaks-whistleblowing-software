@@ -340,4 +340,37 @@ export class FieldsComponent implements OnInit {
   listenToAddFieldFormTemplate() {
     this.showAddQuestionFromTemplate = false;
   }
+
+  importOption(options: any): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.json';
+  
+    fileInput.addEventListener('change', (event: any) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (e: any) => {
+        const importedOptions = JSON.parse(e.target.result);
+        importedOptions.forEach((option: any) => {
+          this.field.options.push({
+            id: "", // Non capisco chi assegna l'id
+            label: option.label || "",
+            hint1: option.hint1 || "",
+            hint2: option.hint2 || "",
+            block_submission: option.block_submission || false,
+            score_points: option.score_points || 0,
+            score_type: option.score_type || "none",
+            trigger_receiver: option.trigger_receiver || [],
+            order: this.utilsService.newItemOrder(this.field.options, "order"),
+          });
+        });
+      };
+      
+      reader.readAsText(file);
+    });
+  
+    fileInput.click();
+  }
+  
 }

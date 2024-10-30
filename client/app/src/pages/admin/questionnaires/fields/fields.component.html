@@ -340,8 +340,12 @@
                             <button name="addOption" class="btn btn-sm btn-primary show-add-question-btn" (click)="addOption()">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>{{ 'Add' | translate }}</span>
-                            </button>
+                            </button>                            
                         </label>
+                        <button name="importOption" class="btn btn-sm btn-primary" (click)="importOption(field.options)">
+                            <i class="fa-solid fa-file"></i>
+                            <span>{{ 'Import' | translate }}</span>
+                        </button>
                         <div class="col-md-12">
                             <div class="field-option" *ngFor="let option of field.options; let i = index">
                                 <div class="row">
