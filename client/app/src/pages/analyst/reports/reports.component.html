@@ -1,5 +1,5 @@
 <div class="row">
-    <form #reports="ngForm" class="col-md-6" (ngSubmit)="searchReports(reports)">
+    <form #reports="ngForm" class="col-lg-6 col-md-12" (ngSubmit)="searchReports(reports)">
         <div class="form-group">
             <label for="reportType">{{ 'Report' | translate }}</label>
             <select id="reportType" name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
@@ -59,7 +59,7 @@
         </div>
 
         <div class="row justify-content-start">
-            <div class="col-md-3 mb-4 d-inline-flex align-items-stretch" *ngFor="let chart of charts; let i = index">
+            <div class="col-lg-4 col-md-12 mb-4 d-inline-flex align-items-stretch" *ngFor="let chart of charts; let i = index">
                 <div class="card w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>{{ 'Chart' | translate }} {{ i + 1 }}</span>
@@ -76,7 +76,7 @@
                         <div class="form-group">
                             <label for="chartColumn">{{ 'Statistical field' | translate }}</label>
                             <select id="chartColumn" class="form-control" [(ngModel)]="chart.columnId" (change)="updateCharts()">
-                                <option *ngFor="let key of summaryKeys" [value]="key.id">{{ key.label }}</option>
+                                <option *ngFor="let key of summaryKeys" [value]="key.id">{{ key.label | translate}}</option>
                             </select>
                         </div>
                         <div>
