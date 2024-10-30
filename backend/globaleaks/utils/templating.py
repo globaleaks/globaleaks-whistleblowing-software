@@ -128,12 +128,14 @@ account_activation_keywords = [
 
 sign_up_external_organization = [
     '{RecipientName}',
+    '{AccreditationStatus}',
     '{ActivationUrl}',
     '{NodeName}'
 ]
 
 sign_up_external_organization_info = [
     '{RecipientName}',
+    '{AccreditationStatus}',
     '{NodeName}'
 ]
 
@@ -634,6 +636,9 @@ class SignUpExternalOrganization(NodeKeyword):
     def UrlPath(self):
         return f"/#/accreditation-request/{self.data['signup']['subdomain']}"
 
+    def AccreditationStatus(self):
+        return self.data['signup']['status']
+
     def RecipientName(self):
         return self.data['signup']['organization_name']
 
@@ -645,6 +650,9 @@ class SignUpExternalOrganizationInfo(NodeKeyword):
 
     def RecipientName(self):
         return self.data['signup']['organization_name']
+
+    def AccreditationStatus(self):
+        return self.data['signup']['status']
 
 class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
     keyword_list = NodeKeyword.data_keys + accreditor_signup_external_organization_alert
