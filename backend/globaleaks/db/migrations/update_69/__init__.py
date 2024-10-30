@@ -295,3 +295,4 @@ class MigrationScript(MigrationBase):
         self.add_file_analisys_url()
         self.add_global_stat_keys()
         self.add_backup_configs()
+        self.add_pec_and_mail()
