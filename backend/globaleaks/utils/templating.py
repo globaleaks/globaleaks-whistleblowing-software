@@ -128,7 +128,13 @@ account_activation_keywords = [
 
 sign_up_external_organization = [
     '{RecipientName}',
-    '{ActivationUrl}'
+    '{ActivationUrl}',
+    '{NodeName}'
+]
+
+sign_up_external_organization_info = [
+    '{RecipientName}',
+    '{NodeName}'
 ]
 
 accreditor_signup_external_organization_alert = [
@@ -634,6 +640,12 @@ class SignUpExternalOrganization(NodeKeyword):
     def ActivationUrl(self):
         return f"{self.Site()}{self.UrlPath()}"
 
+class SignUpExternalOrganizationInfo(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + sign_up_external_organization_info
+
+    def RecipientName(self):
+        return self.data['signup']['organization_name']
+
 class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
     keyword_list = NodeKeyword.data_keys + accreditor_signup_external_organization_alert
     def AccreditationId(self):
@@ -692,6 +704,7 @@ supported_template_types = {
     'identity_access_authorized': TipKeyword,
     'identity_access_denied': TipKeyword,
     'sign_up_external_organization': SignUpExternalOrganization,
+    'sign_up_external_organization_info': SignUpExternalOrganizationInfo,
     'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert
 }
 

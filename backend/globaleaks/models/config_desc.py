@@ -443,7 +443,9 @@ ConfigL10NFilters = {
         'sign_up_external_organization_mail_template',
         'sign_up_external_organization_mail_title',
         'accreditor_signup_external_organization_alert_mail_template',
-        'accreditor_signup_external_organization_alert_mail_title'
+        'accreditor_signup_external_organization_alert_mail_title',
+        'sign_up_external_organization_info_mail_title',
+        'sign_up_external_organization_info_mail_template'
     ]
 }
 

@@ -139,7 +139,7 @@ def send_email_request_accreditation(session, language, accreditation_item):
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
     template_vars = {
-        'type': 'sign_up_external_organization',
+        'type': 'sign_up_external_organization_info',
         'node': node,
         'notification': notification,
         'signup': signup
