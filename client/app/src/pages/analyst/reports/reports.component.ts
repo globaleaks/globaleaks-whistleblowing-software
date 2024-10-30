@@ -189,9 +189,12 @@ export class ReportsComponent implements OnInit {
 
     private generateSummaryKeys(): void {
         this.summaryKeys = Object.keys(this.summary).map((key) => {
-          const entry = this.allResults[0].find((entry: ReportEntry) => entry.id === key);
-          const label = entry ? entry.label : key;
-          return { id: key, label: label };
+            const entry = this.allResults.find((result) =>
+                result.find((entry: ReportEntry) => entry.id === key)
+            )?.find((entry: ReportEntry) => entry.id === key);
+    
+            const label = entry ? entry.label : key;
+            return { id: key, label: label };
         });
     }
 
@@ -200,6 +203,7 @@ export class ReportsComponent implements OnInit {
             this.allResults = res.results;
 
             this.populateTableHeaders(this.allResults);
+            console.log("Table Headers:", this.tableHeaders);
             this.populateTableRows(this.allResults);
 
             this.summary = res.summary;
@@ -603,7 +607,7 @@ export class ReportsComponent implements OnInit {
                     "value": "Yes"
                 },
                 {
-                    "id": "8562fe35-2f5b-4329-a356-707331603280",
+                    "id": "8562fe35-2f5b-4329-a356-707331603281",
                     "label": "Have you reported the facts to other organizations and/or individuals?",
                     "value": "No"
                 },
