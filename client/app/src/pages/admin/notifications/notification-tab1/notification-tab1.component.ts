@@ -15,7 +15,13 @@ export class NotificationTab1Component {
   @Input() notificationForm: NgForm;
   protected readonly Constants = Constants;
 
-  constructor(protected nodeResolver: NodeResolver, protected notificationResolver: NotificationsResolver, private utilsService: UtilsService) {
+  collapsed = false;
+
+  constructor(protected nodeResolver: NodeResolver, protected notificationResolver: NotificationsResolver, protected utilsService: UtilsService) {
+  }
+
+  public toggleCollapse() {
+    this.collapsed = !this.collapsed;
   }
 
   updateNotification(notification: notificationResolverModel) {

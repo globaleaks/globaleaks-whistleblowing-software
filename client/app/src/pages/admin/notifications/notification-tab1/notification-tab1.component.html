@@ -43,6 +43,57 @@
                 <input class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
             </div>
         </div>
+        
+ 
+        <div id="pecConfiguration" class="card card-default" [attr.aria-expanded]="collapsed" style="margin-top: 2em;">
+            <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
+                <span>{{'PEC Configuration' | translate}}</span>
+                <span class="">
+                    <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
+                    <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
+                </span>
+            </div>
+            <div class="card-body" *ngIf="!collapsed">
+                <div class="form-group">
+                    <label>{{ 'PEC email address' | translate }}</label>
+                    <input class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp2_source_email" [pattern]="Constants.emailRegexp" type="text" />
+                </div>
+                <div class="text-danger" *ngIf="source_email?.errors?.['pattern']">
+                    <span>{{ 'Invalid email address' | translate }}</span>
+                </div>
+                <div class="form-group">
+                    <label>{{ 'PEC server address' | translate }}</label>
+                    <input class="form-control" name="notification.dataModel.smtp2_server" [(ngModel)]="notificationResolver.dataModel.smtp2_server" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>{{ 'PEC server port' | translate }}</label>
+                    <input class="form-control" name="notification.dataModel.smtp2_port" [(ngModel)]="notificationResolver.dataModel.smtp2_port" type="number" />
+                </div>
+                <div class="form-group">
+                    <label>{{ 'PEC Security' | translate }}</label>
+                    <select class="form-select-custom" name="notification.dataModel.smtp2_security" [(ngModel)]="notificationResolver.dataModel.smtp2_security">
+                        <option value="PLAIN">PLAIN</option>
+                        <option value="SSL">SMTPS</option>
+                        <option value="TLS">SMTP/TLS</option>
+                    </select>
+                </div>
+                <!-- <div class="form-group">
+                    <input name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
+                    <label>{{ 'Require authentication' | translate }}</label>
+                </div> -->
+                <!-- <div *ngIf="notificationResolver.dataModel.smtp_authentication"> -->
+                    <div class="form-group">
+                        <label>{{ 'PEC Username' | translate }}</label>
+                        <input class="form-control" name="notification.dataModel.smtp2_username" [(ngModel)]="notificationResolver.dataModel.smtp2_username" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <label>{{ 'PEC Password' | translate }}</label>
+                        <input class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
+                    </div>
+                <!-- </div> -->
+            </div>
+        </div>
+
         <div class="form-group">
             <label>{{ 'Notifications' | translate }}</label>
         </div>

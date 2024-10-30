@@ -707,5 +707,13 @@
 	"Origin": "Origine",
 	"Upload Date": "Data Caricamento",
 	"Verification Expired": "Verifica Scaduta",
-	"Select an organization": "Seleziona un'organizzazione"
+	"Select an organization": "Seleziona un'organizzazione",
+  "PEC Configuration": "Configurazione PEC",
+  "PEC email address": "Indirizzo mail PEC",
+  "PEC server address": "Indirizzo del server PEC",
+  "PEC server port": "Porta del server PEC",
+  "PEC Security": "Sicurezza PEC",
+  "PEC Username": "Username PEC",
+  "PEC Password": "Password PEC"
+
 }
