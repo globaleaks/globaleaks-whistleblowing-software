@@ -136,6 +136,7 @@ sign_up_external_organization = [
 sign_up_external_organization_info = [
     '{RecipientName}',
     '{AccreditationStatus}',
+    '{AccreditationMotivationText}',
     '{NodeName}'
 ]
 
@@ -650,6 +651,9 @@ class SignUpExternalOrganizationInfo(NodeKeyword):
 
     def RecipientName(self):
         return self.data['signup']['organization_name']
+
+    def AccreditationMotivationText(self):
+        return '' if not self.data['signup']['motivation_text'] else f"motivation text: {self.data['signup']['motivation_text']}"
 
     def AccreditationStatus(self):
         return self.data['signup']['status']

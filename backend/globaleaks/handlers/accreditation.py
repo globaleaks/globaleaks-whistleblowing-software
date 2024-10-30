@@ -126,7 +126,7 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
     for email in emails:
         State.format_and_send_mail(session, 1, email, template_vars)
 
-def send_email_request_accreditation(session, language, accreditation_item, notify_email = None):
+def send_email_request_accreditation(session, language, accreditation_item, notify_email = None, motivation_text=None):
     """
     Send activation emails to the provided email addresses.
 
@@ -135,12 +135,15 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
         language: The language for the email content.
         accreditation_item: The Subscriber object.
         notify_email: Email to
+        motivation_text: notify motivation
     """
     node = db_admin_serialize_node(session, 1, language)
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
     status = accreditation_item.state
     signup['status'] = status if isinstance(status, str) else EnumSubscriberStatus(status).name
+    signup['status'] = signup['status'] if not motivation_text else 'DELETED'
+    signup['motivation_text'] = motivation_text
     template_vars = {
         'type': 'sign_up_external_organization_info',
         'node': node,
@@ -452,8 +455,13 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 @transact
 def persistent_drop(session, accreditation_id: str, request):
     try:
-        print(request['motivation_text'])
         accreditation_item = accreditation_by_id(session, accreditation_id)
+        aux_acc = (
+            session.query(Subscriber)
+            .filter(Subscriber.organization_name.isnot(None))
+            .filter(Subscriber.sharing_id == accreditation_id)
+            .one()
+        )
         status = accreditation_item.get('state')
         status = status if isinstance(status, str) else EnumSubscriberStatus(status).name
         status_mapping = {
@@ -473,6 +481,16 @@ def persistent_drop(session, accreditation_id: str, request):
                 .one()
             )
             session.delete(tenant_item)
+            try:
+                send_email_request_accreditation(
+                    session,
+                    'en',
+                    accreditation_item=aux_acc,
+                    notify_email=[aux_acc.organization_email],
+                    motivation_text=request['motivation_text']
+                )
+            except Exception as e:
+                logging.debug(e)
         return {'id': accreditation_item.get('id')}
     except NoResultFound:
         log.err(f"Error: Accreditation with ID {accreditation_id} not found")
