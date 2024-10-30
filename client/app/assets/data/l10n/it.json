@@ -714,6 +714,12 @@
   "PEC server port": "Porta del server PEC",
   "PEC Security": "Sicurezza PEC",
   "PEC Username": "Username PEC",
-  "PEC Password": "Password PEC"
+  "PEC Password": "Password PEC",
+  "Select report type": "Seleziona la tipologia di report",
+  "Tips EO": "Inoltri a OE",
+  "Add Chart": "Aggiungi Grafico",
+  "Chart": "Grafico",
+  "Bar": "Barre",
+  "Pie": "Torta"
 
 }

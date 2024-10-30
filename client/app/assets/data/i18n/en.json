@@ -676,5 +676,11 @@
   "PEC server port": "PEC server port",
   "PEC Security": "PEC Security",
   "PEC Username": "PEC Username",
-  "PEC Password": "PEC Password"
+  "PEC Password": "PEC Password",
+  "Select report type": "Select report type",
+  "Tips EO": "Tips EO",
+  "Add Chart": "Add Chart",
+  "Chart": "Chart",
+  "Bar": "Bar",
+  "Pie": "Pie"
 }
