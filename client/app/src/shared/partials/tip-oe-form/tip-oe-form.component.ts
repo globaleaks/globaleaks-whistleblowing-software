@@ -10,8 +10,6 @@ export class TipOeFormComponent{
 
   @Input() fields: any;
   
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-
   @Output() sumbitFormEvent: EventEmitter<any> = new EventEmitter<any>();
 
   @Input() tipStatus: string = 'opened';
@@ -20,24 +18,18 @@ export class TipOeFormComponent{
 
   @Input() displayErrors: boolean;
 
-  @Input() fileUploadUrl: string;
+  isFormValid: boolean = false;
+  private fieldValidityMap = new Map<string, boolean>();
 
   constructor(private fieldUtilitiesService: FieldUtilitiesService){}
 
-  validateUploadSubmission() {
-    // return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
+  private updateFormValidity(): void {
+    this.isFormValid = Array.from(this.fieldValidityMap.values()).every(value => value === true);
   }
 
-  
-  checkFormValidity(form: NgForm) {
-    console.log("input form", form.valid);
-    
-    
-  }
-
-
-  exampleNotify(event: any){
-    this.notifyFileUpload.emit(event);
+  onFieldValidityChange(isValid: boolean, fieldId: string): void {
+    this.fieldValidityMap.set(fieldId, isValid);
+    this.updateFormValidity();
   }
 
   onSubmit() {

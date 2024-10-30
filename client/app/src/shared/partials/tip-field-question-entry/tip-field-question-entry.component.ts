@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { FieldUtilitiesService } from '@app/shared/services/field-utilities.service';
 import { NgbDateAdapter, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
@@ -69,11 +68,7 @@ export class CustomDateParserFormatter extends NgbDateParserFormatter {
 })
 export class TipFieldQuestionEntryComponent implements OnInit{
 
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-  @Input() fileUploadUrl: string;
-
-  @Input() subForm: NgForm;
-
+  @Output() validityChange = new EventEmitter<{ isValid: boolean; fieldId: string }>();
 
   @Input() field: any;
   @Input() fieldAnswers: any;
@@ -87,8 +82,8 @@ export class TipFieldQuestionEntryComponent implements OnInit{
   dateOptions: {min_date:NgbDateStruct,max_date:NgbDateStruct}={min_date:{year:0,month:0,day:0},max_date:{year:0,month:0,day:0}}
 
   validator: string | RegExp;
-
   uploads: { [key: string]: any } = {};
+  isValid: boolean = false;
 
   constructor(private fieldUtilitiesService: FieldUtilitiesService){}
 
@@ -106,19 +101,59 @@ export class TipFieldQuestionEntryComponent implements OnInit{
         this.validator = validator_regex;
       }
     }
+
+    this.onChange();
    
   }
 
+  onChange(): void {
+    const value = this.getValue();
 
-  emitEvent(event: any){
-    this.notifyFileUpload.emit(event)
+    // Check if length is valid
+    const meetsLength = this.isLengthValid(value);
+    const meetsPattern = this.isPatternValid(value);
+
+    // Check overall validity
+    this.isValid = this.field.required
+        ? !!value && meetsLength && meetsPattern
+        : !value || (meetsLength && meetsPattern);
+
+    // Notify parent component
+    this.notifyValidity();
   }
 
-  checkFormValidity(form: NgForm) {
-    console.log("input form", form.valid);
-    
-    console.log("isValid: ", this.subForm.valid)
-    
+  private getValue(): string {
+    return this.fieldAnswers[this.field.id]?.[0]?.value || '';
+  }
+
+  // Check min and max length
+  private isLengthValid(value: string): boolean {
+    const minLength = this.field.attrs.min_len?.value;
+    const maxLength = this.field.attrs.max_len?.value;
+    const meetsMinLength = !minLength || value.length >= minLength;
+    const meetsMaxLength = !maxLength || value.length <= maxLength;
+    return meetsMinLength && meetsMaxLength;
+  }
+
+  // Check pattern validity
+  private isPatternValid(value: string): boolean {
+    if (!this.validator || !value) return true;
+    const pattern = new RegExp(this.validator);
+    return pattern.test(value);
+  }
+
+  onCheckboxChange(event: Event): void {
+    this.isValid = this.field.required ? (event.target as HTMLInputElement).checked : true;
+    this.notifyValidity();
+  }
+
+  onDataChange(): void {
+    this.isValid = this.field.required ? !!this.dateRange.start && !!this.dateRange.end : true;
+    this.notifyValidity();
+  }
+
+  notifyValidity(): void {
+    this.validityChange.emit({ isValid: this.isValid, fieldId: this.field.id });
   }
 
   clearDateRange() {
@@ -130,6 +165,7 @@ export class TipFieldQuestionEntryComponent implements OnInit{
     };
 
     this.field.value = "";
+    this.onDataChange();
   }
 
 
@@ -142,39 +178,13 @@ export class TipFieldQuestionEntryComponent implements OnInit{
     const startDate = new Date(date.year, date.month - 1, date.day);
     this.dateRange.start = startDate.getTime().toString();
     this.field.value = `${this.dateRange.start}:${this.dateRange.end}`;
+    this.onDataChange();
   }
 
   onEndDateSelection(date: NgbDateStruct): void {
     const endDate = new Date(date.year, date.month - 1, date.day);
     this.dateRange.end = endDate.getTime().toString();
     this.field.value = `${this.dateRange.start}:${this.dateRange.end}`;
+    this.onDataChange();
   }
-
-
-  setOption(option:any, entry: any){
-
-    let j;
-      if (["checkbox", "selectbox", "multichoice"].indexOf(this.field.type) > -1) {
-        for (j = 0; j < this.field.options.length; j++) {
-          option = this.field.options[j];
-          option.set = false;
-          if (this.field.type === "checkbox") {
-            if (entry[option.id]) {
-              option.set = true;
-            }
-          } else {
-            if (option.id === entry["value"]) {
-              option.set = true;
-            }
-          }
-        }
-      }
-  }
-
-  validateUploadSubmission() {
-    return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
-  }
-  
-
-  
 }

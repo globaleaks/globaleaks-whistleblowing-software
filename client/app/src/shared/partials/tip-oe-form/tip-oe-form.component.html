@@ -3,12 +3,12 @@
         <span>Review Form</span>
     </div>
     <div class="card-body">
-        <form #submissionForm="ngForm" id="SubmissionForm" (ngFormChange)="onFormChange()" (ngModelChange)="checkFormValidity(submissionForm)" >
+        <form #submissionForm="ngForm" id="SubmissionForm" (ngFormChange)="onFormChange()" (ngSubmit)="onSubmit()">
             <div *ngFor="let field of fields" class="form-group">
-                <src-tip-field-question-entry (notifyFileUpload)="exampleNotify($event)" [subForm]="submissionForm" [field]="field" [fieldAnswers]="fieldAnswers" [fileUploadUrl]="fileUploadUrl"></src-tip-field-question-entry>
+                <src-tip-field-question-entry (validityChange)="onFieldValidityChange($event.isValid, $event.fieldId)" [field]="field" [fieldAnswers]="fieldAnswers"></src-tip-field-question-entry>
             </div>     
             
-            <button id="SubmitButton" class="btn btn-primary" (click)="onSubmit()" [disabled]="tipStatus !== 'opened'" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
+            <button id="SubmitButton" class="btn btn-primary" [disabled]="tipStatus !== 'opened' || !submissionForm.valid || !isFormValid" type="submit">{{'Chiudi Istruttoria'|translate}}</button>
         </form>                    
     </div>
 </div>
