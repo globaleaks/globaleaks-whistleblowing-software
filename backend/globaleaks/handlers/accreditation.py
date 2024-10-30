@@ -151,8 +151,10 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
         'signup': signup
     }
     if not notify_email:
-        notify_email = [accreditation_item.organization_email, accreditation_item.admin_email]
-    notify_email.remove(None)
+        notify_email = [accreditation_item.organization_email]
+    if accreditation_item.admin_email:
+        notify_email.append(accreditation_item.admin_email)
+
     for email in notify_email:
         State.format_and_send_mail(session, 1, email, template_vars)
 
@@ -669,7 +671,7 @@ def activate_tenant(session, accreditation_id, request):
     send_email_accreditation_user(
         session, 
         [accreditation_item.admin_email, accreditation_item.email], 
-        language, 
+        language,
         accreditation_item,
         wizard
     )
