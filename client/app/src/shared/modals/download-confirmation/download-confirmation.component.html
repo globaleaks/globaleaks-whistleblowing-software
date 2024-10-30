@@ -5,7 +5,7 @@
     </button>
 </div>
 <div class="modal-body">
-    {{text ? text : confirmationText | translate}}
+    {{(text ? text : confirmationText) | translate}}
 </div>
 <div class="modal-footer">
     <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg)">
