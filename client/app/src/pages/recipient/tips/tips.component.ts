@@ -12,8 +12,8 @@ import {IDropdownSettings} from "ng-multiselect-dropdown";
 import {filter, orderBy} from "lodash-es";
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router} from "@angular/router";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
-import {Receiver} from "@app/models/reciever/reciever-tip-data";
+import {rtipResolverModel, Forwarding} from "@app/models/resolvers/rtips-resolver-model";
+import { Receiver} from "@app/models/reciever/reciever-tip-data";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Observable, from, switchMap} from "rxjs";
@@ -441,5 +441,10 @@ export class TipsComponent implements OnInit {
       'Subscription',
       'Number of Recipients'
     ].map(header => this.translateService.instant(header));
+  }
+
+  forwardingNames(forwardings: Forwarding[]){
+
+    return forwardings.map(_ => _.name).join(', ');
   }
 }
