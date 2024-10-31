@@ -10,7 +10,7 @@ from globaleaks.utils.log import log
 
 
 class FileAnalysis:
-    def __init__(self, url='http://localhost/api/v1/scan'):
+    def __init__(self, url='http://localhost:3000/api/v1/scan'):
         self._url = url
 
     def _scan_file(self, file_name: str, data_bytes: bytes) -> ScanResponse:

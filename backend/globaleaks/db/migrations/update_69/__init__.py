@@ -192,7 +192,7 @@ class MigrationScript(MigrationBase):
     def add_file_analisys_url(self):
         file_analisys_config = self.model_to['Config']()
         file_analisys_config.var_name = 'url_file_analysis'
-        file_analisys_config.value = 'http://localhost/api/v1/scan'
+        file_analisys_config.value = 'http://localhost:3000/api/v1/scan'
         file_analisys_config.tid = 1
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
