@@ -131,7 +131,7 @@ export class TipComponent implements OnInit {
           component: this.tab3
         },
         {
-          title: "External Organization",
+          title: "External Organization and Receivers",
           component: this.tab4
         },
       ];

@@ -636,7 +636,7 @@
 	"PEC and Confirm PEC must match.": "PEC e Conferma PEC devono corrispondere.",
 	"Give this user ability to download infected or unverified files": "Dai a questo utente il permesso di scaricare files infetti o non verificati",
 	"Send tip": "Inoltro segnalazione",
-	"Select accredited organization": "Seleziona OE già censita",
+	"Select External Organization": "Seleziona Organizzazione Esterna",
 	"Register new organization": "Censisci nuova OE",
 	"Register OE": "Censisci",
 	"Review Form": "Form istruttoria",
@@ -651,7 +651,7 @@
 	"Statistical field": "Campo di interesse statistico",
 	"Fiscal Code": "Codice Fiscale",
 	"Submit review form": "Invia form di istruttoria",
-	"Verification Status": "Stato della Verifica",
+	"Antivirus Verification Status": "Stato della Verifica Antivirus",
 	"Accreditation Manager": "Responsabile dell'Accreditamento",
 	"Accreditation Date": "Data Accreditamento",
 	"Suspend Organization": "Sospendi Organizzazione",
@@ -711,5 +711,8 @@
   "whistleblower": "Segnalante",
   "recipient": "Istruttore",
   "UNKNOWN": "Sconosciuto",
-  "Reports_analyst": "Report"
+  "Reports_analyst": "Report",
+  "Forwarded tips": "Inoltri",
+  "Comments from EO":  "Commenti da Organizzazione Competente",
+  "External Organization and Receivers": "Organizzazioni Esterne e Riceventi"
 }

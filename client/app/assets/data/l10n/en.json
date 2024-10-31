@@ -614,7 +614,7 @@
 	"PEC and Confirm PEC must match.": "PEC and Confirm PEC must match.",
 	"Give this user ability to download infected or unverified files": "Give this user ability to download infected or unverified files",
 	"Send tip": "Send tip",
-	"Select accredited organization": "Select accredited organization",
+	"Select External Organization": "Select External Organization",
 	"Register new organization": "Register new organization",
 	"Register OE": "Register OE",
 	"Review Form": "Review Form",
@@ -628,7 +628,7 @@
 	"Selected report": "Selected report",
 	"Statistical field": "Statistical field",
 	"Submit review form": "Submit review form",
-	"Verification Status": "Verification Status",
+	"Antivirus Verification Status": "Antivirus Verification Status",
 	"Accreditation Manager": "Accreditation Manager",
 	"Accreditation Date": "Accreditation Date",
 	"Suspend Organization": "Suspend Organization",
@@ -687,6 +687,10 @@
   "oe": "External Organization",
   "whistleblower": "Whistleblower",
   "recipient": "Recipient",
-  "UNKNOWN": "Unknown"
+  "UNKNOWN": "Unknown",
+  "Reports_analyst": "Report",
+  "Forwarded tips": "Forwarded tips",
+  "Comments from EO": "Comments from EO",
+  "External Organization and Receivers": "External Organization and Receivers"
 
 }
