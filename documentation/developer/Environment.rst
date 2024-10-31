@@ -1,5 +1,5 @@
 =======================
-Development Environment
+Development environment
 =======================
 This guide describes how to set up an environment in order to contribute to the development of GlobaLeaks.
 
@@ -28,7 +28,7 @@ The repository could be cloned with:
 
 .. code:: sh
 
-  git clone https://github.com/globaleaks/GlobaLeaks.git
+  git clone https://github.com/globaleaks/globaleaks-whistleblowing-software.git
 
 Client dependencies could be installed by issuing:
 
@@ -84,7 +84,7 @@ To run globaleaks from sources within the development environment you should iss
 
 GlobaLeaks will start and be reachable at the following address https://127.0.0.1:8443
 
-Building The Docs
+Building the docs
 =================
 To build the documentation:
 

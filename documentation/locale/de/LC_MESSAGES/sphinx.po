@@ -1,0 +1,4671 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2011-2024 - GlobaLeaks
+# This file is distributed under the same license as the GlobaLeaks package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GlobaLeaks 5.0.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-14 19:43+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.16.0\n"
+
+#: ../../developer/ContinuousIntegration.rst:3
+msgid "Continuous integration"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:4
+msgid ""
+"The GlobaLeaks codebase is continuously tested for bug within a complete "
+"continuous integration lifecycle implemented."
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:6
+msgid "Testes are performed at every commit by:"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:8
+msgid ""
+"performing continous integration testing with `GitHub Actions "
+"<https://github.com/globaleaks/globaleaks-whistleblowing-software/actions>`_;"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:9
+msgid ""
+"tracking tests coverage and code quality with `Codacy "
+"<https://app.codacy.com/manual/GlobaLeaks/GlobaLeaks>`_."
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:12
+msgid "Unit tests"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:13
+msgid "Unit tests are implemented by means of python-twisted and trial"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:15
+#: ../../developer/ContinuousIntegration.rst:26
+msgid "Tests can be run manually by issuing:"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:23
+msgid "E2E tests"
+msgstr ""
+
+#: ../../developer/ContinuousIntegration.rst:24
+msgid "End to end tests are implemented by means of Cypress."
+msgstr ""
+
+#: ../../developer/DatabaseSchema.rst:2
+msgid "Database schema"
+msgstr ""
+
+#: ../../developer/Environment.rst:3
+msgid "Development environment"
+msgstr ""
+
+#: ../../developer/Environment.rst:4
+msgid ""
+"This guide describes how to set up an environment in order to contribute "
+"to the development of GlobaLeaks."
+msgstr ""
+
+#: ../../developer/Environment.rst:7 ../../gettingstarted/Requirements.rst:2
+msgid "Requirements"
+msgstr ""
+
+#: ../../developer/Environment.rst:8
+msgid ""
+"The guide assumes you run a Debian based system and that the following "
+"software is installed on your system:"
+msgstr ""
+
+#: ../../developer/Environment.rst:10
+msgid "debhelper"
+msgstr ""
+
+#: ../../developer/Environment.rst:11
+msgid "devscripts"
+msgstr ""
+
+#: ../../developer/Environment.rst:12
+msgid "dh-apparmor"
+msgstr ""
+
+#: ../../developer/Environment.rst:13
+msgid "dh-python"
+msgstr ""
+
+#: ../../developer/Environment.rst:14
+msgid "git"
+msgstr ""
+
+#: ../../developer/Environment.rst:15
+msgid "grunt-cli"
+msgstr ""
+
+#: ../../developer/Environment.rst:16
+msgid "node"
+msgstr ""
+
+#: ../../developer/Environment.rst:17
+msgid "npm"
+msgstr ""
+
+#: ../../developer/Environment.rst:18
+msgid "python3"
+msgstr ""
+
+#: ../../developer/Environment.rst:19
+msgid "python3-dev"
+msgstr ""
+
+#: ../../developer/Environment.rst:20
+msgid "python3-pip"
+msgstr ""
+
+#: ../../developer/Environment.rst:21
+msgid "python3-setuptools"
+msgstr ""
+
+#: ../../developer/Environment.rst:22
+msgid "python3-sphinx"
+msgstr ""
+
+#: ../../developer/Environment.rst:23
+msgid "python3-virtualenv"
+msgstr ""
+
+#: ../../developer/Environment.rst:26 ../../setup/index.rst:2
+msgid "Setup"
+msgstr ""
+
+#: ../../developer/Environment.rst:27
+msgid "The repository could be cloned with:"
+msgstr ""
+
+#: ../../developer/Environment.rst:33
+msgid "Client dependencies could be installed by issuing:"
+msgstr ""
+
+#: ../../developer/Environment.rst:41
+msgid "Backend dependencies could be installed by issuing:"
+msgstr ""
+
+#: ../../developer/Environment.rst:50
+msgid ""
+"This will create for you a python virtualenv in the directory env "
+"containing all the required python dependencies. To leave the virtualenv,"
+" type ``deactivate``."
+msgstr ""
+
+#: ../../developer/Environment.rst:52
+msgid ""
+"Then, anytime you will want to activate the environment to run globaleaks"
+" you will just need to issue the command:"
+msgstr ""
+
+#: ../../developer/Environment.rst:58
+msgid "Setup the client:"
+msgstr ""
+
+#: ../../developer/Environment.rst:66
+msgid "Setup the backend and its dependencies:"
+msgstr ""
+
+#: ../../developer/Environment.rst:76
+msgid "Run"
+msgstr ""
+
+#: ../../developer/Environment.rst:77
+msgid ""
+"To run globaleaks from sources within the development environment you "
+"should issue:"
+msgstr ""
+
+#: ../../developer/Environment.rst:85
+msgid ""
+"GlobaLeaks will start and be reachable at the following address "
+"https://127.0.0.1:8443"
+msgstr ""
+
+#: ../../developer/Environment.rst:88
+msgid "Building the docs"
+msgstr ""
+
+#: ../../developer/Environment.rst:89
+msgid "To build the documentation:"
+msgstr ""
+
+#: ../../developer/Environment.rst:97
+msgid "To edit the docs with hot-reload functionality:"
+msgstr ""
+
+#: ../../developer/Environment.rst:107
+msgid ""
+"Sphinx server will start and be reachable at the following address "
+"http://127.0.0.1:8000 in the web browser."
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:2
+msgid "Release procedure"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:3
+msgid "This is the procedure followed to publish a new GlobaLeaks release."
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:5
+msgid "A release is represented by:"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:7
+msgid "A version bump;"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:8
+msgid "An updated CHANGELOG;"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:9
+msgid "A commit titled \"Bump to version $number\";"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:10
+msgid "A tag commit $version signed by a core developer with their own key;"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:11
+msgid "An updated package on deb.globaleaks.org;"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:12
+msgid "A signed repository."
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:15
+msgid "Release tagging"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:16
+msgid ""
+"To release is tagger by means of the official version bump script by "
+"issuing:"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:23
+msgid "Release packaging"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:24
+msgid "The package is built by means of the official build script by issuing:"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:30
+msgid "This command builds a package for each supported distribution and version."
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:33
+msgid "Package publishing"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:34
+msgid "The package is published on https://deb.globaleaks.org by issuing:"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:41
+msgid "Repository signing"
+msgstr ""
+
+#: ../../developer/ReleaseProcedure.rst:42
+msgid ""
+"The release is then signed by a core developer by using the official "
+"project key via:"
+msgstr ""
+
+#: ../../developer/SoftwareLibraries.rst:2
+msgid "Software libraries"
+msgstr ""
+
+#: ../../developer/SoftwareLibraries.rst:3
+msgid ""
+"The software libraries used by GlobaLeaks are listed in the following "
+"files:"
+msgstr ""
+
+#: ../../developer/SoftwareLibraries.rst:5
+msgid ""
+"Backend: `backend/requirements.txt <https://github.com/globaleaks"
+"/globaleaks-whistleblowing-software/blob/main/backend/requirements/requirements-"
+"bullseye.txt>`_"
+msgstr ""
+
+#: ../../developer/SoftwareLibraries.rst:6
+msgid ""
+"Client: `client/package.json <https://github.com/globaleaks"
+"/globaleaks-whistleblowing-software/blob/main/client/package.json>`_"
+msgstr ""
+
+#: ../../developer/SoftwareLibraries.rst:7
+msgid ""
+"Packaging: `debian/control <https://github.com/globaleaks/whistleblowing-"
+"software/blob/main/debian/controlX/control.bullseye>`_"
+msgstr ""
+
+#: ../../developer/index.rst:2
+msgid "Developer documentation"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:2
+msgid "Features"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:3
+msgid "These are the key features of the software:"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:6
+msgid "User features"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:8
+msgid ""
+"Multi-user system with customizable user roles (whistleblower, recipient,"
+" administrator)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:9
+msgid "Fully manageable via a web administration interface"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:10
+msgid ""
+"Allows whistleblowers to decide if and when to confidentially declare "
+"their identity"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:11
+msgid "Facilitates multimedia file exchanges with whistleblowers"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:12
+msgid "Secure management of file access and visualization"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:13
+msgid "Enables chat with whistleblowers to discuss reports"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:14
+msgid "Provides a unique 16-digit receipt for anonymous whistleblower login"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:15
+msgid "Simple recipient interface for receiving and analyzing reports"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:16
+msgid "Supports report categorization with labels"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:17
+msgid "Includes user search functionality for reports"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:18
+msgid "Supports the creation and assignment of case management statuses"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:19
+msgid "Customizable appearance (logo, color, styles, font, text)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:20
+msgid "Allows defining multiple reporting channels (e.g., by topic, department)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:21
+msgid ""
+"Enables creation and management of multiple whistleblowing sites (e.g., "
+"for subsidiaries or third-party clients)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:22
+msgid "Advanced questionnaire builder"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:23
+msgid "Provides whistleblowing system statistics"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:24
+msgid ""
+"Support for `over 90 languages "
+"<https://www.transifex.com/otf/globaleaks>`_ and Right-to-Left (RTL) "
+"languages"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:27
+msgid "Legal features"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:29
+msgid ""
+"Designed in adherence to `ISO 37002:2021 "
+"<https://www.iso.org/standard/65035.html>`_ and `EU Directive 2019/1937 "
+"<https://eur-lex.europa.eu/legal-"
+"content/en/TXT/?uri=CELEX%3A32019L1937>`_ recommendations for "
+"whistleblowing compliance"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:30
+msgid "Supports bidirectional anonymous communication (comments/messages)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:31
+msgid "Customizable case management workflow (statuses/sub-statuses)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:32
+msgid "Conditional reporting workflow based on whistleblower identity"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:33
+msgid "Manages conflicts of interest in the reporting workflow"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:34
+msgid "Custodian functionality to authorize access to whistleblower identity"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:35
+msgid "GDPR privacy by design and by default"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:36
+msgid "Configurable GDPR data retention policies"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:37
+msgid "GDPR-compliant subscriber module for new SaaS users"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:38
+msgid "No IP address logging"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:39
+msgid "Includes an audit log"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:40
+msgid "Integrates with existing enterprise case management platforms"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:41
+msgid ""
+"Free Software OSI Approved `AGPL 3.0 License "
+"<https://github.com/globaleaks/whistleblowing-"
+"software/blob/main/LICENSE>`_"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:44
+msgid "Security features"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:46
+msgid ""
+"Designed in adherence to `ISO 27001:2022 "
+"<https://www.iso.org/standard/82875.html>`_, `CSA STAR "
+"<https://cloudsecurityalliance.org/star>`_, and `OWASP "
+"<https://owasp.org/>`_ recommendations for security compliance"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:47
+msgid ""
+"Full data encryption for whistleblower reports and recipient "
+"communications"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:48
+msgid ""
+"Supports digital anonymity through `Tor <https://www.torproject.org/>`_ "
+"integration"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:49
+msgid ""
+"Built-in HTTPS support with `TLS 1.3 "
+"<https://tools.ietf.org/html/rfc8446>`_ standard and `SSLabs A+ "
+"<https://www.ssllabs.com/ssltest/analyze.html?d=try.globaleaks.org>`_ "
+"rating"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:50
+msgid ""
+"Automatic enrollment for free digital certificates with `Let’s Encrypt "
+"<https://letsencrypt.org/>`_"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:51
+msgid "Multiple penetration tests with publicly available reports"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:52
+msgid ""
+"Two-Factor Authentication (2FA) compliant with `TOTP RFC 6238 "
+"<https://tools.ietf.org/html/rfc6238>`_"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:53
+msgid "Integrated network sandboxing with iptables"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:54
+msgid "Application sandboxing with `AppArmor <http://wiki.apparmor.net/>`_"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:55
+msgid "Complete protection against automated submissions (spam prevention)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:56
+msgid "Continuous peer review and periodic security audits"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:57
+msgid "PGP support for encrypted email notifications and file downloads"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:58
+msgid "Leaves no traces in browser cache"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:61
+msgid "Technical features"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:63
+msgid ""
+"Designed in adherence to `Directive (EU) 2019/882 <https://eur-"
+"lex.europa.eu/legal-content/IT/TXT/?uri=CELEX%3A32019L0882>`_, `Directive"
+" (EU) 2016/2102 <https://eur-lex.europa.eu/legal-"
+"content/IT/TXT/?uri=CELEX%3A32016L2102>`_, `ETSI EN 301 549 "
+"<https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf>`_,"
+" `W3C WCAG 2.2 <https://www.w3.org/TR/WCAG22/>`_, and `WAI-ARIA 2.2 "
+"<https://www.w3.org/TR/wai-aria-1.2/>`_ recommendations for accessibility"
+" compliance"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:64
+msgid ""
+"Multi-site support enabling the operation of multiple virtual sites on "
+"the same setup"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:65
+msgid ""
+"Responsive user interfaces created with `Bootstrap "
+"<https://getbootstrap.com/>`_ CSS framework"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:66
+msgid "Automated software quality measurement and continuous integration testing"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:67
+msgid "Long-Term Support (LTS) plan"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:68
+msgid ""
+"Built with lightweight framework technologies (`Angular "
+"<https://angular.dev/>`_ and `Python Twisted <https://twisted.org/>`_)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:69
+msgid "Integrated `SQLite <https://sqlite.org>`_ database"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:70
+msgid ""
+"Automatic setup for `Tor Onion Services Version 3 "
+"<https://www.torproject.org/>`_"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:71
+msgid "Supports self-service signup for whistleblowing SaaS setup"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:72
+msgid ""
+"Compatible with Linux operating systems (`Debian "
+"<https://www.debian.org/>`_ / `Ubuntu <https://ubuntu.com/>`_)"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:73
+msgid "Debian packaging with a repository for updates/upgrades"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:74
+msgid "Fully self-contained application"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:75
+msgid "Easy integration with existing websites"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:76
+msgid ""
+"Built and packaged with `reproducibility "
+"<https://en.wikipedia.org/wiki/Reproducible_builds>`_ in mind"
+msgstr ""
+
+#: ../../gettingstarted/Features.rst:77
+msgid "REST API"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:2
+msgid "Glossary"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:3
+msgid ""
+"This glossary defines jargon used in GlobaLeaks in a clear and consistent"
+" manner."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:5 ../../security/ThreatModel.rst:1
+msgid "Administrator"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:7
+msgid ""
+"The user who has set up and maintains the platform. An Administrator does"
+" not have access to Whistleblowers’ reports."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:8
+msgid "Channel"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:10
+msgid ""
+"A reporting channel used as a container for reports. Channels can be "
+"configured with specific questionnaires, recipients, and policies. They "
+"are typically used to organize the reporting process."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:11 ../../user/admin/UserInterface.rst:19
+#: ../../user/admin/UserInterface.rst:201
+msgid "Notification"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:13
+msgid ""
+"An email sent to inform a recipient of a new report or an update to an "
+"existing report."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:14
+msgid "Platform"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:16
+msgid "A system running the GlobaLeaks software."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:17
+msgid "Questionnaire"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:19
+msgid "A set of questions that the whistleblower must complete to file a report."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:20
+#: ../../security/ApplicationSecurity.rst:32
+msgid "Receipt"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:22
+msgid ""
+"A 16-digit random secret code generated by the system and provided to "
+"whistleblowers upon submission of their report. This code allows them to "
+"anonymously access and update their report by adding comments and new "
+"files."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:23 ../../security/ThreatModel.rst:1
+msgid "Recipient"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:25
+msgid ""
+"A user authorized to read whistleblowers’ reports. Recipients may also "
+"communicate with whistleblowers via the GlobaLeaks platform."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:26 ../../security/PenetrationTests.rst:1
+msgid "Report"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:28
+msgid ""
+"The submission by a whistleblower, including answers to a questionnaire "
+"and any attached material."
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:29 ../../security/ThreatModel.rst:1
+msgid "Whistleblower"
+msgstr ""
+
+#: ../../gettingstarted/Glossary.rst:31
+msgid "The person who files a report."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:3
+msgid ""
+"Ensure you understand and meet each of the following technical "
+"requirements."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:6
+msgid "Hardware requirements"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:7
+msgid "**Requirements**:"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:9
+msgid "CPU: Dual-core 2.0GHz (64-bit)"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:10
+msgid "RAM: 1GB"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:11
+msgid "Storage: 20GB"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:12
+msgid "I/O: 10Mbit/s (shared)"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:14
+msgid ""
+"Please note that GlobaLeaks is designed to run on servers with "
+"specifications smaller than those listed above."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:16
+msgid ""
+"The storage size should be determined based on your data retention "
+"policies and the expected use of the platform."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:19
+msgid "Software requirements"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:20
+msgid ""
+"GlobaLeaks is designed to run on GNU/Linux and is developed and tested "
+"specifically for Debian-based systems."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:22
+msgid ""
+"The currently recommended distributions are: Debian 12 (Bookworm) and "
+"Ubuntu 24.04 (Noble)"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:24
+msgid ""
+"The software lifecycle of the platform includes full support for all "
+"Debian and Ubuntu LTS versions starting from `Debian 10 "
+"<https://www.debian.org/releases/buster/>`_ and `Ubuntu 20.04 "
+"<https://releases.ubuntu.com/20.04/>`_."
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:26
+msgid ""
+"Support is guaranteed on these platforms according to the official long-"
+"term support timelines:"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:28
+msgid "`Debian Release End of Life Timeline <https://wiki.debian.org/LTS>`_"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:29
+msgid ""
+"`Ubuntu Release End of Life Timeline <https://www.ubuntu.com/info"
+"/release-end-of-life>`_"
+msgstr ""
+
+#: ../../gettingstarted/Requirements.rst:31
+msgid ""
+"Currently, we do not plan to support additional distributions, as "
+"GlobaLeaks adheres to the Unix philosophy of making each program excel in"
+" a specific area. By focusing our efforts on mastering one domain, we aim"
+" to serve our community most effectively. If you are interested in "
+"helping us extend support to additional distributions, please get in "
+"touch."
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:2
+msgid "Supported browsers"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:4
+msgid ""
+"GlobaLeaks is designed to fully support commonly used browsers on desktop"
+" PCs, laptops, tablets, and smartphones."
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:6
+msgid ""
+"We recommend using the `Tor Browser <https://www.torproject.org/>`_ for "
+"enhanced anonymity and additional privacy and security features not "
+"available in other browsers."
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:8
+msgid "Other supported browsers include:"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Browser"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Version"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Mozilla Firefox"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 38"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Google Chrome"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 45"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Brave"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 1.20.110"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Edge"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "any"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Safari"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 8"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "iOS"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 9"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid "Android"
+msgstr ""
+
+#: ../../gettingstarted/SupportedBrowsers.rst:1
+msgid ">= 4.4"
+msgstr ""
+
+#: ../../gettingstarted/index.rst:2
+msgid "Getting started"
+msgstr ""
+
+#: ../../index.rst:2
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#: ../../index.rst:4
+msgid ""
+"`GlobaLeaks <https://www.globaleaks.org/>`_ is an open-source, free "
+"software intended to enable anyone to easily set up and maintain a secure"
+" whistleblowing platform."
+msgstr ""
+
+#: ../../index.rst:7
+msgid ""
+"This documentation is thank to the support of our community. Join us and "
+"contribute with your additions and suggestion. In any of the page you "
+"find a link that enables you to provide suggestions and corrections. We "
+"remind you that in case of any software issue or bug you may always "
+"report on the `ticketing system <https://github.com/globaleaks"
+"/globaleaks-whistleblowing-software/issues>`_."
+msgstr ""
+
+#: ../../roadmap/index.rst:2
+msgid "Project roadmap"
+msgstr ""
+
+#: ../../roadmap/index.rst:5
+msgid ""
+"This tentative roadmap is built by the GlobaLeaks team in order to try to"
+" respond to main users' needs. Please get sure that the needs of your "
+"projects and users are well represented on the project `Ticketing System "
+"<https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_. If your"
+" organization could fund the development of parts of this roadmap please "
+"write us at info@globaleaks.org"
+msgstr ""
+
+#: ../../roadmap/index.rst:8
+msgid "Introduction"
+msgstr ""
+
+#: ../../roadmap/index.rst:9
+msgid ""
+"`GlobaLeaks <https://www.globaleaks.org>`_ is free, open source software "
+"enabling anyone to easily set up and maintain a secure whistleblowing "
+"platform."
+msgstr ""
+
+#: ../../roadmap/index.rst:11
+msgid ""
+"Started in 2011, the software is now widely used worldwide by more than "
+"3000 organizations working in the fields of anti-corruption activism, "
+"human rights violations reporting, investigative journalism, and "
+"corporate compliance."
+msgstr ""
+
+#: ../../roadmap/index.rst:13
+msgid ""
+"This document details the main areas of research development and "
+"represents the actual tentative readmap of consolidation planned for "
+"2024-2026 based on the analysis of the large set of user needs collected "
+"within the official `Ticketing System <https://github.com/globaleaks"
+"/globaleaks-whistleblowing-software/issues>`_."
+msgstr ""
+
+#: ../../roadmap/index.rst:16
+msgid "Development areas"
+msgstr ""
+
+#: ../../roadmap/index.rst:19
+msgid "Statistics and Reporting"
+msgstr ""
+
+#: ../../roadmap/index.rst:20
+msgid ""
+"GlobaLeaks still misses the implementation for any generation of "
+"statistics and reports. Such features are considered fundamental in order"
+" to properly support users in analysis, investigation and reporting."
+msgstr ""
+
+#: ../../roadmap/index.rst:22
+msgid "E.g:"
+msgstr ""
+
+#: ../../roadmap/index.rst:24
+msgid ""
+"Recipients should be able to visually see statistics about the received "
+"reports received and the data contained; these statistics should empower "
+"users in their work providing relevant information out of the data "
+"collection that could help users analyze and study social problems like "
+"corruption and be able to organize and export automatic reporting;"
+msgstr ""
+
+#: ../../roadmap/index.rst:25
+msgid ""
+"Administrators should be able to visually see a dashboard in order to "
+"monitor the system and assure that all is working well (e.g. that "
+"recipients are receiving submissions and are able to access them and that"
+" no attacks are performed on the system)."
+msgstr ""
+
+#: ../../roadmap/index.rst:27 ../../roadmap/index.rst:42
+msgid "Ideas:"
+msgstr ""
+
+#: ../../roadmap/index.rst:29
+msgid ""
+"A client library could be adopted to generate reports directly on the "
+"client (e.g. Chart.js)"
+msgstr ""
+
+#: ../../roadmap/index.rst:30
+msgid ""
+"The implementation should support the possibility of exporting the report"
+" in PDF; in relation to this aspect it should be considered the "
+"advantages of a possible backend implementation."
+msgstr ""
+
+#: ../../roadmap/index.rst:32 ../../roadmap/index.rst:47
+#: ../../roadmap/index.rst:58 ../../roadmap/index.rst:71
+#: ../../roadmap/index.rst:84
+msgid "Reference tickets:"
+msgstr ""
+
+#: ../../roadmap/index.rst:34
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/1959"
+msgstr ""
+
+#: ../../roadmap/index.rst:35
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2254"
+msgstr ""
+
+#: ../../roadmap/index.rst:39
+msgid "Audit Log"
+msgstr ""
+
+#: ../../roadmap/index.rst:40
+msgid ""
+"GlobaLeaks still misses the implementation of a complete audit logit. "
+"This is considered a fundamental feature in order to achieve full "
+"accontability of the whistleblowing process and increase security."
+msgstr ""
+
+#: ../../roadmap/index.rst:44
+msgid "Software audit log should be improved"
+msgstr ""
+
+#: ../../roadmap/index.rst:45
+msgid ""
+"The software could exposes a standard log interfaces in CEF/LEEF/Syslog "
+"format to foster integration with third party SIEM software."
+msgstr ""
+
+#: ../../roadmap/index.rst:49
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2579"
+msgstr ""
+
+#: ../../roadmap/index.rst:50
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2580"
+msgstr ""
+
+#: ../../roadmap/index.rst:51
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2651"
+msgstr ""
+
+#: ../../roadmap/index.rst:54
+msgid "GDPR compliance"
+msgstr ""
+
+#: ../../roadmap/index.rst:55
+msgid ""
+"GlobaLeaks implements by-design many best practices in matters of privacy"
+" and security. In order to be effectively accepted and competitive beside"
+" commercial proprietary solutions and to guarantee the sustainability of "
+"the project, the software needs to achieve some market “standards” (e.g. "
+"GDPR compliance / ISO certifications / etc.); among all we selected that "
+"GDPR compliance is a first step where the software could implement best "
+"practices (e.g. procedures for self signup should present appropriate "
+"legal notices, terms of services, and contractualization). Within the "
+"software, there should be implemented an automatic contract generation "
+"via PDF or other suitable formats in respect with the GDPR requirements."
+msgstr ""
+
+#: ../../roadmap/index.rst:60
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2145"
+msgstr ""
+
+#: ../../roadmap/index.rst:61
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2658"
+msgstr ""
+
+#: ../../roadmap/index.rst:62
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2866"
+msgstr ""
+
+#: ../../roadmap/index.rst:63
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2767"
+msgstr ""
+
+#: ../../roadmap/index.rst:64
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/3011"
+msgstr ""
+
+#: ../../roadmap/index.rst:65
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/3012"
+msgstr ""
+
+#: ../../roadmap/index.rst:68
+msgid "Backup and Restore"
+msgstr ""
+
+#: ../../roadmap/index.rst:69
+msgid ""
+"GlobaLeaks currently misses any feature for performing backup and "
+"restoring of its setup. These duties are currently performed by its users"
+" following typical best manual practices (e.g. archiving the data "
+"directory of the application). This project idea is to research the best "
+"practices to be applied in this context and to identify suitable "
+"strategies for implementing periodic, secure and encrypted backups to be "
+"restored upon necessity."
+msgstr ""
+
+#: ../../roadmap/index.rst:73
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/528"
+msgstr ""
+
+#: ../../roadmap/index.rst:74
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2149"
+msgstr ""
+
+#: ../../roadmap/index.rst:77
+msgid "Multitenancy"
+msgstr ""
+
+#: ../../roadmap/index.rst:79
+msgid "Import and Export of Tenants"
+msgstr ""
+
+#: ../../roadmap/index.rst:80
+msgid ""
+"Part of the software is a recent feature of Multitenancy, first "
+"implemented in 2018 and stabilized during 2019. Through this feature, "
+"GlobaLeaks makes it possible to create multiple setups of itself via "
+"virtual sites (similarly to Wordpress multisite feature). In order to "
+"make it more easy for an administrator to migrate a platform form a "
+"system to an other or to enable users to require data portability from a "
+"globaleaks provider to an other, for example in relation to GDPR it has "
+"been evaluated necessary to improve the multi tenancy implementation by "
+"implementing support for import-export of tenants. In the context of a "
+"whistleblowing application, involving encryption and logging this poses "
+"important challenges on how to best handle this process."
+msgstr ""
+
+#: ../../roadmap/index.rst:86
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2632"
+msgstr ""
+
+#: ../../roadmap/index.rst:87
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2631"
+msgstr ""
+
+#: ../../roadmap/index.rst:90
+msgid "Multisite users"
+msgstr ""
+
+#: ../../roadmap/index.rst:91
+msgid "(To be further researched)"
+msgstr ""
+
+#: ../../roadmap/index.rst:93
+msgid ""
+"Important requirement at the base of the Multitenancy expansion is the "
+"possibility to enable users to be administrators and recipients of two or"
+" multiple instances running on the same multi-site setup. This is useful "
+"for example when a lawyer takes part as a recipient on multiple projects;"
+" as well it is useful when an ICT consultant joins consultancy on "
+"multiple projects."
+msgstr ""
+
+#: ../../roadmap/index.rst:96
+msgid ""
+"This could significatively simplify user access enabling the user to have"
+" a single set of username and password and associated keys."
+msgstr ""
+
+#: ../../roadmap/index.rst:98
+msgid "References tickets:"
+msgstr ""
+
+#: ../../roadmap/index.rst:100
+msgid "https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2302"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:3
+msgid "Application security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:4
+msgid ""
+"The GlobaLeaks software aims to adhere to industry-standard best "
+"practices, with its security being the result of applied research."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:6
+msgid ""
+"This document details every aspect implemented by the application in "
+"relation to security design."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:9
+msgid "Architecture"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:10
+msgid "The software comprises two main components: a `Backend` and a `Client`:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:12
+msgid ""
+"The Backend is a Python-based server that runs on a physical server and "
+"exposes a `REST API "
+"<https://en.wikipedia.org/wiki/Representational_state_transfer>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:13
+msgid ""
+"The Client is a JavaScript client-side web application that interacts "
+"with the Backend only through `XHR "
+"<https://en.wikipedia.org/wiki/XMLHttpRequest>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:16
+msgid "Anonymity"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:17
+msgid ""
+"Users' anonymity is protected by means of `Tor "
+"<https://www.torproject.org>`_ technology."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:19
+msgid ""
+"The application is designed to avoid logging sensitive metadata that "
+"could lead to the identification of whistleblowers."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:22
+msgid "Authentication"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:23
+msgid ""
+"The confidentiality of authentication is protected either by `Tor Onion "
+"Services v3 <https://www.torproject.org/docs/onion-services.html.en>`_ or"
+" `TLS version 1.2+ "
+"<https://en.wikipedia.org/wiki/Transport_Layer_Security>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:25
+msgid ""
+"This section describes the authentication methods implemented by the "
+"system."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:28
+msgid "Password"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:29
+msgid ""
+"By accessing the login web interface, `Administrators` and `Recipients` "
+"need to enter their respective `Username` and `Password`. If the "
+"submitted password is valid, the system grants access to the "
+"functionality available to that user."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:33
+msgid ""
+"`Whistleblowers` access their `Reports` using an anonymous `Receipt`, "
+"which is a randomly generated 16-digit sequence created by the Backend "
+"when the Report is first submitted. This format resembles a standard "
+"phone number, making it easier for whistleblowers to conceal their "
+"receipts."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:36
+msgid "Password security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:37
+msgid "The system implements the following password security measures:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:40
+msgid "Password storage"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:41
+msgid ""
+"Passwords are never stored in plaintext; instead, the system maintains "
+"only a hashed version. This applies to all authentication secrets, "
+"including whistleblower receipts."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:43
+msgid ""
+"The platform stores users’ passwords hashed with a random 128-bit salt, "
+"unique for each user."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:45
+msgid ""
+"Passwords are hashed using `Argon2 "
+"<https://en.wikipedia.org/wiki/Argon2>`_, a key derivation function "
+"selected as the winner of the `Password Hashing Competition "
+"<https://en.wikipedia.org/wiki/Password_Hashing_Competition>`_ in July "
+"2015."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:47
+msgid ""
+"The hash involves a per-user salt for each user and a per-system salt for"
+" whistleblowers."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:50
+msgid "Password complexity"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:51
+msgid ""
+"The system enforces complex passwords by implementing a custom algorithm "
+"necessary to ensure reasonable entropy for each authentication secret."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:53
+msgid ""
+"Passwords are scored at three levels: `Strong`, `Acceptable`, and "
+"`Insecure`."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:55
+msgid ""
+"Strong: A strong password should include capital letters, lowercase "
+"letters, numbers, and symbols, be at least 12 characters long, and "
+"contain a variety of at least 10 different characters."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:56
+msgid ""
+"Acceptable: An acceptable password should include at least 3 different "
+"types of characters from capital letters, lowercase letters, numbers, and"
+" symbols, be at least 10 characters long, and contain a variety of at "
+"least 7 different characters."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:57
+msgid ""
+"Insecure: Passwords ranked below the strong or acceptable levels are "
+"marked as insecure and are not accepted by the system."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:59
+msgid ""
+"We encourage each end user to use `KeePassXC <https://keepassxc.org>`_ to"
+" generate and retain strong, unique passphrases."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:62
+msgid "Two-factor authentication"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:63
+msgid ""
+"The system implements Two-Factor Authentication (2FA) based on `TOTP` "
+"using the `RFC 6238 <https://tools.ietf.org/rfc/rfc6238.txt>`_ algorithm "
+"and 160-bit secrets."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:65
+msgid ""
+"Users can enroll in 2FA via their own preferences, and administrators can"
+" optionally enforce this requirement."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:67
+msgid ""
+"We recommend using `FreeOTP <https://freeotp.github.io/>`_, available "
+"`for Android "
+"<https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp>`_"
+" and `for iOS <https://apps.apple.com/us/app/freeotp-"
+"authenticator/id872559395>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:70
+msgid "Slowdown on failed login attempts"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:71
+msgid ""
+"The system identifies multiple failed login attempts and implements a "
+"slowdown procedure, requiring an authenticating client to wait up to 42 "
+"seconds to complete an authentication."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:73
+msgid ""
+"This feature is intended to slow down potential attacks, requiring more "
+"resources in terms of time, computation, and memory."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:76
+msgid "Password change on first login"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:77
+msgid "The system enforces users to change their password at their first login."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:79
+msgid ""
+"Administrators can also enforce a password change for users at their next"
+" login."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:82
+msgid "Periodic password change"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:83
+msgid ""
+"By default, the system enforces users to change their password at least "
+"every year."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:85
+msgid "This period is configurable by administrators."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:88
+msgid "Password recovery"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:89
+msgid ""
+"In case of a lost password, users can request a password reset via the "
+"web login interface by clicking on a `Forgot password?` button present on"
+" the login page."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:91
+msgid ""
+"When this button is clicked, users are invited to enter their username or"
+" email. If the provided username or email corresponds to an existing "
+"user, the system will send a reset link to the configured email."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:93
+msgid ""
+"By clicking the link received by email, the user is then invited to set a"
+" new password different from the previous one."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:95
+msgid ""
+"If encryption is enabled on the system, a user clicking on the reset link"
+" must first enter their `Account Recovery Key`. Only after correct entry "
+"will the user be able to set a new password."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:98
+msgid "Web application security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:99
+msgid ""
+"This section describes the Web Application Security implemented by the "
+"software in adherence to the `OWASP Security Guidelines "
+"<https://www.owasp.org>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:102
+msgid "Session management"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:103
+msgid ""
+"The session implementation follows the `OWASP Session Management Cheat "
+"Sheet "
+"<https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html>`_"
+" security guidelines."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:105
+msgid ""
+"The system assigns a session to each authenticated user. The Session ID "
+"is a 256-bit long secret generated randomly by the backend. Each session "
+"expires according to a timeout of 30 minutes. Session IDs are exchanged "
+"between the client and the backend via a header (`X-Session`) and expire "
+"as soon as users close their browser or the tab running GlobaLeaks. Users"
+" can explicitly log out via a logout button or implicitly by closing the "
+"browser."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:108
+msgid "Session encryption"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:109
+msgid ""
+"To minimize the exposure of users' encryption keys, the keys are stored "
+"in an encrypted format and decrypted only upon each client request."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:111
+msgid ""
+"The implementation uses Libsodium's SecretBox, where the client's session"
+" key is used as the secret. Only the client maintains a copy of the "
+"session key, while the server retains only a SHA-256 hash."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:114
+msgid "Cookies and xsrf prevention"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:115
+msgid ""
+"Cookies are not used intentionally to minimize XSRF attacks and any "
+"possible attacks based on them. Instead of using cookies, authentication "
+"is based on a custom HTTP Session Header sent by the client on "
+"authenticated requests."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:118
+msgid "HTTP headers"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:119
+#, python-format
+msgid ""
+"The system implements a large set of HTTP headers specifically configured"
+" to improve software security and achieves a `score A+ by Security "
+"Headers "
+"<https://securityheaders.com/?q=https%3A%2F%2Ftry.globaleaks.org&followRedirects=on>`_"
+" and a `score A+ by Mozilla Observatory "
+"<https://observatory.mozilla.org/analyze/try.globaleaks.org>`_."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:122
+msgid "Strict-Transport-Security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:123
+msgid "The system implements strict transport security by default. ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:128
+msgid "The default configuration of the application sees this feature disabled."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:131
+msgid "Content-Security-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:132
+msgid ""
+"The backend implements a strict `Content Security Policy (CSP) "
+"<https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP>`_ preventing any "
+"interaction with third-party resources and restricting the execution of "
+"untrusted user input: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:137
+msgid ""
+"Specific policies are implemented in adherence to the principle of least "
+"privilege."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:139
+msgid "For example:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:141
+msgid ""
+"The `index.html` source of the app is the only resource allowed to load "
+"scripts from the same origin;"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:142
+msgid "Every dynamic content is strictly sandboxed on a null origin;"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:143
+msgid ""
+"Every untrusted user input or third-party library is executed in a "
+"sandbox, limiting its interaction with other application components."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:146
+msgid "Cross-Origin-Embedder-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:147
+msgid ""
+"The backend implements the following `Cross-Origin-Embedder-Policy (COEP)"
+" <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-"
+"Embedder-Policy>`_: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:153
+msgid "Cross-Origin-Opener-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:154
+msgid ""
+"The backend implements the following `Cross-Origin-Opener-Policy (COOP) "
+"<https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-"
+"Opener-Policy>`_: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:160
+msgid "Cross-Origin-Resource-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:161
+msgid ""
+"The backend implements the following `Cross-Origin-Resource-Policy (CORP)"
+" <https://developer.mozilla.org/en-US/docs/Web/HTTP/Cross-"
+"Origin_Resource_Policy>`_: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:167
+msgid "Permissions-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:168
+msgid ""
+"The backend implements the following Permissions-Policy header "
+"configuration to limit the possible de-anonymization of the user by "
+"disabling dangerous browser features: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:174
+msgid "X-Frame-Options"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:175
+msgid ""
+"In addition to implementing Content Security Policy level 3 to prevent "
+"the application from being included in an iframe, the backend also "
+"implements the outdated X-Frame-Options header to ensure that iframes are"
+" always prevented in any circumstance, including on outdated browsers: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:181
+msgid "Referrer-Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:182
+msgid ""
+"Web browsers usually attach referrers in their HTTP headers as they "
+"browse links. The platform enforces a referrer policy to avoid this "
+"behavior. ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:188
+msgid "X-Content-Type-Options"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:189
+msgid ""
+"To avoid automatic MIME type detection by the browser when setting the "
+"Content-Type for specific output, the following header is used: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:195
+msgid "Cache-Control"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:196
+msgid ""
+"To prevent or limit forensic traces left on devices used by "
+"whistleblowers and in devices involved in communication with the "
+"platform, as specified in section ``3. Storing Responses in Caches`` of "
+"`RFC 7234 <https://tools.ietf.org/html/rfc7234>`__, the platform uses the"
+" ``Cache-Control`` HTTP header with the configuration ``no-store`` to "
+"instruct clients and possible network proxies to disable any form of data"
+" caching. ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:202
+msgid "Crawlers Policy"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:203
+msgid ""
+"For security reasons, the backend instructs crawlers to avoid caching and"
+" indexing of the application and uses the ``robots.txt`` file to allow "
+"crawling only of the home page. Indexing the home page is considered best"
+" practice to promote the platform's existence and facilitate access for "
+"potential whistleblowers."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:205
+msgid "The implemented configuration is as follows: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:212
+msgid ""
+"The platform also instructs crawlers to avoid caching by injecting the "
+"following HTTP header: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:217
+msgid ""
+"For highly sensitive projects where the platform is intended to remain "
+"``hidden`` and communicated to potential whistleblowers directly, it can "
+"be configured to disable indexing completely."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:219
+msgid "In such cases, the following HTTP header is used: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:225
+msgid "Anchor tags and external urls"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:226
+msgid ""
+"The client opens external URLs in a new tab, independent of the "
+"application context, by setting ``rel='noreferrer'`` and "
+"``target='_blank'``` on every anchor tag. ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:232
+msgid "Input validation"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:233
+msgid ""
+"The application implements strict input validation both on the backend "
+"and on the client."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:236
+msgid "On the backend"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:237
+msgid ""
+"Each client request is strictly validated by the backend against a set of"
+" regular expressions, and only requests matching the expressions are "
+"processed."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:239
+msgid ""
+"Additionally, a set of rules is applied to each request type to limit "
+"potential attacks. For example, any request is limited to a payload of "
+"1MB."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:242
+msgid "On the client"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:243
+msgid ""
+"Each server output is strictly validated by the client at rendering time "
+"using the Angular component `ngSanitize.$sanitize "
+"<http://docs.angularjs.org/api/ngSanitize.$sanitize>`__."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:246
+msgid "Form autocomplete off"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:247
+msgid ""
+"Forms implemented by the platform use the HTML5 form attribute to "
+"instruct the browser not to cache user data for form prediction and "
+"autocomplete on subsequent submissions."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:249
+msgid ""
+"This is achieved by setting `autocomplete=\"off\" "
+"<https://www.w3.org/TR/html5/forms.html=autofilling-form-controls:-the-"
+"autocomplete-attribute>`__ on the relevant forms or attributes."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:252
+msgid "Network security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:254
+msgid "Connection anonymity"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:255
+msgid ""
+"User anonymity is provided through the implementation of `Tor "
+"<https://www.torproject.org/>`__ technology. The application implements "
+"an ``Onion Service v3`` and advises users to use the Tor Browser when "
+"accessing it."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:258
+msgid "Connection encryption"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:259
+msgid ""
+"User connections are always encrypted, either through the `Tor Protocol "
+"<https://www.torproject.org>`__ when using the Tor Browser or via `TLS "
+"<https://en.wikipedia.org/wiki/Transport_Layer_Security>`__ when accessed"
+" through a common browser."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:261
+msgid ""
+"Using ``Tor`` is recommended over HTTPS due to its advanced resistance to"
+" selective interception and censorship, making it difficult for a third "
+"party to capture or block access to the site for specific whistleblowers "
+"or departments."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:263
+msgid ""
+"The software also facilitates easy setup of ``HTTPS``, offering both "
+"automatic setup via `Let's Encrypt <https://letsencrypt.org/>`__ and "
+"manual configuration."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:265
+msgid ""
+"TLS certificates are generated using `NIST Curve P-384 "
+"<https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf>`__."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:267
+msgid ""
+"The configuration enables only ``TLS1.2+`` and is fine-tuned and hardened"
+" to achieve `SSLLabs grade A+ "
+"<https://www.ssllabs.com/ssltest/analyze.html?d=try.globaleaks.org>`__."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:269
+msgid "In particular, only the following ciphers are enabled: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:283
+msgid "Network sandboxing"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:284
+msgid ""
+"The GlobaLeaks backend integrates `iptables "
+"<https://www.netfilter.org/>`__ by default and implements strict firewall"
+" rules that restrict incoming network connections to HTTP and HTTPS on "
+"ports 80 and 443."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:286
+msgid ""
+"Additionally, the application allows anonymizing outgoing connections, "
+"which can be configured to route through Tor."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:289
+msgid "Data encryption"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:290
+msgid ""
+"Submission data, file attachments, messages, and metadata exchanged "
+"between whistleblowers and recipients are encrypted using the GlobaLeaks "
+":doc:`EncryptionProtocol`."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:292
+msgid ""
+"GlobaLeaks also incorporates various other encryption components. The "
+"main libraries and their uses are:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:294
+msgid ""
+"`Python-NaCL <https://github.com/pyca/pynacl>`__: used for implementing "
+"data encryption"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:295
+msgid ""
+"`PyOpenSSL <https://github.com/pyca/pyopenssl>`__: used for implementing "
+"HTTPS"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:296
+msgid ""
+"`Python-Cryptography <https://cryptography.io>`__: used for implementing "
+"authentication"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:297
+msgid ""
+"`Python-GnuPG <http://pythonhosted.org/python-gnupg/index.html>`__: used "
+"for encrypting email notifications and file downloads via ```PGP```"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:300
+msgid "Application sandboxing"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:301
+msgid ""
+"The GlobaLeaks backend integrates `AppArmor <https://apparmor.net/>`__ by"
+" default and implements a strict sandboxing profile, allowing the "
+"application to access only the strictly required files. Additionally, the"
+" application runs under a dedicated user and group \"globaleaks\" with "
+"reduced privileges."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:304
+msgid "Database security"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:305
+msgid ""
+"The GlobaLeaks backend uses a hardened local SQLite database accessed via"
+" SQLAlchemy ORM."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:307
+msgid ""
+"This design choice ensures the application can fully control its "
+"configuration while implementing extensive security measures in adherence"
+" to the `security recommendations by SQLite "
+"<https://sqlite.org/security.html>`__."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:310
+msgid "Secure deletion"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:311
+msgid ""
+"The GlobaLeaks backend enables SQLite’s secure deletion capability, which"
+" automatically overwrites the database data upon each delete query: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:317
+msgid "Auto vacuum"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:318
+msgid ""
+"The platform enables SQLite’s auto vacuum capability for automatic "
+"cleanup of deleted entries and recall of unused pages: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:324
+msgid "Limited database trust"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:325
+msgid ""
+"The GlobaLeaks backend uses the SQLite `trusted_schema "
+"<https://www.sqlite.org/src/doc/latest/doc/trusted-schema.md>`__ pragma "
+"to limit trust in the database, mitigating risks of malicious corruption."
+" ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:331
+msgid "Limited database functionalities"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:332
+msgid ""
+"The GlobaLeaks backend restricts SQLite functionalities to only those "
+"necessary for running the application, reducing the potential for "
+"exploitation in case of SQL injection attacks."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:334
+msgid ""
+"This is implemented using the ```conn.set_authorizer``` API and a strict "
+"authorizer callback that authorizes only a limited set of SQL "
+"instructions: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:345
+msgid "DoS resiliency"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:346
+msgid ""
+"To mitigate denial of service attacks, GlobaLeaks applies the following "
+"measures:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:348
+msgid ""
+"Implements a proof-of-work (hashcash) on each unauthenticated request to "
+"limit automation."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:349
+msgid "Applies rate limiting on authenticated sessions."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:350
+msgid ""
+"Limits the possibility of triggering CPU-intensive routines by external "
+"users (e.g., limits on query and job execution times)."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:351
+msgid ""
+"Monitors activity to detect and respond to attacks, implementing "
+"proactive security measures to prevent DoS (e.g., slowing down fast "
+"operations)."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:354
+msgid "Proof of work on users' sessions"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:355
+msgid ""
+"The system implements an automatic `Proof of Work "
+"<https://en.wikipedia.org/wiki/Proof_of_work>`__ based on the hashcash "
+"algorithm for every user session, requiring clients to request a token "
+"and continuously solve a computational problem to acquire and renew the "
+"session."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:358
+msgid "Rate limit on users' sessions"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:359
+msgid ""
+"The system implements rate limiting on user sessions, preventing more "
+"than 5 requests per second and applying increasing delays on requests "
+"that exceed this threshold."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:362
+msgid "Rate limit on whistleblowers' reports and attachments"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:363
+msgid ""
+"The system applies rate limiting on whistleblower reports and "
+"attachments, preventing new submissions and file uploads if thresholds "
+"are exceeded."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:365
+msgid "Implemented thresholds are:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "Threshold Variable"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+#: ../../security/PenetrationTests.rst:1
+msgid "Goal"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "Default Threshold Setting"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "threshold_reports_per_hour"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "Limit the number of reports that can be filed per hour"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "20"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "threshold_reports_per_hour_per_ip"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid ""
+"Limit the number of reports that can be filed per hour by the same IP "
+"address"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "5"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "threshold_attachments_per_hour_per_ip"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid ""
+"Limit the number of attachments that can be uploaded per hour by the same"
+" IP address"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "120"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "threshold_attachments_per_hour_per_report"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "Limit the number of attachments that can be uploaded per hour on a report"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:1
+msgid "30"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:375
+msgid ""
+"In case of necessity, threshold configurations can be adjusted using the "
+"`gl-admin` command as follows: ::"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:381
+msgid "Other measures"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:383
+msgid "Browser history and forensic traces"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:384
+msgid ""
+"The entire application is designed to minimize or reduce the forensic "
+"traces left by whistleblowers on their devices while filing reports."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:386
+msgid ""
+"When accessed via the Tor Browser, the browser ensures that no persistent"
+" traces are left on the user's device."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:388
+msgid ""
+"To prevent or limit forensic traces in the browser history of users "
+"accessing the platform via a common browser, the application avoids "
+"changing the URI during whistleblower navigation. This prevents the "
+"browser from logging user activities and offers high plausible "
+"deniability, making the whistleblower appear as a simple visitor to the "
+"homepage and avoiding evidence of any submission."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:391
+msgid "Secure file management"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:393
+msgid "Secure file download"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:394
+msgid ""
+"Any attachment uploaded by anonymous whistleblowers might contain "
+"malware, either intentionally or not. It is highly recommended, if "
+"possible, to download files and access them on an air-gapped machine "
+"disconnected from the network and other sensitive devices. To facilitate "
+"safe file downloads and transfers using a USB stick, the application "
+"provides the option to export reports, enabling the download of a ZIP "
+"archive containing all report content. This reduces the risk of executing"
+" files during the transfer process."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:397
+msgid "Safe file opening"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:398
+msgid ""
+"For scenarios where the whistleblower's trustworthiness has been "
+"validated or in projects with a low-risk threat model, the application "
+"offers an integrated file viewer. This viewer, leveraging modern browser "
+"sandboxing capabilities, allows the safe opening of a limited set of file"
+" types considered more secure than accessing files directly through the "
+"operating system. This feature is disabled by default. Administrators "
+"should enable it only after thorough evaluation and ensure that "
+"recipients' browsers are kept up-to-date."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:400
+msgid "The supported file formats are:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:402
+msgid "AUDIO"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:403
+msgid "CSV"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:404
+msgid "IMAGE"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:405
+msgid "PDF"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:406
+msgid "VIDEO"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:407
+msgid "TXT"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:409
+#: ../../security/ApplicationSecurity.rst:419
+msgid "The default configuration has this feature disabled."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:412
+msgid "PGP encryption"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:413
+msgid "The system offers an optional PGP encryption feature."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:415
+msgid ""
+"When enabled, users can activate a personal PGP key that will be used by "
+"the system to encrypt email notifications and files on-the-fly."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:417
+msgid ""
+"This feature is recommended for high-risk threat models, especially when "
+"used in conjunction with air-gapped systems for report visualization."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:422
+msgid "Encryption of temporary files"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:423
+msgid ""
+"Files uploaded and temporarily stored on disk during the upload process "
+"are encrypted with a temporary, symmetric AES key to prevent any "
+"unencrypted data from being written to disk. Encryption is performed in "
+"streaming mode using `AES 128-bit` in `CTR mode`. Key files are stored in"
+" memory and are unique for each file being uploaded."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:426
+msgid "Secure file delete"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:427
+msgid ""
+"Every file deleted by the application is overwritten before the file "
+"space is released on disk."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:429
+msgid ""
+"The overwrite routine is executed by a periodic scheduler and follows "
+"these steps:"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:431
+msgid "A first overwrite writes 0 across the entire file;"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:432
+msgid "A second overwrite writes 1 across the entire file;"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:433
+msgid "A third overwrite writes random bytes across the entire file."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:436
+msgid "Exception logging and redaction"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:437
+msgid ""
+"To quickly diagnose potential software issues when client exceptions "
+"occur, they are automatically reported to the backend. The backend "
+"temporarily caches these exceptions and sends them to the backend "
+"administrator via email."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:439
+msgid ""
+"To prevent inadvertent information leaks, logs are processed through "
+"filters that redact email addresses and UUIDs."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:442
+msgid "Entropy sources"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:443
+msgid "The primary source of entropy for the platform is `/dev/urandom`."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:446
+msgid "UUIDv4 randomness"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:447
+msgid ""
+"System resources like submissions and files are identified by UUIDv4 to "
+"make them unguessable by external users and limit potential attacks."
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:450
+msgid "TLS for smtp notification"
+msgstr ""
+
+#: ../../security/ApplicationSecurity.rst:451
+msgid ""
+"All notifications are sent through an SMTP channel encrypted with TLS, "
+"using either SMTP/TLS or SMTPS, depending on the configuration."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:2
+msgid "Encryption protocol"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:3
+msgid ""
+"GlobaLeaks implements an encryption protocol specifically designed for "
+"anonymous whistleblowing applications."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:5
+msgid ""
+"The protocol has been developed and validated in collaboration with the "
+"`Open Technology Fund <https://www.opentech.fund/results/supported-"
+"projects/globaleaks/>`_ and represents a trade-off between security and "
+"usability. It is designed to be user-friendly for whistleblowers while "
+"providing reasonable protection against attackers attempting to breach "
+"the backend and perform brute-force decryption."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:7
+msgid ""
+"Encryption is applied to each submission, protecting answers to "
+"questionnaires, comments, attachments, and associated metadata. The "
+"encryption keys are assigned per user and per report, ensuring that only "
+"whistleblowers and their intended recipients can access the reports. This"
+" means that if users forget their passwords, they will lose access to the"
+" data in their accounts."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:9
+msgid ""
+"To enable users to recover their accounts in case they forget their "
+"passwords, the system includes a `Key Recovery`_ mechanism and provides "
+"each user with an Account Recovery Key. This measure ensures that users "
+"with their own Account Recovery Key can always restore access to their "
+"account and the data it contains."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:11
+msgid ""
+"To prevent data loss in case users lose both their password and their "
+"account recovery key, the system can be configured to use a `Key Escrow`_"
+" mechanism. This delegates the responsibility of supporting users in "
+"recovering access to their accounts to administrators. This capability "
+"enhances the project's resilience against data loss due to users' death "
+"or conflicts of interest within the recipient team. However, it also "
+"means that administrators with access to escrow keys could potentially "
+"access other users' accounts and data. Project owners should carefully "
+"decide whether to enable this feature based on the project's threat model"
+" and document their decision in the project's privacy policies."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:14
+msgid "Encryption's workflow"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:15
+msgid ""
+"Users choose a secure personal password during their first login using an"
+" account activation link."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:16
+msgid ""
+"The system creates a personal asymmetric keypair for each user and stores"
+" the private key symmetrically encrypted with a secret derived from the "
+"user's password."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:17
+msgid ""
+"Each user's private key is protected by the Key Recovery mechanism and, "
+"if enabled, by the Key Escrow mechanism."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:18
+msgid "The whistleblower files a report."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:19
+msgid "The system assigns a unique 16-digit receipt number to the whistleblower."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:20
+msgid ""
+"The system generates an asymmetric keypair for the whistleblower and "
+"stores the private key symmetrically encrypted with a secret derived from"
+" the whistleblower’s receipt number."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:21
+msgid ""
+"The system generates an asymmetric keypair for encrypting the report, "
+"attachments, comments, and associated metadata, and stores a copy of the "
+"private key encrypted for each involved user using their own public key."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:22
+msgid ""
+"The system encrypts the report, attachments, comments, and metadata with "
+"the public key generated for the report."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:23
+msgid ""
+"The system grants each involved user access to their reports and "
+"facilitates communication by automatically locking and unlocking the "
+"involved keys when a report is accessed or new communication is made."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:26
+msgid "Encryption's details"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:28
+msgid "Algorithms"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Type"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Implementation"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Asymmetric encryption"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid ""
+"`Libsodium SealedBoxes "
+"<https://pynacl.readthedocs.io/en/stable/public/#nacl.public.SealedBox>`_,"
+" which combines Curve25519, XSalsa20, and Poly1305 algorithms."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Symmetric encryption"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid ""
+"`Libsodium SecretBoxes "
+"<https://pynacl.readthedocs.io/en/stable/secret/#nacl.secret.SecretBox>`_,"
+" which combines XSalsa20 and Poly1305."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:36
+msgid "Users’ credentials"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:37
+msgid "The system uses two types of credentials depending on the user role:"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Credentials type"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "User role"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Passwords"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Used for authenticating users identified by a username"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Receipts"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "16-digit random secrets used for authenticating anonymous whistleblowers"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:45
+msgid "Assumptions:"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:47
+msgid "The system enforces strong password complexity."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:48
+msgid ""
+"The system enforces expiration of receipts according to a strict data "
+"retention policy that limits the number of concurrent active receipts."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:51
+msgid "Users’ keys"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Generation"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Storage"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "ECC Curve25519 keypair"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid ""
+"Generated by the backend during first user login for authenticated users "
+"and upon submission for whistleblowers"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid ""
+"Keys are stored on the backend encrypted using symmetric encryption. The "
+"symmetric key used for encrypting users’ keys is derived from the users’ "
+"credentials using the KDF function `Argon2ID <https://password-"
+"hashing.net/argon2-specs.pdf>`_. The parameters for Argon2ID used for KDF"
+" are stronger than those used for user authentication, with the hash "
+"stored. The parameters are selected to require 128MB of memory per login "
+"and 1 second of computation."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:58
+msgid "Data encryption's keys"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "256-bit keys"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid "Generated by the backend for each report"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:1
+msgid ""
+"Keys are stored on the backend filesystem encrypted using asymmetric "
+"encryption with Users’ and Whistleblower’s keys, respectively."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:65
+msgid "Key generation"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:66
+msgid ""
+"Users' encryption keys are automatically generated during the first login"
+" and secured using the user passphrase. This straightforward but "
+"effective key generation policy requires users to complete their first "
+"login before being able to receive reports."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:69
+msgid "Key recovery"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:70
+msgid ""
+"The system implements a key recovery mechanism using a recovery key and "
+"symmetric encryption."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:72
+msgid ""
+"When a user key is generated, the private key is symmetrically encrypted "
+"with a randomly generated recovery key."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:74
+msgid ""
+"For usability reasons, this recovery key is also securely encrypted and "
+"stored on the backend, allowing logged-in users who possess their "
+"password to retrieve and print their own account recovery key."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:77
+msgid "Key escrow"
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:78
+msgid ""
+"The system offers an optional key escrow mechanism to mitigate data loss "
+"in the event of users losing their passwords."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:80
+msgid ""
+"Key escrow can be enabled during the initial application setup or in the "
+"advanced settings of the software."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:82
+msgid ""
+"We recommend enabling this option to protect whistleblowers' submissions "
+"in cases where recipients lose their passwords. However, if you want to "
+"set up a system where only recipients can access submissions, we advise "
+"against using this feature."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:84
+msgid ""
+"When enabled, the system generates and assigns an escrow key to the "
+"administrator who activated the feature. This key is then used to encrypt"
+" every system key, with a copy preserved that any administrator with the "
+"escrow key can unlock."
+msgstr ""
+
+#: ../../security/EncryptionProtocol.rst:86
+msgid ""
+"Administrators with access to the escrow key can assist internal users "
+"with password recovery and issue password resets. They can also grant "
+"this privilege to other administrators or disable the feature entirely."
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:3
+msgid "Security audits"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:5
+msgid ""
+"GlobaLeaks undergoes independent security audits periodically to verify "
+"and enhance the security of the system. This page lists the most "
+"significant reports available."
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:7
+msgid ""
+"We aim to have audits conducted at least every two years, thanks to "
+"funding opportunities. Each adopter is encouraged to contribute by "
+"funding a general or topic-specific audit based on their capabilities. "
+"This helps ensure that every algorithm, component, and methodology "
+"applied within the project is thoroughly verified."
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:9
+msgid ""
+"If you have conducted or are considering sponsoring a security audit, "
+"please email us at `info@globaleaks.org <mailto:info@globaleaks.org>`_. "
+"This is especially important for general software security. When "
+"requesting a company to audit the software, always remember to ask if the"
+" report can be published afterward; many auditors may not agree to "
+"publish the report later, which has often led to wasted project "
+"resources."
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:11
+msgid ""
+"If you are an independent security auditor or, during your peer review of"
+" GlobaLeaks, you discover or suspect a vulnerability, please do not file "
+"a public issue. Instead, send your report privately through our "
+"`reporting form <https://github.com/globaleaks/whistleblowing-"
+"software/security/advisories/new>`_ or via email to "
+"`security@globaleaks.org <mailto:security@globaleaks.org>`_."
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1 ../../user/admin/UserInterface.rst:135
+msgid "Date"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Auditor"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2013"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`iSecPartners <https://www.isecpartners.com>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Architecture Audit"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Report <https://www.globaleaks.org/docs/en/pt/2013-isec.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Cure53 <https://cure53.de/>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Web Security Audit"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Report <https://www.globaleaks.org/docs/en/pt/2013-cure53.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2014"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`LeastAuthority <https://leastauthority.com/>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Source Code Audit"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Report <https://www.globaleaks.org/docs/en/pt/2014-leastauthority.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2018"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`SubGraph <https://subgraph.com/>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Overall Audit"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Report <https://www.globaleaks.org/docs/en/pt/2018-subgraph.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2019"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Crypto Audit, Multi-tenancy Audit, Overall Audit"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid ""
+"`Report "
+"<https://www.globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2022"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid ""
+"Server Source Code Audit, Client Pentest, OpSec for Whistleblowers, OpSec"
+" for Server Administrators"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid ""
+"`Report "
+"<https://www.globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "2024"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`ISGroup <https://isgroup.it/>`_"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "Surface Analysis and Network Penetration Test"
+msgstr ""
+
+#: ../../security/PenetrationTests.rst:1
+msgid "`Report <https://www.globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:3
+msgid "Threat model"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:4
+msgid ""
+"GlobaLeaks is a free and open-source whistleblowing software designed for"
+" various usage scenarios, each requiring a balance between strong "
+"security and high usability. These two requirements are crucial for "
+"managing whistleblowing procedures effectively, protecting "
+"whistleblowers, and achieving specific project goals. Given the variety "
+"of use cases and associated risks, the software can be configured to "
+"address the specific threat model detailed here."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:6
+msgid ""
+"This document is intended for organizations implementing a whistleblowing"
+" procedure using GlobaLeaks. It supports the analysis and understanding "
+"of the specific threat model relevant to their context and risks and "
+"guides users in selecting best practices for their project."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:9
+msgid "Users matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:10
+msgid ""
+"The first step is to define the types of users interacting with a "
+"GlobaLeaks platform."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "User"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Definition"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"The user who submits an anonymous report through the platform. "
+"Whistleblowers may operate under various threat models depending on the "
+"usage scenario and the nature of the information submitted."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"The user who receives and analyzes anonymous reports from Whistleblowers."
+" Recipients act in good faith and are considered trusted parties "
+"concerning the protection of Whistleblowers' confidentiality."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"Users responsible for setting up, managing, and monitoring the platform's"
+" security. Administrators may not be the same entities running or "
+"managing the whistleblowing initiatives (e.g., hosted solutions, multiple"
+" stakeholder projects). Administrators are trusted entities but do not "
+"have direct access to reports and advise Recipients on best practices."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:19
+msgid ""
+"It is crucial to apply security measures relative to the users of the "
+"platform, aiming to achieve an appropriate tradeoff between security and "
+"usability."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:22
+msgid "Anonymity matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:23
+msgid ""
+"The anonymity of users must be classified depending on the context of "
+"use, as follows:"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Anonymous"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"The user accesses the platform via the Tor Browser and follows best "
+"practices to protect their identity, minimizing the risk of tracking by "
+"any system involved in the operation. The user has not disclosed their "
+"identity to Recipients."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Confidential"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"The user accesses the platform via a common browser. While third parties "
+"might log their IP address, the platform protects the content of their "
+"communication. The user may choose to disclose their identity to "
+"Recipients confidentially."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:31
+msgid ""
+"The platform always informs users of their current anonymity status and "
+"provides guidance on best practices for anonymous access via the Tor "
+"Browser. Administrators may enforce the requirement that Whistleblowers "
+"use the Tor Browser to file reports, depending on the use case."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:34
+msgid "Communication security matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:35
+msgid ""
+"The security of communication concerning third-party monitoring varies "
+"based on the context of use."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Security level"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Description"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "High security"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"Tor is used, and communication is encrypted end-to-end with the "
+"GlobaLeaks platform, ensuring that no third party can eavesdrop on the "
+"communication."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Medium security"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"HTTPS is used, and communication is encrypted end-to-end with the "
+"GlobaLeaks platform. A third party capable of manipulating HTTPS security"
+" (e.g., re-issuing TLS certificates) could eavesdrop on the "
+"communication. If HTTPS security is maintained, monitoring the user's "
+"communication line or the GlobaLeaks platform's communication line is not"
+" feasible."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1 ../../security/ThreatModel.rst:44
+msgid "Identity disclosure matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:45
+msgid ""
+"Regardless of the anonymity matrix, users may choose or be required to "
+"disclose their identity."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Undisclosed"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "The user's identity is not disclosed and is unlikely to be disclosed."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Optionally disclosed"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"The user's identity is not disclosed by default but may be voluntarily "
+"disclosed (e.g., an anonymous tip-off MAY receive a follow-up, whereas a "
+"formal report with disclosed identity MUST receive a follow-up)."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Disclosed"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "The user chooses or is required to disclose their identity to other users."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:54
+msgid ""
+"Identity disclosure is crucial because even in an Anonymous High security"
+" environment, disclosing one's identity may be a valuable option for "
+"specific whistleblowing workflows."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:56
+msgid ""
+"Users starting with an anonymity setting of “Anonymous” and an "
+"“Undisclosed Identity” can decide later to disclose their identity. "
+"Conversely, this cannot be undone. This consideration is key to ensuring "
+"user protection in GlobaLeaks."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:58
+msgid ""
+"Voluntary identity disclosure may be required in certain whistleblowing "
+"procedures because:"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:60
+msgid "A tip-off MAY receive a follow-up and can be anonymous;"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:61
+msgid "Formal reports MUST receive a follow-up and cannot be anonymous."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:63
+msgid ""
+"The distinction between “MAY” and “MUST” refers to the actions of "
+"recipients and is a fundamental element of the guarantees provided to "
+"whistleblowers in many initiatives (e.g., a corporate or institutional "
+"whistleblowing platform should not follow a MUST approach for anonymous "
+"submission follow-up, treating such submissions as tip-offs rather than "
+"formal reports)."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:66
+msgid "Usage scenarios matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:67
+msgid ""
+"This section provides examples of how different anonymity levels for "
+"users can be combined depending on the context of use."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Use case"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Media outlet"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"A media outlet with a disclosed identity initiates a whistleblowing "
+"project. The outlet’s recipients are disclosed to Whistleblowers, "
+"allowing them to trust a specific journalist rather than the outlet "
+"itself. Full anonymity must be assured to whistleblowers, and their "
+"identity cannot be disclosed in connection with anonymous submissions. "
+"Whistleblowers MAY choose to disclose their identity if they trust the "
+"journalist's source-protection record."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Corporate compliance"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"A corporation implements transparency or anti-bribery law compliance by "
+"promoting initiatives to employees, consultants, and providers. "
+"Recipients are part of a company division (e.g., Internal Audit office). "
+"Whistleblowers are guaranteed full anonymity but may optionally disclose "
+"their identity."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Human Rights Activism Initiative"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"A human rights group initiates a whistleblowing project to expose "
+"violations in a dangerous area. The organization requires anonymity to "
+"avoid retaliation and operates under a pseudonym. Recipients MUST not be "
+"disclosed to Whistleblowers, but partial disclosure by pseudonym is "
+"acceptable to establish trust. The Whistleblower MUST be guaranteed "
+"anonymity and their identity cannot be disclosed."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Citizen media initiative"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"A citizen media initiative with a public identity seeks reports on "
+"specific topics (e.g., political, environmental malpractice, corruption) "
+"in a medium-low risk operational context. Recipients may use pseudonyms "
+"or remain public to avoid complete exposure. Whistleblowers, if the topic"
+" is not life-threatening, may submit reports confidentially to lower the "
+"entry barrier."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:77
+msgid ""
+"The following matrix illustrates how different usage scenarios can "
+"require various anonymity levels, communication security requirements, "
+"and identity disclosures for different users."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:79
+msgid ""
+"GlobaLeaks will provide appropriate security awareness information "
+"through its user interface and enforce specific requirements based on "
+"clear configuration guidelines."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Scenario"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Anonymity level"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Identity disclosure"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Communication security"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "No anonymity"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Admin"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Partially disclosed"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:98
+msgid "Data security matrix"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:99
+msgid ""
+"This section highlights the data handled by GlobaLeaks and the protection"
+" schemes applied to it."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:101
+msgid "The following information types are involved in GlobaLeaks:"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Information type"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Questionnaire answers"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"Data associated with a submission, including the filled forms and options"
+" selected by the Whistleblower."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Submission attachments"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Files associated with a submission."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Platform configuration"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Data for configuring and customizing the platform."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Software files"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid ""
+"All files required for the software to function, including default "
+"configurations."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Email notifications"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Data sent to notify recipients of new reports via email."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:112
+msgid "Below is a matrix showing the different security measures applied to data."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Encryption"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Filters"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Sanitization"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Encrypted in the database with per-user/per-submission keys"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Keyword filters"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Antispam, Anti-XSS"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Encrypted on the filesystem with per-user/per-submission keys"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Extension blocking, Antivirus"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "N/A"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Encrypted with PGP when recipient keys are available"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:1
+msgid "Antispam to prevent flooding"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:122
+msgid "Threats to anonymity and confidentiality"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:123
+msgid ""
+"This section highlights various threats that require specific "
+"consideration."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:126
+msgid "Browser history and cache"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:127
+msgid ""
+"GlobaLeaks uses crafted HTTP headers and other techniques to minimize "
+"leaking information into a user’s browser history or cache. While this "
+"privacy feature enhances safety, it cannot guarantee protection against "
+"forensic analysis of browser cache and history but serves as an "
+"additional safety measure."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:130
+msgid "Metadata"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:131
+msgid ""
+"Files may contain metadata related to the author or whistleblower. "
+"Cleaning metadata from submitted files helps protect an \"unaware\" "
+"whistleblower from inadvertently including information that may "
+"compromise their anonymity. GlobaLeaks does not automatically clean "
+"metadata by default, as metadata is considered a fundamental part of the "
+"original evidence that should be preserved. Metadata cleanup is an "
+"optional step that may be suggested to Whistleblowers or performed by "
+"Recipients when sharing documents with others. When sharing files with "
+"external parties, Recipients are advised to print the document and "
+"provide a hard copy to ensure that only visible information is shared, "
+"avoiding the risk of sharing sensitive metadata. For more on metadata and"
+" redacting digital files, see the article `Everything you wanted to know "
+"about media metadata, but were afraid to ask "
+"<https://freedom.press/training/everything-you-wanted-know-about-media-"
+"metadata-were-afraid-ask/>`_ by Harlo Holmes. A useful tool for these "
+"procedures is the `Metadata Anonymization Toolkit "
+"<https://0xacab.org/jvoisin/mat2>`_."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:134
+msgid "Malware and trojans"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:135
+msgid ""
+"GlobaLeaks cannot prevent an attacker from using the platform maliciously"
+" to target recipients with malware or trojans. To mitigate risks of data "
+"exfiltration through trojans, Recipients should implement proper "
+"operational security by using dedicated laptops for report viewing and "
+"opening file attachments on offline computers. Wherever possible, they "
+"should use specialized secure operating systems like `QubesOS "
+"<https://www.qubes-os.org/>`_ or `Tails <https://tails.boum.org/>`_ and "
+"ensure up-to-date antivirus software is running."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:138
+msgid "Network and reverse proxies"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:139
+msgid ""
+"GlobaLeaks is designed for use with direct Tor or TLS connections from "
+"the user’s browser to the application backend. The use of Network and "
+"Reverse Proxies in front of the application is discouraged as they can "
+"interfere with the application and compromise confidentiality and "
+"anonymity measures implemented in GlobaLeaks."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:142
+msgid "Data stored outside the platform"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:143
+msgid ""
+"GlobaLeaks does not provide security for data stored outside the "
+"GlobaLeaks system. It is the responsibility of Recipients to protect data"
+" downloaded from the platform or shared via external USB drives. The "
+"operating system used or the USB drive should offer encryption to ensure "
+"that, in case of device loss or theft, the data remains inaccessible."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:146
+msgid "Environmental factors"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:147
+msgid ""
+"GlobaLeaks does not protect against environmental factors related to "
+"users' physical locations or social relationships. For example, if a user"
+" has a surveillance device in their home, GlobaLeaks cannot provide "
+"protection. Similarly, if a whistleblower, who is supposed to be "
+"anonymous, shares their story with friends or coworkers, GlobaLeaks "
+"cannot offer protection."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:150
+msgid "Incorrect data retention policies"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:151
+msgid ""
+"GlobaLeaks implements a strict default data retention policy of 90 days "
+"to allow users to manage reports within a limited time frame necessary "
+"for investigations. If the platform is configured to retain reports for "
+"an extended period and Recipients do not manually delete unnecessary "
+"reports, the value of the data increases, along with the risk of "
+"exposure."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:154
+msgid "Human negligence"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:155
+msgid ""
+"While GlobaLeaks provides Administrators with the ability to fine-tune "
+"security configurations and continuously informs users about their "
+"security context, it cannot protect against major security threats "
+"resulting from human negligence. For instance, if a Whistleblower submits"
+" data that can identify them as the unique owner or recent viewer, "
+"GlobaLeaks cannot protect their identity."
+msgstr ""
+
+#: ../../security/ThreatModel.rst:158
+msgid "Advanced traffic analysis"
+msgstr ""
+
+#: ../../security/ThreatModel.rst:159
+msgid ""
+"An attacker monitoring HTTPS traffic, without the ability to decrypt it, "
+"can still identify user roles based on different network traffic patterns"
+" generated by Whistleblowers, Recipients, and Administrators. GlobaLeaks "
+"does not offer protection against this type of threat. We recommend using"
+" `Tor pluggable transports <https://2019.www.torproject.org/docs"
+"/pluggable-transports.html.en>`_ or other methods that provide additional"
+" protection against such attacks."
+msgstr ""
+
+#: ../../security/index.rst:2
+msgid "Security"
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:2
+msgid "Installation guide"
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:3
+msgid "The following guide will help you through the installation of GlobaLeaks."
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:5
+msgid ""
+"Before starting the installation, ensure that your system meets the "
+":doc:`Requirements </gettingstarted/Requirements>`."
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:8
+msgid ""
+"GlobaLeaks is designed to provide optimal technical anonymity for "
+"whistleblowers. Additionally, the software can be configured to protect "
+"the identity of the platform administrator and the server's location, but"
+" this requires advanced setup procedures not covered in this simplified "
+"installation guide. By executing the commands below, your IP address and "
+"system location could be tracked by network providers, and our systems "
+"will receive the same information to facilitate software provisioning."
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:12
+msgid "**Install GlobaLeaks**"
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:14
+msgid "To install GlobaLeaks, run the following commands:"
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:22
+msgid ""
+"You may also install GlobaLeaks using Docker. Check out the `docker` "
+"directory in our GitHub repository for instructions."
+msgstr ""
+
+#: ../../setup/InstallationGuide.rst:24
+msgid ""
+"After installation, follow the instructions provided to guide you through"
+" accessing the :doc:`Platform wizard </setup/PlatformWizard>`."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:2
+msgid "Platform wizard"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:3
+msgid "After installing GlobaLeaks, you can proceed with the platform wizard."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:5
+msgid ""
+"Open a browser at port 443 or port 8443 on your remote or local IP, "
+"respectively."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:7
+msgid ""
+"We recommend performing the wizard either using the Tor address provided "
+"at the end of the setup or on localhost via a VPN."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:10
+msgid "Choose the primary language for your site"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:11
+msgid ""
+"On the first page of the wizard, you will be prompted to select the "
+"language for your site. The default choice is English, but many other "
+"languages are available, with more expected in the future."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:16
+msgid "Choose a name for your project"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:17
+msgid "In the second section of the wizard, configure the name of your project."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:22
+msgid "Configure the account for the administrator of your whistleblowing site"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:23
+msgid ""
+"In the third section of the wizard, configure the account details for the"
+" administrator of your project."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:25
+msgid ""
+"Be sure to choose a strong password to protect this sensitive account; an"
+" indication of the strength of the chosen password is provided to guide "
+"you."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:30
+msgid "Configure the account for the first recipient of reports"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:31
+msgid ""
+"In the fourth section of the wizard, configure the account details for "
+"the first recipient of reports sent to your project."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:36
+msgid "Read and accept the license"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:37
+msgid ""
+"In the fifth section of the wizard, you will be prompted to read and "
+"accept the GlobaLeaks License."
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:42
+msgid "Complete the wizard"
+msgstr ""
+
+#: ../../setup/PlatformWizard.rst:43
+msgid "The sixth section of the wizard confirms the completion of the setup."
+msgstr ""
+
+#: ../../user/Admin.rst:2
+msgid "For administrators"
+msgstr ""
+
+#: ../../user/Common.rst:2
+msgid "Common to all users"
+msgstr ""
+
+#: ../../user/Common.rst:4
+msgid "Login"
+msgstr ""
+
+#: ../../user/Common.rst:5
+msgid "Users could login by accessing the ``/#/login`` page."
+msgstr ""
+
+#: ../../user/Common.rst:10
+msgid "Access the user preferences"
+msgstr ""
+
+#: ../../user/Common.rst:11
+msgid ""
+"After login Users could access their preferences by clicking the "
+"``Preferences`` link present in the login status bar."
+msgstr ""
+
+#: ../../user/Common.rst:16
+msgid "Change your password"
+msgstr ""
+
+#: ../../user/Common.rst:17
+msgid ""
+"Users could change their own password by accessing the ``Password`` tab "
+"present in the ``Preferences`` page."
+msgstr ""
+
+#: ../../user/Common.rst:22
+msgid "Reset your password"
+msgstr ""
+
+#: ../../user/Common.rst:23
+msgid ""
+"Users could requests a password reset via the ``/#/login`` page by "
+"clicking the ``Forgot password?`` button."
+msgstr ""
+
+#: ../../user/Common.rst:25
+msgid ""
+"After clicking the button users are requested to type their own username "
+"or email address."
+msgstr ""
+
+#: ../../user/Common.rst:34
+msgid "Enable two-factor-authentication (2fa)"
+msgstr ""
+
+#: ../../user/Common.rst:35
+msgid ""
+"Users could enable Two-Factor-Authentication by clicking the ``Enable two"
+" factor authentication`` option inside the ``Preferences`` page."
+msgstr ""
+
+#: ../../user/Common.rst:37
+msgid ""
+"To enable the feature the user requires to have a phone with installed a "
+"common ``Authenticator APP`` implementing the TOTP standard as by `RFC "
+"6238 <https://tools.ietf.org/html/rfc6238>`_"
+msgstr ""
+
+#: ../../user/Common.rst:42
+msgid "Access and save your account recovery key"
+msgstr ""
+
+#: ../../user/Common.rst:43
+msgid ""
+"Users could access their own Account Recovery key by clicking the "
+"``Account Recovery Key`` button present in the ``Preferences`` page."
+msgstr ""
+
+#: ../../user/Common.rst:45
+msgid ""
+"This is a fundamental step that any user should do at their first login "
+"after activating their own account in order to backup their own account "
+"recovery key and get sure to not incur in data loss due to password loss."
+msgstr ""
+
+#: ../../user/Recipient.rst:2
+msgid "For recipients"
+msgstr ""
+
+#: ../../user/Recipient.rst:5
+msgid "Access the list of the existing reports"
+msgstr ""
+
+#: ../../user/Recipient.rst:6
+msgid ""
+"The lists of the existing reports can be accessed via the link "
+"``Reports`` on the sidebar of the Recipient's Homepage."
+msgstr ""
+
+#: ../../user/Recipient.rst:13
+msgid "Access a report"
+msgstr ""
+
+#: ../../user/Recipient.rst:14
+msgid "A report can be accessed in two ways:"
+msgstr ""
+
+#: ../../user/Recipient.rst:16
+msgid "By clicking on it like on a mailbox system from the ``Reports`` page"
+msgstr ""
+
+#: ../../user/Recipient.rst:17
+msgid ""
+"By clicking on the link received on a mail notification and entering own "
+"credentials"
+msgstr ""
+
+#: ../../user/Whistleblower.rst:2
+msgid "For whistleblowers"
+msgstr ""
+
+#: ../../user/Whistleblower.rst:5
+msgid "File a new report"
+msgstr ""
+
+#: ../../user/Whistleblower.rst:6
+msgid ""
+"A new report can be filed by accessing the homepage of the platform and "
+"clicking the ``File a report`` button."
+msgstr ""
+
+#: ../../user/Whistleblower.rst:12
+msgid ""
+"After filing a new report the systems provides to the user a 16-digit "
+"receipt."
+msgstr ""
+
+#: ../../user/Whistleblower.rst:17
+msgid "Access an existing report"
+msgstr ""
+
+#: ../../user/Whistleblower.rst:18
+msgid ""
+"An existing report can be accessed by entering the 16-digit receipt "
+"obtained at the end of the submission on the login interface present on "
+"the home page of the platform."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:2
+msgid "Backup and restore"
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:4
+msgid "To perform a manual backup, you can use the following bash script:"
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:21
+msgid ""
+"After running the script, you will find a `tar.gz` archive in "
+"`/var/globaleaks/backups`. The file will be named in the format: "
+"`globaleaks-$version-$timestamp.tar.gz`."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:23
+msgid ""
+"GlobaLeaks automatically performs a backup during each platform update. "
+"These backups are retained under a data retention policy and are deleted "
+"15 days after the update."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:25
+msgid "To restore an existing backup:"
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:27
+msgid ""
+"Ensure that GlobaLeaks is not running; you can stop it using: `service "
+"globaleaks stop`."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:28
+msgid ""
+"Identify the version of GlobaLeaks required for the restoration, which is"
+" indicated in the backup filename."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:29
+msgid ""
+"Extract the contents of the archive to `/var/globaleaks` using: `tar "
+"-zxvf backup.tar.gz`."
+msgstr ""
+
+#: ../../user/admin/BackupAndRestore.rst:30
+msgid ""
+"Install the required version of GlobaLeaks with: `apt-get install "
+"globaleaks=<version>` (e.g., `globaleaks=3`)."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:2
+msgid "Common configurations"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:4
+msgid "Configure the logo"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:5
+msgid ""
+"The first thing you want to give to your whistleblowing site is a "
+"branding identity; this could be done by loading a logo in section Site "
+"settings / Main configuration."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:9
+msgid ""
+"Scroll down along the page to reach the \"Save\" button, click on it and "
+"have your logo and favicon applied."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:12
+msgid "Enable languages"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:13
+msgid "You may want your GlobaLeaks installation served on more than one language"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:15
+msgid ""
+"To do so, in the section \"Site settings / Languages\" select the "
+"languages you would like and add them."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:17
+msgid ""
+"Note that in the same interface you can mark the default application "
+"language."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:22
+msgid "Configure notification settings"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:23
+msgid ""
+"GlobaLeaks sends out notifications of different events to different "
+"receivers and to admins. In order to have this working, you have to "
+"select  \"Notification Settings\" in the \"Administration Interface - "
+"General Settings\" page and set up email account and related server "
+"parameters."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:25
+msgid ""
+"We suggest you to setup an email account dedicated to sending out "
+"notifications from your initiative."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:29
+msgid "Enter the followings:"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:31
+msgid ""
+"SMTP name: the name of your GlobaLeaks project or something that equally "
+"descriptive"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:32
+msgid "SMTP email address: the email address used to send notifications"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:33
+msgid ""
+"Username: the username corresponding to the just inserted \"SMTP email "
+"address\"; this is needed to authenticate to the SMTP server and send "
+"emails"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:34
+msgid "Password: Password of the above corresponding \"SMTP email address\""
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:35
+msgid ""
+"SMTP Server Address: it is the hostname of the SMTP server you are using "
+"to send notification emails"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:36
+msgid ""
+"SMTP Server Port: Port used to send outgoing emails. It is usually 465 or"
+" 587 (SMTP with TLS is at TCP port 587; SMTP with SSL is at 465)"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:37
+msgid ""
+"Transport Security: from the drop down menu select the opportune security"
+" level"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:39
+msgid ""
+"It is better to leave untouched the pre-defined settings pertaining the "
+"notification to admins and to recipients, but in the case you want to "
+"disable them, it is possible to check the corresponding checkboxes."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:41
+msgid ""
+"You can then set the value for the time at which the notification alert "
+"of expiring report; this value is set at 72hours to give time to the "
+"recipient(s) to check and manage the pending submissions."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:43
+msgid ""
+"It is possible to tweak the maximum number of emails allowed in an hour, "
+"before email wil be suspended in order to avoid flooding the system. It "
+"is advised to keep the pre-defined value, and eventually change it "
+"accordingly with mail server capabilities."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:45
+msgid ""
+"Once configured all the parameters for notifications, it is possible to "
+"test them by just clicking on the \"Test the configuration\" button."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:47
+msgid ""
+"If all is working as expected, click on the \"Save\" button to keep the "
+"configured parameters."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:50
+msgid "Configure recipients"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:51
+msgid ""
+"The Recipient is the person that will receive and process the data that "
+"whistleblowers input in the platform. You can have one or multiple "
+"Recipients per Context, and also have one Recipient that can access to "
+"multiple Contexts. The platform is very flexible on this and allows you "
+"to define in very detail your whistleblowing system and procedure."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:55
+msgid "Customize the graphic layout"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:57
+msgid "Example 1: Custom Background"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:58
+msgid ""
+"This CSS example shows how to customize the Background Color of the "
+"application."
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:68
+msgid "Example 2: Custom Font"
+msgstr ""
+
+#: ../../user/admin/CommonConfigurations.rst:69
+msgid "This CSS example shows how to customize the font of the application."
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:2
+msgid "Troubleshooting"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:5
+msgid "Issues and bug reporting"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:7
+msgid "If you encounter any issues and are unable to run GlobaLeaks:"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:9
+msgid "Ensure you strictly follow the Installation Guide."
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:10
+msgid ""
+"Verify that you meet the Technical Requirements for hardware and "
+"operating system version."
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:11
+msgid ""
+"Search the support forum to see if a user has already encountered your "
+"issue: `GlobaLeaks Discussions "
+"<https://github.com/orgs/globaleaks/discussions>`_"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:12
+msgid ""
+"Report the issue on the official software issue tracker: `GlobaLeaks "
+"Issues <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:15
+msgid "Useful debugging commands"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:17
+msgid ""
+"Depending on your setup, here are some common checks to determine if "
+"GlobaLeaks is working:"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:19
+msgid "Is the service running?"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:25
+msgid "Is the service responding on the loopback interface?"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:31
+msgid "Is the service listening on external interfaces?"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:37
+msgid "Are exceptions being generated?"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:45
+msgid "Log files"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:46
+msgid ""
+"Here are some useful logs and their corresponding files when GlobaLeaks "
+"is installed:"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:48
+msgid "**GlobaLeaks process:**"
+msgstr ""
+
+#: ../../user/admin/TroubleShooting.rst:55
+msgid ""
+"The verbosity of the logs is configurable via the web interface of the "
+"software under Advanced Settings."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:2
+msgid "Upgrade guide"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:4
+msgid "Regular update"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:5
+msgid ""
+"To safely upgrade a GlobaLeaks installation please proceed with a backup "
+"of your setup by following the :doc:`Backup and restore "
+"</user/admin/BackupAndRestore>` guide."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:7
+msgid ""
+"This is necessary so that if something goes wrong and you need to "
+"rollback, you will be able to just uninstall the current package, then "
+"install the same version of globaleaks that was previously installed and "
+"working."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:9
+msgid "In order to update GlobaLeaks perform the following commands:"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:16
+msgid "Upgrade of the distribution version"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:17
+msgid ""
+"For security and stability reasons it is recommended to not perform a "
+"distribution upgrade."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:19
+msgid ""
+"GlobaLeaks could be instead easily migrated to a new up-to-date Debian "
+"system with the following recommended instructions:"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:21
+msgid "create an archive backup of /var/globaleaks"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:22
+msgid "instantiate the lates Debian available"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:23
+msgid "log on the new server and extract the backup in /var/globaleaks"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:24
+msgid ""
+"follow the :doc:`Installation Guide </setup/InstallationGuide>`; "
+"GlobaLeaks while installing will recognize the presence of an existing "
+"data directory and will use it"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:27
+msgid "In case of errors"
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:28
+msgid ""
+"The above commands should allow you to perform regularly updates. On some"
+" conditions due to special updates it could be possible that those "
+"commands result in a failure. Consult this page for knowning specific "
+"FAQs on precise failures."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:30
+msgid ""
+"In case you do not find any specific documented solution for your "
+"failure, you could run the GlobaLeaks install script. The installation "
+"script in fact is designed to allow the update of GlobaLeaks and it "
+"includes fixes for the most common issue."
+msgstr ""
+
+#: ../../user/admin/UpgradeGuide.rst:33
+msgid ""
+"To run the install script for updating globaleaks perform the following "
+"commands:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:2
+msgid "User interface"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:3
+msgid ""
+"This section offers you a summary of the user interface offered to Admin "
+"users."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:7
+msgid "Through the menu you could access the following administrative sections:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:9 ../../user/admin/UserInterface.rst:28
+#: ../../user/admin/UserInterface.rst:33 ../../user/admin/UserInterface.rst:44
+msgid "Settings"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:11 ../../user/admin/UserInterface.rst:77
+msgid "Users"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:13 ../../user/admin/UserInterface.rst:99
+msgid "Questionnaires"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:15 ../../user/admin/UserInterface.rst:158
+msgid "Channels"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:17 ../../user/admin/UserInterface.rst:185
+msgid "Case management"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:21 ../../user/admin/UserInterface.rst:228
+msgid "Network"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:23 ../../user/admin/UserInterface.rst:279
+msgid "Sites"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:25 ../../user/admin/UserInterface.rst:309
+msgid "Audit log"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:29
+msgid ""
+"This is the section that offers you all the main customization "
+"possibilities necessary for implementing a basic and functional "
+"whistleblowing site."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:31
+msgid "This section is furtherly divided in:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:35 ../../user/admin/UserInterface.rst:50
+msgid "Files"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:37 ../../user/admin/UserInterface.rst:56
+msgid "Languages"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:39
+msgid "Text customization"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:41
+msgid "Advanced settings"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:45
+msgid ""
+"In this section is configurable the logo and all the texts of the main "
+"user interfaces."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:51
+msgid ""
+"In this section could be loaded CSS and Javascript and other files "
+"necessary to customize the interface."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:57
+msgid ""
+"In this section you could enable all the languages required by your "
+"project and configure the default language."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:60
+msgid ""
+"Thanks to the `Localization Lab <https://www.localizationlab.org/>`_ and "
+"our great volunteer community, the software is already available and "
+"continuously made available in a lot of languages. This aspect of "
+"internationalization is crucial in many projects. In case you are "
+"starting a project and the required languages are not available we "
+"strongly invite you to register on our `web translation platform "
+"<https://www.transifex.com/otf/globaleaks/>`_ offered by `Transifex "
+"<https://www.transifex.com/otf/globaleaks/>`_ and support yourself the "
+"translation. Internationalization and Localization is in fact are crucial"
+" for the success of a whistleblowing project. Thank you!"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:65
+msgid "Text Customization"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:66
+msgid ""
+"Here could be configured overrides for any of the texts of the platform "
+"and of their translation."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:71
+msgid "Advanced Settings"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:72
+msgid "In this section could be configured a set of advanced settings."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:78
+msgid ""
+"This sections is where users could be created and managed. The system "
+"with the basic configuration completed with the initial Platform wizard "
+"is configured with an Administrator and a Recipient."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:81
+msgid ""
+"Depending on your project needs here you could create users with "
+"different roles and manage their respective privileges."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:86
+msgid "User Roles"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:87
+msgid ""
+"The software offers the possibility to create users with the following "
+"roles:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:89
+msgid "Administrators"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:91
+msgid "Recipients"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:94
+msgid "User Options"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:100
+msgid ""
+"The softare implements a standard default questionnaire that is proposed "
+"as a good base for a generic whistleblowing procedure. This questinnaire "
+"is the current result of the research performed by the project team with "
+"the organizations that have adopted the solution and expecially with "
+"anticorruption and investigative journalism NGOs."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:102
+msgid ""
+"As every organization has different needs, risks and goals globaleaks has"
+" been designed considering to implement an advanced questionnaire builder"
+" offering the possibility to design custom questionnaires."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:104
+msgid ""
+"The following sections present the questionnaire builder and its "
+"capabilities."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:108
+msgid ""
+"Depending on your project needs you may evaluate defining some questions "
+"once as Question Templates and reuse the same question in multiple "
+"questionnaires."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:113
+msgid "Steps"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:114
+msgid ""
+"The software enables to organize questionnaire in one or multiple steps. "
+"For example the default questionnaire is organized with a single step "
+"including all the questions."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:118
+msgid "Questions Types"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:119
+msgid "The software enables you to create questions of the following types:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:121
+msgid "Single-line text input"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:123
+msgid "Multi-line text input"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:125
+msgid "Selection box"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:127
+msgid "Multiple choice input"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:129
+msgid "Checkbox"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:131
+msgid "Attachment"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:133
+msgid "Terms of service"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:137
+msgid "Date range"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:139
+msgid "Voice"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:141
+msgid "Question group"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:144
+msgid "Common Question Properties"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:145
+msgid ""
+"Each of the software question types make it possible to configure the "
+"following properties:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:147
+msgid "Question: The text of the question"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:149
+msgid ""
+"Hint: A hint that will be shown via an popover an a question mark near "
+"the question."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:151
+msgid "Description: A description text that will be shown below the question"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:153
+msgid "Required: Set this field if you want this question to be mandatory"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:155
+msgid ""
+"Preview: Set this field if you want the answers to this question to "
+"appear in the preview section of the list"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:159
+msgid ""
+"This section is where whistleblowing channels could be created and "
+"managed."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:161
+msgid ""
+"A whistleblowing channel is typically defined by the following main "
+"characteristics"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:163
+msgid ""
+"Name: the name of the channel Image: an image to identify the channel "
+"Description: a description of the channel Recipients: the set of "
+"recipients that will receive reports sent to this channel Questionnaire: "
+"the questionnaire that will be proposed to whistleblowers selecting this "
+"channel Submission expiration: the data retention policy for the channel"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:170
+msgid ""
+"The system with the basic configuration completed with the initial "
+"platform wizard is configured with a single Channel called Default, on "
+"which is associated a recipient and the default questionnaire."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:172
+msgid ""
+"Depending on your project needs here you could create additional Channels"
+" and configure their respective properties."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:177
+msgid "Data Retention Policy"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:178
+msgid ""
+"The software enables to configure a data retention policy for each "
+"channel. This is a fundamental property of the whistleblowing channel "
+"that makes it possible to configure automatic secure deletion of reports "
+"after a certain period of time. This setting should be configured in "
+"relation to the risk of the channel in order to limit unneeded exposure "
+"of the reports received therein."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:182
+msgid "By default a channel is configured with a report expiration of 90 days."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:186
+msgid ""
+"This section is intended to host all the main case management feature "
+"that will be offered by the software. Currently it hosts the possibility "
+"to define reports statuses and sub-statuses intended to be used by "
+"Recipients while working on the reports."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:194
+msgid "By default the system includes the following report statuses:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:190
+msgid "New"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:192
+msgid "Open"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:194
+msgid "Closed"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:196
+msgid ""
+"Within this section you may add additional Statuses between the State "
+"Open and Closed and you can furtherly define Sub-statuses for the Closed "
+"status (e.g. Archived / Spam)"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:202
+msgid ""
+"This is the section where are configured all the aspects related to the "
+"mail notifications sent by the software."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:207
+#: ../../user/admin/UserInterface.rst:238
+msgid "The section is furtherly divided in:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:205
+#: ../../user/admin/UserInterface.rst:210
+msgid "Notification Settings"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:207
+#: ../../user/admin/UserInterface.rst:219
+msgid "Notification Templates"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:211
+msgid "Here are configured the technical details about SMTP."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:214
+msgid ""
+"By default GlobaLeaks comes with a working configuration that is based on"
+" systems offered by the GlobaLeaks developers to the community of users "
+"and testers; even though this configuration is designed by their owners "
+"with special care in relation to security and privacy you are invited to "
+"consider using alternative systems for your production environment."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:220
+msgid "In this section are configured the notification templates."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:222
+msgid ""
+"By default globaleaks includes text and translations for each of the "
+"templates that are provided to be fully functional and studied with "
+"particular care in relation to security and privacy. Depending on your "
+"project needs you may override the default text with your customized "
+"texts."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:229
+msgid "In this section are configured the network settings."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:232
+#: ../../user/admin/UserInterface.rst:241
+msgid "HTTPS"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:234
+#: ../../user/admin/UserInterface.rst:255
+msgid "Tor"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:236
+msgid "IP Access control"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:238
+#: ../../user/admin/UserInterface.rst:273
+msgid "URL Redirects"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:242
+msgid ""
+"Here you can configure all the aspects related to the access of the "
+"platform via the HTTPS Protocol."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:246
+msgid "In particular here are configured:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:248
+msgid "The domain name used by your project"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:250
+msgid "The HTTPS key and certificates"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:252
+msgid ""
+"To ease the deployment and the maintenance and reduce the costs of your "
+"project, consider using the software includes support for the Let’s "
+"Encrypt HTTPS certificates."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:256
+msgid ""
+"Here you can configure all the aspects related to the access of the "
+"platform via the Tor Protocol."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:261
+msgid "IP Access Control"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:262
+msgid "Here you can configure IP based Access Control."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:266
+msgid "Suggested configurations are:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:268
+msgid "Prevent Whistleblowers to report from within their respective work space."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:270
+msgid "Restrict Recipients access to their intranet."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:274
+msgid "Here you can configure URL Redirects."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:280
+msgid ""
+"The site section enables organization to create and manage multiple "
+"secondary whistleblowing sites."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:283
+msgid "Sites Management"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:284
+msgid ""
+"Secondary whistleblowing platforms with independent configurations can be"
+" manually created and managed through the Sites interface."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:286
+msgid ""
+"Organizations have typically need for creating a secondary site when "
+"dealing with subsidiaries or third party clients."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:290
+msgid ""
+"After creating a secondary site an administrators of the main site could "
+"simply enter on that system by clicking a \"Configure\" button."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:292
+msgid ""
+"After clicking on the button the administrator will be logged in on the "
+"the administrative panel of the site."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:295
+msgid "Signup Module"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:296
+msgid ""
+"The software features a signup module that can be enabled and used to "
+"offers others users the possibility to register their secondary site."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:298
+msgid ""
+"Organizations have typically need for a signup module when offering the "
+"platform to other subsidiaries or third party clients where they want "
+"users to have the possibility to self subscribe."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:300
+msgid "The signup feature can be anabled in the Options tab of the Sites section."
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:304
+msgid ""
+"When the signup module is enabled the submission module of the main site "
+"is automatically disabled and the home page will be featuring the "
+"following signup form:"
+msgstr ""
+
+#: ../../user/admin/UserInterface.rst:310
+msgid ""
+"The software features a privacy precerving audit log enabling "
+"administrators of the system to supervise on projects operations."
+msgstr ""
+
+#: ../../user/index.rst:2
+msgid "User documentation"
+msgstr ""
+

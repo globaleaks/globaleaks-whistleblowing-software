@@ -4,7 +4,7 @@ set -e
 
 TARGETS="bionic bookworm bullseye buster focal jammy noble"
 DISTRIBUTION="bookworm"
-TAG="main"
+TAG="stable"
 LOCAL_ENV=0
 NOSIGN=0
 PUSH=0
@@ -78,9 +78,9 @@ BUILDSRC="$BUILDDIR/src"
 mkdir -p $BUILDSRC && cd $BUILDSRC
 
 if [ $LOCAL_ENV -eq 1 ]; then
-  git clone --branch="$TAG" --depth=1 file://$(pwd)/../../../GlobaLeaks .
+  git clone --branch="$TAG" --depth=1 file://$(pwd)/../../../globaleaks-whistleblowing-software .
 else
-  git clone --branch="$TAG" --depth=1 https://github.com/globaleaks/GlobaLeaks.git .
+  git clone --branch="$TAG" --depth=1 https://github.com/globaleaks/globaleaks-whistleblowing-software.git .
 fi
 
 cd client && npm install -d && ./node_modules/grunt/bin/grunt build

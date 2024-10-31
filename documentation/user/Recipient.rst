@@ -1,7 +1,7 @@
-For Recipients
+For recipients
 ==============
 
-Access the List of the Existing Reports
+Access the list of the existing reports
 -------------------------------------------
 The lists of the existing reports can be accessed via the link ``Reports`` on the sidebar of the Recipient's Homepage.
 
@@ -9,7 +9,7 @@ The lists of the existing reports can be accessed via the link ``Reports`` on th
 
 .. image:: ../images/recipient/reports.png
 
-Access a Report
+Access a report
 ---------------
 A report can be accessed in two ways:
 

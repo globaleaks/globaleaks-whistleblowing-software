@@ -1,4 +1,4 @@
-Common to All Users
+Common to all users
 ===================
 Login
 -----
@@ -6,19 +6,19 @@ Users could login by accessing the ``/#/login`` page.
 
 .. image:: ../images/user/login.png
 
-Access the User Preferences
+Access the user preferences
 ---------------------------
 After login Users could access their preferences by clicking the ``Preferences`` link present in the login status bar.
 
 .. image:: ../images/user/preferences.png
 
-Change Your Password
+Change your password
 --------------------
 Users could change their own password by accessing the ``Password`` tab present in the ``Preferences`` page.
 
 .. image:: ../images/user/password.png
 
-Reset Your Password
+Reset your password
 -------------------
 Users could requests a password reset via the ``/#/login`` page by clicking the ``Forgot password?`` button.
 
@@ -30,7 +30,7 @@ After clicking the button users are requested to type their own username or emai
 
 .. image:: ../images/user/password_reset_2.png
 
-Enable Two-Factor-Authentication (2FA)
+Enable two-factor-authentication (2fa)
 --------------------------------------
 Users could enable Two-Factor-Authentication by clicking the ``Enable two factor authentication`` option inside the ``Preferences`` page.
 
@@ -38,7 +38,7 @@ To enable the feature the user requires to have a phone with installed a common 
 
 .. image:: ../images/user/2fa.png
 
-Access and Save Your Account Recovery Key
+Access and save your account recovery key
 -----------------------------------------
 Users could access their own Account Recovery key by clicking the ``Account Recovery Key`` button present in the ``Preferences`` page.
 

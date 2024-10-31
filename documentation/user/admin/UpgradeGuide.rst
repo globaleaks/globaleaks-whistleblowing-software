@@ -1,6 +1,6 @@
-Upgrade Guide
+Upgrade guide
 =============
-Regular Update
+Regular update
 --------------
 To safely upgrade a GlobaLeaks installation please proceed with a backup of your setup by following the :doc:`Backup and restore </user/admin/BackupAndRestore>` guide.
 
@@ -12,7 +12,7 @@ In order to update GlobaLeaks perform the following commands:
 
    apt-get update && apt-get install globaleaks
 
-Upgrade of the Distribution Version
+Upgrade of the distribution version
 -----------------------------------
 For security and stability reasons it is recommended to not perform a distribution upgrade.
 
@@ -23,7 +23,7 @@ GlobaLeaks could be instead easily migrated to a new up-to-date Debian system wi
 - log on the new server and extract the backup in /var/globaleaks
 - follow the :doc:`Installation Guide </setup/InstallationGuide>`; GlobaLeaks while installing will recognize the presence of an existing data directory and will use it
 
-In Case of Errors
+In case of errors
 -----------------
 The above commands should allow you to perform regularly updates. On some conditions due to special updates it could be possible that those commands result in a failure. Consult this page for knowning specific FAQs on precise failures.
 

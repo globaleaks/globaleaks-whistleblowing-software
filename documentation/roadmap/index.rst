@@ -1,21 +1,17 @@
-Project Roadmap
+Project roadmap
 ===============
 
 .. NOTE::
-  This tentative roadmap is built by the GlobaLeaks team in order to try to respond to main users' needs. Please get sure that the needs of your projects and users are well represented on the project `Ticketing System <https://github.com/globaleaks/GlobaLeaks/issues>`_. If your organization could fund the development of parts of this roadmap please write us at info@globaleaks.org
+  This tentative roadmap is built by the GlobaLeaks team in order to try to respond to main users' needs. Please get sure that the needs of your projects and users are well represented on the project `Ticketing System <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_. If your organization could fund the development of parts of this roadmap please write us at info@globaleaks.org
 
 Introduction
 ------------
-`GlobaLeaks <https://www.globaleaks.org>`_ is free, open source software enabling anyone to easily set up and maintain a secure whistleblowing platform.
+This document details the main areas of research development and represents the actual tentative readmap of consolidation planned for 2024-2026 based on the analysis of the large set of user needs collected within the official `Ticketing System <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_.
 
-Started in 2011, the software is now widely used worldwide by more than 3000 organizations working in the fields of anti-corruption activism, human rights violations reporting, investigative journalism, and corporate compliance.
-
-This document details the main areas of research development and represents the actual tentative readmap of consolidation planned for 2024-2026 based on the analysis of the large set of user needs collected within the official `Ticketing System <https://github.com/globaleaks/GlobaLeaks/issues>`_.
-
-Development Areas
+Development areas
 -----------------
 
-Statistics and Reporting
+Statistics and reporting
 ........................
 GlobaLeaks still misses the implementation for any generation of statistics and reports. Such features are considered fundamental in order to properly support users in analysis, investigation and reporting.
 
@@ -31,11 +27,11 @@ Ideas:
 
 Reference tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/1959
-- https://github.com/globaleaks/GlobaLeaks/issues/2254
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/1959
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2254
 
 
-Audit Log
+Audit log
 .........
 GlobaLeaks still misses the implementation of a complete audit logit. This is considered a fundamental feature in order to achieve full accontability of the whistleblowing process and increase security.
 
@@ -46,9 +42,9 @@ Ideas:
 
 Reference tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/2579
-- https://github.com/globaleaks/GlobaLeaks/issues/2580
-- https://github.com/globaleaks/GlobaLeaks/issues/2651
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2579
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2580
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2651
 
 GDPR compliance
 ...............
@@ -57,25 +53,25 @@ In order to be effectively accepted and competitive beside commercial proprietar
 
 Reference tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/2145
-- https://github.com/globaleaks/GlobaLeaks/issues/2658
-- https://github.com/globaleaks/GlobaLeaks/issues/2866
-- https://github.com/globaleaks/GlobaLeaks/issues/2767
-- https://github.com/globaleaks/GlobaLeaks/issues/3011
-- https://github.com/globaleaks/GlobaLeaks/issues/3012
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2145
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2658
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2866
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2767
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/3011
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/3012
 
-Backup and Restore
+Backup and restore
 ..................
 GlobaLeaks currently misses any feature for performing backup and restoring of its setup. These duties are currently performed by its users following typical best manual practices (e.g. archiving the data directory of the application). This project idea is to research the best practices to be applied in this context and to identify suitable strategies for implementing periodic, secure and encrypted backups to be restored upon necessity.
 
 Reference tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/528
-- https://github.com/globaleaks/GlobaLeaks/issues/2149
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/528
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2149
 
 Multitenancy
 ............
-Import and Export of Tenants
+Import and export of tenants
 ............................
 Part of the software is a recent feature of Multitenancy, first implemented in 2018 and stabilized during 2019. Through this feature, GlobaLeaks makes it possible to create multiple setups of itself via virtual sites (similarly to Wordpress multisite feature).
 In order to make it more easy for an administrator to migrate a platform form a system to an other or to enable users to require data portability from a globaleaks provider to an other, for example in relation to GDPR it has been evaluated necessary to improve the multi tenancy implementation by implementing support for import-export of tenants.
@@ -83,10 +79,10 @@ In the context of a whistleblowing application, involving encryption and logging
 
 Reference tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/2632
-- https://github.com/globaleaks/GlobaLeaks/issues/2631
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2632
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2631
 
-Multisite Users
+Multisite users
 ---------------
 (To be further researched)
 
@@ -97,4 +93,4 @@ This could significatively simplify user access enabling the user to have a sing
 
 References tickets:
 
-- https://github.com/globaleaks/GlobaLeaks/issues/2302
+- https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2302

@@ -2,21 +2,6 @@
 
 set -e
 
-LOGFILE="/var/globaleaks/log/globaleaks.log"
-ACCESSLOG="/var/globaleaks/log/access.log"
-
-function atexit {
-  if [[ -f $LOGFILE ]]; then
-    cat $LOGFILE
-  fi
-
-  if [[ -f $ACCESSLOG ]]; then
-    cat $ACCESSLOG
-  fi
-}
-
-trap atexit EXIT
-
 sudo apt-get install -y debootstrap
 
 export chroot="/tmp/globaleaks_chroot/"
@@ -38,4 +23,4 @@ sudo -E chroot "$chroot" locale-gen
 sudo -E chroot "$chroot" useradd -m builduser
 sudo -E su -c 'echo "builduser ALL=NOPASSWD: ALL" >> "$chroot"/etc/sudoers'
 sudo -E chroot "$chroot" chown builduser -R /build
-sudo -E chroot "$chroot" su - builduser /bin/bash -c '/build/GlobaLeaks/.github/workflows/scripts/build_and_install.sh'
+sudo -E chroot "$chroot" su - builduser /bin/bash -c '/build/globaleaks-whistleblowing-software/.github/workflows/scripts/build_and_install.sh'

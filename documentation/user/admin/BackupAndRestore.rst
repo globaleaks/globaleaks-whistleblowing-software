@@ -1,4 +1,4 @@
-Backup and Restore
+Backup and restore
 ==================
 
 To perform a manual backup, you can use the following bash script:

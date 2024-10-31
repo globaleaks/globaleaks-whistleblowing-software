@@ -1,14 +1,14 @@
 ======================
-Continuous Integration
+Continuous integration
 ======================
 The GlobaLeaks codebase is continuously tested for bug within a complete continuous integration lifecycle implemented.
 
 Testes are performed at every commit by:
 
-* performing continous integration testing with `GitHub Actions <https://github.com/globaleaks/GlobaLeaks/actions>`_;
+* performing continous integration testing with `GitHub Actions <https://github.com/globaleaks/globaleaks-whistleblowing-software/actions>`_;
 * tracking tests coverage and code quality with `Codacy <https://app.codacy.com/manual/GlobaLeaks/GlobaLeaks>`_.
 
-Unit Tests
+Unit tests
 ==========
 Unit tests are implemented by means of python-twisted and trial
 
@@ -19,7 +19,7 @@ Tests can be run manually by issuing:
   cd GlobaLeaks/backend
   trial globaleaks
 
-E2E Tests
+E2E tests
 =========
 End to end tests are implemented by means of Cypress.
 

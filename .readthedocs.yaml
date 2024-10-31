@@ -1,0 +1,18 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+build:
+  os: ubuntu-lts-latest
+  tools:
+    python: latest
+
+sphinx:
+  configuration: documentation/conf.py
+
+formats:
+  - epub
+  - pdf
+
+python:
+  install:
+    - requirements: documentation/requirements.txt

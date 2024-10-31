@@ -2,14 +2,17 @@ name: Build
 
 on: [ push, pull_request ]
 
+# Declare default permissions as read only.
+permissions: read-all
+
 jobs:
   run_build:
     runs-on: "ubuntu-latest"
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Install git
         run: |

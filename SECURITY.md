@@ -1,8 +1,11 @@
-# Security Policy
-If you have found a vulnerability, please do not file a public issue.
+If you've discovered a vulnerability, please refrain from filing a public issue.
 
-Please send us your report privately either via:
-- Reporting form: https://github.com/globaleaks/GlobaLeaks/security/advisories/new
+We kindly ask that you follow responsible disclosure guidelines, keeping in mind the risks faced by whistleblowers.
+
+To report a vulnerability, please contact us privately via one of the following methods:
+- Reporting form: Submit a security advisory
 - Email: security@globaleaks.org
 
-Please encrypt any sensitive configuration with the PGP key [F6EFBDFAD0A3CF4A55085C3E7BBB231D031957FA](https://deb.globaleaks.org/security.asc)
+For any sensitive information, please encrypt your message using our PGP key: F6EFBDFAD0A3CF4A55085C3E7BBB231D031957FA
+
+We aim to acknowledge reports within 8 hours and address any critical issues with short-term fixes within 2 days, whenever possible.

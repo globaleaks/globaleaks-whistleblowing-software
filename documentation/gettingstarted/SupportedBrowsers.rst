@@ -1,4 +1,4 @@
-Supported Browsers
+Supported browsers
 ==================
 
 GlobaLeaks is designed to fully support commonly used browsers on desktop PCs, laptops, tablets, and smartphones.

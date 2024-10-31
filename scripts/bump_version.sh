@@ -13,7 +13,7 @@ if [[ "$1" != "" ]]; then
 
 	sed -i "s/\"version\":.*/\"version\": \"$1\",/g" "$ROOTDIR"/client/package.json
 
-	awk -v ver="$1" 'BEGIN{cnt=0} /"version":/ && cnt<2 {sub(/"version": "[^"]*"/, "\"version\": \"" ver "\""); cnt++} 1' "$ROOTDIR/client/npm-shrinkwrap.json" > tmp && mv tmp "$ROOTDIR/client/npm-shrinkwrap.json"
+	awk -v ver="$1" 'BEGIN{cnt=0} /"version":/ && cnt<2 {sub(/"version": "[^"]*"/, "\"version\": \"" ver "\""); cnt++} 1' "$ROOTDIR/client/package-lock.json" > tmp && mv tmp "$ROOTDIR/client/package-lock.json"
 
 	sed -i "s/^releaseDate:.*/releaseDate: '$(date +'%Y-%m-%d')'/g" "$ROOTDIR"/publiccode.yml
 
@@ -26,8 +26,6 @@ if [[ "$1" != "" ]]; then
  -- GlobaLeaks software signing key <info@globaleaks.org>  $(date --rfc-email)\n\n$(cat debian/changelog)" > "$ROOTDIR"/debian/changelog
 
         git commit -a -m "Bump to version $1"
-
-        git tag -s v$1 -m 'GlobaLeaks version $1' --force
 else
 	echo -e "Please specify a version"
 	exit 1

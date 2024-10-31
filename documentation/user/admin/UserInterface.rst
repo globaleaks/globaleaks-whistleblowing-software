@@ -1,4 +1,4 @@
-User Interface
+User interface
 ==============
 This section offers you a summary of the user interface offered to Admin users.
 
@@ -61,13 +61,13 @@ In this section you could enable all the languages required by your project and 
 
 .. image:: ../../images/admin/site_settings_languages.png
 
-Text Customization
+Text customization
 ..................
 Here could be configured overrides for any of the texts of the platform and of their translation.
 
 .. image:: ../../images/admin/site_settings_text_customization.png
 
-Advanced Settings
+Advanced settings
 .................
 In this section could be configured a set of advanced settings.
 
@@ -82,7 +82,7 @@ Depending on your project needs here you could create users with different roles
 
 .. image:: ../../images/admin/users.png
 
-User Roles
+User roles
 ..........
 The software offers the possibility to create users with the following roles:
 
@@ -90,7 +90,7 @@ The software offers the possibility to create users with the following roles:
 
    2. Recipients
 
-User Options
+User options
 ............
 
 .. image:: ../../images/admin/users_options.png
@@ -114,7 +114,7 @@ Steps
 The software enables to organize questionnaire in one or multiple steps.
 For example the default questionnaire is organized with a single step including all the questions.
 
-Questions Types
+Questions types
 ...............
 The software enables you to create questions of the following types:
 
@@ -140,7 +140,7 @@ The software enables you to create questions of the following types:
 
    11. Question group
 
-Common Question Properties
+Common question properties
 ...........................
 Each of the software question types make it possible to configure the following properties:
 
@@ -173,7 +173,7 @@ Depending on your project needs here you could create additional Channels and co
 
 .. image:: ../../images/admin/channels.png
 
-Data Retention Policy
+Data retention policy
 .....................
 The software enables to configure a data retention policy for each channel.
 This is a fundamental property of the whistleblowing channel that makes it possible to configure automatic secure deletion of reports after a certain period of time.
@@ -181,7 +181,7 @@ This setting should be configured in relation to the risk of the channel in orde
 
 By default a channel is configured with a report expiration of 90 days.
 
-Case Management
+Case management
 ---------------
 This section is intended to host all the main case management feature that will be offered by the software.
 Currently it hosts the possibility to define reports statuses and sub-statuses intended to be used by Recipients while working on the reports.
@@ -206,7 +206,7 @@ The section is furtherly divided in:
 
    2. Notification Templates
 
-Notification Settings
+Notification settings
 .....................
 Here are configured the technical details about SMTP.
 
@@ -215,7 +215,7 @@ Here are configured the technical details about SMTP.
 
 .. image:: ../../images/admin/notification_settings.png
 
-Notification Templates
+Notification templates
 ......................
 In this section are configured the notification templates.
 
@@ -257,7 +257,7 @@ Here you can configure all the aspects related to the access of the platform via
 
 .. image:: ../../images/admin/tor.png
 
-IP Access Control
+IP access control
 .................
 Here you can configure IP based Access Control.
 
@@ -269,7 +269,7 @@ Suggested configurations are:
 
    2. Restrict Recipients access to their intranet.
 
-URL Redirects
+URL redirects
 .............
 Here you can configure URL Redirects.
 
@@ -279,7 +279,7 @@ Sites
 -----
 The site section enables organization to create and manage multiple secondary whistleblowing sites.
 
-Sites Management
+Sites management
 ................
 Secondary whistleblowing platforms with independent configurations can be manually created and managed through the Sites interface.
 
@@ -291,7 +291,7 @@ After creating a secondary site an administrators of the main site could simply 
 
 After clicking on the button the administrator will be logged in on the the administrative panel of the site.
 
-Signup Module
+Signup module
 .............
 The software features a signup module that can be enabled and used to offers others users the possibility to register their secondary site.
 
@@ -305,7 +305,7 @@ When the signup module is enabled the submission module of the main site is auto
 
 .. image:: ../../images/admin/signup_form.png
 
-Audit Log
+Audit log
 ---------
 The software features a privacy precerving audit log enabling administrators of the system to supervise on projects operations.
 

@@ -1,11 +1,11 @@
 ============
-Threat Model
+Threat model
 ============
 GlobaLeaks is a free and open-source whistleblowing software designed for various usage scenarios, each requiring a balance between strong security and high usability. These two requirements are crucial for managing whistleblowing procedures effectively, protecting whistleblowers, and achieving specific project goals. Given the variety of use cases and associated risks, the software can be configured to address the specific threat model detailed here.
 
 This document is intended for organizations implementing a whistleblowing procedure using GlobaLeaks. It supports the analysis and understanding of the specific threat model relevant to their context and risks and guides users in selecting best practices for their project.
 
-Users Matrix
+Users matrix
 ============
 The first step is to define the types of users interacting with a GlobaLeaks platform.
 
@@ -18,7 +18,7 @@ The first step is to define the types of users interacting with a GlobaLeaks pla
 
 It is crucial to apply security measures relative to the users of the platform, aiming to achieve an appropriate tradeoff between security and usability.
 
-Anonymity Matrix
+Anonymity matrix
 ================
 The anonymity of users must be classified depending on the context of use, as follows:
 
@@ -30,7 +30,7 @@ The anonymity of users must be classified depending on the context of use, as fo
 
 The platform always informs users of their current anonymity status and provides guidance on best practices for anonymous access via the Tor Browser. Administrators may enforce the requirement that Whistleblowers use the Tor Browser to file reports, depending on the use case.
 
-Communication Security Matrix
+Communication security matrix
 =============================
 The security of communication concerning third-party monitoring varies based on the context of use.
 
@@ -40,6 +40,7 @@ The security of communication concerning third-party monitoring varies based on 
    "High security", "Tor is used, and communication is encrypted end-to-end with the GlobaLeaks platform, ensuring that no third party can eavesdrop on the communication."
    "Medium security", "HTTPS is used, and communication is encrypted end-to-end with the GlobaLeaks platform. A third party capable of manipulating HTTPS security (e.g., re-issuing TLS certificates) could eavesdrop on the communication. If HTTPS security is maintained, monitoring the user's communication line or the GlobaLeaks platform's communication line is not feasible."
 
+Identity disclosure matrix
 ==========================
 Regardless of the anonymity matrix, users may choose or be required to disclose their identity.
 
@@ -61,7 +62,7 @@ Voluntary identity disclosure may be required in certain whistleblowing procedur
 
 The distinction between “MAY” and “MUST” refers to the actions of recipients and is a fundamental element of the guarantees provided to whistleblowers in many initiatives (e.g., a corporate or institutional whistleblowing platform should not follow a MUST approach for anonymous submission follow-up, treating such submissions as tip-offs rather than formal reports).
 
-Usage Scenarios Matrix
+Usage scenarios matrix
 ======================
 This section provides examples of how different anonymity levels for users can be combined depending on the context of use.
 
@@ -93,7 +94,7 @@ GlobaLeaks will provide appropriate security awareness information through its u
    "", "Recipient", "Confidential", "Confidential", "Medium security"
    "", "Admin", "No anonymity", "Disclosed", "Medium security"
 
-Data Security Matrix
+Data security matrix
 ====================
 This section highlights the data handled by GlobaLeaks and the protection schemes applied to it.
 
@@ -117,11 +118,11 @@ Below is a matrix showing the different security measures applied to data.
    "Submission attachments", "Encrypted on the filesystem with per-user/per-submission keys", "Extension blocking, Antivirus", "N/A"
    "Email notifications", "Encrypted with PGP when recipient keys are available", "Antispam to prevent flooding", "N/A"
 
-Threats to Anonymity and Confidentiality
+Threats to anonymity and confidentiality
 ========================================
 This section highlights various threats that require specific consideration.
 
-Browser History and Cache
+Browser history and cache
 -------------------------
 GlobaLeaks uses crafted HTTP headers and other techniques to minimize leaking information into a user’s browser history or cache. While this privacy feature enhances safety, it cannot guarantee protection against forensic analysis of browser cache and history but serves as an additional safety measure.
 
@@ -129,30 +130,30 @@ Metadata
 --------
 Files may contain metadata related to the author or whistleblower. Cleaning metadata from submitted files helps protect an "unaware" whistleblower from inadvertently including information that may compromise their anonymity. GlobaLeaks does not automatically clean metadata by default, as metadata is considered a fundamental part of the original evidence that should be preserved. Metadata cleanup is an optional step that may be suggested to Whistleblowers or performed by Recipients when sharing documents with others. When sharing files with external parties, Recipients are advised to print the document and provide a hard copy to ensure that only visible information is shared, avoiding the risk of sharing sensitive metadata. For more on metadata and redacting digital files, see the article `Everything you wanted to know about media metadata, but were afraid to ask <https://freedom.press/training/everything-you-wanted-know-about-media-metadata-were-afraid-ask/>`_ by Harlo Holmes. A useful tool for these procedures is the `Metadata Anonymization Toolkit <https://0xacab.org/jvoisin/mat2>`_.
 
-Malware and Trojans
+Malware and trojans
 -------------------
 GlobaLeaks cannot prevent an attacker from using the platform maliciously to target recipients with malware or trojans. To mitigate risks of data exfiltration through trojans, Recipients should implement proper operational security by using dedicated laptops for report viewing and opening file attachments on offline computers. Wherever possible, they should use specialized secure operating systems like `QubesOS <https://www.qubes-os.org/>`_ or `Tails <https://tails.boum.org/>`_ and ensure up-to-date antivirus software is running.
 
-Network and Reverse Proxies
+Network and reverse proxies
 ---------------------------
 GlobaLeaks is designed for use with direct Tor or TLS connections from the user’s browser to the application backend. The use of Network and Reverse Proxies in front of the application is discouraged as they can interfere with the application and compromise confidentiality and anonymity measures implemented in GlobaLeaks.
 
-Data Stored Outside the Platform
+Data stored outside the platform
 --------------------------------
 GlobaLeaks does not provide security for data stored outside the GlobaLeaks system. It is the responsibility of Recipients to protect data downloaded from the platform or shared via external USB drives. The operating system used or the USB drive should offer encryption to ensure that, in case of device loss or theft, the data remains inaccessible.
 
-Environmental Factors
+Environmental factors
 ---------------------
 GlobaLeaks does not protect against environmental factors related to users' physical locations or social relationships. For example, if a user has a surveillance device in their home, GlobaLeaks cannot provide protection. Similarly, if a whistleblower, who is supposed to be anonymous, shares their story with friends or coworkers, GlobaLeaks cannot offer protection.
 
-Incorrect Data Retention Policies
+Incorrect data retention policies
 ---------------------------------
 GlobaLeaks implements a strict default data retention policy of 90 days to allow users to manage reports within a limited time frame necessary for investigations. If the platform is configured to retain reports for an extended period and Recipients do not manually delete unnecessary reports, the value of the data increases, along with the risk of exposure.
 
-Human Negligence
+Human negligence
 ----------------
 While GlobaLeaks provides Administrators with the ability to fine-tune security configurations and continuously informs users about their security context, it cannot protect against major security threats resulting from human negligence. For instance, if a Whistleblower submits data that can identify them as the unique owner or recent viewer, GlobaLeaks cannot protect their identity.
 
-Advanced Traffic Analysis
+Advanced traffic analysis
 -------------------------
 An attacker monitoring HTTPS traffic, without the ability to decrypt it, can still identify user roles based on different network traffic patterns generated by Whistleblowers, Recipients, and Administrators. GlobaLeaks does not offer protection against this type of threat. We recommend using `Tor pluggable transports <https://2019.www.torproject.org/docs/pluggable-transports.html.en>`_ or other methods that provide additional protection against such attacks.

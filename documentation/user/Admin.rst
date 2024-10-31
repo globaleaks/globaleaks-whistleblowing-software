@@ -1,4 +1,4 @@
-For Administrators
+For administrators
 ==================
 
 .. toctree::

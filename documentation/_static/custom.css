@@ -31,22 +31,14 @@ legend,
 }
 
 a,
-a:hover,
 a:active,
 a:visited,
-a:focus,
-.wy-side-nav-search a,
-.wy-side-nav-search a:hover,
-.wy-side-nav-search a:active,
-.wy-side-nav-search a:visited,
-.wy-side-nav-search a:focus,
-.wy-side-nav-search > a,
-.wy-side-nav-search > div.version {
+a:focus {
   color: #204f82;
 }
 
-.wy-side-nav-search {
-  background-color: #fff !important;
+a:hover {
+  color: #3679BB;
 }
 
 .highlight {
@@ -56,23 +48,44 @@ a:focus,
 .rst-content tt.literal,
 .rst-content tt.literal,
 .rst-content code.literal {
-  color: #377abc;
+  color: #3679BB;
 }
 
 .wy-nav-side {
   background-color: #103253;
 }
 
+.wy-nav-top a,
+.wy-nav-top a:active,
+.wy-nav-top a:focus,
+.wy-nav-top a:hover,
+.wy-nav-top a:visited,
+.wy-nav-side a,
+.wy-nav-side a:active,
+.wy-nav-side a:focus,
+.wy-nav-side a:hover,
+.wy-nav-side a:visited,
+.wy-side-nav-search>div.switch-menus>div.language-switch select,
+.wy-side-nav-search>div.switch-menus>div.version-switch select {
+  color: #FFF;
+}
+
+.wy-side-nav-search>div.switch-menus>div.language-switch select:active,
+.wy-side-nav-search>div.switch-menus>div.language-switch select:focus,
+.wy-side-nav-search>div.switch-menus>div.language-switch select:hover,
+.wy-side-nav-search>div.switch-menus>div.version-switch select:active,
+.wy-side-nav-search>div.switch-menus>div.version-switch select:focus,
+.wy-side-nav-search>div.switch-menus>div.version-switch select:hover {
+  background: none; 
+  color: #FFF;
+}
+
 .wy-nav-top {
-  background-color: #377abc;
+  background-color: #3679BB;
 }
 
 .wy-menu .caption-text {
   color: #5794d5;
-}
-
-.wy-menu-vertical a {
-  color: #fff;
 }
 
 vertical li.current > a {
@@ -82,6 +95,25 @@ vertical li.current > a {
 .document ul,
 .document li {
   list-style: disc;
+}
+
+.donation-banner {
+  background-color: #fff;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+  z-index: 1000;
+}
+
+.donation-banner a {
+  font-weight: bold;
+}
+
+.donation-icon {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  margin-right: 10px;
 }
 
 @media screen and (min-width: 767px) {

@@ -1,4 +1,4 @@
-User Documentation
+User documentation
 ==================
 .. toctree::
   :name: user

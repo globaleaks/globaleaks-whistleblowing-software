@@ -1,6 +1,6 @@
-Common Configurations
+Common configurations
 =====================
-Configure the Logo
+Configure the logo
 ------------------
 The first thing you want to give to your whistleblowing site is a branding identity; this could be done by loading a logo in section Site settings / Main configuration.
 
@@ -8,7 +8,7 @@ The first thing you want to give to your whistleblowing site is a branding ident
 
 Scroll down along the page to reach the "Save" button, click on it and have your logo and favicon applied.
 
-Enable Languages
+Enable languages
 ----------------
 You may want your GlobaLeaks installation served on more than one language
 
@@ -18,7 +18,7 @@ Note that in the same interface you can mark the default application language.
 
 .. image:: ../../images/admin/site_settings_languages_detail.png
 
-Configure Notification Settings
+Configure notification settings
 -------------------------------
 GlobaLeaks sends out notifications of different events to different receivers and to admins. In order to have this working, you have to select  "Notification Settings" in the "Administration Interface - General Settings" page and set up email account and related server parameters.
 
@@ -46,14 +46,14 @@ Once configured all the parameters for notifications, it is possible to test the
 
 If all is working as expected, click on the "Save" button to keep the configured parameters.
 
-Configure Recipients
+Configure recipients
 --------------------
 The Recipient is the person that will receive and process the data that whistleblowers input in the platform.
 You can have one or multiple Recipients per Context, and also have one Recipient that can access to multiple Contexts. The platform is very flexible on this and allows you to define in very detail your whistleblowing system and procedure.
 
-Customize the Graphic Layout
+Customize the graphic layout
 ----------------------------
-Example 1: Custom Background
+Example 1: custom background
 ............................
 This CSS example shows how to customize the Background Color of the application.
 
@@ -64,7 +64,7 @@ This CSS example shows how to customize the Background Color of the application.
       background-color: blue;
    }
 
-Example 2: Custom Font
+Example 2: custom font
 ......................
 This CSS example shows how to customize the font of the application.
 

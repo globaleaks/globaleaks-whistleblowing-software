@@ -1,3 +1,124 @@
+Changes in version 5.0.20
+    Fix retrival of account recovery key when 2FA is enabled
+
+Changes in version 5.0.19
+    Update codebase to use new angular 17 standalone components and control flow
+    Correct accessibility of language selector
+    Fix issue #4278
+    Revise colors of the application
+    Revise sticky footer implementation using Bootstrap 5 classes
+    Bump client dependencies to latest version
+    Update translations
+    Update brand assets
+    Rename main branch in stable
+    [ci] Revise tests to improve screenshots
+
+Changes in version 5.0.18
+    Adopt OpenSSF Scorecard and implement most of the recommendations
+    Add OpenSSF Scorecard to README.md
+    Ensure docker images uses pinned dependencies
+    Enable CodeQL action
+    Enable Dependabot action
+    Revise default permission on workflows
+    Strip HTML from Markdown text using DOMPurify
+    Revise login redirect and implement sanitization
+    Correct accessibility of language selector
+    Revise audit logs tracking users target of grant/revoke
+      report operations
+    Revise report search making it possible to make full text search
+      on the entire report
+    Fix audit log exporting correctly the object column (#4248)
+    Correct exceptions in relation to ngx-translate/core/issues/782
+    Fix translation of string:
+      Allow the recipient to edit the reports' expiration date
+    Use postcss-rtlcss to create a single optimized CSS bundle
+      supporting both ltr and rtl
+    Optimize loading of css files including primary fonts in main css
+     and ensuring secondary fonts are lazy-loaded
+    Revise CSS colors in relation to globaleaks visual identity
+    Apply GLBOALEAKS brand colors via SCSS
+    Update GlobaLeaks visual identity document
+    Update translations
+    Bump client dependencies to latest version
+    [doc] Update documentation images
+
+Changes in version 5.0.17
+    Fix logins exceptions on systems still apparently not implementing encryption introduced in 5.0.16
+
+Changes in version 5.0.16
+    Remove the content-language header from the http headers preferring to dynamically set the language in HTML
+    Revise UI Mock implementation
+    Revise implementation of pagination interface improving accessibility and internationalization
+    Bump client dependencies to latest version
+    Add Greenlandic translation
+    Update translations
+    Revise fix for #4228
+    [doc] Enable generation of documentation in ar, it, fr, es, ru, zu-cn
+          These languages now features texts in english but translated images
+
+Changes in version 5.0.15
+    Fix correct redirection after login
+
+Changes in version 5.0.14
+    Reiplement 'public' class on each whistleblower's page
+
+Changes in version 5.0.13
+    Fix issue #4228
+    Ensure to set html lang attribute when varying language (#4198)
+    Ensure to set html dir attribute depending on the language used
+    Correct logo and favicon removing incorrectly added black border
+    Revise wrong positioning of checkboxes on wizard interface
+    Revise gl-admin tool fixing configuration of intergers variables
+    Revise gl-admin tool making configuration of boolean values case insensitive
+    Bump client dependencies to latest versions
+    Update client dependencies shrinkwrap
+    [doc] Revise documentation informing users that a 64-bit system is required to run GlobaLeaks (#4202)
+
+Changes in version 5.0.12
+    Add ConnectionRefusedError to list of silenced exceptions
+    Revise implementation of periodic jobs and implement minutely exception notifications limits
+    Revise functionality and UI for date range questions
+    Ensure reports could be exported even if one single answer fails to be processed
+    Fix pdf export (available for the moment only on Ubuntu Noble)
+    Implement full case insensitive search on admin's sites interface
+    Order audit log entries with descending order
+    Extend client session idling time from 5 to 20 minutes
+    Fix issues #4209, #4218, #4217, #4207, #4211
+    Revise Language configuration UI improving usability
+    Apply CSS fixes to improve adherence to GlobaLeaks brand color
+    Uniform layout of checkboxes and radios using boostrap classes (#4216)
+    Include Ubuntu Noble in current recommended LTS distributions along with Debian Bookworm
+    Bump client dependencies to latest version
+    Update client dependencies shrinkwrap
+    Update translations
+    [ci] Update tests in relation to latest changes
+    [doc] Update documentation images
+
+Changes in version 5.0.11
+    Correct decryption of change status motivations for whistleblowers
+
+Changes in version 5.0.10
+    Revert "Update codebase to new angular control flow-directive" causing instabilities on 5.0.9
+
+Changes in version 5.0.9
+    Fix failure in the loading of translations at first load of the application introduced in 5.0.7 (#4194)
+    Reimplement override of localStorage with sessionStorage (#3277)
+    Replace usages of localStorage with sessionStorage
+    Bump client dependencies to latest versions
+
+Changes in version 5.0.8
+    Fix multilang export of questionnaires (#4190)
+    Bump client dependencies to latest version
+    Update translations
+
+Changes in version 5.0.7
+    Revise implementation of form validation
+    Implement language changes on ng-bootstrap datepicker
+    Revise internationalization issues
+    Revise admin sidebar menu fixing "Channels" link
+    Bump client dependencies to latest version
+    Update translations
+
 Changes in version 5.0.6
     Change text "Postpone the expiration date" to "Edit the expiration date" (#4175)
     Revise reports' statuses configuration (#4177)
