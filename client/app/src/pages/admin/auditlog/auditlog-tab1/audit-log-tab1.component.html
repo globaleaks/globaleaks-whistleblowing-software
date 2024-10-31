@@ -1,30 +1,35 @@
-<ng-container *ngIf="this.auditLog.slice">
-    <table id="userList" class="table table-condensed table-striped">
-        <thead>
+@if (this.auditLog.slice()) {
+  <table id="userList" class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>{{'Date'|translate}}</th>
+        <th>{{'Type'|translate}}</th>
+        <th>{{'User'|translate}}</th>
+        <th>{{'Object'|translate}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of getPaginatedData(); track data) {
         <tr>
-            <th>{{'Date'|translate}}</th>
-            <th>{{'Type'|translate}}</th>
-            <th>{{'User'|translate}}</th>
-            <th>{{'Object'|translate}}</th>
+          <td>{{ data.date | date:'dd-MM-yyyy HH:mm' }}</td>
+          <td>{{ data.type }}</td>
+          <td>{{ data.user_id }}</td>
+          <td>{{ data.object_id }}</td>
         </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let data of getPaginatedData()">
-            <td>{{ data.date | date:'dd-MM-yyyy HH:mm' }}</td>
-            <td>{{ data.type }}</td>
-            <td>{{ data.user_id }}</td>
-            <td>{{ data.object_id }}</td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="float-start" *ngIf="auditLog.length > pageSize">
-        <ngb-pagination [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="auditLog.length" [boundaryLinks]="true">
-            <ng-template ngbPaginationPrevious>
-                < {{'Previous' | translate}}</ng-template>
-            <ng-template ngbPaginationNext>{{'Next' | translate}} ></ng-template>
-            <ng-template ngbPaginationFirst>
-                << {{'First' | translate}}</ng-template>
-            <ng-template ngbPaginationLast>{{'Last' | translate}} >></ng-template>
-        </ngb-pagination>
-    </div><div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button> <span *ngIf="nodeResolver.dataModel.root_tenant"> <a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'globaleaks.log', '/api/admin/auditlog/debug')"> <i class="fa-solid fa-download"></i> globaleaks.log </a> <a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'access.log', '/api/admin/auditlog/access')"> <i class="fa-solid fa-download"></i> access.log </a> </span></div>
-</ng-container>
+      }
+    </tbody>
+  </table>
+  @if (auditLog.length > pageSize) {
+    <div>
+       <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="auditLog.length">
+          <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+          <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+          <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+          <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+       </ngb-pagination>
+    </div>
+  }
+  <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button> @if (nodeResolver.dataModel.root_tenant) {
+    <span><a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'globaleaks.log', '/api/admin/auditlog/debug')"> <i class="fa-solid fa-download"></i> globaleaks.log </a> <a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'access.log', '/api/admin/auditlog/access')"> <i class="fa-solid fa-download"></i> access.log</a></span>
+  }</div>
+}

@@ -1,0 +1,2039 @@
+# 
+# Translators:
+# Aviaja Else Holm Jensen, 2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2024
+# Kaali Christensen, 2024
+# Søren Christensen, 2024
+msgid ""
+msgstr ""
+"Project-Id-Version: GlobaLeaks\n"
+"PO-Revision-Date: 2013-05-29 17:59+0000\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2024\n"
+"Language-Team: Greenlandic (http://app.transifex.com/otf/globaleaks/language/kl/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: kl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"mime-version: 1.0\n"
+
+msgid "0 = auto"
+msgstr "0 = auto"
+
+msgid "Accept multiple answers"
+msgstr "Akissutit arlallit akuerikkit"
+
+msgid "Accept multiple file uploads"
+msgstr "Filit arlallit uploadterneqarnissai akuerikkit"
+
+msgid "Acceptable"
+msgstr "Akuerineqarsinnaavoq"
+
+msgid "Access control"
+msgstr "Isissutsissamut nakkutilliineq"
+
+msgid "Access date"
+msgstr "Isissutsissap ullua"
+
+msgid "Access requested"
+msgstr "Isissutissaq qinnutigineqarpoq"
+
+msgid ""
+"Access to the whistleblower's identity has been requested to the custodian."
+msgstr "Whistleblowerip kinaassusaata kinaassusersinneqarnissaa ingerlatsisumiit takuumaneqarpoq. "
+
+msgid "Account recovery key"
+msgstr "Kontop ammaqqinnissaanut matuersaat"
+
+msgid "Act on behalf of a whistleblower"
+msgstr "Whistleblowerip sinnerlugu iliuseqarit"
+
+msgid "Activities"
+msgstr "Iliuutsit"
+
+msgid "Add"
+msgstr "Ilannguppaa"
+
+msgid "Add custom text"
+msgstr "Atuisutut oqaasertaliussamik ilanngussigit"
+
+msgid "Add multimedia content"
+msgstr "Attaveqatigiittarfiit assigiinngitsut imarisaannut ilassuteqaateqarit"
+
+msgid "Add new question"
+msgstr "Apeqqut nutaaq ilannguguk"
+
+msgid "Add new questionnaire"
+msgstr "Immersugassaq apeqqititalik nutaaq ilanngutiguk"
+
+msgid "Add question from template"
+msgstr "Skabelonimiit apeqqummik ilanngussigit"
+
+msgid "Addition"
+msgstr "Ilanngutassaq"
+
+msgid "Additional questionnaire"
+msgstr "Apeqqutit akisassat allassimaffianut ilassut"
+
+msgid "Address"
+msgstr "Najugaq"
+
+msgid "Admin"
+msgstr "Aqutsisoq"
+
+msgid "Administrators authorized to change user passwords:"
+msgstr "Ingerlatsisut atuisutut isertaatit kodeusut allanngortissinnaanissaanut pisinnaatinneqartut:"
+
+msgid "Advanced"
+msgstr "Atortorissaarut nutaaliaalluinnartoq"
+
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Tigusisussaq nalunaarusiap ulloq qaangiuttoorfissaa allanngortissinnaangornissaa pisinnaatiguk"
+
+msgid "Allow the recipient to delete reports"
+msgstr "Tigusisussaq nalunaarusianik piiaasinnaatillugu pisinnaatiguk"
+
+msgid "Allow the whistleblower to add attachments"
+msgstr "Whistleblower pisinnaatiguk kakkiussanik ilanngussisinnaanngorlugu"
+
+msgid "Allow the whistleblower to write comments"
+msgstr "Whistleblower pisinnaatiguk oqaatigiumasaanik allattuisinnaatillugu"
+
+msgid "Allow this user to reopen management of a report"
+msgstr "Atuisoq nalunaarusiamik ammaqqissinnaatileqqiguk"
+
+msgid "Allow users to sign up"
+msgstr "Atuisut allatsissinnaangortikkit"
+
+msgid "Allow whistleblowers to select their recipients"
+msgstr "Whistleblower tigusisussanik toqqaanissaanik pisinnaatiguk"
+
+msgid "Allowed IP addresses"
+msgstr "IP adressit akuerisat"
+
+msgid "An update is available:"
+msgstr "Opdaterigassaq piareersimavoq:"
+
+msgid "Analyst"
+msgstr "Misissuisoq"
+
+msgid "Anomalies"
+msgstr "Pissusissaanngitsumik iliorneq"
+
+msgid "Anomaly detection thresholds"
+msgstr "Eqqunngitsut nalunaarsorneqarnissaanut killigititaq"
+
+msgid "Anonymity"
+msgstr "Kinaassutsimik isertuussineq"
+
+msgid "Anonymize outgoing connections"
+msgstr "Anisussat isertuussanngortikkit"
+
+msgid "Anonymous"
+msgstr "Kinaassutsimik isertuussineq"
+
+msgid "Are you sure?"
+msgstr "Ilumut taamaaliorniarpit?"
+
+msgid "Assign score points"
+msgstr "Pointinik tuniguk"
+
+msgid "Assigned to"
+msgstr "Suliassaq tunniunneqarpoq"
+
+msgid "Attachment"
+msgstr "Kakkiussaq"
+
+msgid "Attachments"
+msgstr "Kakkiussat"
+
+msgid "Attention"
+msgstr "Malugiuk"
+
+msgid "Audio"
+msgstr "Nipi"
+
+msgid "Audit log"
+msgstr "Isertunik nakkutiginniffik"
+
+msgid "Authentication failed"
+msgstr "Akuersissut iluatsinngilaq"
+
+msgid "Authorization"
+msgstr "Akuersineq"
+
+msgid "Authorize"
+msgstr "Akueraa"
+
+msgid "Authorize access to the whistleblower's identity"
+msgstr "Whistleblowerip kinaassusersinneqarnissaanut isersinnaanngornissaa akueriuk"
+
+msgid "Authorized"
+msgstr "Akuerisaq"
+
+msgid "Auto-renewal"
+msgstr "Automatiskimik nutarsaaneq"
+
+msgid "Automatic configuration"
+msgstr "Automatiskimik inissiineq"
+
+msgid "Available disk space"
+msgstr "Diskip imaqarsinnaassusaa atorneqanngikkallartoq"
+
+msgid "Before proceeding please read carefully the documentation at:"
+msgstr "Ingerlaqqitsinnak takussutissaq atuarluaqqaaruk uani:"
+
+msgid "Before proceeding, please enable the two factor authentication."
+msgstr "Ingerlaqqitsinnak marloriaq akuerisassaq aallartisaruk."
+
+msgid "Before proceeding, please set a new password."
+msgstr "Ingerlaqqitsinnak nutaamik isissutissamik sanagit."
+
+msgid "Block the submission"
+msgstr "Nassiunniagaq parnaaruk"
+
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Uppernarsaanikkut ulloq ukununnga qaangiuffissaa kinguartissavat:"
+
+msgid "By confirming, you will set a reminder on date:"
+msgstr "Uppernarsaanikkut ullormi eqqaasitsissut aalajangersinnaavat:"
+
+msgid ""
+"By enabling this feature, you will contribute to the development and "
+"security of the platform."
+msgstr "Atuutilersinneratigut paasissutissanik siaruarteriviup ineriartortinneqarneranut isumannaatsuunissaanullu ikiuutaassaatit."
+
+msgid "Cancel"
+msgstr "Atorunnaarsillugu"
+
+msgid "Case management"
+msgstr "Suliassamik isumaginninneq"
+
+msgid "Certificate"
+msgstr "Allagartaq"
+
+msgid "Certificate Signing Request"
+msgstr "Allagartaq atsiornissaannut qinnuigineqarneq"
+
+msgid "Change status"
+msgstr "Killiffik allanngortiguk"
+
+msgid "Change your password"
+msgstr "Isertaat allanngortiguk"
+
+msgid "Changelog"
+msgstr "Allannguutit allattorsimaffiit"
+
+msgid "Channel"
+msgstr "Kanali"
+
+msgid "Channels"
+msgstr "Kanalit"
+
+msgid "Check your inbox to activate it."
+msgstr "Allagarsiassatit takukkit atuutilersinneqarnissaanut."
+
+msgid "Checkbox"
+msgstr "Krydsilersorfik"
+
+msgid "Checkbox label"
+msgstr "Krydsilersuiffik allagartaa"
+
+msgid "City"
+msgstr "Illoqarfik"
+
+msgid "Close"
+msgstr "Matuguk"
+
+msgid "Closed"
+msgstr "Matuvoq"
+
+msgid "Collapse"
+msgstr "Isavoq"
+
+msgid "Column"
+msgstr "Allaffissaq"
+
+msgid "Comments"
+msgstr "Oqaaseqaatit"
+
+msgid "Computer"
+msgstr "Qarasaasiaq"
+
+msgid "Configure"
+msgstr "Aaqqissuussineq"
+
+msgid "Confirm"
+msgstr "Akueriuk"
+
+msgid "Congratulations!"
+msgstr "Pilluarit!"
+
+msgid "Copy to clipboard"
+msgstr "Katiterummut kopieruk"
+
+msgid "Country"
+msgstr "Nuna"
+
+msgid "Country code"
+msgstr "Nunap kodea"
+
+msgid "Creation date"
+msgstr "Sananeqarnera ullua"
+
+msgid "Creation date:"
+msgstr "Sananeqarnera ullua:"
+
+msgid "Current password"
+msgstr "Maannakkut isertaat"
+
+msgid "Custodian"
+msgstr "Nakkutiginnittoq"
+
+msgid "Custom"
+msgstr "Atuisup ilisarnaataa"
+
+msgid "Custom privacy panel"
+msgstr "Inunnut ataasiakkaanut paasissutissat illersorneqarnissaannut paasissutissanik aallarfigineqarsinnaasoq atuisumut tulluarsagaasoq"
+
+msgid "Custom support URL"
+msgstr "Atuisunut ikiuut URL-adresse"
+
+msgid "Custom text"
+msgstr "Atuisutut oqaasertaliussaq"
+
+msgid "Custom translation"
+msgstr "Atuisutut oqaasertaliussap nutsernera"
+
+msgid "Date"
+msgstr "Ulloq"
+
+msgid "Date of the request"
+msgstr "Ulloq qinnuteqarfik"
+
+msgid "Date range"
+msgstr "Ullut akuttussusaa"
+
+msgid ""
+"Default mail configuration in use. Please consider using a private mail "
+"server."
+msgstr "E-mail atorneqartut naliginnaasumik ilusilersugaanerat. Immikkut mailimik ingerlatsivimmik atugaqarnissaq eqqarsaatigiuk."
+
+msgid "Delete"
+msgstr "Peerlugu"
+
+msgid "Denied"
+msgstr "Naaggaarneqarpoq"
+
+msgid "Deny"
+msgstr "Naaggaarpoq"
+
+msgid "Deny access to the whistleblower's identity"
+msgstr "Whistleblowerip kinaassusersinneqarnissaanut itigartiguk"
+
+msgid "Description"
+msgstr "Allaatiginninneq"
+
+msgid "Deselect"
+msgstr "Taanna pinnagu"
+
+msgid "Deselect all"
+msgstr "Tamaasa pinnagit"
+
+msgid "Details"
+msgstr "Peqqissaartumik allaatigisaq"
+
+msgid "Details of the PGP key:"
+msgstr "PGR keymut ilanngussassat:"
+
+msgid "Devices"
+msgstr "Atortut"
+
+msgid "Disable"
+msgstr "Atorunnaarsiguk"
+
+msgid "Disable notifications to administrators"
+msgstr "Notifikationit isumaginnittumut atorunnaarsikkit"
+
+msgid "Disable notifications to custodians"
+msgstr "Paarsisunut notifikationit atorunnaarsikkit"
+
+msgid "Disable notifications to recipients"
+msgstr "Tigusisussanut notifikationit atorunnaarsikkit"
+
+msgid "Disable submissions"
+msgstr "Nassiussat atorunnaarsikkit"
+
+msgid "Disable the privacy panel"
+msgstr "Panelit suliffiup avataatigut atorunnaarsikkit"
+
+msgid "Disable two factor authentication"
+msgstr "Marlunnut akuersissut atorunnaarsiguk"
+
+msgid "Disabled"
+msgstr "Atorunnaarsinneqarpoq"
+
+msgid "Disclaimer"
+msgstr "Akisussaaffeqarunnaarsitsineq"
+
+msgid "Display options alphabetically"
+msgstr "Oqaatsit alfabeti malillugu takutikkit"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Download copy of the Privacy Policy"
+msgstr "Allanut oqaatigeqqusaanngitsup politikkia kopi-a downloaderuk"
+
+msgid "Download the Tor Browser"
+msgstr "Tor Browser downloadteruk"
+
+msgid "Duplicate"
+msgstr "Marlunngortiguk"
+
+msgid "Each entry must be separated with a comma."
+msgstr "Allannerit tamarmik uniffilerneqassapput (komma)."
+
+msgid "Earliest selectable date"
+msgstr "Ulloq qinigassaq siulleq"
+
+msgid "Edit"
+msgstr "Allanngortiguk"
+
+msgid "Edit the expiration date"
+msgstr "Ulloq atorunnaarfissaa allanngortiguk"
+
+msgid "Email"
+msgstr "E-Maili"
+
+msgid "Email address"
+msgstr "Email"
+
+msgid "Enable"
+msgstr "Atuutilersiguk"
+
+msgid "Enable PGP"
+msgstr "PGP atuutilersiguk"
+
+msgid "Enable administrators to change user passwords"
+msgstr "Atuisutut isertaatip kodeusup allanngortissinnaanera ingerlatsisumut periarfissaatigut"
+
+msgid "Enable custom privacy panel"
+msgstr "Suliffiup avataani atuisutut inissinnissat atuutilersiguk"
+
+msgid "Enable email notifications"
+msgstr "Allagarsianut nalunaarutisisarneq atuutilersiguk"
+
+msgid "Enable email notifications for:"
+msgstr "Emailikkut nalunaarutisisarnernik atuutilersitsineq:"
+
+msgid "Enable encryption"
+msgstr "Paasiuminaallisaaneq atuutilersiguk"
+
+msgid "Enable scoring system"
+msgstr "System pointilersuut atuutilersiguk"
+
+msgid "Enable search engines indexing"
+msgstr "Ujaarliissutit immikkoortiteralutillu katiterisinnaanissaat atuutsileruk "
+
+msgid "Enable simplified login"
+msgstr "Isertaateq piuminarnerulersillugu atuutilersiguk"
+
+msgid "Enable terms of service"
+msgstr "Kiffartuussinermi piumasaqaatit atuutilersikkit"
+
+msgid "Enable two factor authentication"
+msgstr "Marlunnut akuersissut atuutilersiguk"
+
+msgid "Enabled"
+msgstr "Atuutilersinneqarpoq"
+
+msgid "Enter a name for the copy"
+msgstr "Ateq ikkutiguk kopi-mik pisussaq"
+
+msgid "Enter the two factor authentication code"
+msgstr "Marlunnut akuerisassaq kodea allaguk"
+
+msgid ""
+"Enter your account recovery key to complete the password reset procedure"
+msgstr "Allanngortitsinermut matuersaat naqiguk isertaatit allanngortinniarukku"
+
+msgid ""
+"Enter your account's username or your email address to request a password "
+"reset."
+msgstr "Atuisutut taaguutit imaluunniit mail adresse naqiguk, isertaatit allanngortinniarukku."
+
+msgid "Enter your email address to request a password reset."
+msgstr "Mail atia naqiguk isertaatit allanngortinniarukku."
+
+msgid "Error on input validation"
+msgstr "Immiussat akuerineqarnissaanut ajutoorpoq"
+
+msgid "Error!"
+msgstr "Kukkusoq!"
+
+msgid "Everyone"
+msgstr "Tamassi"
+
+msgid "Example:"
+msgstr "Assersuut:"
+
+msgid "Expand"
+msgstr "Alliguk"
+
+msgid "Expiration date"
+msgstr "Ulloq atorunnaarfissaq"
+
+msgid "Export"
+msgstr "Avammut tunisineq"
+
+msgid "File size"
+msgstr "Filip angissusaa"
+
+msgid "File size not accepted."
+msgstr "Filip angissusaa akuerineqanngilaq."
+
+msgid "Filename"
+msgstr "Filip atia"
+
+msgid "Files"
+msgstr "Filit"
+
+msgid "Files attached by recipients"
+msgstr "Filit tigusisup ilanngussai"
+
+msgid "Fill the additional questionnaire"
+msgstr "Immersugassaq ilaqqinnikoq immersoruk"
+
+msgid "Fingerprint"
+msgstr "Inussat ipaasaat"
+
+msgid "First"
+msgstr "Siulleq"
+
+msgid "Fiscal code"
+msgstr "Aningaasartuutissanut inatsit"
+
+msgid "Footer"
+msgstr "Quppernerup naqqa"
+
+msgid "For security reasons the code needs to be changed."
+msgstr "Sillimaniarnerup peqqutaalluni isertaateq taarsertariaqarpoq."
+
+msgid ""
+"For security reasons, password changes are required at regular intervals."
+msgstr "Sillimaniarneq peqqutaalluni akilikitsumik isertaateq taarsernissaanut piumasaqaataavoq."
+
+msgid "For the user documentation, visit:"
+msgstr "Atuisumut uppernarsaatit uani nanisinnaavatit:"
+
+msgid "Forbidden operation"
+msgstr "Ingerlatsiffik inerteqqutaasoq"
+
+msgid "Force password change"
+msgstr "Isertaatip kodeusup allanngortinneqarnissaa piumasariuk "
+
+msgid "Forcefully selected"
+msgstr "Toqqarneqarsimasoq"
+
+msgid "Forgot password?"
+msgstr "Isertaatit puigorpiuk?"
+
+msgid "From"
+msgstr "Uannga"
+
+msgid "From:"
+msgstr "Uannga:"
+
+msgid "Generate"
+msgstr "Sanavaa"
+
+msgid "Give the user administrative access to the following features:"
+msgstr "Atuisoq allaffissornikkut ukununnga isertaatileruk:"
+
+msgid "Give this admin ability to change user passwords"
+msgstr "Ingerlatsisut una isertaatip kodeusup allanngortissinnaanissaanut pisinnaatigut"
+
+msgid "Give this user ability to grant user access to reports"
+msgstr "Atuisoq una atuisumut nalunaarutinut isertaammik tunniussisinnaatigut"
+
+msgid "Give this user ability to mask information"
+msgstr "Atuisoq periarfissiguk paasissutissat suut isertortuussanersut"
+
+msgid "Give this user ability to permanently redact masked information"
+msgstr "Atuisoq atajuartussamik periarfissiguk paasissutissat isertortuusut isertortuujunnaarsillugit"
+
+msgid "Give this user ability to transfer reports to other users"
+msgstr "Atuisoq una atuisunut allanut nalunaarutinik ingerlatitseqqiisinnaanermut pisinnaatiguk"
+
+msgid "Grant access"
+msgstr "Atuisinnaatileruk"
+
+msgid "Group of questions"
+msgstr "Apeqqutit ataatsimoortut arlallit"
+
+msgid "Have you already filed a report? Enter your receipt."
+msgstr "Nalunaarusiaq immersoreerpiuk? Uppernarsaat allagartaa naqiguk. "
+
+msgid "Hidden"
+msgstr "Toqqornikoq"
+
+msgid "Hide"
+msgstr "Toqqoruk"
+
+msgid "High"
+msgstr "Qaffasissoq"
+
+msgid "Hint"
+msgstr "Oqamisaarneq"
+
+msgid "Home"
+msgstr "Angerlarsimaffik"
+
+msgid "Homepage title"
+msgstr "Nittartakkap aqqa"
+
+msgid "Hostname"
+msgstr "Ingerlatitsisup atia"
+
+msgid "I have read and agree to the terms of the license."
+msgstr "Akuersissummi piumasaqaatit atuarsimallugillu akueraakka."
+
+msgid "I've read and accept the Privacy Policy"
+msgstr "Tatigeqatigiinnermut politikki atuarpara akueralugulu"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Identity"
+msgstr "Kinaassuseq"
+
+msgid ""
+"If not activated within 24 hours the platform will be automatically deleted."
+msgstr "Paasissutissanik siammarterivik tiimini 24-ni tulliuttuni atuutilersinneqanngippat nammineerluni piissaaq."
+
+msgid ""
+"If you need technical support, have general questions, or have new ideas for"
+" the software:"
+msgstr "Teknikkikkut ikorfartorneqarnissat pisariaqartikkukku, apeqqutissaqaruit imaluunniit softwaremut isumassarsiaqaruit: "
+
+msgid ""
+"If you want to contribute to software development or report a bug, please "
+"open an issue in our ticketing system:"
+msgstr "Softwarep ineriartortinneqarneranut ilassuteqarusukkuit imaluunniit kukkunermik nalunaaruteqarniaruit billetsystemitsinni ajornartorsiummik ammaassaatit:"
+
+msgid "Image"
+msgstr "Asseq"
+
+msgid "Import"
+msgstr "Eqqunneqarneq"
+
+msgid ""
+"In this step the answers to the following questions are either missing or "
+"invalid:"
+msgstr "Alloriarnermi uani apeqquteqaatit uku akissuteqarfiginissaat amigaataavoq atorsinnaanatilluunniit."
+
+msgid "Initially anonymous"
+msgstr "Aallaqqaataaniit kinaassutsiminik isertuusisoq"
+
+msgid "Input validation"
+msgstr "Imarisaata uppernarsarnera"
+
+msgid "Install an authenticator app on your phone"
+msgstr "Oqarasuaatinni akuersissut app ikkutiguk"
+
+msgid "Intermediate Certificates"
+msgstr "Certifikatit akornganiittut"
+
+msgid "Internal server error"
+msgstr "Server ilua ajutoorpoq"
+
+msgid "Invalid confirmation"
+msgstr "Uppernarsaaneq iluatsinngilaq"
+
+msgid "Invalid email address"
+msgstr "Emailadresse ajorpoq"
+
+msgid "Invalid phone number"
+msgstr "Oqarasuaat normua ajorpoq"
+
+msgid "Issuer:"
+msgstr "Atulersitsisoq:"
+
+msgid "Join our chat:"
+msgstr "Allaqatigiinnitsinnut ilanngugit:"
+
+msgid "Label"
+msgstr "Allagartaq"
+
+msgid "Label the report"
+msgstr "Nalunaarusiaq nalunaaqutseruk"
+
+msgid "Language"
+msgstr "Oqaatsit"
+
+msgid "Language:"
+msgstr "Oqaatsit:"
+
+msgid "Languages"
+msgstr "Oqaatsit"
+
+msgid "Last"
+msgstr "Kingulleq"
+
+msgid "Last Access"
+msgstr "Iserfik kingulleq"
+
+msgid "Last access"
+msgstr "Iserneq kingulleq"
+
+msgid "Last update"
+msgstr "Opdatererneqarfia kingulleq"
+
+msgid "Latest selectable date"
+msgstr "Ulloq qinersinnaasoq kingisinnerpaaq"
+
+msgid "Let the platform be reachable without Tor"
+msgstr "Platformi atorsinnaanngortiguk Tor atunngikkaluarlugu"
+
+msgid "License"
+msgstr "Pisinnaatitsissut"
+
+msgid "Log accesses of internal users"
+msgstr "Quppernermi atuisunut iserfissaq"
+
+msgid "Log in"
+msgstr "Iserfissaq"
+
+msgid "Logging level"
+msgstr "Ikiorneqarnissamut aalajangersakkat annertussusaat"
+
+msgid "Logo"
+msgstr "Assiliaq ilisarnaat"
+
+msgid "Logout"
+msgstr "Anigit"
+
+msgid "Low"
+msgstr "Appasissoq"
+
+msgid ""
+"Make a copy and store it in a safe place. It will be necessary if you lose "
+"your password to recover the access to your account without data loss."
+msgstr "Kopi-ruk isumannaatsumullu toqqorlugu. Tamanna isertaativit annaasimaneratigut isertaatineqqinnissannut kontoppit ammaqqinnissaanut paasissutissat annaannginnissaannut pisariaqarsinnaavoq. "
+
+msgid "Make it possible for this admin to reset user passwords."
+msgstr "Ingerlatsisoq atuisut isertaataannik atorunnaarsitsisinnaanngortiguk."
+
+msgid "Mandatory"
+msgstr "Pinngitsuugassaanngitsoq"
+
+msgid "Manual configuration"
+msgstr "Manuelimik inissiineq"
+
+msgid "Mark as important"
+msgstr "Pingaaritilittut nalunaaqutseruk"
+
+msgid "Mask"
+msgstr "Kiinarpak"
+
+msgid "Max"
+msgstr "Annerpaamik"
+
+msgid "Maximum file size is:"
+msgstr "Filip angissusaa annerpaaffia:"
+
+msgid "Maximum number of input characters"
+msgstr "Annerpaamik naqinnerit allassinnaasut amerlassusaat"
+
+msgid "Maximum number of selectable recipients:"
+msgstr "Amerlanerpaamik tigusisussat toqqarneqarsinnaasut:"
+
+msgid "Me only"
+msgstr "Uanga kisima"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Min"
+msgstr "Ikinnerpaamik"
+
+msgid "Minimum number of input characters"
+msgstr "Minnerpaamik naqinnerit allassinnaasut amerlassusaat"
+
+msgid "Mobile"
+msgstr "Oqarasuaat"
+
+msgid "Mode:"
+msgstr "Qanoq-issuseq:"
+
+msgid "Motivation"
+msgstr "Siunertaq"
+
+msgid "Move down"
+msgstr "Ammut nuugit"
+
+msgid "Move left"
+msgstr "Saamimmut nuugit"
+
+msgid "Move right"
+msgstr "Talerpimmut nuugit"
+
+msgid "Move up"
+msgstr "Qummut nuugit"
+
+msgid "Multi-line text input"
+msgstr "Oqaasertai titarnermi arlalinnik ímmersorneqassaaq"
+
+msgid "Multiple choice input"
+msgstr "Arlalinnik toqqaanissamut-ilassuteqaat"
+
+msgid "Multiplier"
+msgstr "Amerlisaatissaq"
+
+msgid "Name"
+msgstr "Ateq"
+
+msgid "Network"
+msgstr "Attaveqarfiit"
+
+msgid "New"
+msgstr "Nutaaq"
+
+msgid "New password"
+msgstr "Isissutissaq nutaaq"
+
+msgid "New request"
+msgstr "Qinnuteqaat nutaaq"
+
+msgid "Next"
+msgstr "Tullia"
+
+msgid "No"
+msgstr "Naamik"
+
+msgid "None"
+msgstr "Soqanngilaq"
+
+msgid "Not provided."
+msgstr "Ilaanngilaq."
+
+msgid "Notifications"
+msgstr "Ilisimatitsissutit"
+
+msgid "Notify administrators of software problems"
+msgstr "Softwaremik ajornartorsiuteqarneq ingerlatsisunut nalunaarutigiuk "
+
+msgid "Notify developers of software problems"
+msgstr "Softwaremik ajornartorsiuteqarneq ineriartortitsisunut nalunaarutigiuk "
+
+msgid "Now type your password, then click 'Log in':"
+msgstr "Isertaatippi kodea allaguk taavalu 'Iserit' toorlugu:"
+
+msgid "Number"
+msgstr "Normu"
+
+msgid "Number of days till notifying unread reports to users"
+msgstr "Nalunaarutit atuarneqarsimanngitsut pillugit atuisut nalunaarfigineqartarnissaannut ullut amerlassusaat"
+
+msgid "Number of downloads"
+msgstr "Downloadtit qassiunersut"
+
+msgid "Number of hours before sending a report expiration alert"
+msgstr "Nalunaarusiap qaangiuttoorsimaneranut aarlerisaarummik nassiussinnginnerni, akunnerit qassiunersut"
+
+msgid "Object"
+msgstr "Objekti"
+
+msgid ""
+"One or more recipients have not performed the first login yet. This means "
+"they won't be receiving reports."
+msgstr "Tigusisussaq ataaseq imaluunniit arlallit suli login siulleq pisimanngilaat. Taanna isumaqarpoq suli nalunaarusianik tigusaqanngitsut. "
+
+msgid "Opened"
+msgstr "Ammarsimavoq"
+
+msgid "Options"
+msgstr "Periarfissat"
+
+msgid "Organization"
+msgstr "Organisationi"
+
+msgid "Original text"
+msgstr "Aallaqqaataanit oqaasertai"
+
+msgid "Original translation"
+msgstr "Aallaqqaataanit nutsigaq"
+
+msgid "Password"
+msgstr "Isertaat"
+
+msgid "Password change interval"
+msgstr "Isertaatit kodeusut allanngortinneqartarnissaannut piffissat sivisussusaat"
+
+msgid "Password reset"
+msgstr "Isertaatit aallaqqaataaniit aallartittussanngoruk"
+
+msgid "Password reset requested."
+msgstr "Isertaat aatsaalloornissaanut qinnutigineqarpoq."
+
+msgid "Phone number"
+msgstr "Oqarasuaat normu"
+
+msgid "Placeholder"
+msgstr "Inissamik tigusisoq"
+
+msgid "Platform wizard"
+msgstr "Platformi nassuiaassisoq"
+
+msgid "Please check your inbox for further instructions."
+msgstr "Allagarsiassatit takukkit amerlanerusunik ilitsersuutinik takorusukkuit. "
+
+msgid "Please choose a configuration profile:"
+msgstr "Aaqqissuussissutit ilusissaanik toqqaagit:"
+
+msgid "Please choose a different username."
+msgstr "Atuisutut atimik allamik toqqaagit."
+
+msgid "Please note that all the associated data will be permanently deleted."
+msgstr "Maluginiaruk, paasissutissat ilaasut tamarmik atajuartumik peerneqassammata."
+
+msgid "Please select your account:"
+msgstr "Kontoppi toqqaruk:"
+
+msgid "Preferences"
+msgstr "Salliusussaatitaasut"
+
+msgid "Presentation"
+msgstr "Ilisarititsineq"
+
+msgid "Preview"
+msgstr "Siumut takutiguk"
+
+msgid "Previous"
+msgstr "Siusinnerusoq"
+
+msgid "Print"
+msgstr "Naqitaq anillatsiguk"
+
+msgid "Privacy Policy"
+msgstr "Inuup nalunaarsuutai aqunnerat"
+
+msgid "Private Key"
+msgstr "Matuersaat privatiusoq"
+
+msgid "Privileges"
+msgstr "Immikkut pisinnaatitaaneq"
+
+msgid "Proceed"
+msgstr "Ingerlaqqigit"
+
+msgid "Profile"
+msgstr "Profiili"
+
+msgid "Project name"
+msgstr "Projektip atia"
+
+msgid "Public name"
+msgstr "Atitit tamaasa"
+
+msgid "Question"
+msgstr "Apeqqut"
+
+msgid "Question group"
+msgstr "Apeqquteqarfiit"
+
+msgid "Question templates"
+msgstr "Apeqqutit inissisimaffii (skabeloner)"
+
+msgid "Question to solicit possible whistleblowers"
+msgstr "Pasinapiluttunik kalerriisuusinnaasunik qinnuteqarnermut apeqqutit"
+
+msgid "Questionnaire"
+msgstr "Spørgeskema"
+
+msgid "Questionnaire answers"
+msgstr "Apeqquteqaatinut akissuteqaatit"
+
+msgid "Questionnaires"
+msgstr "Spørgeskema"
+
+msgid "Questions"
+msgstr "Apeqqutit"
+
+msgid "Receivers"
+msgstr "Tigusisussat"
+
+msgid "Recipient"
+msgstr "Tigusisoq"
+
+msgid "Recipient selection"
+msgstr "Tigusisussamik toqqaaneq"
+
+msgid "Recipients"
+msgstr "Tigusisussat"
+
+msgid "Recipients have requested you to fill an additional questionnaire."
+msgstr "Tigusisussat qinnuigivaatit immersugassaq ilaqqinnikoq immersoqqullugu"
+
+msgid "Recipients only"
+msgstr "Tigusisussat kisimi"
+
+msgid "Recipients selected:"
+msgstr "Tigusisussat toqqakkat:"
+
+msgid "Redact"
+msgstr "Aaqqissoruk"
+
+msgid "Refresh"
+msgstr "Opdatereruk"
+
+msgid "Regenerate"
+msgstr "Pinngoqqippoq"
+
+msgid "Regular expression"
+msgstr "Taaguutit naliginnaasut"
+
+msgid "Regular expression validator"
+msgstr "Taaguutit naliginnaasut uppernarsarneri"
+
+msgid "Remember your receipt for this report."
+msgstr "Nalunaarusiap allagartaa eqqaamassavat."
+
+msgid "Reminder date"
+msgstr "Ulloq eqqaasitsissut"
+
+msgid "Remove"
+msgstr "Peerlugu"
+
+msgid "Reopen"
+msgstr "Ammaqqiguk"
+
+msgid "Reply motivation"
+msgstr "Siunertaq akiguk"
+
+msgid "Reply to the request"
+msgstr "Qinnuteqaat akiguk"
+
+msgid "Report"
+msgstr "Nalunaarusiaq"
+
+msgid "Report date"
+msgstr "Nalunaarusiap ullua"
+
+msgid "Report statuses"
+msgstr "Nalunaarusiat killiffiit"
+
+msgid "Reports"
+msgstr "Nalunaarusiat"
+
+msgid "Request access to the whistleblower's identity"
+msgstr "Whistleblowerip kinaassusaa paasinissaanut piumaguk"
+
+msgid "Request date"
+msgstr "Qinnuteqarfissap ullua"
+
+msgid "Request motivation"
+msgstr "Siunertamik qinnuteqarneq"
+
+msgid "Request status"
+msgstr "Killiffimmik paasisaqarusulluni qinnuteqarneq"
+
+msgid "Request support"
+msgstr "Supportimiit ikiortinnissat qinnutigiguk"
+
+msgid "Requests"
+msgstr "Qinnuteqaatit"
+
+msgid "Require authentication"
+msgstr "Akuersissut piumasariuk"
+
+msgid "Require two factor authentication"
+msgstr "Marlunnut akuersissut piumasaqaataavoq"
+
+msgid "Reset"
+msgstr "Aallaqqaataanit aallartittussanngorlugu aaqqiisoq"
+
+msgid "Reset SMTP configuration"
+msgstr "SMTP-mut inissiisoq aallaqqaataanit aalartittussanngorlugu aaqqiguk"
+
+msgid "Reset notification templates to default"
+msgstr "Notifikationsskabelonit standardimut utertinniarlugit aallaqqaataanit aallartittusanngorlugu aaqqiguk"
+
+msgid "Reset reports"
+msgstr "Nalunaarusiat aallaqqaataaniit aallartittussanngukkit"
+
+msgid "Resource can only be accessed via the Tor network"
+msgstr "Tor-attaveqaat taamaallaat atorlugu iserfigineqarsinnaavoq"
+
+msgid "Resource not found"
+msgstr "Attaveqaat nassaarineqanngilaq"
+
+msgid "Restrict access to specific IP addresses"
+msgstr "IP-adressit aaliangersimasunut isersinnaatitaaneq killileruk"
+
+msgid "Returning whistleblowers"
+msgstr "Whistleblowerit uteqqittut"
+
+msgid "Revoke access"
+msgstr "Isersinnaatitaaneq utertiguk"
+
+msgid "Role"
+msgstr "Atuuffia"
+
+msgid "Roles enabled to use the platform without Tor"
+msgstr "Atuuffiit aktiverersimapput platformimut Tor-itaqanngitsoq atorsinnaanngortillugu"
+
+msgid "Root domain used for secondary sites"
+msgstr "Qupperneq pingaarneq nittartakkanut ineritinneqartunut allanut atorneqartoq"
+
+msgid "Row"
+msgstr "Kinguleriiaat"
+
+msgid "SMTP email address"
+msgstr "SMTP emailadresse"
+
+msgid "SMTP server address"
+msgstr "SMTP server adressia"
+
+msgid "SMTP server port"
+msgstr "SMTP server portia"
+
+msgid "Save"
+msgstr "Toqqoruk"
+
+msgid "Save all"
+msgstr "Tamaasa toqqukkit"
+
+msgid "Scan the QR code with the app"
+msgstr "App-ikkut QR kode skanneruk"
+
+msgid "Scheduled jobs"
+msgstr "Suliat pilersaarusiorneqarnikut"
+
+msgid "Score"
+msgstr "Score"
+
+msgid "Scoring system options"
+msgstr "System pointilersuummi iluarsiissutseqarsinnaaffik"
+
+msgid "Search"
+msgstr "Ujaruk"
+
+msgid "Security"
+msgstr "Isumannaassuseq"
+
+msgid "Select"
+msgstr "Qineruk"
+
+msgid "Select a file or drag it here."
+msgstr "Fil toqqaruk imaluunniit maannga nusuguk."
+
+msgid "Select all"
+msgstr "Tamaasa qinikkit"
+
+msgid "Select all recipients by default"
+msgstr "Nalinginnaasumik tigusisussat tamaasa toqqaqqaguk"
+
+msgid "Select an option"
+msgstr "Iluarsiissutseqarnissamut qinigaqarit"
+
+msgid "Select the recipients of your report"
+msgstr "Nalunaarusiannut tigusisussat toqqakkit"
+
+msgid "Select your language"
+msgstr "Oqaatsit qineruk"
+
+msgid "Selection box"
+msgstr "Toqqaaffissaq"
+
+msgid "Send"
+msgstr "Nassiguk"
+
+msgid "Send a test email to your email address."
+msgstr "Misiliummik immineq mailinnut nassitsigit."
+
+msgid "Send activation link"
+msgstr "Link aallartisarnissamut nassiguk"
+
+msgid "Send reset link"
+msgstr "Isertaat aallaqqaataanit aallartitussanngortinniarlugu linkimik nassiussigit"
+
+msgid "Set a reminder"
+msgstr "Eqqaasitsissummik ikkussigit"
+
+msgid "Set password"
+msgstr "Isissutissaq inissiguk"
+
+msgid "Set the value to 0 to disable this feature."
+msgstr "Nalinga 0-mut inissiguk funktion atorunnaarsinniarlugu"
+
+msgid "Set up encryption by providing a PGP public key"
+msgstr "PGP-matuersaat tamanut ammasoq atorlugu paasiuminaallisaaneq pilersiguk"
+
+msgid "Settings"
+msgstr "Aaqqissuussivik"
+
+msgid "Severity"
+msgstr "Ilumoorsaassusaa"
+
+msgid "Show"
+msgstr "Takujuk"
+
+msgid "Show channels in alphabetical order"
+msgstr "Kanaalit naqqinnerit tulleriinneri malillugit nuisikkit"
+
+msgid "Show recipients in alphabetical order"
+msgstr "Tigusisussat alfabeti malillugu nuisikkit"
+
+msgid "Show the questionnaire navigation interface"
+msgstr "Apeqqutini ujarliummut immersugassaq nuisiguk"
+
+msgid "Sign up"
+msgstr "Allatsigit"
+
+msgid "Silence email notifications"
+msgstr "Emailikkut allagarsisarneq nipaarutsiguk"
+
+msgid "Single-line text input"
+msgstr "Oqaasertai titarnermi ataatsimi immersorneqassaaq"
+
+msgid "Site"
+msgstr "Nittartagaq"
+
+msgid "Sites"
+msgstr "Nittartakkat"
+
+msgid "Size limit for file attachments"
+msgstr "Ilanngussat angissuserisinnaasaannut killiliussaq"
+
+msgid "Size:"
+msgstr "Angissuseq:"
+
+msgid "Skip the recipient account creation."
+msgstr "Tigusisussap kontoa sananeqarnera qaangeruk."
+
+msgid "Software version:"
+msgstr "Qarasaasiami programmit najoqquttallu versioniat:"
+
+msgid "Statistics"
+msgstr "Statistiki"
+
+msgid "Stats"
+msgstr "Statistiki"
+
+msgid "Status"
+msgstr "Qanoq issutsimik takussutissiaq"
+
+msgid "Status:"
+msgstr "Killiffik:"
+
+msgid "Step"
+msgstr "Allorneq"
+
+msgid "Steps"
+msgstr "Alloriarnerit"
+
+msgid "Strong"
+msgstr "Sakkortooq"
+
+msgid "Subdomain"
+msgstr "Qupperneq sunniuteqarfigisaq"
+
+msgid "Submissions disabled"
+msgstr "Nassiussat atorunnaarsinneqarput"
+
+msgid "Submit"
+msgstr "Nassiutiguk"
+
+msgid "Subscribed"
+msgstr "Pisartagaqalerpoq"
+
+msgid "Subscription date"
+msgstr "Pisartakkap ullua"
+
+msgid "Substatuses"
+msgstr "Killiffiit ataaniittut"
+
+msgid "Success!"
+msgstr "Iluatsippoq!"
+
+msgid "Sufficient"
+msgstr "Naammappoq"
+
+msgid "Surname"
+msgstr "Kinguliaq"
+
+msgid "Tax code"
+msgstr "Akileraaruttissap kodea"
+
+msgid "Template"
+msgstr "Skabelonit"
+
+msgid "Template override"
+msgstr "Ilisserummik immikkoortitsineq"
+
+msgid "Templates"
+msgstr "Skabelonit"
+
+msgid "Terms of service"
+msgstr "Atornissaanut malittarisassat"
+
+msgid "Test the configuration"
+msgstr "Inissiinermut misiliut"
+
+msgid "Text"
+msgstr "Allaaserisap oqaasertai"
+
+msgid "Text customization"
+msgstr "Allaatigisamut naleqqussarneq"
+
+msgid "Text shown after the user has selected the option."
+msgstr "Atuisup aalajangersakkat toqqarsimatillugit allaqqasut nuisatinneqartut."
+
+msgid "Text shown on top of the interface for selecting channels"
+msgstr "Paasissutissanik siaruarteriviup iluani qulaani allaqqasoq iserfissanut toqqaaviuvoq"
+
+msgid "Text shown upon negative answer"
+msgstr "Akissutip akuerineqanngitsup oqaasertaa"
+
+msgid "Thank you."
+msgstr "Qujanaq."
+
+msgid "The answer is too short"
+msgstr "Akissut naapallaarpoq"
+
+msgid ""
+"The chosen password is too weak. A valid password should be at least 12 "
+"characters long and contain a variety of characters including at least a "
+"lowercase character, a capital character, a number and a special character."
+msgstr "Isertaat atorniakkat nalunanngippallaarpoq. Isertaat ajunngittoq minnerpaamik 12-nik naqinneqassaaq assigiinngitsunillu naqinneqassallutik, minnerpaamik naqinneq mikineq ataaseq, naqinneq angineq ataaseq, kisitsiseq ataaseq aammalu naqinneq immikkuullarissoq ataaseq. "
+
+msgid "The code is either invalid or expired."
+msgstr "Isertaatit ajorpoq imaluunniit atorunnaarsimavoq."
+
+msgid "The connection is not secure."
+msgstr "Attaveqaat tutsuiginanngilaq"
+
+msgid ""
+"The following recipients will receive your report and could not be "
+"deselected:"
+msgstr "Tigusisussat uku nalunaarusiannik tigusissapput peerneqarsinnaanatillu:"
+
+msgid ""
+"The following step-by-step procedure will guide you through creating your "
+"whistleblowing platform."
+msgstr "Najoqqutassat tulleriissakkat uku pasinapiluttumik kalerriinermi paasissutissanik siammarterivimmi pilersitsiniarnerni aqqutissiutissavaatsit. "
+
+msgid "The link will expire in 7 days."
+msgstr "Linkeq ullut 7 qaangiuppata qaangiuttuussaaq"
+
+msgid ""
+"The manual configuration wizard will guide you through the setup of HTTPS "
+"from an alternative Certificate Authority."
+msgstr "Najoqqutassiaq manuelimik inissiinissamut, HPPTS-nut inissiinissamut ilitsersuipput. "
+
+msgid "The new password must be different from the current one."
+msgstr "Isertaateq nutaaq allaanerussooq isertaatip siulianiit."
+
+msgid ""
+"The platform is still not configured for HTTPS connections and should "
+"therefore only be used for testing purposes."
+msgstr "Paasissutissanik siammarterivik suli HTTPS-attaveqaatinut atassuserneqanngilaq taamaattumillu misileraanernut kisimi atorneqartariaqarluni. "
+
+msgid ""
+"The platform must be reachable through a public IP address and the selected "
+"hostname must have a DNS record referencing that address."
+msgstr "Paasissutissanik siammarterivik tamanut IP-adresse atorneqarsinnaasoq aqqutigalugu iserfigineqarsinnaavoq, ingerlatsisullu atia toqqarneqarsimasoq DNS-posteqassaaq uunga adressemut ineersuussisumik. "
+
+msgid ""
+"The platform supports the configuration of HTTPS through this interface."
+msgstr "Paasissutissanik siaruarterivik una aqqutigalugu HTTPS-imut ilusilersueqataavoq."
+
+msgid "The provided recovery key is invalid."
+msgstr "Atuutilersinneqaqqinnissaanut matuersaat atuutinngilaq."
+
+msgid "The provided reset token is invalid or expired."
+msgstr "Isertaativit taarsernissaanut iserfissaq atuutinngilaq qaangiussimalluniluunniit."
+
+msgid "The receipt is either invalid or the report has expired."
+msgstr "Allagartaq ajorpoq imaluunniit nalunaarusiaq qaanngiuttoorsimavoq."
+
+msgid "The specified input is not valid."
+msgstr "Ilassuteqaatiginiagaq atuutinngilaq."
+
+msgid "The specified input is not valid:"
+msgstr "Ilassuteqaatiginiagaq atuutinngilaq."
+
+msgid "The specified old password is not valid"
+msgstr "Isertaatitoqaq atuutsinneqanngilaq"
+
+msgid "The two passwords do not match"
+msgstr "Isertaatit assigiinngillat"
+
+msgid "The upload request exceeds the size limit"
+msgstr "Immiunneqarsinnaaneranut angissusissamut killigititaasoq qaangerneqarpoq"
+
+msgid "The user will be forced to change its password on next login."
+msgstr "Atuisoq tulliani login-ilerpat pinngitsaalisamik isertaat allanngortinneqaqquneqassaaq"
+
+msgid "The validation link is either incorrect or has expired."
+msgstr "Uppernarsaasiinermut iserfissaq kukkusuunngikkuni qaangiussimavoq."
+
+msgid "The whistleblower has already read the last update"
+msgstr "Whistleblowerip nutaarsiassaq kingulleq atuareersimavaa"
+
+msgid "The whistleblower has not read the last update yet"
+msgstr "Whistleblowerip nutaarsiassaq kingulleq suli atuarsimanngilaa"
+
+msgid "Then, copy and paste the following address into the Tor Browser:"
+msgstr "Adressea kopi-ruk Tor-browserimilu ikkullugu:"
+
+msgid ""
+"This custom text is no longer displayed on the platform. The original text "
+"has either changed or been removed."
+msgstr "Oqaasertaliussaq atuisumut nalimmassagaq nuisatinneqarunnaarpoq. Oqaasertaliussaq siulleq allanngortinneqarsimanngikkuni peerneqarsimavoq."
+
+msgid "This domain name is not available."
+msgstr "Atuisup atererusutaa atorsinnaanngilaq."
+
+msgid "This field is mandatory"
+msgstr "Immersugassaq una pinngitsuugassaanngilaq"
+
+msgid "This is a demo platform, please do not use it for real submissions."
+msgstr "Una paasissutissanik siammarterivimmut nittarsaataavoq, taamaattumillu atugassanut nassiunneqartussanut atorneqassanani."
+
+msgid "This user has not performed the first login yet."
+msgstr "Atuisoq una suli login siulleq pisimanngilaa."
+
+msgid "Threshold"
+msgstr "Matup alloriusaa"
+
+msgid "Title"
+msgstr "Qulequtaq"
+
+msgid "To"
+msgstr "Uunga"
+
+msgid "To:"
+msgstr "Uunga:"
+
+msgid "Tor"
+msgstr "Tor"
+
+msgid "Tor Onion Service"
+msgstr "Tor Onion Service"
+
+msgid "Transfer"
+msgstr "Nuussineq"
+
+msgid "Transfer access"
+msgstr "Isertaat nuutsiguk"
+
+msgid "Trigger conditions"
+msgstr "Ingerlatitseqqiinissamut piumasaqaatit "
+
+msgid "Trigger question"
+msgstr "Apeqqummik aallarniut"
+
+msgid "Triggered by score:"
+msgstr "Score-ip kingunerisaa:"
+
+msgid "Turn on email notifications"
+msgstr "Emailikkut nalunaarutisisarneq ikiguk"
+
+msgid "Type"
+msgstr "Qanoq issuseq"
+
+msgid "Type your new password again"
+msgstr "Isertaat nutaaq allaqqiguk"
+
+msgid "URL redirects"
+msgstr "URL-allamukaataat"
+
+msgid "Unhide"
+msgstr "Nuisiguk"
+
+msgid "Unselect"
+msgstr "Namminissarsiunngitsoq"
+
+msgid "Upload"
+msgstr "Upload"
+
+msgid "Upload a file:"
+msgstr "Fileq uploadteruk: "
+
+msgid "Upload date"
+msgstr "Uploadterfiata ullua"
+
+msgid "Use as default"
+msgstr "Malittarisassatut atoruk"
+
+msgid ""
+"Use the 16 digit receipt to log in. It will allow you to view any messages "
+"we sent you, and also to add extra info."
+msgstr "Allagartaq 16-nik kisitsisitalik iserniarnermi atoruk. Taanna atorlugu allagarsiat nassiussimasagut tamaasa takusinnaalissavatit paasissutissanillu allanik ilanngussisinnaallutit. "
+
+msgid "Use the first site for administrative purposes only"
+msgstr "Nittartagaq siulleq taamaallaat allaffissornikkut siunertanut atoruk"
+
+msgid "User"
+msgstr "Atuisoq"
+
+msgid "Username"
+msgstr "Atuisup atia"
+
+msgid "Users"
+msgstr "Atuisut"
+
+msgid ""
+"Using automatic HTTPS configuration will handle the entire process of "
+"requesting, enabling and renewing certificates from the Let's Encrypt "
+"Certificate Authority."
+msgstr "HTTPS-nammineerluni ilusilersuisoq atorlugu Let's Encrypt Certificate Authority-mit allagartat atuutilersinneqarnissaannut nutarternissaannullu ingerlatsinerit isumagineqartarput."
+
+msgid "Valid until:"
+msgstr "Atuuttuusoq uunga tungaanut:"
+
+msgid "Validation of email address change in progress."
+msgstr "Emailadresse allanngorsimaneranut akuerineqarnissaa suliaq ingerlavoq."
+
+msgid "Value"
+msgstr "Nalinga"
+
+msgid "Video"
+msgstr "Video"
+
+msgid "View"
+msgstr "Takujuk"
+
+msgid "View your report"
+msgstr "Nalunaarusiat takujuk"
+
+msgid "Voice"
+msgstr "Nipeq"
+
+msgid "Waiting for authorization"
+msgstr "Akuerineqarnissaminut utaqqivoq"
+
+msgid "Waiting for the file(s) to finish uploading."
+msgstr "Filit uploadternerata naammassinissaa utaqqineqarput."
+
+msgid "Warning"
+msgstr "Mianersoqqussut"
+
+msgid ""
+"We advise selecting this option if you would like to protect data from being"
+" lost in the situation where recipients lose their passwords. On the other "
+"hand, we would not advise using this feature if you want to setup a system "
+"where only recipients are able to access submissions."
+msgstr "Innersuutigissavarput, aalajangersagaq una paasissutissaativit tigusisussap isertaatimi annaaneratigut tammannginnissaannut illersorniarlugit  toqqassagit. Illua tungaani una atuuffik systemimik  tigusisussaq kisimi nassiunneqartunut isersinnaalertussanngorlugu pilersitserusukkuit  innersuussutiginngilarput."
+
+msgid ""
+"We recommend that you access the “Preferences” section in order to retrieve "
+"your “Account Recovery Key” and store it safely. This key will be necessary "
+"to recover your access to the platform and to your data in case you forget "
+"your password."
+msgstr "Innersuutigaarput \"aalajangersakkat\" iserfigisinnaanngussagitit \"kontop atuutilersinneqarnissaanut matuersaatip\" aanissaanut isumannanngitsumullu toqqorlugu. Matuersaat taanna isertaatit puigorsimagukku paasissutissanik siammarterivimmut paasissutissaatinnullu isertaativit atuutilersinneqaqqinnissaanut pisariaqassaaq."
+
+msgid "We will try to get back to you as soon as possible."
+msgstr "Piaarnerpaamik uterfiginiarsarissavarsi."
+
+msgid "Weak"
+msgstr "Sanngiitsoq"
+
+msgid "Welcome!"
+msgstr "Tikilluarit!"
+
+msgid "Whistleblower"
+msgstr "Whistlebloweri"
+
+msgid "Whistleblower's last access"
+msgstr "Whistleblowerip kingullermik iserfia"
+
+msgid "Whistleblowing Policy"
+msgstr "Whistleblowerip politikkia"
+
+msgid "Whistleblowing button"
+msgstr "Whistleblowernermi tuugassaq"
+
+msgid "Width"
+msgstr "Silissuseq"
+
+msgid "Yes"
+msgstr "Aap"
+
+msgid ""
+"You are connecting to the server without anonymity and this server supports "
+"only anonymous submissions"
+msgstr "Kinaassutsinnik isertuussinak server-imut attaveqarputit, uanilu server-imi nassiussat kinaassutsimik isertuussiviusut kisimik tapersersorneqarput"
+
+msgid "You are operating on behalf of a whistleblower."
+msgstr "Pasinapiluttumik kalerriisoq sinnerlugu ingerlatsivutit."
+
+msgid ""
+"You are strongly advised to visit this site using the app called Tor "
+"Browser, that protects your identity."
+msgstr "App Tor Browser kinaassutsinnik illersuisoq atorlugu nittartakkamut isernissat sakkortuumik innersuussutigineqarpoq."
+
+msgid "You have completed the platform activation."
+msgstr "Paasissutissanik siammarteriviup atuutilersinnissaa iluatsippat. "
+
+msgid "You have completed the platform wizard."
+msgstr "Paasissutissanik siammarterivimmi ikiuut iluatsippat. "
+
+msgid "You have reached the maximum number of selectable recipients."
+msgstr "Tigusisussat amerlassusigisinnaasaannut killigititaq tikissimavat. "
+
+msgid "You must select at least one recipient."
+msgstr "Tigusisussamik minnerpaamik ataatsimik toqqaasaatit."
+
+msgid "Your new email address has been validated."
+msgstr "Emailadresse nutaaq uppernassusaa akuerineqarpoq"
+
+msgid "Your report was successful."
+msgstr "Nalunaarusiat iluatsippoq."
+
+msgid "Your whistleblowing platform is almost ready!"
+msgstr "Pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit naammassingajalerpoq!"
+
+msgid "days"
+msgstr "ullut"
+
+msgid "file unavailable"
+msgstr "Fil-i atorsinnaanngilaq"
+
+msgid "megabytes"
+msgstr "megabytit"
+
+msgid "percentage"
+msgstr "Procentit"
+
+msgid "please enter a valid email address."
+msgstr "Mail adresse ajunngittoq allaguk"
+
+msgid "please enter numbers only."
+msgstr "Normut kisimi allakkit."
+
+msgid "seconds"
+msgstr "Sekundit"
+
+msgid "File a report"
+msgstr "Nalunaarusiamik nassiussigit"
+
+msgid "Select a reporting channel:"
+msgstr "Nalunaarusiaq sukkut nassiutissanersoq qineruk:"
+
+msgid "Please summarize your report in a few words."
+msgstr "Qinnuigaakkit isumaliutissiissutit oqaatsit ikittut atorlugit eqikkassagit."
+
+msgid "Describe your report in detail."
+msgstr "Nalunaarusiat allaqqissaaruk. "
+
+msgid "Where did the facts happen?"
+msgstr "Sumi piva?"
+
+msgid "When did the facts happen?"
+msgstr "Qanga piva?"
+
+msgid "I'm a victim"
+msgstr "Ilisimannittuuvunga/takunnittuuvunga"
+
+msgid "I'm involved in the facts"
+msgstr "Pisoq akuuffigaara"
+
+msgid "I witnessed the facts in person"
+msgstr "Namminneerlunga pisumut takunnittuuvunga"
+
+msgid "I was personally told by a direct witness"
+msgstr "Ilisimannittumit toqqaannartumik ilisimatinneqarpunga"
+
+msgid "It is a rumor I heard"
+msgstr "Tusatsiagaavoq tusagara"
+
+msgid "How are you involved in the reported facts?"
+msgstr "Paasissutissanut nalunaarusiarineqarsimasunut qanoq attuumassuteqarpit?"
+
+msgid "Do you have evidence to support your report?"
+msgstr "Nalunaarusiassannut tunngavilersuutitut uppernarsaatissaqarpit?"
+
+msgid "Please attach the evidence to support your report."
+msgstr "Nalunaarutinnut tunngavilersuutitut uppernarsaatit uiggiutikkit."
+
+msgid "Please describe the evidence in detail."
+msgstr "Uppernarsaat nassuiaatitalersorujuk."
+
+msgid ""
+"A thorough description of the submitted evidence enhances our ability to "
+"evaluate claims and investigate. Please take care to reference significant "
+"portions of any videos, images or documents submitted."
+msgstr "Uppernarsaatinut nassiunneqarsimasunut sukumiisumik nassuiaasertaliineq taamaassorinninnernik nalilersuinissatsinnut misissuinissatsinnullu iluaqutaassaaq. Aalasulianut, assinut, allagaatinulluunniit nassiunneqartunut innersuussinerit peqqissaarutikkit. "
+
+msgid "Have you reported the facts to other organizations and/or individuals?"
+msgstr "Paasissutissanik allanut siunertaqaqatigiiffinnut inunnulluunniit ataasiakkaanut nalunaarutiginnissimavit?"
+
+msgid ""
+"Please list the organizations and/or individuals you have informed about "
+"these facts."
+msgstr "Siunertaqaqatigiiffiit aamma/imaluunniit inunnuit paasissutissiiffigisimasatit allakkit."
+
+msgid ""
+"Have these organizations investigated your claims? If so, what was the "
+"outcome?"
+msgstr "Siunertaqaqatigiiffiit taakku taamaassorinninnerit pisissorsimavaat? Taamaappat inerniliussaq suua?"
+
+msgid "What is the outcome you want to achieve with our support?"
+msgstr "Suna inerniliussaq kaammattorneqarnerni angorusuppiuk?"
+
+msgid "Would you like to tell us who you are?"
+msgstr "Kinaanersutit oqaluttuukkusuppitigut?"
+
+msgid "First name"
+msgstr "Atit"
+
+msgid "Last name"
+msgstr "Naggatit"
+
+msgid "Alternative contact method"
+msgstr "Attaveqaasersuutitut periuseq alla "
+
+msgid "I prefer to be contacted via this platform only"
+msgstr "Paasissutissanik siammarterivik una kisiat atorlugu attavigineqarnissara kissaatigaara"
+
+msgid "Other"
+msgstr "Allat"
+
+msgid "Specify"
+msgstr "Nalunaarutiginninneq"
+
+msgid "Dear {RecipientName},"
+msgstr "Tigusisussaq {RecipientName},"
+
+msgid ""
+"You're receiving this email because a user account has been created for you "
+"on the system: {Site}"
+msgstr "Una e-mail tiguat ilinnut systemimi atuisutut kontomik pilersitsisoqarsimanera pillugu: {Site} "
+
+msgid "Username: {Username}"
+msgstr "Atuisutut taaguutit: {Username}"
+
+msgid "Activation link: {Url}"
+msgstr "Link atulernissaanut: {Url}"
+
+msgid ""
+"Please click on the activation link to proceed with the account activation "
+"and to set your user password."
+msgstr "Kontop atorsinnaanngornissaa ingerlateqqikkumallugu atuutilersitsinissamut iserfissaq una tooruk isertaatissallu aalajangerlugu."
+
+msgid ""
+"After successful activation you will be able to access the system via the "
+"following link: {LoginUrl}"
+msgstr "Atuutilersitsineq iluatsippat una iserfissaq aqqutigalugu systemimut isersinnaanngussaatit: {LoginUrl}"
+
+msgid "Kind regards,"
+msgstr "Inussiarnersumik inuulluaqqusillunga,"
+
+msgid "Account activation"
+msgstr "Konto atuutilernissaa"
+
+msgid "Your whistleblowing platform is now accessible at:"
+msgstr "Maanna pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit maana iserfigisinnaanngorpat: "
+
+msgid "To log in, visit:"
+msgstr "Isernissannut, una takuguk:"
+
+msgid "Users' credentials:"
+msgstr "Atuisoq pillugu kinaassutsimut paasissutissat:"
+
+msgid "The platform will be automatically deleted on:"
+msgstr "Paasissutissanik siammarserivik peerneqassaaq ulloq:"
+
+msgid "Access instructions"
+msgstr "Atornissaanut ilitsersuut"
+
+msgid ""
+"The number of activities recently detected appears to be higher than usual."
+msgstr "Pisut amerlassusaat kingullertigut naliginnaasunit amerlanerusutut nalunaarsorneqarsimasut."
+
+msgid ""
+"This could be a sign of an attack (for example, someone flooding your server"
+" with bogus information) or just a usage spike due to an increased "
+"visibility of your project."
+msgstr "Una innimiiserfigitinnermut ersiutaasinnaavoq (assersuutigalugu arlaata serverit paasissutissanik eqqunngitsunik immersoraa) imaluunniit suliniutivit ersarinneratigut atorneqarnera annertusisoq."
+
+msgid "Examine the issue to determine whether it is legitimate or not."
+msgstr "Ajornartorsiut inatsisitigut unioqqutitsinerunersoq misissoruk."
+
+msgid "The activities with unusual stats are:"
+msgstr "Pisut naatsorsueqqissaarnernik naliginnaanngitsortallit:"
+
+msgid "Available disk space: {FreeMemory}/{TotalMemory}"
+msgstr "Disk inissaqartoq: {FreeMemory}/{TotalMemory}"
+
+msgid ""
+"The server cannot guarantee that a new report can be stored, so submissions "
+"have been disabled."
+msgstr "Serverip nalunaarusiap nutaap toqqorneqarnissaa qularnaarsinnaanngilaq, taamaattumik nassiunneqarsimasut atorunnaarsinneqarsimapput. "
+
+msgid ""
+"Please consider asking your technical support to create more disk space on "
+"the server."
+msgstr "Teknikkikkut siunnersortinnut serverimi diskip inissaqarnerulernissaata noqqaassutiginissaa eqqarsaatigiuk."
+
+msgid ""
+"GlobaLeaks technology includes a server status checking component which will"
+" alert you in case something requires your attention."
+msgstr "GlobaLeaks-teknologi serverip killiffianik aqutsisinnaasumik atortoqarportaaq, taannalu arlaannik eqqumaffigisassaqarpat aarlerisaarissaaq."
+
+msgid ""
+"For more information, log in to the Administration interface and look at the"
+" \"System Stats\" and \"Anomalies\" sections."
+msgstr "Paasissutissat sukumiinerusut piumallugit allaffissornikkut aaqqissuiffik iserfigiuk immikkoortorlu \"Systemimik naatsorsueqqissaarnerit\" aamma \"Pissusissamisuunngitsut\"."
+
+msgid "Anomaly detected in {NodeName}"
+msgstr "Pissusissamisuunngitsunik nanissaasoqarpoq uani  {NodeName}"
+
+msgid ""
+"This is an email to inform you that the PGP key of the following users is "
+"going to expire or has already expired:"
+msgstr "Una e-mailiuvoq ilinnik PGP-matuersaatip qaangiutilerneranik imaluunniit qaangiutereersimaneraneranik ilisimatitsisoq:"
+
+msgid ""
+"Without a valid PGP key, the system will not be able to send them encrypted "
+"notifications."
+msgstr "PGP-matuersaammik atuuttumik peqanngikkaanni systemi nalunaarutinik illersornilinnik nassiussisinnaanngilaq."
+
+msgid "PGP key expiration alert"
+msgstr "PGP-matuersaat qaangiuttoornissaanut mianersoqqussut"
+
+msgid "A new whistleblowing site has been registered."
+msgstr "Pasinapiluttumik kalerriinermi nutaamik nittartartakkamik nalunaarsugaqartoqarsimavoq."
+
+msgid "Registration data:"
+msgstr "Paasissutissat nalunaarsorneqartut:"
+
+msgid "Site: {Url}"
+msgstr "Nittartagaq: {Url}"
+
+msgid "Name: {Name}"
+msgstr "Ateq: {Name}"
+
+msgid "Email: {Email}"
+msgstr "Email: {Email}"
+
+msgid "New whistleblowing site registered"
+msgstr "Pasinapiluttumik kalerriinermi quppernermik nutaamik nalunaarsugaqarpoq"
+
+msgid ""
+"This is a test email sent out from the platform's administrative interface."
+msgstr "Una e-mailiuvoq siammarterivimmit allaffissornikkut aaqqissuiffianit misiliut."
+
+msgid ""
+"Reception of this email indicates that the server was able to authenticate "
+"to and interact with the SMTP mail server."
+msgstr "Uuminnga emailimik tigusineq isumaqarpoq serveri akuersisinnaasimasoq SMTP-mailserverimullu attaveqarsinnaasimalluni."
+
+msgid "Test email"
+msgstr "Email misiliut"
+
+msgid ""
+"This is an email to notify you that a request has been made to change your "
+"email address to {NewEmailAddress}."
+msgstr "Una e-maili ilinnut {NewEmailAddress}-mut e-mailadressevit allanngortinneqarnissaanik kissaateqartoqarsimaneranik ilisimatitsisuuvoq."
+
+msgid "Click the following link to validate this change:"
+msgstr "Allannguut uppernarsarniarlugu link tulliuttoq tooruk:"
+
+msgid ""
+"If you didn't request this change, change your password and contact your "
+"system administrator."
+msgstr "Allannguut una qinnutigisimanngikkukku isertaatitut kodet allanngortissavat systemimillu allaffissornikkut ingerlatsivik attavigalugu."
+
+msgid "Email change request"
+msgstr "Email allangortinneqaqquvoq"
+
+msgid "From: {Author}"
+msgstr "Uannga: {Author}"
+
+msgid "Date: {EventTime}"
+msgstr "Ulloq: {EventTime}"
+
+msgid "From: Whistleblower"
+msgstr "Uannga: Whistlebloweri"
+
+msgid "Date: {SubmissionDate}"
+msgstr "Ulloq: {SubmissionDate}"
+
+msgid "Label: {TipLabel}"
+msgstr "Allagartaa: {TipLabel}"
+
+msgid "Status: {TipStatus}"
+msgstr "Killiffik: {TipStatus}"
+
+msgid ""
+"The HTTPS certificate loaded on the platform is about to, or has already "
+"expired."
+msgstr "HTTPS-allagartaq paasissutissanik siammarterivimmi aaneqarsimasoq qaangiutinngujuunngikkunik qaangiutereersimavoq."
+
+msgid "Expiration date: {ExpirationDate}"
+msgstr "Ulloq atorunnaarfissaq: {ExpirationDate}"
+
+msgid ""
+"Without a valid certificate, the platform will be accessible in a secure way"
+" only via Tor."
+msgstr "Atuuttumik allagartaqartigani paasissutissanik siammarterivik taamaallaat isumannaatsumik Tor aqqutigalugu ingerlasinnaavoq. "
+
+msgid "Log in to solve the issue."
+msgstr "Ajornartorsiut aaqqiissuteqarfiginiarlugu iserit."
+
+msgid "Expiration alert for HTTPS certificate"
+msgstr "HTTPS-allagartap qaangiutilernera pillugu aarlerisaarut"
+
+msgid ""
+"The automatic HTTPS certificate renewal scheduled for today just failed."
+msgstr "HTTPS-certifikat ullumikkumut pilersaarutaagaluaq iluatsinngitsoorpoq"
+
+msgid "The system will keep trying."
+msgstr "Systemi misileeqattaasooq."
+
+msgid "Failed HTTPS certificate renewal"
+msgstr "HTTPS-mik nutarteriniarneq iluatsinngitsoorpoq"
+
+msgid ""
+"This is an email to notify you that a custodian has authorized you to access"
+" to the whistleblowing identity for the report {TipNum}."
+msgstr "Tassani emailikkut nalunaarfigineqarputit depotforvalterip pisinnaatikkaatit nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaatillutit {TipNum}."
+
+msgid "The report can be accessed at:"
+msgstr "Nalunaarusiaq uani takuneqarsinnaavoq: "
+
+msgid "Access to whistleblower's identity authorized"
+msgstr "Whistleblowerip kinaassusersinneqarnissaanut akuerineqarpoq"
+
+msgid ""
+"This is an email to notify you that a custodian has denied you access to the"
+" whistleblowing identity for the report {TipNum}."
+msgstr "Tassani emailikkut nalunaarfigineqarputit depotforvalterip nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaanissat akuerinngikkaa {TipNum}."
+
+msgid "Access to whistleblower's identity denied"
+msgstr "Whistleblowerip kinaassusaa paasinissaanut itigartinneqarpoq"
+
+msgid ""
+"This is an email to notify you that a recipient has requested access to the "
+"whistleblower's identity for the report {TipNum}"
+msgstr "Una e-mailiuvoq tigusisup pasinapiluttumik kalerriisup nalunaarutiginninnermi kinaassusaanik paasinnikkusulluni isersinnaanissamik kissaateqarsimaneranik ilisimatitsisoq {TipNum}"
+
+msgid "The request can be accessed at:"
+msgstr "Qinnuteqaat uani takuneqarsinnaavoq: "
+
+msgid "New request of access to a whistleblower's identity"
+msgstr "Pasinapiluttumik kalerriisup kinaassusaanik paasinnikkusulluni kissaateqarneq nutaaq"
+
+msgid ""
+"This is an email to notify you that the whistleblower for the report "
+"{TipNum} has provided their identity."
+msgstr "Una e-mail ilinnik pasinapiluttumik kalerriisup kinaassutsimut paasissutissanik {TipNum} ilisimatitsineranik nalunaartoq."
+
+msgid "The whistleblower has provided their identity"
+msgstr "Pasinapiluttumik kalerriisup kinaassutsimut paasissutissani nalunaarutigai"
+
+msgid ""
+"You're receiving this email because a password reset has been requested for "
+"the account: {Username}"
+msgstr "Una e-maili kontomut {Username} isertaatip allanngortinneqarnissaata qinnutigineqarsimanera pillugu tiguat"
+
+msgid ""
+"If you didn't make this request, you may safely ignore and delete this "
+"email."
+msgstr "Qinnutigisimanngikkukku nammineerlutit una qaangiinnarsinnaavat e-maililu peerlugu."
+
+msgid "You can confirm your request by clicking the following link:"
+msgstr "Qinnutigisimanera link tulliuttoq toorlugu uppernarsarsinnaavat:"
+
+msgid "Password reset instructions"
+msgstr "Isertaatit aallaqqaataaniit aallartitussanngorlugu ilitsersuut"
+
+msgid ""
+"This is an email to inform you that your PGP key is expiring or has already "
+"expired."
+msgstr "Una e-mail ilisimatitsissutaavoq PGP-matuersaatippit qaangiutingajalerneranik imaluunniit qaangiutiliivinneranik ilisimatitsisoq. "
+
+msgid ""
+"You should extend its validity and update the key present on the platform, "
+"or upload a new key."
+msgstr "Paasissutissanik siammarterivimmi matuersaat nutartertariaqarpat atuuffialu sivitsorlugu imaluunniit nutaamik matuersaammik aallerlutit. "
+
+msgid ""
+"Without a valid PGP key, the system won't be able to encrypt data provided "
+"to you."
+msgstr "PGP-matuersaammik atuuttumik peqanngikkaanni paasissutissanik ilinnut tunniunneqartunik paasiuminaallisaaneq atuussinnaanngilaq."
+
+msgid "Click the link to activate the platform:"
+msgstr "Paasissutissanik siammarterivik atuutilersinniarlugu link iserfigiuk:"
+
+msgid "Activation"
+msgstr "Ikillugu/aallartillugu"
+
+msgid "A software update is available."
+msgstr "Software nutarterneqarsinnaanera periarfissaavoq."
+
+msgid "It is good security practice to keep the platform up to date."
+msgstr "Paasissutissanik siammarteriviup nutartillattaartarnissaa sillimaniarnermut ileqqorissaarneruvoq."
+
+msgid ""
+"To learn about new features and bug fixes in the new version consult the "
+"change log at: {ChangeLogUrl}"
+msgstr "Atuuffiit nutaat kukkunernillu aaqqiissutit nutaat quppernermi nutartikkami takujumallugit allannguutinut takussutissat iserfigikkit: {ChangeLogUrl}"
+
+msgid ""
+"For instructions on software updates, please refer to the documentation at: "
+"{UpdateGuideUrl}"
+msgstr "Softwaremik nutarterinissamut ilitsersuutip takunissaanut allagaateqarfik innersuussutigineqarpoq: {UpdateGuideUrl}"
+
+msgid ""
+"This is an email to notify you that a recipient has granted you access to "
+"one or more reports."
+msgstr "Una e-mailiuvoq ilinnik nalunaarusiap imaluunniit nalunaarusiat takunissaanut periarfissinneqarninnik nalunaartoq. "
+
+msgid "New report"
+msgstr "Nalunaarusiaq nutaaq"
+
+msgid "One or more reports are expiring and will be soon deleted."
+msgstr "Nalunaarusiaq imaluunniit nalunaarusiat qaangiutiliivipput peerneqassallutillu. "
+
+msgid "The earliest expiration date is {EarliestExpirationDate}."
+msgstr "Piaarnerpaamik ulloq qaangiuttoorfissaa {EarliestExpirationDate}"
+
+msgid "Please remember to check them before they are deleted."
+msgstr "Eqqaamaguk misissoqqaarnissai peerneqannginneranik."
+
+msgid "Some reports will expire soon"
+msgstr "Nalunaarusiat ilaasa atorunnaarsinneqangajalerput"
+
+msgid "This is an email to notify you the reception of a new report."
+msgstr "Una e-mailiuvoq nalunaarusiamik nutaamik tigusisoqarsimaneranik ilisimatitsisoq. "
+
+msgid ""
+"This is an email to notify you that the reminder date for one or more "
+"reports has been met."
+msgstr "Una e-mailiuvoq ilinnik nalunaarusiap imaluunniit nalunaarusiat eqquutsinneqarsimaneranik ullormik eqqaasitsissutaasoq."
+
+msgid "Reminder"
+msgstr "Eqqaasitsissut"
+
+msgid "This is an email to notify that an existing report has been updated."
+msgstr "Una maileq ilinnik nalunaarusiat tunniutereerneqarsimasup nutarterneqarsimaneranik ilisimatitsisuuvoq. "
+
+msgid "Report updated"
+msgstr "Nalunaarusiaq nutarterneqarpoq"
+
+msgid "This email is to remind you the presence of unread or updated reports."
+msgstr "Una e-maileq ilinnik nalunaarusianik atuarneqarsimanngitsunik nutarterneqarsimasunilluunniit eqqaasitsissutaavoq."
+
+msgid "Reminder about unread or updated reports"
+msgstr "Nalunaarusianik atuarneqarsimanngitsunik nutarterneqarsimasunilluunniit eqqaasitsissut. "
+
+msgid "Role: {Role}"
+msgstr "Atuuffia: {Role}"
+
+msgid "Password: {Password}"
+msgstr "Isertaat: {Isertaat}"

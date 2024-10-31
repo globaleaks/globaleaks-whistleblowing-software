@@ -1,0 +1,39 @@
+// GlobaLeaks Visual Identity Colors
+// https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/globaleaks-brand-guidelines.pdf
+
+$blue:       #3679BB;
+$red:        #DE1B1B;
+$yellow:     #FFD644;
+
+$white:      #FFF;
+
+$gray-100:   #F5F7FA;
+$gray-200:   #EBEFF5;
+$gray-300:   #DDE3ED;
+$gray-400:   #C8D1E0;
+$gray-500:   #AFBACC;
+$gray-600:   #8E99AB;
+$gray-700:   #707A8A;
+$gray-800:   #58606E;
+$gray-900:   #434A54;
+$black:      #1D1F24;
+
+$indigo:     $blue;
+$purple:     $red;
+$pink:       $red;
+$orange:     $yellow;
+$green:      $blue;
+$teal:       $blue;
+$cyan:       $blue;
+
+$primary:    $blue;
+$secondary:  $gray-800;
+$success:    $blue;
+$info:       $blue;
+$warning:    $yellow;
+$danger:     $red;
+$light:      $gray-100;
+$dark:       $gray-900;
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";

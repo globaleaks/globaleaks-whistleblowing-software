@@ -21,8 +21,8 @@ class SecuritytxtHandler(BaseHandler):
 
         date = datetime_now() + timedelta(days=365)
 
-        data = "Policy: https://github.com/globaleaks/GlobaLeaks/security/policy\n" \
-               "Contact: https://github.com/globaleaks/GlobaLeaks/security/advisories/new\n" \
+        data = "Policy: https://github.com/globaleaks/globaleaks-whistleblowing-software/security/policy\n" \
+               "Contact: https://github.com/globaleaks/globaleaks-whistleblowing-software/security/advisories/new\n" \
                "Expires: " + datetime_to_ISO8601(date)
 
         return data

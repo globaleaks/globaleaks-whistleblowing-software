@@ -1,0 +1,10 @@
+#!/usr/bin/fontforge
+
+# Open the font file
+Open($1)
+
+# Perform some operations, for example, generating a new font
+Generate($1:r + ".ttf")
+
+# Close the font
+Close()

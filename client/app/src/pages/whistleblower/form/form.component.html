@@ -1,9 +1,11 @@
-<div *ngFor="let row of rows;let fieldRow = index" class="row">
-    <ng-container *ngFor="let field of row | orderBy:'x' let fieldCol = index">
-        <ng-container *ngIf="field.enabled">
-            <div [ngClass]="fieldUtilitiesService.getClass(field, row.length)">
-                <src-form-field-inputs [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [fieldEntry] = fieldEntry [identity_provided]=identity_provided [uploads]="uploads" [entry]="entry" [fields]="fields" [step]="step" [displayErrors]="displayErrors" [index]="index" [submission]="submission" [answers]="answers" [stepId]="stepId" [fieldCol]="fieldCol" [fieldRow]="fieldRow" [field]="field"></src-form-field-inputs>
-            </div>
-        </ng-container>
-    </ng-container>
-</div>
+@for (row of rows; track row; let fieldRow = $index) {
+  <div class="row">
+    @for (field of row | orderBy:'x' ;let fieldCol = $index; track field) {
+      @if (field.enabled) {
+        <div [ngClass]="fieldUtilitiesService.getClass(field, row.length)">
+          <src-form-field-inputs [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [fieldEntry] = fieldEntry [identity_provided]=identity_provided [uploads]="uploads" [entry]="entry" [fields]="fields" [step]="step" [displayErrors]="displayErrors" [index]="index" [submission]="submission" [answers]="answers" [stepId]="stepId" [fieldCol]="fieldCol" [fieldRow]="fieldRow" [field]="field"></src-form-field-inputs>
+        </div>
+      }
+    }
+  </div>
+}

@@ -1,0 +1,80 @@
+<div id="TipInfoBox" class="card card-default">
+  <div class="card-header clearfix" [attr.data-cy]="'identity_toggle'" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+    <span>{{'Identity' | translate}}</span>
+    <span class="float-end">
+      @if (!collapsed) {
+        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+      }
+      @if (collapsed) {
+        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+      }
+    </span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      @if (tipService.tip.iar && tipService.tip.iar.reply !== 'authorized') {
+        <div>
+          <div>
+            <label>{{"Access to the whistleblower's identity has been requested to the custodian." | translate}}</label>
+          </div>
+          <div>
+            <label>{{'Date of the request' | translate}}</label>
+            <span>:</span>
+            <span>{{tipService.tip.iar.request_date | date:'dd-MM-yyyy HH:mm'}}</span>
+          </div>
+          <div>
+            <label>{{'Request status' | translate}}</label>
+            <span>:</span>
+            <span>
+              @switch (tipService.tip.iar.reply) {
+                @case ('pending') {
+                  <span>{{ 'Waiting for authorization' | translate }}</span>
+                }
+                @case ('denied') {
+                  <span>{{ 'Denied' | translate }}</span>
+                }
+              }
+            </span>
+            <div><label>{{'Motivation' | translate}}</label>:<span> {{tipService.tip.iar.request_motivation}}</span></div>
+          </div>
+          @if (tipService.tip.iar && tipService.tip.iar.reply === 'denied') {
+            <div>
+              <label>{{'Reply motivation' | translate}}</label>: <span>{{tipService.tip.iar.reply_motivation}}</span>
+            </div>
+          }
+        </div>
+      }
+      @if (!tipService.tip.data.whistleblower_identity_provided) {
+        <span>-</span>
+      }
+      @if (tipService.tip.data.whistleblower_identity_provided) {
+        <div>
+          @if (tipService.tip.iar && tipService.tip.iar.reply === 'authorized') {
+            <div>
+              @for (field of tipService.tip.whistleblower_identity_field.children ; track field; let index = $index) {
+                <div>
+                  <src-tip-field [fields]=field [fieldAnswers]=tipService.tip.data.whistleblower_identity [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [index]="index"></src-tip-field>
+                </div>
+              }
+            </div>
+          }
+          @if (!tipService.tip.iar || tipService.tip.iar.reply === 'denied') {
+            <div>
+              @if (tipService.tip.custodian) {
+                <button class="btn btn-sm btn-primary" id="identity_access_request" (click)="fileIdentityAccessRequest()">{{"Request access to the whistleblower's identity" | translate}}</button>
+              }
+              @if (!tipService.tip.custodian) {
+                <button class="btn btn-sm btn-primary" (click)="accessIdentity()">{{'Show' | translate}}</button>
+              }
+            </div>
+          }
+          @if (tipService.tip.data.whistleblower_identity_date !== tipService.tip.creation_date) {
+            <div class="mt-3">
+              <span>{{ 'Subscription date'|translate }}</span> :  <span>{{tipService.tip.data.whistleblower_identity_date | date:'dd-MM-yyyy HH:mm'}}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

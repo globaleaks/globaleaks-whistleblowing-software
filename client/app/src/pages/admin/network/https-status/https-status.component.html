@@ -1,26 +1,34 @@
-<ng-container *ngIf="tlsConfig">
-    <div class="info-section">
+@if (tlsConfig) {
+  <div class="info-section">
+    <div>
+      <div>
+        <span>{{'Status'|translate}}</span>
+        <span>: </span>
+        @if (tlsConfig.enabled) {
+          <span>
+            <span>{{'Enabled'|translate}}</span>
+          </span>
+        }
+        @if (!tlsConfig.enabled) {
+          <span>
+            <span>{{'Disabled'|translate}}</span>
+          </span>
+        }
+      </div>
+      @if (tlsConfig.acme) {
         <div>
-            <div>
-                <span>{{'Status'|translate}}</span>
-                <span>: </span>
-                <span *ngIf="tlsConfig.enabled">
-                    <span>{{'Enabled'|translate}}</span>
-                </span>
-                <span *ngIf="!tlsConfig.enabled">
-                    <span>{{'Disabled'|translate}}</span>
-                </span>
-            </div>
-            <div *ngIf="tlsConfig.acme">
-                <span>{{'Auto - renewal'|translate}}</span>: <span>{{'Enabled'|translate}}</span>
-            </div>
+          <span>{{'Auto - renewal'|translate}}</span>: <span>{{'Enabled'|translate}}</span>
         </div>
-        <div class="hostname">
-            <div *ngIf="tlsConfig.enabled">
-                <span>{{'URL'|translate}}</span>
-                <span>:</span>
-                <a href="{{getNetworkResolver()}}" rel="noreferrer" target="_blank">https://{{networkResolver.dataModel.hostname}}</a>
-            </div>
-        </div>
+      }
     </div>
-</ng-container>
+    <div class="hostname">
+      @if (tlsConfig.enabled) {
+        <div>
+          <span>{{'URL'|translate}}</span>
+          <span>:</span>
+          <a href="{{getNetworkResolver()}}" rel="noreferrer" target="_blank">https://{{networkResolver.dataModel.hostname}}</a>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,9 +1,8 @@
 describe("Recipient first login", () => {
   it("should require password change upon successful authentication", () => {
-    cy.wait(2000)
     cy.login_receiver("Recipient", Cypress.env("init_password"), "#/login", true);
     cy.takeScreenshot("user/password");
-    cy.get('input[name="changePasswordArgs.password"]').should('be.visible', { timeout: 10000 }).clear().type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('input[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.waitForUrl("/recipient/home");
@@ -51,7 +50,7 @@ describe("Recipient2 first login", () => {
 describe("Custodian first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_custodian("Custodian", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').should('be.visible', { timeout: 10000 }).type(Cypress.env("user_password"));
+    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
     cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/custodian/home");
@@ -73,7 +72,7 @@ describe("Admin2 first login", () => {
 describe("Analyst first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_analyst("Analyst", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').should('be.visible', { timeout: 10000 }).type(Cypress.env("user_password"));
+    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
     cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/analyst/home");

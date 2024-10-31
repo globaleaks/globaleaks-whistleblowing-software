@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -7,13 +7,15 @@ export class WhistleblowerSubmissionService {
   constructor() { }
 
   checkForInvalidFields(scope:any) {
+    let enabled_counter = 0;
     for (let counter = 0; counter <= scope.navigation; counter++) {
       scope.validate[counter] = true;
       if (scope.questionnaire.steps[counter].enabled) {
-        if (scope.stepForms.get(counter)?.invalid) {
+        if (scope.stepForms.get(enabled_counter)?.invalid) {
           scope.navigation = counter;
           return false;
         }
+	enabled_counter++;
       }
     }
     return true;

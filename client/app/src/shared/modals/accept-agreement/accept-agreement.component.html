@@ -1,19 +1,21 @@
 <div class="modal-header">
-    <div class="modal-title">{{ 'Privacy Policy' | translate }}</div>
+  <div class="modal-title">{{ 'Privacy Policy' | translate }}</div>
 </div>
 <div class="modal-body">
-    <div>
-        <div class="tos-text">{{appDataService.public.node.user_privacy_policy_text}}</div>
-        <a *ngIf="appDataService.public.node.user_privacy_policy_url" href="{{appDataService.public.node.user_privacy_policy_url}}" target="_blank">{{ 'Download copy of the Privacy Policy' | translate }}</a>
-        <div class="form-check">
-            <input name="tos2" class="" type="checkbox" [(ngModel)]="accept" required />
-            <label class="form-check-label">{{ "I've read and accept the Privacy Policy" | translate }}</label>
-        </div>
+  <div>
+    <div class="tos-text">{{appDataService.public.node.user_privacy_policy_text}}</div>
+    @if (appDataService.public.node.user_privacy_policy_url) {
+      <a href="{{appDataService.public.node.user_privacy_policy_url}}" target="_blank">{{ 'Download copy of the Privacy Policy' | translate }}</a>
+    }
+    <div class="form-check">
+      <input name="tos2" class="form-check-input" type="checkbox" [(ngModel)]="accept" required />
+      <label class="form-check-label">{{ "I've read and accept the Privacy Policy" | translate }}</label>
     </div>
+  </div>
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" [disabled]="!accept" (click)="confirm()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{ 'Confirm' | translate }}</span>
-    </button>
+  <button id="modal-action-ok" class="btn btn-primary" [disabled]="!accept" (click)="confirm()">
+    <i class="fa-solid fa-check"></i>
+    <span>{{ 'Confirm' | translate }}</span>
+  </button>
 </div>

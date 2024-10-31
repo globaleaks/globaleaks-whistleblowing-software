@@ -1,50 +1,60 @@
 <div class="modal-header">
-    <div *ngIf="vars.redaction_switch" class="modal-title">{{ 'Mask' | translate }}</div>
-    <div *ngIf="!vars.redaction_switch" class="modal-title">{{ 'Redact' | translate }}</div>
-    <button type="button" class="close btn" id="close-redact-modal" (click)="cancel()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  @if (vars.redaction_switch) {
+    <div class="modal-title">{{ 'Mask' | translate }}</div>
+  }
+  @if (!vars.redaction_switch) {
+    <div class="modal-title">{{ 'Redact' | translate }}</div>
+  }
+  <button type="button" class="close btn" id="close-redact-modal" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 
 <div class="modal-body">
-    <textarea #redact id="redact" name="controlElement" [ngModel]="forced_visible ? unmaskedContent : content" (ngModelChange)="forced_visible ? unmaskedContent : content = $event" cols="30"
-              rows="10" (keydown)="ignoreEdit($event)" class="form-control"></textarea>
+  <textarea #redact id="redact" name="controlElement" [ngModel]="forced_visible ? unmaskedContent : content" (ngModelChange)="forced_visible ? unmaskedContent : content = $event" cols="30"
+  rows="10" (keydown)="ignoreEdit($event)" class="form-control"></textarea>
 </div>
 
 <div class="modal-footer">
-    <div class="container">
-        <div class="float-start">
-            <div *ngIf="preferenceResolver.dataModel.can_mask_information && preferenceResolver.dataModel.can_redact_information" class="btn mask-btn">
-                <div class="form-check form-check-inline">
-                    <input class="" type="radio" name="inlineRadioOptions" id="inlineRadio1"
-                           [(ngModel)]="vars.redaction_switch" [value]="true" (ngModelChange)="toggleMasking()" />
-                    <label class="form-check-label" for="inlineRadio1">{{ 'Mask' | translate }}</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="" type="radio" name="inlineRadioOptions" id="inlineRadio2"
-                           [(ngModel)]="vars.redaction_switch" [value]="false" (ngModelChange)="toggleMasking()" />
-                    <label class="form-check-label" for="inlineRadio2">{{ 'Redact' | translate }}</label>
-                </div>
-            </div>
+  <div class="container">
+    <div class="float-start">
+      @if (preferenceResolver.dataModel.can_mask_information && preferenceResolver.dataModel.can_redact_information) {
+        <div class="btn mask-btn">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"
+              [(ngModel)]="vars.redaction_switch" [value]="true" (ngModelChange)="toggleMasking()" />
+            <label class="form-check-label" for="inlineRadio1">{{ 'Mask' | translate }}</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2"
+              [(ngModel)]="vars.redaction_switch" [value]="false" (ngModelChange)="toggleMasking()" />
+            <label class="form-check-label" for="inlineRadio2">{{ 'Redact' | translate }}</label>
+          </div>
         </div>
-
-        <div class="float-end">
-            <button id="toggle-button" (click)="toggleVisibility()" class="btn">
-                <i class="fas fa-eye" *ngIf="forced_visible" id="eye-icon-open"></i>
-                <i class="fas fa-eye-slash" *ngIf="!forced_visible" id="eye-icon-closed"></i>
-            </button>
-
-            <button class="btn btn-primary" id="select_content" (click)="selectContent()">
-                <span>{{ 'Select' | translate }}</span>
-            </button>
-
-            <button class="btn btn-primary" id="unselect_content" (click)="unSelectContent()">
-                <span>{{ 'Unselect' | translate }}</span>
-            </button>
-
-            <button class="btn btn-primary" id="save_masking" (click)="saveMasking()">
-                <span>{{ 'Save' | translate }}</span>
-            </button>
-        </div>
+      }
     </div>
+
+    <div class="float-end">
+      <button id="toggle-button" (click)="toggleVisibility()" class="btn">
+        @if (forced_visible) {
+          <i class="fas fa-eye" id="eye-icon-open"></i>
+        }
+        @if (!forced_visible) {
+          <i class="fas fa-eye-slash" id="eye-icon-closed"></i>
+        }
+      </button>
+
+      <button class="btn btn-primary" id="select_content" (click)="selectContent()">
+        <span>{{ 'Select' | translate }}</span>
+      </button>
+
+      <button class="btn btn-primary" id="unselect_content" (click)="unSelectContent()">
+        <span>{{ 'Unselect' | translate }}</span>
+      </button>
+
+      <button class="btn btn-primary" id="save_masking" (click)="saveMasking()">
+        <span>{{ 'Save' | translate }}</span>
+      </button>
+    </div>
+  </div>
 </div>

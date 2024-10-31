@@ -1,22 +1,32 @@
-<div class="row mb-3" *ngIf="appDataService.public.node.contexts_clarification">
+@if (appDataService.public.node.contexts_clarification) {
+  <div class="row mb-3">
     <b>
-        <markdown class="col-md-12" [data]="appDataService.public.node.contexts_clarification | stripHtml"></markdown>
+      <markdown class="col-md-12" [data]="appDataService.public.node.contexts_clarification | stripHtml"></markdown>
     </b>
-</div>
+  </div>
+}
 <div id="SubmissionStepContext" class="row">
-    <div id="context-{{index}}" *ngFor="let context of (selectable_contexts| orderBy:contextsOrderPredicate);let index = index" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts.length)">
-        <div class="select-card">
-            <div class="row">
-                <div class="col-md-12 title">{{context.name}}</div>
-            </div>
-            <div class="row" *ngIf="context.picture">
-                <div class="col-md-4">
-                    <img class="context-image" alt="context picture" *ngIf="context.picture" width="500" height="500" ngSrc="/s/{{context.id}}"/>
-                </div>
-            </div>
-            <div class="row" *ngIf="context.description">
-                <div class="col-md-12 description">{{context.description}}</div>
-            </div>
+  @for (context of (selectable_contexts| orderBy:contextsOrderPredicate); track context; let index = $index) {
+    <div id="context-{{index}}" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts.length)">
+      <div class="select-card">
+        <div class="row">
+          <div class="col-md-12 title">{{context.name}}</div>
         </div>
+        @if (context.picture) {
+          <div class="row">
+            <div class="col-md-4">
+              @if (context.picture) {
+                <img class="context-image" alt="context picture" width="500" height="500" ngSrc="/s/{{context.id}}"/>
+              }
+            </div>
+          </div>
+        }
+        @if (context.description) {
+          <div class="row">
+            <div class="col-md-12 description">{{context.description}}</div>
+          </div>
+        }
+      </div>
     </div>
+  }
 </div>

@@ -53,7 +53,7 @@ def decrypt_tip(user_key, tip_prv_key, tip):
             tip['data'][k] = json.loads(GCE.asymmetric_decrypt(tip_key, base64.b64decode(tip['data'][k].encode())).decode())
 
             if k == 'whistleblower_identity' and isinstance(tip['data'][k], list):
-                # Fix for issue: https://github.com/globaleaks/GlobaLeaks/issues/2612
+                # Fix for issue: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2612
                 # The bug is due to the fact that the data was initially saved as an array of one entry
                 tip['data'][k] = tip['data'][k][0]
 

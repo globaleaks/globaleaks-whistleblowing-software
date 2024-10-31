@@ -1,25 +1,29 @@
 <div class="row">
-    <div class="col-md-12">
-        <div class="form-group">
-            <label>{{ 'Template' | translate }}</label>
-            <select name="template" class="form-select-custom" [(ngModel)]="template">
-                <option *ngFor="let t of notificationData.templates" [value]="t">{{ t }}</option>
-            </select>
-        </div>
-        <br />
-        <br />
-        <div class="row" *ngIf="template">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <textarea name="notificationData[template]" [(ngModel)]="notificationData[template]" class="form-control" rows="10"></textarea>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-primary" [disabled]="notificationForm.invalid" (click)="updateNotification(notificationData)" type="submit">
-                        <i class="fa-solid fa-check"></i>
-                        <span>{{ 'Save' | translate }}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+  <div class="col-md-12">
+    <div class="form-group">
+      <label>{{ 'Template' | translate }}</label>
+      <select name="template" class="form-select-custom" [(ngModel)]="template">
+        @for (t of notificationData.templates; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
     </div>
+    <br />
+    <br />
+    @if (template) {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <textarea name="notificationData[template]" [(ngModel)]="notificationData[template]" class="form-control" rows="10"></textarea>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary" [disabled]="notificationForm.invalid" (click)="updateNotification(notificationData)" type="submit">
+              <i class="fa-solid fa-check"></i>
+              <span>{{ 'Save' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
 </div>

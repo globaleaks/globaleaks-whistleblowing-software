@@ -158,8 +158,8 @@ class Alarm(object):
         workingdir: is performed a percentage check (at least 1% and an absolute comparison)
 
         "unusable node" threshold: happen when the space is really shitty.
-        https://github.com/globaleaks/GlobaLeaks/issues/297
-        https://github.com/globaleaks/GlobaLeaks/issues/872
+        https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/297
+        https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/872
         """
         self.measured_freespace, self.measured_totalspace = get_disk_space(State.settings.working_path)
 

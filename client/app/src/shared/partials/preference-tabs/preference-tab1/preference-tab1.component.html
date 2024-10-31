@@ -1,121 +1,169 @@
-<form name="preferenceResolver.dataModel.orm" #preferenceForm="ngForm" class="reveal" *ngIf="authenticationService.session" id="PreferencesForm">
-    <div *ngIf="preferenceResolver.dataModel.picture" class="image-thumbnail">
+@if (authenticationService.session) {
+  <form name="preferenceResolver.dataModel.orm" #preferenceForm="ngForm" class="reveal" id="PreferencesForm">
+    @if (preferenceResolver.dataModel.picture) {
+      <div class="image-thumbnail">
         <img class="receiver-image" alt="user picture" src="/s/{{preferenceResolver.dataModel.id}}" />
         <br />
-    </div>
+      </div>
+    }
     <div id="Username">
+      <label>
+        <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
+      </div>
+      <div id="Role">
         <label>
-            <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
-    </div>
-    <div id="Role">
-        <label>
-            <span>{{'Role'|translate}}</span>: </label>
-        <span>{{role}}</span>
-    </div>
-    <div id="Name">
-        <label>
+          <span>{{'Role'|translate}}</span>: </label>
+          <span>{{role}}</span>
+        </div>
+        <div id="Name">
+          <label>
             <span>{{'Name'|translate}}</span>: </label>
-        <span *ngIf="!editingName">
-            <span>{{preferenceResolver.dataModel.name}}</span>
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="!editingName" (click)="toggleNameEditing(); $event.stopPropagation();">
-                <span>{{'Edit'|translate}}</span>
-            </button>
-        </span>
-        <input *ngIf="editingName" class="form-control" name="name" [(ngModel)]="preferenceResolver.dataModel.name" type="text" required />
-    </div>
-    <div id="PublicName">
-        <label>
-            <span>{{'Public name'|translate}}</span>: </label>
-        <span *ngIf="!editingPublicName">
-            <span>{{preferenceResolver.dataModel.public_name}}</span>
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="!editingPublicName" (click)="togglePublicNameEditing(); $event.stopPropagation();">
-                <span>{{'Edit'|translate}}</span>
-            </button>
-        </span>
-        <input *ngIf="editingPublicName" class="form-control" name="public_name" [(ngModel)]="preferenceResolver.dataModel.public_name" type="text" required />
-    </div>
-    <div id="EmailAddress">
-        <label>
-            <span>{{'Email address'|translate}}</span>: </label>
-        <div>
-            <span *ngIf="!editingEmailAddress">{{preferenceResolver.dataModel.mail_address}}</span>
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="!editingEmailAddress" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
-                <span>{{'Edit'|translate}}</span>
-            </button>
-        </div>
-    </div>
-    <div *ngIf="editingEmailAddress">
-        <input class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
-    </div>
-    <div *ngIf="!editingEmailAddress && preferenceResolver.dataModel.change_email_address" class="alert alert-secondary mt-2">
-        <div>{{'Validation of email address change in progress.'|translate}}</div>
-        <div>{{'Please check your inbox for further instructions.'|translate}}</div>
-    </div>
-    <div *ngIf="preferenceResolver.dataModel.description">
-        <label>{{'Description'|translate}}</label> {{preferenceResolver.dataModel.description}}
-    </div>
-    <div id="Contexts" *ngIf="authenticationService.session.role === 'receiver' && appDataService.public.contexts.length > 1">
-        <label>
-            <span>{{'Channels'|translate}}</span>
-        </label>
-        <ul *ngFor="let context_id of preferenceResolver.dataModel.contexts">
-            <li>{{appDataService.contexts_by_id[context_id].name}}</li>
-        </ul>
-    </div>
-    <div id="Language" class="form-group" *ngIf="appDataService.languages_enabled_selector.length > 1">
-        <label>{{'Language'|translate}}</label>
-        <select class="form-select-custom" name="languageModel" [(ngModel)]="languageModel" (ngModelChange)="onlanguagechange()">
-            <option *ngFor="let item of appDataService.languages_enabled_selector" [value]="item.code">{{ item.native }}</option>
-        </select>
-    </div>
-    <div id="EnableNotifications" class="form-group" *ngIf="(authenticationService.session.role === 'admin' && !appDataService.public.node.disable_admin_notification) || (authenticationService.session.role === 'receiver' && !appDataService.public.node.disable_receiver_notification) || (authenticationService.session.role === 'custodian' && !appDataService.public.node.disable_custodian_notification)">
-        <input name="notification" [(ngModel)]="preferenceResolver.dataModel.notification" type="checkbox">
-        <label>{{'Enable email notifications'|translate}}</label>
-    </div>
-    <div class="form-group">
-        <label>
-            <input name="two_factor" type="checkbox" [checked]="preferenceResolver.dataModel.two_factor" (click)="toggle2FA($event)" />
-            <span>{{'Enable two factor authentication'|translate}}</span>
-        </label>
-    </div>
-    <div id="EditPGP" ngForm #pgpkeyForm="ngForm" *ngIf="appDataService.public.node.pgp">
-        <div *ngIf="preferenceResolver.dataModel.pgp_key_fingerprint">
-            <div class="form-group">
-                <label>{{'Details of the PGP key:'|translate}}</label>
-                <div>
-                    <span>{{'Fingerprint'|translate}}</span>: <span>{{preferenceResolver.dataModel.pgp_key_fingerprint}}</span>
-                </div>
-                <div>
-                    <span>{{'Expiration date'|translate}}</span>: {{preferenceResolver.dataModel.pgp_key_expiration | date:"dd/MM/yyyy"}}
-                </div>
+            @if (!editingName) {
+              <span>
+                <span>{{preferenceResolver.dataModel.name}}</span>
+                @if (!editingName) {
+                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
+                    <span>{{'Edit'|translate}}</span>
+                  </button>
+                }
+              </span>
+            }
+            @if (editingName) {
+              <input class="form-control" name="name" [(ngModel)]="preferenceResolver.dataModel.name" type="text" required />
+            }
+          </div>
+          <div id="PublicName">
+            <label>
+              <span>{{'Public name'|translate}}</span>: </label>
+              @if (!editingPublicName) {
+                <span>
+                  <span>{{preferenceResolver.dataModel.public_name}}</span>
+                  @if (!editingPublicName) {
+                    <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
+                      <span>{{'Edit'|translate}}</span>
+                    </button>
+                  }
+                </span>
+              }
+              @if (editingPublicName) {
+                <input class="form-control" name="public_name" [(ngModel)]="preferenceResolver.dataModel.public_name" type="text" required />
+              }
             </div>
-            <div class="form-group">
-                <input name="pgp" [(ngModel)]="preferenceResolver.dataModel.pgp_key_remove" type="checkbox">
-                <label>{{'Remove'|translate}}</label>
-            </div>
-        </div>
-        <div *ngIf="!preferenceResolver.dataModel.pgp_key_fingerprint">
-            <div class="position-relative">
-                <label>{{'Set up encryption by providing a PGP public key'|translate}}</label>
+            <div id="EmailAddress">
+              <label>
+                <span>{{'Email address'|translate}}</span>: </label>
                 <div>
-                    <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input inputelem" (change)="loadPublicKeyFile(uploader.files)" />
-                    <label class="btn btn-sm btn-outline-secondary" for="customFile">
-                        <i class="fa-solid fa-upload"></i>
-                        <span>{{ 'Upload' | translate }}</span>
-                    </label>
+                  @if (!editingEmailAddress) {
+                    <span>{{preferenceResolver.dataModel.mail_address}}</span>
+                  }
+                  @if (!editingEmailAddress) {
+                    <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
+                      <span>{{'Edit'|translate}}</span>
+                    </button>
+                  }
                 </div>
-            </div>
-        </div>
-        <br />
-        <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid || pgpkeyForm.invalid">
-            <i class="fa-solid fa-check"></i>
-            <span>{{'Save'|translate}}</span>
-        </button>
-        <button *ngIf="preferenceResolver.dataModel.encryption" class="btn btn-outline-secondary" id="account_recovery_key" (click)="getEncryptionRecoveryKey($event)">{{'Account recovery key'|translate}}</button>
-    </div>
-    <button *ngIf="!appDataService.public.node.pgp" type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid">
-        <i class="fa-solid fa-check"></i>
-        <span>{{'Save'|translate}}</span>
-    </button>
-    <button *ngIf="!appDataService.public.node.pgp && preferenceResolver.dataModel.encryption" id="account_recovery_key" class="btn btn-outline-secondary" (click)="getEncryptionRecoveryKey($event)">{{'Account recovery key'|translate}}</button>
-</form>
+              </div>
+              @if (editingEmailAddress) {
+                <div>
+                  <input class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
+                </div>
+              }
+              @if (!editingEmailAddress && preferenceResolver.dataModel.change_email_address) {
+                <div class="alert alert-secondary mt-2">
+                  <div>{{'Validation of email address change in progress.'|translate}}</div>
+                  <div>{{'Please check your inbox for further instructions.'|translate}}</div>
+                </div>
+              }
+              @if (preferenceResolver.dataModel.description) {
+                <div>
+                  <label>{{'Description'|translate}}</label> {{preferenceResolver.dataModel.description}}
+                </div>
+              }
+              @if (authenticationService.session.role === 'receiver' && appDataService.public.contexts.length > 1) {
+                <div id="Contexts">
+                  <label>
+                    <span>{{'Channels'|translate}}</span>
+                  </label>
+                  @for (context_id of preferenceResolver.dataModel.contexts; track context_id) {
+                    <ul>
+                      <li>{{appDataService.contexts_by_id[context_id].name}}</li>
+                    </ul>
+                  }
+                </div>
+              }
+              @if (appDataService.languages_enabled_selector.length > 1) {
+                <div id="Language" class="form-group">
+                  <label>{{'Language'|translate}}</label>
+                  <select class="form-select-custom" name="languageModel" [(ngModel)]="languageModel" (ngModelChange)="onlanguagechange()">
+                    @for (item of appDataService.languages_enabled_selector; track item) {
+                      <option [value]="item.code">{{ item.native }}</option>
+                    }
+                  </select>
+                </div>
+              }
+              @if ((authenticationService.session.role === 'admin' && !appDataService.public.node.disable_admin_notification) || (authenticationService.session.role === 'receiver' && !appDataService.public.node.disable_receiver_notification) || (authenticationService.session.role === 'custodian' && !appDataService.public.node.disable_custodian_notification)) {
+                <div id="EnableNotifications" class="form-group">
+                  <input class="form-check-input" name="notification" [(ngModel)]="preferenceResolver.dataModel.notification" type="checkbox">
+                  <label>{{'Enable email notifications'|translate}}</label>
+                </div>
+              }
+              <div class="form-group">
+                <label>
+                  <input class="form-check-input" name="two_factor" type="checkbox" [checked]="preferenceResolver.dataModel.two_factor" (click)="toggle2FA($event)" />
+                  <span>{{'Enable two factor authentication'|translate}}</span>
+                </label>
+              </div>
+              @if (appDataService.public.node.pgp) {
+                <div id="EditPGP" ngForm #pgpkeyForm="ngForm">
+                  @if (preferenceResolver.dataModel.pgp_key_fingerprint) {
+                    <div>
+                      <div class="form-group">
+                        <label>{{'Details of the PGP key:'|translate}}</label>
+                        <div>
+                          <span>{{'Fingerprint'|translate}}</span>: <span>{{preferenceResolver.dataModel.pgp_key_fingerprint}}</span>
+                        </div>
+                        <div>
+                          <span>{{'Expiration date'|translate}}</span>: {{preferenceResolver.dataModel.pgp_key_expiration | date:"dd/MM/yyyy"}}
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <input class="form-check-input" name="pgp" [(ngModel)]="preferenceResolver.dataModel.pgp_key_remove" type="checkbox">
+                        <label>{{'Remove'|translate}}</label>
+                      </div>
+                    </div>
+                  }
+                  @if (!preferenceResolver.dataModel.pgp_key_fingerprint) {
+                    <div>
+                      <div class="position-relative">
+                        <label>{{'Set up encryption by providing a PGP public key'|translate}}</label>
+                        <div>
+                          <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="loadPublicKeyFile(uploader.files)" />
+                          <label class="btn btn-sm btn-outline-secondary" for="customFile">
+                            <i class="fa-solid fa-upload"></i>
+                            <span>{{ 'Upload' | translate }}</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  <br />
+                  <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid || pgpkeyForm.invalid">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{'Save'|translate}}</span>
+                  </button>
+                  @if (preferenceResolver.dataModel.encryption) {
+                    <button class="btn btn-outline-secondary" id="account_recovery_key" (click)="getEncryptionRecoveryKey($event)">{{'Account recovery key'|translate}}</button>
+                  }
+                </div>
+              }
+              @if (!appDataService.public.node.pgp) {
+                <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid">
+                  <i class="fa-solid fa-check"></i>
+                  <span>{{'Save'|translate}}</span>
+                </button>
+              }
+              @if (!appDataService.public.node.pgp && preferenceResolver.dataModel.encryption) {
+                <button id="account_recovery_key" class="btn btn-outline-secondary" (click)="getEncryptionRecoveryKey($event)">{{'Account recovery key'|translate}}</button>
+              }
+            </form>
+          }

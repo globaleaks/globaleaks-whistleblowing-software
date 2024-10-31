@@ -1,60 +1,88 @@
 <div id="TipCommunicationComments" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
-        <span>{{'Comments'|translate}}</span>
-        <span class="">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
-        </span>
-    </div>
-    <div class="card-body" *ngIf="!collapsed">
-       <div *ngIf="tipService.tip.status !== 'closed'" class="row">
-           <div class="col-md-12 clearfix">
-                <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off"></textarea>
-                <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
-            </div>
-            <div class="col-md-12 clearfix">
-                <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
-                    <i class="fa-solid fa-comment"></i>
-                    <span>{{'Send'|translate}}</span>
-                </button>
-            </div>
+  <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
+    <span>{{'Comments'|translate}}</span>
+    <span class="">
+      @if (!collapsed) {
+        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+      }
+      @if (collapsed) {
+        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+      }
+    </span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      @if (tipService.tip.status !== 'closed') {
+        <div class="row">
+          <div class="col-md-12 clearfix">
+            <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off"></textarea>
+            <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
+          </div>
+          <div class="col-md-12 clearfix">
+            <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
+              <i class="fa-solid fa-comment"></i>
+              <span>{{'Send'|translate}}</span>
+            </button>
+          </div>
         </div>
-        <div *ngIf="tipService.tip.comments && tipService.tip.comments.length">
-            <div data-cy="SubmissionComments" id="SubmissionComments" *ngFor="let comment of getSortedComments(comments | orderBy:'creation_date': true | filter : 'visibility' : key) | slice: (currentCommentsPage-1) * itemsPerPage : (currentCommentsPage-1) * itemsPerPage + itemsPerPage; let index = index">
-                <div id="comment-{{index}}" class="mt-2">
-                    <div *ngIf="!comment.author_id && !comment.type" class="message-whistle-blower">
-                        <div class="row">
-                            <div class="col-md-6">{{'Whistleblower'|translate}}</div>
-                            <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
-                        </div>
-                        <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
-                        <span class="float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" *ngIf="redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)" data-toggle="tooltip" title="{{redactOperationTitle | translate}}">
-                          <i class="fa-solid fa-eraser"></i>
-                        </span>
-                        <br/>
+      }
+      @if (tipService.tip.comments && tipService.tip.comments.length) {
+        <div>
+          @for (comment of getSortedComments(comments | orderBy:'creation_date': true | filter : 'visibility' : key) | slice: (currentCommentsPage-1) * itemsPerPage : (currentCommentsPage-1) * itemsPerPage + itemsPerPage; track comment; let index = $index) {
+            <div data-cy="SubmissionComments" id="SubmissionComments">
+              <div id="comment-{{index}}" class="mt-2">
+                @if (!comment.author_id && !comment.type) {
+                  <div class="message-whistleblower">
+                    <div class="row">
+                      <div class="col-md-6">{{'Whistleblower'|translate}}</div>
+                      <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
-                    <div class="message" *ngIf="tipService.tip.receivers_by_id[comment.author_id]">
-                        <div class="row">
-                            <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
-                            <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
-                        </div>
-                        <div *ngIf="!comment.type" class="preformatted">{{comment.content}}</div>
-                        <div *ngIf="comment.type === 'auditlog_update_report_status'">
-                            <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses) | translate}}</div>
-			    <div *ngIf="comment.data.motivation">{{'Motivation'|translate}}: {{comment.data.motivation}}</div>
-                        </div>
-                        <div *ngIf="comment.type === 'auditlog_update_report_expiration'">{{'Expiration date'|translate}}: {{comment.data.curr_expiration_date * 1000 | date:'dd-MM-yyyy'}}</div>
+                    <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
+                    @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+                      <span class="float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{redactOperationTitle | translate}}">
+                        <i class="fa-solid fa-eraser"></i>
+                      </span>
+                    }
+                    <br/>
+                  </div>
+                }
+                @if (tipService.tip.receivers_by_id[comment.author_id]) {
+                  <div class="message">
+                    <div class="row">
+                      <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
+                      <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
-                </div>
+                    @if (!comment.type) {
+                      <div class="preformatted">{{comment.content}}</div>
+                    }
+                    @if (comment.type === 'auditlog_update_report_status') {
+                      <div>
+                        <div>{{'Status'|translate}}: {{utilsService.getSubmissionStatusText(comment.data.status,comment.data.substatus,appDataService.submissionStatuses) | translate}}</div>
+                        @if (comment.data.motivation) {
+                          <div>{{'Motivation'|translate}}: {{comment.data.motivation}}</div>
+                        }
+                      </div>
+                    }
+                    @if (comment.type === 'auditlog_update_report_expiration') {
+                      <div>{{'Expiration date'|translate}}: {{comment.data.curr_expiration_date * 1000 | date:'dd-MM-yyyy'}}</div>
+                    }
+                  </div>
+                }
+              </div>
             </div>
+          }
         </div>
-        <div class="mt-2 text-center" *ngIf="tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage">
-            <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
-                <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" data-toggle="tooltip" [title]="'First' | translate"></i></ng-template>
-                <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" data-toggle="tooltip" [title]="'Previous' | translate"></i></ng-template>
-                <ng-template ngbPaginationNext><i class="fa-solid fa-forward" data-toggle="tooltip" [title]="'Next' | translate"></i></ng-template>
-                <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" data-toggle="tooltip" [title]="'Last' | translate"></i></ng-template>
-            </ngb-pagination>
+      }
+      @if (tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage) {
+        <div class="mt-2 text-center">
+          <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
+            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" [ngbTooltip]="'First' | translate"></i></ng-template>
+            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" [ngbTooltip]="'Previous' | translate"></i></ng-template>
+            <ng-template ngbPaginationNext><i class="fa-solid fa-forward" [ngbTooltip]="'Next' | translate"></i></ng-template>
+            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" [ngbTooltip]="'Last' | translate"></i></ng-template>
+          </ngb-pagination>
         </div>
+      }
     </div>
+  }
 </div>

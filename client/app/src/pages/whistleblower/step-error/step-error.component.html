@@ -1,10 +1,10 @@
-<div *ngIf="displayStepErrors(navigation)">
+@if (stepForm.invalid) {
+  <div>
     <p>{{'In this step the answers to the following questions are either missing or invalid:'|translate}}</p>
-    <div *ngFor="let form of stepForms let index = index">
-        <ul *ngIf="navigation === index">
-            <ng-container *ngFor="let error of getInnerGroupErrors(form)">
-                <src-step-error-entry [form]="form" [field_id_map]="field_id_map" [err]=error></src-step-error-entry>
-            </ng-container>
-	</ul>
-    </div>
-</div>
+    <ul>
+      @for (error of getInnerGroupErrors(stepForm); track error) {
+        <src-step-error-entry [form]="stepForm" [field_id_map]="field_id_map" [err]=error></src-step-error-entry>
+      }
+    </ul>
+  </div>
+}

@@ -4,7 +4,7 @@
 # Chi-Hsun Tsai, 2016-2018,2020
 # ff98sha, 2020
 # ff98sha, 2020
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2016-2017,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2017,2020-2022
 # iigmir <iigmir@hotmail.com>, 2015
 # Mingye Wang <arthur200126@gmail.com>, 2015
 # Sherry Yang <sherry@control4.com.tw>, 2015
@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2016-2017,2020-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2017,2020-2022\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/otf/globaleaks/language/zh_TW/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

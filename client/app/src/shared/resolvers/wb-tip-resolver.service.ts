@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Observable, of} from "rxjs";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
@@ -9,11 +9,11 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class WbTipResolver {
+  private authenticationService = inject(AuthenticationService);
+  private httpService = inject(HttpService);
+
 
   dataModel: WbTipData;
-
-  constructor(private authenticationService: AuthenticationService, private httpService: HttpService) {
-  }
 
   onReload(callback: () => void) {
     this.httpService.whistleBlowerTip().subscribe(

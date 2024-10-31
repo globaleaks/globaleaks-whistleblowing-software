@@ -77,7 +77,7 @@ describe("admin add, configure, and delete users", () => {
       for (let i = 1; i < numberOfUsers; i++) {
         cy.get(".userList").eq(i).within(() => {
           if (Cypress.$("#edit_user").length > 0) {
-            cy.get("#edit_user").should('be.visible', { timeout: 10000 }).click();
+            cy.get("#edit_user").should('be.visible').click();
             cy.get("#set_password").first().click();
             cy.get('input[name="password"]').clear().type(Cypress.env("init_password"));
             cy.get('#setPasswordButton').should('be.visible').click();

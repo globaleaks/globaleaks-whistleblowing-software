@@ -67,12 +67,12 @@ class SettingsClass(object, metaclass=Singleton):
         self.failed_login_block_time = 5
 
         # Limit for log sizes and number of log files
-        # https://github.com/globaleaks/GlobaLeaks/issues/1578
+        # https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/1578
         self.log_size = 10000000  # 10MB
         self.log_file_size = 1000000  # 1MB
         self.num_log_files = self.log_size / self.log_file_size
 
-        self.exceptions_email_hourly_limit = 20
+        self.exceptions_email_minutely_limit = 1
 
         self.enable_input_length_checks = True
 

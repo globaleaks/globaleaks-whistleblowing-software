@@ -55,7 +55,7 @@ class MockEngine {
     }
   }
 
-  private run(): void {
+  run(): void {
     const current_path = document.location.pathname + document.location.hash.split("?")[0];
     let path, selector, i;
 

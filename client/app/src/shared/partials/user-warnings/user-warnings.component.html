@@ -1,16 +1,21 @@
-<div id="UserWarnings" *ngIf="authentication.session" role="alert">
-    <div class="alert alert-secondary" *ngIf="authentication.session.role === 'admin' && nodeResolver.dataModel.update_available">
+@if (authentication.session) {
+  <div id="UserWarnings" role="alert">
+    @if (authentication.session.role === 'admin' && nodeResolver.dataModel.update_available) {
+      <div class="alert alert-secondary">
         <i class="fa-solid fa-exclamation-circle"></i>
         <span>{{'An update is available:' | translate}}</span>
         <span>
-            <a href="https://github.com/globaleaks/GlobaLeaks/blob/main/CHANGELOG" rel="noreferrer" target="_blank">
-                {{nodeResolver.dataModel.latest_version}} ( <span>{{'Changelog' | translate}}</span>) </a>
++           <a href="https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG" rel="noreferrer" target="_blank">{{nodeResolver.dataModel.latest_version}} (<span>{{'Changelog' | translate}}</span>)</a>
         </span>
-    </div>
-    <div class="alert alert-secondary" *ngIf="preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key">
-        <i class="fa-solid fa-exclamation-circle"></i>
-        <span>
+        </div>
+      }
+      @if (preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key) {
+        <div class="alert alert-secondary">
+          <i class="fa-solid fa-exclamation-circle"></i>
+          <span>
             {{'We recommend that you access the “Preferences” section in order to retrieve your “Account Recovery Key” and store it safely. This key will be necessary to recover your access to the platform and to your data in case you forget your password.' | translate}}
-        </span>
+          </span>
+        </div>
+      }
     </div>
-</div>
+  }

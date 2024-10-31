@@ -7,7 +7,7 @@
 <div class="modal-body">
     <div id="ReceiverContextAdder" class="form-group">
         <div class="input-group">
-            <ng-select class="w-25 rounded-end-0" [attr.data-cy]="'reciever_selection'" [(ngModel)]="receiver_id" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true">
+            <ng-select class="w-25 rounded-end-0" [attr.data-cy]="'receiver_selection'" [(ngModel)]="receiver_id" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true">
                 <ng-template ng-label-tmp let-item="item">
                     <span>{{ item.name }}</span>
                 </ng-template>

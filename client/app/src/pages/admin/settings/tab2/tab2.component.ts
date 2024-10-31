@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
 import {NgForm} from "@angular/forms";
 import * as Flow from "@flowjs/flow.js";
 import type {FlowFile} from "@flowjs/flow.js";
@@ -10,12 +10,28 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {AdminFile} from "@app/models/component-model/admin-file";
+import {NgClass} from "@angular/common";
+import {AdminFileComponent} from "@app/shared/partials/admin-file/admin-file.component";
+import {SwitchComponent} from "@app/shared/components/switch/switch.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {TranslateModule} from "@ngx-translate/core";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+
 
 @Component({
-  selector: "src-tab2",
-  templateUrl: "./tab2.component.html"
+    selector: "src-tab2",
+    templateUrl: "./tab2.component.html",
+    standalone: true,
+    imports: [NgbTooltipModule, NgClass, AdminFileComponent, SwitchComponent, TranslatorPipe, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
+  private appConfigService = inject(AppConfigService);
+  private preferenceResolver = inject(PreferenceResolver);
+  private utilsService = inject(UtilsService);
+  private nodeResolver = inject(NodeResolver);
+  private authenticationService = inject(AuthenticationService);
+
   @Input() contentForm: NgForm;
   @ViewChild("flowAdvanced", {static: true}) flowAdvanced: FlowDirective;
   @ViewChild("uploader") uploaderInput: ElementRef;
@@ -46,9 +62,6 @@ export class Tab2Component implements OnInit {
       "size": "10000000"
     }
   ];
-
-  constructor(private appConfigService: AppConfigService, private preferenceResolver: PreferenceResolver, private utilsService: UtilsService, private nodeResolver: NodeResolver, private authenticationService: AuthenticationService) {
-  }
 
   ngOnInit(): void {
     this.preferenceData = this.preferenceResolver.dataModel;

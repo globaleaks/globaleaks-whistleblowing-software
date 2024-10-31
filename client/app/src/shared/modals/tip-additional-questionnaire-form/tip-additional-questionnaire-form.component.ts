@@ -1,22 +1,40 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren} from "@angular/core";
+import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {NgForm} from "@angular/forms";
+import {NgForm, FormsModule} from "@angular/forms";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {Answers, Questionnaire3} from "@app/models/reciever/reciever-tip-data";
+import {Answers, Questionnaire3} from "@app/models/receiver/receiver-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
+import {NgClass} from "@angular/common";
+import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
+import {StepErrorComponent} from "@app/pages/whistleblower/step-error/step-error.component";
+import {FormComponent} from "@app/pages/whistleblower/form/form.component";
+import {RFilesUploadStatusComponent} from "../../partials/rfiles-upload-status/r-files-upload-status.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
-  selector: "src-tip-additional-questionnaire-form",
-  templateUrl: "./tip-additional-questionnaire-form.component.html"
+    selector: "src-tip-additional-questionnaire-form",
+    templateUrl: "./tip-additional-questionnaire-form.component.html",
+    standalone: true,
+    imports: [FormsModule, NgClass, NgFormChangeDirective, StepErrorComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
+  protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
+  private wbTipResolver = inject(WbTipResolver);
+  private httpService = inject(HttpService);
+  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private utilsService = inject(UtilsService);
+  protected wbTipService = inject(WbtipService);
+  protected activeModal = inject(NgbActiveModal);
+
   @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepform") stepForms: QueryList<NgForm>;
+  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
 
   _navigation: number = 0;
   validate: boolean[] = [];
@@ -29,9 +47,6 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   file_upload_url: string = "api/whistleblower/wbtip/wbfiles";
   hasPreviousStepValue: boolean;
   hasNextStepValue: boolean;
-
-  constructor(protected whistleblowerSubmissionService:WhistleblowerSubmissionService,private wbTipResolver: WbTipResolver, private httpService: HttpService, private fieldUtilitiesService: FieldUtilitiesService, private utilsService: UtilsService, protected wbTipService: WbtipService, protected activeModal: NgbActiveModal) {
-  }
 
   ngOnInit(): void {
     this.prepareSubmission();
@@ -128,7 +143,7 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   runValidation() {
     this.validate[this.navigation] = true;
 
-    if (this.navigation > -1 && !this.whistleblowerSubmissionService.checkForInvalidFields(this)) {
+    if (!this.whistleblowerSubmissionService.checkForInvalidFields(this)) {
       this.utilsService.scrollToTop();
       return false;
     }

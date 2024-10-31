@@ -1,17 +1,24 @@
-import {Component} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
+import {Enable2fa} from "../../partials/enable-2fa/enable-2fa";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-enable2fa",
-  templateUrl: "./enable2fa.component.html"
+    selector: "src-enable2fa",
+    templateUrl: "./enable2fa.component.html",
+    standalone: true,
+    imports: [Enable2fa, TranslateModule, TranslatorPipe]
 })
 export class Enable2faComponent {
+  private preferenceResolver = inject(PreferenceResolver);
+  private activeModal = inject(NgbActiveModal);
+  private utilsService = inject(UtilsService);
+  protected twoFactorAuthData = inject(TwoFactorAuthData);
 
-  constructor(private preferenceResolver: PreferenceResolver, private activeModal: NgbActiveModal, private utilsService: UtilsService, protected twoFactorAuthData: TwoFactorAuthData) {
-  }
 
   dismiss() {
     this.activeModal.dismiss();

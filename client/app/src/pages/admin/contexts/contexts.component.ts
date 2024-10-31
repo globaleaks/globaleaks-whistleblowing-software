@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -8,19 +8,31 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {NgClass} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {ContextEditorComponent} from "@app/pages/admin/contexts/context-editor/context-editor.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+
 
 @Component({
-  selector: "src-contexts",
-  templateUrl: "./contexts.component.html"
+    selector: "src-contexts",
+    templateUrl: "./contexts.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbTooltipModule, NgClass, ContextEditorComponent, TranslatorPipe]
 })
 export class ContextsComponent implements OnInit {
+  protected preference = inject(PreferenceResolver);
+  protected httpService = inject(HttpService);
+  protected authenticationService = inject(AuthenticationService);
+  protected node = inject(NodeResolver);
+  protected users = inject(UsersResolver);
+  protected contexts = inject(ContextsResolver);
+  protected utilsService = inject(UtilsService);
+
   showAddContext: boolean = false;
   new_context: { name: string; } = {name: ""};
   contextsData: contextResolverModel[] = [];
-
-
-  constructor(protected preference: PreferenceResolver, protected httpService: HttpService, protected authenticationService: AuthenticationService, protected node: NodeResolver, protected users: UsersResolver, protected contexts: ContextsResolver, protected utilsService: UtilsService) {
-  }
 
   toggleAddContext() {
     this.showAddContext = !this.showAddContext;

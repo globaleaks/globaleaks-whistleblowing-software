@@ -7,7 +7,6 @@ import {BehaviorSubject, Observable} from "rxjs";
   providedIn: "root"
 })
 export class AppDataService {
-
   private showLoadingPanelSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   showLoadingPanel$: Observable<boolean> = this.showLoadingPanelSubject.asObservable();
 
@@ -33,6 +32,7 @@ export class AppDataService {
   receivers_by_id: any = {};
   submissionStatuses: any[];
   submission_statuses_by_id: any;
+  context_id = "";
   contexts_by_id: any = {};
   questionnaires_by_id: any = {};
 }

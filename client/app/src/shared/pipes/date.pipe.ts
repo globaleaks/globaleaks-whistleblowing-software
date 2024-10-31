@@ -21,7 +21,8 @@ const predefinedFormats: Record<Formats, Intl.DateTimeFormatOptions> = {
 };
 
 @Pipe({
-  name: "datse",
+    name: "datse",
+    standalone: true,
 })
 
 export class DatePipe implements PipeTransform {

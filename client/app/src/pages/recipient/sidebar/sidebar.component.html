@@ -1,12 +1,14 @@
 <a routerLink="/recipient/home" routerLinkActive="active" id="recipient_home" [ngClass]="{'active': isActive('/recipient/home')}" [attr.aria-current]="isActive('/recipient/home') ? 'page' : 'false'">
-    <i class="fa fa-home me-2"></i>
-    <span>{{'Home' | translate}}</span>
+  <i class="fa fa-home me-2"></i>
+  <span>{{'Home' | translate}}</span>
 </a>
 <a routerLink="/recipient/reports" routerLinkActive="active" id="recipient_reports" [ngClass]="{'active': isActive('/recipient/reports')}" [attr.aria-current]="isActive('/recipient/reports') ? 'page' : 'false'">
-    <i class="fa fa-inbox me-2"></i>
-    <span>{{'Reports' | translate}}</span>
+  <i class="fa fa-inbox me-2"></i>
+  <span>{{'Reports' | translate}}</span>
 </a>
-<a routerLink="/recipient/settings" routerLinkActive="active" id="recipient_settings" [ngClass]="{'active': isActive('/recipient/settings')}" [attr.aria-current]="isActive('/recipient/settings') ? 'page' : 'false'" *ngIf="preferenceResolver.dataModel.can_edit_general_settings">
+@if (preferenceResolver.dataModel.can_edit_general_settings) {
+  <a routerLink="/recipient/settings" routerLinkActive="active" id="recipient_settings" [ngClass]="{'active': isActive('/recipient/settings')}" [attr.aria-current]="isActive('/recipient/settings') ? 'page' : 'false'">
     <i class="fa-solid fa-sliders me-2"></i>
     <span>{{'Settings' | translate}}</span>
-</a>
+  </a>
+}

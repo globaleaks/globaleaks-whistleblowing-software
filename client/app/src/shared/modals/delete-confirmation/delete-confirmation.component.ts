@@ -1,23 +1,29 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Input} from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Router} from "@angular/router";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
-  selector: "src-delete-confirmation",
-  templateUrl: "./delete-confirmation.component.html"
+    selector: "src-delete-confirmation",
+    templateUrl: "./delete-confirmation.component.html",
+    standalone: true,
+    imports: [TranslateModule, TranslatorPipe]
 })
 export class DeleteConfirmationComponent {
+  private modalService = inject(NgbActiveModal);
+  private http = inject(HttpClient);
+  private utils = inject(UtilsService);
+  private router = inject(Router);
+
 
   @Input() args: any;
   @Input() selected_tips: string[];
   @Input() operation: string;
   confirmFunction: () => void;
-
-  constructor(private modalService: NgbActiveModal, private http: HttpClient, private utils: UtilsService, private router: Router) {
-  }
 
   confirm() {
     this.cancel();

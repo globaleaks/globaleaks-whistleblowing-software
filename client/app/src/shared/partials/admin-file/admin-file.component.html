@@ -1,23 +1,23 @@
 <label>{{ adminFile.title }}</label>
 <div class="uploadfile" [ngClass]="'file-' + adminFile.varname">
-    <ng-container *ngIf="!nodeData[adminFile.varname]">
-        <div class="custom-file">
-            <input #uploader [attr.id]="'customFile-' + adminFile.varname" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files, adminFile.varname)" />
-            <label [attr.for]="'customFile-' + adminFile.varname" class="btn btn-sm btn-primary">
-                <i class="fa-solid fa-upload"></i>
-                <span>{{ 'Upload' | translate }}</span>
-            </label>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="nodeData[adminFile.varname]">
-        <a class="btn btn-sm btn-primary" [href]="'s/' + adminFile.varname" [download]="adminFile.filename">
-            <i class="fa-solid fa-download"></i>
-            <span>{{ 'Download' | translate }}</span>
-        </a>
-        <button class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + adminFile.varname)">
-            <i class="fa-solid fa-trash"></i>
-            <span>{{ 'Delete' | translate }}</span>
-        </button>
-    </ng-container>
-    <br>
-</div>
+  @if (!nodeData[adminFile.varname]) {
+    <div class="custom-file">
+      <input #uploader [attr.id]="'customFile-' + adminFile.varname" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files, adminFile.varname)" />
+      <label [attr.for]="'customFile-' + adminFile.varname" class="btn btn-sm btn-primary">
+        <i class="fa-solid fa-upload"></i>
+        <span>{{ 'Upload' | translate }}</span>
+      </label>
+    </div>
+  }
+  @if (nodeData[adminFile.varname]) {
+    <a class="btn btn-sm btn-primary" [href]="'s/' + adminFile.varname" [download]="adminFile.filename">
+      <i class="fa-solid fa-download"></i>
+      <span>{{ 'Download' | translate }}</span>
+    </a>
+    <button class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + adminFile.varname)">
+      <i class="fa-solid fa-trash"></i>
+      <span>{{ 'Delete' | translate }}</span>
+    </button>
+  }
+  <br>
+  </div>

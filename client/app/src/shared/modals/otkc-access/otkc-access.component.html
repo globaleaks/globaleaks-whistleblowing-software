@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-md-12">
             <label for="ReceiptCode">{{ 'For security reasons, the code needs to be changed' | translate }}.</label>
-            <div class="mt-2 form-inline d-flex justify-content-center" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}"
+            <div class="mt-2 form-inline d-flex justify-content-center" ngbTooltip="{{'Copy to clipboard' | translate}}"
                 (click)="utils.copyToClipboard(arg.receipt)">
                 <div class="form-group d-block mx-auto">
                     <div class="input-group">

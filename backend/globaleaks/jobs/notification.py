@@ -46,7 +46,7 @@ class MailGenerator(object):
         user_id = data['user']['id']
         language = data['user']['language']
 
-        # Do not spool emails if the receiver has disabled notifications
+        # Do not generate emails if the receiver has disabled notifications
         if not data['user']['notification'] or ('tip' in data and not data['tip']['enable_notifications']):
             log.debug("Discarding emails for %s due to receiver's preference.", user_id)
             return

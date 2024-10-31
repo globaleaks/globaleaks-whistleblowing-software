@@ -1,34 +1,38 @@
 <form class="add-field" #newField="ngForm">
-    <div class="form-group">
-        <label>{{ 'Question' | translate }}</label>
-        <input name="new_field.label" class="form-control" [(ngModel)]="new_field.label" type="text" required>
-        <div class="text-danger" *ngIf="newField.form.get('label')?.errors?.['required']">
-            <span>{{ 'This field is mandatory' | translate }}</span>
-        </div>
-    </div>
-    <div class="form-group">
-        <label>{{ 'Type' | translate }}</label>
-        <select name="new_field.type" class="form-select-custom" [(ngModel)]="new_field.type" required>
-            <option value="inputbox">{{ 'Single-line text input' | translate }}</option>
-            <option value="textarea">{{ 'Multi-line text input' | translate }}</option>
-            <option value="selectbox">{{ 'Selection box' | translate }}</option>
-            <option value="multichoice">{{ 'Multiple choice input' | translate }}</option>
-            <option value="checkbox">{{ 'Checkbox' | translate }}</option>
-            <option value="fileupload">{{ 'Attachment' | translate }}</option>
-            <option value="tos">{{ 'Terms of service' | translate }}</option>
-            <option value="date">{{ 'Date' | translate }}</option>
-            <option value="daterange">{{ 'Date range' | translate }}</option>
-            <option value="voice">{{ 'Voice' | translate }}</option>
-            <option value="fieldgroup">{{ 'Group of questions' | translate }}</option>
-        </select>
-        <div class="text-danger" *ngIf="newField.form.get('type')?.errors?.['required']">
-            <span>{{ 'This field is mandatory' | translate }}</span>
-        </div>
-    </div>
-    <div class="form-group">
-        <button id="add-field-btn" class="btn btn-primary" [disabled]="newField.invalid" (click)="addField()">
-            <i class="fa-solid fa-plus"></i>
-            <span>{{ 'Add' | translate }}</span>
-        </button>
-    </div>
+  <div class="form-group">
+    <label>{{ 'Question' | translate }}</label>
+    <input name="new_field.label" class="form-control" [(ngModel)]="new_field.label" type="text" required>
+    @if (newField.form.get('label')?.errors?.['required']) {
+      <div class="text-danger">
+        <span>{{ 'This field is mandatory' | translate }}</span>
+      </div>
+    }
+  </div>
+  <div class="form-group">
+    <label>{{ 'Type' | translate }}</label>
+    <select name="new_field.type" class="form-select-custom" [(ngModel)]="new_field.type" required>
+      <option value="inputbox">{{ 'Single-line text input' | translate }}</option>
+      <option value="textarea">{{ 'Multi-line text input' | translate }}</option>
+      <option value="selectbox">{{ 'Selection box' | translate }}</option>
+      <option value="multichoice">{{ 'Multiple choice input' | translate }}</option>
+      <option value="checkbox">{{ 'Checkbox' | translate }}</option>
+      <option value="fileupload">{{ 'Attachment' | translate }}</option>
+      <option value="tos">{{ 'Terms of service' | translate }}</option>
+      <option value="date">{{ 'Date' | translate }}</option>
+      <option value="daterange">{{ 'Date range' | translate }}</option>
+      <option value="voice">{{ 'Voice' | translate }}</option>
+      <option value="fieldgroup">{{ 'Group of questions' | translate }}</option>
+    </select>
+    @if (newField.form.get('type')?.errors?.['required']) {
+      <div class="text-danger">
+        <span>{{ 'This field is mandatory' | translate }}</span>
+      </div>
+    }
+  </div>
+  <div class="form-group">
+    <button id="add-field-btn" class="btn btn-primary" [disabled]="newField.invalid" (click)="addField()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+  </div>
 </form>

@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {Router, UrlTree} from "@angular/router";
 import {Observable} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -9,14 +9,17 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class ReceiverGuard {
-  constructor(private utilsService: UtilsService, private appConfigService: AppConfigService, private router: Router, public authenticationService: AuthenticationService) {
-  }
+  private utilsService = inject(UtilsService);
+  private appConfigService = inject(AppConfigService);
+  private router = inject(Router);
+  authenticationService = inject(AuthenticationService);
+
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (this.authenticationService.session) {
       if(this.authenticationService.session.role === "receiver"){
         this.appConfigService.setPage(this.router.url);
-      }else {
+      } else {
         this.router.navigateByUrl("/login").then();
       }
       return true;

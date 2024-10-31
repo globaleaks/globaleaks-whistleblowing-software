@@ -133,10 +133,14 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
         State.totp_verify(user.two_factor_secret, authcode)
 
     crypto_prv_key = ''
+    user_key = GCE.derive_key(password.encode(), user.salt)
     if user.crypto_prv_key:
-        user_key = GCE.derive_key(password.encode(), user.salt)
         crypto_prv_key = GCE.symmetric_decrypt(user_key, Base64Encoder.decode(user.crypto_prv_key))
     elif State.tenants[tid].cache.encryption:
+       # Special condition where the user is accessing for the first time via password
+       # on a system with no escrow keys.
+        crypto_prv_key, _ = GCE.generate_keypair()
+
         # Force the password change on which the user key will be created
         user.password_change_needed = True
 

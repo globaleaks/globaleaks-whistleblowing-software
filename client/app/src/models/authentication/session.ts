@@ -1,7 +1,4 @@
-import {redirectResolverModel} from "../resolvers/redirect-resolver-model";
-
 export class Session {
-  redirect: redirectResolverModel;
   id: string;
   role: string;
   encryption: boolean;
@@ -13,6 +10,7 @@ export class Session {
   two_factor: boolean;
   permissions: { can_upload_files: boolean };
   token: any;
+  redirect: string;
 }
 
 export interface Properties {

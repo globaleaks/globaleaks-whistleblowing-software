@@ -1,42 +1,46 @@
-<div *ngIf="!authentication.requireAuthCode">
+@if (!authentication.requireAuthCode) {
+  <div>
     <div class="form-group">
-        <div class="input-group mb-3">
-            <span class="input-group-text">
-                <i class="fa-solid fa-user"></i>
-            </span>
-            <input class="form-control" name="username" [attr.aria-label]="'Username' | translate" placeholder="{{'Username' | translate}}" [(ngModel)]="authentication.loginData.loginUsername" type="text" autofocus required />
-        </div>
+      <div class="input-group mb-3">
+        <span class="input-group-text">
+          <i class="fa-solid fa-user"></i>
+        </span>
+        <input class="form-control" name="username" [attr.aria-label]="'Username' | translate" placeholder="{{'Username' | translate}}" [(ngModel)]="authentication.loginData.loginUsername" type="text" autofocus required />
+      </div>
     </div>
     <div class="form-group mb-3">
-        <div class="input-group">
-            <span class="input-group-text">
-                <i class="fa-solid fa-lock"></i>
-            </span>
-            <input class="form-control" name="password" [attr.aria-label]="'Password' | translate" placeholder="{{'Password' | translate}}" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
-        </div>
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="fa-solid fa-lock"></i>
+        </span>
+        <input class="form-control" name="password" [attr.aria-label]="'Password' | translate" placeholder="{{'Password' | translate}}" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
+      </div>
     </div>
     <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-        <i class="fa-solid fa-sign-in-alt"></i>
-        <span>{{'Log in'| translate}}</span>
+      <i class="fa-solid fa-sign-in-alt"></i>
+      <span>{{'Log in'| translate}}</span>
     </button>
     <span id="forgot-button">
-        <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
+      <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
     </span>
-</div>
-<div *ngIf="authentication.requireAuthCode">
+  </div>
+}
+@if (authentication.requireAuthCode) {
+  <div>
     <div class="form-group">
-        <label for="input-2fa">{{'Enter the two factor authentication code'|translate}}</label>
+      <label for="input-2fa">{{'Enter the two factor authentication code'|translate}}</label>
     </div>
     <div class="input-group">
-        <input name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
-        <div class="input-group-btn">
-            <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator.invalid || authentication.loginData.loginAuthCode.length !=6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
-                <i class="fa-solid fa-sign-in-alt"></i>
-                <span>{{'Log in'|translate}}</span>
-            </button>
-            <a class="btn" (click)="utils.openSupportModal(appDataService)" data-toggle="tooltip" title="{{'Request support' | translate}}">
-                <i class="fa-solid fa-life-ring"></i>
-            </a>
-        </div>
+      <input name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
+      <div class="input-group-btn">
+        <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator.invalid || authentication.loginData.loginAuthCode.length !=6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
+          <i class="fa-solid fa-sign-in-alt"></i>
+          <span>{{'Log in'|translate}}</span>
+        </button>
+        <a class="btn" (click)="utils.openSupportModal(appDataService)" ngbTooltip="{{'Request support' | translate}}">
+          <i class="fa-solid fa-life-ring"></i>
+        </a>
+      </div>
     </div>
-</div>
+  </div>
+}

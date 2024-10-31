@@ -1,31 +1,35 @@
 <div class="config-section">
-    <div>
-        <span>{{'Report statuses'|translate}}</span>
-        <button class="btn btn-sm btn-primary show-add-user-btn" (click)="toggleAddStatus()">
+  <div>
+    <span>{{'Report statuses'|translate}}</span>
+    <button class="btn btn-sm btn-primary show-add-user-btn" (click)="toggleAddStatus()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{'Add'|translate}}</span>
+    </button>
+  </div>
+  @if (showAddStatus) {
+    <div class="config-section row">
+      <div ngForm="newSubmissionStatus" #newSubmissionStatus="ngForm" class="addSubmissionStatus col-md-6">
+        <div class="form-group">
+          <label>
+            <span>{{'Label'|translate}}</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+          </label>
+          <div [ngClass]="{'is-invalid': newSubmissionStatus?.errors?.['required']}">
+            <input name="name" class="form-control" [(ngModel)]="newSubmissionsStatus.label" type="text" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <button id="add-btn" class="btn btn-primary" [disabled]="newSubmissionStatus.invalid" (click)="addSubmissionStatus(); toggleAddStatus()" type="submit">
             <i class="fa-solid fa-plus"></i>
             <span>{{'Add'|translate}}</span>
-        </button>
-    </div>
-    <div class="config-section row" *ngIf="showAddStatus">
-        <div ngForm="newSubmissionStatus" #newSubmissionStatus="ngForm" class="addSubmissionStatus col-md-6">
-            <div class="form-group">
-                <label>
-                    <span>{{'Label'|translate}}</span>
-                    <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
-                </label>
-                <div [ngClass]="{'is-invalid': newSubmissionStatus?.errors?.['required']}">
-                    <input name="name" class="form-control" [(ngModel)]="newSubmissionsStatus.label" type="text" required />
-                </div>
-            </div>
-            <div class="form-group">
-                <button id="add-btn" class="btn btn-primary" [disabled]="newSubmissionStatus.invalid" (click)="addSubmissionStatus(); toggleAddStatus()" type="submit">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>{{'Add'|translate}}</span>
-                </button>
-            </div>
+          </button>
         </div>
+      </div>
     </div>
-    <div *ngFor="let submissions_status of appDataServices.submissionStatuses; let index = index;let first = first; let last = last;">
-        <src-substatusmanager [submissionsStatus]="submissions_status" [submissionStatuses]="appDataServices.submissionStatuses" [index]="index" [first]="first" [last]="last"></src-substatusmanager>
+  }
+  @for (submissions_status of appDataServices.submissionStatuses; track submissions_status; let index = $index; let first = $first; let last = $last) {
+    <div>
+      <src-substatusmanager [submissionsStatus]="submissions_status" [submissionStatuses]="appDataServices.submissionStatuses" [index]="index" [first]="first" [last]="last"></src-substatusmanager>
     </div>
+  }
 </div>

@@ -1,114 +1,168 @@
 <div id="TipInfoBox" class="card card-default">
-    <div class="card-header" *ngIf="authenticationService.session?.role === 'receiver'">
-        <div class="row justify-content-between">
-            <div class="col-md-12 p-0">
-                <div class="float-start">
-                    <span class="input-group ms-1">
-                        <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="tipService.tip.label" />
-                        <span class="input-group-append" data-toggle="tooltip" title="{{'Label the report' | translate}} ">
-                            <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(tipService.tip.label)">
-                                <i class="fa-solid fa-tag"></i>
-                            </button>
-                        </span>
-                    </span>
-                </div>
-            </div>
+  @if (authenticationService.session?.role === 'receiver') {
+    <div class="card-header">
+      <div class="row justify-content-between">
+        <div class="col-md-12 p-0">
+          <div class="float-start">
+            <span class="input-group ms-1">
+              <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="tipService.tip.label" />
+              <span class="input-group-append" ngbTooltip="{{'Label the report' | translate}} ">
+                <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(tipService.tip.label)">
+                  <i class="fa-solid fa-tag"></i>
+                </button>
+              </span>
+            </span>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="card-body">
-        <div class="text-center mb-2">
-            <span class="fw-bold">ID:</span>
-            <span>{{tipService.tip.id}}</span>
-        </div>
-        <table class="table table-borderless table-striped">
-            <thead>
-            <tr>
-                <th class="TipInfoID" *ngIf="authenticationService.session?.role === 'receiver'">
-                    <i class="fa-solid fa-hashtag"></i>
-                </th>
-                <th class="TipInfoContext" *ngIf="appDataService.public.contexts.length > 1">
-                    <i class="fa-solid fa-inbox"></i>
-                    <span>{{'Channel'|translate}}</span>
-                </th>
-                <th class="TipInfoSubmissionDate">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>{{'Date'|translate}}</span>
-                </th>
-                <th class="TipInfoLastUpdate">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>{{'Last update'|translate}}</span>
-                </th>
-                <th class="TipInfoExpirationDate">
-                    <i class="fa-solid fa-hourglass"></i>
-                    <span>{{'Expiration date'|translate}}</span>
-                </th>
-                <th class="TipInfoReminderDate" *ngIf="authenticationService.session?.role === 'receiver'">
-                    <i class="fa-solid fa-bell"></i>
-                    <span>{{'Reminder date'|translate}}</span>
-                </th>
-                <th class="TipInfoReadReceipt" *ngIf="authenticationService.session?.role === 'receiver'">
-                    <i class="fa-solid fa-envelope-circle-check"></i>
-                </th>
-                <th class="TipInfoConnection" *ngIf="authenticationService.session?.role === 'receiver'">
-                    <i class="fa-solid fa-network-wired"></i>
-                    <span>{{'Tor'|translate}}</span>
-                </th>
-                <th class="TipInfoSubmissionStatus">
-                    <i class="fa-solid fa-dot-circle"></i>
-                    <span>{{'Status'|translate}}</span>
-                </th>
-                <th class="TipInfoScore" *ngIf="authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system">
-                    <i class="fa-solid fa-flash"></i>
-                    <span>{{'Score'|translate}}</span>
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <ng-container *ngIf="loading">
-                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-                </ng-container>
-                <ng-container *ngIf="!loading">
-                    <td class="TipInfoID" *ngIf="authenticationService.session?.role === 'receiver'">
-                        {{tipService.tip.progressive}}
-                    </td>
-                    <td class="TipInfoContext" *ngIf="appDataService.public.contexts.length > 1">
-                        <ng-container *ngIf="tipService.tip.context">
-                            {{tipService.tip.context.name}}
-                        </ng-container>
-                    </td>
-                    <td class="TipInfoCreationDate">{{tipService.tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-                    <td class="TipInfoUpdateDate">{{tipService.tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
-                    <td class="TipInfoExpirationDate">
-                        <span *ngIf="!utilsService.isNever(tipService.tip.expiration_date)">{{tipService.tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
-                        <span *ngIf="utilsService.isNever(tipService.tip.expiration_date)">-</span>
-                    </td>
-                    <td class="TipInfoReminderDate" *ngIf="authenticationService.session?.role === 'receiver'">
-                        <span *ngIf="!utilsService.isNever(tipService.tip.reminder_date)">
-                            <span>{{tipService.tip.reminder_date | date:'dd-MM-yyyy'}}</span>
-                            <i *ngIf="markReportStatus(tipService.tip.reminder_date)" class="reminder fa-solid fa-bell"></i>
-                        </span>
-                        <i *ngIf="utilsService.isNever(tipService.tip.reminder_date)" class="fa-solid fa-minus"></i>
-                    </td>
-                    <td class="TipInfoLastAccess" *ngIf="authenticationService.session?.role === 'receiver'">
-                        <i *ngIf="tipService.tip.last_access >= tipService.tip.update_date" class="fa-solid fa-check" data-toggle="tooltip" title="{{'The whistleblower has already read the last update' | translate}} ({{tipService.tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>
-                        <i *ngIf="tipService.tip.last_access < tipService.tip.update_date" class="fa-solid fa-times" data-toggle="tooltip" title="{{'The whistleblower has not read the last update yet' | translate}}">
-                        </i>
-                    </td>
-                    <td class="TipInfoConnection" *ngIf="authenticationService.session?.role === 'receiver'">
-                        <i *ngIf="tipService.tip.tor" class="fa-solid fa-check"></i>
-                        <i *ngIf="!tipService.tip.tor" class="fa-solid fa-times"></i>
-                    </td>
-                    <td class="TipInfoSubmissionStatus">{{tipService.tip.submissionStatusStr | translate}}</td>
-                    <td class="TipInfoScore" *ngIf="authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system" [ngSwitch]="tipService.tip.score">
-                        <span *ngSwitchCase="0">-</span>
-                        <span class="badge bg-primary" *ngSwitchCase="1">{{'Low'|translate}}</span>
-                        <span class="badge bg-primary" *ngSwitchCase="2">{{'Medium'|translate}}</span>
-                        <span class="badge bg-primary" *ngSwitchCase="3">{{'High'|translate}}</span>
-                    </td>
-                </ng-container>
-            </tr>
-            </tbody>
-        </table>
+  }
+  <div class="card-body">
+    <div class="text-center mb-2">
+      <span class="fw-bold">ID:</span>
+      <span>{{tipService.tip.id}}</span>
     </div>
+    <table class="table table-borderless table-striped">
+      <thead>
+        <tr>
+          @if (authenticationService.session?.role === 'receiver') {
+            <th class="TipInfoID">
+              <i class="fa-solid fa-hashtag"></i>
+            </th>
+          }
+          @if (appDataService.public.contexts.length > 1) {
+            <th class="TipInfoContext">
+              <i class="fa-solid fa-inbox"></i>
+              <span>{{'Channel'|translate}}</span>
+            </th>
+          }
+          <th class="TipInfoSubmissionDate">
+            <i class="fa-solid fa-clock"></i>
+            <span>{{'Date'|translate}}</span>
+          </th>
+          <th class="TipInfoLastUpdate">
+            <i class="fa-solid fa-clock"></i>
+            <span>{{'Last update'|translate}}</span>
+          </th>
+          <th class="TipInfoExpirationDate">
+            <i class="fa-solid fa-hourglass"></i>
+            <span>{{'Expiration date'|translate}}</span>
+          </th>
+          @if (authenticationService.session?.role === 'receiver') {
+            <th class="TipInfoReminderDate">
+              <i class="fa-solid fa-bell"></i>
+              <span>{{'Reminder date'|translate}}</span>
+            </th>
+          }
+          @if (authenticationService.session?.role === 'receiver') {
+            <th class="TipInfoReadReceipt">
+              <i class="fa-solid fa-envelope-circle-check"></i>
+            </th>
+          }
+          @if (authenticationService.session?.role === 'receiver') {
+            <th class="TipInfoConnection">
+              <i class="fa-solid fa-network-wired"></i>
+              <span>{{'Tor'|translate}}</span>
+            </th>
+          }
+          <th class="TipInfoSubmissionStatus">
+            <i class="fa-solid fa-dot-circle"></i>
+            <span>{{'Status'|translate}}</span>
+          </th>
+          @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
+            <th class="TipInfoScore">
+              <i class="fa-solid fa-flash"></i>
+              <span>{{'Score'|translate}}</span>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          @if (loading) {
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          }
+          @if (!loading) {
+            @if (authenticationService.session?.role === 'receiver') {
+              <td class="TipInfoID">
+                {{tipService.tip.progressive}}
+              </td>
+            }
+            @if (appDataService.public.contexts.length > 1) {
+              <td class="TipInfoContext">
+                @if (tipService.tip.context) {
+                  {{tipService.tip.context.name}}
+                }
+              </td>
+            }
+            <td class="TipInfoCreationDate">{{tipService.tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoUpdateDate">{{tipService.tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoExpirationDate">
+              @if (!utilsService.isNever(tipService.tip.expiration_date)) {
+                <span>{{tipService.tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
+              }
+              @if (utilsService.isNever(tipService.tip.expiration_date)) {
+                <span>-</span>
+              }
+            </td>
+            @if (authenticationService.session?.role === 'receiver') {
+              <td class="TipInfoReminderDate">
+                @if (!utilsService.isNever(tipService.tip.reminder_date)) {
+                  <span>
+                    <span>{{tipService.tip.reminder_date | date:'dd-MM-yyyy'}}</span>
+                    @if (markReportStatus(tipService.tip.reminder_date)) {
+                      <i class="reminder fa-solid fa-bell"></i>
+                    }
+                  </span>
+                }
+                @if (utilsService.isNever(tipService.tip.reminder_date)) {
+                  <i class="fa-solid fa-minus"></i>
+                }
+              </td>
+            }
+            @if (authenticationService.session?.role === 'receiver') {
+              <td class="TipInfoLastAccess">
+                @if (tipService.tip.last_access >= tipService.tip.update_date) {
+                  <i class="fa-solid fa-check" ngbTooltip="{{'The whistleblower has already read the last update' | translate}} ({{tipService.tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>
+                }
+                @if (tipService.tip.last_access < tipService.tip.update_date) {
+                  <i class="fa-solid fa-times" ngbTooltip="{{'The whistleblower has not read the last update yet' | translate}}">
+                  </i>
+                }
+              </td>
+            }
+            @if (authenticationService.session?.role === 'receiver') {
+              <td class="TipInfoConnection">
+                @if (tipService.tip.tor) {
+                  <i class="fa-solid fa-check"></i>
+                }
+                @if (!tipService.tip.tor) {
+                  <i class="fa-solid fa-times"></i>
+                }
+              </td>
+            }
+            <td class="TipInfoSubmissionStatus">{{tipService.tip.submissionStatusStr}}</td>
+            @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
+              <td class="TipInfoScore">
+                @switch (tipService.tip.score) {
+                  @case (0) {
+                    <span>-</span>
+                  }
+                  @case (1) {
+                    <span class="badge bg-primary">{{'Low'|translate}}</span>
+                  }
+                  @case (2) {
+                    <span class="badge bg-primary">{{'Medium'|translate}}</span>
+                  }
+                  @case (3) {
+                    <span class="badge bg-primary">{{'High'|translate}}</span>
+                  }
+                }
+              </td>
+            }
+          }
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

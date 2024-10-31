@@ -1,19 +1,25 @@
-import {Pipe, PipeTransform} from "@angular/core";
+import {Pipe, PipeTransform, inject} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 
 @Pipe({
-  name: "translate",
-  pure: false,
+    name: "translate",
+    pure: false,
+    standalone: true,
 })
 export class TranslatorPipe implements PipeTransform {
-  constructor(private translate: TranslateService) {
-  }
+  private translate = inject(TranslateService);
+
 
   transform(key: string): string {
-    let translation = this.translate.instant(key);
+    
+    if (!key) {
+      return key;
+    }
+
+    let translation = key ? this.translate.instant(key) : '';
 
     this.translate.onLangChange.subscribe(() => {
-      translation = this.translate.instant(key);
+      translation = key ? this.translate.instant(key) : '';
     });
 
     return translation;

@@ -1,13 +1,12 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TipService {
+  private fieldUtilities = inject(FieldUtilitiesService);
 
-  constructor(private fieldUtilities: FieldUtilitiesService) {
-  }
 
   filterNotTriggeredField(tip: any, parent: any, field: any, answers: any): void {
     let i;

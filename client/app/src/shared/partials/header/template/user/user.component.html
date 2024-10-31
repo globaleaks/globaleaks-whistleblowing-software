@@ -1,48 +1,64 @@
 <div [hidden]="preferences.dataModel && (preferences.dataModel.password_change_needed || preferences.dataModel.require_two_factor)" class="d-flex justify-content-end">
-	<div id="LanguagePickerBox" *ngIf="appDataService.public.node.languages_enabled.length > 1" class="order-2" [ngClass]="appDataService.public.node.wizard_done ? 'language-box' : 'language-box-extended'">
-        <label for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
-        <ng-select id="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language">
-            <ng-option *ngFor="let lang of appDataService.languages_enabled_selector | orderBy: 'native'" [value]="lang.code">
-                <span [attr.data-cy]="lang.code">{{lang.native}}</span>
-            </ng-option>
-        </ng-select>
-	</div>
-	<div id="LoginStatusBox" *ngIf="utils.showUserStatusBox(authentication, appDataService)">
-		<span id="HomeLinkBox">
-            <span *ngIf="authentication.session.role !== 'whistleblower'">
-                <a id="HomepageLink" [href]="'#'+authentication.session.homepage" title="{{'Home' | translate }}">
-                    <i class="fa-solid fa-fw fa-home"></i>
-                </a>
-                <span class="text-separator">|</span>
+  @if (appDataService.public.node.languages_enabled.length > 1) {
+    <div id="LanguagePickerBox" class="order-2" [ngClass]="appDataService.public.node.wizard_done ? 'language-box' : 'language-box-extended'">
+      <label for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
+      <ng-select labelForId="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language">
+        @for (lang of appDataService.languages_enabled_selector | orderBy: 'native'; track lang) {
+          <ng-option [value]="lang.code">
+            <span [attr.data-cy]="lang.code">{{lang.native}}</span>
+          </ng-option>
+        }
+      </ng-select>
+    </div>
+  }
+  @if (utils.showUserStatusBox(authentication, appDataService)) {
+    <div id="LoginStatusBox">
+      <span id="HomeLinkBox">
+        @if (authentication.session.role !== 'whistleblower') {
+          <span>
+            <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}">
+              <i class="fa-solid fa-fw fa-home"></i>
+            </a>
+            <span class="text-separator">|</span>
+          </span>
+        }
+      </span>
+      @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
+        <span id="PreferencesLinkBox">
+          <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}">
+            <i class="fa-solid fa-fw fa-user"></i>
+          </a>
+          <span class="text-separator">|</span>
+        </span>
+      }
+      @if (authentication.session && authentication.session.role !== 'whistleblower') {
+        <span id="SupportLinkBox">
+          <a id="SupportLink" (click)="utils.openSupportModal(appDataService)" ngbTooltip="{{'Request support' | translate}}">
+            <i class="fa-solid fa-fw fa-life-ring"></i>
+          </a>
+          <span class="text-separator">|</span>
+        </span>
+      }
+      <span id="LogoutLinkBox">
+        <i class="glyphicon glyphicon-user"></i>
+      </span>
+      <span id="LogoutLinkBox">
+        <a href="#" id="LogoutLink" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}">
+          <i class="pointer fa-solid fa-fw fa-sign-out-alt"></i>
+          @if (authentication.session.role === 'whistleblower') {
+            <span>
+              <span></span>
+              <span>{{'Logout'|translate}}</span>
             </span>
-        </span>
-		<span id="PreferencesLinkBox" *ngIf="authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session">
-            <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" title="{{'Preferences' | translate}}">
-                <i class="fa-solid fa-fw fa-user"></i>
-            </a>
-            <span class="text-separator">|</span>
-        </span>
-		<span id="SupportLinkBox" *ngIf="authentication.session && authentication.session.role !== 'whistleblower'">
-            <a id="SupportLink" (click)="utils.openSupportModal(appDataService)" title="{{'Request support' | translate}}">
-                <i class="fa-solid fa-fw fa-life-ring"></i>
-            </a>
-            <span class="text-separator">|</span>
-        </span>
-		<span id="LogoutLinkBox">
-            <i class="glyphicon glyphicon-user"></i>
-        </span>
-		<span id="LogoutLinkBox">
-            <a href="#" id="LogoutLink" (click)="onLogout($event)" title="{{'Logout' | translate}}">
-                <i class="pointer fa-solid fa-fw fa-sign-out-alt"></i>
-                <span *ngIf="authentication.session.role === 'whistleblower'">
-                    <span></span>
-                    <span>{{'Logout'|translate}}</span>
-                </span>
-            </a>
-        </span>
-	</div>
+          }
+        </a>
+      </span>
+    </div>
+  }
 </div>
-<div id="WhistleblowerLoginBox" class="ms-1 mb-1" *ngIf="utils.showWBLoginBox()">
+@if (utils.showWBLoginBox()) {
+  <div id="WhistleblowerLoginBox" class="ms-1 mb-1">
     <src-receipt ></src-receipt>
-</div>
+  </div>
+}
 

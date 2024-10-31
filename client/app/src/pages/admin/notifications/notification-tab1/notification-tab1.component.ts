@@ -1,22 +1,27 @@
-import {Component, Input} from "@angular/core";
-import {NgForm} from "@angular/forms";
+import {Component, Input, inject} from "@angular/core";
+import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {Constants} from "@app/shared/constants/constants";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {switchMap} from "rxjs";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-notification-tab1",
-  templateUrl: "./notification-tab1.component.html"
+    selector: "src-notification-tab1",
+    templateUrl: "./notification-tab1.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbTooltipModule, TranslatorPipe]
 })
 export class NotificationTab1Component {
+  protected nodeResolver = inject(NodeResolver);
+  protected notificationResolver = inject(NotificationsResolver);
+  private utilsService = inject(UtilsService);
+
   @Input() notificationForm: NgForm;
   protected readonly Constants = Constants;
-
-  constructor(protected nodeResolver: NodeResolver, protected notificationResolver: NotificationsResolver, private utilsService: UtilsService) {
-  }
 
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe(_ => {

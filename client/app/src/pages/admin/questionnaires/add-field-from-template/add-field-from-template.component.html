@@ -1,17 +1,21 @@
 <form class="add-field-from-template" #newField="ngForm">
-    <div class="form-group">
-        <label>{{ 'Type' | translate }}</label>
-        <select name="template_id" class="form-select-custom" [(ngModel)]="new_field.template_id" required>
-            <option *ngFor="let f of fieldTemplatesData" [value]="f.id">{{ f.label | translate }}</option>
-        </select>
-        <div class="text-danger" *ngIf="newField.form.get('template_id')?.errors?.['required']">
-            <span>{{ 'This field is mandatory' | translate }}</span>
-        </div>
-    </div>
-    <div class="form-group">
-        <button id="add-field-btn" class="btn btn-primary" (click)="addFieldFromTemplate()" [disabled]="newField.invalid" type="button">
-            <i class="fa-solid fa-plus"></i>
-            <span>{{ 'Add' | translate }}</span>
-        </button>
-    </div>
+  <div class="form-group">
+    <label>{{ 'Type' | translate }}</label>
+    <select name="template_id" class="form-select-custom" [(ngModel)]="new_field.template_id" required>
+      @for (f of fieldTemplatesData; track f) {
+        <option [value]="f.id">{{ f.label | translate }}</option>
+      }
+    </select>
+    @if (newField.form.get('template_id')?.errors?.['required']) {
+      <div class="text-danger">
+        <span>{{ 'This field is mandatory' | translate }}</span>
+      </div>
+    }
+  </div>
+  <div class="form-group">
+    <button id="add-field-btn" class="btn btn-primary" (click)="addFieldFromTemplate()" [disabled]="newField.invalid" type="button">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+  </div>
 </form>

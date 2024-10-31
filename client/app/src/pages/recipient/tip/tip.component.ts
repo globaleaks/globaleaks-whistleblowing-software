@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
@@ -23,20 +23,67 @@ import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Tab} from "@app/models/component-model/tab";
-import {RecieverTipData} from "@app/models/reciever/reciever-tip-data";
+import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {Receiver} from "@app/models/app/public-model";
 import {TipUploadWbFileComponent} from "@app/shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
-import {TranslateService} from "@ngx-translate/core";
+import {TranslateService, TranslateModule} from "@ngx-translate/core";
+import {NgClass, NgTemplateOutlet} from "@angular/common";
+import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
+import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
+import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
+import {WhistleBlowerIdentityReceiverComponent} from "../whistleblower-identity-receiver/whistleblower-identity-receiver.component";
+import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver/tip-files-receiver.component";
+import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
+import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
-  selector: "src-tip",
-  templateUrl: "./tip.component.html",
+    selector: "src-tip",
+    templateUrl: "./tip.component.html",
+    standalone: true,
+    imports: [
+    NgClass,
+    TipInfoComponent,
+    TipReceiverListComponent,
+    TipQuestionnaireAnswersComponent,
+    WhistleBlowerIdentityReceiverComponent,
+    TipFilesReceiverComponent,
+    NgbNav,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLinkButton,
+    NgbNavLinkBase,
+    NgbNavContent,
+    NgTemplateOutlet,
+    NgbNavOutlet,
+    NgbTooltipModule,
+    TipUploadWbFileComponent_1,
+    TipCommentsComponent_1,
+    TranslateModule,
+    TranslatorPipe
+],
 })
 export class TipComponent implements OnInit {
+  private translateService = inject(TranslateService);
+  private tipService = inject(TipService);
+  private appConfigServices = inject(AppConfigService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  private cryptoService = inject(CryptoService);
+  protected utils = inject(UtilsService);
+  protected preferencesService = inject(PreferenceResolver);
+  protected modalService = inject(NgbModal);
+  private activatedRoute = inject(ActivatedRoute);
+  protected httpService = inject(HttpService);
+  protected http = inject(HttpClient);
+  protected appDataService = inject(AppDataService);
+  protected RTipService = inject(ReceiverTipService);
+  protected authenticationService = inject(AuthenticationService);
+
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
@@ -51,9 +98,6 @@ export class TipComponent implements OnInit {
   redactMode:boolean = false;
   redactOperationTitle: string;
   tabs: Tab[];
-
-  constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
-  }
 
   ngOnInit() {
     this.loadTipDate();
@@ -103,7 +147,7 @@ export class TipComponent implements OnInit {
           component: this.tab2
         },
         {
-          title: "Only me",
+          title: "Me only",
           component: this.tab3
         },
       ];
@@ -253,7 +297,7 @@ export class TipComponent implements OnInit {
         for (const y of x.substatuses) {
           output.push({
             id: `${x.id}:${y.id}`,
-            label: this.translateService.instant(x.label) + ' \u2013 ' + y.label,
+            label: (x.label ? this.translateService.instant(x.label) : '') + ' \u2013 ' + y.label,
             status: x.id,
             substatus: y.id,
             order: output.length,

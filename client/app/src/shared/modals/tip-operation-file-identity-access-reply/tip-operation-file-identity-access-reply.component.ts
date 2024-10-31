@@ -1,18 +1,23 @@
-import {Component, Input} from "@angular/core";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {Component, Input, inject} from "@angular/core";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-tip-operation-file-identity-access-reply",
-  templateUrl: "./tip-operation-file-identity-access-reply.component.html"
+    selector: "src-tip-operation-file-identity-access-reply",
+    templateUrl: "./tip-operation-file-identity-access-reply.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
 })
 export class TipOperationFileIdentityAccessReplyComponent {
+  private httpService = inject(HttpService);
+  private modalService = inject(NgbModal);
+
 
   reply_motivation = "";
   @Input() iar_id = "";
-
-  constructor(private httpService: HttpService, private modalService: NgbModal) {
-  }
 
   cancel() {
     this.modalService.dismissAll();

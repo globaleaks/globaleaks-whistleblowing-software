@@ -8,7 +8,7 @@
 # fc2d9c36d73e741383fbbf46a4aac49f_013445b, 2014
 # Communia <ameaneantie@riseup.net>, 2016
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
-# Cauan Henrique Zorzenon <cauanzorzenon@gmail.com>, 2023-2024
+# Cauan Henrique Zorzenon <cauanzorzenon1@protonmail.com>, 2023-2024
 # C. E., 2019-2020
 # C. E., 2020
 # C. E., 2019
@@ -26,7 +26,7 @@
 # Eduardo Bonsi, 2013
 # Eduardo Bonsi, 2013-2014
 # fc2d9c36d73e741383fbbf46a4aac49f_013445b, 2014
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2015,2017-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2015,2017-2022,2024
 # Hamilton Junior Mendes Lopes <gigas_x_141@hotmail.com>, 2015
 # Hellen Cristina Silva <hlncrsilva@gmail.com>, 2015
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -46,7 +46,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Cauan Henrique Zorzenon <cauanzorzenon@gmail.com>, 2023-2024\n"
+"Last-Translator: Cauan Henrique Zorzenon <cauanzorzenon1@protonmail.com>, 2023-2024\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/otf/globaleaks/language/pt_BR/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

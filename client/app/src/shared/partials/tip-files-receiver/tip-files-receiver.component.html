@@ -1,73 +1,92 @@
-<div *ngIf="tipService.tip" id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
+@if (tipService.tip) {
+  <div id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
     <div class="card-header clearfix" (click)="collapsed = !collapsed; $event.stopPropagation();">
-        <span>{{ 'Attachments' | translate }}</span>
-        <span class="float-end">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
-        </span>
+      <span>{{ 'Attachments' | translate }}</span>
+      <span class="float-end">
+        @if (!collapsed) {
+          <i class="fa-solid fa-chevron-up" [ngbTooltip]="'Collapse' | translate"></i>
+        }
+        @if (collapsed) {
+          <i class="fa-solid fa-chevron-down" [ngbTooltip]="'Expand' | translate"></i>
+        }
+      </span>
     </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div *ngIf="tipService.tip.wbfiles?.length" class="table-responsive">
+    @if (!collapsed) {
+      <div class="card-body">
+        @if (tipService.tip.wbfiles.length) {
+          <div class="table-responsive">
             <table class="table table-striped" id="fileList">
-                <thead>
+              <thead>
                 <tr>
-                    <th>{{ 'Filename' | translate }}</th>
-                    <th>{{ 'View' | translate }}</th>
-                    <th>{{ 'Download' | translate }}</th>
-                    <th>{{ 'Upload date' | translate }}</th>
-                    <th>{{ 'Type' | translate }}</th>
-                    <th>{{ 'File size' | translate }}</th>
+                  <th>{{ 'Filename' | translate }}</th>
+                  <th>{{ 'View' | translate }}</th>
+                  <th>{{ 'Download' | translate }}</th>
+                  <th>{{ 'Upload date' | translate }}</th>
+                  <th>{{ 'Type' | translate }}</th>
+                  <th>{{ 'File size' | translate }}</th>
                 </tr>
-                </thead>
-                <tbody id="fileListBody">
-                <ng-container *ngFor="let file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date') as index">
-                    <tr id="file-{{index}}" *ngIf="(file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
-                        <td>{{ file.name }}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                            [disabled]="!utilsService.supportedViewTypes.includes(file.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewRFile(file)">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadRFile(file)">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
-                            <span *ngIf="redactMode">
-                                <span *ngIf="preferenceResolver.dataModel.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)">
-                                  <button class="btn btn-sm btn-outline-secondary"
-                                    data-toggle="tooltip" [title]="'Mask' | translate"
-                                    (click)="redactFileOperation('full-mask', 'file', file)">
-                                    <i class="fa-solid fa-eraser"></i>
-                                  </button>
-                                </span>
-                                <span *ngIf="maskService.isMasked(file.ifile_id,tipService.tip)">
+              </thead>
+              <tbody id="fileListBody">
+                @for (file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
+                  @if ((file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)) {
+                    <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
+                      <td>{{ file.name }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
+                          [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)">
+                          <i class="fa-solid fa-download"></i>
+                        </button>
+                        @if (redactMode) {
+                          <span>
+                            @if (preferenceResolver.dataModel.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
+                              <span>
+                                <button class="btn btn-sm btn-outline-secondary"
+ [ngbTooltip]="'Mask' | translate"
+                                  (click)="redactFileOperation('full-mask', 'file', file)">
+                                  <i class="fa-solid fa-eraser"></i>
+                                </button>
+                              </span>
+                            }
+                            @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
+                              <span>
+                                @if (preferenceResolver.dataModel.can_mask_information) {
                                   <button class="btn btn-sm btn-outline-secondary"
                                     [ngClass]="{ 'active': redactMode }"
-                                    data-toggle="tooltip" [title]="'Mask' | translate"
-                                    *ngIf="preferenceResolver.dataModel.can_mask_information"
+ [ngbTooltip]="'Mask' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
                                     (click)="redactFileOperation('full-unmask', 'file', file)">
                                     <i class="fa-solid fa-eraser"></i>
                                   </button>
+                                }
+                                @if (preferenceResolver.dataModel.can_redact_information) {
                                   <button class="btn btn-sm btn-danger tip-action-delete-file"
-                                    data-toggle="tooltip" [title]="'Redact' | translate"
-                                    *ngIf="preferenceResolver.dataModel.can_redact_information"
+ [ngbTooltip]="'Redact' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
                                     (click)="redactFileOperation('redact', 'file', file)">
                                     <i class="fa-solid fa-trash"></i>
                                   </button>
-                                </span>
-                            </span>
-                        </td>
-                        <td>{{ file.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
-                        <td>{{ file.type }}</td>
-                        <td>{{ file.size | byteFmt:2 }}</td>
-                </tr>
-                </ng-container>
-
-                </tbody>
+                                }
+                              </span>
+                            }
+                          </span>
+                        }
+                      </td>
+                      <td>{{ file.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+                      <td>{{ file.type }}</td>
+                      <td>{{ file.size | byteFmt:2 }}</td>
+                    </tr>
+                  }
+                }
+              </tbody>
             </table>
-        </div>
-    </div>
-</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

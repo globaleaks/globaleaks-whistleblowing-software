@@ -1,5 +1,5 @@
 import {AppDataService} from "@app/app-data.service";
-import {ChangeDetectorRef, Component, Input, OnInit} from "@angular/core";
+import {ChangeDetectorRef, Component, Input, OnInit, inject} from "@angular/core";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -7,12 +7,29 @@ import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {Comment} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
+import {SlicePipe, DatePipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
-  selector: "src-tip-comments",
-  templateUrl: "./tip-comments.component.html"
+    selector: "src-tip-comments",
+    templateUrl: "./tip-comments.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbPagination, NgbPaginationFirst, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationLast, NgbTooltipModule, SlicePipe, DatePipe, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
 })
 export class TipCommentsComponent implements OnInit {
+  private maskService = inject(MaskService);
+  protected preferenceResolver = inject(PreferenceResolver);
+  private rTipService = inject(ReceiverTipService);
+  protected authenticationService = inject(AuthenticationService);
+  protected utilsService = inject(UtilsService);
+  private cdr = inject(ChangeDetectorRef);
+  appDataService = inject(AppDataService);
+
   @Input() tipService: ReceiverTipService | WbtipService;
   @Input() key: string;
   @Input() redactMode: boolean;
@@ -24,10 +41,6 @@ export class TipCommentsComponent implements OnInit {
   itemsPerPage = 5;
   comments: Comment[] = [];
   newComments: Comment;
-
-  constructor(private maskService:MaskService,protected preferenceResolver:PreferenceResolver,private rTipService: ReceiverTipService, protected authenticationService: AuthenticationService, protected utilsService: UtilsService, private cdr: ChangeDetectorRef, public appDataService: AppDataService) {
-
-  }
 
   ngOnInit() {
     this.comments = this.tipService.tip.comments;

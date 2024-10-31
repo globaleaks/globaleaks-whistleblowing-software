@@ -1,13 +1,16 @@
-import {Component} from "@angular/core";
-import {Router} from "@angular/router";
+import {Component, inject} from "@angular/core";
+import {Router, RouterLink, RouterLinkActive} from "@angular/router";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-custodian-sidebar",
-  templateUrl: "./sidebar.component.html"
+    selector: "src-custodian-sidebar",
+    templateUrl: "./sidebar.component.html",
+    standalone: true,
+    imports: [RouterLink, RouterLinkActive, TranslateModule, TranslatorPipe]
 })
-export class SidebarComponent {
-  constructor(private router: Router) {
-  }
+export class CustodianSidebarComponent {
+  private router = inject(Router);
 
   isActive(route: string): boolean {
     return this.router.isActive(route, {

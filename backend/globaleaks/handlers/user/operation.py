@@ -3,6 +3,7 @@
 # Handlers dealing with user operations
 import os
 from nacl.encoding import Base32Encoder, Base64Encoder
+from nacl.public import PrivateKey
 
 from globaleaks import models
 from globaleaks.handlers.operation import OperationHandler
@@ -51,15 +52,14 @@ def change_password(session, tid, user_session, password, old_password):
     user.password_change_date = datetime_now()
     user.password_change_needed = False
 
-    cc = ''
+    cc = user_session.cc
     if config.get_val('encryption'):
         enc_key = GCE.derive_key(password.encode(), user.salt)
-        cc = user_session.cc
-        if not cc:
+        if not user.crypto_pub_key:
             # The first password change triggers the generation
             # of the user encryption private key and its backup
-            cc, user.crypto_pub_key = GCE.generate_keypair()
-            user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
+            user.crypto_pub_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
+            user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(user_session.cc)
 
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(enc_key, cc))
 

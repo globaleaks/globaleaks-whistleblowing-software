@@ -11,16 +11,24 @@
         </p>
     </form>
 </div>
-<div id="HTTPSSettings" *ngIf="appDataService.public.node.hostname">
-    <div class="card card-default">
-        <div class="card-body" [ngSwitch]="menuState">
+@if (appDataService.public.node.hostname) {
+    <div id="HTTPSSettings">
+        <div class="card card-default">
+            <div class="card-body">
             <src-https-status [tlsConfig]="tlsConfig" (dataToParent)="httpsStatus($event)"></src-https-status>
-            <div *ngSwitchCase="'setup'">
-                <src-https-setup (dataToParent)="httpsSetup($event)"></src-https-setup>
-            </div>
-            <div *ngSwitchDefault>
-                <src-https-files [tlsConfig]="tlsConfig" [state]="state" (dataToParent)="httpsFiles($event)"></src-https-files>
+            @switch (menuState) {
+            @case ('setup') {
+                <div>
+                    <src-https-setup (dataToParent)="httpsSetup($event)"></src-https-setup>
+                </div>
+            }
+            @default {
+                <div>
+                    <src-https-files [tlsConfig]="tlsConfig" [state]="state" (dataToParent)="httpsFiles($event)"></src-https-files>
+                </div>
+            }
+            }
             </div>
         </div>
     </div>
-</div>
+}

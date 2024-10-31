@@ -1,46 +1,64 @@
 <div class="submissionStatusList">
-    <div ngForm="editsubmissionStatus" #editsubmissionStatus="ngForm">
-        <div class="config-item">
-            <div class="editorHeader row">
-                <span class="col-md-7" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">{{ submissionsStatus.label ? (submissionsStatus.label | translate) : '' }}</span>
-                <span class="col-md-5 clearfix">
-                    <span class="float-end">
-                        <button *ngIf="!first" class="btn btn-sm btn-primary" (click)="moveUp($event, index)" data-toggle="tooltip" title="{{'Move up' | translate}}">
-                            <i class="fa-solid fa-chevron-up"></i>
-                        </button>
-                        <button *ngIf="!last" class="btn btn-sm btn-primary" (click)="moveDown($event, index)" data-toggle="tooltip" title="{{'Move down' | translate}}">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                        <button id="edit-submissions-status" class="btn btn-sm btn-outline-secondary" *ngIf="isEditable(submissionsStatus) && !editing" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">
-                            <span>{{'Edit'|translate}}</span>
-                        </button>
-                        <button class="btn btn-sm btn-primary" *ngIf="editing" [disabled]="editsubmissionStatus.invalid" (click)="saveSubmissionsStatus(submissionsStatus); toggleEditing(submissionsStatus);">
-                            <span>{{'Save'|translate}}</span>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary" *ngIf="editing" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">
-                            <span>{{'Cancel'|translate}}</span>
-                        </button>
-                        <button id="delete-submissions-status" class="btn btn-sm btn-danger" *ngIf="!isSystemDefined(submissionsStatus)" (click)="deleteSubmissionStatus(submissionsStatus); $event.stopPropagation();">
-                            <span>{{'Delete'|translate}}</span>
-                        </button>
-                    </span>
-                </span>
-            </div>
-            <div *ngIf="editing">
-                <hr />
-                <div class="row">
-                    <div class="col-md-6" *ngIf="!isSystemDefined(submissionsStatus)">
-                        <div class="form-group">
-                            <label>{{'Label'|translate}}</label>
-                            <input name="name" class="form-control" [(ngModel)]="submissionsStatus.label" [disabled]="submissionsStatus.system_defined" type="text" required>
-                            <div class="text-danger" *ngIf="editsubmissionStatus?.errors?.['required']">{{'This field is mandatory'|translate}}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <src-substatuses [submissionsStatus]="submissionsStatus"></src-substatuses>
-                    </div>
+  <div ngForm="editsubmissionStatus" #editsubmissionStatus="ngForm">
+    <div class="config-item">
+      <div class="editorHeader row">
+        <span class="col-md-7" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">{{ submissionsStatus.label ? (submissionsStatus.label | translate) : '' }}</span>
+        <span class="col-md-5 clearfix">
+          <span class="float-end">
+            @if (!first) {
+              <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+            }
+            @if (!last) {
+              <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            }
+            @if (isEditable(submissionsStatus) && !editing) {
+              <button id="edit-submissions-status" class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">
+                <span>{{'Edit'|translate}}</span>
+              </button>
+            }
+            @if (editing) {
+              <button class="btn btn-sm btn-primary" [disabled]="editsubmissionStatus.invalid" (click)="saveSubmissionsStatus(submissionsStatus); toggleEditing(submissionsStatus);">
+                <span>{{'Save'|translate}}</span>
+              </button>
+            }
+            @if (editing) {
+              <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">
+                <span>{{'Cancel'|translate}}</span>
+              </button>
+            }
+            @if (!isSystemDefined(submissionsStatus)) {
+              <button id="delete-submissions-status" class="btn btn-sm btn-danger" (click)="deleteSubmissionStatus(submissionsStatus); $event.stopPropagation();">
+                <span>{{'Delete'|translate}}</span>
+              </button>
+            }
+          </span>
+        </span>
+      </div>
+      @if (editing) {
+        <div>
+          <hr />
+          <div class="row">
+            @if (!isSystemDefined(submissionsStatus)) {
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>{{'Label'|translate}}</label>
+                  <input name="name" class="form-control" [(ngModel)]="submissionsStatus.label" [disabled]="submissionsStatus.system_defined" type="text" required>
+                  @if (editsubmissionStatus?.errors?.['required']) {
+                    <div class="text-danger">{{'This field is mandatory'|translate}}</div>
+                  }
                 </div>
+              </div>
+            }
+            <div class="col-md-12">
+              <src-substatuses [submissionsStatus]="submissionsStatus"></src-substatuses>
             </div>
+          </div>
         </div>
+      }
     </div>
+  </div>
 </div>

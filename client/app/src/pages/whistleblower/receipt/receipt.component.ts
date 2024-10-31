@@ -1,19 +1,27 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppDataService} from "@app/app-data.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-receipt-whistleblower",
-  templateUrl: "./receipt.component.html"
+    selector: "src-receipt-whistleblower",
+    templateUrl: "./receipt.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
 })
 export class ReceiptComponent implements OnInit {
+  private appConfigService = inject(AppConfigService);
+  protected utilsService = inject(UtilsService);
+  protected authenticationService = inject(AuthenticationService);
+  protected appDataService = inject(AppDataService);
+
   receipt: string;
   receiptId: string = "";
-
-  constructor(private appConfigService: AppConfigService,protected utilsService: UtilsService, protected authenticationService: AuthenticationService, protected appDataService: AppDataService) {
-  }
 
   public ngOnInit(): void {
     if (this.authenticationService.session.receipt) {

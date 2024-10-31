@@ -23,6 +23,16 @@ from globaleaks.utils.crypto import GCE, generateRandomPassword
 from globaleaks.utils.utility import datetime_now
 
 
+# Function to check if input is a number
+def is_number(value):
+    try:
+        # Try converting the value to a float
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+
 def check_file(f):
     if not os.path.isfile(f) or not os.access(f, os.R_OK):
         raise RuntimeError("Missing or inaccessible file: {}".format(f))
@@ -269,10 +279,12 @@ def get_var(args):
 def set_var(args, silent=False):
     db_path = check_db(args.workdir)
 
-    if args.value == 'True':
+    if args.value.lower() == 'true':
         args.value = True
-    elif args.value == 'False':
+    elif args.value.lower() == 'false':
         args.value = False
+    elif is_number(args.value):
+        args.value = int(args.value)
 
     value = json.dumps(args.value)
 

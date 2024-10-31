@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Observable, of} from "rxjs";
@@ -7,9 +7,9 @@ import {Observable, of} from "rxjs";
   providedIn: "root"
 })
 export class WhistleblowerLoginResolver {
+  private appDataService = inject(AppDataService);
+  private authenticationService = inject(AuthenticationService);
 
-  constructor(private appDataService: AppDataService, private authenticationService: AuthenticationService) {
-  }
 
   resolve(): Observable<boolean> {
     if (this.appDataService.page === "submissionpage") {

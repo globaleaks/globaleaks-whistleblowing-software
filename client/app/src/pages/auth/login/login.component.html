@@ -1,16 +1,24 @@
 <div class="row">
-    <div class="col-3 col-sm-auto login-form" id="login-form">
-        <form #loginValidator="ngForm" autocomplete="off">
-            <input class="d-none" type="password" name="disable-autocomplete" />
-            <app-simple-login *ngIf="location.hash !== '#/admin' && appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-simple-login>
-            <app-default-login *ngIf="location.hash === '#/admin' || !appDataService.public.node.simplified_login" [loginValidator]="loginValidator" [loginData]='loginData'></app-default-login>
-            <br />
-            <div id="LoginError" class="alert alert-danger" *ngIf="appDataService.errorCodes.code === 9">
-                <span>{{'Authentication failed'|translate}}</span>
-            </div>
-            <div id="LoginError" class="alert alert-danger" *ngIf="appDataService.errorCodes.code === 13">
-                <span>{{'The code is either invalid or expired.'|translate}}</span>
-            </div>
-        </form>
-    </div>
+  <div class="col-3 col-sm-auto login-form" id="login-form">
+    <form #loginValidator="ngForm" autocomplete="off">
+      <input class="d-none" type="password" name="disable-autocomplete" />
+      @if (location.hash !== '#/admin' && appDataService.public.node.simplified_login) {
+        <app-simple-login [loginValidator]="loginValidator" [loginData]='loginData'></app-simple-login>
+      }
+      @if (location.hash === '#/admin' || !appDataService.public.node.simplified_login) {
+        <app-default-login [loginValidator]="loginValidator" [loginData]='loginData'></app-default-login>
+      }
+      <br />
+      @if (appDataService.errorCodes.code === 9) {
+        <div id="LoginError" class="alert alert-danger">
+          <span>{{'Authentication failed'|translate}}</span>
+        </div>
+      }
+      @if (appDataService.errorCodes.code === 13) {
+        <div id="LoginError" class="alert alert-danger">
+          <span>{{'The code is either invalid or expired.'|translate}}</span>
+        </div>
+      }
+    </form>
+  </div>
 </div>

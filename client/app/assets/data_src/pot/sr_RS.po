@@ -5,7 +5,7 @@
 # Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2013
 # Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2013
 # Dragana Kaurin <dragana.kaurin@localizationlab.org>, 2013
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2018,2021
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2018,2021
 # Ivan Petrovic <ivan@ipplus.rs>, 2013-2016
 # Mladen Pejaković, 2017
 # Sasa Jovanovic, 2019
@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2018,2021\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2018,2021\n"
 "Language-Team: Serbian (Serbia) (http://app.transifex.com/otf/globaleaks/language/sr_RS/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

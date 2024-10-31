@@ -41,7 +41,7 @@ def file_delivery(session):
             receiverfile.internalfile_id = ifile.id
             receiverfile.receivertip_id = rtip.id
 
-            # https://github.com/globaleaks/GlobaLeaks/issues/444
+            # https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
             receiverfile.new = not ifile.creation_date == itip.creation_date

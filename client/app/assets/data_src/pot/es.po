@@ -18,7 +18,7 @@
 # 4b8fe8aa5774ddeb3c4c7817cd28f50e_d751ab4 <55c3bb72c999b01f254463d72e197fd7_99140>, 2013
 # Federico Scrinzi <fox91@anche.no>, 2013
 # Francisco Huerta <francisco.huerta@davinci-ti.es>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -46,7 +46,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2013-2024\n"
+"Last-Translator: José Javier Alamá Izquierdo, 2023-2024\n"
 "Language-Team: Spanish (http://app.transifex.com/otf/globaleaks/language/es/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -125,10 +125,10 @@ msgid "Advanced"
 msgstr "Avanzado"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr "Permitir al destinatario editar la fecha de caducidad de las denuncias"
+msgstr "Permitir a este usuario editar la fecha de caducidad de las denuncias"
 
 msgid "Allow the recipient to delete reports"
-msgstr "Permitir a los destinatarios borrar denuncias."
+msgstr "Permitir a este usuario borrar denuncias."
 
 msgid "Allow the whistleblower to add attachments"
 msgstr "Permitir al denunciante añadir nuevos adjuntos a su denuncia"

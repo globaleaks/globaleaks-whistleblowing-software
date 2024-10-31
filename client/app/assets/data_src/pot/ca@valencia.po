@@ -6,7 +6,7 @@
 # Enrique Blat Puchades <enrique.blat@antifraucv.es>, 2020
 # estrella1876lc <estrella1876lc@gmail.com>, 2014
 # Francisco Huerta <francisco.huerta@davinci-ti.es>, 2016
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2018-2022,2024
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2018-2022,2024
 # b33a4006134bb6ee62b30fc0fac5cec6, 2016
 # Joan Bitlloch <joanbit@gmail.com>, 2017
 # José Javier Alamá Izquierdo, 2022-2024
@@ -99,16 +99,16 @@ msgid "Advanced"
 msgstr "Avançat"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr ""
+msgstr "Permet al destinatari canviar la data d'expiració de les denúncies"
 
 msgid "Allow the recipient to delete reports"
 msgstr "Permet al destinatari eliminar denúncies"
 
 msgid "Allow the whistleblower to add attachments"
-msgstr "Permet als informadors afegir arxius adjunts a l'enviament"
+msgstr "Permet a l'informador afegir arxius adjunts a l'enviament"
 
 msgid "Allow the whistleblower to write comments"
-msgstr "Permet als informadors escriure comentaris"
+msgstr "Permet a l'informador escriure comentaris"
 
 msgid "Allow this user to reopen management of a report"
 msgstr "Permetre a este usuari reobrir la gestió d'una denúncia"
@@ -204,7 +204,7 @@ msgid "Block the submission"
 msgstr "Bloqueja l’enviament"
 
 msgid "By confirming, you will edit the expiration date to:"
-msgstr ""
+msgstr "Al confirmar, estaràs canviant la data d'expiració a: "
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "En confirmar, fixarà una data de recordatori:"
@@ -412,7 +412,7 @@ msgid "Edit"
 msgstr "Edita"
 
 msgid "Edit the expiration date"
-msgstr "Editar la data d'expiració"
+msgstr "Canviar la data d'expiració"
 
 msgid "Email"
 msgstr "Adreça electrònica"

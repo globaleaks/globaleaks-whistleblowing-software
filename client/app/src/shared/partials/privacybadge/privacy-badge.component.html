@@ -1,40 +1,48 @@
-<div *ngIf="!appDataService.connection.tor">
+@if (!appDataService.connection.tor) {
+  <div>
     <div id="PrivacyBadge">
-        <div *ngIf="!appDataService.public.node.enable_custom_privacy_badge">
-            <div id="PrivacyBadgeTextBox">
-                <span class="badge badge-warning-custom text-bg-warning">
-                    <i class="fa-solid fa-exclamation-circle"></i>
-                    <span>
-                        {{'Warning'|translate}}
-                    </span>
+      @if (!appDataService.public.node.enable_custom_privacy_badge) {
+        <div>
+          <div id="PrivacyBadgeTextBox">
+            <span class="badge badge-warning-custom text-bg-warning">
+              <i class="fa-solid fa-exclamation-circle"></i>
+              <span>
+                {{'Warning'|translate}}
+              </span>
+            </span>
+            <div>
+              <div id="PrivacyBadgeText">
+                {{'You are strongly advised to visit this site using the app called Tor Browser, that protects your identity.'|translate}}
+              </div>
+            </div>
+            <div>
+              <a class="btn btn-sm btn-secondary" href="https://www.torproject.org/download/" rel="noreferrer" target="_blank">
+                <i class="fa-solid fa-download"></i>
+                <span>
+                  {{'Download the Tor Browser'|translate}}
                 </span>
-                <div>
-                    <div id="PrivacyBadgeText">
-                        {{'You are strongly advised to visit this site using the app called Tor Browser, that protects your identity.'|translate}}
-                    </div>
-                </div>
-                <div>
-                    <a class="btn btn-sm btn-secondary" href="https://www.torproject.org/download/" rel="noreferrer" target="_blank">
-                        <i class="fa-solid fa-download"></i>
-                        <span>
-                            {{'Download the Tor Browser'|translate}}
-                        </span>
-                    </a>
-                </div>
-                <div *ngIf="appDataService.public.node.onionservice">
-                    <span>
-                        {{'Then, copy and paste the following address into the Tor Browser:'|translate}}
-                    </span>
-                    <span (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" class="onion-address" data-toggle="tooltip" title="{{'Copy to clipboard' | translate}}">
-                        {{appDataService.public.node.onionservice}}
-                    </span>
-                </div>
+              </a>
             </div>
+            @if (appDataService.public.node.onionservice) {
+              <div>
+                <span>
+                  {{'Then, copy and paste the following address into the Tor Browser:'|translate}}
+                </span>
+                <span (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" class="onion-address" ngbTooltip="{{'Copy to clipboard' | translate}}">
+                  {{appDataService.public.node.onionservice}}
+                </span>
+              </div>
+            }
+          </div>
         </div>
-        <div *ngIf="appDataService.public.node.enable_custom_privacy_badge">
-            <div id="PrivacyBoxTextBox">
-                <markdown id="PrivacyBadgeCustomText" [data]="markdown | stripHtml" class="variable-binding"></markdown>
-            </div>
+      }
+      @if (appDataService.public.node.enable_custom_privacy_badge) {
+        <div>
+          <div id="PrivacyBoxTextBox">
+            <markdown id="PrivacyBadgeCustomText" [data]="markdown | stripHtml" class="variable-binding"></markdown>
+          </div>
         </div>
+      }
     </div>
-</div>
+  </div>
+}

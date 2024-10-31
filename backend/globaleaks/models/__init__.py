@@ -904,10 +904,10 @@ class _Tenant(Model):
     Class used to implement tenants
     """
     __tablename__ = 'tenant'
-    __table_args__ = {'sqlite_autoincrement': False}
+    __table_args__ = {'sqlite_autoincrement': True}
 
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     active = Column(Boolean, default=False, nullable=False)
 

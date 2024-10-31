@@ -1,33 +1,45 @@
-<div class="audio-box" *ngIf="authenticationService.session">
+@if (authenticationService.session) {
+  <div class="audio-box">
     <div class="row">
-        <div class="col-md-6">
-            <button class="btn" id="start_recording" [ngClass]="{'text-secondary': !activeButton, 'text-danger': activeButton === 'record' }" [disabled]="isRecording || uploads[fileInput]?.files.length" (click)="triggerRecording(field.id)" aria-label="Record a voice message">
-                <i class="fas fa-microphone"></i>
-            </button>
-            <button class="btn" id="stop_recording" *ngIf="activeButton === 'record'" (click)="onStop()" aria-label="Stop Recording">
-                <i class="fas fa-stop"></i>
-            </button>
-        </div>
-        <div class="col-md-6 text-end">
-            <button class="btn text-danger" [ngClass]="{'blink': activeButton === 'record'}" *ngIf="activeButton === 'record'" aria-label="Recording Indicator">
-                <i class="fas fa-circle-dot"></i>
-            </button>
-            <button class="btn text-danger" *ngIf="!isRecording && seconds" id="delete_recording" (click)="deleteRecording()" aria-label="Delete Recording">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
+      <div class="col-md-6">
+        <button class="btn" id="start_recording" [ngClass]="{'text-secondary': !activeButton, 'text-danger': activeButton === 'record' }" [disabled]="isRecording || uploads[fileInput]?.files.length" (click)="triggerRecording(field.id)" aria-label="Record a voice message">
+          <i class="fas fa-microphone"></i>
+        </button>
+        @if (activeButton === 'record') {
+          <button class="btn" id="stop_recording" (click)="onStop()" aria-label="Stop Recording">
+            <i class="fas fa-stop"></i>
+          </button>
+        }
+      </div>
+      <div class="col-md-6 text-end">
+        @if (activeButton === 'record') {
+          <button class="btn text-danger" [ngClass]="{'blink': activeButton === 'record'}" aria-label="Recording Indicator">
+            <i class="fas fa-circle-dot"></i>
+          </button>
+        }
+        @if (!isRecording && seconds) {
+          <button class="btn text-danger" id="delete_recording" (click)="deleteRecording()" aria-label="Delete Recording">
+            <i class="fas fa-trash"></i>
+          </button>
+        }
+      </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
-            <input class="inputelem d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="field && field.required && !uploads[fileInput]?.files.length" [name]="'input-' + entryIndex" type="file" />
-            <iframe #viewer *ngIf="audioPlayer" id="{{fieldEntry}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
-        </div>
+      <div class="col-md-12">
+        <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="field && field.required && !uploads[fileInput]?.files.length" [name]="'input-' + entryIndex" type="file" />
+        @if (audioPlayer) {
+          <iframe #viewer id="{{fieldEntry}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+        }
+      </div>
     </div>
-    <div class="row" *ngIf="seconds > 0">
+    @if (seconds > 0) {
+      <div class="row">
         <div class="col-md-12 text-end">
-            <div class="btn" [ngClass]="{'text-danger': seconds < parseInt(field.attrs.min_len.value)}">
-                {{ seconds }}/{{ field.attrs.max_len.value }}
-            </div>
+          <div class="btn" [ngClass]="{'text-danger': seconds < parseInt(field.attrs.min_len.value)}">
+            {{ seconds }}/{{ field.attrs.max_len.value }}
+          </div>
         </div>
-    </div>
-</div>
+      </div>
+    }
+  </div>
+}

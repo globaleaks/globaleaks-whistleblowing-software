@@ -1,14 +1,20 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, forwardRef, Input, OnInit, Output} from "@angular/core";
 import {ControlContainer, NgForm} from "@angular/forms";
-import {Answers} from "@app/models/reciever/reciever-tip-data";
+import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {SubmissionService} from "@app/services/helper/submission.service";
 
+import {FormComponent} from "../../form/form.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+
 @Component({
-  selector: "src-whistleblower-identity-field",
-  templateUrl: "./whistleblower-identity-field.component.html",
-  viewProviders: [{provide: ControlContainer, useExisting: NgForm}]
+    selector: "src-whistleblower-identity-field",
+    templateUrl: "./whistleblower-identity-field.component.html",
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [forwardRef(() => FormComponent), TranslateModule, TranslatorPipe]
 })
 export class WhistleblowerIdentityFieldComponent implements OnInit {
   @Input() submission: SubmissionService;

@@ -22,7 +22,9 @@ def serialize_log(log):
 
 @transact
 def get_audit_log(session, tid):
-    logs = session.query(models.AuditLog).filter(models.AuditLog.tid == tid)
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid) \
+                  .order_by(models.AuditLog.date.desc())
 
     return [serialize_log(log) for log in logs]
 

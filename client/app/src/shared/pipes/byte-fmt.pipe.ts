@@ -1,7 +1,8 @@
 import {Pipe, PipeTransform} from "@angular/core";
 
 @Pipe({
-  name: "byteFmt"
+    name: "byteFmt",
+    standalone: true
 })
 export class ByteFmtPipe implements PipeTransform {
 

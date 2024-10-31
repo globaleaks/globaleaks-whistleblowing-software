@@ -1,97 +1,117 @@
 <div id="SubstatusEditBox">
-    <div class="row">
-        <span class="col-md-8">
-            <span>{{'Substatuses'|translate}}</span>
-            <button class="btn btn-sm btn-primary" id="add-sub-status" (click)="toggleAddSubStatus()">
-                <i class="fa-solid fa-plus"></i>
-                <span>{{'Add'|translate}}</span>
-            </button>
-        </span>
-    </div>
-    <div id="SubstatusAddBox" class="row" *ngIf="showAddSubStatus">
-        <div class="col-md-6">
-            <div ngForm="newSubStatusList" #newSubStatusList="ngForm">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>{{'Label'|translate}}</label>
-                            <input name="label" class="form-control" [(ngModel)]="newSubStatus.label" type="text" required>
-                            <div class="text-danger" *ngIf="newSubStatusList.form.get('label')?.errors?.['required']">
-                                <span>{{'This field is mandatory'|translate}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group clearfix">
-                            <button class="float-start btn btn-primary" id="add-submission-sub-status" [disabled]="newSubStatusList.invalid" (click)="addSubmissionSubStatus(); toggleAddSubStatus()">
-                                <i class="fa-solid fa-plus"></i>
-                                <span> Add</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+  <div class="row">
+    <span class="col-md-8">
+      <span>{{'Substatuses'|translate}}</span>
+      <button class="btn btn-sm btn-primary" id="add-sub-status" (click)="toggleAddSubStatus()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{'Add'|translate}}</span>
+      </button>
+    </span>
+  </div>
+  @if (showAddSubStatus) {
+    <div id="SubstatusAddBox" class="row">
+      <div class="col-md-6">
+        <div ngForm="newSubStatusList" #newSubStatusList="ngForm">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>{{'Label'|translate}}</label>
+                <input name="label" class="form-control" [(ngModel)]="newSubStatus.label" type="text" required>
+                @if (newSubStatusList.form.get('label')?.errors?.['required']) {
+                  <div class="text-danger">
+                    <span>{{'This field is mandatory'|translate}}</span>
+                  </div>
+                }
+              </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div *ngFor="let substatus of submissionsStatus.substatuses; let index = index;let first = first; let last = last;" class="col-md-12">
-            <div class="config-item">
-                <div class="editorHeader row" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
-                    <span class="col-md-7">
-                        <span class="substatusLabel">{{substatus.label}}</span>
-                    </span>
-                    <span class="col-md-5 clearfix">
-                        <span class="float-end">
-                            <button *ngIf="!first" id="move-up-button" class="btn btn-sm btn-primary" (click)="moveSsUp($event, index)" data-toggle="tooltip" title="{{'Move up' | translate}}">
-                                <i class="fa-solid fa-chevron-up"></i>
-                            </button>
-                            <button *ngIf="!last" id="move-down-button" class="btn btn-sm btn-primary" (click)="moveSsDown($event, index)" data-toggle="tooltip" title="{{'Move down' | translate}}">
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </button>
-                            <button id="substatus-edit-button" class="btn btn-sm btn-outline-secondary" *ngIf="!this.subStatusEditing[index]" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
-                                <span>{{'Edit'|translate}}</span>
-                            </button>
-                            <button id="substatus-save-button" class="btn btn-sm btn-primary" *ngIf="this.subStatusEditing[index]" (click)="saveSubmissionsSubStatus(substatus);" [disabled]="substatus && substatus.label.length==0">
-                                <span>{{'Save'|translate}}</span>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" *ngIf="this.subStatusEditing[index]" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
-                                <span>{{'Cancel'|translate}}</span>
-                            </button>
-                            <button id="substatus-delete-button" class="btn btn-sm btn-danger" (click)="deleteSubSubmissionStatus(substatus); $event.stopPropagation();">
-                                <span>{{'Delete'|translate}}</span>
-                            </button>
-                        </span>
-                    </span>
-                </div>
-                <div ngForm="editStep" *ngIf="this.subStatusEditing[index]">
-                    <hr />
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>{{'Label'|translate}}</label>
-                                <input class="form-control" name="substatus.label" [(ngModel)]="substatus.label" type="text" required />
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                              <label><span>{{ 'Expiration date' | translate }}</span> (<span>{{ 'days' | translate }}</span>)</label>
-                              <select class="form-control" name="substatus.tip_timetolive_option" [(ngModel)]="substatus.tip_timetolive_option">
-                                <option value="-1">{{ 'Disabled' | translate }}</option>
-                                <option value="0">{{ 'Custom' | translate }}</option>
-                              </select>
-                            </div>
-                        </div>
-                          <div class="col-md-1">
-                            <div class="form-group">
-                              <label></label>
-                              <input class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" *ngIf="isCustomOptionSelected(substatus.tip_timetolive_option)" required/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group clearfix">
+                <button class="float-start btn btn-primary" id="add-submission-sub-status" [disabled]="newSubStatusList.invalid" (click)="addSubmissionSubStatus(); toggleAddSubStatus()">
+                  <i class="fa-solid fa-plus"></i>
+                  <span> Add</span>
+                </button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  }
+  <div class="row">
+    @for (substatus of submissionsStatus.substatuses; track substatus; let index = $index; let first = $first; let last = $last) {
+      <div class="col-md-12">
+        <div class="config-item">
+          <div class="editorHeader row" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
+            <span class="col-md-7">
+              <span class="substatusLabel">{{substatus.label}}</span>
+            </span>
+            <span class="col-md-5 clearfix">
+              <span class="float-end">
+                @if (!first) {
+                  <button id="move-up-button" class="btn btn-sm btn-primary" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
+                    <i class="fa-solid fa-chevron-up"></i>
+                  </button>
+                }
+                @if (!last) {
+                  <button id="move-down-button" class="btn btn-sm btn-primary" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                }
+                @if (!this.subStatusEditing[index]) {
+                  <button id="substatus-edit-button" class="btn btn-sm btn-outline-secondary" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
+                    <span>{{'Edit'|translate}}</span>
+                  </button>
+                }
+                @if (this.subStatusEditing[index]) {
+                  <button id="substatus-save-button" class="btn btn-sm btn-primary" (click)="saveSubmissionsSubStatus(substatus);" [disabled]="substatus && substatus.label.length==0">
+                    <span>{{'Save'|translate}}</span>
+                  </button>
+                }
+                @if (this.subStatusEditing[index]) {
+                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
+                    <span>{{'Cancel'|translate}}</span>
+                  </button>
+                }
+                <button id="substatus-delete-button" class="btn btn-sm btn-danger" (click)="deleteSubSubmissionStatus(substatus); $event.stopPropagation();">
+                  <span>{{'Delete'|translate}}</span>
+                </button>
+              </span>
+            </span>
+          </div>
+          @if (this.subStatusEditing[index]) {
+            <div ngForm="editStep">
+              <hr />
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>{{'Label'|translate}}</label>
+                    <input class="form-control" name="substatus.label" [(ngModel)]="substatus.label" type="text" required />
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label><span>{{ 'Expiration date' | translate }}</span> (<span>{{ 'days' | translate }}</span>)</label>
+                    <select class="form-control" name="substatus.tip_timetolive_option" [(ngModel)]="substatus.tip_timetolive_option">
+                      <option value="-1">{{ 'Disabled' | translate }}</option>
+                      <option value="0">{{ 'Custom' | translate }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-1">
+                  <div class="form-group">
+                    <label></label>
+                    @if (isCustomOptionSelected(substatus.tip_timetolive_option)) {
+                      <input class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" required/>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>

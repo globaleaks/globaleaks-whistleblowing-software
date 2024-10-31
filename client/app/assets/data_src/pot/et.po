@@ -1,6 +1,6 @@
 # 
 # Translators:
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2021-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022
 # Max Moiseev <max.moiseev@chamber.fi>, 2020
 # Merle Mändmets, 2023
 msgid ""

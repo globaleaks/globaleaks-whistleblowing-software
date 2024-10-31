@@ -1,23 +1,31 @@
-<ng-container *ngIf="this.jobs.slice">
-    <table id="AnomaliesHistoryTable" class="table table-condensed table-striped">
-        <thead>
+@if (this.jobs.slice()) {
+  <table id="AnomaliesHistoryTable" class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th></th>
+        @for (t of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track t) {
+          <th>#{{ t }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (data of getPaginatedData(); track data) {
         <tr>
-            <th></th>
-            <th *ngFor="let t of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]">#{{ t }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let data of getPaginatedData()">
-            <td>{{data.name}}</td>
-            <td *ngFor="let t of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]">
-                <div *ngIf="data.timings[t]">
-                    <div>{{ (data.timings[t][1] - data.timings[t][0]) / 1000 }}s</div>
-                    <div>{{ data.timings[t][0] | date:'HH:mm:ss' }}</div>
-                    <div>{{ data.timings[t][0] | date:'dd-MM-yyyy' }}</div>
+          <td>{{data.name}}</td>
+          @for (t of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; track t) {
+            <td>
+              @if (data.timings[t]) {
+                <div>
+                  <div>{{ (data.timings[t][1] - data.timings[t][0]) / 1000 }}s</div>
+                  <div>{{ data.timings[t][0] | date:'HH:mm:ss' }}</div>
+                  <div>{{ data.timings[t][0] | date:'dd-MM-yyyy' }}</div>
                 </div>
+              }
             </td>
+          }
         </tr>
-        </tbody>
-    </table>
-   <div class="float-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button></div>
-</ng-container>
+      }
+    </tbody>
+  </table>
+  <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span></button></div>
+}

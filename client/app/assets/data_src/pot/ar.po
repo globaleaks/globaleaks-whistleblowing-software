@@ -4,7 +4,7 @@
 # a96921fef9a72b1bcbac1fc92cca715a, 2015
 # ِAbu <elsahookie@gmail.com>, 2013
 # Ahmed Essam, 2020
-# Ahmed Essam, 2020
+# Ahmad Essam, 2020
 # Ali <alimahwer@yahoo.com>, 2023
 # amine_Acess <amine@accessnow.org>, 2013
 # amine_Acess <amine@accessnow.org>, 2013
@@ -55,7 +55,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Muhammad Elghdban <Mohamed.Elghdban@gmail.com>, 2020,2023-2024\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2014-2018,2020-2022,2024\n"
 "Language-Team: Arabic (http://app.transifex.com/otf/globaleaks/language/ar/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -134,7 +134,7 @@ msgid "Advanced"
 msgstr "متقدم"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr ""
+msgstr "السماح للمتلقّي بتأجيل تاريخ انتهاء صلاحية الابلاغ"
 
 msgid "Allow the recipient to delete reports"
 msgstr "السماح للمتلقين بحذف البلاغات"
@@ -239,7 +239,7 @@ msgid "Block the submission"
 msgstr "أوقف البلاغ"
 
 msgid "By confirming, you will edit the expiration date to:"
-msgstr ""
+msgstr "من خلال التأكيد، ستقوم بتحرير تاريخ انتهاء الصلاحية إلى:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "عند الموافقة، سيتم ضبط مُنبّهٍ على التاريخ:"

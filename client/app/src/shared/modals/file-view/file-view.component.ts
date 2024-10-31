@@ -1,15 +1,25 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbFile} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+
 @Component({
-  selector: "src-file-view",
-  templateUrl: "./file-view.component.html"
+    selector: "src-file-view",
+    templateUrl: "./file-view.component.html",
+    standalone: true,
+    imports: [TranslateModule, TranslatorPipe]
 })
 export class FileViewComponent implements OnInit {
+  private authenticationService = inject(AuthenticationService);
+  private sanitizer = inject(DomSanitizer);
+  private utilsService = inject(UtilsService);
+  private modalService = inject(NgbModal);
+
   @Input() args: {
     file: WbFile,
     loaded: boolean,
@@ -18,10 +28,6 @@ export class FileViewComponent implements OnInit {
   @ViewChild("viewer") viewerFrame: ElementRef;
 
   iframeUrl: SafeResourceUrl;
-
-  constructor(private authenticationService: AuthenticationService, private sanitizer: DomSanitizer, private utilsService: UtilsService, private modalService: NgbModal) {
-
-  }
 
   ngOnInit() {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");

@@ -1,24 +1,36 @@
 <div class="row">
-    <div *ngIf="step === 1" class="col-md-6 wizard-block" [ngSwitch]="appDataService.public.node.mode">
-        <div *ngSwitchCase="'default'">
+  @if (step === 1) {
+    <div class="col-md-6 wizard-block">
+      @switch (appDataService.public.node.mode) {
+        @case ('default') {
+          <div>
             <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-        </div>
-        <div *ngSwitchCase="'demo'">
+          </div>
+        }
+        @case ('demo') {
+          <div>
             <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-        </div>
-        <div *ngSwitchCase="'wbpa'">
+          </div>
+        }
+        @case ('wbpa') {
+          <div>
             <src-wbpa (updateSubdomain)=updateSubdomain() (complete)="complete()" [signup]="signup"></src-wbpa>
-        </div>
+          </div>
+        }
+      }
     </div>
-    <div *ngIf="step === 2" class="col-md-12 wizard-block">
-        <div class="congratulations">
-            <div class="title">{{'Success!'|translate}}</div>
-            <div>
-                <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
-                <span>{{'Check your inbox to activate it.'|translate}}</span>
-                <br />
-                <span>{{'If not activated within 24 hours the platform will be automatically deleted.'|translate}}</span>
-            </div>
+  }
+  @if (step === 2) {
+    <div class="col-md-12 wizard-block">
+      <div class="congratulations">
+        <div class="title">{{'Success!'|translate}}</div>
+        <div>
+          <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
+          <span>{{'Check your inbox to activate it.'|translate}}</span>
+          <br />
+          <span>{{'If not activated within 24 hours the platform will be automatically deleted.'|translate}}</span>
         </div>
+      </div>
     </div>
+  }
 </div>

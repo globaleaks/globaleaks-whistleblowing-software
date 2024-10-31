@@ -1,37 +1,39 @@
 <div class="config-section reveal">
-    <div>
-        <span>{{ 'Channels' | translate }}</span>
-        <button class="btn btn-sm btn-primary show-add-context-btn" (click)="toggleAddContext()">
+  <div>
+    <span>{{ 'Channels' | translate }}</span>
+    <button class="btn btn-sm btn-primary show-add-context-btn" (click)="toggleAddContext()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+  </div>
+  @if (showAddContext) {
+    <div class="row">
+      <div ngForm="newContext" #newContext="ngForm" class="addContext col-md-6">
+        <div class="form-group">
+          <label>
+            <span>{{ 'Name' | translate }}</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+          </label>
+          <div [ngClass]="{'is-invalid': newContext.form.get('new_context.name')?.errors?.['required']}">
+            <input name="new_context.name" class="form-control" [(ngModel)]="new_context.name" type="text" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <button id="add-btn" class="btn btn-primary" [disabled]="newContext.invalid" (click)="addContext(); toggleAddContext()" type="submit">
             <i class="fa-solid fa-plus"></i>
             <span>{{ 'Add' | translate }}</span>
-        </button>
-    </div>
-    <div class="row" *ngIf="showAddContext">
-        <div ngForm="newContext" #newContext="ngForm" class="addContext col-md-6">
-            <div class="form-group">
-                <label>
-                    <span>{{ 'Name' | translate }}</span>
-                    <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
-                </label>
-                <div [ngClass]="{'is-invalid': newContext.form.get('new_context.name')?.errors?.['required']}">
-                    <input name="new_context.name" class="form-control" [(ngModel)]="new_context.name" type="text" required />
-                </div>
-            </div>
-            <div class="form-group">
-                <button id="add-btn" class="btn btn-primary" [disabled]="newContext.invalid" (click)="addContext(); toggleAddContext()" type="submit">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>{{ 'Add' | translate }}</span>
-                </button>
-            </div>
+          </button>
         </div>
+      </div>
     </div>
-    <ng-container *ngIf="contextsData.length > 0">
-        <ng-container *ngFor="let context of contextsData; let index = index">
-            <div>
-                <form id="context-{{index}}" name="editContext" #editContext="ngForm" novalidate>
-                    <src-context-editor [contextResolver]="context" [editContext]="editContext" [contextsData]="contextsData" [index]="index"></src-context-editor>
-                </form>
-            </div>
-        </ng-container>
-    </ng-container>
+  }
+  @if (contextsData.length > 0) {
+    @for (context of contextsData; track context; let index = $index) {
+      <div>
+        <form id="context-{{index}}" name="editContext" #editContext="ngForm" novalidate>
+          <src-context-editor [contextResolver]="context" [editContext]="editContext" [contextsData]="contextsData" [index]="index"></src-context-editor>
+        </form>
+      </div>
+    }
+  }
 </div>

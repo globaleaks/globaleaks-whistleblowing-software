@@ -143,6 +143,11 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         except:
             return {'status': 'require_two_factor_authentication'}
 
+    # Special condition where the user is accessing for the first time via a reset
+    # link on a system with no escrow keys.
+    if not prv_key:
+        prv_key, _ = GCE.generate_keypair()
+
     # Require password change
     user.password_change_needed = True
 

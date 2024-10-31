@@ -109,8 +109,18 @@ class LoopingJob(Job):
         extract_exception_traceback_and_schedule_email(excep)
 
 
+class MinutelyJob(LoopingJob):
+    interval = 60
+    monitor_interval = 10
+
+    def get_delay(self):
+        current_time = datetime_now()
+        return 60 - current_time.second
+
+
 class HourlyJob(LoopingJob):
     interval = 3600
+    monitor_interval = 5 * 60
 
     def get_delay(self):
         current_time = datetime_now()
@@ -119,6 +129,7 @@ class HourlyJob(LoopingJob):
 
 class DailyJob(LoopingJob):
     interval = 24 * 3600
+    monitor_interval = 3600
 
     def get_delay(self):
         current_time = datetime_now()

@@ -1,1 +1,3 @@
-<li *ngIf="field" (click)="goToQuestion()">{{field.label}}</li>
+@if (field) {
+  <li (click)="goToQuestion()">{{field.label}}</li>
+}

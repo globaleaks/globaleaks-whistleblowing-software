@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {Receiver, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {AppDataService} from "@app/app-data.service";
@@ -7,10 +7,10 @@ import {AppDataService} from "@app/app-data.service";
   providedIn: "root"
 })
 export class WbtipService {
-  tip: WbTipData = new WbTipData();
+  private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
 
-  constructor(private httpService: HttpService, private appDataService: AppDataService) {
-  }
+  tip: WbTipData = new WbTipData();
 
   initialize(response: WbTipData) {
     this.tip = response;

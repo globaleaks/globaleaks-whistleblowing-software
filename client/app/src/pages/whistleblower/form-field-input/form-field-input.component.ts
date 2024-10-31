@@ -1,18 +1,34 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, forwardRef, Input, OnInit, Output, inject} from "@angular/core";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
-import {ControlContainer, NgForm} from "@angular/forms";
+import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
-import {NgbDateStruct} from "@ng-bootstrap/ng-bootstrap";
-import {Answers} from "@app/models/reciever/reciever-tip-data";
+import {NgbDateStruct, NgbInputDatepicker} from "@ng-bootstrap/ng-bootstrap";
+import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgClass} from "@angular/common";
+import {WhistleblowerIdentityFieldComponent} from "../fields/whistleblower-identity-field/whistleblower-identity-field.component";
+import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
+import {MarkdownComponent} from "ngx-markdown";
+import {VoiceRecorderComponent} from "@app/shared/partials/voice-recorder/voice-recorder.component";
+import {RFileUploadButtonComponent} from "@app/shared/partials/rfile-upload-button/r-file-upload-button.component";
+import {FormComponent} from "../form/form.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
+import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
-  selector: "src-form-field-input",
-  templateUrl: "./form-field-input.component.html",
-  viewProviders: [{provide: ControlContainer, useExisting: NgForm}]
+    selector: "src-form-field-input",
+    templateUrl: "./form-field-input.component.html",
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgClass, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
 })
 export class FormFieldInputComponent implements OnInit {
+  private fieldUtilitiesService = inject(FieldUtilitiesService);
+
 
   @Input() field: any;
   @Input() index: number;
@@ -41,9 +57,6 @@ export class FormFieldInputComponent implements OnInit {
   dateOptions1: NgbDateStruct;
   dateOptions2: NgbDateStruct;
   dateOptions: {min_date:NgbDateStruct,max_date:NgbDateStruct}={min_date:{year:0,month:0,day:0},max_date:{year:0,month:0,day:0}}
-
-  constructor(private fieldUtilitiesService: FieldUtilitiesService) {
-  }
 
   clearDateRange() {
     this.input_start_date = "";

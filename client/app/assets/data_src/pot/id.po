@@ -12,7 +12,7 @@
 # Edo Imantaka, 2021
 # Evanna Audrey <evanna.n.audrey@gmail.com>, 2021
 # Fransisca Susanti <susanti@jaring.id>, 2018
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2017-2018,2020-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2017-2018,2020-2022
 # Helen Zhang <helen13zhang@gmail.com>, 2018
 # Ibnu Daru Aji, 2015
 # Ibnu Daru Aji, 2015
@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2017-2018,2020-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2017-2018,2020-2022\n"
 "Language-Team: Indonesian (http://app.transifex.com/otf/globaleaks/language/id/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

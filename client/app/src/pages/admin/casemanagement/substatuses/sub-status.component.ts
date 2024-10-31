@@ -1,17 +1,27 @@
-import {Component, Input, OnInit} from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {Observable} from "rxjs";
 import {Status, Substatus} from "@app/models/app/public-model";
 
+import {FormsModule} from "@angular/forms";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
+
 @Component({
-  selector: "src-substatuses",
-  templateUrl: "./sub-status.component.html"
+    selector: "src-substatuses",
+    templateUrl: "./sub-status.component.html",
+    standalone: true,
+    imports: [FormsModule, NgbTooltipModule, TranslatorPipe]
 })
 export class SubStatusComponent implements OnInit {
+  private httpService = inject(HttpService);
+  protected modalService = inject(NgbModal);
+  protected utilsService = inject(UtilsService);
+  private http = inject(HttpClient);
+
   @Input() submissionsStatus: Status;
   subStatusEditing: boolean[] = [];
   newSubStatus: { label: string; } = {label: ""};
@@ -19,9 +29,6 @@ export class SubStatusComponent implements OnInit {
 
   toggleAddSubStatus(): void {
     this.showAddSubStatus = !this.showAddSubStatus;
-  }
-
-  constructor(private httpService: HttpService, protected modalService: NgbModal, protected utilsService: UtilsService, private http: HttpClient) {
   }
 
   ngOnInit(): void {

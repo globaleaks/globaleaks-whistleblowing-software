@@ -4,9 +4,9 @@ describe("globaLeaks setup wizard", () => {
 
     cy.get("#PageTitle").should("be.visible");
 
-    if (Cypress.env('default_language')!="en") {
+    if (Cypress.env('language')!="en") {
       cy.get('#language-picker-select').click();
-      cy.get(`[data-cy="${Cypress.env('default_language')}"]`).trigger('click');
+      cy.get(`[data-cy="${Cypress.env('language')}"]`).trigger('click');
     }
 
     cy.takeScreenshot("wizard/1");
@@ -41,9 +41,9 @@ describe("globaLeaks setup wizard", () => {
 
     cy.get(".ButtonNext").click();
 
-    cy.waitForLoader();
     cy.takeScreenshot("wizard/6");
-    cy.get('button[name="proceed"]').should('be.visible', { timeout: 10000 }).click();
+    cy.get('button[name="proceed"]').should('be.visible').click();
+
     cy.waitForUrl("admin/home")
     cy.logout();
   });

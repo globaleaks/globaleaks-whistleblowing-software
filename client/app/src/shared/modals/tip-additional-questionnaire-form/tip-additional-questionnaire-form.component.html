@@ -1,54 +1,74 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Additional questionnaire'|translate}}</div>
-    <button type="submit" class="close btn" [attr.aria-hidden]="true" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <div class="modal-title">{{'Additional questionnaire'|translate}}</div>
+  <button type="submit" class="close btn" [attr.aria-hidden]="true" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-times"></i>
+  </button>
 </div>
 <div class="modal-body">
-    <form #submissionForm="ngForm" id="SubmissionForm" autocomplete="off" novalidate>
-        <div class="tabbable tabs-below">
-            <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" *ngIf="wbTipService.tip.additional_questionnaire.steps.length > 1">
-                <li class="nav-item" *ngFor="let step of wbTipService.tip.additional_questionnaire.steps | orderBy:'order' ;let index = index">
-                    <ng-container *ngIf="step.enabled">
-                        <a id="step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)">
-                            <span>{{index + 1}} - {{step.label}}</span>
-                        </a>
-                    </ng-container>
-                </li>
-            </ul>
-            <div id="SubmissionTabsContentBox" class="tab-content">
-                <div *ngIf="displayErrors()">
-                    <src-submission-error [navigation]="navigation" [field_id_map]="field_id_map" [stepForms]="stepForms" [uploads]="uploads" [stepForm]="stepForm" [hasPreviousStepValue]="hasPreviousStepValue" [hasNextStepValue]="hasNextStepValue" [areReceiversSelectedValue]="true" [displayStepErrors]="displayStepErrors" [submissionForm]="submissionForm"></src-submission-error>
+  <form #submissionForm="ngForm" id="SubmissionForm" autocomplete="off" novalidate>
+    <div class="tabbable tabs-below">
+      @if (wbTipService.tip.additional_questionnaire.steps.length > 1) {
+        <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs">
+          @for (step of wbTipService.tip.additional_questionnaire.steps | orderBy:'order' ; track step; let index = $index) {
+            <li class="nav-item">
+              @if (step.enabled) {
+                <a id="step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)">
+                  <span>{{index + 1}} - {{step.label}}</span>
+                </a>
+              }
+            </li>
+          }
+        </ul>
+      }
+      <div id="SubmissionTabsContentBox" class="tab-content">
+        @for (step of this.questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+          <div>
+            @if (step && step.enabled) {
+              <span>
+                <div [class.hidden]="navigation !== index">
+                  <div id="step-{{index}}" ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                    @if (validate[navigation] && stepForm.invalid) {
+                      <div>
+                        <src-step-error [navigation]="navigation" [field_id_map]="field_id_map" [stepForm]="stepForm"></src-step-error>
+                      </div>
+                    }
+                    @if (step.description) {
+                      <div class="description">{{step.description}}</div>
+                    }
+                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [identity_provided]="wbTipService.tip.data.whistleblower_identity" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
+                  </div>
                 </div>
-                <div *ngFor="let step of this.questionnaire.steps | orderBy:'order'; let index = index">
-                    <span *ngIf="step && step.enabled">
-                        <div [class.hidden]="navigation !== index">
-                            <div id="step-{{index}}" ngForm #stepform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-                                <div class="description" *ngIf="step.description">{{step.description}}</div>
-                                <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [identity_provided]="wbTipService.tip.data.whistleblower_identity" [uploads]="uploads" [displayErrors]="displayErrors()" [answers]="answers" [step]="step" [index]="index"></src-form>
-                            </div>
-                        </div>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </form>
-    <src-rfiles-upload-status [progress]="calculateProgress()" [estimatedTime]="calculateEstimatedTime()" [uploading]="uploading()" *ngIf="!hasNextStep()"></src-rfiles-upload-status>
+              </span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </form>
+  @if (!hasNextStep()) {
+    <src-rfiles-upload-status [progress]="calculateProgress()" [estimatedTime]="calculateEstimatedTime()" [uploading]="uploading()"></src-rfiles-upload-status>
+  }
 </div>
 <div class="modal-footer">
-    <div id="SubmissionButtons">
-        <br>
-        <button id="PreviousStepButton" class="btn btn-outline-secondary" *ngIf="hasPreviousStep()" (click)="whistleblowerSubmissionService.decrementStep(this)">
-            <i class="fa-solid fa-arrow-circle-left"></i>
-            <span>{{'Previous'|translate}}</span>
+  <div id="SubmissionButtons">
+    <br>
+      @if (hasPreviousStep()) {
+        <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
+          <i class="fa-solid fa-arrow-circle-left"></i>
+          <span>{{'Previous'|translate}}</span>
         </button>
-        <button id="NextStepButton" class="btn btn-outline-secondary" *ngIf="hasNextStep()" (click)="whistleblowerSubmissionService.incrementStep(this)">
-            <span>{{'Next'|translate}}</span>
-            <i class="fa-solid fa-arrow-circle-right"></i>
+      }
+      @if (hasNextStep()) {
+        <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
+          <span>{{'Next'|translate}}</span>
+          <i class="fa-solid fa-arrow-circle-right"></i>
         </button>
-        <button id="SubmitButton" class="btn btn-primary" [disabled]="done" *ngIf="!hasNextStep()" (click)="completeSubmission()" type="submit">
-            <i id="SubmitIconOK" class="fa-solid fa-check"></i>
-            <span>{{'Submit'|translate}}</span>
+      }
+      @if (!hasNextStep()) {
+        <button id="SubmitButton" class="btn btn-primary" [disabled]="done" (click)="completeSubmission()" type="submit">
+          <i id="SubmitIconOK" class="fa-solid fa-check"></i>
+          <span>{{'Submit'|translate}}</span>
         </button>
+      }
     </div>
-</div>
+  </div>

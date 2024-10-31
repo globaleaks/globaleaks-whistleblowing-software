@@ -70,6 +70,12 @@ class Cleaning(DailyJob):
                 'earliest_expiration_date': earliest_expiration_date
             }
 
+            # Do not generate emails if the receiver has disabled notifications
+            if not data['user']['notification']:
+                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
+                 return
+
+
             if data['node']['mode'] == 'default':
                 data['notification'] = db_get_notification(session, tid, user.language)
             else:

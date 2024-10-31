@@ -1,44 +1,56 @@
 <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing(questionnaire)">{{ questionnaire.name }}</span>
-    <span class="col-md-5 clearfix">
-        <span class="float-end">
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="questionnaire.editable && !editing" (click)="toggleEditing(questionnaire)">
-                <span>{{ 'Edit' | translate }}</span>
-            </button>
-            <button class="btn btn-sm btn-primary" *ngIf="editing" (click)="saveQuestionnaire(questionnaire)">
-                <span>{{ 'Save' | translate }}</span>
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="editing" (click)="toggleEditing(questionnaire)">
-                <span>{{ 'Cancel' | translate }}</span>
-            </button>
-            <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestionnaire(questionnaire)">
-                <i class="fa-solid fa-file-export"></i>
-                <span>{{ 'Export' | translate }}</span>
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" (click)="duplicateQuestionnaire(questionnaire)">
-                <i class="fa-solid fa-clone"></i>
-                <span>{{ 'Duplicate' | translate }}</span>
-            </button>
-            <button class="btn btn-sm btn-danger" name="deleteQuestionnaire" *ngIf="questionnaire.editable" (click)="deleteQuestionnaire(questionnaire)">
-                <span>{{ 'Delete' | translate }}</span>
-            </button>
-        </span>
+  <span class="col-md-7" (click)="toggleEditing(questionnaire)">{{ questionnaire.name }}</span>
+  <span class="col-md-5 clearfix">
+    <span class="float-end">
+      @if (questionnaire.editable && !editing) {
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire)">
+          <span>{{ 'Edit' | translate }}</span>
+        </button>
+      }
+      @if (editing) {
+        <button class="btn btn-sm btn-primary" (click)="saveQuestionnaire(questionnaire)">
+          <span>{{ 'Save' | translate }}</span>
+        </button>
+      }
+      @if (editing) {
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire)">
+          <span>{{ 'Cancel' | translate }}</span>
+        </button>
+      }
+      <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestionnaire(questionnaire)">
+        <i class="fa-solid fa-file-export"></i>
+        <span>{{ 'Export' | translate }}</span>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" (click)="duplicateQuestionnaire(questionnaire)">
+        <i class="fa-solid fa-clone"></i>
+        <span>{{ 'Duplicate' | translate }}</span>
+      </button>
+      @if (questionnaire.editable) {
+        <button class="btn btn-sm btn-danger" name="deleteQuestionnaire" (click)="deleteQuestionnaire(questionnaire)">
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+      }
     </span>
+  </span>
 </div>
-<div *ngIf="editing">
+@if (editing) {
+  <div>
     <hr />
     <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label>{{ 'Name' | translate }}</label>
-                <input name="name" class="form-control" [(ngModel)]="questionnaire.name" type="text" required>
-                <div class="text-danger" *ngIf="editQuestionnaire.form.get('name')?.errors?.['required']">
-                    <span>{{ 'This field is mandatory' | translate }}</span>
-                </div>
+      <div class="col-md-6">
+        <div class="form-group">
+          <label>{{ 'Name' | translate }}</label>
+          <input name="name" class="form-control" [(ngModel)]="questionnaire.name" type="text" required>
+          @if (editQuestionnaire.form.get('name')?.errors?.['required']) {
+            <div class="text-danger">
+              <span>{{ 'This field is mandatory' | translate }}</span>
             </div>
+          }
         </div>
-        <div class="col-md-12">
-            <src-steps [questionnaire]="questionnaire"></src-steps>
-        </div>
+      </div>
+      <div class="col-md-12">
+        <src-steps [questionnaire]="questionnaire"></src-steps>
+      </div>
     </div>
-</div>
+  </div>
+}

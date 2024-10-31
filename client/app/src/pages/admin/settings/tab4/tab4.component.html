@@ -1,59 +1,69 @@
 <div class="row">
-    <div class="col-md-12">
-        <div class="form-group">
-            <label>{{'Language' | translate}}:</label>
-            <select class="form-select-custom" name="vars.language_to_customize" [(ngModel)]="vars.language_to_customize" (ngModelChange)="getl10n(vars.language_to_customize)">
-                <option *ngFor="let item of languageUtils.languages_enabled_selector" [value]="item.code">{{item.name}}</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>{{'Add custom text' | translate}}</label>
-            <select class="form-select-custom" name="vars.text_to_customize" [(ngModel)]="vars.text_to_customize" (ngModelChange)="vars.custom_text = custom_texts[vars.text_to_customize] ? custom_texts[vars.text_to_customize] : default_texts[vars.text_to_customize]">
-                <option *ngFor="let item of custom_texts_selector" [value]="item.key">{{item.value}}</option>
-            </select>
-            <br><br>
-            <div *ngIf="vars.text_to_customize">
-                <label>{{'Custom text' | translate}}</label>
-                <div>
-                    <textarea class="form-control" name="vars.custom_text" [(ngModel)]="vars.custom_text"></textarea>
-                </div>
-                <br>
-            </div>
-            <div class="form-group clearfix">
-                <button id="addCustomTextButton" class="float-start btn btn-primary" [disabled]="!vars.text_to_customize" type="submit" (click)="custom_texts[vars.text_to_customize] = vars.custom_text; updateCustomText(custom_texts,vars.language_to_customize)">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>{{'Add' | translate}}</span>
-                </button>
-            </div>
-        </div>
+  <div class="col-md-12">
+    <div class="form-group">
+      <label>{{'Language' | translate}}:</label>
+      <select class="form-select-custom" name="vars.language_to_customize" [(ngModel)]="vars.language_to_customize" (ngModelChange)="getl10n(vars.language_to_customize)">
+        @for (item of languageUtils.languages_enabled_selector; track item) {
+          <option [value]="item.code">{{item.name}}</option>
+        }
+      </select>
     </div>
-</div>
-<br />
-<br />
-<div class="row" *ngIf="custom_texts">
-    <div class="col-md-12">
-        <div class="form-group">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>{{'Original text' | translate}}</th>
-                    <th>{{'Original translation' | translate}}</th>
-                    <th>{{'Custom translation' | translate}}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let item of customTextsKeys()" [ngClass]="{'bg-danger': !default_texts[item.key]}" data-toggle="tooltip" title="{{!default_texts[item.key] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
-                    <td class="preformatted">{{ item.key }}</td>
-                    <td class="preformatted">{{ default_texts[item.key] }}</td>
-                    <td class="clearfix">
-                        <span class="preformatted">{{ custom_texts[item.key] }}</span>
-                        <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item.key); updateCustomText(custom_texts,vars.language_to_customize)">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <div class="form-group">
+      <label>{{'Add custom text' | translate}}</label>
+      <select class="form-select-custom" name="vars.text_to_customize" [(ngModel)]="vars.text_to_customize" (ngModelChange)="vars.custom_text = custom_texts[vars.text_to_customize] ? custom_texts[vars.text_to_customize] : default_texts[vars.text_to_customize]">
+        @for (item of custom_texts_selector; track item) {
+          <option [value]="item.key">{{item.value}}</option>
+        }
+      </select>
+      <br><br>
+      @if (vars.text_to_customize) {
+        <div>
+          <label>{{'Custom text' | translate}}</label>
+          <div>
+            <textarea class="form-control" name="vars.custom_text" [(ngModel)]="vars.custom_text"></textarea>
+          </div>
+          <br>
+          </div>
+        }
+        <div class="form-group clearfix">
+          <button id="addCustomTextButton" class="float-start btn btn-primary" [disabled]="!vars.text_to_customize" type="submit" (click)="custom_texts[vars.text_to_customize] = vars.custom_text; updateCustomText(custom_texts,vars.language_to_customize)">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{'Add' | translate}}</span>
+          </button>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+  <br />
+  <br />
+  @if (custom_texts) {
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>{{'Original text' | translate}}</th>
+                <th>{{'Original translation' | translate}}</th>
+                <th>{{'Custom translation' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of custom_texts_keys; track item) {
+                <tr [ngClass]="{'bg-danger': !default_texts[item]}" ngbTooltip="{{!default_texts[item] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
+                  <td class="preformatted">{{ item }}</td>
+                  <td class="preformatted">{{ default_texts[item] }}</td>
+                  <td class="clearfix">
+                    <span class="preformatted">{{ custom_texts[item] }}</span>
+                    <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }

@@ -7,7 +7,7 @@ import operator
 __author__ = 'GlobaLeaks'
 __email__ = 'info@globaleaks.org'
 __copyright__ = '2011-2024 - GlobaLeaks'
-__version__ = '5.0.6'
+__version__ = '5.0.20'
 __license__ = 'AGPL-3.0'
 
 DATABASE_VERSION = 68
@@ -57,6 +57,7 @@ LANGUAGES_SUPPORTED = [
     {'code': 'ja', 'name': 'Japanese', 'native': '\u65e5\u672c\u8a9e'},
     {'code': 'ka', 'name': 'Georgian', 'native': '\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8'},
     {'code': 'kk', 'name': 'Kazakh', 'native': '\u049b\u0430\u0437\u0430\u049b\u0020\u0442\u0456\u043b\u0456'},
+    {'code': 'kl', 'name': 'Greenlandic', 'native': 'Kalaallisut'},
     {'code': 'km', 'name': 'Khmer', 'native': '\u1781\u17d2\u1798\u17c2\u179a'},
     {'code': 'ko', 'name': 'Korean', 'native': '\ud55c\uad6d\uc5b4'},
     {'code': 'ky', 'name': 'Kyrgyz', 'native': '\u043a\u044b\u0440\u0433\u044b\u0437\u0447\u0430'},

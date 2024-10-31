@@ -1,29 +1,33 @@
 <div class="config-section row">
+  <div class="col-md-12">
+    <div>
+      <span>{{ 'Question templates' | translate }}</span>
+      <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ 'Add' | translate }}</span>
+      </button>
+      <span class="custom-file">
+        <input type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
+        <label (click)="uploadInput.click()" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+        </label>
+      </span>
+    </div>
+  </div>
+  @if (showAddQuestion) {
+    <div class="config-section col-md-6">
+      @if (questionnairesData.length > 0) {
+        <src-add-field [step]="step" [type]="'template'" (dataToParent)="listenToAddField()"></src-add-field>
+      }
+    </div>
+  }
+  @for (field of fields | orderBy:'label' ; track field; let index = $index) {
     <div class="col-md-12">
-        <div>
-            <span>{{ 'Question templates' | translate }}</span>
-            <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
-                <i class="fa-solid fa-plus"></i>
-                <span>{{ 'Add' | translate }}</span>
-            </button>
-            <span class="custom-file">
-                <input type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
-                <label (click)="uploadInput.click()" class="btn btn-sm btn-outline-secondary">
-                    <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
-                </label>
-            </span>
-        </div>
+      <div id="field-{{index}}" class="fieldBox">
+        <form #editField="ngForm">
+          <src-fields [editField]="editField" [field]="field" [fields]="fields" [type]="'template'"></src-fields>
+        </form>
+      </div>
     </div>
-    <div class="config-section col-md-6" *ngIf="showAddQuestion">
-        <ng-container *ngIf="questionnairesData.length > 0">
-            <src-add-field [step]="step" [type]="'template'" (dataToParent)="listenToAddField()"></src-add-field>
-        </ng-container>
-    </div>
-    <div class="col-md-12" *ngFor="let field of fields | orderBy:'label' ; let index = index">
-        <div id="field-{{index}}" class="fieldBox">
-            <form #editField="ngForm">
-                <src-fields [editField]="editField" [field]="field" [fields]="fields" [type]="'template'"></src-fields>
-            </form>
-        </div>
-    </div>
+  }
 </div>

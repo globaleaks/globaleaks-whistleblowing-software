@@ -1,90 +1,100 @@
 <div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label>
-                <input [(ngModel)]="nodeResolver.dataModel.adminonly" name="nodeResolver.dataModel.adminonly" type="checkbox" />
-                <span>{{'Use the first site for administrative purposes only'|translate}}</span>
-            </label>
-        </div>
-        <div class="form-group">
-            <label>{{'Mode:'|translate}}</label>
-            <select name="type" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.mode" required>
-                <option value="default" [selected]="nodeResolver.dataModel.mode === 'default'">DEFAULT</option>
-                <option value="demo">DEMO</option>
-                <option value="wbpa">WHISTLEBLOWINGPA</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>{{'Root domain used for secondary sites'|translate}}</label>
-            <div>
-                <input class="form-control" name="nodeResolver.dataModel.rootdomain" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label>{{'Questionnaire'|translate}}</label>
-            <select class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
-                <option *ngFor="let item of questionnairesResolver.dataModel" [ngValue]="item.id">{{item.name}}</option>
-            </select>
-        </div>
-        <div *ngIf="!nodeResolver.dataModel.adminonly">
-            <div class="form-group">
-                <label>
-                    <input name="nodeResolver.dataModel.enable_signup" [(ngModel)]="nodeResolver.dataModel.enable_signup" type="checkbox" />
-                    <span>{{'Allow users to sign up'|translate}}</span>
-                </label>
-            </div>
-            <div *ngIf="nodeResolver.dataModel.enable_signup">
-                <div class="form-group">
-                    <label>
-                        <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" />
-                        <span>{{'Enable terms of service'|translate}}</span>
-                        <span>#1</span>
-                    </label>
-                    <div *ngIf="nodeResolver.dataModel.signup_tos1_enable" class="nested">
-                        <div class="form-group">
-                            <label>{{'Title'|translate}}</label>
-                            <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_title" type="text" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label>{{'Text'|translate}}</label>
-                            <div>
-                                <textarea class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_text" rows="4"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>{{'Checkbox label'|translate}}</label>
-                            <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_checkbox_label" type="text" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input [(ngModel)]="nodeResolver.dataModel.signup_tos2_enable" type="checkbox" />
-                        <span>{{'Enable terms of service'|translate}}</span>
-                        <span>#2</span>
-                    </label>
-                    <div *ngIf="nodeResolver.dataModel.signup_tos2_enable" class="nested">
-                        <div class="form-group">
-                            <label>{{'Title'|translate}}</label>
-                            <input [(ngModel)]="nodeResolver.dataModel.signup_tos2_title" type="text" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label>{{'Text'|translate}}</label>
-                            <div>
-                                <textarea class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_text" rows="4"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>{{'Checkbox label'|translate}}</label>
-                            <input [(ngModel)]="nodeResolver.dataModel.signup_tos2_checkbox_label" type="text" class="form-control" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <button class="btn btn-primary" (click)="utilsService.updateNode(nodeResolver.dataModel)">
-            <i class="fa-solid fa-check"></i>
-            <span>{{'Save'|translate}}</span>
-        </button>
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.adminonly" name="nodeResolver.dataModel.adminonly" type="checkbox" />
+        <span>{{'Use the first site for administrative purposes only'|translate}}</span>
+      </label>
     </div>
+    <div class="form-group">
+      <label>{{'Mode:'|translate}}</label>
+      <select name="type" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.mode" required>
+        <option value="default" [selected]="nodeResolver.dataModel.mode === 'default'">DEFAULT</option>
+        <option value="demo">DEMO</option>
+        <option value="wbpa">WHISTLEBLOWINGPA</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>{{'Root domain used for secondary sites'|translate}}</label>
+      <div>
+        <input class="form-control" name="nodeResolver.dataModel.rootdomain" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>{{'Questionnaire'|translate}}</label>
+      <select class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
+        @for (item of questionnairesResolver.dataModel; track item) {
+          <option [ngValue]="item.id">{{item.name}}</option>
+        }
+      </select>
+    </div>
+    @if (!nodeResolver.dataModel.adminonly) {
+      <div>
+        <div class="form-group">
+          <label>
+            <input class="form-check-input" name="nodeResolver.dataModel.enable_signup" [(ngModel)]="nodeResolver.dataModel.enable_signup" type="checkbox" />
+            <span>{{'Allow users to sign up'|translate}}</span>
+          </label>
+        </div>
+        @if (nodeResolver.dataModel.enable_signup) {
+          <div>
+            <div class="form-group">
+              <label>
+                <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" />
+                <span>{{'Enable terms of service'|translate}}</span>
+                <span>#1</span>
+              </label>
+              @if (nodeResolver.dataModel.signup_tos1_enable) {
+                <div class="nested">
+                  <div class="form-group">
+                    <label>{{'Title'|translate}}</label>
+                    <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_title" type="text" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{'Text'|translate}}</label>
+                    <div>
+                      <textarea class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_text" rows="4"></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>{{'Checkbox label'|translate}}</label>
+                    <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_checkbox_label" type="text" class="form-control" />
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="form-group">
+              <label>
+                <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos2_enable" type="checkbox" />
+                <span>{{'Enable terms of service'|translate}}</span>
+                <span>#2</span>
+              </label>
+              @if (nodeResolver.dataModel.signup_tos2_enable) {
+                <div class="nested">
+                  <div class="form-group">
+                    <label>{{'Title'|translate}}</label>
+                    <input [(ngModel)]="nodeResolver.dataModel.signup_tos2_title" type="text" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>{{'Text'|translate}}</label>
+                    <div>
+                      <textarea class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_text" rows="4"></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>{{'Checkbox label'|translate}}</label>
+                    <input [(ngModel)]="nodeResolver.dataModel.signup_tos2_checkbox_label" type="text" class="form-control" />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+    <button class="btn btn-primary" (click)="utilsService.updateNode(nodeResolver.dataModel)">
+      <i class="fa-solid fa-check"></i>
+      <span>{{'Save'|translate}}</span>
+    </button>
+  </div>
 </div>

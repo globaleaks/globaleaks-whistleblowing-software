@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {Observable, of} from "rxjs";
 import {HttpService} from "@app/shared/services/http.service";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
@@ -9,10 +9,10 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class UsersResolver {
-  dataModel: userResolverModel[];
+  private httpService = inject(HttpService);
+  private authenticationService = inject(AuthenticationService);
 
-  constructor(private httpService: HttpService, private authenticationService: AuthenticationService) {
-  }
+  dataModel: userResolverModel[];
 
   resolve(): Observable<boolean> {
     if (this.authenticationService.session.role === "admin") {

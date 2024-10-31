@@ -1,145 +1,247 @@
 <div class="Question" [ngModelGroup]="fieldFormVarName" id="{{fieldFormVarName}}">
-    <div [ngSwitch]="field.template_id">
-        <div *ngSwitchCase="'whistleblower_identity'">
-            <src-whistleblower-identity-field (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [identity_provided]="identity_provided" [index]="index" [step]="rows" [entry]="entry" [fields]="fields" [answers]="answers" [displayErrors]="displayErrors" [submission]="submission" [field]="field"></src-whistleblower-identity-field>
+  <div>
+    @switch (field.template_id) {
+      @case ('whistleblower_identity') {
+        <div>
+          <src-whistleblower-identity-field (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [identity_provided]="identity_provided" [index]="index" [step]="rows" [entry]="entry" [fields]="fields" [answers]="answers" [displayErrors]="displayErrors" [submission]="submission" [field]="field"></src-whistleblower-identity-field>
         </div>
-        <div *ngSwitchDefault [ngSwitch]="field.type">
-            <div *ngSwitchCase="'textarea'">
-                <textarea id="{{fieldEntry}}" [name]=fieldEntry class="form-control inputelem" [minlength]="field.attrs.min_len.value" [maxlength]="field.attrs.max_len.value" [(ngModel)]="entry['value']" [required]="entry.required_status" #textarea="ngModel" [attr.aria-label]="field.label" [placeholder]="field.placeholder" ></textarea>
-                <div class="clearfix" *ngIf="entry['value']">
-                    <div *ngIf="entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value'].length) <= 50" class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
-                    </div>
-                </div>
-                <div *ngIf="displayErrors" class="text-danger">
-                    <span *ngIf="textarea?.errors?.['required']">{{'This field is mandatory'|translate}}</span>
-                    <span *ngIf="textarea?.errors?.['minlength']">{{'The answer is too short'|translate}}</span>
-                </div>
-            </div>
-            <div *ngSwitchCase="'selectbox'">
-                <select id="{{fieldEntry}}" [name]="fieldEntry" class="form-control inputelem" [(ngModel)]="entry['value']" [required]="entry.required_status" *ngIf="field.options.length < 10">
+      }
+      @default {
+        <div>
+          @switch (field.type) {
+            @case ('textarea') {
+              <div>
+                <textarea id="{{fieldEntry}}" [name]=fieldEntry class="form-control" [minlength]="field.attrs.min_len.value" [maxlength]="field.attrs.max_len.value" [(ngModel)]="entry['value']" [required]="entry.required_status" #textarea="ngModel" [attr.aria-label]="field.label" [placeholder]="field.placeholder" ></textarea>
+                @if (entry['value']) {
+                  <div class="clearfix">
+                    @if (entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value'].length) <= 50) {
+                      <div class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
+                      </div>
+                    }
+                  </div>
+                }
+                @if (displayErrors) {
+                  <div class="text-danger">
+                    @if (textarea?.errors?.['required']) {
+                      <span>{{'This field is mandatory'|translate}}</span>
+                    }
+                    @if (textarea?.errors?.['minlength']) {
+                      <span>{{'The answer is too short'|translate}}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            @case ('selectbox') {
+              <div>
+                @if (field.options.length < 10) {
+                  <select id="{{fieldEntry}}" [name]="fieldEntry" class="form-control" [(ngModel)]="entry['value']" [required]="entry.required_status">
                     <option class="d-none" value="">Select an option</option>
-                    <option *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; let index = index" id="{{fieldEntry}}-option-{{index}}" [value]="option.id">{{option.label}}</option>
-                </select>
-                <div class="input-group" [ngClass]="{'d-block': !entry['value']}" *ngIf="field.options.length >= 10">
+                    @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
+                      <option id="{{fieldEntry}}-option-{{index}}" [value]="option.id">{{option.label}}</option>
+                    }
+                  </select>
+                }
+                @if (field.options.length >= 10) {
+                  <div class="input-group" [ngClass]="{'d-block': !entry['value']}">
                     <ng-select class="w-75" [clearable]="false" [name]="fieldEntry" [(ngModel)]="entry['value']" >
-                        <ng-option *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'" [value]="option.id">{{option.label}}</ng-option>
+                      @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option) {
+                        <ng-option [value]="option.id">{{option.label}}</ng-option>
+                      }
                     </ng-select>
-                    <span class="input-append" (click)="entry['value']='';" disabled="!entry['value']" *ngIf="entry['value']">
+                    @if (entry['value']) {
+                      <span class="input-append" (click)="entry['value']='';" disabled="!entry['value']">
                         <i class="input-group-text cross-padding fa-solid fa-times-circle"></i>
-                    </span>
-                </div>
-            </div>
-            <div *ngSwitchCase="'multichoice'">
-                <div *ngFor="let option of field.options | orderBy:'order';let innerindex = index">
-                    <input [name]="fieldEntry" id="{{fieldEntry + '-option-' + innerindex}}" class="form-control-input inputelem" type="radio" [(ngModel)]="entry['value']" value="{{option.id}}" [required]="field.required" />
-                    <label for="{{fieldEntry + '-option-' + innerindex}}" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
-                </div>
-            </div>
-            <div *ngSwitchCase="'checkbox'">
-                <div *ngFor="let option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; let index = index">
-                        <input id="{{fieldEntry + '-option-' + index}}" [name]="fieldEntry" class="form-control-input inputelinem" [(ngModel)]="entry[option.id]" value="{{option.id}}" [required]="entry.required_status" type="checkbox" />
-                        <label for="{{fieldEntry + '-option-' + index}}" data-toggle="tooltip" title="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
-                </div>
-            </div>
-            <div *ngSwitchCase="'date'">
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            @case ('multichoice') {
+              <div>
+                @for (option of field.options | orderBy:'order'; track option; let innerindex = $index) {
+                  <div>
+                    <input [name]="fieldEntry" id="{{fieldEntry + '-option-' + innerindex}}" class="form-control-inputform-check-input" type="radio" [(ngModel)]="entry['value']" value="{{option.id}}" [required]="field.required" />
+                    <label for="{{fieldEntry + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
+                  </div>
+                }
+              </div>
+            }
+            @case ('checkbox') {
+              <div>
+                @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
+                  <div>
+                    <input id="{{fieldEntry + '-option-' + index}}" [name]="fieldEntry" class="form-control-input inputelinem form-check-input" [(ngModel)]="entry[option.id]" value="{{option.id}}" [required]="entry.required_status" type="checkbox" />
+                    <label for="{{fieldEntry + '-option-' + index}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [ngClass]="{'text-underline': option.hint1}">{{option.label}}</label>
+                  </div>
+                }
+              </div>
+            }
+            @case ('date') {
+              <div>
                 <div class="input-group">
-                    <input id="{{fieldEntry}}" class="form-control inputelem" [name]="fieldEntry" [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" [(ngModel)]="input_date" [required]="entry.required_status" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" (ngModelChange)="onDateSelection()" />
-                    <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
-                        <i class="fa-solid fa-calendar"></i>
-                    </span>
+                  <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry" [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" [(ngModel)]="input_date" [required]="entry.required_status" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" (ngModelChange)="onDateSelection()" />
+                  <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
+                    <i class="fa-solid fa-calendar"></i>
+                  </span>
                 </div>
-            </div>
-            <div *ngSwitchCase="'daterange'" class="form-inline d-inline-flex align-items-center">
+              </div>
+            }
+            @case ('daterange') {
+              <div class="form-inline d-inline-flex align-items-center">
                 <span class="form-group">
-                    <label>{{'From'|translate}}</label>
-                    <div class="input-group mx-1">
-                        <input id="{{fieldEntry}}" class="form-control inputelem" [name]="fieldEntry+'-startDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readOnly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_start_date" [required]="entry.required_status" [placeholder]="field.placeholder" ngbDatepicker #datepickerstart="ngbDatepicker" (click)="datepickerstart.toggle()" (ngModelChange)="onStartDateSelection(input_start_date)" />
-                        <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
-                            <i class="fa-solid fa-calendar"></i>
-                        </span>
-                    </div>
+                  <label [for]="fieldEntry+'-startDate'">{{'From' | translate}}</label>
                 </span>
-                <span class="form-group mx-1" *ngIf="input_start_date">
-                    <label>{{'To'|translate}}</label>
-                    <div class="input-group mx-1">
-                        <input id="{{fieldEntry}}" class="form-control inputelem" [name]="fieldEntry+'-endDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readonly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_end_date" [required]="entry.required_status" [placeholder]="field.placeholder" ngbDatepicker #datepickerend="ngbDatepicker" (click)="datepickerend.toggle()" (ngModelChange)="onEndDateSelection(input_end_date)" />
-                        <span class="input-group-append btn btn-light border border-1" (click)="datepickerend.toggle()">
-                            <i class="fa-solid fa-calendar"></i>
-                        </span>
-                    </div>
+                <span class="form-group ms-1">
+                  <div class="input-group ms-1">
+                    <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry+'-startDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readOnly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_start_date" [required]="entry.required_status" ngbDatepicker #datepickerstart="ngbDatepicker" (click)="datepickerstart.toggle()" (ngModelChange)="onStartDateSelection(input_start_date)" />
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
+                      <i class="fa-solid fa-calendar"></i>
+                    </span>
+                  </div>
                 </span>
-                <span class="ms-1 mt-2 d-inline-flex align-items-center" *ngIf="input_start_date">
+                <span class="form-group ms-2">
+                  <label [for]="fieldEntry+'-endDate'">{{'To' | translate}}</label>
+                </span>
+                <span class="form-group ms-2">
+                  <div class="input-group ms-1">
+                    <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry+'-endDate'" [minDate]="input_start_date" [maxDate]="dateOptions2" type="text" [readonly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_end_date" [required]="entry.required_status" ngbDatepicker #datepickerend="ngbDatepicker" (click)="datepickerend.toggle()" (ngModelChange)="onEndDateSelection(input_end_date)" [disabled]="!input_start_date" />
+                    <span class="input-group-append btn btn-light border border-1" (click)="input_start_date && datepickerend.toggle()">
+                      <i class="fa-solid fa-calendar"></i>
+                    </span>
+                  </div>
+                </span>
+                @if (input_start_date) {
+                  <span class="form-group ms-2">
                     <button type="button" class="btn btn-outline-secondary" (click)="clearDateRange()">
-                        <i class="fa-solid fa-times-circle"></i>
+                      <i class="fa-solid fa-times-circle"></i>
                     </button>
-                </span>
-            </div>
-            <div *ngSwitchCase="'tos'">
+                  </span>
+                }
+              </div>
+            }
+            @case ('tos') {
+              <div>
                 <markdown class="form-group tos-text" [data]="field.attrs.text.value | stripHtml"></markdown>
-                <div *ngIf="field.attrs.attachment.value">
+                @if (field.attrs.attachment.value) {
+                  <div>
                     <a [href]="field.attrs.attachment_url.value" rel="noreferrer" target="_blank">{{field.attrs.attachment_text.value}}</a>
-                </div>
+                  </div>
+                }
                 <div class="form-check">
-                        <input id="{{fieldEntry}}" [name]="fieldEntry" class="inputelem" [(ngModel)]="entry['value']" [required]="entry.required_status" value="{{field.value}}" type="checkbox" />
-                        <label for="{{fieldEntry}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
+                  <input id="{{fieldEntry}}" [name]="fieldEntry" class="form-check-input" [(ngModel)]="entry['value']" [required]="entry.required_status" value="{{field.value}}" type="checkbox" />
+                  <label for="{{fieldEntry}}" class="form-check-label"><markdown [data]="field.attrs.checkbox_label.value | stripHtml"></markdown></label>
                 </div>
-            </div>
-            <div id="{{fieldEntry}}" *ngSwitchCase="'voice'">
+              </div>
+            }
+            @case ('voice') {
+              <div id="{{fieldEntry}}">
                 <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="field" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry"></src-voice-recorder>
-            </div>
-            <div id="{{fieldEntry}}" *ngSwitchCase="'fileupload'">
+              </div>
+            }
+            @case ('fileupload') {
+              <div id="{{fieldEntry}}">
                 <src-rfile-upload-button [file_id]="fieldEntry" (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [field]="field" [formUploader]="true"></src-rfile-upload-button>
-            </div>
-            <div *ngSwitchCase="'fieldgroup'">
-                <div [ngSwitch]="field.attrs.multimedia_type.value">
-                    <div *ngSwitchCase="'image'">
+              </div>
+            }
+            @case ('fieldgroup') {
+              <div>
+                <div>
+                  @switch (field.attrs.multimedia_type.value) {
+                    @case ('image') {
+                      <div>
                         <img alt="media" [src]="field.attrs.multimedia_url.value" />
-                    </div>
-                    <div *ngSwitchCase="'audio'">
+                      </div>
+                    }
+                    @case ('audio') {
+                      <div>
                         <audio controls>
-                            <source [src]="field.attrs.multimedia_url.value" type="audio/mpeg" />
+                          <source [src]="field.attrs.multimedia_url.value" type="audio/mpeg" />
                         </audio>
-                    </div>
-                    <div *ngSwitchCase="'video'">
+                      </div>
+                    }
+                    @case ('video') {
+                      <div>
                         <video controls>
-                            <source [src]="field.attrs.multimedia_url.value" type="video/mp4">
+                          <source [src]="field.attrs.multimedia_url.value" type="video/mp4">
                         </video>
-                    </div>
+                      </div>
+                    }
+                  }
                 </div>
                 <src-form (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]="identity_provided" [fileUploadUrl] = fileUploadUrl [fieldEntry]="fieldEntry" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="rows" [submission]="submission" [index]="index" [uploads]="uploads"></src-form>
-            </div>
-            <div *ngSwitchDefault>
-                <input id="{{fieldEntry}}" [name]="fieldEntry" class="form-control inputelem" [(ngModel)]="entry['value']" [minlength]="field.attrs.min_len.value" [maxlength]="field.attrs.max_len.value" [required]=entry.required_status #defaultinput="ngModel" [pattern]="validator" [placeholder]="field.placeholder" [attr.aria-label]="field.label" type="text" />
+              </div>
+            }
+            @default {
+              <div>
+                <input id="{{fieldEntry}}" [name]="fieldEntry" class="form-control" [(ngModel)]="entry['value']" [minlength]="field.attrs.min_len.value" [maxlength]="field.attrs.max_len.value" [required]=entry.required_status #defaultinput="ngModel" [pattern]="validator" [placeholder]="field.placeholder" [attr.aria-label]="field.label" type="text" />
                 <div class="clearfix">
-                    <div *ngIf="entry['value'] && defaultinput?.errors?.['pattern'] && entry['value'].length && entry['value'].length>0 && field.attrs.input_validation.value === 'custom'" class="text-danger">{{'The specified input is not valid.'}}</div>
-                    <div *ngIf="entry['value'] && defaultinput?.errors?.['pattern'] && entry['value'].length && entry['value'].length>0 && field.attrs.input_validation.value !== 'custom'">
-                        <span class="text-danger">{{'The specified input is not valid:'|translate}}</span>
-                        <span class="text-danger" [ngSwitch]="field.attrs.input_validation.value">
-                            <span *ngSwitchCase="'email'">{{'please enter a valid email address.'|translate}}</span>
-                            <span *ngSwitchCase="'number'" class="text-danger">{{'please enter numbers only.'|translate}}</span>
-                            <span *ngSwitchCase="'phonenumber'" class="text-danger">{{'please enter numbers only.'}}</span>
-                        </span>
+                  @if (entry['value'] && defaultinput?.errors?.['pattern'] && entry['value'].length && entry['value'].length>0 && field.attrs.input_validation.value === 'custom') {
+                    <div class="text-danger">{{'The specified input is not valid.'}}</div>
+                  }
+                  @if (entry['value'] && defaultinput?.errors?.['pattern'] && entry['value'].length && entry['value'].length>0 && field.attrs.input_validation.value !== 'custom') {
+                    <div>
+                      <span class="text-danger">{{'The specified input is not valid:'|translate}}</span>
+                      <span class="text-danger">
+                        @switch (field.attrs.input_validation.value) {
+                          @case ('email') {
+                            <span>{{'please enter a valid email address.'|translate}}</span>
+                          }
+                          @case ('number') {
+                            <span class="text-danger">{{'please enter numbers only.'|translate}}</span>
+                          }
+                          @case ('phonenumber') {
+                            <span class="text-danger">{{'please enter numbers only.'}}</span>
+                          }
+                        }
+                      </span>
                     </div>
-                    <div *ngIf="entry['value'] && entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value']) <= 50" class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
+                  }
+                  @if (entry['value'] && entry['value'].length && field.attrs.max_len.value > 0 && (field.attrs.max_len.value - entry['value']) <= 50) {
+                    <div class="float-end">{{entry['value'].length}}/{{field.attrs.max_len.value}}
                     </div>
-                    <div *ngIf="entry.required_status && displayErrors" class="float-start text-danger"></div>
-                    <span *ngIf="defaultinput?.errors?.['required'] && displayErrors" class="text-danger">{{'This field is mandatory'|translate}}</span>
-                    <span *ngIf="defaultinput?.errors?.['minlength'] && displayErrors" class="text-danger">{{'The answer is too short'|translate}}</span>
+                  }
+                  @if (entry.required_status && displayErrors) {
+                    <div class="float-start text-danger"></div>
+                  }
+                  @if (defaultinput?.errors?.['required'] && displayErrors) {
+                    <span class="text-danger">{{'This field is mandatory'|translate}}</span>
+                  }
+                  @if (defaultinput?.errors?.['minlength'] && displayErrors) {
+                    <span class="text-danger">{{'The answer is too short'|translate}}</span>
+                  }
                 </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    }
+  </div>
+  @if (field.type !== 'inputbox' && field.type !== 'textarea' && entry.required_status && (displayErrors || validateUploadSubmission())) {
+    <div class="text-danger">{{'This field is mandatory'|translate}}</div>
+  }
+  @if (field.type === 'selectbox') {
+    <div>
+      @for (option of field.options; track option) {
+        <div>
+          @if (option.set && option.hint1) {
+            <div>
+              <i class="fa-solid fa-info-circle"></i> {{option.hint1}}
             </div>
+          }
         </div>
+      }
     </div>
-    <div *ngIf="field.type !== 'inputbox' && field.type !== 'textarea' && entry.required_status && (displayErrors || validateUploadSubmission())" class="text-danger">{{'This field is mandatory'|translate}}</div>
-    <div *ngIf="field.type === 'selectbox'">
-        <div *ngFor="let option of field.options">
-            <div *ngIf="option.set && option.hint1">
-                <i class="fa-solid fa-info-circle"></i> {{option.hint1}}
-            </div>
+  }
+  @for (option of field.options; track option) {
+    <div>
+      @if (option.set && option.hint2) {
+        <div [ngClass]="{'text-danger': option.block_submission}">
+          <i class="fa-solid fa-info-circle"></i> {{option.hint2}}
         </div>
+      }
     </div>
-    <div *ngFor="let option of field.options">
-        <div *ngIf="option.set && option.hint2" [ngClass]="{'text-danger': option.block_submission}">
-            <i class="fa-solid fa-info-circle"></i> {{option.hint2}}
-        </div>
-    </div>
+  }
 </div>

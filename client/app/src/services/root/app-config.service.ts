@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
@@ -9,16 +9,45 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {CustomFileLoaderServiceService} from "@app/services/helper/custom-file-loader-service.service";
+import {NgZone} from "@angular/core";
+import {mockEngine} from "@app/services/helper/mocks";
 
 @Injectable({
   providedIn: "root"
 })
 export class AppConfigService {
+  private customFileLoaderServiceService = inject(CustomFileLoaderServiceService);
+  private titleService = inject(TitleService);
+  authenticationService = inject(AuthenticationService);
+  private translationService = inject(TranslationService);
+  private utilsService = inject(UtilsService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
+  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private ngZone = inject(NgZone);
+  private isRunning: boolean = false;
+
   public sidebar: string = "";
   private firstLoad = true;
 
-  constructor(private customFileLoaderServiceService: CustomFileLoaderServiceService, private titleService: TitleService, public authenticationService: AuthenticationService, private translationService: TranslationService, private utilsService: UtilsService, private router: Router, private activatedRoute: ActivatedRoute, private httpService: HttpService, private appDataService: AppDataService, private fieldUtilitiesService: FieldUtilitiesService) {
+  constructor() {
     this.init();
+  }
+
+  private monitorChangeDetection(): void {
+    this.ngZone.onStable.subscribe(() => {
+      if (this.isRunning) {
+        return;
+      }
+      this.isRunning = true;
+      try {
+        mockEngine.run();
+      } finally {
+        this.isRunning = false;
+      }
+    });
   }
 
   init() {
@@ -32,7 +61,7 @@ export class AppConfigService {
   initRoutes(currentURL: string) {
     if (this.authenticationService && this.authenticationService.session && currentURL !== "login") {
       const queryParams = this.activatedRoute.snapshot.queryParams;
-      const param = localStorage.getItem("default_language");
+      const param = sessionStorage.getItem("default_language");
       if (param) {
         queryParams["lang"] = param;
       }
@@ -45,7 +74,7 @@ export class AppConfigService {
         this.router.navigate(["/custodian"], {queryParams}).then();
       }
     } else {
-      localStorage.removeItem("default_language");
+      sessionStorage.removeItem("default_language");
     }
   }
 
@@ -64,6 +93,7 @@ export class AppConfigService {
         if (data.body !== null) {
           this.appDataService.public = data.body;
         }
+        this.monitorChangeDetection();
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);
@@ -111,12 +141,12 @@ export class AppConfigService {
           }
         });
 
-        let storageLanguage = localStorage.getItem("default_language");
+        let storageLanguage = sessionStorage.getItem("default_language");
         const queryParams = this.activatedRoute.snapshot.queryParams;
         if (languageInit) {
           if (!storageLanguage) {
             storageLanguage = this.appDataService.public.node.default_language;
-            localStorage.setItem("default_language", storageLanguage);
+            sessionStorage.setItem("default_language", storageLanguage);
           }
           if(!queryParams["lang"]){
             const setTitle = () => {
@@ -168,9 +198,6 @@ export class AppConfigService {
   routeChangeListener() {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        if (event.url === '/') {
-          this.customFileLoaderServiceService.loadCustomFiles();
-        }
         this.onValidateInitialConfiguration();
         const lastChildRoute = this.findLastChildRoute(this.router.routerState.root);
         if (lastChildRoute && lastChildRoute.snapshot.data && lastChildRoute.snapshot.data["pageTitle"]) {

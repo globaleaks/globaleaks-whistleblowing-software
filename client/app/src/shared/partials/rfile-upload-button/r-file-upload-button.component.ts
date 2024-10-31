@@ -1,28 +1,31 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input, OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from "@angular/core";
-import {FlowDirective, Transfer} from "@flowjs/ngx-flow";
+import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {FlowDirective, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {FlowOptions} from "@flowjs/flow.js";
 import {Field} from "@app/models/resolvers/field-template-model";
-import { AuthenticationService } from "@app/services/helper/authentication.service";
-import { UtilsService } from "@app/shared/services/utils.service";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {NgClass, AsyncPipe} from "@angular/common";
+import {RFileUploadStatusComponent} from "../rfile-upload-status/r-file-upload-status.component";
+import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
+import {TranslateModule} from "@ngx-translate/core";
+import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-  selector: "src-rfile-upload-button",
-  templateUrl: "./r-file-upload-button.component.html",
-  viewProviders: [{provide: ControlContainer, useExisting: NgForm}]
+    selector: "src-rfile-upload-button",
+    templateUrl: "./r-file-upload-button.component.html",
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgxFlowModule, NgClass, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule, TranslatorPipe]
 })
 export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDestroy {
+  private cdr = inject(ChangeDetectorRef);
+  private utilsService = inject(UtilsService);
+  protected appDataService = inject(AppDataService);
+  protected authenticationService = inject(AuthenticationService);
+
 
   @Input() fileUploadUrl: string;
   @Input() formUploader: boolean = true;
@@ -38,9 +41,6 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   errorFile: Transfer;
   confirmButton = false;
   flowConfig: FlowOptions;
-
-  constructor(private cdr: ChangeDetectorRef, private utilsService: UtilsService, protected appDataService: AppDataService,protected authenticationService:AuthenticationService) {
-  }
 
   ngOnInit(): void {
     this.file_id = this.file_id ? this.file_id:"status_page";

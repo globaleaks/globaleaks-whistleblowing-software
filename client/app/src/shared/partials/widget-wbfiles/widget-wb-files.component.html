@@ -1,16 +1,26 @@
-<div id="AttachedWBFile" class="card card-default" *ngIf="wbTipService.tip.rfiles.length>0">
+@if (wbTipService.tip.rfiles.length>0) {
+  <div id="AttachedWBFile" class="card card-default">
     <div class="card-header clearfix" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
-        <span>{{'Files attached by recipients'|translate}}</span>
-        <span class="float-end">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
-        </span>
+      <span>{{'Files attached by recipients'|translate}}</span>
+      <span class="float-end">
+        @if (!collapsed) {
+          <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+        }
+        @if (collapsed) {
+          <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+        }
+      </span>
     </div>
-    <div class="card-body" *ngIf="!collapsed">
-        <div *ngFor="let wbfile of wbTipService.tip.rfiles | orderBy: 'creation_date'">
+    @if (!collapsed) {
+      <div class="card-body">
+        @for (wbfile of wbTipService.tip.rfiles | orderBy: 'creation_date'; track wbfile) {
+          <div>
             <div id="rfile-{{index}}">
-                <src-wbfiles [ctx]="ctx" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="receivers_by_id" [wbFile]="wbfile"></src-wbfiles>
+              <src-wbfiles [ctx]="ctx" (dataToParent)="listenToWbfiles($event)" [receivers_by_id]="receivers_by_id" [wbFile]="wbfile"></src-wbfiles>
             </div>
-        </div>
-    </div>
-</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}

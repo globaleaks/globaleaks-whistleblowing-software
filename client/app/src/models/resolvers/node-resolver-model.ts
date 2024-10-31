@@ -75,6 +75,4 @@ export class nodeResolverModel {
   onionservice: string;
   user_privacy_policy_url: string;
   can_postpone_expiration: boolean;
-  profile:boolean
-  is_profile:boolean
 }

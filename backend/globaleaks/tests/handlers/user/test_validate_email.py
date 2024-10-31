@@ -2,8 +2,8 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers import email_validation
 from globaleaks.handlers.admin import user
+from globaleaks.handlers.user import validate_email
 from globaleaks.orm import db_get, transact, tw
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now
@@ -18,7 +18,7 @@ def set_email_token(session, user_id, validation_token, email):
 
 
 class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
-    _handler = email_validation.EmailValidation
+    _handler = validate_email.EmailValidation
 
     @inlineCallbacks
     def test_get_success(self):

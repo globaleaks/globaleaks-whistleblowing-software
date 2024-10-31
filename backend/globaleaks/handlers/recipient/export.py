@@ -57,23 +57,23 @@ try:
             self.set_right_margin(self.report_margin)
             self.set_left_margin(self.report_margin)
 
-            self.set_text_shaping(use_shaping_engine=True, direction="ltr")
+            self.set_text_shaping(use_shaping_engine=False, direction="ltr")
 
         def header(self):
             self.cell(80)
             self.set_font("courier", "", 9)
-            self.set_text_shaping(use_shaping_engine=True, direction="ltr")
+            self.set_text_shaping(use_shaping_engine=False, direction="ltr")
             self.cell(30, 10, self.title, align="C")
-            self.set_text_shaping(use_shaping_engine=True, direction=self.report_direction)
+            self.set_text_shaping(use_shaping_engine=False, direction=self.report_direction)
             self.set_font(self.report_default_font, "", 11)
             self.ln(20)
 
         def footer(self):
             self.set_y(-15)
             self.set_font("courier", "", 9)
-            self.set_text_shaping(use_shaping_engine=True, direction="ltr")
+            self.set_text_shaping(use_shaping_engine=False, direction="ltr")
             self.cell(0, 10, f"{self.page_no()}/{{nb}}", align="C")
-            self.set_text_shaping(use_shaping_engine=True, direction=self.report_direction)
+            self.set_text_shaping(use_shaping_engine=False, direction=self.report_direction)
             self.set_font(self.report_default_font, "", 11)
 
 except ImportError:
@@ -132,11 +132,11 @@ def create_pdf_report(input_text, data):
         if any('\u0590' <= char <= '\u06FF' for char in line):  # Check for characters in Hebrew or Arabic blocks
             if pdf.report_direction == 'ltr':
                 pdf.report_direction = 'rtl'
-                pdf.set_text_shaping(use_shaping_engine=True, direction=pdf.report_direction)
+                pdf.set_text_shaping(use_shaping_engine=False, direction=pdf.report_direction)
         else:
             if pdf.report_direction == 'rtl':
                 pdf.report_direction = 'ltr'
-                pdf.set_text_shaping(use_shaping_engine=True, direction=pdf.report_direction)
+                pdf.set_text_shaping(use_shaping_engine=False, direction=pdf.report_direction)
 
         pdf.multi_cell(0, pdf.report_line_height, line.strip(), align='L')
         pdf.ln()

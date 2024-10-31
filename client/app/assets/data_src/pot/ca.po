@@ -104,7 +104,7 @@ msgid "Advanced"
 msgstr "Avançat"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr ""
+msgstr "Permet al destinatari editar la data d'expiració de les denúncies"
 
 msgid "Allow the recipient to delete reports"
 msgstr "Permet al destinatari esborrar informes"
@@ -209,7 +209,7 @@ msgid "Block the submission"
 msgstr "Bloquejar l'enviament"
 
 msgid "By confirming, you will edit the expiration date to:"
-msgstr ""
+msgstr "Al confirmar, estaràs canviant la data d'expiració a: "
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "En confirmar, fixarà una data de recordatori:"

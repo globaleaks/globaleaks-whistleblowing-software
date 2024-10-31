@@ -1,4 +1,4 @@
-import {Answers} from "@app/models/reciever/reciever-tip-data";
+import {Answers} from "@app/models/receiver/receiver-tip-data";
 
 export class submissionResourceModel {
   context_id: number;

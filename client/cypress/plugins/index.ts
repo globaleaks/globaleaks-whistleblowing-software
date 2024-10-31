@@ -1,7 +1,8 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-import * as fs from 'fs'
+import * as fs from 'fs';
+import * as path from 'path';
 import * as registerCodeCoverageTasks from "@cypress/code-coverage/task";
 
 export default (on, config) => {
@@ -22,12 +23,20 @@ export default (on, config) => {
     }
 
     return new Promise((resolve, reject) => {
-      let newPath = __dirname + "/../../../documentation/images/" + details.path.split('/').slice(-2).join('/')
+      const language = config.env.language;
 
-      fs.copyFile(details.path, newPath, (err) => {
+      const destPath = __dirname + "/../../../documentation/images/" + details.path.replace(".png", "").split('/').slice(-2).join('/') + "." + language + ".png";
+
+      const destDir = path.dirname(destPath);
+
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+      }
+
+      fs.copyFile(details.path, destPath, (err) => {
         if (err) return reject(err)
 
-        resolve({ path: newPath })
+        resolve({ path: destPath })
       })
     })
   })

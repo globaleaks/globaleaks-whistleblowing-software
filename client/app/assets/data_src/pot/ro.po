@@ -7,7 +7,7 @@
 # Mihai, 2014
 # 8bf9875a77f98d43f60f7ed327ef0674_5353a9e <98c70ede8787a76b7570a3fe2dc0f0ca_970647>, 2021
 # Cristina Lupu <cristina@cji.ro>, 2019-2021
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2016-2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2022
 # Inpresentia I., 2016
 # Inpresentia I., 2016
 # Matei Imola <imolam11@gmail.com>, 2016
@@ -22,7 +22,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2016-2022\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2022\n"
 "Language-Team: Romanian (http://app.transifex.com/otf/globaleaks/language/ro/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"

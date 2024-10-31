@@ -1,15 +1,26 @@
-import { Component, OnInit } from '@angular/core';
-import { StatisticsResolver } from '@app/shared/resolvers/statistics.resolver';
-import { TranslateService } from '@ngx-translate/core';
+import {Component, OnInit, inject} from '@angular/core';
+import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
+import {TranslateService, TranslateModule} from '@ngx-translate/core';
+
+import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
+import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
-  selector: 'src-statistics',
-  templateUrl: './statistics.component.html',
+    selector: 'src-statistics',
+    templateUrl: './statistics.component.html',
+    standalone: true,
+    imports: [
+    BaseChartDirective,
+    TranslateModule,
+    TranslatorPipe
+],
+    providers: [provideCharts(withDefaultRegisterables())],
 })
 export class StatisticsComponent implements OnInit {
-  charts: any[] = [];
+  private translateService = inject(TranslateService);
+  private statisticsResolver = inject(StatisticsResolver);
 
-  constructor(private translateService: TranslateService, private statisticsResolver: StatisticsResolver) { }
+  charts: any[] = [];
 
   ngOnInit(): void {
     this.initializeCharts();

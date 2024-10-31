@@ -1,22 +1,36 @@
 <div id="HomePageBox">
-    <markdown id="Presentation" class="mb-4" *ngIf="appDataService.public.node.presentation" [data]="appDataService.public.node.presentation | stripHtml"></markdown>
-    <div id="WhistleblowerBox" class="d-block mx-auto">
-        <div id="WhistleblowerSubmitBoxButtonDisabled" class="mb-4" *ngIf="appDataService.public.node.disable_submissions || (!appDataService.public.node.https_whistleblower && !appDataService.connection.tor)">
-            <button class="btn btn-danger disabled">
-                <i class="fa-solid fa-ban-circle"></i>
-                <span id="submissions_disabled">{{'Submissions disabled'|translate}}</span>
-            </button>
+  @if (appDataService.public.node.presentation) {
+    <markdown id="Presentation" class="mb-4" [data]="appDataService.public.node.presentation | stripHtml"></markdown>
+  }
+  <div id="WhistleblowerBox" class="d-block mx-auto">
+    @if (appDataService.public.node.disable_submissions || (!appDataService.public.node.https_whistleblower && !appDataService.connection.tor)) {
+      <div id="WhistleblowerSubmitBoxButtonDisabled" class="mb-4">
+        <button class="btn btn-danger disabled">
+          <i class="fa-solid fa-ban-circle"></i>
+          <span id="submissions_disabled">{{'Submissions disabled'|translate}}</span>
+        </button>
+      </div>
+    }
+    @if (!appDataService.public.node.https_whistleblower && !appDataService.connection.tor) {
+      <div class="mb-4">
+        <p class="text-danger">{{'You are connecting to the server without anonymity and this server supports only anonymous submissions'|translate}}</p>
+      </div>
+    }
+    @if (!appDataService.public.node.disable_submissions && (appDataService.public.node.https_whistleblower || appDataService.connection.tor)) {
+      <div id="WhistleblowerSubmitBox" class="mb-4">
+        @if (appDataService.public.node.whistleblowing_question) {
+          <markdown id="WhistleblowingQuestion" [data]="appDataService.public.node.whistleblowing_question | stripHtml"></markdown>
+        }
+        <button id="WhistleblowingButton" (click)="openSubmission()" class="btn btn-primary">@if (appDataService.public.node.whistleblowing_button) {
+          <span>{{appDataService.public.node.whistleblowing_button|translate}}</span>
+        }</button>
+      </div>
+    }
+    <div>
+      @if (appDataService.public.node.https_whistleblower || appDataService.connection.tor) {
+        <div id="WhistleblowerLoginBox">
+          <src-receipt></src-receipt>
         </div>
-        <div class="mb-4" *ngIf="!appDataService.public.node.https_whistleblower && !appDataService.connection.tor">
-            <p class="text-danger">{{'You are connecting to the server without anonymity and this server supports only anonymous submissions'|translate}}</p>
-        </div>
-        <div id="WhistleblowerSubmitBox" class="mb-4" *ngIf="!appDataService.public.node.disable_submissions && (appDataService.public.node.https_whistleblower || appDataService.connection.tor)">
-            <markdown id="WhistleblowingQuestion" *ngIf="appDataService.public.node.whistleblowing_question" [data]="appDataService.public.node.whistleblowing_question | stripHtml"></markdown>
-            <button id="WhistleblowingButton" (click)="openSubmission()" class="btn btn-primary"><span *ngIf="appDataService.public.node.whistleblowing_button">{{appDataService.public.node.whistleblowing_button|translate}}</span></button>
-        </div>
-        <br>
-        <div id="WhistleblowerLoginBox" *ngIf="appDataService.public.node.https_whistleblower || appDataService.connection.tor">
-            <src-receipt></src-receipt>
-        </div>
+      }
     </div>
-</div>
+  </div>

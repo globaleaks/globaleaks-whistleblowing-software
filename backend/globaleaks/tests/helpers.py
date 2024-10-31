@@ -598,6 +598,7 @@ class TestGL(unittest.TestCase):
 
         yield db.refresh_tenant_cache()
 
+        self.state.reset_minutely()
         self.state.reset_hourly()
 
         self.internationalized_text = load_appdata()['node']['whistleblowing_button']

@@ -195,10 +195,10 @@ class WBTipInstance(BaseHandler):
     def get(self):
         tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
 
+        tip = yield serializers.process_logs(tip, tip['id'])
+
         if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
-
-            tip = yield serializers.process_logs(tip, tip['id'])
 
         returnValue(tip)
 

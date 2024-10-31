@@ -1,7 +1,7 @@
 # 
 # Translators:
 # 0f41b5a358484c50d812a80e7387c7ca_b389158 <e89646e3c4143fd4f5c23fbc4ae4882b_892000>, 2020
-# Giovanni Pellerano <giovanni.pellerano@evilaliv3.org>, 2020,2022
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020,2022
 # 0f41b5a358484c50d812a80e7387c7ca_b389158 <e89646e3c4143fd4f5c23fbc4ae4882b_892000>, 2020
 msgid ""
 msgstr ""

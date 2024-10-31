@@ -544,8 +544,6 @@ class APIResourceWrapper(Resource):
         else:
             request.setHeader(b'X-Check-Tor', b'False')
 
-        request.setHeader(b'Content-Language', request.language)
-
     def detect_language(self, request):
         locales = []
         for language in request.headers.get(b'accept-language', b'').decode().split(","):

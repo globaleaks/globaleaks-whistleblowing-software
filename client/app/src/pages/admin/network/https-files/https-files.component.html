@@ -1,114 +1,144 @@
 <div class="https-file-res">
-    <ng-container *ngIf="tlsConfig">
-        <div class="card card-default key mb-1">
-            <div class="card-body clearfix">
-                <span>{{ 'Private Key' | translate }}</span>
-                <span>(PEM)</span>
-                <span class="float-end">
-                    <span *ngIf="!tlsConfig.files?.key?.set">
-                        <input type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
-                        <label id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
-                    </span>
-                    <button id="pkGen" class="btn btn-sm btn-primary" *ngIf="!tlsConfig.files?.key?.set" (click)="genKey()">
-                        <i class="fa-solid fa-cog"></i>
-                        <span>{{ 'Generate' | translate }}</span>
-                    </button>
-                    <span *ngIf="tlsConfig.files?.key?.set">
-                        <button id="deleteKey" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.key)">
-                            <i class="fa-solid fa-times"></i>
-                            <span>{{ 'Delete' | translate }}</span>
-                        </button>
-                    </span>
-                </span>
-            </div>
-        </div>
-        <div *ngIf="tlsConfig.files.key.set && !tlsConfig.acme" class="card card-default csr mb-1">
-            <div class="card-body clearfix">
-                <span>{{ 'Certificate Signing Request' | translate }}</span>
-                <span>(PEM)</span>
-                <span *ngIf="!tlsConfig.files.csr?.set">
-                    <span class="float-end">
-                        <button id="csrGen" class="btn btn-sm btn-primary" *ngIf="!csr_state.open" (click)="csr_state.open = true">
-                            <i class="fa-solid fa-cog"></i>
-                            <span>{{ 'Generate' | translate }}</span>
-                        </button>
-                        <button type="submit" class="close btn large-close-button" *ngIf="csr_state.open" (click)="csr_state.open = false" aria-label="Close">&times;</button>
-                    </span>
-                    <br>
-                    <br>
-                    <div *ngIf="csr_state.open">
-                        <hr />
-                        <src-https-csr-gen [fileResources]="fileResources"></src-https-csr-gen>
+  @if (tlsConfig) {
+    <div class="card card-default key mb-1">
+      <div class="card-body clearfix">
+        <span>{{ 'Private Key' | translate }}</span>
+        <span>(PEM)</span>
+        <span class="float-end">
+          @if (!tlsConfig.files.key.set) {
+            <span>
+              <input type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
+              <label id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+            </span>
+          }
+          @if (!tlsConfig.files.key.set) {
+            <button id="pkGen" class="btn btn-sm btn-primary" (click)="genKey()">
+              <i class="fa-solid fa-cog"></i>
+              <span>{{ 'Generate' | translate }}</span>
+            </button>
+          }
+          @if (tlsConfig.files.key.set) {
+            <span>
+              <button id="deleteKey" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.key)">
+                <i class="fa-solid fa-times"></i>
+                <span>{{ 'Delete' | translate }}</span>
+              </button>
+            </span>
+          }
+        </span>
+      </div>
+    </div>
+    @if (tlsConfig.files.key.set && !tlsConfig.acme) {
+      <div class="card card-default csr mb-1">
+        <div class="card-body clearfix">
+          <span>{{ 'Certificate Signing Request' | translate }}</span>
+          <span>(PEM)</span>
+          @if (!isCsrSet()) {
+            <span>
+              <span class="float-end">
+                @if (!csr_state.open) {
+                  <button id="csrGen" class="btn btn-sm btn-primary" (click)="csr_state.open = true">
+                    <i class="fa-solid fa-cog"></i>
+                    <span>{{ 'Generate' | translate }}</span>
+                  </button>
+                }
+                @if (csr_state.open) {
+                  <button type="submit" class="close btn large-close-button" (click)="csr_state.open = false" aria-label="Close">&times;</button>
+                }
+              </span>
+              <br>
+                <br>
+                  @if (csr_state.open) {
+                    <div>
+                      <hr />
+                      <src-https-csr-gen [fileResources]="fileResources"></src-https-csr-gen>
                     </div>
+                  }
                 </span>
-                <span *ngIf="tlsConfig.files.csr?.set" class="clearfix">
-                    <span class="float-end">
-                        <button id="downloadCsr" class="btn btn-sm btn-primary" (click)="downloadCSR()">
-                            <i class="fa-solid fa-file-export"></i>
-                            <span>{{ 'Download' | translate }}</span>
-                        </button>
-                        <button id="deleteCsr" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.csr)">
-                            <i class="fa-solid fa-times"></i>
-                            <span>{{ 'Delete' | translate }}</span>
-                        </button>
-                    </span>
+              }
+              @if (isCsrSet()) {
+                <span class="clearfix">
+                  <span class="float-end">
+                    <button id="downloadCsr" class="btn btn-sm btn-primary" (click)="downloadCSR()">
+                      <i class="fa-solid fa-file-export"></i>
+                      <span>{{ 'Download' | translate }}</span>
+                    </button>
+                    <button id="deleteCsr" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.csr)">
+                      <i class="fa-solid fa-times"></i>
+                      <span>{{ 'Delete' | translate }}</span>
+                    </button>
+                  </span>
                 </span>
+              }
             </div>
-        </div>
+          </div>
+        }
         <div class="card card-default cert mb-1">
-            <div class="card-body clearfix">
-                <span>{{ 'Certificate' | translate }}</span>
-                <span>(PEM)</span>
-                <ng-container *ngIf="tlsConfig.files.cert.set">
-                    <span class="badge bg-primary">
-                        <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.cert.expiration_date |
-                      date:'dd-MM-yyyy HH:mm' }}
-                        <span>{{ 'Issuer:' | translate }}</span>
-                        <b>{{ tlsConfig.files.cert.issuer }}</b>
-                    </span>
-                </ng-container>
-                <span class="float-end">
-                    <span *ngIf="!tlsConfig.files.cert.set">
-                        <input type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
-                        <label id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
-                    </span>
-                    <span *ngIf="tlsConfig.files.cert.set">
-                        <button id="deleteCert" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.cert)">
-                            <i class="fa-solid fa-times"></i>
-                            <span>{{ 'Delete' | translate }}</span>
-                        </button>
-                    </span>
+          <div class="card-body clearfix">
+            <span>{{ 'Certificate' | translate }}</span>
+            <span>(PEM)</span>
+            @if (tlsConfig.files.cert.set) {
+              <span class="badge bg-primary">
+                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.cert.expiration_date |
+                date:'dd-MM-yyyy HH:mm' }}
+                <span>{{ 'Issuer:' | translate }}</span>
+                <b>{{ tlsConfig.files.cert.issuer }}</b>
+              </span>
+            }
+            <span class="float-end">
+              @if (!tlsConfig.files.cert.set) {
+                <span>
+                  <input type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
+                  <label id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
                 </span>
-            </div>
+              }
+              @if (tlsConfig.files.cert.set) {
+                <span>
+                  <button id="deleteCert" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.cert)">
+                    <i class="fa-solid fa-times"></i>
+                    <span>{{ 'Delete' | translate }}</span>
+                  </button>
+                </span>
+              }
+            </span>
+          </div>
         </div>
         <div class="card card-default chain mb-1">
-            <div class="card-body clearfix">
-                <span>{{ 'Intermediate Certificates' | translate }}</span>
-                <span>(PEM)</span>
-                <ng-container *ngIf="tlsConfig.files.chain.set">
-                    <span class="badge bg-primary">
-                        <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.chain.expiration_date |
-                      date:'dd-MM-yyyy HH:mm' }}
-                        <span>{{ 'Issuer:' | translate }}</span>
-                        <b>{{ tlsConfig.files.chain.issuer }}</b>
-                    </span>
-                </ng-container>
-                <div class="float-end">
-                    <span *ngIf="!tlsConfig.files.chain.set">
-                        <input type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
-                        <label id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
-                    </span>
-                    <span *ngIf="tlsConfig.files.chain.set">
-                        <button id="deleteChain" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.chain)">
-                            <i class="fa-solid fa-times"></i>
-                            <span>{{ 'Delete' | translate }}</span>
-                        </button>
-                    </span>
-                </div>
+          <div class="card-body clearfix">
+            <span>{{ 'Intermediate Certificates' | translate }}</span>
+            <span>(PEM)</span>
+            @if (tlsConfig.files.chain.set) {
+              <span class="badge bg-primary">
+                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.chain.expiration_date |
+                date:'dd-MM-yyyy HH:mm' }}
+                <span>{{ 'Issuer:' | translate }}</span>
+                <b>{{ tlsConfig.files.chain.issuer }}</b>
+              </span>
+            }
+            <div class="float-end">
+              @if (!tlsConfig.files.chain.set) {
+                <span>
+                  <input type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
+                  <label id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+                </span>
+              }
+              @if (tlsConfig.files.chain.set) {
+                <span>
+                  <button id="deleteChain" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.chain)">
+                    <i class="fa-solid fa-times"></i>
+                    <span>{{ 'Delete' | translate }}</span>
+                  </button>
+                </span>
+              }
             </div>
+          </div>
         </div>
-    </ng-container>
-    <button *ngIf="!tlsConfig.enabled && state > 1" class="btn btn-primary" (click)="toggleCfg()">{{ 'Enable' | translate }}</button>
-    <button *ngIf="tlsConfig.enabled" class="btn btn-danger" (click)="toggleCfg()">{{ 'Disable' | translate }}</button>
-    <button class="btn btn-danger" (click)="resetCfg()">{{ 'Reset' | translate }}</button>
-</div>
+      }
+      @if (!tlsConfig.enabled && state > 1) {
+        <button class="btn btn-primary" (click)="toggleCfg()">{{ 'Enable' | translate }}</button>
+      }
+      @if (tlsConfig.enabled) {
+        <button class="btn btn-danger" (click)="toggleCfg()">{{ 'Disable' | translate }}</button>
+      }
+      <button class="btn btn-danger" (click)="resetCfg()">{{ 'Reset' | translate }}</button>
+    </div>

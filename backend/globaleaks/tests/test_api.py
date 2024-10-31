@@ -69,7 +69,6 @@ class TestAPI(TestGL):
 
         server_headers = [
             ('Cache-control', 'no-store'),
-            ('Content-Language', 'en'),
             ('Content-Security-Policy', 'base-uri \'none\';' \
                                         'default-src \'none\';' \
                                         'form-action \'none\';' \
