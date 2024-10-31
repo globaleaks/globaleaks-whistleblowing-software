@@ -89,33 +89,26 @@ export class PreferenceTab1Component implements OnInit {
 
     } else {
       const modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false});
-      modalRef.result.then(
-        (result) => {
-          if (result) {
-            const data = {
-              "operation": "disable_2fa",
-              "args": {
-                "secret": result,
-                "token": this.twoFactorAuthData.totp.token
-              }
-            };
+      modalRef.componentInstance.confirmFunction = (secret: string) => {
+        if (secret) {
+          const data = {
+            "operation": "disable_2fa",
+            "args": {}
+          };
 
-            this.httpService.requestOperationsRecovery(data, this.utilsService.encodeString(result)).subscribe(
-              {
-                next: _ => {
-                  this.preferenceResolver.dataModel.two_factor = !this.preferenceResolver.dataModel.two_factor;
-                  this.utilsService.reloadCurrentRoute();
-                },
-                error: (_: any) => {
-                 this.toggle2FA(event);
-                }
+          this.httpService.requestOperationsRecovery(data, this.utilsService.encodeString(secret)).subscribe(
+            {
+              next: _ => {
+                this.preferenceResolver.dataModel.two_factor = !this.preferenceResolver.dataModel.two_factor;
+                this.utilsService.reloadCurrentRoute();
+              },
+              error: (_: any) => {
+               this.toggle2FA(event);
               }
-            );
-          }
-        },
-        (_) => {
+            }
+          );
         }
-      );
+      };
     }
 
     event.preventDefault();
@@ -125,10 +118,7 @@ export class PreferenceTab1Component implements OnInit {
   getEncryptionRecoveryKeyTrigger(result: any, event: Event) {
     const data = {
       "operation": "get_recovery_key",
-      "args": {
-        "secret": this.twoFactorAuthData.totp.secret,
-        "token": this.twoFactorAuthData.totp.token
-      }
+      "args": {}
     };
 
     this.httpService.requestOperationsRecovery(data, this.utilsService.encodeString(result)).subscribe(
@@ -160,25 +150,16 @@ export class PreferenceTab1Component implements OnInit {
   }
 
   getEncryptionRecoveryKey(event: Event) {
-
     let modalRef: NgbModalRef;
     if (this.preferenceResolver.dataModel.two_factor) {
       modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false});
-      modalRef.result.then(
-        (result) => {
-          this.getEncryptionRecoveryKeyTrigger(result, event);
-        }
-      );
     } else {
-      let modalRef = this.modalService.open(ConfirmationWithPasswordComponent, {backdrop: 'static', keyboard: false});
-      if (this.preferenceResolver.dataModel.two_factor) {
-        modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false});
-      }
-
-      modalRef.componentInstance.confirmFunction = (secret: string) => {
-        this.getEncryptionRecoveryKeyTrigger(secret, event);
-      };
+      modalRef = this.modalService.open(ConfirmationWithPasswordComponent, {backdrop: 'static', keyboard: false});
     }
+
+    modalRef.componentInstance.confirmFunction = (secret: string) => {
+      this.getEncryptionRecoveryKeyTrigger(secret, event);
+    };
   }
 
   save() {
