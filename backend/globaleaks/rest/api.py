@@ -35,7 +35,7 @@ from globaleaks.handlers import admin, \
     user, \
     viewer, \
     wizard, \
-    whistleblower, accreditation
+    whistleblower, accreditator
 
 from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
@@ -151,15 +151,15 @@ api_spec = [
     (r'/api/admin/statuses/' + uuid_regexp + r'/substatuses/' + uuid_regexp, admin.submission_statuses.SubmissionSubStatusInstance),
 
     # Accreditation
-    (r'/api/accreditation/request', accreditation.SubmitAccreditationHandler),
-    (r'/api/accreditation/all', accreditation.GetAllAccreditationHandler),
-    (r'/api/accreditation/request/' + uuid_regexp, accreditation.AccreditationHandler),
-    (r'/api/accreditation/request/instructor_request', accreditation.SubmitInstructorRequestHandler),
-    (r'/api/accreditation/request/' + uuid_regexp + r'/approved', accreditation.AccreditationApprovedHandler),
-    (r'/api/accreditation/request/' + uuid_regexp + r'/invited', accreditation.AccreditationApprovedHandler),
-    (r'/api/accreditation/request/' + uuid_regexp + r'/confirm_invited', accreditation.ConfirmRequestHandler),
-    (r'/api/accreditation/request/' + uuid_regexp + r'/accredited', accreditation.AccreditationConfirmHandler),
-    (r'/api/accreditation/request/' + uuid_regexp + r'/toggle-status-active', accreditation.ToggleStatusActiveHandler),
+    (r'/api/accreditation/request', accreditator.SubmitAccreditationHandler),
+    (r'/api/accreditation/all', accreditator.GetAllAccreditationHandler),
+    (r'/api/accreditation/request/' + uuid_regexp, accreditator.AccreditationHandler),
+    (r'/api/accreditation/request/instructor_request', accreditator.SubmitInstructorRequestHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/approved', accreditator.AccreditationApprovedHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/invited', accreditator.AccreditationApprovedHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/confirm_invited', accreditator.ConfirmRequestHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/accredited', accreditator.AccreditationConfirmHandler),
+    (r'/api/accreditation/request/' + uuid_regexp + r'/toggle-status-active', accreditator.ToggleStatusActiveHandler),
 
     # Services
     (r'/api/support', support.SupportHandler),

@@ -21,8 +21,6 @@ class FileAnalysis:
         response = requests.post(self._url, files=files)
         if response.status_code != 200:
             raise errors.InternalServerError('Error')
-        print(f"Response Code: {response.status_code}")
-        print(f"Response Body: {response.text}")
         json_data = json.loads(response.text)
         return ScanResponse.from_dict(json_data)
 
