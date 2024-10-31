@@ -692,6 +692,8 @@
   "Reports_analyst": "Report",
   "Forwarded tips": "Forwarded tips",
   "Comments from EO": "Comments from EO",
-  "External Organization and Receivers": "External Organization and Receivers"
+  "External Organization and Receivers": "External Organization and Receivers",
+  "closed":"Closed",
+  "opened":"Opened"
 
 }

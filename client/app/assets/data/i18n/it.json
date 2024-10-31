@@ -715,5 +715,7 @@
   "Reports_analyst": "Report",
   "Forwarded tips": "Inoltri",
   "Comments from EO":  "Commenti da Organizzazione Competente",
-  "External Organization and Receivers": "Organizzazioni Esterne e Riceventi"
+  "External Organization and Receivers": "Organizzazioni Esterne e Riceventi",
+  "closed":"Chiusa",
+  "opened":"Aperta"
 }
