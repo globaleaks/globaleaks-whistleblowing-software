@@ -3,7 +3,7 @@ from globaleaks.models import Tenant
 from globaleaks.orm import get_session, transact
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
-
+from globaleaks.handlers.admin.tenant import db_create as db_create_tenant
 
 class TestORM(helpers.TestGL):
     initialize_test_database_using_archived_db = False
@@ -18,7 +18,8 @@ class TestORM(helpers.TestGL):
         raise Exception("antani")
 
     def db_add_config(self, session):
-        session.add(Tenant())
+        tenant_data = {'active': True,'name': 'GlobaLeaks','mode': 'default','subdomain': 'subdomain',}
+        db_create_tenant(session, tenant_data, isTenant=True)
 
     @inlineCallbacks
     def test_transact_with_stuff(self):
@@ -26,7 +27,7 @@ class TestORM(helpers.TestGL):
 
         # now check data actually written
         session = get_session()
-        self.assertEqual(session.query(Tenant).count(), 2)
+        self.assertEqual(session.query(Tenant).count(), 3)
 
     @inlineCallbacks
     def test_transaction_with_exception(self):

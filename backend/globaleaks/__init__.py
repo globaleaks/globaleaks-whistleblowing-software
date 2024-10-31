@@ -7,10 +7,10 @@ import operator
 __author__ = 'GlobaLeaks'
 __email__ = 'info@globaleaks.org'
 __copyright__ = '2011-2024 - GlobaLeaks'
-__version__ = '5.0.20'
+__version__ = '5.0.19'
 __license__ = 'AGPL-3.0'
 
-DATABASE_VERSION = 68
+DATABASE_VERSION = 69
 FIRST_DATABASE_VERSION_SUPPORTED = 52
 
 # Add new languages as they are supported here! To do this retrieve the name of

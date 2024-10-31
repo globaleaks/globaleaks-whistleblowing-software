@@ -12,7 +12,7 @@ class TestModels(helpers.TestGL):
         @transact
         def transaction(session):
             session.query(models.Config).filter(models.Config.tid == 1).delete()
-            config.initialize_config(session, 1, 'default')
+            config.initialize_config(session, 1, {'mode': 'default'})
 
         return transaction()
 
