@@ -116,7 +116,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
 
 
 @transact
-def login(session, tid, username, password, authcode, client_using_tor, client_ip):
+def login(session, tid, username, password, authcode, client_using_tor, client_ip, fiscal_code):
     """
     Login transaction for users' access
 
@@ -127,6 +127,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :param authcode: A provided authcode
     :param client_using_tor: A boolean signaling Tor usage
     :param client_ip:  The client IP
+    :param fiscal_code: The fiscal code
     :return: Returns a user session in case of success
     """
     if tid in State.tenants and State.tenants[tid].cache.simplified_login:
@@ -149,6 +150,9 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
             raise errors.TwoFactorAuthCodeRequired
 
         State.totp_verify(user.two_factor_secret, authcode)
+
+    if user.fiscal_code and user.fiscal_code != fiscal_code:
+        raise errors.ForbiddenOperation
 
     crypto_prv_key = ''
     if user.crypto_prv_key:
@@ -181,6 +185,16 @@ class AuthenticationHandler(BaseHandler):
     """
     check_roles = 'any'
 
+    @staticmethod
+    def cookies_to_dict(cookie_string):
+        cookies = [item.strip() for item in cookie_string.split(';') if item]
+        cookie_dict = dict(item.split('=', 1) for item in cookies)
+        return cookie_dict
+
+    def get_fiscal_code(self):
+        cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
+        return cookies.get('x-idp-userid')
+
     @inlineCallbacks
     def post(self):
         request = self.validate_request(self.request.content.read(), requests.AuthDesc)
@@ -196,7 +210,9 @@ class AuthenticationHandler(BaseHandler):
                               request['password'],
                               request['authcode'],
                               self.request.client_using_tor,
-                              self.request.client_ip)
+                              self.request.client_ip,
+                              self.get_fiscal_code()
+                              )
 
         if tid != self.request.tid:
             returnValue({
