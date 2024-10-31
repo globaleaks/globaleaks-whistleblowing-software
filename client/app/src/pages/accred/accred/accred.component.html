@@ -71,8 +71,17 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required [disabled]="readOnly">
-                 
                     </div>
+
+                    <div class="form-group" ngModelGroup="receiverInfo">
+                        <label for="adminFiscalCode">
+                            <span>{{'Fiscal Code'|translate}}</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="true">
+                        <div class="text-danger" *ngIf="adminFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
+                    </div>
+
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label for="adminEmail">
                             <span>{{'Email'|translate}}</span>

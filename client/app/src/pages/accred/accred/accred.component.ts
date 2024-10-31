@@ -67,6 +67,8 @@ export class AccredComponent implements OnInit{
 
       if(cookie == null)
         this.router.navigate(['/']);
+      else
+        this.adminInfo.fiscal_code = cookie;
     }
     
   }

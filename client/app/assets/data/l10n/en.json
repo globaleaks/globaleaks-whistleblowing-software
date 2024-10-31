@@ -644,6 +644,7 @@
 	"approved": "Approved",
 	"accredited": "Accredited",
 	"instructor_request": "Requested by Instructor",
+  "invited": "Invitation Sent", 
 	"rejected": "Rejected",
 	"suspended": "Suspended",
 	"Proceed anyway?": "Proceed anyway?",
