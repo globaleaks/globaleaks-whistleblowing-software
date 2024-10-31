@@ -267,7 +267,8 @@ ConfigFilters = {
         'max_msg_external_to_whistle',
         'backup_destination_path',
         'backup_enable',
-        'backup_time_ISO_8601'
+        'backup_time_ISO_8601',
+        'url_file_analysis'
 
     ],
     'admin_network': [
@@ -351,7 +352,8 @@ ConfigFilters = {
         'wizard_done',
         'backup_destination_path',
         'backup_enable',
-        'backup_time_ISO_8601'
+        'backup_time_ISO_8601',
+        'url_file_analysis'
     ],
     'tenant': [
         'hostname',

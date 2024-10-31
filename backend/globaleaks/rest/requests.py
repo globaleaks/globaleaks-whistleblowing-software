@@ -261,7 +261,8 @@ AdminNodeDesc = {
     'user_privacy_policy_url': str,
     'backup_enable': bool,
     'backup_time_ISO_8601': str,
-    'backup_destination_path': str
+    'backup_destination_path': str,
+    'url_file_analysis': str
 
 }
 
