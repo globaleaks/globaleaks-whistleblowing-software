@@ -1,21 +1,21 @@
-<div id="OrgOverview" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header clearfix" (click)="toggleCollapse()">
+<div id="OrgOverview" class="card card-default">
+    <div class="card-header clearfix" >
         <span>{{'Overview'|translate}}</span>
-        <span class="float-end">
-            <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" title="{{'Collapse' | translate}}"></i>
-            <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" title="{{'Expand' | translate}}"></i>
-        </span>
     </div>
-    <div class="card-body" *ngIf="!collapsed">
+    <div class="card-body" >
+        <div class="text-center mb-2">
+            <span class="fw-bold">{{'Organization Name'|translate}} : </span>
+            <span>{{org.organization_name}}</span>
+        </div>
         <div class="table-responsive">
             <table class="table table-striped" id="orgOverviewTable">
                 <thead>
                     <tr>
                         <th>{{'Type'|translate}}</th>                    
-                        <th>{{'Accreditation Date'|translate}}</th>
+                        <th>{{'Accreditation Date'| translate}}</th>
                         <th>{{'Tips'|translate}}</th>
-                        <th>{{'Closed Tips'|translate}}</th>
-                        <th>{{'Status'|translate}}</th>
+                        <th>{{'Closed Tips'| translate}}</th>
+                        <th>{{'Status'| translate}}</th>
                     </tr>
                 </thead>
                 <tbody id="orgOverviewTableBody">
@@ -24,7 +24,7 @@
                         <td>{{org.accreditation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                         <td>{{org.opened_tips}}</td>
                         <td>{{org.closed_tips}}</td>
-                        <td>{{org.state}}</td>
+                        <td>{{org.state | translate}}</td>
                     </tr>
                 </tbody>
             </table>
