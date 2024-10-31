@@ -6,7 +6,6 @@ from sqlalchemy.exc import NoResultFound
 from globaleaks.handlers.accreditator.fw_mail import send_email_request_approved
 from globaleaks.utils.log import log
 from globaleaks.models import Tenant, User, InternalTipForwarding, Subscriber, EnumSubscriberStatus
-from globaleaks.orm import transact
 from globaleaks.rest import errors
 from sqlalchemy import func, distinct, or_
 
