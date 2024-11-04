@@ -698,5 +698,7 @@
   "Organization Name": "Organization Name",
   "banner-no-reply": "This section is reserved for viewing comments by the competent body that has viewed your report. It is not possible to reply or add new comments.",
   "All": "All",
-  "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied.": "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied."
+  "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied.": "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied.",
+  "Maximum Comments from Not Affiliated EO to whistleblower": "Maximum Comments from Not Affiliated EO to whistleblower",
+  "Maximum Comments from EO to whistleblower": "Maximum Comments from EO to whistleblower"
 }
