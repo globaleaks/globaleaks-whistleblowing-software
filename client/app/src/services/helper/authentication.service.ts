@@ -107,7 +107,7 @@ export class AuthenticationService {
             this.router.navigate([response.redirect]).then();
           }
           this.setSession(response);
-          if (response && response && response.properties && response.properties.new_receipt) {
+          if (response && response.properties && response.properties.new_receipt) {
             const receipt = response.properties.new_receipt;
             const formattedReceipt = this.formatReceipt(receipt);
       
