@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -11,7 +11,7 @@ import {ErrorCodes} from "@app/models/app/error-code";
   selector: "src-password-change",
   templateUrl: "./password-change.component.html"
 })
-export class PasswordChangeComponent implements OnInit {
+export class PasswordChangeComponent {
   passwordStrengthScore: number = 0;
 
   changePasswordArgs = {
@@ -42,8 +42,6 @@ export class PasswordChangeComponent implements OnInit {
     );
   }
 
-  ngOnInit() {
-  };
 
   onPasswordStrengthChange(score: number) {
     this.passwordStrengthScore = score;

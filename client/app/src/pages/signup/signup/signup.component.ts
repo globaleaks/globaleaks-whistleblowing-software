@@ -44,8 +44,7 @@ export class SignupComponent implements OnInit {
 
   complete() {
     const param = JSON.stringify(this.signup);
-    this.httpService.requestSignup(param).subscribe
-    (
+    this.httpService.requestSignup(param).subscribe(
       {
         next: _ => {
           this.step += 1;

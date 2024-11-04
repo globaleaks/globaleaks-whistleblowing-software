@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from "@angular/core";
+import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -13,7 +13,7 @@ import { DownloadConfirmationComponent } from "@app/shared/modals/download-confi
   selector: "src-wbfiles",
   templateUrl: "./wb-files.component.html"
 })
-export class WbFilesComponent implements OnInit {
+export class WbFilesComponent {
   @Input() wbFile: RFile;
   @Input() ctx: string;
   @Input() canDelete: boolean = true;
@@ -21,9 +21,6 @@ export class WbFilesComponent implements OnInit {
   @Output() dataToParent = new EventEmitter<any>();
 
   constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected preferenceResolver:PreferenceResolver, private modalService: NgbModal) {
-  }
-
-  ngOnInit(): void {
   }
 
   deleteWBFile(wbFile: RFile) {

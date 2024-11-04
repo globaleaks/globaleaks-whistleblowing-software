@@ -55,7 +55,7 @@ export class SubmissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
-      this.context_id = params.get('context') || "";
+      this.context_id = params.get('context') ?? "";
       this.initializeSubmission();
     });
   }
@@ -76,7 +76,7 @@ export class SubmissionComponent implements OnInit {
     this.utilsService.scrollToTop();
 
     this.field_id_map = this.fieldUtilitiesService.build_field_id_map(this.questionnaire);
-    this.show_steps_navigation_bar = this.context?.allow_recipients_selection || this.questionnaire.steps.length > 1;
+    this.show_steps_navigation_bar = this.context?.allow_recipients_selection ?? this.questionnaire.steps.length > 1;
     this.receiversOrderPredicate = this.submissionService.context.show_receivers_in_alphabetical_order ? "name" : "";
 
     if (this.context?.allow_recipients_selection) {
