@@ -12,15 +12,11 @@ import { UtilsService } from "@app/shared/services/utils.service";
   templateUrl: "./voice-recorder.component.html"
 })
 export class VoiceRecorderComponent implements OnInit {
-
   @Input() uploads: any;
   @Input() field: Field;
-  @Input() fileUploadUrl: string = "api/whistleblower/submission/attachment";
+  @Input() fileUploadUrl: string;
   @Input() entryIndex: number;
   @Input() fieldEntry: string;
-
-  @Input() customQuery: any;
-
   _fakeModel: File;
   fileInput: string;
   seconds: number = 0;
@@ -49,7 +45,7 @@ export class VoiceRecorderComponent implements OnInit {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");
     this.fileInput = this.field ? this.field.id : "status_page";
     this.uploads={}
-    // this.fileUploadUrl="api/whistleblower/submission/attachment";
+    this.fileUploadUrl="api/whistleblower/submission/attachment";
     this.uploads[this.fileInput] = {files: []};
 
     this.initAudioContext()
@@ -82,7 +78,7 @@ export class VoiceRecorderComponent implements OnInit {
     this.flow = this.utilsService.flowDefault;
     this.flow.opts.target =  this.fileUploadUrl,
     this.flow.opts.singleFile =  this.field !== undefined && !this.field.multi_entry;
-    this.flow.opts.query = this.customQuery ? {...{type: "audio.webm", reference_id: fileId}, ...this.customQuery} : {type: "audio.webm", reference_id: fileId};
+    this.flow.opts.query = {type: "audio.webm", reference_id: fileId},
     this.flow.opts.headers = {"X-Session": this.authenticationService.session.id};
     this.secondsTracker = setInterval(() => {
       this.seconds += 1;
@@ -196,10 +192,7 @@ export class VoiceRecorderComponent implements OnInit {
 
         this.audioPlayer = true;
         this.uploads[this.fileInput] = this.flow;
-
         this.submissionService.setSharedData(this.flow);
-      
-        this.notifyFileUpload.emit(this.uploads);
 
         if (this.entry) {
           if (!this.entry.files) {
