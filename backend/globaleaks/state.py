@@ -314,10 +314,10 @@ class StateClass(ObjectDict, metaclass=Singleton):
             # avoid waiting for the notification to send and instead rely on threads to handle it
             tw(db_schedule_email, 1, mail_address, mail_subject, mail_body)
 
-    def format_and_send_mail(self, session, tid, mail_address, template_vars):
+    def format_and_send_mail(self, session, tid, mail_address, template_vars, is_pec:bool=False):
         mail_subject, mail_body = Templating().get_mail_subject_and_body(template_vars)
 
-        db_schedule_email(session, tid, mail_address, mail_subject, mail_body)
+        db_schedule_email(session, tid, mail_address, mail_subject, mail_body, is_pec)
 
     def get_tmp_file_by_name(self, filename):
         for k, v in self.TempUploadFiles.items():
