@@ -3,8 +3,9 @@ from twisted.conch.test.test_insults import Mock
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.accreditation import create_tenant, determine_type, save_step, count_user_tip, \
-    toggle_status_activate, SubmitAccreditationHandler
+from globaleaks.handlers.accreditator import toggle_status_activate, SubmitAccreditationHandler, \
+    GetAllAccreditationHandler
+from globaleaks.handlers.accreditator.utils import save_step, create_tenant, determine_type, count_user_tip
 from globaleaks.models import EnumSubscriberStatus
 from globaleaks.tests import helpers
 
@@ -116,4 +117,18 @@ class TestRequestAccreditation(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(stats)
         self.assertTrue(stats.get('id'))
 
+class TestGetAllAccreditationHandler(helpers.TestHandlerWithPopulatedDB):
+    _handler = GetAllAccreditationHandler
 
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def test_get(self):
+        handler = self.request(
+            role='accreditor'
+        )
+        stats = yield handler.get()
+        self.assertFalse(stats)
