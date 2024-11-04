@@ -78,4 +78,6 @@ export class nodeResolverModel {
   backup_enable: boolean;
   backup_time_ISO_8601: string;
   backup_destination_path: string;
+  max_msg_external_to_whistle: number;
+  max_msg_external_to_whistle_not_aff: number;
 }

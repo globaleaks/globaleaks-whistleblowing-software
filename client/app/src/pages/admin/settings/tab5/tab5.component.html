@@ -172,6 +172,14 @@
               translate }}</div>
         </div>
         <div class="form-group">
+            <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
+            <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
+        </div>
+        <div class="form-group">
+            <label>{{ 'Maximum Comments from Not Affiliated EO to whistleblower' | translate }}</label>
+            <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle_not_aff" type="number" min="0" />
+        </div>
+        <div class="form-group">
             <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">
                 <i class="fa-solid fa-check"></i>
                 <span>{{ 'Save' | translate }}</span>
