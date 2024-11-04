@@ -29,7 +29,6 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
-import { FieldUtilitiesService } from "@app/shared/services/field-utilities.service";
 
 @Component({
   selector: "src-tip-oe",

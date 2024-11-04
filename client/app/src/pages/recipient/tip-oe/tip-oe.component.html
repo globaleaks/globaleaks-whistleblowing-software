@@ -115,8 +115,7 @@
                 <src-tip-oe-rfiles-receiver [key]="'oe'"></src-tip-oe-rfiles-receiver>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-oe-comments [tipService]="RTipService" [key]="'oe'" [tids]="[preferencesService.dataModel.tid]" 
-                        [authorType]="'oe'"></src-tip-oe-comments>
+                    <src-tip-comments [tipService]="RTipService" [key]="'oe'" [tids]="[preferencesService.dataModel.tid]" ></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>
