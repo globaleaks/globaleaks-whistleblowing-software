@@ -18,6 +18,7 @@
                     <th>{{ 'Upload date' | translate }}</th>
                     <th>{{ 'Type' | translate }}</th>
                     <th>{{ 'File size' | translate }}</th>
+                    <th> <i class="fa-solid fa-file-arrow-up"></i></th>
                 </tr>
                 </thead>
                 <tbody id="fileListBody">
@@ -68,6 +69,7 @@
                         <td>{{ file.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
                         <td>{{ file.type }}</td>
                         <td>{{ file.size | byteFmt:2 }}</td>
+                        <td><i class="fa-solid fa-check" *ngIf="checkForwarded(file)"></i></td>
                 </tr>
                 </ng-container>
 

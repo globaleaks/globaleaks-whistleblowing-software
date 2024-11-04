@@ -58,7 +58,7 @@ export class TipFilesReceiverComponent {
 
   checkForwarded(file: WbFile){
 
-    let foundForwardedFiles = this.forwardings.filter(f => f.files?.some(i => i.id === file.id));
+    let foundForwardedFiles = this.forwardings.filter(f => f.files?.some(i => i.id === file.ifile_id));
 
     return foundForwardedFiles.map(_ => _.name).join(', ');
   }
