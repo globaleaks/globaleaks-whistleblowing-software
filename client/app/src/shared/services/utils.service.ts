@@ -175,11 +175,12 @@ export class UtilsService {
         this.router.navigate([this.router.url]).then();
       });
   }
+
   onFlowUpload(flowJsInstance:Flow, file:File){
     const fileNameParts = file.name.split(".");
     const fileExtension = fileNameParts.pop();
     const fileNameWithoutExtension = fileNameParts.join(".");
-    const timestamp = new Date().getTime();
+    
     const fileNameWithTimestamp = `${fileNameWithoutExtension}.${fileExtension}`;
     const modifiedFile = new File([file], fileNameWithTimestamp, {type: file.type});
 
@@ -396,10 +397,6 @@ export class UtilsService {
           if (key === "score") {
             const scoreLabel = this.maskScore(data_row[key], translateService);
             if (scoreLabel === selected_option.label) {
-              rows.push(data_row);
-            }
-          } else if (key === "status") {
-            if (data_row[key] === selected_option.label) {
               rows.push(data_row);
             }
           } else {
@@ -748,8 +745,8 @@ export class UtilsService {
   }
 
   public viewWBFile(file: RFile) {
-    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
-    modalRef.componentInstance.args = {
+    const modalWBRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
+    modalWBRef.componentInstance.args = {
       file: file,
       loaded: false,
       iframeHeight: window.innerHeight * 0.75
