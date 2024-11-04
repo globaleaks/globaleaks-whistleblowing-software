@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 from datetime import datetime
 
@@ -38,8 +39,8 @@ def db_generate_password_reset_token(session, user):
     try:
         with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "wb") as f:
             f.write(user.id.encode())
-    except:
-        pass
+    except Exception as e:
+        logging.debug(e)
 
     template_vars = {
         'type': template,
@@ -112,7 +113,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token)), "r") as f:
             token = f.read()
             user_id = token.split(":")[0]
-    except:
+    except Exception as e:
+        logging.debug(e)
         return {'status': 'invalid_reset_token_provided'}
 
     user = session.query(models.User).filter(models.User.id == user_id).one_or_none()
@@ -124,8 +126,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         try:
             try:
                 prv_key = token.split(":")[1]
-            except:
-                pass
+            except Exception as e:
+                logging.debug(e)
 
             if prv_key:
                 enc_key = GCE.derive_key(reset_token, user.salt)
@@ -134,13 +136,15 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                 recovery_key = recovery_key.replace('-', '').upper() + '===='
                 recovery_key = Base32Encoder.decode(recovery_key.encode())
                 prv_key = GCE.symmetric_decrypt(recovery_key, Base64Encoder.decode(user.crypto_bkp_key))
-        except:
+        except Exception as e:
+            logging.debug(e)
             return {'status': 'require_recovery_key'}
 
     if user.two_factor_secret:
         try:
             State.totp_verify(user.two_factor_secret, auth_code)
-        except:
+        except Exception as e:
+            logging.debug(e)
             return {'status': 'require_two_factor_authentication'}
 
     # Require password change

@@ -104,6 +104,7 @@ ConfigDescriptor = {
     'smtp2_password': Unicode(default=''),
     'smtp2_port': Int(default=587),
     'smtp2_security': Unicode(default=''),
+    'smtp2_authentication': Bool(default=False),
     'smtp2_server': Unicode(default=''),
     'smtp2_source_email': Unicode(default=''),
     'smtp2_username': Unicode(default=''),
@@ -128,6 +129,7 @@ ConfigDescriptor = {
     'uuid': Unicode(default=uuid4),
     'url_file_analysis': Unicode(default='http://localhost:3000/api/v1/scan'),
     'max_msg_external_to_whistle': Int(default=1),
+    'max_msg_external_to_whistle_not_aff': Int(default=1),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enable': Bool(default=False),
     'backup_time_ISO_8601': Unicode(default=''),
@@ -265,6 +267,7 @@ ConfigFilters = {
         'uuid',
         'unread_reminder_time',
         'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff',
         'backup_destination_path',
         'backup_enable',
         'backup_time_ISO_8601',
@@ -276,7 +279,7 @@ ConfigFilters = {
         'hostname',
         'https_admin',
         'https_analyst',
-        'https_accreditor'
+        'https_accreditor',
         'https_custodian',
         'https_receiver',
         'https_whistleblower',
@@ -324,6 +327,7 @@ ConfigFilters = {
         'smtp2_server',
         'smtp2_source_email',
         'smtp2_username',
+        'smtp2_authentication'
     ],
     'public_node': [
         'adminonly',

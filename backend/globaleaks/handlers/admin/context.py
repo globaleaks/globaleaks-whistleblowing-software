@@ -1,4 +1,6 @@
 # -*- coding: utf-8
+import logging
+
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
@@ -135,6 +137,7 @@ def db_create_context(session, tid, user_session, request, language):
     :param language: The request language
     :return: The created context
     """
+    logging.debug(user_session)
     request = fill_context_request(tid, request, language)
 
     context = db_add(session, models.Context, request)

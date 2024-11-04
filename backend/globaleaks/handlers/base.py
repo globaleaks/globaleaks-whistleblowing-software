@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 import json
+import logging
 import mimetypes
 import os
 import re
@@ -301,6 +302,7 @@ class BaseHandler(object):
 
     def check_confirmation(self):
         tid = self.request.tid
+        logging.debug(tid)
         user_id = self.session.user_id
 
         secret = decodeString(self.request.headers.get(b'x-confirmation', b''))

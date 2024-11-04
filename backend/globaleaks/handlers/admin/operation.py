@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+import logging
 import os
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -182,6 +183,7 @@ def db_reset_smtp_settings(session, tid):
     config.set_val('smtp_authentication', True)
     config.set_val('smtp2_server', '')
     config.set_val('smtp2_port', 587)
+    config.set_val('smtp2_authentication', False)
     config.set_val('smtp2_username', 'globaleaks')
     config.set_val('smtp2_password', '')
     config.set_val('smtp2_source_email', '')
@@ -243,8 +245,8 @@ def set_tmp_key(user_session, user, token):
         with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "ab") as f:
             f.write(b":")
             f.write(key)
-    except:
-        pass
+    except Exception as e:
+        logging.debug(e)
 
 
 @transact

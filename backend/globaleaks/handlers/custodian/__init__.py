@@ -2,6 +2,7 @@
 #
 # Handlers dealing with custodian user functionalities
 import base64
+import logging
 
 from globaleaks import models
 from globaleaks.handlers.admin.context import admin_serialize_context
@@ -89,7 +90,7 @@ def update_identityaccessrequest(session, tid, user_id, identityaccessrequest_id
                                      models.IdentityAccessRequestCustodian.identityaccessrequest_id == models.IdentityAccessRequest.id,
                                      models.IdentityAccessRequestCustodian.custodian_id == user_id,
                                      models.InternalTip.id == models.IdentityAccessRequest.internaltip_id).one()
-
+    logging.debug(iarc)
     if request['reply_motivation'] and itip.crypto_tip_pub_key:
         request['reply_motivation'] = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, request['reply_motivation']))
 

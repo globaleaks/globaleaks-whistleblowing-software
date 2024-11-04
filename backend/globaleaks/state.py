@@ -229,7 +229,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         self.stats_collection_start_time = datetime_now()
 
-    def sendmail(self, tid, to_address, subject, body):
+    def sendmail(self, tid, to_address, subject, body, is_pec):
         if self.settings.disable_notifications:
             return succeed(True)
 

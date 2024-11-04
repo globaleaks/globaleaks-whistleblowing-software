@@ -161,6 +161,7 @@ def initialize_config(session, tid, mode):
             variables[name] = root_tenant_node[name]
 
     variables['max_msg_external_to_whistle'] = 1
+    variables['max_msg_external_to_whistle_not_aff'] = 1
     variables['url_file_analysis'] = 'http://localhost:3000/api/v1/scan'
     variables['global_stat_pub_key'] = ''
 

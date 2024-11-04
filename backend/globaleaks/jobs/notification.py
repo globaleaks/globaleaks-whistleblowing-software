@@ -183,7 +183,8 @@ def get_mails_from_the_pool(session):
             'address': mail.address,
             'subject': mail.subject,
             'body': mail.body,
-            'tid': mail.tid
+            'tid': mail.tid,
+            'is_pec': mail.is_pec
         })
 
     return ret
@@ -200,7 +201,7 @@ class Notification(LoopingJob):
     def spool_emails(self):
         mails = yield get_mails_from_the_pool()
         for mail in mails:
-            sent = yield self.state.sendmail(mail['tid'], mail['address'], mail['subject'], mail['body'])
+            sent = yield self.state.sendmail(mail['tid'], mail['address'], mail['subject'], mail['body'], mail.get('is_pec', False))
             if sent:
                 yield tw(db_del, models.Mail, models.Mail.id == mail['id'])
 

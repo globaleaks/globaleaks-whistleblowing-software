@@ -302,7 +302,8 @@ AdminNotificationDesc = {
     'smtp2_security': str,
     'smtp2_server': str,
     'smtp2_source_email': email_regexp,
-    'smtp2_username': str
+    'smtp2_username': str,
+    'smtp2_authentication': bool
 }
 
 AdminNotificationDesc.update(

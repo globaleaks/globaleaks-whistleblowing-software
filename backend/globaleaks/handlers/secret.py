@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 from urllib.parse import parse_qs
 from globaleaks.handlers.base import BaseHandler
@@ -13,5 +14,5 @@ class Secret(BaseHandler):
             secret_key = data[b'secret'][0]
             if GCE.hash_password(secret_key, salt) == secret_key_hash:
                 self.state.secret_key = secret_key
-        except:
-            pass
+        except Exception as e:
+            logging.debug(e)

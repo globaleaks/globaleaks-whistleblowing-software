@@ -205,7 +205,7 @@ class NodeKeyword(Keyword):
 
     def UrlPath(self):
         if self.data['node'].get('is_eo'):
-            return f"/t/{self.data['node'].get('eo_uuid')}/"
+            return f"/login-external-organization/{self.data['node'].get('eo_uuid')}/"
         return '/'
 
     def Url(self):
@@ -547,7 +547,8 @@ class PlatformSignupKeyword(NodeKeyword):
         if self.data['node']['hostname']:
             site = 'https://' + self.data['node']['hostname']
             if self.data['node'].get('is_eo'):
-                site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
+                # site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
+                site = f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
         elif self.data['node']['onionservice']:
             site = 'http://' + self.data['node']['onionservice']
         else:
@@ -558,7 +559,7 @@ class PlatformSignupKeyword(NodeKeyword):
     def LoginUrl(self):
         site = self.Site()
         if self.data['node'].get('is_eo'):
-            site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
+            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
         return f"{site}/#/login"
 
     def ExpirationDate(self):
@@ -584,7 +585,6 @@ class PlatformSignupKeyword(NodeKeyword):
             'username': 'admin',
             'password': self.data['password_admin']
         }
-
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
     def RecipientCredentials(self):

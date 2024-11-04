@@ -728,8 +728,10 @@ class _Mail(Model):
     address = Column(UnicodeText, nullable=False)
     subject = Column(UnicodeText, nullable=False)
     body = Column(UnicodeText, nullable=False)
+    is_pec = Column(Boolean, nullable=False, default=False)
 
     unicode_keys = ['address', 'subject', 'body']
+    bool_keys = [is_pec]
 
     @declared_attr
     def __table_args__(self):

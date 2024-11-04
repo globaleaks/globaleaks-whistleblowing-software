@@ -84,6 +84,8 @@ def db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, receiver_id)
     :param rtip: An rtip on which to perform operation
     :param receiver_id: A user ID of the the user to which grant access to the report
     """
+    logging.debug(tid)
+    logging.debug(user_id)
     existing = session.query(models.ReceiverTip).filter(models.ReceiverTip.receiver_id == receiver_id,
                                                         models.ReceiverTip.internaltip_id == itip.id).one_or_none()
 
@@ -136,6 +138,8 @@ def db_revoke_tip_access(session, tid, user_id, itip, receiver_id):
     :param itip: An itip on which to perform operation
     :param receiver_id: A user ID of the the user to which revoke access to the report
     """
+    logging.debug(tid)
+    logging.debug(user_id)
     rtip = session.query(models.ReceiverTip) \
         .filter(models.ReceiverTip.internaltip_id == itip.id,
                 models.ReceiverTip.receiver_id == receiver_id).one_or_none()
@@ -164,6 +168,9 @@ def grant_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
 @transact
 def revoke_tip_access(session, tid, user_id, itip_id, receiver_id):
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    logging.debug(rtip)
+
     if user_id == receiver_id or not user.can_grant_access_to_reports:
         raise errors.ForbiddenOperation
 
@@ -859,6 +866,8 @@ def delete_rtip(session, tid, user_id, itip_id):
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
+    logging.debug(rtip)
+
     if not user.can_delete_submission:
         raise errors.ForbiddenOperation
 
@@ -904,6 +913,8 @@ def postpone_expiration(session, tid, user_id, itip_id, expiration_date):
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
+    logging.debug(rtip)
+
     if not user.can_postpone_expiration:
         raise errors.ForbiddenOperation
 
@@ -931,6 +942,9 @@ def set_reminder(session, tid, user_id, itip_id, reminder_date):
     :param reminder_date: A new reminder expiration date
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    logging.debug(user)
+    logging.debug(rtip)
 
     db_set_reminder(session, itip, reminder_date)
 
@@ -1204,6 +1218,8 @@ def create_redaction(session, tid, user_id, data):
             mask_content = base64.b64encode(GCE.asymmetric_encrypt(
                 itip.crypto_tip_pub_key, content_bytes)).decode()
 
+    logging.debug(mask_content)
+
     redaction = models.Redaction()
     redaction.id = data.get('id')
     redaction.reference_id = data.get('reference_id')
@@ -1229,6 +1245,8 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
     """
     user, rtip, itip = db_access_rtip(
         session, tid, user_id, redaction_data['internaltip_id'])
+
+    logging.debug(rtip)
 
     redaction = session.query(models.Redaction).get(redaction_id)
 

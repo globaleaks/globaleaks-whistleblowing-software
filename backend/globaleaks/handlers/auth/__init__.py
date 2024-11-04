@@ -115,6 +115,10 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     return session
 
 
+def check_user_fiscal_code(user, fiscal_code):
+    if user.fiscal_code and user.fiscal_code != fiscal_code:
+        raise errors.ForbiddenOperation
+
 @transact
 def login(session, tid, username, password, authcode, client_using_tor, client_ip, fiscal_code):
     """
@@ -151,8 +155,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
         State.totp_verify(user.two_factor_secret, authcode)
 
-    if user.fiscal_code and user.fiscal_code != fiscal_code:
-        raise errors.ForbiddenOperation
+    check_user_fiscal_code(user, fiscal_code)
 
     crypto_prv_key = ''
     if user.crypto_prv_key:

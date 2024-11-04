@@ -342,7 +342,6 @@ class ForwardSubmission(BaseHandler):
                 itip.crypto_tip_pub_key, json.dumps(answers, cls=json.JSONEncoder).encode())).decode()
             db_set_internaltip_answers(
                 session, forwarded_itip.id, questionnaire_hash, crypto_answers, forwarded_itip.creation_date)
-            # TODO inserire i campi di interesse statistico in apposita colonna
 
             for user in receivers:
                 _tip_key = GCE.asymmetric_encrypt(

@@ -12,8 +12,9 @@ from sqlalchemy.orm import sessionmaker
 from globaleaks import __version__, models, \
     DATABASE_VERSION, FIRST_DATABASE_VERSION_SUPPORTED, LANGUAGES_SUPPORTED_CODES
 from globaleaks.db.appdata import load_appdata, db_load_defaults
-from globaleaks.db.migrations.update_69 import Field_v_68, InternalTipAnswers_v_68, User_v_68, Tenant_v_68, Subscriber_v_68, InternalFile_v_68, \
-    ReceiverFile_v_68
+from globaleaks.db.migrations.update_69 import Field_v_68, InternalTipAnswers_v_68, User_v_68, Tenant_v_68, \
+    Subscriber_v_68, InternalFile_v_68, \
+    ReceiverFile_v_68, Mail_v_68
 from globaleaks.orm import db_log
 
 from globaleaks.db.migrations.update_53 import FieldAttr_v_52, InternalTip_v_52, \
@@ -69,7 +70,7 @@ migration_mapping = OrderedDict([
     ('InternalTip', [InternalTip_v_52, InternalTip_v_57, 0, 0, 0, 0, InternalTip_v_59, 0, InternalTip_v_63, 0, 0, 0, InternalTip_v_64, InternalTip_v_66, 0, models._InternalTip, 0, 0]),
     ('InternalTipAnswers', [InternalTipAnswers_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._InternalTipAnswers]),
     ('InternalTipData', [models._InternalTipData, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Mail', [models._Mail, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+    ('Mail', [Mail_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._Mail]),
     ('Message', [Message_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1]),
     ('Questionnaire', [models._Questionnaire, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
     ('ReceiverContext', [models._ReceiverContext, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),

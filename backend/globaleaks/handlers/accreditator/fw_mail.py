@@ -4,7 +4,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.models import serializers, EnumSubscriberStatus, EnumUserRole
 from globaleaks.state import State
 
-def send_email_accreditation_user(session, emails: list, language, accreditation_item, wizard):
+def send_email_accreditation_user(session, emails: list, language, accreditation_item, wizard, is_admin:bool = False):
     """
     Send activation emails to the provided email addresses.
 
@@ -14,11 +14,13 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
         language: The language for the email content.
         accreditation_item: The Subscriber object.
         wizard: Dictionary containing setup information.
+        is_admin: choose what template send
     """
     eo_uuid = session.query(models.Config).filter(models.Config.tid == accreditation_item.tid, models.Config.var_name == 'uuid').one_or_none()
     node = db_admin_serialize_node(session, 1, language)
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
+    node['is_eo_admin'] = is_admin
     node['is_eo'] = True
     node['eo_uuid'] = eo_uuid.value if eo_uuid else ''
     admin_pwd = 'None' if not wizard or not wizard.get('admin_password') else wizard.get('admin_password')
@@ -27,10 +29,14 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
         'type': 'activation',
         'node': node,
         'notification': notification,
-        'signup': signup,
-        'password_admin': admin_pwd,
-        'password_recipient': rec_pwd
+        'signup': signup
     }
+    if is_admin:
+        template_vars['password_admin'] = admin_pwd
+        template_vars['password_recipient'] = None
+    else:
+        template_vars['password_admin'] = None
+        template_vars['password_recipient'] = rec_pwd
 
     for email in emails:
         State.format_and_send_mail(session, 1, email, template_vars)
@@ -60,12 +66,14 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
         'signup': signup
     }
     if not notify_email:
-        notify_email = [accreditation_item.organization_email]
+        notify_email = [{"email": accreditation_item.organization_email, "pec": True}]
     if accreditation_item.admin_email:
-        notify_email.append(accreditation_item.admin_email)
+        notify_email.append({"email": accreditation_item.admin_email, "pec": False})
 
-    for email in notify_email:
-        State.format_and_send_mail(session, 1, email, template_vars)
+    for notify in notify_email:
+        is_pec = False if notify.get('pec') else True
+        State.format_and_send_mail(session, 1, notify.get('email'), template_vars, is_pec)
+
 
 def send_email_request_approved(session, language, accreditation_item):
     """

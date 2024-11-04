@@ -135,7 +135,7 @@ def persistent_drop(session, accreditation_id: str, request):
                     session,
                     'en',
                     accreditation_item=aux_acc,
-                    notify_email=[aux_acc.organization_email],
+                    notify_email=[{"email": aux_acc.organization_email, "pec": True}],
                     motivation_text=request['motivation_text']
                 )
             except Exception as e:
@@ -290,11 +290,19 @@ def activate_tenant(session, accreditation_id, request):
         session,
         language,
         accreditation_item,
-        notify_email=[accreditation_item.organization_email]
+        notify_email=[{"email": accreditation_item.organization_email, "pec": True}]
+    )
+    send_email_accreditation_user(
+        session=session,
+        emails=[accreditation_item.admin_email],
+        language=language,
+        accreditation_item=accreditation_item,
+        wizard=wizard,
+        is_admin = True
     )
     send_email_accreditation_user(
         session,
-        [accreditation_item.admin_email, accreditation_item.email],
+        [accreditation_item.email],
         language,
         accreditation_item,
         wizard

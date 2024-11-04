@@ -1,4 +1,6 @@
 # -*- coding: utf-8
+import logging
+
 from globaleaks import models
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.base import BaseHandler
@@ -33,6 +35,7 @@ def db_get_questionnaire(session, tid, questionnaire_id, language, serialize_tem
 
 
 def db_create_questionnaire(session, tid, user_session, questionnaire_dict, language):
+    logging.debug(user_session)
     fill_localized_keys(questionnaire_dict,
                         models.Questionnaire.localized_keys, language)
 
@@ -40,7 +43,7 @@ def db_create_questionnaire(session, tid, user_session, questionnaire_dict, lang
     q = db_add(session, models.Questionnaire, questionnaire_dict)
 
     steps = questionnaire_dict.get('steps', [])
-
+    logging.debug(steps)
     for step in questionnaire_dict.get('steps', []):
         step['questionnaire_id'] = q.id
         db_create_step(session, tid, step, language)

@@ -1,4 +1,6 @@
 # -*- coding: utf-8
+import logging
+
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
@@ -95,7 +97,7 @@ def db_update_node(session, tid, user_session, request, language):
     :return: Return the serialized configuration for the specified tenant
     """
     root_config = ConfigFactory(session, 1)
-
+    logging.debug(root_config)
     config = ConfigFactory(session, tid)
 
     config.update('node', request)

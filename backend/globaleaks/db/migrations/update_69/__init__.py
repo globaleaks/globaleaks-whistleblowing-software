@@ -87,6 +87,16 @@ class InternalTipAnswers_v_68(Model):
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
 
+class Mail_v_68(Model):
+    __tablename__ = 'mail'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    address = Column(UnicodeText, nullable=False)
+    subject = Column(UnicodeText, nullable=False)
+    body = Column(UnicodeText, nullable=False)
+
 
 class ReceiverFile_v_68(Model):
     """
@@ -205,8 +215,15 @@ class MigrationScript(MigrationBase):
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
 
+        file_analisys_config = self.model_to['Config']()
+        file_analisys_config.var_name = 'max_msg_external_to_whistle_not_aff'
+        file_analisys_config.value = 1
+        file_analisys_config.tid = 1
+        self.session_new.add(file_analisys_config)
+        self.entries_count['Config'] += 1
+
     def add_pec_and_mail(self):
-        for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username']:
+        for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username', 'smtp2_authentication']:
             pec_config = self.model_to['Config']()
             pec_config.var_name = i
             pec_config.value = '' if i != 'smtp2_port' else 0
