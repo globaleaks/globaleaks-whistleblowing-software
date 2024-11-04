@@ -142,9 +142,11 @@ export class TipComponent implements OnInit {
     this.utils.runUserOperation("get_users_names", {}, false).subscribe({
       next: response => {
         const selectableRecipients: Receiver[] = [];
-        this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+        this.appDataService.public.receivers.forEach((receiver: Receiver) => {
           if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
-            selectableRecipients.push(receiver);
+            (async () => {
+              await selectableRecipients.push(receiver);
+            })();
           }
         });
         const modalRef = this.modalService.open(GrantAccessComponent, {backdrop: 'static', keyboard: false});
@@ -172,9 +174,11 @@ export class TipComponent implements OnInit {
       {
         next: response => {
           const selectableRecipients: Receiver[] = [];
-          this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+          this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && this.tip.receivers_by_id[receiver.id]) {
-              selectableRecipients.push(receiver);
+              (async () => { 
+                await selectableRecipients.push(receiver);
+              })();
             }
           });
           const modalRef = this.modalService.open(RevokeAccessComponent, {backdrop: 'static', keyboard: false});
@@ -203,9 +207,11 @@ export class TipComponent implements OnInit {
       {
         next: response => {
           const selectableRecipients: Receiver[] = [];
-          this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+          this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
-              selectableRecipients.push(receiver);
+              (async () => {
+                await selectableRecipients.push(receiver);
+              })();
             }
           });
           const modalRef = this.modalService.open(TransferAccessComponent, {backdrop: 'static', keyboard: false});
