@@ -12,6 +12,7 @@
                 <thead>
                 <tr>
                     <th>{{ 'Filename' | translate }}</th>
+                    <th>{{ 'Antivirus Verification Status' | translate}}</th>
                     <th>{{ 'View' | translate }}</th>
                     <th>{{ 'Download' | translate }}</th>
                     <th>{{ 'Upload date' | translate }}</th>
@@ -25,13 +26,17 @@
                      [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }" >
                         <td>{{ file.name }}</td>
                         <td>
+                            {{ file.status==='PENDING' && file.verification_date ? 'Verifica Scaduta' : file.status | translate }}
+                        </td>
+                        <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                            [disabled]="!utilsService.supportedViewTypes.includes(file.type)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewWBFile(file)">
+                            [disabled]="!utilsService.supportedViewTypes.includes(file.type) || ((file.status ==='INFECTED'|| file.status ==='PENDING') && !preferenceResolver.dataModel.can_download_infected)" data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewWBFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-primary tip-action-download-file" data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadWBFile(file)">
+                            <button class="btn btn-sm btn-primary tip-action-download-file" [disabled]="!utilsService.supportedViewTypes.includes(file.type) || ((file.status ==='INFECTED'|| file.status ==='PENDING') && !preferenceResolver.dataModel.can_download_infected)"
+                            data-toggle="tooltip" [title]="'Download' | translate" (click)="utilsService.downloadWBFile(file)">
                                 <i class="fa-solid fa-download"></i>
                             </button>
                         </td>
