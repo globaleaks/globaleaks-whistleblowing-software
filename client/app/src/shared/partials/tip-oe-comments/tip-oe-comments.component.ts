@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { AppDataService } from '@app/app-data.service';
 import { AuthenticationService } from '@app/services/helper/authentication.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
@@ -22,6 +22,8 @@ export class TipOeCommentsComponent {
 
   @Input() tids: number[];
   @Input() authorType: string = "main";
+
+  @Output() commentAdded = new EventEmitter<void>();
 
   collapsed = false;
   newCommentContent = "";
@@ -73,6 +75,7 @@ export class TipOeCommentsComponent {
           this.tipService.forwarding.comments?.push({"id": data.id, "author_type": this.authorType})
         }
 
+        this.commentAdded.emit();
         this.cdr.detectChanges();
       }
     );
