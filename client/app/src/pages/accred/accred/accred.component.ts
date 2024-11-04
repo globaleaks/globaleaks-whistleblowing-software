@@ -66,7 +66,8 @@ export class AccredComponent implements OnInit{
       let cookie = this.utilsService.getCookie('x-idp-userid');
 
       if(cookie == null)
-        this.router.navigate(['/']);
+        window.location.href="/onboarding"
+        // this.router.navigate(['/']); //redirect to onboarding
       else
         this.adminInfo.fiscal_code = cookie;
     }
