@@ -172,8 +172,10 @@
                 <div class="col-md-12">
                     <span>{{'Select External Organization'|translate}}:</span>
                 </div>
-                <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
-
+                <div class="col-md-4" style="padding-bottom: 1em;">
+                    <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
+                </div>
+                
                 <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()" [canUpload]="selectedOe && selectedOe.length == 1 ? selectedOe[0].state !== 'closed' : true"
                     [key]="'oe'" [organizations]="selectedOe"></src-tip-upload-wbfile>
 
