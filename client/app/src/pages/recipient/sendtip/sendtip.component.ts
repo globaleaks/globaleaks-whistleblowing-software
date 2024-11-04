@@ -28,6 +28,7 @@ export class SendtipComponent implements OnInit {
 
   uploadedFiles: FileItem[] = [];
   tip: RecieverTipData;
+  forwardedEOList: Forwarding[] = [];
 
   data: any;
 
@@ -37,6 +38,7 @@ export class SendtipComponent implements OnInit {
     protected preferenceResolver: PreferenceResolver){
       this.sendTipRequest.tip_id = this.rtipService.tip.id;
       this.tip = this.rtipService.tip;
+      this.forwardedEOList = this.tip.forwardings;
     }
 
   backClicked() {
@@ -51,7 +53,9 @@ export class SendtipComponent implements OnInit {
   loadOrganizations() {
     
     return this.httpService.fetchForwardingTenants().subscribe((response: tenantResolverModel[]) =>{
-      this.organizations = response.map(v => { return {name: v.name, tid: v.id} }) as Forwarding[];
+      this.organizations = response
+            .filter(v => !this.forwardedEOList.some(eo => eo.tid === v.id))
+            .map(v => ({ name: v.name, tid: v.id })) as Forwarding[];
     });
   }
 
