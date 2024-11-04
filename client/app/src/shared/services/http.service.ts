@@ -37,7 +37,7 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
 import { RedactionData } from "@app/models/component-model/redaction";
 import { SendTip } from "@app/models/reciever/sendtip-data";
 import { AccreditationSubscriberModel } from "@app/models/resolvers/accreditation-model";
-import { AccreditationRequestModel, EOExtendedInfo, EOInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
+import { EOExtendedInfo, EOInfo, ExternalOrganization } from "@app/models/accreditor/organization-data";
 import { StatisticalRequestModel } from "@app/analyst/statistical-data";
 
 

@@ -171,11 +171,6 @@ export class ReportsComponent implements OnInit {
 
             this.httpService.getStatisticalData(bodyReq).subscribe({
                 next: (res) => {
-                    // TODO: to be removed only for testing
-                    // console.log("Response:", res);
-                    // res = this.mockResponse;
-                    // END TODO: to be removed only for testing
-
                     this.processResponse(res);
                 },
                 error: (err) => {

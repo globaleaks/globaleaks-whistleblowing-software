@@ -77,11 +77,6 @@
                         <option value="TLS">SMTP/TLS</option>
                     </select>
                 </div>
-                <!-- <div class="form-group">
-                    <input name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
-                    <label>{{ 'Require authentication' | translate }}</label>
-                </div> -->
-                <!-- <div *ngIf="notificationResolver.dataModel.smtp_authentication"> -->
                     <div class="form-group">
                         <label>{{ 'PEC Username' | translate }}</label>
                         <input class="form-control" name="notification.dataModel.smtp2_username" [(ngModel)]="notificationResolver.dataModel.smtp2_username" type="text" />
@@ -90,7 +85,6 @@
                         <label>{{ 'PEC Password' | translate }}</label>
                         <input class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
                     </div>
-                <!-- </div> -->
             </div>
         </div>
 

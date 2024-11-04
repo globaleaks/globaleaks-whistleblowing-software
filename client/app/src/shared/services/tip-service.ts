@@ -77,17 +77,7 @@ export class TipService {
       }
     }
 
-
   }
-
-  /* processFilesVerificationStatus(wbFiles: any[]){
-    let i;
-    for(i=0; i< wbFiles.length; i++){
-      let expiration_date = this.utilsService.sumDaysToDate(wbFiles[i]['last_verification_date'], 10)
-      if(this.utilsService.isDatePassed(expiration_date.toISOString()))
-        wbFiles[i]['verification_status']="PENDING"
-    }
-  } */
 
 
 }

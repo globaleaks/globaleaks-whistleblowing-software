@@ -43,7 +43,7 @@ export class SendtipFilesComponent implements OnInit {
   
   prepareFilesToDisplay(): void {
     const rfilesMapped = this.rfiles
-      .filter(file => file.visibility !== 'personal' /*&& file.status === 'VERIFIED'*/) // TODO: da scommentare appena si aggiunge file.state
+      .filter(file => file.visibility !== 'personal' && file.status === 'VERIFIED')
       .map(file => ({
         id: file.id,
         name: file.name,
@@ -57,7 +57,7 @@ export class SendtipFilesComponent implements OnInit {
 
 
     const wbfilesMapped = this.wbfiles
-      //.filter(file => file.status === 'VERIFIED') // TODO: da scommentare appena si aggiunge file.state
+      .filter(file => file.status === 'VERIFIED')
       .map(file => ({
         id: file.ifile_id,
         name: file.name,
