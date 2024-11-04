@@ -889,7 +889,7 @@ export class UtilsService {
 
     for (let i: number = 0; i < caLen; i += 1) {
         c = ca[i].replace(/^\s+/g, '');
-        if (c.indexOf(cookieName) == 0) {
+        if (c.startsWith(cookieName)) {
             return c.substring(cookieName.length, c.length);
         }
     }
