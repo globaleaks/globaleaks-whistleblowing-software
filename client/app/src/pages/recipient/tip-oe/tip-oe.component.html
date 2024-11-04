@@ -105,7 +105,7 @@
                 <src-tip-files-receiver [forwardings]="tip.forwardings"></src-tip-files-receiver>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [key]="'whistleblower'"></src-tip-comments>
+                    <src-tip-comments [tipService]="RTipService" [key]="'whistleblower'" [placeholder]="'Insert here a comment for the WhistleBlower. Don\'t ask questions, this comment cannot be replied.'"></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>

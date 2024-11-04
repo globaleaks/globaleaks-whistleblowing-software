@@ -24,6 +24,7 @@ export class TipCommentsComponent implements OnInit {
   @Input() readonly: boolean = false;
 
   @Input() banner: string = "";
+  @Input() placeholder: string;
 
   collapsed = false;
   newCommentContent = "";
