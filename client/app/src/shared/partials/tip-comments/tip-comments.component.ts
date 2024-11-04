@@ -23,6 +23,8 @@ export class TipCommentsComponent implements OnInit {
   @Input() title: string;
   @Input() readonly: boolean = false;
 
+  @Input() banner: string = "";
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;

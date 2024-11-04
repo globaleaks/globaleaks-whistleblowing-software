@@ -694,6 +694,8 @@
   "Comments from EO": "Comments from EO",
   "External Organization and Receivers": "External Organization and Receivers",
   "closed":"Closed",
-  "opened":"Opened"
+  "opened":"Opened",
+  "Organization Name": "Organization Name",
+  "banner-no-reply": "This section is reserved for viewing comments by the competent body that has viewed your report. It is not possible to reply or add new comments."
 
 }
