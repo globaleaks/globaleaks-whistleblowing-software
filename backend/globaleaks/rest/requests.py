@@ -301,7 +301,7 @@ AdminNotificationDesc = {
     'smtp2_port': int,
     'smtp2_security': str,
     'smtp2_server': str,
-    'smtp2_source_email': email_regexp,
+    'smtp2_source_email': str,
     'smtp2_username': str,
     'smtp2_authentication': bool
 }
