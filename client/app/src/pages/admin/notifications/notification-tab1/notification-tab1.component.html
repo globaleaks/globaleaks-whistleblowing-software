@@ -85,6 +85,10 @@
                         <label>{{ 'PEC Password' | translate }}</label>
                         <input class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
                     </div>
+                    <div class="form-group">
+                        <input name="notification.dataModel.smtp2_authentication" [(ngModel)]="notificationResolver.dataModel.smtp2_authentication" type="checkbox">
+                        <label>{{ 'Require authentication' | translate }}</label>
+                    </div>
             </div>
         </div>
 

@@ -68,6 +68,7 @@ export class notificationResolverModel {
   smtp2_server: string;
   smtp2_source_email: string;
   smtp2_username: string;
+  smtp2_authentication: boolean;
 
 
   [key: string]: string | boolean | number | string[];
