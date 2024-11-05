@@ -113,40 +113,44 @@ export class SendtipComponent implements OnInit {
   }
 
   uploadFiles() {
-    if (this.uploadedFiles && this.uploadedFiles.length > 0) {
-      const flowJsInstance = this.utilsService.flowDefault;
-
-      flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";;
-      flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.headers = {
-        "X-Session": this.authenticationService.session.id
-      };
-
-      flowJsInstance.on("fileSuccess", (file, message) => {
-        console.log(`File ${file.name} caricato con successo.`);
-      });
-
-      flowJsInstance.on("fileError", (file, message) => {
-        console.error(`Errore durante il caricamento del file ${file.name}: ${message}`);
-      });
-
-      this.uploadedFiles.forEach(file => {
-        if (file.file) {
-          flowJsInstance.opts.query = {
-            description: file.description,
-            visibility: 'oe',
-            fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024,
-            tids: "["+this.selectedOrganizations.map(_=> _.tid).toString()+"]"
-          };
-  
-          flowJsInstance.addFile(file.file);
-        }
-        
-      });
-
-      flowJsInstance.upload();
-    } else {
-      console.log('Nessun file selezionato per il caricamento.');
+    if (!this.uploadedFiles || this.uploadedFiles.length === 0) {
+      console.log('No files selected for upload.');
+      return;
     }
+
+    const flowJsInstance = this.utilsService.flowDefault;
+    const sessionId = this.authenticationService.session.id;
+    const fileSizeLimit = this.appDataService.public.node.maximum_filesize * 1024 * 1024;
+
+    flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
+    flowJsInstance.opts.headers = { "X-Session": sessionId };
+
+    flowJsInstance.on("fileSuccess", (file, _) => {
+      console.log(`File ${file.name} uploaded successfully.`);
+    });
+
+    flowJsInstance.on("fileError", (file, message) => {
+      console.error(`Error loading file ${file.name}: ${message}`);
+    });
+
+    this.uploadedFiles.forEach((file) => {
+      if (file.file) {
+        flowJsInstance.opts.query = {
+          description: file.description,
+          visibility: 'oe',
+          fileSizeLimit: fileSizeLimit,
+          tids: "[" + this.selectedOrganizations.map(_ => _.tid).toString() + "]"
+        };
+        
+        try {
+          flowJsInstance.addFile(file.file);
+          flowJsInstance.upload();
+        } catch (error) {
+          console.error(`Error loading ${file.name}:`, error);
+        }
+      } else {
+        console.warn(`File missing from file list: ${file.name}`);
+      }
+    });
   }
 }

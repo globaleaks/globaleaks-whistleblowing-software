@@ -28,44 +28,8 @@ export class SendTipFileUploadComponent {
   addFile(files: FileList | null) {
 
     if (files && files.length > 0) {
+      console.log("addFile - files: ", files);
       const file = files[0];
-
-
-      if (this.tip) {
-        const flowJsInstance = this.utilsService.flowDefault;
-
-        this.files = [];
-
-        flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
-        flowJsInstance.opts.singleFile = true;
-        flowJsInstance.opts.query = { description: this.newFileDescription, visibility: "oe", fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024, tids: null };
-        flowJsInstance.opts.headers = { "X-Session": this.authenticationService.session.id };
-        flowJsInstance.on("fileSuccess", (_, message) => {
-          
-          let response = JSON.parse(message);
-
-          this.files.push({
-            file: file,
-            description: this.newFileDescription,
-            id: response.id,
-            name: file.name,
-            status: 'PENDING', 
-            origin: 'recipient',
-            uploadDate: new Date().toISOString(),
-            size: file.size
-          });
-          this.newFileDescription = "";
-        });
-        flowJsInstance.on("fileError", (file, _) => {
-          if (this.uploaderInput) {
-            this.uploaderInput.nativeElement.value = "";
-          }
-          this.cdr.detectChanges();
-        });
-
-        this.utilsService.onFlowUpload(flowJsInstance, file);
-      }
-      else {
       let item: FileItem = {
         file: file,
         description: this.newFileDescription,
@@ -79,8 +43,6 @@ export class SendTipFileUploadComponent {
       this.files.push(item);
       this.filesChange.emit(this.files);
       this.newFileDescription = "";
-    
-    }
   }
 }
 
