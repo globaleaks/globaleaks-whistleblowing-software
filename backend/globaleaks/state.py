@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+import logging
 import os
 import re
 import sys
@@ -33,7 +34,7 @@ from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.token import TokenList
 from globaleaks.utils.tor_exit_set import TorExitSet
-from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.utils.utility import datetime_now
 
 
 silenced_exceptions = (
@@ -229,22 +230,32 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         self.stats_collection_start_time = datetime_now()
 
-    def sendmail(self, tid, to_address, subject, body, is_pec):
+    def sendmail(self, tid, to_address, subject, body, is_pec:bool = False):
         if self.settings.disable_notifications:
             return succeed(True)
 
         if self.tenants[tid].cache.mode != 'default':
             tid = 1
 
+
+        send_pec = True if is_pec and self.tenants[tid].cache.notification.smtp2_server else False
+        smtp_server = self.tenants[tid].cache.notification.smtp_server if not send_pec else self.tenants[tid].cache.notification.smtp2_server
+        smtp_port = self.tenants[tid].cache.notification.smtp_port if not send_pec else self.tenants[tid].cache.notification.smtp2_port
+        smtp_security = self.tenants[tid].cache.notification.smtp_security if not send_pec else self.tenants[tid].cache.notification.smtp2_security
+        smtp_authentication = self.tenants[tid].cache.notification.smtp_authentication if not send_pec else self.tenants[tid].cache.notification.smtp2_authentication
+        smtp_username = self.tenants[tid].cache.notification.smtp_username if not send_pec else self.tenants[tid].cache.notification.smtp2_username
+        smtp_password = self.tenants[tid].cache.notification.smtp_password if not send_pec else self.tenants[tid].cache.notification.smtp2_password
+        smtp_source_email = self.tenants[tid].cache.notification.smtp_source_email if not send_pec else self.tenants[tid].cache.notification.smtp2_source_email
+
         return sendmail(tid,
-                        self.tenants[tid].cache.notification.smtp_server,
-                        self.tenants[tid].cache.notification.smtp_port,
-                        self.tenants[tid].cache.notification.smtp_security,
-                        self.tenants[tid].cache.notification.smtp_authentication,
-                        self.tenants[tid].cache.notification.smtp_username,
-                        self.tenants[tid].cache.notification.smtp_password,
+                        smtp_server,
+                        smtp_port,
+                        smtp_security,
+                        smtp_authentication,
+                        smtp_username,
+                        smtp_password,
                         self.tenants[tid].cache.name,
-                        self.tenants[tid].cache.notification.smtp_source_email,
+                        smtp_source_email,
                         to_address,
                         self.tenants[tid].cache.name + ' - ' + subject,
                         body,
@@ -264,7 +275,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
             if pgp_key_public:
                 try:
                     body = PGPContext(pgp_key_public).encrypt_message(mail_body)
-                except:
+                except Exception as e:
+                    logging.debug(e)
                     continue
 
             # avoid waiting for the notification to send and instead rely on threads to handle it
@@ -341,7 +353,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         try:
             totpVerify(secret, token)
-        except:
+        except Exception as e:
+            logging.debug(e)
             raise errors.InvalidTwoFactorAuthCode
 
         # Register last used valid token

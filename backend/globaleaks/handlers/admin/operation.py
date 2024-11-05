@@ -184,7 +184,7 @@ def db_reset_smtp_settings(session, tid):
     config.set_val('smtp2_server', '')
     config.set_val('smtp2_port', 587)
     config.set_val('smtp2_authentication', False)
-    config.set_val('smtp2_username', 'globaleaks')
+    config.set_val('smtp2_username', '')
     config.set_val('smtp2_password', '')
     config.set_val('smtp2_source_email', '')
     config.set_val('smtp2_security', '')
