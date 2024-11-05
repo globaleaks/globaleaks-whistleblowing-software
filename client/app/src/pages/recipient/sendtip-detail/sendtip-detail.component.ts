@@ -47,29 +47,6 @@ export class SendtipDetailComponent{
   }
 
 
-  loadDetail() {
-    
-    const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
-    this.loading = true;
-    this.RTipService.reset();
-    
-    requestObservable.subscribe(
-      {
-        next: (response: RecieverTipData) => {
-          this.loading = false;
-          this.RTipService.initialize(response);
-          this.tip = this.RTipService.tip;
-          this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
-            this.tip.tip_id = params["tip_id"];
-          });
-
-        }
-      }
-    );
-
-  }
-
-
   onFileUploaded(newFile: FileItem) {
     this.files.push(newFile);
   }
@@ -82,7 +59,5 @@ export class SendtipDetailComponent{
     this.files = this.files.filter(file => file.id !== deletedFile.id);
   }
 
-  listenToFields(){
-    // this.loadDetail();
-  }
+
 }

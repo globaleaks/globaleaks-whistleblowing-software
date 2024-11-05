@@ -78,7 +78,8 @@
         </div>
         <div class="col-md-6">
             
-                <src-tip-questionnaire-answers *ngIf="tip.status==='closed'" [tipService]="RTipService" [isForwarding]="true"></src-tip-questionnaire-answers>
+                <src-sendtip-detail-questionnaire-answers *ngIf="tip.status==='closed'" [questionnaire]="tip.questionnaires[0]" 
+                 [label]="'Form Istruttoria'"></src-sendtip-detail-questionnaire-answers>
 
                 <src-tip-oe-form *ngIf="tip.status!=='closed'" (notifyFileUpload)="notifyFileUpload($event)" 
                 (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [displayErrors]="true"></src-tip-oe-form>

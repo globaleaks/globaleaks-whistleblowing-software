@@ -312,7 +312,10 @@ export class TipOeComponent implements OnInit {
     this.appConfigServices.localInitialization(true, reloadCallback);
   }
 
-  preprocessTipAnswers(tip: RecieverTipData) {
+  preprocessTipAnswers(tip: any) {
+    if (typeof tip.questionnaires[0].answers  === 'string' || tip.questionnaires[0].answers instanceof String)
+      tip.questionnaires[0].answers = JSON.parse(tip.questionnaires[0].answers)
+    
     this.tipService.preprocessTipAnswers(tip);
   }
 
