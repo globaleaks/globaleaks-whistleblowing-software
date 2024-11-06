@@ -27,7 +27,7 @@
                 <button class="btn btn-sm btn-outline-secondary" *ngIf="editing" (click)="toggleEditing();">
                     <span>{{ 'Cancel' | translate }}</span>
                 </button>
-                <button class="btn btn-sm btn-danger" *ngIf="getUserID() !== user.id" id="delete_user" (click)="deleteUser(user)">
+                <button class="btn btn-sm btn-danger" *ngIf="getUserID() !== user.id && (preferenceData.t_external ? !user.can_grant_access_to_reports : true)" id="delete_user" (click)="deleteUser(user)">
                     <span>{{ 'Delete' | translate }}</span>
                 </button>
             </span>
