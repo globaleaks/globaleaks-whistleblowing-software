@@ -61,11 +61,11 @@
             <src-org-info [orgInfo]="organizationInfo" [visualization]="true"></src-org-info>
         </div>
 
-        <div class="col-md-4" *ngIf="!isState('invited')">
+        <div class="col-md-4" *ngIf="!isState('invited') && !isState('instructor_request')">
             <src-org-admin-info [adminInfo]="adminInfo" [visualization]="true"></src-org-admin-info>
         </div>
 
-        <div class="col-md-4" *ngIf="!isState('invited')">
+        <div class="col-md-4" *ngIf="!isState('invited') && !isState('instructor_request')">
             <src-org-recipient-info [recipientInfo]="receiverInfo" [visualization]="true"></src-org-recipient-info>
         </div>
     </div>
