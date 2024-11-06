@@ -120,7 +120,7 @@ def persistent_drop(session, accreditation_id: str, request):
         }
         if status not in status_mapping:
             raise errors.ForbiddenOperation
-        elif status == 'suspended' and accreditation_item.get('num_user_profiled') > 1 and accreditation_item.get('opened_tips') > 0:
+        elif status == 'suspended' and accreditation_item.get('num_user_profiled') > 2 and accreditation_item.get('opened_tips') > 0:
             raise errors.ForbiddenOperation
         else:
             tenant_item = (
