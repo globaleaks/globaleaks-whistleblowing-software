@@ -657,7 +657,7 @@
 	"Review Form": "Form istruttoria",
 	"Discard": "Scarta",
 	"Backup interval (hours)": "Intervallo esecuzione backup (ore)",
-	"Changes from last backup": "Modifiche da ultimo backup",
+	"Changes from last Backup": "Modifiche da ultimo backup",
 	"Multitenant Mode for External Organization": "Modalità Multitenant OE",
 	"Message limit for external organization": "Limite messaggi OE",
 	"Message limit for external non-affiliated organization": "Limite messaggi OE non affiliata",
@@ -734,6 +734,7 @@
   "External Organization and Receivers": "Organizzazioni Esterne e Riceventi",
   "closed":"Chiusa",
   "opened":"Aperta",
+  "new":"Nuova",
   "Organization Name": "Nome Organizzazione",
   "Organization ID": "ID Organizzazione",
   "banner-no-reply": "Questa sezione è riservata alla visualizzazione dei commenti da parte dell'organo competente che ha visualizzato la tua segnalazione. Non è possibile rispondere o aggiungere nuovi commenti.",
@@ -743,5 +744,15 @@
   "Maximum Comments from EO to whistleblower": "Numero massimo di commenti da OE Affiliata a segnalante",
   "File sent": "File inviato",
   "Accreditation": "Accreditamento",
-  "Select a review form": "Seleziona un form di istruttoria"
+  "Select a review form": "Seleziona un form di istruttoria",
+  "Sent tip detail": "Dettaglio segnalazione",
+  "Overview": "Panoramica",
+  "No results found.": "Nessun risultato trovato.",
+  "internal_tip_id": "ID",
+  "internal_tip_status": "Stato",
+  "internal_tip_creation_date_month": "Mese Creazione",
+  "internal_tip_creation_date_years": "Anno Creazione",
+  "internal_tip_file_count": "Numero File",
+  "internal_tip_comment_count": "Numero Commenti",
+  "internal_tip_receiver_count": "Numero Riceventi"
 }

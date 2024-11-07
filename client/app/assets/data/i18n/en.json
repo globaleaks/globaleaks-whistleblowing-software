@@ -701,5 +701,12 @@
   "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied.": "Insert here a comment for the WhistleBlower. Don't ask questions, this comment cannot be replied.",
   "Maximum Comments from Not Affiliated EO to whistleblower": "Maximum Comments from Not Affiliated EO to whistleblower",
   "Maximum Comments from EO to whistleblower": "Maximum Comments from EO to whistleblower",
-  "Select a review form": "Select a review form"
+  "Select a review form": "Select a review form",
+  "internal_tip_id": "ID",
+  "internal_tip_status": "Status",
+  "internal_tip_creation_date_month": "Month Creation",
+  "internal_tip_creation_date_years": "Year Creation",
+  "internal_tip_file_count": "File Count",
+  "internal_tip_comment_count": "Comment Count",
+  "internal_tip_receiver_count": "Receiver Count"
 }
