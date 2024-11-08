@@ -4,7 +4,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.accreditator import toggle_status_activate, SubmitAccreditationHandler, \
-    GetAllAccreditationHandler
+    GetAllAccreditationHandler, ConfirmRequestHandler
 from globaleaks.handlers.accreditator.utils import save_step, create_tenant, determine_type, count_user_tip
 from globaleaks.models import EnumSubscriberStatus
 from globaleaks.tests import helpers
@@ -39,7 +39,7 @@ class TestStepAccreditation(helpers.TestHandler):
         # Test with string 'AFFILIATED'
         self.assertTrue(determine_type({'type': 'AFFILIATED'}))
 
-        # Test with string 'affiliated' (case insensitive)
+        # Test with string 'affiliated'
         self.assertTrue(determine_type({'type': 'affiliated'}))
 
         # Test with boolean False
@@ -93,16 +93,16 @@ class TestRequestAccreditation(helpers.TestHandlerWithPopulatedDB):
     @staticmethod
     def post_dummy_request_accreditation():
         return {
-            "admin_email": "emanuele.bosu@linksmt.it",
-            "admin_name": "Emanuele",
-            "admin_surname": "Bosu",
-            "organization_email": "emanuelebosu.eb@gmail.com",
-            "organization_name": "11cloud9221w15",
-            "organization_institutional_site": "http://www.non.so/",
-            "recipient_name": "Emanuele",
-            "recipient_surname": "Bosu",
-            "recipient_email": "twittog@gmail.com",
-            "recipient_fiscal_code": "BLLNNA90H69F284K",
+            "admin_email": "admin@test.it",
+            "admin_name": "admin",
+            "admin_surname": "admin",
+            "organization_email": "adminb_eo@admin.com",
+            "organization_name": "eo",
+            "organization_institutional_site": "http://eo.com/",
+            "recipient_name": "rec",
+            "recipient_surname": "rec",
+            "recipient_email": "rec@rec.com",
+            "recipient_fiscal_code": "fiscal_code",
             "tos1": True
         }
 
@@ -131,4 +131,36 @@ class TestGetAllAccreditationHandler(helpers.TestHandlerWithPopulatedDB):
             role='accreditor'
         )
         stats = yield handler.get()
+        self.assertFalse(stats)
+
+class TestConfirmRequestHandler(helpers.TestHandlerWithPopulatedDB):
+    _handler = ConfirmRequestHandler
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @staticmethod
+    def post_dummy_request_accreditation():
+        return {
+            "admin_email": "admin@test.it",
+            "admin_name": "admin",
+            "admin_surname": "admin",
+            "organization_email": "adminb_eo@admin.com",
+            "organization_name": "eo",
+            "organization_institutional_site": "http://eo.com/",
+            "recipient_name": "rec",
+            "recipient_surname": "rec",
+            "recipient_email": "rec@rec.com",
+            "recipient_fiscal_code": "fiscal_code",
+            "tos1": True
+        }
+
+    @inlineCallbacks
+    def test_post(self):
+        handler = self.request(
+            role='accreditor'
+        )
+        stats = yield handler.post('TEST_ID')
         self.assertFalse(stats)
