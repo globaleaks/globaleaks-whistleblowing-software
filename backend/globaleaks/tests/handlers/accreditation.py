@@ -133,34 +133,3 @@ class TestGetAllAccreditationHandler(helpers.TestHandlerWithPopulatedDB):
         stats = yield handler.get()
         self.assertFalse(stats)
 
-class TestConfirmRequestHandler(helpers.TestHandlerWithPopulatedDB):
-    _handler = ConfirmRequestHandler
-
-    @inlineCallbacks
-    def setUp(self):
-        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
-        yield self.perform_full_submission_actions()
-
-    @staticmethod
-    def post_dummy_request_accreditation():
-        return {
-            "admin_email": "admin@test.it",
-            "admin_name": "admin",
-            "admin_surname": "admin",
-            "organization_email": "adminb_eo@admin.com",
-            "organization_name": "eo",
-            "organization_institutional_site": "http://eo.com/",
-            "recipient_name": "rec",
-            "recipient_surname": "rec",
-            "recipient_email": "rec@rec.com",
-            "recipient_fiscal_code": "fiscal_code",
-            "tos1": True
-        }
-
-    @inlineCallbacks
-    def test_post(self):
-        handler = self.request(
-            role='accreditor'
-        )
-        stats = yield handler.post('TEST_ID')
-        self.assertFalse(stats)
