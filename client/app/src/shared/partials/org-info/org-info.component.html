@@ -5,9 +5,9 @@
             <div class="form-group" >
                 <label for="organization_name">
                     <span>{{'Denomination'|translate}}</span>
-                    <span *ngIf="!visualization" class="text-danger">*</span>
+                    <span *ngIf="!visualization || isEditable" class="text-danger">*</span>
                 </label>
-                <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="orgInfo.organization_name" required [disabled]="visualization" 
+                <input name="denomination" class="form-control" [placeholder]="'Denomination' | translate" type="text" [(ngModel)]="orgInfo.organization_name" required [disabled]="visualization && !isEditable"
                     id="organization_name" #name="ngModel" [ngClass]="{'is-invalid': isInvalid(name), 'is-valid': isValid(name)}" (ngModelChange)="checkFormValidity(orgForm)"
                 >
                 <div class="invalid-feedback" *ngIf="isInvalid(name)">{{ 'Denomination is required' | translate }}</div>
@@ -16,9 +16,9 @@
             <div class="form-group">
                 <label for="pec">
                     <span>{{'PEC'|translate}}</span>
-                    <span *ngIf="!visualization" class="text-danger">*</span>
+                    <span *ngIf="!visualization || isEditable" class="text-danger">*</span>
                 </label>
-                <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="orgInfo.organization_email" required #pec="ngModel" [disabled]="visualization"
+                <input name="pec" class="form-control" [placeholder]="'PEC' | translate" type="email" [(ngModel)]="orgInfo.organization_email" required #pec="ngModel" [disabled]="visualization && !isEditable"
                     id="pec" [pattern]="emailRegexp" [ngClass]="{'is-invalid': isInvalid(pec), 'is-valid': isValid(pec)}" (ngModelChange)="checkFormValidity(orgForm)"
                 >
                 <div class="invalid-feedback" *ngIf="isInvalid(pec)">
@@ -44,7 +44,7 @@
                 <label for="institutionalWebsite">
                     <span>{{'Institutional website'|translate}}</span>
                 </label>
-                <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="orgInfo.organization_institutional_site" [disabled]="visualization"
+                <input name="institutionalWebsite" class="form-control" [placeholder]="'Institutional website' | translate" type="url" [(ngModel)]="orgInfo.organization_institutional_site" [disabled]="visualization && !isEditable"
                     id="institutionalWebsite" (ngModelChange)="checkFormValidity(orgForm)"
                 >
             </div>

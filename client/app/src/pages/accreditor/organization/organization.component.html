@@ -58,7 +58,7 @@
 
     <div class="row">
         <div class="col-md-4">
-            <src-org-info [orgInfo]="organizationInfo" [visualization]="true"></src-org-info>
+            <src-org-info [orgInfo]="organizationInfo" [visualization]="true" [isEditable]="isState('requested')" (formValidityChange)="onFormValidityChange($event)"></src-org-info>
         </div>
 
         <div class="col-md-4" *ngIf="!isState('invited') && !isState('instructor_request')">
@@ -99,7 +99,7 @@
     <div class="row" *ngIf="isState('requested') || isState('instructor_request') || isState('invited')">
         <div class="col-md-6"></div>
         <div class="col-md-3" id="accept-button">
-            <button class="btn btn-primary" (click)="invia()">
+            <button [disabled]="!isFormValid" class="btn btn-primary" (click)="invia()">
                 <i class="fa-solid fa-check"></i>
                 <span>{{(isState('requested')? 'Accept External Organization': 'Send Invitation') | translate }}</span>
             </button>

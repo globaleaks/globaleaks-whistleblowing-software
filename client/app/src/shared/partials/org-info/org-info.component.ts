@@ -13,14 +13,15 @@ export class OrgInfoComponent {
 
   @Input() orgInfo: EOInfo;
   @Input() visualization: boolean = true;
+  @Input() isEditable: boolean = false;
   @Output() formValidityChange = new EventEmitter<boolean>();
 
   pecConfirmed: string;
   confirmPecTouched: boolean = false;
 
   checkFormValidity(form: NgForm) {
-    if (!this.visualization) {
-      const isValid = (form.valid ?? false) && this.checkMailsMatch();
+    if (!this.visualization || this.isEditable) {
+      const isValid = (form.valid ?? false) && (this.visualization || this.checkMailsMatch());
       this.formValidityChange.emit(isValid);
     }
   }
@@ -34,10 +35,10 @@ export class OrgInfoComponent {
   }
 
   isInvalid(control: any): boolean {
-    return !this.visualization && control.invalid && control.touched;
+    return (!this.visualization || this.isEditable) && control.invalid && control.touched;
   }
 
   isValid(control: any): boolean {
-    return !this.visualization && control.valid && control.touched;
+    return (!this.visualization || this.isEditable) && control.valid && control.touched;
   }
 }

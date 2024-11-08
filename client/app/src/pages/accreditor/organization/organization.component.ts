@@ -15,11 +15,9 @@ import { CustomModalComponent } from '@app/shared/modals/custom-modal/custom-mod
 export class OrganizationComponent implements OnInit{
 
   org_id: string | null;
-
   organization: ExternalOrganization;
-
   isChecked: boolean = false;
-
+  isFormValid: boolean = true;
 
   organizationInfo: EOInfo = {
     organization_name: '',
@@ -54,16 +52,13 @@ export class OrganizationComponent implements OnInit{
 
   }
 
-
   ngOnInit() {
    this.loadOrganizationData();
   }
 
   loadOrganizationData(){
-    this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");
-    
+    this.org_id = this.activatedRoute.snapshot.paramMap.get("org_id");    
     const requestObservable: Observable<ExternalOrganization> = this.httpService.accreditorAccreditationDetail(this.org_id);
-
 
     requestObservable.subscribe(
       {
@@ -101,9 +96,11 @@ export class OrganizationComponent implements OnInit{
       });
   }
 
-  invia(){
-  
+  invia(){  
     if (this.authenticationService.session.role === "accreditor") {
+      if (this.isOrganizationDataChanged(this.organizationInfo)) {
+        this.aggiornaDatiOrganizazzione();
+      }
 
       if(this.organization.state === 'instructor_request'){
         this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
@@ -124,9 +121,7 @@ export class OrganizationComponent implements OnInit{
             console.error("Errore durante l'invio dell'invito", err);
           }
         });
-      }
-
-      
+      }      
     }
   }
 
@@ -179,19 +174,47 @@ export class OrganizationComponent implements OnInit{
   }
 
   aggiornaStatoAffiliazioneOrganizazzione() {
-    if (this.authenticationService.session.role === "accreditor") {
-      const updatedData = {
-        type: this.organization.type === 'AFFILIATED' ? 'NOT_AFFILIATED' : 'AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
-      };
-      this.httpService.updateStateOrganizationRequest(this.organization.id, updatedData).subscribe({
-        next: () => {
-          this.loadOrganizationData();
-        },
-        error: (err) => {
-          console.error("Errore durante la richiesta di aggiornamento", err);
-        }
-      }); 
-    }
+    const updatedData = {
+      organization_name: this.organizationInfo.organization_name,
+      organization_email: this.organizationInfo.organization_email,
+      organization_institutional_site: this.organizationInfo.organization_institutional_site,
+      type: this.organization.type === 'AFFILIATED' ? 'NOT_AFFILIATED' : 'AFFILIATED' as 'AFFILIATED' | 'NOT_AFFILIATED'
+    };
+    this.inviaAggiornamentoOrganizzazione(updatedData);
+  }
+
+  aggiornaDatiOrganizazzione() {
+    const updatedData = {
+      organization_name: this.organizationInfo.organization_name,
+      organization_email: this.organizationInfo.organization_email,
+      organization_institutional_site: this.organizationInfo.organization_institutional_site
+    };
+    this.inviaAggiornamentoOrganizzazione(updatedData);
+  }
+
+  private inviaAggiornamentoOrganizzazione(updatedData: { 
+    organization_name?: string, organization_email?: string,
+    organization_institutional_site?: string, type?: 'AFFILIATED' | 'NOT_AFFILIATED' }) {
+      if (this.authenticationService.session.role === "accreditor") {
+        this.httpService.updateOrganizationInfoRequest(this.organization.id, updatedData).subscribe({
+          next: () => {
+            this.loadOrganizationData();
+          },
+          error: (err) => {
+            console.error("Errore durante la richiesta di aggiornamento", err);
+          }
+        });
+      }
+  }
+
+  private isOrganizationDataChanged(updatedData: {
+    organization_name?: string, organization_email?: string,
+    organization_institutional_site?: string }): boolean {
+      return (
+        updatedData.organization_name !== this.organization.organization_name ||
+        updatedData.organization_email !== this.organization.organization_email ||
+        updatedData.organization_institutional_site !== this.organization.organization_institutional_site
+      );
   }
 
   isState(state: string): boolean {
@@ -202,11 +225,13 @@ export class OrganizationComponent implements OnInit{
     return this.organization?.opened_tips == 0 && this.organization.num_user_profiled == 1;
   }
 
-
-
   isAffiliated(){
     this.isChecked = this.organization?.type === "AFFILIATED";
     return this.isChecked
+  }
+
+  onFormValidityChange(isValid: boolean) {
+    this.isFormValid = isValid;
   }
 
 }
