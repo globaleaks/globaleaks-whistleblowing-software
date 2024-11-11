@@ -103,6 +103,9 @@ def get_base_stats(session, internal_tip_id):
     internal_tip = session.query(models.InternalTip).filter(
         models.InternalTip.id == internal_tip_id
     ).one_or_none()
+    internal_tip_fw = session.query(models.InternalTipForwarding).filter(
+        models.InternalTipForwarding.internaltip_id == internal_tip_id
+    ).one_or_none()
     count_comment = session.query(
         func.count(distinct(models.Comment.id))).filter(
         models.Comment.internaltip_id == internal_tip_id,
@@ -125,7 +128,8 @@ def get_base_stats(session, internal_tip_id):
         'last_access': internal_tip.last_access,
         'internal_tip_file_count': count_files,
         'internal_tip_comment_count': count_comment,
-        'internal_tip_receiver_count': count_receivers
+        'internal_tip_receiver_count': count_receivers,
+        'forwarding_to_external_organization_tip_id': internal_tip_fw.oe_internaltip_id if internal_tip_fw else None
     }
 
 def transform_base_tip_into_statistical(base_tip: dict) -> list:
@@ -146,8 +150,8 @@ def parse_dates(request):
     date_from = datetime.strptime(request.get('date_from', date_to - timedelta(weeks=1)), "%Y-%m-%d")
     return date_to, date_from
 
-def get_model_and_field(is_oe):
-    if is_oe:
+def get_model_and_field(is_external_organization):
+    if is_external_organization:
         return models.InternalTipForwarding, 'stat_data'
     return models.InternalTipAnswers, 'stat_answers'
 
