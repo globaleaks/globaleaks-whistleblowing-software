@@ -208,19 +208,27 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
 
     def add_msg_external_to_whistle(self):
-        file_analisys_config = self.model_to['Config']()
-        file_analisys_config.var_name = 'max_msg_external_to_whistle'
-        file_analisys_config.value = 1
-        file_analisys_config.tid = 1
-        self.session_new.add(file_analisys_config)
+        add_config = self.model_to['Config']()
+        add_config.var_name = 'max_msg_external_to_whistle'
+        add_config.value = 1
+        add_config.tid = 1
+        self.session_new.add(add_config)
         self.entries_count['Config'] += 1
 
-        file_analisys_config = self.model_to['Config']()
-        file_analisys_config.var_name = 'max_msg_external_to_whistle_not_aff'
-        file_analisys_config.value = 1
-        file_analisys_config.tid = 1
-        self.session_new.add(file_analisys_config)
+        add_config = self.model_to['Config']()
+        add_config.var_name = 'max_msg_external_to_whistle_not_aff'
+        add_config.value = 1
+        add_config.tid = 1
+        self.session_new.add(add_config)
         self.entries_count['Config'] += 1
+
+        add_config = self.model_to['Config']()
+        add_config.var_name = 'external_organization_activation'
+        add_config.value = True
+        add_config.tid = 1
+        self.session_new.add(add_config)
+        self.entries_count['Config'] += 1
+
 
     def add_pec_and_mail(self):
         for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username', 'smtp2_authentication']:
