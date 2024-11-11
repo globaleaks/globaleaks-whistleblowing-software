@@ -4,6 +4,7 @@
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
@@ -96,7 +97,9 @@ def user_serialize_user(session, user, language):
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
         'contexts': contexts,
-        'fiscal_code': user.fiscal_code
+        'fiscal_code': user.fiscal_code,
+        'external_organization_activation': ConfigFactory(session, 1).get_val('external_organization_activation')
+
     }
 
     if State.tenants[user.tid].cache.two_factor and \
