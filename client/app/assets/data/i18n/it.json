@@ -738,5 +738,6 @@
   "internal_tip_creation_date_years": "Anno Creazione",
   "internal_tip_file_count": "Numero File",
   "internal_tip_comment_count": "Numero Commenti",
-  "internal_tip_receiver_count": "Numero Riceventi"
+  "internal_tip_receiver_count": "Numero Riceventi",
+  "Changes since last Backup": "Modifiche da ultimo Backup"
 }

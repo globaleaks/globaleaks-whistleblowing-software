@@ -480,7 +480,10 @@ export class ReportsComponent implements OnInit {
             return this.createEmptyChartData('Nessun dato');
         }
         
-        const labels = Object.keys(data).map(key => `${key}: ${data[key]}`);
+        const labels = Object.keys(data).map(key => {
+            const translatedKey = this.translateService.instant(`internal_tip_status.${key}`);
+            return `${translatedKey}: ${data[key]}`;
+        });
         const values = Object.values(data);
     
         return {
