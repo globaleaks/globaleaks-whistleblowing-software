@@ -13,7 +13,7 @@
         <div *ngIf="banner">
             {{banner | translate}}
         </div>
-        <div *ngIf="!readonly && tipService.tip.status !== 'closed' && (key==='whistleblower'? (comments | filter : 'visibility' : key).length < tipService.tip.max_oe_to_whistleblower_comments : true)"
+        <div *ngIf="!readonly && tipService.tip.status !== 'closed' && (maximum_number ? (comments | filter : 'visibility' : key).length < maximum_number : true)"
             class="row">
             <div class="col-md-12 clearfix">
                 <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent"

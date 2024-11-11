@@ -26,6 +26,8 @@ export class TipCommentsComponent implements OnInit {
   @Input() banner: string = "";
   @Input() placeholder: string;
 
+  @Input() maximum_number: number;
+
   collapsed = false;
   newCommentContent = "";
   currentCommentsPage: number = 1;
