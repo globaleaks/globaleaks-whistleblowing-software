@@ -487,7 +487,7 @@ export class ReportsComponent implements OnInit {
         }
         
         const labels = Object.keys(data).map(key => {
-            const translatedKey = this.translateService.instant(`internal_tip_status.${key}`);
+            const translatedKey = this.translateService.instant(`${key}`);
             return `${translatedKey}: ${data[key]}`;
         });
         const values = Object.values(data);
