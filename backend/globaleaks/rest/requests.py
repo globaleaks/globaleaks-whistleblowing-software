@@ -262,8 +262,8 @@ AdminNodeDesc = {
     'backup_enable': bool,
     'backup_time_ISO_8601': str,
     'backup_destination_path': str,
-    'url_file_analysis': str
-
+    'url_file_analysis': str,
+    'external_organization_activation': bool
 }
 
 AdminNetworkDesc = {
