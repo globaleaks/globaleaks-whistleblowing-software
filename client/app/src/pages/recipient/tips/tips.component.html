@@ -157,7 +157,7 @@
                             </div>
                         </span>
                     </th>
-                    <th class="TipInfoSent">
+                    <th class="TipInfoSent" *ngIf="preferenceData.external_organization_activation">
                         <i class="fa-solid fa-file-arrow-up"></i>
                     </th>
                     <th class="TipInfoReadReceipt">
@@ -226,7 +226,7 @@
                             <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
                         </td>
-                        <td class="TipInfoSendNum"  data-toggle="tooltip" title="{{forwardingNames(tip.forwardings)}}">
+                        <td class="TipInfoSendNum" *ngIf="preferenceData.external_organization_activation" data-toggle="tooltip" title="{{forwardingNames(tip.forwardings)}}">
                             {{tip.total_forwardings_eo}}
                         </td>
                         <td class="TipInfoLastAccess">

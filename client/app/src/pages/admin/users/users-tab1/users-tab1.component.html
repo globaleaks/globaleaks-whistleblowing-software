@@ -18,7 +18,7 @@
                             <option value="analyst">{{ 'Analyst' | translate }}</option>
                             <option value="custodian">{{ 'Custodian' | translate }}</option>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>
-                            <option value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
+                            <option *ngIf="preferenceData.external_organization_activation" value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
                         </ng-container>
                         <ng-template #restrictedOptions>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>

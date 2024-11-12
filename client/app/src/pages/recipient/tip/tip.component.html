@@ -73,8 +73,8 @@
                 class="btn btn-outline-secondary">
                 <i class="fa-solid fa-print"></i>
             </span>
-            <ng-container  *ngIf="tip && tip.status !== 'closed'">
-                <span id="tip-action-print"  data-toggle="tooltip" title="{{'Send tip' | translate}}"
+            <ng-container *ngIf="tip && preferenceData.external_organization_activation && tip.status !== 'closed'">
+                <span id="tip-action-send-tip"  data-toggle="tooltip" title="{{'Send tip' | translate}}"
                 class="btn btn-outline-secondary" routerLink="/sendtip" routerLinkActive="active">
                 <i class="fa-solid fa-file-arrow-up"></i>
                 </span>
@@ -113,7 +113,7 @@
         </ng-container>
     </div>
     
-    <div class="row" *ngIf="tip && tip.forwardings">
+    <div class="row" *ngIf="tip && tip.forwardings && preferenceData.external_organization_activation">
         <div class="col-md-12">
             <src-tip-oe-list [forwardings]="tip.forwardings" (dataToParent)="goToSendtipDetail($event)"></src-tip-oe-list>
         </div>

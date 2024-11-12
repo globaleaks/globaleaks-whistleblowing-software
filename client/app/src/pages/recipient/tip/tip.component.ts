@@ -31,6 +31,7 @@ import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/re
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
 import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
+import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 
 
 @Component({
@@ -58,6 +59,8 @@ export class TipComponent implements OnInit {
   selectedMap: number[] = []
 
   protected readonly JSON = JSON;
+  
+  preferenceData: preferenceResolverModel;
 
   constructor(private translateService: TranslateService,private tipService: TipService, private appConfigServices: AppConfigService, private router: Router, private cdr: ChangeDetectorRef, private cryptoService: CryptoService, protected utils: UtilsService, protected preferencesService: PreferenceResolver, protected modalService: NgbModal, private activatedRoute: ActivatedRoute, protected httpService: HttpService, protected http: HttpClient, protected appDataService: AppDataService, protected RTipService: ReceiverTipService, protected authenticationService: AuthenticationService) {
   }
@@ -65,6 +68,7 @@ export class TipComponent implements OnInit {
   ngOnInit() {
     this.loadTipDate();
     this.cdr.detectChanges();
+    this.preferenceData = this.preferencesService.dataModel;
   }
 
   loadTipDate() {
@@ -130,10 +134,10 @@ export class TipComponent implements OnInit {
           title: "Only me",
           component: this.tab3
         },
-        {
+        ...(this.preferenceData?.external_organization_activation ? [{
           title: "External Organization and Receivers",
           component: this.tab4
-        },
+        }] : [])
       ];
     });
   }

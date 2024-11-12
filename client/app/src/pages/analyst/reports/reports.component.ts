@@ -6,6 +6,8 @@ import {IDropdownSettings} from "ng-multiselect-dropdown";
 import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
 import { HttpService } from "@app/shared/services/http.service";
 import { UtilsService } from "@app/shared/services/utils.service";
+import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
+import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 
 @Component({
     selector: "src-reports",
@@ -96,8 +98,11 @@ export class ReportsComponent implements OnInit {
     charts: any[] = [];
     summary: Summary = {};
     summaryKeys: { id: string, label: string }[] = [];
+
+    preferenceData: preferenceResolverModel;
     
-    constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService, protected utils: UtilsService) {}
+    constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService,
+        protected utils: UtilsService, protected preference: PreferenceResolver) {}
 
     ngOnInit(): void {
         this.maxDate = {
@@ -106,6 +111,7 @@ export class ReportsComponent implements OnInit {
             day: this.today.getDate()
         };
         this.clearDateRange();
+        this.preferenceData = this.preference.dataModel;
     }
 
     clearDateRange(): void {

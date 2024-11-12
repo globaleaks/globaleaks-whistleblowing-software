@@ -19,6 +19,7 @@ import {HttpService} from "@app/shared/services/http.service";
 import {Observable, from, switchMap} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {formatDate} from "@angular/common";
+import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 
 @Component({
   selector: "src-tips",
@@ -61,6 +62,7 @@ export class TipsComponent implements OnInit {
     unSelectAllText: this.translateService.instant("Deselect all"),
     searchPlaceholderText: this.translateService.instant("Search")
   };
+  preferenceData: preferenceResolverModel;
 
   constructor(private http: HttpClient,protected authenticationService: AuthenticationService, protected httpService: HttpService, private appConfigServices: AppConfigService, private router: Router, protected RTips: RTipsResolver, protected preference: PreferenceResolver, private modalService: NgbModal, protected utils: UtilsService, protected appDataService: AppDataService, private translateService: TranslateService, private tokenResourceService: TokenResource) {
 
@@ -73,6 +75,7 @@ export class TipsComponent implements OnInit {
       this.filteredTips = this.RTips.dataModel;
       this.processTips();
     }
+    this.preferenceData = this.preference.dataModel;
   }
 
   selectAll() {
