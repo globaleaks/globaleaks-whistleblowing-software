@@ -708,5 +708,9 @@
   "internal_tip_creation_date_years": "Year Creation",
   "internal_tip_file_count": "File Count",
   "internal_tip_comment_count": "Comment Count",
-  "internal_tip_receiver_count": "Receiver Count"
+  "internal_tip_receiver_count": "Receiver Count",
+  "Changes since last Backup": "Changes since last Backup",
+  "open": "Opened",
+  "close": "Closed",
+  "EO multitenant mode": "EO multitenant mode"
 }

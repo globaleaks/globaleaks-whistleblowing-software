@@ -755,5 +755,8 @@
   "internal_tip_file_count": "Numero File",
   "internal_tip_comment_count": "Numero Commenti",
   "internal_tip_receiver_count": "Numero Riceventi",
-  "Changes since last Backup": "Modifiche da ultimo Backup"
+  "Changes since last Backup": "Modifiche da ultimo Backup",
+  "open": "Aperto",
+  "close": "Chiuso",
+  "EO multitenant mode": "Modalità multitenant per Organizzazioni Esterne"
 }
