@@ -130,7 +130,7 @@ def get_base_stats(session, internal_tip_id):
         'internal_tip_file_count': count_files,
         'internal_tip_comment_count': count_comment,
         'internal_tip_receiver_count': count_receivers,
-        'forwarding_to_external_organization_tip_id': internal_tip_fw #internal_tip_fw.oe_internaltip_id if internal_tip_fw else None
+        'forwarding_to_external_organization_tip_id': internal_tip_fw #internal_tip_fw.eo_internaltip_id if internal_tip_fw else None
     }
 
 def transform_base_tip_into_statistical(base_tip: dict) -> list:
@@ -159,8 +159,8 @@ def get_model_and_field(is_external_organization):
 @transact
 def get_all_element(session, param_session, request):
     date_to, date_from = parse_dates(request)
-    is_oe = request.get('is_oe', False)
-    model, stat_field = get_model_and_field(is_oe)
+    is_eo = request.get('is_eo', False)
+    model, stat_field = get_model_and_field(is_eo)
 
     answers = session.query(getattr(model, stat_field), model.internaltip_id).filter(
         model.creation_date > date_from,

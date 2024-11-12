@@ -1,5 +1,5 @@
 export interface StatisticalRequestModel {
-    is_oe: boolean;
+    is_eo: boolean;
     date_from: string;
     date_to: string;
 }

@@ -9,10 +9,10 @@ import {Comment} from "@app/models/app/shared-public-model";
 import { Forwarding } from '@app/models/reciever/reciever-tip-data';
 
 @Component({
-  selector: 'src-tip-oe-comments',
-  templateUrl: './tip-oe-comments.component.html'
+  selector: 'src-tip-eo-comments',
+  templateUrl: './tip-eo-comments.component.html'
 })
-export class TipOeCommentsComponent {
+export class TipEoCommentsComponent {
   @Input() tipService: ReceiverTipService ;
   @Input() key: string;
   @Input() redactMode: boolean;

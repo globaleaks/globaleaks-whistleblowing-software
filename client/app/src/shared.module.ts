@@ -92,11 +92,11 @@ import { OrgUsersListComponent } from "@app/shared/partials/org-users-list/org-u
 import { CustomModalComponent } from "./shared/modals/custom-modal/custom-modal.component";
 import { SendtipFilesComponent } from "@app/shared/partials/sendtip-files/sendtip-files.component";
 import { SendTipFileUploadComponent } from "@app/shared/partials/sendtip-file-upload/sendtip-file-upload.component";
-import { TipOeListComponent } from "@app/shared/partials/tip-oe-list/tip-oe-list.component";
-import { TipOeFormComponent } from "@app/shared/partials/tip-oe-form/tip-oe-form.component";
-import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
-import { TipOeCommentsComponent } from "./shared/partials/tip-oe-comments/tip-oe-comments.component";
-import { TipOeRfilesReceiverComponent } from "./shared/partials/tip-oe-rfiles-receiver/tip-oe-rfiles-receiver.component";
+import { TipEoListComponent } from "@app/shared/partials/tip-eo-list/tip-eo-list.component";
+import { TipEoFormComponent } from "@app/shared/partials/tip-eo-form/tip-eo-form.component";
+import { SelectEODropdownComponent } from "@app/shared/partials/selecteo-dropdown/selecteo-dropdown.component";
+import { TipEoCommentsComponent } from "./shared/partials/tip-eo-comments/tip-eo-comments.component";
+import { TipEoRfilesReceiverComponent } from "./shared/partials/tip-eo-rfiles-receiver/tip-eo-rfiles-receiver.component";
 import { SendtipDetailQuestionnaireAnswersComponent } from "./shared/partials/sendtip-detail-questionnaire-answers/sendtip-detail-questionnaire-answers.component";
 import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-question-entry/tip-field-question-entry.component";
 
@@ -141,7 +141,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     DatePipe,
     ReceiptValidatorDirective,
     TipInfoComponent,
-    TipOeFormComponent,
+    TipEoFormComponent,
     TipQuestionnaireAnswersComponent,
     SendtipDetailQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
@@ -156,7 +156,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     RFileUploadButtonComponent,
     RFileUploadStatusComponent,
     TipCommentsComponent,
-    TipOeCommentsComponent,
+    TipEoCommentsComponent,
     LimitToPipe,
     OrderByPipe,
     TipReceiverListComponent,
@@ -185,8 +185,8 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     ConfirmationWith2faComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
-    TipOeRfilesReceiverComponent,
-    TipOeListComponent,
+    TipEoRfilesReceiverComponent,
+    TipEoListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,
     TipOperationSetReminderComponent,
@@ -216,7 +216,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     OtkcAccessComponent,
     OperationComponent,
     RedactInformationComponent,
-    SelectOEDropdownComponent,
+    SelectEODropdownComponent,
     DownloadConfirmationComponent,
     OrgInfoComponent,
     OrgRecipientInfoComponent,
@@ -236,7 +236,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     FilterPipe,
     OrderByPipe,
     TipInfoComponent,
-    TipOeFormComponent,
+    TipEoFormComponent,
     TipQuestionnaireAnswersComponent,
     SendtipDetailQuestionnaireAnswersComponent,
     TipAdditionalQuestionnaireInviteComponent,
@@ -244,7 +244,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     TipFilesWhistleblowerComponent,
     WidgetWbFilesComponent,
     TipCommentsComponent,
-    TipOeCommentsComponent,
+    TipEoCommentsComponent,
     TipReceiverListComponent,
     RFileUploadStatusComponent,
     RFileUploadButtonComponent,
@@ -265,8 +265,8 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     DateRangeSelectorComponent,
     TipOperationFileIdentityAccessRequestComponent,
     TipFilesReceiverComponent,
-    TipOeRfilesReceiverComponent,
-    TipOeListComponent,
+    TipEoRfilesReceiverComponent,
+    TipEoListComponent,
     SendtipFilesComponent,
     SendTipFileUploadComponent,
     TipOperationSetReminderComponent,
@@ -292,7 +292,7 @@ import { TipFieldQuestionEntryComponent } from "./shared/partials/tip-field-ques
     OtkcAccessComponent,
     OperationComponent,
     RedactInformationComponent,
-    SelectOEDropdownComponent,
+    SelectEODropdownComponent,
     OrgInfoComponent,
     OrgRecipientInfoComponent,
     OrgAdminInfoComponent,

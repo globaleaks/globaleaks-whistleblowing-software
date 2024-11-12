@@ -134,7 +134,7 @@ export class AccredComponent implements OnInit{
         });
       }
       else
-        this.httpService.requestUpdateOEAccredited(this.org_id, {tos2: this.privacyAccept}).subscribe(_=> {
+        this.httpService.requestUpdateEOAccredited(this.org_id, {tos2: this.privacyAccept}).subscribe(_=> {
           this.openConfirmModal();
       })
     }

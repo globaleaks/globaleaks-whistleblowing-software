@@ -49,7 +49,7 @@ export class RecieverTipData {
   motivation: string;
   redactions: RedactionData[];
   forwardings: Forwarding[];
-  max_oe_to_whistleblower_comments: number;
+  max_eo_to_whistleblower_comments: number;
 }
 
 export interface Questionnaire {

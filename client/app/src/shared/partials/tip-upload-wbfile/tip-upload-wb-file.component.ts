@@ -37,7 +37,7 @@ export class TipUploadWbFileComponent{
 
   getFilteredAndSortedFiles(files: RFile[]): RFile[] {
 
-    if(this.key === 'oe')
+    if(this.key === 'eo')
       return files
                 .filter(file => file.visibility === this.key)
                 .filter(file => this.organizations.map(_=>_.files).flat().some(i => i?.id === file.id))

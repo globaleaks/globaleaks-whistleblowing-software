@@ -82,11 +82,11 @@ export class SendtipFilesComponent implements OnInit {
       case 'public':
       case 'internal':
         return 'recipient'
-      case 'oe':
+      case 'eo':
         if (authorType === 'main') {
           return 'recipient';
         } else {
-          return 'oe';
+          return 'eo';
         }
       default:
         return 'UNKNOWN';

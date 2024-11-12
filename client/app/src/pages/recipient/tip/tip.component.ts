@@ -30,7 +30,7 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService} from "@ngx-translate/core";
-import { SelectOEDropdownComponent } from "@app/shared/partials/selectoe-dropdown/selectoe-dropdown.component";
+import { SelectEODropdownComponent } from "@app/shared/partials/selecteo-dropdown/selecteo-dropdown.component";
 import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 
 
@@ -42,7 +42,7 @@ export class TipComponent implements OnInit {
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
-  @ViewChild("tab4") tab4!: TemplateRef<SelectOEDropdownComponent | TipUploadWbFileComponent | TipCommentsComponent>;
+  @ViewChild("tab4") tab4!: TemplateRef<SelectEODropdownComponent | TipUploadWbFileComponent | TipCommentsComponent>;
 
   tip_id: string | null;
   tip: RecieverTipData;
@@ -55,7 +55,7 @@ export class TipComponent implements OnInit {
   redactOperationTitle: string;
   tabs: Tab[];
   organizationList: Forwarding[] = [];
-  selectedOe: Forwarding[] = [];  
+  selectedEo: Forwarding[] = [];  
   selectedMap: number[] = []
 
   protected readonly JSON = JSON;
@@ -95,7 +95,7 @@ export class TipComponent implements OnInit {
           this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
           
           if(this.tip.forwardings && this.tip.forwardings.length > 0 && this.organizationList.length == 0)
-            this.getForwardedOEList(this.tip.forwardings);
+            this.getForwardedEOList(this.tip.forwardings);
           
           this.initNavBar()
         }
@@ -104,7 +104,7 @@ export class TipComponent implements OnInit {
   }
 
 
-  getForwardedOEList(forwardings: Forwarding[]){
+  getForwardedEOList(forwardings: Forwarding[]){
 
     let allForw = new Forwarding();
     allForw.tid=0;
@@ -401,14 +401,14 @@ export class TipComponent implements OnInit {
   }
 
   selectOrganization(org: Forwarding){
-    this.selectedOe = [];
+    this.selectedEo = [];
     
     if(org.tid != 0)
-      this.selectedOe.push(org);
+      this.selectedEo.push(org);
     else
-      this.selectedOe = this.organizationList.slice(1);
+      this.selectedEo = this.organizationList.slice(1);
 
-    this.selectedMap = this.selectedOe.map(_=> _.tid)
+    this.selectedMap = this.selectedEo.map(_=> _.tid)
   }
   
 
@@ -418,7 +418,7 @@ export class TipComponent implements OnInit {
   }
 
   navChanged(){
-    this.selectedOe = [];
+    this.selectedEo = [];
   }
 
 }

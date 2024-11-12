@@ -31,10 +31,10 @@ import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submiss
 import {TranslateService} from "@ngx-translate/core";
 
 @Component({
-  selector: "src-tip-oe",
-  templateUrl: "./tip-oe.component.html",
+  selector: "src-tip-eo",
+  templateUrl: "./tip-eo.component.html",
 })
-export class TipOeComponent implements OnInit {
+export class TipEoComponent implements OnInit {
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;

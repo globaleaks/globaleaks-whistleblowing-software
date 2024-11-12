@@ -9,7 +9,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import { AccreditationRequestComponent } from "@app/pages/recipient/accreditation-request/accreditation-request.component";
 import { RecipientRoutingGuard } from "./recipient.guard";
-import { TipOeComponent } from "./tip-oe/tip-oe.component";
+import { TipEoComponent } from "./tip-eo/tip-eo.component";
 import { TipComponent } from "./tip/tip.component";
 
 const routes: Routes = [
@@ -80,8 +80,8 @@ const routes: Routes = [
     component: TipComponent,
   },
   {
-    path: 'tip-oe/:tip_id',
-    component: TipOeComponent,
+    path: 'tip-eo/:tip_id',
+    component: TipEoComponent,
   }
 ];
 

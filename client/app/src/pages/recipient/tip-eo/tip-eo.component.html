@@ -81,8 +81,8 @@
                 <src-sendtip-detail-questionnaire-answers *ngIf="tip.status==='closed'" [questionnaire]="tip.questionnaires[0]" 
                  [label]="'Form Istruttoria'"></src-sendtip-detail-questionnaire-answers>
 
-                <src-tip-oe-form *ngIf="tip.status!=='closed'" (notifyFileUpload)="notifyFileUpload($event)" 
-                (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [displayErrors]="true"></src-tip-oe-form>
+                <src-tip-eo-form *ngIf="tip.status!=='closed'" (notifyFileUpload)="notifyFileUpload($event)" 
+                (sumbitFormEvent)="closeForwardedReport()" [fields]="questionnaireData.reviewFormFields" [fieldAnswers]="answers" [tipStatus]="tip.status" [displayErrors]="true"></src-tip-eo-form>
 
         </div>
     </div>                  
@@ -113,10 +113,10 @@
         <ng-template #tab2>
             <div class="col-md-12">
 
-                <src-tip-oe-rfiles-receiver [key]="'oe'"></src-tip-oe-rfiles-receiver>
+                <src-tip-eo-rfiles-receiver [key]="'eo'"></src-tip-eo-rfiles-receiver>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [key]="'oe'" [tids]="[preferencesService.dataModel.tid]" 
+                    <src-tip-comments [tipService]="RTipService" [key]="'eo'" [tids]="[preferencesService.dataModel.tid]" 
                     [maximum_number]="preferencesService.dataModel.t_affiliated ? preferencesService.dataModel.max_msg_external_to_whistle : preferencesService.dataModel.max_msg_external_to_whistle_not_aff"></src-tip-comments>
                 </ng-container>
             </div>

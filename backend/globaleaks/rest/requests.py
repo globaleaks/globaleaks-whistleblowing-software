@@ -127,7 +127,7 @@ SubmissionDesc = {
 StatisticalInterestTable = {
     'date_from': DateType,
     'date_to': DateType,
-    'is_oe': bool
+    'is_eo': bool
 }
 
 AdminUserDesc = {

@@ -5,7 +5,7 @@
             <select id="reportType" name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
                 <option value="" disabled>{{ 'Select report type' | translate }}</option>
                 <option value="tips">{{ 'Tips' | translate }}</option>
-                <option *ngIf="preferenceData.external_organization_activation" value="tipsOE">{{ 'Tips EO' | translate }}</option>
+                <option *ngIf="preferenceData.external_organization_activation" value="tipsEO">{{ 'Tips EO' | translate }}</option>
             </select>
             <div *ngIf="reportSelect.invalid && reportSelect.touched" class="text-danger">
                 {{ 'This field is required' | translate }}

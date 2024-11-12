@@ -13,7 +13,7 @@ export class RecipientRoutingGuard {
         const isExternal = this.preference.dataModel.t_external;
     
         if (isExternal) {
-            return this.router.parseUrl(`/recipient/tip-oe/${route.params["tip_id"]}`);
+            return this.router.parseUrl(`/recipient/tip-eo/${route.params["tip_id"]}`);
         } else {
             return this.router.parseUrl(`/recipient/tip/${route.params["tip_id"]}`);
         }

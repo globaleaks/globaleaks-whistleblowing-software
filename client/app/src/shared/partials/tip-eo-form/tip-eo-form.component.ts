@@ -3,10 +3,10 @@ import { NgForm } from "@angular/forms";
 import { FieldUtilitiesService } from "@app/shared/services/field-utilities.service";
 
 @Component({
-  selector: "src-tip-oe-form",
-  templateUrl: "./tip-oe-form.component.html"
+  selector: "src-tip-eo-form",
+  templateUrl: "./tip-eo-form.component.html"
 })
-export class TipOeFormComponent{
+export class TipEoFormComponent{
 
   @Input() fields: any;
   

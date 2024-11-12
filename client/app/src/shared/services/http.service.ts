@@ -448,15 +448,15 @@ export class HttpService {
     return this.httpClient.put<RedactionData>("api/recipient/redactions/"+ data.id, data);
   }
 
-  requestAccreditationOE(data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
+  requestAccreditationEO(data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
     return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request", data);
   }
 
-  requestAccreditationFromInviteOE(uuid: string, data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
+  requestAccreditationFromInviteEO(uuid: string, data:AccreditationSubscriberModel): Observable<AccreditationSubscriberModel> {
     return this.httpClient.post<AccreditationSubscriberModel>("api/accreditation/request/"+uuid+"/confirm_invited", data);
   }
 
-  requestUpdateOEAccredited(uuid: string, data: any) : Observable<any>{
+  requestUpdateEOAccredited(uuid: string, data: any) : Observable<any>{
     return this.httpClient.post<any>("api/accreditation/request/"+uuid+"/accredited", data);
   }
 

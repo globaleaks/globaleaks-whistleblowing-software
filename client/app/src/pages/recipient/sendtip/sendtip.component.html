@@ -13,10 +13,10 @@
             <span>{{'Select External Organization'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
-            <src-selectoe-dropdown [organizations]="organizations" (dataToParent)="addOrganization($event)"></src-selectoe-dropdown>
+            <src-selecteo-dropdown [organizations]="organizations" (dataToParent)="addOrganization($event)"></src-selecteo-dropdown>
           </div>
         </div>
-        <div class="row" id="selected-oe">
+        <div class="row" id="selected-eo">
           <div class="col-12">
               <button *ngFor="let org of selectedOrganizations" class="btn btn-outline-secondary" style="margin-right: 10px;">
                 <i class="fa-solid fa-times text-danger" (click)="removeOrganization(org.tid)"></i>
@@ -33,7 +33,7 @@
           <div class="col-md-12 mt-2">
             <button class="btn btn-sm btn-primary" id="add-organization"  (click)="utilsService.go('/recipient/accreditation')">
               <i class="fa-solid fa-check"></i>
-              <span>{{ 'Register OE' | translate }}</span>
+              <span>{{ 'Register EO' | translate }}</span>
             </button>
           </div>
         </div>

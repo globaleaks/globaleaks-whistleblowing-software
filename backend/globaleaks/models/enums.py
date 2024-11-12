@@ -44,7 +44,7 @@ class EnumVisibility(_Enum):
     public = 0
     internal = 1
     personal = 2
-    oe = 3
+    eo = 3
     whistleblower = 4
 
 
@@ -74,4 +74,4 @@ class EnumForwardingState(_Enum):
     
 class EnumAuthorType(_Enum):
     main = 0
-    oe = 1
+    eo = 1

@@ -62,9 +62,9 @@
 
     <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" [canDownloadInfected]="preferencesService.dataModel.can_download_infected" [isSelectable]="false" [forwardingDetailFiles]="detail.files"></sendtip-files>
 
-    <src-tip-upload-wbfile *ngIf="detail && detail.state !== 'closed'" [tip]="tip" [key]="'oe'" [organizations]="[detail]" [onlyNew]="true" ></src-tip-upload-wbfile>
+    <src-tip-upload-wbfile *ngIf="detail && detail.state !== 'closed'" [tip]="tip" [key]="'eo'" [organizations]="[detail]" [onlyNew]="true" ></src-tip-upload-wbfile>
 
-    <src-tip-oe-comments  *ngIf="tip" [tipService]="RTipService" [key]="'oe'"  [organizations]="[detail]" ></src-tip-oe-comments>
+    <src-tip-eo-comments  *ngIf="tip" [tipService]="RTipService" [key]="'eo'"  [organizations]="[detail]" ></src-tip-eo-comments>
   
   </div>
 </div>

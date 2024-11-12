@@ -115,7 +115,7 @@
     
     <div class="row" *ngIf="tip && tip.forwardings && preferenceData.external_organization_activation">
         <div class="col-md-12">
-            <src-tip-oe-list [forwardings]="tip.forwardings" (dataToParent)="goToSendtipDetail($event)"></src-tip-oe-list>
+            <src-tip-eo-list [forwardings]="tip.forwardings" (dataToParent)="goToSendtipDetail($event)"></src-tip-eo-list>
         </div>
     </div>
 
@@ -173,15 +173,15 @@
                     <span>{{'Select External Organization'|translate}}:</span>
                 </div>
                 <div class="col-md-4" style="padding-bottom: 1em;">
-                    <src-selectoe-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selectoe-dropdown>
+                    <src-selecteo-dropdown [organizations]="organizationList" (dataToParent)="selectOrganization($event)"></src-selecteo-dropdown>
                 </div>
                 
-                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()" [canUpload]="selectedOe && selectedOe.length == 1 ? selectedOe[0].state !== 'closed' : true"
-                    [key]="'oe'" [organizations]="selectedOe"></src-tip-upload-wbfile>
+                <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()" [canUpload]="selectedEo && selectedEo.length == 1 ? selectedEo[0].state !== 'closed' : true"
+                    [key]="'eo'" [organizations]="selectedEo"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-oe-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
-                        [redactMode]="redactMode" [key]="'oe'" [organizations]="selectedOe" (commentAdded)="reload()"></src-tip-oe-comments>
+                    <src-tip-eo-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"
+                        [redactMode]="redactMode" [key]="'eo'" [organizations]="selectedEo" (commentAdded)="reload()"></src-tip-eo-comments>
                 </ng-container>
             </div>
         </ng-template>

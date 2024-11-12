@@ -317,7 +317,7 @@ def serialize_rtip(session, itip, rtip, language):
     internaltip_forwardings = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip.id).all()
     for internaltip_forwarding in internaltip_forwardings:
         forwarding = dict()
-        forwarding['id'] = internaltip_forwarding.oe_internaltip_id
+        forwarding['id'] = internaltip_forwarding.eo_internaltip_id
         forwarding['tid'] = internaltip_forwarding.tid
         forwarding['name'] = db_get(session, models.Config, (models.Config.tid == internaltip_forwarding.tid, models.Config.var_name == 'name')).value
         forwarding['state'] = internaltip_forwarding.state
@@ -361,7 +361,7 @@ def serialize_rtip(session, itip, rtip, language):
 
 def serialize_wbtip(session, itip, language):
     ret = serialize_itip(session, itip, language)
-    ret['max_oe_to_whistleblower_comments'] = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
+    ret['max_eo_to_whistleblower_comments'] = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
     for receiver in session.query(models.User) \
                            .filter(models.User.id == models.ReceiverTip.receiver_id,
                                    models.ReceiverTip.internaltip_id == itip.id):

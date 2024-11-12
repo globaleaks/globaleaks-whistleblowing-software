@@ -3,10 +3,10 @@ import { Forwarding } from "@app/models/reciever/reciever-tip-data";
 import {UtilsService} from "@app/shared/services/utils.service";
 
 @Component({
-  selector: "src-tip-oe-list",
-  templateUrl: "./tip-oe-list.component.html"
+  selector: "src-tip-eo-list",
+  templateUrl: "./tip-eo-list.component.html"
 })
-export class TipOeListComponent {
+export class TipEoListComponent {
 
   @Input() forwardings: Forwarding[]
 

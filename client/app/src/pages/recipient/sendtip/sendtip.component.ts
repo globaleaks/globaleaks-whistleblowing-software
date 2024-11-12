@@ -68,10 +68,10 @@ export class SendtipComponent implements OnInit {
   }
 
 
-  addOrganization(oe_id: Forwarding) {
+  addOrganization(eo_id: Forwarding) {
 
-    if (oe_id) {
-      const selected = this.organizations.find(org => org.tid == oe_id.tid);
+    if (eo_id) {
+      const selected = this.organizations.find(org => org.tid == eo_id.tid);
       if (selected && !this.selectedOrganizations.includes(selected)) {
         this.selectedOrganizations.push(selected);
         this.sendTipRequest.tids.push(selected.tid)
@@ -79,9 +79,9 @@ export class SendtipComponent implements OnInit {
     }
   }
 
-  removeOrganization(oe_id: number) {
-    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.tid != oe_id);
-    this.sendTipRequest.tids = this.sendTipRequest.tids.filter(org => org != oe_id);
+  removeOrganization(eo_id: number) {
+    this.selectedOrganizations = this.selectedOrganizations.filter(org => org.tid != eo_id);
+    this.sendTipRequest.tids = this.sendTipRequest.tids.filter(org => org != eo_id);
   }
 
   selectReviewForm(event: Event) {
@@ -137,7 +137,7 @@ export class SendtipComponent implements OnInit {
       if (file.file) {
         flowJsInstance.opts.query = {
           description: file.description,
-          visibility: 'oe',
+          visibility: 'eo',
           fileSizeLimit: fileSizeLimit,
           tids: "[" + this.selectedOrganizations.map(_ => _.tid).toString() + "]"
         };

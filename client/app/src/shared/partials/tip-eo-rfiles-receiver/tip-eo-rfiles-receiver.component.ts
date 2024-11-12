@@ -5,10 +5,10 @@ import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
 import { UtilsService } from '@app/shared/services/utils.service';
 
 @Component({
-  selector: 'src-tip-oe-rfiles-receiver',
-  templateUrl: './tip-oe-rfiles-receiver.component.html'
+  selector: 'src-tip-eo-rfiles-receiver',
+  templateUrl: './tip-eo-rfiles-receiver.component.html'
 })
-export class TipOeRfilesReceiverComponent {
+export class TipEoRfilesReceiverComponent {
 
   @Input() key: string;
 

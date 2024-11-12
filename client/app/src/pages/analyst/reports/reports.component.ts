@@ -170,7 +170,7 @@ export class ReportsComponent implements OnInit {
             const dateTo = this.fromNgbDateToString(this.input_end_date);
 
             const bodyReq: StatisticalRequestModel = {
-                is_oe: this.reportType === 'tipsOE',
+                is_eo: this.reportType === 'tipEO',
                 date_from: dateFrom,
                 date_to: dateTo
             };

@@ -17,7 +17,7 @@ import {
 } from "@app/pages/recipient/whistleblower-identity-reciever/whistle-blower-identity-receiver.component";
 import {NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import { SendtipDetailComponent } from "@app/pages/recipient/sendtip-detail/sendtip-detail.component";
-import { TipOeComponent } from "./tip-oe/tip-oe.component";
+import { TipEoComponent } from "./tip-eo/tip-eo.component";
 import { AccreditationRequestComponent } from "@app/pages/recipient/accreditation-request/accreditation-request.component";
 import { RecipientRoutingModule } from "./recipient-routing.module";
 import { RecipientRoutingGuard } from "./recipient.guard";
@@ -28,7 +28,7 @@ import { RecipientRoutingGuard } from "./recipient.guard";
     SidebarComponent,
     TipsComponent,
     TipComponent,
-    TipOeComponent,
+    TipEoComponent,
     SendtipComponent,
     SendtipDetailComponent,
     SettingsComponent,

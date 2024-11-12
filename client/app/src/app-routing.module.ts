@@ -15,7 +15,7 @@ import {ActivationComponent} from "@app/pages/signup/templates/activation/activa
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {TipComponent} from "@app/pages/recipient/tip/tip.component";
-import { TipOeComponent } from "@app/pages/recipient/tip-oe/tip-oe.component";
+import { TipEoComponent } from "@app/pages/recipient/tip-eo/tip-eo.component";
 import {TitleResolver} from "@app/shared/resolvers/title-resolver.resolver";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 import {BlankComponent} from "@app/shared/blank/blank.component";
@@ -175,12 +175,12 @@ const routes: Routes = [
     pathMatch: "full",
   },
   {
-    path: "reports-oe/:tip_id",
+    path: "reports-eo/:tip_id",
     data: {pageTitle: "Report"},
     resolve: {
       PreferenceResolver,
     },
-    component: TipOeComponent,
+    component: TipEoComponent,
     canActivate: [SessionGuard],
     pathMatch: "full",
   },

@@ -21,7 +21,7 @@ from globaleaks.rest import requests, errors
 def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id, questionnaire_hash):
     internaltip_forwarding = models.InternalTipForwarding()
     internaltip_forwarding.internaltip_id = original_itip_id
-    internaltip_forwarding.oe_internaltip_id = forwarded_itip.id
+    internaltip_forwarding.eo_internaltip_id = forwarded_itip.id
     internaltip_forwarding.tid = tid
     internaltip_forwarding.creation_date = forwarded_itip.creation_date
     internaltip_forwarding.update_date = forwarded_itip.update_date
@@ -39,7 +39,7 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
 
     file_forwarding = models.ContentForwarding()
     file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
-    file_forwarding.oe_content_id = file.id
+    file_forwarding.eo_content_id = file.id
     file_forwarding.content_id = original_file_id
     file_forwarding.author_type = models.EnumAuthorType.main.value
     if isinstance(file, models.ReceiverFile):
@@ -172,7 +172,7 @@ class CloseForwardedSubmission(BaseHandler):
                               models.InternalTipAnswers.internaltip_id == itip.id)
 
         internaltip_forwarding = session.query(models.InternalTipForwarding)\
-            .filter(models.InternalTipForwarding.tid == itip.tid, models.InternalTipForwarding.oe_internaltip_id == itip.id)\
+            .filter(models.InternalTipForwarding.tid == itip.tid, models.InternalTipForwarding.eo_internaltip_id == itip.id)\
             .one_or_none()
 
         if (internaltip_forwarding is None):
@@ -256,14 +256,14 @@ class ForwardSubmission(BaseHandler):
                     source_internalfile.id, source_prv_key)
                 new_file = copy_internalfile(
                     session, destination_itip, source_internalfile, source_prv_key, destination_id)
-        elif file['origin'] in ('recipient', 'oe'):
+        elif file['origin'] in ('recipient', 'eo'):
             source_rfile = db_get(
                 session, models.ReceiverFile, models.ReceiverFile.id == file['id'])
             if source_rfile is not None:
                 destination_id = self.fs_copy_file(
                     source_rfile.id, source_prv_key)
                 new_file = copy_receiverfile(
-                    session, destination_itip, source_rfile, source_prv_key, models.EnumVisibility.oe.name, destination_id)
+                    session, destination_itip, source_rfile, source_prv_key, models.EnumVisibility.eo.name, destination_id)
         elif file['origin'] == 'new':
             new_file = db_get(session, models.ReceiverFile,
                               models.ReceiverFile.id == file['id'])
