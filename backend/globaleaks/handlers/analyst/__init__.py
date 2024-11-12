@@ -103,10 +103,6 @@ def get_base_stats(session, internal_tip_id):
     internal_tip = session.query(models.InternalTip).filter(
         models.InternalTip.id == internal_tip_id
     ).one_or_none()
-    internal_tip_fw = None
-    """session.query(models.InternalTipForwarding).filter(
-        models.InternalTipForwarding.internaltip_id == internal_tip_id
-    ).one_or_none()"""
     count_comment = session.query(
         func.count(distinct(models.Comment.id))).filter(
         models.Comment.internaltip_id == internal_tip_id,
@@ -130,7 +126,6 @@ def get_base_stats(session, internal_tip_id):
         'internal_tip_file_count': count_files,
         'internal_tip_comment_count': count_comment,
         'internal_tip_receiver_count': count_receivers,
-        'forwarding_to_external_organization_tip_id': internal_tip_fw #internal_tip_fw.eo_internaltip_id if internal_tip_fw else None
     }
 
 def transform_base_tip_into_statistical(base_tip: dict) -> list:
