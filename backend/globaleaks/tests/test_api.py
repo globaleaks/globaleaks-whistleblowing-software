@@ -16,7 +16,7 @@ class TestAPI(TestGL):
 
         self.api = api.APIResourceWrapper()
 
-        yield tw(db_update_enabled_languages, 1, ['en', 'ar', 'it'], 'en')
+        yield tw(db_update_enabled_languages, 1, ['en', 'ar'], 'en')
         yield refresh_tenant_cache()
 
     def test_api_spec(self):
@@ -36,7 +36,8 @@ class TestAPI(TestGL):
                                                    'admin',
                                                    'analyst',
                                                    'receiver',
-                                                   'custodian'], check_roles))
+                                                   'custodian',
+                                                   'accreditor'], check_roles))
             self.assertTrue(len(rest) == 0)
 
     def test_get_with_no_accept_language_header(self):
