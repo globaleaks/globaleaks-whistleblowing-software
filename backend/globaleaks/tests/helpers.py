@@ -1042,7 +1042,7 @@ class TestCollectionHandler(TestHandler):
 
         data = self.get_dummy_request()
 
-        yield self._test_desc['create'](1, self.session, data, 'en')
+        yield self._test_desc['create'](1, self.session, data, 'en', wizard=True)
 
         handler = self.request(role='admin')
 
@@ -1065,7 +1065,8 @@ class TestCollectionHandler(TestHandler):
             data = yield handler.post()
 
             for k, v in self._test_desc['data'].items():
-                self.assertEqual(data[k], v)
+                if k != 'wizard':
+                    self.assertEqual(data[k], v)
 
 
 class TestInstanceHandler(TestHandler):

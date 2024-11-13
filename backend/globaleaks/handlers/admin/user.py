@@ -249,7 +249,13 @@ class UsersCollection(BaseHandler):
             logging.debug(e)
             request['fiscal_code'] = None
 
-        user = yield create_user(self.request.tid, self.session, request, self.request.language)
+        try:
+            wizard = json.loads(body).get('wizard')
+        except Exception as e:
+            logging.debug(e)
+            wizard = False
+
+        user = yield create_user(self.request.tid, self.session, request, self.request.language, wizard)
 
         return user
 

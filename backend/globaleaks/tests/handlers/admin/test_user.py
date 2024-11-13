@@ -13,7 +13,8 @@ class TestAdminCollection(helpers.TestCollectionHandler):
             'role': 'admin',
             'name': 'Mario Rossi',
             'mail_address': 'admin@theguardian.com',
-            'language': 'en'
+            'language': 'en',
+            'wizard': True
         }
     }
 
