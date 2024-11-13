@@ -321,7 +321,7 @@ class MockDict:
             'rootdomain': 'antani.gov',
             'email': 'email@dummy.net',
             'languages_supported': [],  # ignored
-            'languages_enabled': ['it', 'en'],
+            'languages_enabled': ['en'],
             'latest_version': __version__,
             'receipt_salt': '<<the Lannisters send their regards>>',
             'maximum_filesize': 30,
@@ -370,7 +370,12 @@ class MockDict:
             'custom_support_url': '',
             'pgp': False,
             'user_privacy_policy_text': '',
-            'user_privacy_policy_url': ''
+            'user_privacy_policy_url': '',
+            'backup_enable': True,
+            'backup_time_ISO_8601': '',
+            'backup_destination_path': '',
+            'url_file_analysis': '',
+            'external_organization_activation': True
         }
 
         self.dummyNetwork = {
