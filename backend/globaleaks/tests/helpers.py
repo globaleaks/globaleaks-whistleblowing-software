@@ -1042,7 +1042,10 @@ class TestCollectionHandler(TestHandler):
 
         data = self.get_dummy_request()
 
-        yield self._test_desc['create'](1, self.session, data, 'en', wizard=True)
+        if 'test_user' in str(type(self)):
+            yield self._test_desc['create'](1, self.session, data, 'en', wizard=True)
+        else:
+            yield self._test_desc['create'](1, self.session, data, 'en')
 
         handler = self.request(role='admin')
 
