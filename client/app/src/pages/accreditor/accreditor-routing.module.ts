@@ -14,7 +14,7 @@ const routes: Routes = [
     component: AccreditorHomeComponent,
     pathMatch: "full",
     resolve: {
-      AccreditationReqResolver
+      AccreditationReqResolver, PreferenceResolver
     },
     data: {pageTitle: "Home"},
   },
@@ -23,7 +23,7 @@ const routes: Routes = [
     component: AccreditorHomeComponent,
     pathMatch: "full",
     resolve: {
-      AccreditationReqResolver
+      AccreditationReqResolver, PreferenceResolver
     },
     data: { pageTitle: "Home"},
   },
