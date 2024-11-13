@@ -174,7 +174,7 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
         answers = base64.b64encode(GCE.asymmetric_encrypt(
             itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers)
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, '')
 
     db_notify_recipients_of_tip_update(session, itip.id)
 
@@ -321,13 +321,11 @@ class ReceiverFileDownload(BaseHandler):
 
     @transact
     def download_rfile(self, session, tid, file_id):
-        rfile, wbtip, can_download_infected = db_get(session,
-                                                     (models.ReceiverFile, models.InternalTip,
-                                                      models.User.can_download_infected),
-                                                     (models.ReceiverFile.id == file_id,
-                                                      models.User.id == self.session.user_id,
-                                                      models.ReceiverFile.internaltip_id == models.InternalTip.id,
-                                                      models.InternalTip.id == self.session.user_id))
+        rfile, wbtip = db_get(session,
+                                     (models.ReceiverFile, models.InternalTip),
+                                     (models.ReceiverFile.id == file_id,
+                                      models.ReceiverFile.internaltip_id == models.InternalTip.id,
+                                      models.InternalTip.id == self.session.user_id))
 
         if not wbtip:
             raise errors.ResourceNotFound
@@ -340,7 +338,7 @@ class ReceiverFileDownload(BaseHandler):
         db_log(session, tid=tid, type='whistleblower_download_rfile',
                user_id=self.session.user_id, object_id=file_id)
 
-        return rfile.name, rfile.id, base64.b64decode(wbtip.crypto_tip_prv_key), '', rfile.state, can_download_infected
+        return rfile.name, rfile.id, base64.b64decode(wbtip.crypto_tip_prv_key), '', rfile.state, True
 
     @inlineCallbacks
     def get(self, rfile_id):

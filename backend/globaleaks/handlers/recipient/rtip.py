@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Handlers dealing with tip interface for receivers (rtip)
+import ast
 import base64
 import copy
 import json
@@ -1571,7 +1572,15 @@ class ReceiverFileUpload(BaseHandler):
     @transact
     def forward_file(self, session, rfile_id, itip_id, visibility):
         if b'tids' in self.request.args:
-            tids = eval(self.request.args.get(b"tids", [])[0].decode())
+            try:
+                tids = ast.literal_eval(self.request.args.get(b"tids", [])[0].decode())
+                if not isinstance(tids, list):
+                    raise ValueError('is not a list')
+            except Exception as e:
+                logging.debug(e)
+                tids = []
+        else:
+            tids = []
 
         rtip = db_get(session, models.ReceiverTip, (models.ReceiverTip.receiver_id == self.session.user_id,
                                                         models.ReceiverTip.internaltip_id == itip_id))
