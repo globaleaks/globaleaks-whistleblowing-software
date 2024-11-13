@@ -78,7 +78,7 @@
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="true">
+                        <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="!org_id">
                         <div class="text-danger" *ngIf="adminFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
 
