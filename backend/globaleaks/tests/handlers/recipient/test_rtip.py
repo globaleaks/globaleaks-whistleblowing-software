@@ -321,7 +321,8 @@ class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     def test_post(self):
         body = {
             'content': "can you provide an evidence of what you are telling?",
-            'visibility': "public"
+            'visibility': "public",
+            'tids': []
         }
 
         rtip_descs = yield self.get_rtips()
