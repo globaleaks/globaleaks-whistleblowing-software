@@ -8,6 +8,7 @@ import { HttpService } from "@app/shared/services/http.service";
 import { UtilsService } from "@app/shared/services/utils.service";
 import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
+import { formatDate } from "@angular/common";
 
 @Component({
     selector: "src-reports",
@@ -100,6 +101,8 @@ export class ReportsComponent implements OnInit {
     summaryKeys: { id: string, label: string }[] = [];
 
     preferenceData: preferenceResolverModel;
+
+    patternDate = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
     
     constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService,
         protected utils: UtilsService, protected preference: PreferenceResolver) {}
@@ -170,7 +173,7 @@ export class ReportsComponent implements OnInit {
             const dateTo = this.fromNgbDateToString(this.input_end_date);
 
             const bodyReq: StatisticalRequestModel = {
-                is_eo: this.reportType === 'tipEO',
+                is_eo: this.reportType === 'tipsEO',
                 date_from: dateFrom,
                 date_to: dateTo
             };
@@ -204,7 +207,6 @@ export class ReportsComponent implements OnInit {
             this.allResults = res.results;
 
             this.populateTableHeaders(this.allResults);
-            console.log("Table Headers:", this.tableHeaders);
             this.populateTableRows(this.allResults);
 
             this.summary = res.summary;
@@ -246,7 +248,11 @@ export class ReportsComponent implements OnInit {
                 updateDate = value;
                 row[entry.id] = updateDate;
             } else {
-                row[entry.label] = value;
+                if (this.patternDate.test(value)) {
+                    row[entry.label] = formatDate(new Date(value), 'dd-MM-yyyy', 'en-US');
+                } else {
+                    row[entry.label] = value;
+                }
             }
         });
     
@@ -487,7 +493,10 @@ export class ReportsComponent implements OnInit {
         }
         
         const labels = Object.keys(data).map(key => {
-            const translatedKey = this.translateService.instant(`${key}`);
+            let translatedKey = this.translateService.instant(key);
+            if (this.patternDate.test(String(translatedKey))) {
+                translatedKey = formatDate(new Date(translatedKey), 'dd-MM-yyyy', 'en-US');
+            }
             return `${translatedKey}: ${data[key]}`;
         });
         const values = Object.values(data);
