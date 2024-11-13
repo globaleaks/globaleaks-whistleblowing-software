@@ -1601,8 +1601,12 @@ class ReceiverFileUpload(BaseHandler):
     @inlineCallbacks
     def process(self, tid, user_id, itip_id, uploaded_file):
         ret = yield self.upload_file(tid, user_id, itip_id, uploaded_file)
+
+        if not isinstance(uploaded_file.get('visibility'), int):
+            uploaded_file['visibility'] = uploaded_file['visibility'].decode()
+
         deferToThread(
-            self.forward_file, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'].decode())
+            self.forward_file, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'])
         return ret
 
     def post(self, itip_id):
