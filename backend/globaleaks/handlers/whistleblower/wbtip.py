@@ -18,7 +18,7 @@ from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers, EnumStateFile
 from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import db_get, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import Base64Encoder, GCE
@@ -38,14 +38,15 @@ def db_notify_report_update(session, user, rtip, itip):
     :param itip: A itip ORM object
     """
     data = {
-      'type': 'tip_update',
-      'user': user_serialize_user(session, user, user.language),
-      'node': db_admin_serialize_node(session, user.tid, user.language),
-      'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
+        'type': 'tip_update',
+        'user': user_serialize_user(session, user, user.language),
+        'node': db_admin_serialize_node(session, user.tid, user.language),
+        'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
     }
 
     if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
+        data['notification'] = db_get_notification(
+            session, user.tid, user.language)
     else:
         data['notification'] = db_get_notification(session, 1, user.language)
 
@@ -58,6 +59,7 @@ def db_notify_report_update(session, user, rtip, itip):
         'tid': user.tid
     }))
 
+
 def db_notify_recipients_of_tip_update(session, itip_id):
     for user, rtip, itip in session.query(models.User, models.ReceiverTip, models.InternalTip) \
                                    .filter(models.User.id == models.ReceiverTip.receiver_id,
@@ -67,7 +69,8 @@ def db_notify_recipients_of_tip_update(session, itip_id):
 
 
 def db_get_wbtip(session, itip_id, language):
-    itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
+    itip = db_get(session, models.InternalTip,
+                  models.InternalTip.id == itip_id)
 
     itip.last_access = datetime_now()
 
@@ -78,6 +81,7 @@ def db_get_wbtip(session, itip_id, language):
 def get_wbtip(session, itip_id, language):
     return db_get_wbtip(session, itip_id, language)
 
+
 @transact
 def is_download(session, file_location, name, state, can_download_infected):
     url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
@@ -86,7 +90,8 @@ def is_download(session, file_location, name, state, can_download_infected):
         status = af.read_file_for_scanning(file_location, name, state)
     except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
         logging.debug(e_p)
-        status = EnumStateFile.pending if isinstance(e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
+        status = EnumStateFile.pending if isinstance(
+            e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
         if can_download_infected:
             save_status_file_scanning(name, status)
             return status, True
@@ -101,6 +106,7 @@ def is_download(session, file_location, name, state, can_download_infected):
         save_status_file_scanning(name, status)
     return status, True
 
+
 @transact
 def create_comment(session, tid, user_id, content):
     itip = db_get(session,
@@ -113,7 +119,8 @@ def create_comment(session, tid, user_id, content):
 
     _content = content
     if itip.crypto_tip_pub_key:
-        _content = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _content = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, content)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
@@ -136,7 +143,8 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
                    models.InternalTip.tid == tid))
 
     if itip.crypto_tip_pub_key:
-        wbi = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
+        wbi = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
 
     db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi)
 
@@ -158,11 +166,13 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
     if not context.additional_questionnaire_id:
         return
 
-    steps = db_get_questionnaire(session, tid, context.additional_questionnaire_id, None)['steps']
+    steps = db_get_questionnaire(
+        session, tid, context.additional_questionnaire_id, None)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     if itip.crypto_tip_pub_key:
-        answers = base64.b64encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
+        answers = base64.b64encode(GCE.asymmetric_encrypt(
+            itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
 
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers)
 
@@ -182,15 +192,18 @@ def change_receipt(session, itip_id, cc, new_receipt, receipt_change_needed):
     tid = itip.tid
 
     # update receipt
-    itip.receipt_hash = GCE.hash_password(new_receipt, State.tenants[tid].cache.receipt_salt)
+    itip.receipt_hash = GCE.hash_password(
+        new_receipt, State.tenants[tid].cache.receipt_salt)
 
     if cc is None:
         return
 
-    wb_key = GCE.derive_key(new_receipt.encode(), State.tenants[tid].cache.receipt_salt)
+    wb_key = GCE.derive_key(new_receipt.encode(),
+                            State.tenants[tid].cache.receipt_salt)
 
     # update private keys
-    itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, cc))
+    itip.crypto_prv_key = Base64Encoder.encode(
+        GCE.symmetric_encrypt(wb_key, cc))
 
     itip.receipt_change_needed = receipt_change_needed
 
@@ -202,7 +215,8 @@ class Operations(BaseHandler):
     check_roles = "whistleblower"
 
     def put(self):
-        request = self.validate_request(self.request.content.read(), requests.OpsDesc)
+        request = self.validate_request(
+            self.request.content.read(), requests.OpsDesc)
         if request["operation"] != "change_receipt":
             raise errors.InputValidationError("Invalid command")
 
@@ -236,7 +250,8 @@ class WBTipCommentCollection(BaseHandler):
     check_roles = 'whistleblower'
 
     def post(self):
-        request = self.validate_request(self.request.content.read(), requests.WbTipCommentDesc)
+        request = self.validate_request(
+            self.request.content.read(), requests.WbTipCommentDesc)
         return create_comment(self.request.tid, self.session.user_id, request['content'])
 
 
@@ -255,7 +270,11 @@ class WhistleblowerFileDownload(BaseHandler):
                              (models.InternalFile.id == file_id,
                               models.InternalFile.internaltip_id == models.InternalTip.id,
                               models.InternalTip.id == user_id))
-        log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
+
+        log.debug("Download of file %s by whistleblower %s" %
+                  (ifile.id, user_id))
+        db_log(session, tid=tid, type='whistleblower_download_wbfile',
+               user_id=user_id, object_id=file_id)
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key, ifile.state, False
 
@@ -266,20 +285,26 @@ class WhistleblowerFileDownload(BaseHandler):
             self.session.user_id, wbfile_id
         )
 
-        file_location = os.path.join(self.state.settings.attachments_path, ifile_id)
+        file_location = os.path.join(
+            self.state.settings.attachments_path, ifile_id)
         aux_file = os.path.join(self.state.settings.attachments_path, ifile_id)
-        directory_traversal_check(self.state.settings.attachments_path, file_location)
+        directory_traversal_check(
+            self.state.settings.attachments_path, file_location)
         self.check_file_presence(file_location)
 
         if tip_prv_key:
-            tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, base64.b64decode(tip_prv_key))
-            name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
+            tip_prv_key = GCE.asymmetric_decrypt(
+                self.session.cc, base64.b64decode(tip_prv_key))
+            name = GCE.asymmetric_decrypt(
+                tip_prv_key, base64.b64decode(name.encode())).decode()
 
             try:
                 # First attempt
                 aux_path = file_location
-                file_location = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, file_location)
-                aux_file = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, aux_path)
+                file_location = GCE.streaming_encryption_open(
+                    'DECRYPT', tip_prv_key, file_location)
+                aux_file = GCE.streaming_encryption_open(
+                    'DECRYPT', tip_prv_key, aux_path)
             except Exception as e:
                 logging.debug(e)
         status, run_download = yield is_download(aux_file, name, state, dl_infected)
@@ -310,7 +335,10 @@ class ReceiverFileDownload(BaseHandler):
         if rfile.access_date == datetime_null():
             rfile.access_date = datetime_now()
 
-        log.debug("Download of file %s by whistleblower %s", rfile.id, self.session.user_id)
+        log.debug("Download of file %s by whistleblower %s",
+                  rfile.id, self.session.user_id)
+        db_log(session, tid=tid, type='whistleblower_download_rfile',
+               user_id=self.session.user_id, object_id=file_id)
 
         return rfile.name, rfile.id, base64.b64decode(wbtip.crypto_tip_prv_key), '', rfile.state, can_download_infected
 
@@ -321,16 +349,22 @@ class ReceiverFileDownload(BaseHandler):
             rfile_id
         )
 
-        filelocation = os.path.join(self.state.settings.attachments_path, filelocation)
-        aux_file = os.path.join(self.state.settings.attachments_path, filelocation)
-        directory_traversal_check(self.state.settings.attachments_path, filelocation)
+        filelocation = os.path.join(
+            self.state.settings.attachments_path, filelocation)
+        aux_file = os.path.join(
+            self.state.settings.attachments_path, filelocation)
+        directory_traversal_check(
+            self.state.settings.attachments_path, filelocation)
 
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, tip_prv_key)
-            name = GCE.asymmetric_decrypt(tip_prv_key, base64.b64decode(name.encode())).decode()
+            name = GCE.asymmetric_decrypt(
+                tip_prv_key, base64.b64decode(name.encode())).decode()
             aux_path = filelocation
-            filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
-            aux_file = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, aux_path)
+            filelocation = GCE.streaming_encryption_open(
+                'DECRYPT', tip_prv_key, filelocation)
+            aux_file = GCE.streaming_encryption_open(
+                'DECRYPT', tip_prv_key, aux_path)
         status, run_download = yield is_download(aux_file, name, state, dl_infected)
         if not run_download:
             if status == EnumStateFile.infected:
@@ -346,7 +380,8 @@ class WBTipIdentityHandler(BaseHandler):
     check_roles = 'whistleblower'
 
     def post(self):
-        request = self.validate_request(self.request.content.read(), requests.WhisleblowerIdentityAnswers)
+        request = self.validate_request(
+            self.request.content.read(), requests.WhisleblowerIdentityAnswers)
 
         return update_identity_information(self.request.tid,
                                            self.session.user_id,
@@ -362,7 +397,8 @@ class WBTipAdditionalQuestionnaire(BaseHandler):
     check_roles = 'whistleblower'
 
     def post(self):
-        request = self.validate_request(self.request.content.read(), requests.AdditionalQuestionnaireAnswers)
+        request = self.validate_request(
+            self.request.content.read(), requests.AdditionalQuestionnaireAnswers)
         return store_additional_questionnaire_answers(self.request.tid,
                                                       self.session.user_id,
                                                       request['answers'],
