@@ -211,7 +211,8 @@ def get_dummy_field():
         'x': 1,
         'width': 0,
         'triggered_by_score': 0,
-        'triggered_by_options': []
+        'triggered_by_options': [],
+        'statistical': False
     }
 
 
@@ -813,11 +814,11 @@ class TestGLWithPopulatedDB(TestGL):
         self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en', wizard=True)
 
         # fill_data/create_custodian
-        self.dummyCustodian = yield create_user(1, None, self.dummyCustodian, 'en')
+        self.dummyCustodian = yield create_user(1, None, self.dummyCustodian, 'en', wizard=True)
 
         # fill_data/create_receiver
-        self.dummyReceiver_1 = yield create_user(1, None, self.dummyReceiver_1, 'en')
-        self.dummyReceiver_2 = yield create_user(1, None, self.dummyReceiver_2, 'en')
+        self.dummyReceiver_1 = yield create_user(1, None, self.dummyReceiver_1, 'en', wizard=True)
+        self.dummyReceiver_2 = yield create_user(1, None, self.dummyReceiver_2, 'en', wizard=True)
 
         yield mock_users_keys()
 
@@ -1032,7 +1033,7 @@ class TestCollectionHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en', wizard=True)
 
     @inlineCallbacks
     def test_get(self):
@@ -1076,7 +1077,7 @@ class TestInstanceHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en', wizard=True)
 
     @inlineCallbacks
     def test_get(self):
