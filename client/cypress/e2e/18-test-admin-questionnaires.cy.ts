@@ -43,6 +43,11 @@ describe("admin add, configure and delete questionnaires", () => {
       cy.get('button[name="delOption"]').eq(2).click();
       cy.get('button[name="save_field"]').filter(':visible').first().click();
     }
+
+    if (["Checkbox", "Selection box", "Multiple choice input", "Date", "Date range"].indexOf(question_type) === 0) {
+      cy.get("input[name='statistical']").should('be.visible');
+      cy.get("input[name='statistical']").click();
+    }
   };
 
   const add_step = async (step_label: string) => {
