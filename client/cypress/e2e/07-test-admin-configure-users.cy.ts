@@ -4,31 +4,37 @@ describe("admin add, configure, and delete users", () => {
       name: "Recipient",
       value:"receiver",
       address: "globaleaks-receiver1@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
     {
       name: "Recipient2",
       value:"receiver",
       address: "globaleaks-receiver2@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
     {
       name: "Recipient3",
       value:"receiver",
       address: "globaleaks-receiver3@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
     {
       name: "Custodian",
       value:"custodian",
       address: "globaleaks-custodian1@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
     {
       name: "Admin2",
       value:"admin",
       address: "globaleaks-admin2@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
     {
       name: "Analyst",
       value:"analyst",
       address: "globaleaks-analyst1@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
     },
   ];
 
@@ -41,6 +47,7 @@ describe("admin add, configure, and delete users", () => {
       cy.get('select[name="role"]').select(user.value);
       cy.get('input[name="username"]').clear().type(user.name);
       cy.get('input[name="name"]').clear().type(user.name);
+      cy.get('input[name="fiscalcode"]').clear().type(user.fiscalcode);
       cy.get('input[name="email"]').clear().type(user.address);
       cy.get("#add-btn").click();
     };
