@@ -36,6 +36,12 @@ describe("admin add, configure, and delete users", () => {
       address: "globaleaks-analyst1@mailinator.com",
       fiscalcode: "PRKPTR88H01L219U",
     },
+    {
+      name: "Responsabile_Accreditamento",
+      value:"accreditor",
+      address: "globaleaks-analyst1@mailinator.com",
+      fiscalcode: "PRKPTR88H01L219U",
+    },
   ];
 
   it("should add new users", () => {
@@ -80,7 +86,7 @@ describe("admin add, configure, and delete users", () => {
     cy.visit("/#/admin/users");
 
     cy.get(".userList").its("length").then(userListLength => {
-      const numberOfUsers = Math.min(userListLength, 7);
+      const numberOfUsers = Math.min(userListLength, 8);
       for (let i = 1; i < numberOfUsers; i++) {
         cy.get(".userList").eq(i).within(() => {
           if (Cypress.$("#edit_user").length > 0) {
