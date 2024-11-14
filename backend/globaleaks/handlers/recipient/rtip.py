@@ -1571,16 +1571,7 @@ class ReceiverFileUpload(BaseHandler):
 
     @transact
     def forward_file(self, session, rfile_id, itip_id, visibility):
-        if b'tids' in self.request.args:
-            try:
-                tids = ast.literal_eval(self.request.args.get(b"tids", [])[0].decode())
-                if not isinstance(tids, list):
-                    raise ValueError('is not a list')
-            except Exception as e:
-                logging.debug(e)
-                tids = []
-        else:
-            tids = []
+        tids = self.extract_tids()
 
         rtip = db_get(session, models.ReceiverTip, (models.ReceiverTip.receiver_id == self.session.user_id,
                                                         models.ReceiverTip.internaltip_id == itip_id))
@@ -1607,6 +1598,17 @@ class ReceiverFileUpload(BaseHandler):
             session, tid, user_id, itip_id, uploaded_file)
         return response
 
+    def extract_tids(self):
+        if b'tids' in self.request.args:
+            try:
+                tids = ast.literal_eval(self.request.args.get(b"tids", [])[0].decode())
+                if not isinstance(tids, list):
+                    raise ValueError('is not a list')
+                return tids
+            except Exception as e:
+                logging.debug(e)
+        return []
+
     @inlineCallbacks
     def process(self, tid, user_id, itip_id, uploaded_file):
         ret = yield self.upload_file(tid, user_id, itip_id, uploaded_file)
@@ -1614,8 +1616,9 @@ class ReceiverFileUpload(BaseHandler):
         if not isinstance(uploaded_file.get('visibility'), int):
             uploaded_file['visibility'] = uploaded_file['visibility'].decode()
 
-        deferToThread(
-            self.forward_file, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'])
+        if self.extract_tids():
+            deferToThread(
+                self.forward_file, self.uploaded_file['filename'], itip_id, uploaded_file['visibility'])
         return ret
 
     def post(self, itip_id):
