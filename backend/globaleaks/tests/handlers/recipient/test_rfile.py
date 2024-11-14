@@ -14,7 +14,7 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        # yield self.perform_full_submission_actions()
+        yield self.perform_full_submission_actions()
 
         self._handler = rtip.ReceiverFileUpload
         rtips_desc = yield self.get_rtips()
