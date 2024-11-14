@@ -16,7 +16,7 @@ export default defineConfig({
     },
     "pgp": false,
     "init_password": "Password12345#",
-    "user_password": "ACollectionOfDiplomaticHistorySince_1966_ToThe_Pr esentDay#",
+    "user_password": "@Test1234567",
     "field_types": [
       "Single-line text input",
       "Multi-line text input",
@@ -30,7 +30,7 @@ export default defineConfig({
       "Voice",
       "Group of questions"
     ],
-    "takeScreenshots": true
+    "takeScreenshots": false
   },
   e2e: {
     setupNodeEvents(on, config) {

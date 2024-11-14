@@ -37,7 +37,7 @@ describe("admin add, configure, and delete users", () => {
       fiscalcode: "PRKPTR88H01L219U",
     },
     {
-      name: "Responsabile_Accreditamento",
+      name: "Resp_Accreditation",
       value:"accreditor",
       address: "globaleaks-analyst1@mailinator.com",
       fiscalcode: "PRKPTR88H01L219U",
