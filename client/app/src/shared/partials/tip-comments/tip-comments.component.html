@@ -13,8 +13,7 @@
         <div *ngIf="banner">
             {{banner | translate}}
         </div>
-        <div *ngIf="!readonly && tipService.tip.status !== 'closed' && (maximum_number ? (comments | filter : 'visibility' : key).length < maximum_number : true)"
-            class="row">
+        <div *ngIf="!readonly && tipService.tip.status !== 'closed' && (maximum_number ?  getSortedComments((comments | filter : 'visibility' : key)).length < maximum_number : true) " class="row">
             <div class="col-md-12 clearfix">
                 <textarea id="TipCommunicationCommentsInput" [(ngModel)]="newCommentContent" name="newCommentContent"
                     maxlength="4096" class="form-control" autocomplete="off" [placeholder]="placeholder ? (placeholder | translate) : ''"></textarea>
