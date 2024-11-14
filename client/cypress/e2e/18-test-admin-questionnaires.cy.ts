@@ -16,6 +16,9 @@ describe("admin add, configure and delete questionnaires", () => {
       cy.waitForLoader();
       cy.get('.fieldBox').should('be.visible', { timeout: 10000 }).contains('span', question_type).click();
 
+      cy.get("input[name='statistical']").should('be.visible');
+      cy.get("input[name='statistical']").click();
+
       for (let i = 0; i < 3; i++) {
         cy.get('button[name="addOption"]').click();
         cy.get("input[name='option.label']").eq(i).type("option");
@@ -42,11 +45,6 @@ describe("admin add, configure and delete questionnaires", () => {
 
       cy.get('button[name="delOption"]').eq(2).click();
       cy.get('button[name="save_field"]').filter(':visible').first().click();
-    }
-
-    if (["Checkbox", "Selection box", "Multiple choice input", "Date", "Date range"].indexOf(question_type) === 0) {
-      cy.get("input[name='statistical']").should('be.visible');
-      cy.get("input[name='statistical']").click();
     }
   };
 
