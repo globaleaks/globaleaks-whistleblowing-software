@@ -103,6 +103,18 @@ def get_base_stats(session, internal_tip_id):
     internal_tip = session.query(models.InternalTip).filter(
         models.InternalTip.id == internal_tip_id
     ).one_or_none()
+    is_fw_tip = session.query(models.InternalTipForwarding).filter(
+        models.InternalTipForwarding.eo_internaltip_id == internal_tip_id
+    ).one_or_none()
+    if is_fw_tip is not None:
+        sub = session.query(models.Subscriber).filter(
+            models.Subscriber.tid == internal_tip.tid
+        ).one_or_none()
+    else:
+        sub = None
+    count_fw_tip = session.query(func.count(distinct(models.InternalTipForwarding))).filter(
+        models.InternalTipForwarding.internaltip_id == internal_tip_id
+    ).scalar()
     count_comment = session.query(
         func.count(distinct(models.Comment.id))).filter(
         models.Comment.internaltip_id == internal_tip_id,
@@ -126,6 +138,10 @@ def get_base_stats(session, internal_tip_id):
         'internal_tip_file_count': count_files,
         'internal_tip_comment_count': count_comment,
         'internal_tip_receiver_count': count_receivers,
+        'is_fw_tip': is_fw_tip is not None,
+        'from_tip_id': is_fw_tip.internaltip_id if is_fw_tip is not None else None,
+        'fw_tip_count': count_fw_tip,
+        'eo_name': sub.organization_name if sub is not None else None
     }
 
 def transform_base_tip_into_statistical(base_tip: dict) -> list:
@@ -151,6 +167,15 @@ def get_model_and_field(is_external_organization):
         return models.InternalTipForwarding, 'stat_data'
     return models.InternalTipAnswers, 'stat_answers'
 
+def add_result_in_summary(results, summary):
+    for group in results:
+        for entry in group:
+            entry_id = entry["id"]
+            entry_value = entry["value"]
+            if type(entry_value) in [str, int, float, bool]:
+                summary[entry_id][entry_value] += 1
+    return summary
+
 @transact
 def get_all_element(session, param_session, request):
     date_to, date_from = parse_dates(request)
@@ -167,37 +192,32 @@ def get_all_element(session, param_session, request):
     user = db_get(session, models.User, models.User.id == param_session['user_id'])
     sts_prv_key = base64.b64decode(user.crypto_global_stat_prv_key)
     sts_key = GCE.asymmetric_decrypt(param_session['key_user_prv'], sts_prv_key)
-
+    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
     for answer in answers:
         base_dict = get_base_stats(session, answer[1])
-        row = transform_base_tip_into_statistical(base_dict)
-        try:
-            for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():
-                label = session.query(models.Field.label).filter(
-                    models.Field.id == k,
-                    models.Field.tid == param_session['tid']
-                ).one_or_none()
-                if label:
-                    row.append(
-                        {
-                            'id': k,
-                            'label':label[0][param_session['default_language']],
-                            'value': v
-                        }
-                    )
-        except Exception as e:
-            logging.debug(e)
-        finally:
-            results.append(row)
+        if not enable_multi_tenant and not base_dict.get('is_fw_tip'):
+            row = transform_base_tip_into_statistical(base_dict)
+            try:
+                for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():
+                    label = session.query(models.Field.label).filter(
+                        models.Field.id == k,
+                        models.Field.tid == param_session['tid']
+                    ).one_or_none()
+                    if label:
+                        row.append(
+                            {
+                                'id': k,
+                                'label':label[0][param_session['default_language']],
+                                'value': v
+                            }
+                        )
+            except Exception as e:
+                logging.debug(e)
+            finally:
+                results.append(row)
 
     summary = defaultdict(Counter)
-
-    for group in results:
-        for entry in group:
-            entry_id = entry["id"]
-            entry_value = entry["value"]
-            if type(entry_value) in [str, int, float, bool]:
-                summary[entry_id][entry_value] += 1
+    summary = add_result_in_summary(results=results, summary=summary)
     summary = {k: dict(v) for k, v in summary.items()}
 
     return {
