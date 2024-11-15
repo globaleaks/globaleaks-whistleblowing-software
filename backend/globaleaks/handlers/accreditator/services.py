@@ -116,11 +116,12 @@ def persistent_drop(session, accreditation_id: str, request):
         status_mapping = {
             'requested': EnumSubscriberStatus.requested,
             'suspended': EnumSubscriberStatus.suspended,
-            'instructor_request': EnumSubscriberStatus.instructor_request
+            'instructor_request': EnumSubscriberStatus.instructor_request,
+            'accredited': EnumSubscriberStatus.accredited
         }
         if status not in status_mapping:
             raise errors.ForbiddenOperation
-        elif status == 'suspended' and accreditation_item.get('num_user_profiled') > 2 and accreditation_item.get('opened_tips') > 0:
+        elif status in ['suspended', 'accredited']  and accreditation_item.get('num_user_profiled') > 2 and accreditation_item.get('opened_tips') > 0:
             raise errors.ForbiddenOperation
         else:
             tenant_item = (
