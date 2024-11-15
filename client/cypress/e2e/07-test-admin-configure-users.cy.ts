@@ -77,6 +77,7 @@ describe("admin add, configure, and delete users", () => {
       cy.get('input[name="can_reopen_reports"]').click();
       cy.get('input[name="can_delete_submission"]').click();
       cy.get('input[name="can_edit_general_settings"]').click();
+      cy.get('input[name="can_download_infected"]').click();
       cy.get("#save_user").click();
     });
   });
