@@ -120,7 +120,7 @@ describe("globaleaks process", function () {
   });
 
   it("should not view the whistleblower file", () => {
-    cy.login_receiver("Recipient2");
+    cy.login_receiver("Recipient2", Cypress.env("init_password") );
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
     cy.get(".tip-action-views-file").should("be.disabled");
