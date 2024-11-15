@@ -19,9 +19,63 @@ declare global {
       login_custodian: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_accreditor: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
+      request_external_organization: (denomination?: string, pec?: string, url?: string, adminFiscalCode?: string) => void;
+      confirm_accreditation_request: (reqId: string) => void;
     }
   }
 }
+
+Cypress.Commands.add("confirm_accreditation_request", (reqId) => {
+
+  cy.visit("#/accreditation-request/"+reqId);
+
+  cy.get('input[name="privacyAccept"]').click();
+
+  cy.get("#proceed").should("be.enabled");
+  cy.get("#proceed").click();
+
+  cy.get(".btn-primary").click();
+
+
+});
+
+Cypress.Commands.add("request_external_organization", (denomination, pec, url, adminFiscalCode) => {
+
+  denomination = denomination === undefined ? "Organizzazione 1" : denomination;
+  pec = pec === undefined ? "example@examplepec.com" : pec;
+  url = url === undefined ? "http://exampleurl.com" : url;
+  adminFiscalCode = adminFiscalCode === undefined ? "LLNBRY89A18D969M" : adminFiscalCode;
+
+
+  cy.setCookie("x-idp-userid", adminFiscalCode);
+  cy.visit('/#/accreditation-request');
+
+  cy.get('input[name="denomination"]').type(denomination);
+  cy.get('input[name="pec"]').type(pec);
+  cy.get('input[name="confirmPec"]').type(pec);
+  cy.get('input[name="institutionalWebsite"]').type(url);
+
+  cy.get('input[name="adminName"]').type("Barry");
+  cy.get('input[name="adminSurname"]').type("Allen");
+
+  cy.get('input[name="adminFiscalCode"]').invoke('val').should('not.be.empty');
+
+  cy.get('input[name="adminEmail"]').type("example@example.com");
+  cy.get('input[name="adminFiscalCode"]').should("be.disabled");
+
+  cy.get('input[name="recipientName"]').type("Clark");
+  cy.get('input[name="recipientSurname"]').type("Kent");
+  cy.get('input[name="recipientFiscalCode"]').type("KNTCRK91S11I480G");
+  cy.get('input[name="recipientEmail"]').type("example1@example1.com");
+
+  cy.get('input[name="privacyAccept"]').click();
+
+  cy.get("#proceed").should("be.enabled");
+  cy.get("#proceed").click();
+
+  cy.get(".btn-primary").click();
+});
+
 
 Cypress.Commands.add("waitForPageIdle", () => {
   const pageIdleDetector = new PageIdleDetector();
