@@ -22,30 +22,34 @@ export class ReportsComponent implements OnInit {
 
     reportType: string = '';
 
-    readonly INTERNAL_TIPS_ID: string = 'internal_tip_id';
-    readonly INTERNAL_TIPS_STATUS: string = 'internal_tip_status';
-    readonly INTERNAL_TIPS_CREATION_DATE: string = 'internal_tip_creation_date';
-    readonly INTERNAL_TIPS_UPDATE_DATE: string = 'internal_tip_update_date';
-    readonly INTERNAL_TIPS_EXPIRATION_DATE: string = 'internal_tip_expiration_date';
-    readonly INTERNAL_TIPS_READ_RECEIPT: string = 'internal_tip_read_receip';
-    readonly INTERNAL_TIPS_FILE_COUNT: string = 'internal_tip_file_count';
-    readonly INTERNAL_TIPS_COMMENT_COUNT: string = 'internal_tip_comment_count';
-    readonly INTERNAL_TIPS_RECEIVER_COUNT: string = 'internal_tip_receiver_count';
-    readonly INTERNAL_TIPS_CREATION_DATE_YEARS: string = 'internal_tip_creation_date_years';
-    readonly INTERNAL_TIPS_CREATION_DATE_MONTH: string = 'internal_tip_creation_date_month';
+    readonly INTERNAL_TIP_ID: string = 'internal_tip_id';
+    readonly FROM_TIP_ID: string = 'from_tip_id';
+    readonly IS_FW_TIP: string = 'is_fw_tip';
+    readonly EO_NAME: string = 'eo_name';
+    readonly FW_TIP_COUNT: string = 'fw_tip_count';
+    readonly INTERNAL_TIP_STATUS: string = 'internal_tip_status';
+    readonly INTERNAL_TIP_CREATION_DATE: string = 'internal_tip_creation_date';
+    readonly INTERNAL_TIP_UPDATE_DATE: string = 'internal_tip_update_date';
+    readonly INTERNAL_TIP_EXPIRATION_DATE: string = 'internal_tip_expiration_date';
+    readonly INTERNAL_TIP_READ_RECEIPT: string = 'internal_tip_read_receip';
+    readonly INTERNAL_TIP_FILE_COUNT: string = 'internal_tip_file_count';
+    readonly INTERNAL_TIP_COMMENT_COUNT: string = 'internal_tip_comment_count';
+    readonly INTERNAL_TIP_RECEIVER_COUNT: string = 'internal_tip_receiver_count';
+    readonly INTERNAL_TIP_CREATION_DATE_YEARS: string = 'internal_tip_creation_date_years';
+    readonly INTERNAL_TIP_CREATION_DATE_MONTH: string = 'internal_tip_creation_date_month';
     readonly LAST_ACCESS: string = 'last_access';
     
     fixedHeaders: string[] = [
-        this.INTERNAL_TIPS_ID, this.INTERNAL_TIPS_STATUS,
-        this.INTERNAL_TIPS_CREATION_DATE, this.INTERNAL_TIPS_UPDATE_DATE,
-        this.INTERNAL_TIPS_EXPIRATION_DATE, this.INTERNAL_TIPS_READ_RECEIPT,
-        this.INTERNAL_TIPS_FILE_COUNT, this.INTERNAL_TIPS_COMMENT_COUNT,
-        this.INTERNAL_TIPS_RECEIVER_COUNT
+        this.INTERNAL_TIP_ID, this.FROM_TIP_ID, this.IS_FW_TIP, this.EO_NAME,
+        this.FW_TIP_COUNT, this.INTERNAL_TIP_STATUS, this.INTERNAL_TIP_CREATION_DATE,
+        this.INTERNAL_TIP_UPDATE_DATE, this.INTERNAL_TIP_EXPIRATION_DATE,
+        this.INTERNAL_TIP_READ_RECEIPT, this.INTERNAL_TIP_FILE_COUNT,
+        this.INTERNAL_TIP_COMMENT_COUNT, this.INTERNAL_TIP_RECEIVER_COUNT
     ];
     excludedHeaders: string[] = [
         this.LAST_ACCESS,
-        this.INTERNAL_TIPS_CREATION_DATE_YEARS,
-        this.INTERNAL_TIPS_CREATION_DATE_MONTH
+        this.INTERNAL_TIP_CREATION_DATE_YEARS,
+        this.INTERNAL_TIP_CREATION_DATE_MONTH
     ];
     dinamicHeaders: string[] = [];
     tableHeaders: string[] = [];
@@ -100,7 +104,7 @@ export class ReportsComponent implements OnInit {
     summary: Summary = {};
     summaryKeys: { id: string, label: string }[] = [];
 
-    preferenceData: preferenceResolverModel;
+    eo_activation: boolean;
 
     patternDate = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
     
@@ -114,7 +118,7 @@ export class ReportsComponent implements OnInit {
             day: this.today.getDate()
         };
         this.clearDateRange();
-        this.preferenceData = this.preference.dataModel;
+        this.eo_activation = this.preference.dataModel.external_organization_activation;
     }
 
     clearDateRange(): void {
@@ -200,6 +204,12 @@ export class ReportsComponent implements OnInit {
             const label = entry ? entry.label : key;
             return { id: key, label: label };
         });
+        if(!this.eo_activation) {
+            const addExludedHeaders = [this.IS_FW_TIP, this.FW_TIP_COUNT];
+            this.summaryKeys = this.summaryKeys.filter(
+                header => !addExludedHeaders.includes(header.id)
+            );
+        }
     }
 
     private processResponse(res: StatisticalResponseModel): void {
@@ -224,6 +234,14 @@ export class ReportsComponent implements OnInit {
       
         results.forEach((reportArray: ReportEntry[]) => {
             reportArray.forEach((entry: ReportEntry) => {
+                if(!this.eo_activation) {
+                    const addExludedHeaders = [this.FROM_TIP_ID, this.IS_FW_TIP, this.EO_NAME, this.FW_TIP_COUNT];
+                    this.excludedHeaders.push(...addExludedHeaders);
+                    this.fixedHeaders = this.fixedHeaders.filter(
+                        header => !addExludedHeaders.includes(header)
+                    );
+                }
+
                 if (!this.excludedHeaders.includes(entry.id) && !this.fixedHeaders.includes(entry.id)) {
                     dynamicHeadersSet.add(entry.label);
                 }
@@ -239,24 +257,39 @@ export class ReportsComponent implements OnInit {
         const row: ResultsRow = {};
         let lastAccess = '';
         let updateDate = '';
-    
+
         reportArray.forEach((entry: ReportEntry) => {
-            const value = String(entry.value);
-            if (entry.id === this.LAST_ACCESS) {
-                lastAccess = value;
-            } else if (entry.id === this.INTERNAL_TIPS_UPDATE_DATE) {
-                updateDate = value;
-                row[entry.id] = updateDate;
-            } else {
-                if (this.patternDate.test(value)) {
-                    row[entry.label] = formatDate(new Date(value), 'dd-MM-yyyy', 'en-US');
-                } else {
-                    row[entry.label] = value;
-                }
+            const value = entry.value != null ? String(entry.value) : "-";
+        
+            switch (entry.id) {
+                case this.LAST_ACCESS:
+                    lastAccess = value;
+                    break;        
+                case this.INTERNAL_TIP_UPDATE_DATE:
+                    updateDate = value;
+                    row[entry.id] = updateDate;
+                    break;        
+                case this.FROM_TIP_ID:
+                case this.EO_NAME:
+                case this.FW_TIP_COUNT:
+                    if (this.eo_activation) {
+                        row[entry.label] = value;
+                    }
+                    break;        
+                case this.IS_FW_TIP:
+                    if (this.eo_activation) {
+                        row[this.IS_FW_TIP] = value === 'true' ? '✔' : '✘';
+                    }
+                    break;        
+                default:
+                    row[entry.label] = this.patternDate.test(value)
+                        ? formatDate(new Date(value), 'dd-MM-yyyy', 'en-US')
+                        : value;
+                    break;
             }
         });
-    
-        row[this.INTERNAL_TIPS_READ_RECEIPT] = lastAccess >= updateDate ? '✔' : '✘';
+
+        row[this.INTERNAL_TIP_READ_RECEIPT] = lastAccess >= updateDate ? '✔' : '✘';
     
         this.tableHeaders.forEach(header => {
             if (!(header in row)) {
@@ -279,9 +312,9 @@ export class ReportsComponent implements OnInit {
     }
 
     private populateStatusDropdown(): void {
-        const statusIndex = this.tableHeaders.indexOf(this.INTERNAL_TIPS_STATUS);
+        const statusIndex = this.tableHeaders.indexOf(this.INTERNAL_TIP_STATUS);
         if (statusIndex !== -1) {
-            const statusSet = new Set(this.tableRows.map(row => row[this.INTERNAL_TIPS_STATUS]));
+            const statusSet = new Set(this.tableRows.map(row => row[this.INTERNAL_TIP_STATUS]));
             this.dropdownStatusData = Array.from(statusSet).map((status, index) => ({
                 id: index + 1,
                 label: status
@@ -319,9 +352,9 @@ export class ReportsComponent implements OnInit {
     }
 
     private calculateDataRange(): void {
-        const creationDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_CREATION_DATE);
-        const updateDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_UPDATE_DATE);
-        const expirationDates = this.getMinMaxDatesForField(this.INTERNAL_TIPS_EXPIRATION_DATE);
+        const creationDates = this.getMinMaxDatesForField(this.INTERNAL_TIP_CREATION_DATE);
+        const updateDates = this.getMinMaxDatesForField(this.INTERNAL_TIP_UPDATE_DATE);
+        const expirationDates = this.getMinMaxDatesForField(this.INTERNAL_TIP_EXPIRATION_DATE);
     
         this.minCreationDate = creationDates.minDate;
         this.maxCreationDate = creationDates.maxDate;
@@ -391,7 +424,7 @@ export class ReportsComponent implements OnInit {
         // Filter by status
         if (this.dropdownStatusModel.length > 0) {
             const selectedStatuses = this.dropdownStatusModel.map(status => status.label);
-            filtered = filtered.filter(row => selectedStatuses.includes(row[this.INTERNAL_TIPS_STATUS]));
+            filtered = filtered.filter(row => selectedStatuses.includes(row[this.INTERNAL_TIP_STATUS]));
         }
     
         // Filter by date
@@ -558,7 +591,4 @@ export class ReportsComponent implements OnInit {
     exportToCsv(): void {
         this.utils.generateCSV(JSON.stringify(this.getDataCsv()), 'reports',this.getDataCsvHeaders());
     }
-
-  
-
 }

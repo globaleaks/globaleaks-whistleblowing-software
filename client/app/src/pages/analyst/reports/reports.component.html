@@ -1,17 +1,5 @@
 <div class="row">
     <form #reports="ngForm" class="col-lg-6 col-md-12" (ngSubmit)="searchReports(reports)">
-        <div class="form-group">
-            <label for="reportType">{{ 'Report' | translate }}</label>
-            <select id="reportType" name="reportType" class="form-control inputelem" [(ngModel)]="reportType" #reportSelect="ngModel" required>
-                <option value="" disabled>{{ 'Select report type' | translate }}</option>
-                <option value="tips">{{ 'Tips' | translate }}</option>
-                <option *ngIf="preferenceData.external_organization_activation" value="tipsEO">{{ 'Tips EO' | translate }}</option>
-            </select>
-            <div *ngIf="reportSelect.invalid && reportSelect.touched" class="text-danger">
-                {{ 'This field is required' | translate }}
-            </div>
-        </div>
-
         <div class="form-inline d-inline-flex align-items-center">
             <span class="form-group">
                 <label for="reportsFrom">{{ 'From' | translate }}</label>
@@ -94,10 +82,16 @@
                 <tr>
                     <ng-container *ngFor="let header of tableHeaders">
                         <ng-container [ngSwitch]="header">
-                            <th class="TipInfoID" *ngSwitchCase="INTERNAL_TIPS_ID">
+                            <th class="TipInfoID" *ngSwitchCase="INTERNAL_TIP_ID">
                                 <i class="fa-solid fa-hashtag"></i>
                             </th>
-                            <th class="TipInfoStatus" *ngSwitchCase="INTERNAL_TIPS_STATUS">
+                            <th class="TipFwCount" *ngSwitchCase="FW_TIP_COUNT">
+                                <i class="fa-solid fa-file-arrow-up"></i>
+                            </th>
+                            <th class="TipFwCount" *ngSwitchCase="IS_FW_TIP">
+                                <i class="fa-solid fa-file-arrow-up"></i>
+                            </th>
+                            <th class="TipInfoStatus" *ngSwitchCase="INTERNAL_TIP_STATUS">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-dot-circle"></i>
                                     <span>{{'Status' | translate}}</span>
@@ -116,7 +110,7 @@
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoSubmissionDate" *ngSwitchCase="INTERNAL_TIPS_CREATION_DATE">
+                            <th class="TipInfoSubmissionDate" *ngSwitchCase="INTERNAL_TIP_CREATION_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-clock"></i>
                                     <span>{{'Report date' | translate}}</span>
@@ -135,7 +129,7 @@
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoUpdateDate" *ngSwitchCase="INTERNAL_TIPS_UPDATE_DATE">
+                            <th class="TipInfoUpdateDate" *ngSwitchCase="INTERNAL_TIP_UPDATE_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-clock"></i>
                                     <span>{{'Last update' | translate}}</span>
@@ -154,7 +148,7 @@
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoExpirationDate" *ngSwitchCase="INTERNAL_TIPS_EXPIRATION_DATE">
+                            <th class="TipInfoExpirationDate" *ngSwitchCase="INTERNAL_TIP_EXPIRATION_DATE">
                                 <span class="d-inline-flex align-items-center">
                                     <i class="fa-solid fa-hourglass"></i>
                                     <span>{{'Expiration date' | translate}}</span>
@@ -173,16 +167,16 @@
                                     </span>
                                 </span>
                             </th>
-                            <th class="TipInfoReadReceipt" *ngSwitchCase="INTERNAL_TIPS_READ_RECEIPT">
+                            <th class="TipInfoReadReceipt" *ngSwitchCase="INTERNAL_TIP_READ_RECEIPT">
                                 <i class="fa-solid fa-envelope-circle-check"></i>
                             </th>
-                            <th class="TipInfoComments" *ngSwitchCase="INTERNAL_TIPS_COMMENT_COUNT">
+                            <th class="TipInfoComments" *ngSwitchCase="INTERNAL_TIP_COMMENT_COUNT">
                                 <i class="fa-solid fa-comment"></i>
                             </th>
-                            <th class="TipInfoFiles" *ngSwitchCase="INTERNAL_TIPS_FILE_COUNT">
+                            <th class="TipInfoFiles" *ngSwitchCase="INTERNAL_TIP_FILE_COUNT">
                                 <i class="fa-solid fa-file"></i>
                             </th>
-                            <th class="TipInfoRecipientCount" *ngSwitchCase="INTERNAL_TIPS_RECEIVER_COUNT">
+                            <th class="TipInfoRecipientCount" *ngSwitchCase="INTERNAL_TIP_RECEIVER_COUNT">
                                 <i class="fa-solid fa-users"></i>
                             </th>
                             <th *ngSwitchDefault>
@@ -196,9 +190,9 @@
                 <tr *ngFor="let row of filteredRows | slice:((currentPage - 1) * itemsPerPage):((currentPage - 1) * itemsPerPage + itemsPerPage)">
                     <td *ngFor="let key of tableHeaders">
                         <ng-container [ngSwitch]="key">
-                            <td *ngSwitchCase="INTERNAL_TIPS_CREATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
-                            <td *ngSwitchCase="INTERNAL_TIPS_UPDATE_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
-                            <td *ngSwitchCase="INTERNAL_TIPS_EXPIRATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIP_CREATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIP_UPDATE_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
+                            <td *ngSwitchCase="INTERNAL_TIP_EXPIRATION_DATE">{{ row[key] | date:'dd-MM-yyyy HH:mm' }}</td>
                             <td *ngSwitchDefault>{{ (row[key] || '').toString() | translate}}</td>
                         </ng-container>
                     </td>
