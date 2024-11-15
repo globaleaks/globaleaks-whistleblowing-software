@@ -119,6 +119,14 @@ describe("globaleaks process", function () {
     cy.logout();
   });
 
+  it("should not view the whistleblower file", () => {
+    cy.login_receiver("Recipient2");
+    cy.visit("/#/recipient/reports");
+    cy.get("#tip-0").first().click();
+    cy.get(".tip-action-views-file").should("be.disabled");
+    cy.logout();
+  });
+
   it("should update default channel", () => {
     cy.login_admin();
     cy.visit("/#/admin/channels");
