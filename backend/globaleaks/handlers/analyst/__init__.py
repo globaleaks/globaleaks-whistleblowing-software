@@ -112,7 +112,7 @@ def get_base_stats(session, internal_tip_id):
         ).one_or_none()
     else:
         sub = None
-    count_fw_tip = session.query(func.count(distinct(models.InternalTipForwarding))).filter(
+    count_fw_tip = session.query(func.count(distinct(models.InternalTipForwarding.internaltip_id))).filter(
         models.InternalTipForwarding.internaltip_id == internal_tip_id
     ).scalar()
     count_comment = session.query(
@@ -195,7 +195,7 @@ def get_all_element(session, param_session, request):
     enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
     for answer in answers:
         base_dict = get_base_stats(session, answer[1])
-        if not enable_multi_tenant and not base_dict.get('is_fw_tip'):
+        if enable_multi_tenant or (not enable_multi_tenant and not base_dict.get('is_fw_tip')):
             row = transform_base_tip_into_statistical(base_dict)
             try:
                 for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():
