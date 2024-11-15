@@ -222,7 +222,7 @@ export class OrganizationComponent implements OnInit{
   }
 
   canDelete(){
-    return this.organization?.opened_tips == 0 && this.organization.num_user_profiled == 1;
+    return this.organization?.opened_tips == 0 && this.organization.num_user_profiled == 2;
   }
 
   isAffiliated(){
