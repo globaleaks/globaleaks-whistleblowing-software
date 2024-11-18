@@ -17,7 +17,7 @@ export class AuditLogTab1Component implements OnInit {
   isBackupEnabled: boolean = false;
   fromLastBackup: boolean = false;
 
-  constructor(private readonly httpService: HttpService, protected authenticationService: AuthenticationService, private auditLogResolver: AuditLogResolver, protected nodeResolver: NodeResolver, protected utilsService: UtilsService) {
+  constructor(private readonly httpService: HttpService, protected authenticationService: AuthenticationService, private readonly auditLogResolver: AuditLogResolver, protected nodeResolver: NodeResolver, protected utilsService: UtilsService) {
   }
 
   ngOnInit() {
@@ -41,6 +41,7 @@ export class AuditLogTab1Component implements OnInit {
     } else {
       this.loadAuditLogData();
     }
+    this.currentPage = 1;
   }
 
   onCheckboxChange(): void {
