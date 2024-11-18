@@ -62,7 +62,7 @@
                 <i class="fa-solid fa-upload"></i>
                 <span>{{'Upload'|translate}}</span>
               </label>
-              <input #uploader id="customFile" type="file" (change)="addFile(uploader.files)" style="display: none;" />
+              <input #uploader id="customFile" type="file" (change)="addFile(uploader.files)" [style.display]="'none'"/>
             </span>
           </div>
         </div>
