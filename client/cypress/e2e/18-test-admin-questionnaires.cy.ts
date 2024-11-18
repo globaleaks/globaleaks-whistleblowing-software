@@ -97,6 +97,7 @@ describe("admin add, configure and delete questionnaires", () => {
 
     cy.logout();
   });
+
   it("should import custom questionnaire file", () => {
     cy.login_admin();
 
@@ -132,12 +133,36 @@ describe("admin add, configure and delete questionnaires", () => {
     });
     cy.logout();
   });
+
   it("should add duplicate questionnaire", function () {
     cy.login_admin();
     cy.visit("/#/admin/questionnaires");
     cy.get(".fa-clone").first().click();
     cy.get('input[name="name"]').type("duplicate questionnaire");
     cy.get("#modal-action-ok").click();
+    cy.logout();
+  });
+
+
+  it("should import forwarding questionnaire file", () => {
+    cy.login_admin();
+
+    cy.visit("/#/admin/questionnaires");
+    cy.get("#keyUpload").click();
+    cy.fixture("questionnaires/forwarding_questionnaire.txt").then(fileContent => {
+      cy.get('input[type="file"]').then(input => {
+        const blob = new Blob([fileContent], { type: "text/plain" });
+        const testFile = new File([blob], "questionnaires/forwarding_questionnaire.txt");
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(testFile);
+        const inputElement = input[0] as HTMLInputElement;
+        inputElement.files = dataTransfer.files;
+
+        const changeEvent = new Event("change", { bubbles: true });
+        input[0].dispatchEvent(changeEvent);
+      });
+
+    });
     cy.logout();
   });
 });
