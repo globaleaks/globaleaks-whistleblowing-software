@@ -1157,3 +1157,7 @@ i.fa-solid.fa-chevron-right {
 #AccreditationRequestPrivacy div {
   margin-bottom: 0.5em;
 }
+
+.dropdown-visible {
+  display: block;
+}

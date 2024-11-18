@@ -51,7 +51,9 @@
                 <div class="card w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>{{ 'Chart' | translate }} {{ i + 1 }}</span>
-                        <button type="button" class="btn-close" aria-label="Close" (click)="removeChart(i)"></button>
+                        <button type="button" class="btn btn-outline-secondary" aria-label="Close" (click)="removeChart(i)">
+                            <i class="fa fa-times"></i>
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -89,7 +91,7 @@
                                 <i class="fa-solid fa-file-arrow-up"></i>
                             </th>
                             <th class="TipFwCount" *ngSwitchCase="IS_FW_TIP">
-                                <i class="fa-solid fa-file-arrow-up"></i>
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
                             </th>
                             <th class="TipInfoStatus" *ngSwitchCase="INTERNAL_TIP_STATUS">
                                 <span class="d-inline-flex align-items-center">
@@ -98,9 +100,9 @@
                                     <span class="dropdown-multi-select-container" *ngIf="dropdownStatusData.length > 0">
                                         <i class="fa-solid fa-filter" [ngClass]="{ filterSelected: checkFilter() }" 
                                         (click)="toggleStatusDropdown()" (keydown)="toggleStatusDropdown()"></i>
-                                        <span [class.hidden]="!statusDropdownVisible">
+                                        <span [ngClass]="{'hidden': !statusDropdownVisible}">
                                             <ng-multiselect-dropdown 
-                                                [class.dropdown-visible]="statusDropdownVisible" 
+                                                [ngClass]="{'dropdown-visible': statusDropdownVisible}"
                                                 [settings]="dropdownSettings" 
                                                 [data]="dropdownStatusData" 
                                                 [(ngModel)]="dropdownStatusModel" 
