@@ -72,7 +72,7 @@
 
     <div class="row" *ngIf="(!isState('accredited') && !isState('suspended'))">
         <div class="col-md-12" id="organization-button">
-            <button class="btn btn-primary" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
+            <button class="btn btn-primary" id="affiliatedButton" (click)="aggiornaStatoAffiliazioneOrganizazzione()">
                 {{ isAffiliated() ? ('Convert in Not Affiliated' | translate) : ('Convert in Affiliated' | translate) }}
             </button>
         </div>

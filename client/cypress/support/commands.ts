@@ -34,8 +34,10 @@ Cypress.Commands.add("confirm_accreditation_request", (reqId) => {
   cy.get("#proceed").should("be.enabled");
   cy.get("#proceed").click();
 
-  cy.get(".btn-primary").click();
-
+  cy.wait(1000);
+  
+  cy.get(".modal").should("be.visible");
+  cy.get(".modal #closeConfirmModal").click();
 
 });
 
