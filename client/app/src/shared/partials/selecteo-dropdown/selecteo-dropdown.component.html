@@ -1,8 +1,8 @@
 <div class="row" >
     <div class="form-group col-md-12">
       <select class="form-select-custom" #select ngModel (change)="addOrganization(select)" [disabled]="organizations == null || organizations.length == 0">
-          <option value="" disabled selected>{{ 'Select an organization' | translate }}</option>
-          <option *ngFor="let org of organizations" [value]="toStr(org)">{{ org.name | translate }}</option>
+          <option value="" disabled selected id="eo">{{ 'Select an organization' | translate }}</option>
+          <option *ngFor="let org of organizations; let i = index" [value]="toStr(org)" id="eo-{{i}}">{{ org.name | translate }}</option>
       </select>
     </div>
 </div>
