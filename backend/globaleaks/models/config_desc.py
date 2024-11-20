@@ -133,8 +133,8 @@ ConfigDescriptor = {
     'external_organization_activation': Bool(default=True),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enable': Bool(default=False),
-    'backup_time_ISO_8601': Unicode(default=''),
-    'backup_destination_path': Unicode(default='')
+    'backup_time_ISO_8601': Unicode(default='2:00'),
+    'backup_destination_path': Unicode(default='/var/backup/')
 
 }
 
@@ -211,9 +211,6 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'backup_destination_path',
-        'backup_enable',
-        'backup_time_ISO_8601',
         'url_file_analysis',
         'external_organization_activation'
     ],
@@ -357,9 +354,6 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
-        'backup_destination_path',
-        'backup_enable',
-        'backup_time_ISO_8601',
         'url_file_analysis'
     ],
     'tenant': [

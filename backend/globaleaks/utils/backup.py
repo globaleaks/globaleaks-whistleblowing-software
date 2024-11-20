@@ -2,23 +2,23 @@
 import json
 import os
 
+from globaleaks.models.config import ConfigFactory
 from globaleaks.utils.utility import iso8601_to_datetime
 from globaleaks import models
+from globaleaks.utils.log import log
 
 
 def get_backups_parameter(session):
-    backup_enable_config = session.query(models.Config.value).filter(
-        models.Config.tid == 1, models.Config.var_name == 'backup_enable').one_or_none()
-    backup_time_iso_8601_config = session.query(models.Config.value).filter(
-        models.Config.tid == 1, models.Config.var_name == 'backup_time_ISO_8601').one_or_none()
-    backup_destination_path_config = session.query(models.Config.value).filter(
-        models.Config.tid == 1, models.Config.var_name == 'backup_destination_path').one_or_none()
+    config = ConfigFactory(session, 1)
+    backup_enable = config.get_val('backup_enable')
+    backup_time_iso_8601 = config.get_val('backup_time_ISO_8601')
+    backup_destination_path = config.get_val('backup_destination_path')
 
-    backup_enable = backup_enable_config.value if backup_enable_config else None
-    backup_time_iso_8601 = backup_time_iso_8601_config.value if backup_time_iso_8601_config else None
-    backup_destination_path = backup_destination_path_config.value if backup_destination_path_config else None
-
-    return (backup_enable, backup_time_iso_8601, backup_destination_path)
+    return {
+        'backup_enable': backup_enable,
+        'backup_time_iso_8601': backup_time_iso_8601,
+        'backup_destination_path': backup_destination_path
+    }
 
 
 def get_audit_log_file_path(backup_destination_path):
@@ -26,8 +26,11 @@ def get_audit_log_file_path(backup_destination_path):
 
 
 def write_audit_log_on_file(session, row):
-    backup_enable, backup_time_iso_8601, backup_destination_path = get_backups_parameter(
+    backup_params = get_backups_parameter(
         session)
+    backup_enable = backup_params['backup_enable']
+    backup_time_iso_8601 = backup_params['backup_time_iso_8601']
+    backup_destination_path = backup_params['backup_destination_path']
 
     if not backup_enable or not backup_time_iso_8601 or not backup_destination_path:
         return
@@ -63,8 +66,11 @@ def dict_to_audit_log(audit_log_dict):
 
 
 def get_list_from_audit_log_file(session):
-    backup_enable, backup_time_iso_8601, backup_destination_path = get_backups_parameter(
+    backup_params = get_backups_parameter(
         session)
+    backup_enable = backup_params['backup_enable']
+    backup_time_iso_8601 = backup_params['backup_time_iso_8601']
+    backup_destination_path = backup_params['backup_destination_path']
 
     if not backup_enable or not backup_time_iso_8601 or not backup_destination_path:
         return
