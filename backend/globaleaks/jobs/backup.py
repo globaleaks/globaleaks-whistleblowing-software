@@ -41,6 +41,7 @@ def get_last_backup_log(session):
     last_backup = session.query(models.AuditLog).filter(models.AuditLog.type == 'backup', models.AuditLog.data == 'OK') \
         .order_by(models.AuditLog.date.desc()) \
         .limit(1).one_or_none()
+    session.close()
     return last_backup
 
 
