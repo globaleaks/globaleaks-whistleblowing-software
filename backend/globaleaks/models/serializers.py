@@ -48,7 +48,8 @@ def serialize_archived_field_recursively(field, language):
                 field['attrs'][key]['value'] = ""
 
     for o in field.get('options', []):
-        models.get_localized_values(o, o, models.FieldOption.localized_keys, language)
+        models.get_localized_values(
+            o, o, models.FieldOption.localized_keys, language)
 
     for c in field.get('children', []):
         serialize_archived_field_recursively(c, language)
@@ -63,7 +64,8 @@ def serialize_archived_questionnaire_schema(questionnaire_schema, language):
         for field in step['children']:
             serialize_archived_field_recursively(field, language)
 
-        models.get_localized_values(step, step, models.Step.localized_keys, language)
+        models.get_localized_values(
+            step, step, models.Step.localized_keys, language)
 
     return questionnaire
 
@@ -135,7 +137,8 @@ def serialize_ifile(session, ifile):
     :param ifile: The ifile to be serialized
     :return: The serialized ifile
     """
-    error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id))
+    error = not os.path.exists(os.path.join(
+        State.settings.attachments_path, ifile.id))
 
     return {
         'id': ifile.id,
@@ -160,7 +163,8 @@ def serialize_wbfile(session, ifile, wbfile):
     :return: The serialized wbfile
     """
     error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id)) and \
-        not os.path.exists(os.path.join(State.settings.attachments_path, wbfile.id))
+        not os.path.exists(os.path.join(
+            State.settings.attachments_path, wbfile.id))
 
     return {
         'id': wbfile.id,
@@ -184,7 +188,8 @@ def serialize_rfile(session, rfile):
     :param rfile: The rfile to be serialized
     :return: The serialized rfile
     """
-    error = not os.path.exists(os.path.join(State.settings.attachments_path, rfile.id))
+    error = not os.path.exists(os.path.join(
+        State.settings.attachments_path, rfile.id))
 
     return {
         'id': rfile.id,
@@ -198,6 +203,7 @@ def serialize_rfile(session, rfile):
         'status': "PENDING" if rfile.state is None or rfile.state == '' else rfile.state.upper(),
         'verification_date': rfile.verification_date
     }
+
 
 def serialize_itip(session, internaltip, language):
     x = session.query(models.InternalTipAnswers, models.ArchivedSchema) \
@@ -281,8 +287,8 @@ def serialize_rtip(session, itip, rtip, language):
                            .filter(models.User.id == models.ReceiverTip.receiver_id,
                                    models.ReceiverTip.internaltip_id == itip.id):
         ret['receivers'].append({
-          'id': receiver.id,
-          'name': receiver.name
+            'id': receiver.id,
+            'name': receiver.name
         })
 
     denied_identity_files = ['1']
@@ -293,18 +299,20 @@ def serialize_rtip(session, itip, rtip, language):
         if 'data' in ret and 'whistleblower_identity' in ret['data']:
             del ret['data']['whistleblower_identity']
 
-        denied_identity_files = get_identity_files(ret.get('questionnaires', []))
+        denied_identity_files = get_identity_files(
+            ret.get('questionnaires', []))
 
     for ifile, wbfile in session.query(models.InternalFile, models.WhistleblowerFile) \
-                               .filter(models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
-                                       not_(models.InternalFile.reference_id.in_(denied_identity_files)),
-                                       models.WhistleblowerFile.receivertip_id == rtip.id):
+        .filter(models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
+                not_(models.InternalFile.reference_id.in_(
+                    denied_identity_files)),
+                models.WhistleblowerFile.receivertip_id == rtip.id):
         ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile))
 
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 or_(models.ReceiverFile.visibility not in (models.EnumVisibility.personal.value, models.EnumVisibility.whistleblower.value),
-                                     models.ReceiverFile.author_id == user_id)):
+        .filter(models.ReceiverFile.internaltip_id == itip.id,
+                or_(models.ReceiverFile.visibility not in (models.EnumVisibility.personal.value, models.EnumVisibility.whistleblower.value),
+                    models.ReceiverFile.author_id == user_id)):
         ret['rfiles'].append(serialize_rfile(session, rfile))
 
     for comment in session.query(models.Comment) \
@@ -314,15 +322,18 @@ def serialize_rtip(session, itip, rtip, language):
         ret['comments'].append(serialize_comment(session, comment))
 
     forwardings = []
-    internaltip_forwardings = db_query(session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip.id).all()
+    internaltip_forwardings = db_query(
+        session, models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == itip.id).all()
     for internaltip_forwarding in internaltip_forwardings:
         forwarding = dict()
         forwarding['id'] = internaltip_forwarding.eo_internaltip_id
         forwarding['tid'] = internaltip_forwarding.tid
-        forwarding['name'] = db_get(session, models.Config, (models.Config.tid == internaltip_forwarding.tid, models.Config.var_name == 'name')).value
+        forwarding['name'] = db_get(session, models.Config, (models.Config.tid ==
+                                    internaltip_forwarding.tid, models.Config.var_name == 'name')).value
         forwarding['state'] = internaltip_forwarding.state
         forwarding['creation_date'] = internaltip_forwarding.creation_date
-        contents = db_query(session, models.ContentForwarding, models.ContentForwarding.internaltip_forwarding_id == internaltip_forwarding.id).all()
+        contents = db_query(session, models.ContentForwarding,
+                            models.ContentForwarding.internaltip_forwarding_id == internaltip_forwarding.id).all()
         files = []
         comments = []
         for content in contents:
@@ -349,9 +360,9 @@ def serialize_rtip(session, itip, rtip, language):
             .one_or_none()
 
         forwarding['questionnaire'] = {
-                'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
-                'answers': internaltip_forwarding.data
-            }
+            'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
+            'answers': internaltip_forwarding.data
+        }
 
         forwardings.append(forwarding)
     ret['forwardings'] = forwardings
@@ -361,13 +372,14 @@ def serialize_rtip(session, itip, rtip, language):
 
 def serialize_wbtip(session, itip, language):
     ret = serialize_itip(session, itip, language)
-    ret['max_eo_to_whistleblower_comments'] = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
+    ret['max_eo_to_whistleblower_comments'] = ConfigFactory(
+        session, 1).get_val('max_msg_external_to_whistle')
     for receiver in session.query(models.User) \
                            .filter(models.User.id == models.ReceiverTip.receiver_id,
                                    models.ReceiverTip.internaltip_id == itip.id):
         ret['receivers'].append({
-          'id': receiver.id,
-          'name': receiver.public_name
+            'id': receiver.id,
+            'name': receiver.public_name
         })
 
     for ifile in session.query(models.InternalFile) \
@@ -375,15 +387,25 @@ def serialize_wbtip(session, itip, language):
         ret['wbfiles'].append(serialize_ifile(session, ifile))
 
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 models.ReceiverFile.visibility == models.EnumVisibility.public.value):
+        .filter(models.ReceiverFile.internaltip_id == itip.id,
+                models.ReceiverFile.visibility == models.EnumVisibility.public.value):
         ret['rfiles'].append(serialize_rfile(session, rfile))
-
 
     for comment in session.query(models.Comment) \
                           .filter(models.Comment.internaltip_id == itip.id,
                                   models.Comment.visibility.in_([models.EnumVisibility.public.value, models.EnumVisibility.whistleblower.value])):
-        ret['comments'].append(serialize_comment(session, comment))
+        oe_name = session.query(models.Config)\
+            .filter(models.ContentForwarding.content_id == comment.id,
+                    models.ContentForwarding.content_origin == models.EnumContentForwarding.comment.value,
+                    models.ContentForwarding.author_type == models.EnumAuthorType.eo.value,
+                    models.InternalTipForwarding.id == models.ContentForwarding.internaltip_forwarding_id,
+                    models.Config.tid == models.InternalTipForwarding.tid,
+                    models.Config.var_name == 'name').one_or_none()
+        if oe_name:
+            comment.author_name = oe_name.value
+            ret_comment = serialize_comment(session, comment)
+            ret_comment['oe_name'] = oe_name.value
+        ret['comments'].append(ret_comment)
 
     return ret
 
@@ -429,9 +451,9 @@ def serialize_signup(signup):
 
 def serialize_tenant(session, tenant, config=None):
     ret = {
-      'id': tenant.id,
-      'creation_date': tenant.creation_date,
-      'active': tenant.active
+        'id': tenant.id,
+        'creation_date': tenant.creation_date,
+        'active': tenant.active
     }
 
     if config:
@@ -479,7 +501,8 @@ def process_logs(session, tip, tip_id):
     """
     logs = session.query(models.AuditLog).filter(
         models.AuditLog.object_id == tip_id,
-        models.AuditLog.type.in_(['update_report_status', 'update_report_expiration'])
+        models.AuditLog.type.in_(
+            ['update_report_status', 'update_report_expiration'])
     )
 
     for log in logs:
