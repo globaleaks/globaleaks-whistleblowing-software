@@ -50,7 +50,12 @@
             <div class="col-lg-4 col-md-12 mb-4 d-inline-flex align-items-stretch" *ngFor="let chart of charts; let i = index">
                 <div class="card w-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>{{ 'Chart' | translate }} {{ i + 1 }}</span>
+                        <input
+                            class="form-control inputelem mx-1"
+                            type="text"
+                            [value]="('Chart' | translate) + ' ' + (i + 1)"
+                            [placeholder]="('Chart' | translate) + ' ' + (i + 1)"
+                        />
                         <button type="button" class="btn btn-outline-secondary" aria-label="Close" (click)="removeChart(i)">
                             <i class="fa fa-times"></i>
                         </button>
