@@ -401,9 +401,8 @@ def serialize_wbtip(session, itip, language):
                     models.InternalTipForwarding.id == models.ContentForwarding.internaltip_forwarding_id,
                     models.Config.tid == models.InternalTipForwarding.tid,
                     models.Config.var_name == 'name').one_or_none()
+        ret_comment = serialize_comment(session, comment)
         if oe_name:
-            comment.author_name = oe_name.value
-            ret_comment = serialize_comment(session, comment)
             ret_comment['oe_name'] = oe_name.value
         ret['comments'].append(ret_comment)
 
