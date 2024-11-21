@@ -69,6 +69,10 @@ export class TipComponent implements OnInit {
     this.loadTipDate();
     this.cdr.detectChanges();
     this.preferenceData = this.preferencesService.dataModel;
+
+    this.tipService.reload$.subscribe(() => {
+      this.loadTipDate();
+  });
   }
 
   loadTipDate() {

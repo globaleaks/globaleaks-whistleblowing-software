@@ -43,6 +43,7 @@ export class SendtipDetailComponent{
   }
 
   backClicked() {
+    this.tipService.triggerReload();
     this._location.back();
   }
 

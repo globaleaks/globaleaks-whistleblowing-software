@@ -1,13 +1,21 @@
 import {Injectable} from '@angular/core';
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import { UtilsService } from './utils.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TipService {
 
+  private reloadSubject = new Subject<void>();
+  reload$ = this.reloadSubject.asObservable();
+
   constructor(private fieldUtilities: FieldUtilitiesService, private utilsService: UtilsService) {
+  }
+
+  triggerReload(): void {
+    this.reloadSubject.next();
   }
 
   filterNotTriggeredField(tip: any, parent: any, field: any, answers: any): void {
