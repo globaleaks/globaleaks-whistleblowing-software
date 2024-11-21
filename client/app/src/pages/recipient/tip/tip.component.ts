@@ -124,10 +124,10 @@ export class TipComponent implements OnInit {
 
   initNavBar() {
     setTimeout(() => {
-      this.active = "Everyone";
+      this.active = "Recipients and Whistleblower";
       this.tabs = [
         {
-          title: "Everyone",
+          title: "Recipients and Whistleblower",
           component: this.tab1
         },
         {
