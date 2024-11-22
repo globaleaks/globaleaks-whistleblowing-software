@@ -394,7 +394,7 @@ def serialize_wbtip(session, itip, language):
     for comment in session.query(models.Comment) \
                           .filter(models.Comment.internaltip_id == itip.id,
                                   models.Comment.visibility.in_([models.EnumVisibility.public.value, models.EnumVisibility.whistleblower.value])):
-        oe_name = session.query(models.Config)\
+        eo_name = session.query(models.Config)\
             .filter(models.ContentForwarding.content_id == comment.id,
                     models.ContentForwarding.content_origin == models.EnumContentForwarding.comment.value,
                     models.ContentForwarding.author_type == models.EnumAuthorType.eo.value,
@@ -402,8 +402,8 @@ def serialize_wbtip(session, itip, language):
                     models.Config.tid == models.InternalTipForwarding.tid,
                     models.Config.var_name == 'name').one_or_none()
         ret_comment = serialize_comment(session, comment)
-        if oe_name:
-            ret_comment['oe_name'] = oe_name.value
+        if eo_name:
+            ret_comment['eo_name'] = eo_name.value
         ret['comments'].append(ret_comment)
 
     return ret
