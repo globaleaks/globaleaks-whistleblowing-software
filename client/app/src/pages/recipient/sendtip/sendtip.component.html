@@ -44,7 +44,7 @@
       <div class="col-12">
         <div class="row form-group">
           <div class="col-md-12">
-            <span>{{'Text'|translate}}</span>
+            <span data-toggle="tooltip" title="{{'tooltip forward text' | translate}}">{{'Text'|translate}}</span>
           </div>
           <div class="col-md-12 mt-2">
             <textarea id="SendTipText" name="sendTipText" maxlength="4096" autocomplete="off" class="form-control" [(ngModel)]="sendTipRequest.text"></textarea>
@@ -57,7 +57,7 @@
       <div class="col-6">
         <div class="row form-group">
             <div class="col-md-12">
-              <span>{{'Review Form'|translate}}</span>
+              <span data-toggle="toolptip review form" title="{{'tooltip forward text' | translate}}">{{'Review Form'|translate}}</span>
             </div>
             <div class="col-md-12 mt-2">
               <select id="assignSubmissionStatus" class="form-control" [(ngModel)]="sendTipRequest.questionnaire_id">
