@@ -38,7 +38,26 @@ export class TipEoCommentsComponent {
   }
 
   ngOnInit() {
-    this.comments = this.tipService.tip.comments;
+
+    
+    this.comments = this.tipService.tip.comments.map(comment => {
+
+      this.tipService.tip.forwardings.forEach(forw => {
+        if(forw.comments?.some(i => i.id === comment.id)){
+          let eo_name = forw.name;
+          comment = {
+            ...comment,
+            eo_name: eo_name
+          }
+        }
+
+      })
+
+      return comment;
+      
+    });
+
+    
   }
 
   public toggleCollapse() {
@@ -82,9 +101,12 @@ export class TipEoCommentsComponent {
   }
 
   getSortedComments(data: Comment[]): Comment[] {
-    if(this.organizations)
+    if(this.organizations){
+      
       data = data.filter(comment => this.organizations.map(_=>_.comments).flat().some(i => i?.id === comment.id))
-
+      
+      
+    }
     return data;
   }
 

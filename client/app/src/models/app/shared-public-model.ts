@@ -138,6 +138,7 @@ export interface Comment {
   type: string;
   data: any;
   tids: number[];
+  eo_name: string;
 }
 
 export interface WbFile {
