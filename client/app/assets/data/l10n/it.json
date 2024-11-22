@@ -764,5 +764,6 @@
   "close": "Chiuso",
   "EO multitenant mode": "Modalità multitenant per Organizzazioni Esterne",
   "tooltip forward text": "tooltip forward text",
-  "toolptip review form": "toolptip review form"
+  "toolptip review form": "toolptip review form",
+  "Files to attach to the send tip": "File da allegare all'inoltro"
 }

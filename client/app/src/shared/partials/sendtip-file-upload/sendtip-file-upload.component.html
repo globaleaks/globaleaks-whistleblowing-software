@@ -1,6 +1,6 @@
 <div id="TipPagefileUpload" class="card card-default" [attr.aria-expanded]="collapsed">
     <div class="card-header clearfix"  (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
-      <span>{{'Files attached by recipients' | translate}}</span>
+      <span>{{'Files to attach to the send tip' | translate}}</span>
       <span class="float-end">
         <i *ngIf="!collapsed" class="fa-solid fa-chevron-up" data-toggle="tooltip" [title]="'Collapse' | translate"></i>
         <i *ngIf="collapsed" class="fa-solid fa-chevron-down" data-toggle="tooltip" [title]="'Expand' | translate"></i>
