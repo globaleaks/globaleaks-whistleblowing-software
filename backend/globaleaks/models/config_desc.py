@@ -101,6 +101,7 @@ ConfigDescriptor = {
     'smtp_server': Unicode(default='mail.globaleaks.org'),
     'smtp_source_email': Unicode(default='notifications@globaleaks.org'),
     'smtp_username': Unicode(default='globaleaks'),
+    'smtp2_enabled': Bool(default=False),
     'smtp2_password': Unicode(default=''),
     'smtp2_port': Int(default=587),
     'smtp2_security': Unicode(default=''),

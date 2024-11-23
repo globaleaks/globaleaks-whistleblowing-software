@@ -728,10 +728,10 @@ class _Mail(Model):
     address = Column(UnicodeText, nullable=False)
     subject = Column(UnicodeText, nullable=False)
     body = Column(UnicodeText, nullable=False)
-    is_pec = Column(Boolean, nullable=False, default=False)
+    secondary_smtp = Column(Boolean, nullable=False, default=False)
 
     unicode_keys = ['address', 'subject', 'body']
-    bool_keys = ['is_pec']
+    bool_keys = ['secondary_smtp']
 
     @declared_attr
     def __table_args__(self):
@@ -932,10 +932,12 @@ class _Subscriber(Model):
     tid = Column(Integer, primary_key=True)
     subdomain = Column(UnicodeText, unique=True, nullable=False)
     language = Column(UnicodeText(12), nullable=False)
+    user_id = Column(UnicodeText, default='', nullable=False)
     name = Column(UnicodeText, nullable=False)
     surname = Column(UnicodeText, nullable=False)
     phone = Column(UnicodeText, default='', nullable=False)
     email = Column(UnicodeText, nullable=False)
+    tax_code = Column(UnicodeText, nullable=True)
     organization_name = Column(UnicodeText, default='', nullable=False, unique=True)
     organization_tax_code = Column(UnicodeText, unique=True, nullable=True)
     organization_vat_code = Column(UnicodeText, unique=True, nullable=True)
@@ -951,20 +953,19 @@ class _Subscriber(Model):
     organization_email = Column(UnicodeText, nullable=True)
     organization_institutional_site = Column(UnicodeText, default='', nullable=False)
     accreditation_date = Column(DateTime, nullable=True)
-    admin_name = Column(UnicodeText, nullable=True)
-    admin_surname = Column(UnicodeText, nullable=True)
-    admin_email = Column(UnicodeText, nullable=True)
-    admin_fiscal_code = Column(UnicodeText, nullable=True)
-    recipient_fiscal_code = Column(UnicodeText, nullable=True)
-    sharing_id = Column(UnicodeText(36), nullable=False, default=uuid4)
+    recipient_user_id = Column(UnicodeText, default='', nullable=False)
+    recipient_name = Column(UnicodeText, nullable=True)
+    recipient_surname = Column(UnicodeText, nullable=True)
+    recipient_email = Column(UnicodeText, nullable=True)
+    recipient_tax_code = Column(UnicodeText, nullable=True)
 
-    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email',
+    unicode_keys = ['subdomain', 'language', 'phone',
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
-                    'client_ip_address', 'client_user_agent', 'state', 'organization_email',
-                    'organization_institutional_site', 'admin_name', 'admin_surname', 'admin_email',
-                    'admin_fiscal_code', 'recipient_name', 'recipient_surname', 'recipient_email',
-                    'recipient_fiscal_code', 'sharing_id']
+                    'organization_email', 'organization_site',
+                    'client_ip_address', 'client_user_agent', 'state',
+                    'user_id', 'name', 'surname', 'email', 'tax_code',
+                    'recipient_user_id', 'recipient_name', 'recipient_surname', 'recipient_email', 'recipient_tax_code']
 
     bool_keys = ['tos1', 'tos2']
 
