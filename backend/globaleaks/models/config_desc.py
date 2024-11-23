@@ -134,9 +134,9 @@ ConfigDescriptor = {
     'max_msg_external_to_whistle_not_aff': Int(default=1),
     'external_organization_activation': Bool(default=True),
     'global_stat_pub_key': Unicode(default=''),
-    'backup_enable': Bool(default=False),
-    'backup_time_ISO_8601': Unicode(default=''),
-    'backup_destination_path': Unicode(default='')
+    'backup_enabled': Bool(default=False),
+    'backup_path': Unicode(default=''),
+    'backup_time': Unicode(default='')
 
 }
 
@@ -214,8 +214,9 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'backup_destination_path',
-        'backup_enable',
-        'backup_time_ISO_8601',
+        'backup_enabled',
+        'backup_path',
+        'backup_time',
         'url_file_analysis',
         'external_organization_activation'
     ],
