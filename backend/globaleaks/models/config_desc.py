@@ -57,6 +57,7 @@ ConfigDescriptor = {
     'enable_signup': Bool(default=False),
     'encryption': Bool(default=True),
     'escrow': Bool(default=False),
+    'forwarding': Bool(default=False),
     'hostname': Unicode(default=''),
     'https_admin': Bool(default=True),
     'https_accreditor': Bool(default=True),

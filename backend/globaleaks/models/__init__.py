@@ -601,7 +601,7 @@ class _ContentForwarding(Model):
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
     content_id = Column(UnicodeText(36), nullable=False, index=True)
-    eo_content_id = Column(UnicodeText(36), nullable=False, index=True)
+    forwarding_content_id = Column(UnicodeText(36), nullable=False, index=True)
     content_origin = Column(Enum(EnumContentForwarding), default='receiver_file', nullable=False)
     author_type = Column(Enum(EnumAuthorType), default='main', nullable=False)
 
@@ -999,7 +999,7 @@ class _InternalTipForwarding(Model):
     __tablename__ = 'internaltip_forwarding'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    eo_internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
+    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
     tid = Column(Integer, default=1, nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
@@ -1020,7 +1020,7 @@ class _InternalTipForwarding(Model):
                 initially='DEFERRED'
             ),
             ForeignKeyConstraint(
-                ['eo_internaltip_id'],
+                ['forwarding_internaltip_id'],
                 ['internaltip.id'],
                 ondelete='CASCADE',
                 deferrable=True,
