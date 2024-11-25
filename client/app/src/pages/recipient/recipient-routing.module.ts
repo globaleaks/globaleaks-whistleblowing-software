@@ -45,7 +45,7 @@ const routes: Routes = [
     component: AccreditationRequestComponent,
     pathMatch: "full",
     resolve: {
-      NodeResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Accreditation Request"},
   },

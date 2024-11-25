@@ -718,5 +718,6 @@
   "close": "Closed",
   "EO multitenant mode": "EO multitenant mode",
   "tooltip forward text": "tooltip forward text",
-  "toolptip review form": "toolptip review form"
+  "toolptip review form": "toolptip review form",
+  "Requested by": "Requested By"
 }

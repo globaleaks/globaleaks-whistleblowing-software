@@ -25,6 +25,8 @@ export class ExternalOrganization {
     opened_tips: number;
     closed_tips: number;
     users: EOUser[];
+
+    instructor_detail?: InstructorDetail;
 }
 
 
@@ -55,6 +57,7 @@ export interface EOInfo {
     organization_email: string;
     organization_institutional_site: string;
     organization_accreditation_reason?: string;
+    instructor_id?: string;
 }
   
   
@@ -80,4 +83,10 @@ export interface EOUser {
     role: string;
     opened_rtips: number;
     closed_rtips: number;
+}
+
+
+export interface InstructorDetail {
+    id: string;
+    username: string;
 }

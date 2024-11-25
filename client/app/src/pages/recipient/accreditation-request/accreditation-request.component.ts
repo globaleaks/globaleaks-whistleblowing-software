@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { EOInfo } from "@app/models/accreditor/organization-data";
 import { HttpService } from "@app/shared/services/http.service";
 import { Location } from '@angular/common'; 
+import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 @Component({
     selector: 'src-accreditation-request',
@@ -13,11 +14,11 @@ export class AccreditationRequestComponent {
         organization_name: '',
         organization_email: '',
         organization_institutional_site: '',
-        organization_accreditation_reason: ''
-    };
+        organization_accreditation_reason: '',
+    }
     isFormValid: boolean = false;
 
-    constructor(private readonly httpService: HttpService, private readonly location: Location) {}
+    constructor(private readonly httpService: HttpService, private readonly location: Location, protected preferences: PreferenceResolver) {}
 
     onFormValidityChange(isValid: boolean) {
         this.isFormValid = isValid;
@@ -25,6 +26,8 @@ export class AccreditationRequestComponent {
 
     onSubmit() {
         if (this.isFormValid) {
+            this.organizationInfo.instructor_id = this.preferences.dataModel.id;
+            
             this.httpService.sendAccreditationRequest(this.organizationInfo).subscribe({
                 next: () => {
                     this.location.back();
@@ -36,5 +39,9 @@ export class AccreditationRequestComponent {
         } else {
             console.log('Form is invalid');
         }
+    }
+
+    goBack(){
+        this.location.back();
     }
 }

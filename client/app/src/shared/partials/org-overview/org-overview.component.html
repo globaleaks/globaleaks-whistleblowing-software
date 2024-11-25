@@ -20,6 +20,7 @@
                         <th>{{'Tips'|translate}}</th>
                         <th>{{'Closed Tips'| translate}}</th>
                         <th>{{'Status'| translate}}</th>
+                        <th *ngIf="org.instructor_detail">{{'Requested by' | translate}}</th>
                     </tr>
                 </thead>
                 <tbody id="orgOverviewTableBody">
@@ -29,6 +30,7 @@
                         <td>{{org.opened_tips}}</td>
                         <td>{{org.closed_tips}}</td>
                         <td>{{org.state | translate}}</td>
+                        <td *ngIf="org.instructor_detail">{{org.instructor_detail.username}}</td>
                     </tr>
                 </tbody>
             </table>

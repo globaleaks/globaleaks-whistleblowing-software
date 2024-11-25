@@ -1,13 +1,22 @@
+<div id="Toolbar" class="row">
+  <div class="col-md-12">
+    <a id="link-tiplist" data-toggle="tooltip" title="{{'Send tip' | translate}}" (click)="goBack()"
+        class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+  </div>
+</div>
+
 <div class="row">
     <div class="col-12 col-md-6">
       <src-org-info [orgInfo]="organizationInfo" [visualization]="false" (formValidityChange)="onFormValidityChange($event)"></src-org-info>
     </div>
-  </div>
+</div>
   
-  <div class="row">
-    <div class="col-lg-6 col-md-12">
-      <button class="btn btn-primary" [disabled]="!isFormValid" (click)="onSubmit()" id="submitButton">
-        {{ 'Submit' | translate }}
-      </button>
-    </div>
+<div class="row">
+  <div class="col-lg-6 col-md-12">
+    <button class="btn btn-primary" [disabled]="!isFormValid" (click)="onSubmit()" id="submitButton">
+      {{ 'Submit' | translate }}
+    </button>
   </div>
+</div>
