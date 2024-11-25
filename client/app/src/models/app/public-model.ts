@@ -66,6 +66,10 @@ export class Node {
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
   antivirus_enable: boolean;
+  external_organization_activation: boolean;
+  max_msg_external_to_whistle: number;
+  max_msg_external_to_whistle_not_aff: number;
+  url_file_analysis: string;
 }
 
 export interface LanguagesSupported {

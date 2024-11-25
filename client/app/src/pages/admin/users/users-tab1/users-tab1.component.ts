@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import { AppDataService } from "@app/app-data.service";
 import {NewUser} from "@app/models/admin/new-user";
 import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
@@ -31,7 +32,7 @@ export class UsersTab1Component implements OnInit {
   editing = false;
   protected readonly Constants = Constants;
 
-  constructor(private httpService: HttpService, protected nodeResolver: NodeResolver, private usersResolver: UsersResolver, private tenantsResolver: TenantsResolver, private utilsService: UtilsService, protected authenticationService: AuthenticationService, private preference: PreferenceResolver) {
+  constructor(private httpService: HttpService, protected nodeResolver: NodeResolver, private usersResolver: UsersResolver, private tenantsResolver: TenantsResolver, private utilsService: UtilsService, protected authenticationService: AuthenticationService, private preference: PreferenceResolver, protected appDataService: AppDataService) {
   }
 
   ngOnInit(): void {

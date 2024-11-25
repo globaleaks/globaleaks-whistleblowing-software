@@ -67,7 +67,6 @@ export class AccredComponent implements OnInit{
 
       if(cookie == null)
         window.location.href="/onboarding"
-        // this.router.navigate(['/']); //redirect to onboarding
       else
         this.adminInfo.fiscal_code = cookie;
     }

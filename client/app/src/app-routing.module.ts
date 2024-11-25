@@ -27,6 +27,7 @@ import { AccreditorGuard } from "./shared/guards/accreditor.guard";
 import { OrganizationComponent } from "@app/pages/accreditor/organization/organization.component";
 import { SendtipComponent } from "./pages/recipient/sendtip/sendtip.component";
 import { SendtipDetailComponent } from "./pages/recipient/sendtip-detail/sendtip-detail.component";
+import { AccredRoutingGuard } from "./pages/accred/accred.guard";
 
 const routes: Routes = [
   {
@@ -133,6 +134,7 @@ const routes: Routes = [
   {
     path: "accreditation-request",
     data: {pageTitle: "Accreditation"},
+    canActivate: [AccredRoutingGuard],
     resolve: {
       PreferenceResolver,
       title: TitleResolver
@@ -142,6 +144,7 @@ const routes: Routes = [
   {
     path: "accreditation-request/:org_id",
     data: {pageTitle: "Accreditation"},
+    canActivate: [AccredRoutingGuard],
     resolve: {
       PreferenceResolver,
       title: TitleResolver
