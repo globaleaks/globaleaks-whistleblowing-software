@@ -957,14 +957,15 @@ class _Subscriber(Model):
     admin_fiscal_code = Column(UnicodeText, nullable=True)
     recipient_fiscal_code = Column(UnicodeText, nullable=True)
     sharing_id = Column(UnicodeText(36), nullable=False, default=uuid4)
+    instructor_id = Column(UnicodeText, nullable=True)
 
     unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email',
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',
                     'organization_institutional_site', 'admin_name', 'admin_surname', 'admin_email',
-                    'admin_fiscal_code', 'recipient_name', 'recipient_surname', 'recipient_email',
-                    'recipient_fiscal_code', 'sharing_id']
+                    'admin_fiscal_code', 'recipient_email',
+                    'recipient_fiscal_code', 'sharing_id', 'instructor_id']
 
     bool_keys = ['tos1', 'tos2']
 

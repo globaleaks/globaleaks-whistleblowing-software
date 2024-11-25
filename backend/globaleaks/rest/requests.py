@@ -574,7 +574,8 @@ SubmitAccreditation = {
 AccreditationInstructorRequest = {
     'organization_name': str,
     'organization_email': email_regexp,
-    'organization_accreditation_reason': str
+    'organization_accreditation_reason': str,
+    'instructor_id': str
 }
 
 deleteAccreditation = {

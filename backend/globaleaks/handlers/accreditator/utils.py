@@ -160,6 +160,29 @@ def extract_user(session, accreditation_item):
         for user in query
     ]
 
+def add_instructor_info(session, accreditation_item):
+    """
+    Extract instructor user information for a given accreditation item, if exists.
+
+    Args:
+        session: The database session.
+        accreditation_item: The Subscriber object.
+
+    Returns:
+        A dictionaries containing instructor user information, if exists else None
+    """
+    if not accreditation_item.instructor_id:
+        return None
+    try:
+        user = (session.query(User).filter(User.id == accreditation_item.instructor_id)).one_or_none()
+        return {
+            'id': user.id,
+            'username': user.username
+        }
+    except Exception as e:
+        logging.debug(e)
+        return None
+
 def accreditation_by_id(session, accreditation_id):
     """
     Retrieve an accreditation item by its ID.
@@ -192,6 +215,7 @@ def accreditation_by_id(session, accreditation_id):
         element = add_user_primary(accreditation_item, element)
         element['closed_tips'] = count_tip.get('closed', 0)
         element['users'] = extract_user(session, accreditation_item)
+        element['instructor_detail'] = add_instructor_info(session, accreditation_item)
         return element
     except NoResultFound:
         logging.debug(f"Error: Accreditation with ID {accreditation_id} not found")
