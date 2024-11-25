@@ -84,10 +84,13 @@ def get_wbtip(session, itip_id, language):
 
 @transact
 def is_download(session, file_location, name, state, can_download_infected):
+    antivirus_enable = ConfigFactory(session, 1).get_val('antivirus_enable')
+    if not antivirus_enable:
+        return EnumStateFile.pending, True
     url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
     af = FileAnalysis(url=url_clam_av)
     try:
-        status = af.read_file_for_scanning(file_location, name, state)
+        status = af.read_file_for_scanning(file_location, name, state, antivirus_enable)
     except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
         logging.debug(e_p)
         status = EnumStateFile.pending if isinstance(

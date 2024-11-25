@@ -206,6 +206,12 @@ class MigrationScript(MigrationBase):
         file_analisys_config.tid = 1
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
+        add_enable_antivirus = self.model_to['Config']()
+        add_enable_antivirus.var_name = 'antivirus_enable'
+        add_enable_antivirus.value = True
+        add_enable_antivirus.tid = 1
+        self.session_new.add(add_enable_antivirus)
+        self.entries_count['Config'] += 1
 
     def add_msg_external_to_whistle(self):
         add_config = self.model_to['Config']()

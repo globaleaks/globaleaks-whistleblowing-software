@@ -128,6 +128,7 @@ ConfigDescriptor = {
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
     'url_file_analysis': Unicode(default='http://localhost:3000/api/v1/scan'),
+    'antivirus_enable': Bool(default=True),
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
     'external_organization_activation': Bool(default=True),
@@ -135,7 +136,6 @@ ConfigDescriptor = {
     'backup_enable': Bool(default=False),
     'backup_time_ISO_8601': Unicode(default='2:00'),
     'backup_destination_path': Unicode(default='/var/backup/')
-
 }
 
 
@@ -212,6 +212,7 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'url_file_analysis',
+        'antivirus_enable',
         'external_organization_activation'
     ],
     'admin_node': [
@@ -271,7 +272,8 @@ ConfigFilters = {
         'backup_destination_path',
         'backup_enable',
         'backup_time_ISO_8601',
-        'url_file_analysis'
+        'url_file_analysis',
+        'antivirus_enable'
 
     ],
     'admin_network': [
@@ -354,7 +356,11 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
-        'url_file_analysis'
+        'external_organization_activation',
+        'url_file_analysis',
+        'antivirus_enable',
+        'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff'
     ],
     'tenant': [
         'hostname',

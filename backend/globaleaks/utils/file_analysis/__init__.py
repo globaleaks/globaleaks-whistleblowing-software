@@ -24,7 +24,9 @@ class FileAnalysis:
         json_data = json.loads(response.text)
         return ScanResponse.from_dict(json_data)
 
-    def wrap_scanning(self, file_name: str, data_bytes: bytes) -> EnumStateFile:
+    def wrap_scanning(self, file_name: str, data_bytes: bytes, antivirus_enable:bool=True) -> EnumStateFile:
+        if not antivirus_enable:
+            return EnumStateFile.pending
         try:
             response = self._scan_file(
                 file_name=file_name,
@@ -39,7 +41,7 @@ class FileAnalysis:
             log.err(f"Scan failed for {e}")
             return EnumStateFile.pending
 
-    def read_file_for_scanning(self, fp, file_name, state):
+    def read_file_for_scanning(self, fp, file_name, state, antivirus_enable: bool = True):
         status_file = EnumStateFile.verified
         if state == EnumStateFile.infected.name:
             raise errors.FileInfectedDownloadPermissionDenied
@@ -49,7 +51,8 @@ class FileAnalysis:
         while chunk:
             status_file = self.wrap_scanning(
                 file_name=file_name,
-                data_bytes=chunk
+                data_bytes=chunk,
+                antivirus_enable=antivirus_enable
             )
             if status_file == EnumStateFile.pending:
                 raise errors.FilePendingDownloadPermissionDenied

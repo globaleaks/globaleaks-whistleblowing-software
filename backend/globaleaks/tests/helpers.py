@@ -374,6 +374,7 @@ class MockDict:
             'backup_enable': True,
             'backup_time_ISO_8601': '',
             'backup_destination_path': '',
+            'antivirus_enable': True,
             'url_file_analysis': '',
             'external_organization_activation': True
         }
