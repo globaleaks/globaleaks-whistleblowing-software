@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { AppDataService } from '@app/app-data.service';
 import { RFile } from '@app/models/app/shared-public-model';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
@@ -14,7 +15,8 @@ export class TipEoRfilesReceiverComponent {
 
   collapsed = false;
 
-  constructor(protected utilsService: UtilsService, protected tipService: ReceiverTipService, protected preferenceResolver: PreferenceResolver,) {
+  constructor(protected utilsService: UtilsService, protected tipService: ReceiverTipService,
+              protected preferenceResolver: PreferenceResolver, protected readonly appDataService: AppDataService) {
   }
 
 

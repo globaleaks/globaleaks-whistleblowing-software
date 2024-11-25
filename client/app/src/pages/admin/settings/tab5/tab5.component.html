@@ -176,6 +176,10 @@
             <label>{{ 'EO multitenant mode' | translate }}</label>
         </div>
         <div class="form-group">
+            <input [(ngModel)]="nodeResolver.dataModel.antivirus_enable" type="checkbox">
+            <label>{{ 'Enable virus scanning of files' | translate }}</label>
+        </div>
+        <div class="form-group">
             <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
         </div>

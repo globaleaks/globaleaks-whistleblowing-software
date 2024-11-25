@@ -13,6 +13,7 @@ export class SendtipFilesComponent implements OnInit {
   @Input() selectedFiles: AttachmentFile[] = [];
   @Input() isSelectable: boolean = true;
   @Input() canDownloadInfected: boolean = false;
+  @Input() isAntivirusEnable: boolean = false;
 
   @Input() forwardingDetailFiles: FileReference[];
 
@@ -42,8 +43,12 @@ export class SendtipFilesComponent implements OnInit {
   }
   
   prepareFilesToDisplay(): void {
-    const rfilesMapped = this.rfiles
-      .filter(file => file.visibility !== 'personal' && file.status === 'VERIFIED')
+    const rfilesFiltered = this.rfiles.filter(file => 
+      file.visibility !== 'personal' && 
+      (this.isAntivirusEnable ? file.status === 'VERIFIED' : true)
+    );
+
+    const rfilesMapped = rfilesFiltered
       .map(file => ({
         id: file.id,
         name: file.name,
@@ -55,18 +60,19 @@ export class SendtipFilesComponent implements OnInit {
         download_url: "api/recipient/rfiles/"+file.id
     }));
 
+    const wbfilesFiltered = this.isAntivirusEnable
+      ? this.wbfiles.filter(file => file.status === 'VERIFIED')
+      : this.wbfiles;
 
-    const wbfilesMapped = this.wbfiles
-      .filter(file => file.status === 'VERIFIED')
-      .map(file => ({
-        id: file.ifile_id,
-        name: file.name,
-        status: file.status,
-        origin: 'whistleblower',
-        uploadDate: file.creation_date,
-        size: file.size,
-        verification_date: file.verification_date,
-        download_url: "api/recipient/wbfiles/"+file.id
+    const wbfilesMapped = wbfilesFiltered.map(file => ({
+      id: file.ifile_id,
+      name: file.name,
+      status: file.status,
+      origin: 'whistleblower',
+      uploadDate: file.creation_date,
+      size: file.size,
+      verification_date: file.verification_date,
+      download_url: "api/recipient/wbfiles/"+file.id
     }));
 
 

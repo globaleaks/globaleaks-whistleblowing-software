@@ -7,9 +7,8 @@ import { Forwarding, RecieverTipData } from '@app/models/reciever/reciever-tip-d
 import { HttpService } from '@app/shared/services/http.service';
 import { ReceiverTipService } from '@app/services/helper/receiver-tip.service';
 import { UtilsService } from '@app/shared/services/utils.service';
-import { Observable } from 'rxjs';
 import { PreferenceResolver } from '@app/shared/resolvers/preference.resolver';
-
+import { AppDataService } from '@app/app-data.service';
 
 
 @Component({
@@ -26,12 +25,12 @@ export class SendtipDetailComponent{
   tip_id: string | null;
   tip: any;
 
-
-
   loading = true;
 
-
-  constructor(private readonly _location: Location, private readonly tipService: TipService, protected utils: UtilsService, protected RTipService: ReceiverTipService,  private readonly httpService: HttpService, private readonly activatedRoute: ActivatedRoute, protected preferencesService: PreferenceResolver){
+  constructor(private readonly _location: Location, private readonly tipService: TipService, protected utils: UtilsService,
+              protected RTipService: ReceiverTipService,  private readonly httpService: HttpService,
+              private readonly activatedRoute: ActivatedRoute, protected preferencesService: PreferenceResolver,
+              protected readonly appDataService: AppDataService) {
     this.tip = this.RTipService.tip;
 
     this.detail = this.RTipService.forwarding;
@@ -47,7 +46,6 @@ export class SendtipDetailComponent{
     this._location.back();
   }
 
-
   onFileUploaded(newFile: FileItem) {
     this.files.push(newFile);
   }
@@ -59,6 +57,5 @@ export class SendtipDetailComponent{
   onFileDeleted(deletedFile: FileItem) {
     this.files = this.files.filter(file => file.id !== deletedFile.id);
   }
-
 
 }

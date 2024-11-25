@@ -20,7 +20,7 @@ export class WbFilesComponent {
   @Input() receivers_by_id: ReceiversById;
   @Output() dataToParent = new EventEmitter<any>();
 
-  constructor(private appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected preferenceResolver:PreferenceResolver, private modalService: NgbModal) {
+  constructor(protected appDataService: AppDataService, private cryptoService: CryptoService, private httpService: HttpService, protected authenticationService: AuthenticationService, protected preferenceResolver:PreferenceResolver, private modalService: NgbModal) {
   }
 
   deleteWBFile(wbFile: RFile) {

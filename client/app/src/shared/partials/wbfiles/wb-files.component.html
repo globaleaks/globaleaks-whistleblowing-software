@@ -9,7 +9,11 @@
             <span *ngIf="!wbFile.isLoading" class="float-end">
                 <span>
                     <button class="download-button btn btn-sm btn-primary tip-action-download-file" 
-                        (click)="wbFile.status === 'VERIFIED' ? downloadWBFile(wbFile) : showModalDownload(wbFile)" [disabled]="(wbFile.status ==='PENDING' || wbFile.status ==='INFECTED') && !preferenceResolver.dataModel.can_download_infected">  
+                        (click)="wbFile.status === 'VERIFIED' ? downloadWBFile(wbFile) : showModalDownload(wbFile)"
+                        [disabled]="appDataService.public.node.antivirus_enable &&
+                                    (wbFile.status === 'PENDING' || wbFile.status === 'INFECTED') &&
+                                    !preferenceResolver.dataModel.can_download_infected"
+                    >
                         <i class="fa-solid fa-download"></i>
                     </button>
 

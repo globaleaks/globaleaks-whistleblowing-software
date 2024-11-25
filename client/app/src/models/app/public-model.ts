@@ -65,6 +65,7 @@ export class Node {
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
+  antivirus_enable: boolean;
 }
 
 export interface LanguagesSupported {

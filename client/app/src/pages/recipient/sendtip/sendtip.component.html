@@ -71,7 +71,9 @@
     </div>
 
     <div class="row mt-2">
-      <sendtip-files [tip]="tip" [(selectedFiles)]="sendTipRequest.files" [canDownloadInfected]="preferenceResolver.dataModel.can_download_infected"></sendtip-files>
+      <sendtip-files [tip]="tip" [(selectedFiles)]="sendTipRequest.files"
+                     [canDownloadInfected]="preferenceResolver.dataModel.can_download_infected"
+                     [isAntivirusEnable]="appDataService.public.node.antivirus_enable"></sendtip-files>
     </div>
   
 
