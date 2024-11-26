@@ -19,7 +19,7 @@ declare global {
       login_custodian: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_accreditor: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
-      request_external_organization: (denomination?: string, pec?: string, url?: string, adminFiscalCode?: string) => void;
+      request_external_organization: (denomination?: string, pec?: string, url?: string, adminTaxCode?: string) => void;
       confirm_accreditation_request: (reqId: string) => void;
     }
   }
@@ -41,15 +41,15 @@ Cypress.Commands.add("confirm_accreditation_request", (reqId) => {
 
 });
 
-Cypress.Commands.add("request_external_organization", (denomination, pec, url, adminFiscalCode) => {
+Cypress.Commands.add("request_external_organization", (denomination, pec, url, adminTaxCode) => {
 
   denomination = denomination === undefined ? "Organizzazione 1" : denomination;
   pec = pec === undefined ? "example@examplepec.com" : pec;
   url = url === undefined ? "http://exampleurl.com" : url;
-  adminFiscalCode = adminFiscalCode === undefined ? "LLNBRY89A18D969M" : adminFiscalCode;
+  adminTaxCode = adminTaxCode === undefined ? "LLNBRY89A18D969M" : adminTaxCode;
 
 
-  cy.setCookie("x-idp-userid", adminFiscalCode);
+  cy.setCookie("x-idp-userid", adminTaxCode);
   cy.visit('/#/accreditation-request');
 
   cy.get('input[name="denomination"]').type(denomination);
@@ -60,14 +60,14 @@ Cypress.Commands.add("request_external_organization", (denomination, pec, url, a
   cy.get('input[name="adminName"]').type("Barry");
   cy.get('input[name="adminSurname"]').type("Allen");
 
-  cy.get('input[name="adminFiscalCode"]').invoke('val').should('not.be.empty');
+  cy.get('input[name="adminTaxCode"]').invoke('val').should('not.be.empty');
 
   cy.get('input[name="adminEmail"]').type("example@example.com");
-  cy.get('input[name="adminFiscalCode"]').should("be.disabled");
+  cy.get('input[name="adminTaxCode"]').should("be.disabled");
 
   cy.get('input[name="recipientName"]').type("Clark");
   cy.get('input[name="recipientSurname"]').type("Kent");
-  cy.get('input[name="recipientFiscalCode"]').type("KNTCRK91S11I480G");
+  cy.get('input[name="recipientTaxCode"]').type("KNTCRK91S11I480G");
   cy.get('input[name="recipientEmail"]').type("example1@example1.com");
 
   cy.get('input[name="privacyAccept"]').click();

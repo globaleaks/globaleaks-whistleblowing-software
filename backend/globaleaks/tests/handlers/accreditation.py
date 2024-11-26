@@ -102,7 +102,7 @@ class TestRequestAccreditation(helpers.TestHandlerWithPopulatedDB):
             "recipient_name": "rec",
             "recipient_surname": "rec",
             "recipient_email": "rec@rec.com",
-            "recipient_fiscal_code": "fiscal_code",
+            "recipient_tax_code": "tax_code",
             "tos1": True
         }
 
@@ -110,7 +110,7 @@ class TestRequestAccreditation(helpers.TestHandlerWithPopulatedDB):
     def test_post(self):
         handler = self.request(
             body=self.post_dummy_request_accreditation(),
-            headers={'x-idp-userid': 'admin_fiscal_code'},
+            headers={'x-idp-userid': 'admin_tax_code'},
             role='analyst'
         )
         stats = yield handler.post()

@@ -244,10 +244,10 @@ class UsersCollection(BaseHandler):
         request = self.validate_request(body,
                                         requests.AdminUserDesc)
         try:
-            request['fiscal_code'] = json.loads(body).get('fiscal_code')
+            request['idp_id'] = json.loads(body).get('idp_id')
         except Exception as e:
             logging.debug(e)
-            request['fiscal_code'] = None
+            request['idp_id'] = None
 
         try:
             wizard = json.loads(body).get('wizard')

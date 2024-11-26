@@ -16,11 +16,11 @@ class ConfirmRequestHandler(BaseHandler):
 
     def post(self, accreditation_id: str):
         body_req = self.request.content.read()
-        fiscal_code = self.request.headers.get(b'x-idp-userid')
+        admin_tax_code = self.request.headers.get(b'x-idp-userid')
         request = self.validate_request(body_req,requests.SubmitAccreditation)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
-        request['admin_fiscal_code'] = fiscal_code
+        request['admin_tax_code'] = admin_tax_code
         try:
             request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
         except Exception as e:
@@ -132,16 +132,16 @@ class SubmitAccreditationHandler(BaseHandler):
         cookie_dict = dict(item.split('=', 1) for item in cookies)
         return cookie_dict
 
-    def get_fiscal_code(self):
-        fiscal_code = self.request.headers.get(b'x-idp-userid')
-        if fiscal_code:
-            return fiscal_code.decode()
+    def get_tax_code(self):
+        tax_code = self.request.headers.get(b'x-idp-userid')
+        if tax_code:
+            return tax_code.decode()
         cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
         return cookies.get('x-idp-userid')
 
     def post(self):
-        fiscal_code = self.get_fiscal_code()
-        if not fiscal_code:
+        tax_code = self.get_tax_code()
+        if not tax_code:
             raise errors.ForbiddenOperation
         body_req = self.request.content.read()
         request = self.validate_request(
@@ -149,7 +149,7 @@ class SubmitAccreditationHandler(BaseHandler):
             requests.SubmitAccreditation)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
-        request['admin_fiscal_code'] = fiscal_code
+        request['admin_tax_code'] = tax_code
         try:
             request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
         except Exception as e:

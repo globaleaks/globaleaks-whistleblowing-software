@@ -155,7 +155,7 @@ AdminUserDesc = {
     'can_reopen_reports': bool,
     'can_transfer_access_to_reports': bool,
     'forcefully_selected': bool,
-    'fiscal_code': str
+    'idp_id': str
 }
 
 UserUserDesc = {
@@ -567,7 +567,7 @@ SubmitAccreditation = {
     'admin_email': email_regexp,
     'recipient_name': alphanumeric_str_regexp,
     'recipient_surname': alphanumeric_str_regexp,
-    'recipient_fiscal_code': alphanumeric_str_regexp,
+    'recipient_tax_code': alphanumeric_str_regexp,
     'recipient_email': email_regexp,
     'tos1': bool
 }

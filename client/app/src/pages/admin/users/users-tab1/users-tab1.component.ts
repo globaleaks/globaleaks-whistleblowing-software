@@ -22,10 +22,10 @@ export class UsersTab1Component implements OnInit {
   tenantData: tenantResolverModel;
   preferenceData: preferenceResolverModel;
   usersData: userResolverModel[];
-  new_user: { username: string, role: string, fiscalcode: string, name: string, email: string } = {
+  new_user: { username: string, role: string, idp_id: string, name: string, email: string } = {
     username: "",
     role: "",
-    fiscalcode: "",
+    idp_id: "",
     name: "",
     email: ""
   };
@@ -52,13 +52,13 @@ export class UsersTab1Component implements OnInit {
 
     user.username = typeof this.new_user.username !== "undefined" ? this.new_user.username : "";
     user.role = this.new_user.role;
-    user.fiscal_code = this.new_user.fiscalcode;
+    user.idp_id = this.new_user.idp_id;
     user.name = this.new_user.name;
     user.mail_address = this.new_user.email;
     user.language = this.nodeResolver.dataModel.default_language;
     this.utilsService.addAdminUser(user).subscribe(_ => {
       this.getResolver();
-      this.new_user = {username: "", role: "", fiscalcode: "", name: "", email: ""};
+      this.new_user = {username: "", role: "", idp_id: "", name: "", email: ""};
     });
   }
 
