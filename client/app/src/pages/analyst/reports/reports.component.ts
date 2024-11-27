@@ -469,7 +469,8 @@ export class ReportsComponent implements OnInit {
             type: chartType,
             columnId,
             data: this.getChartData(columnId ?? '', columnLabel),
-            options: this.getChartOptions()
+            options: this.getChartOptions(),
+            name:`Chart ${this.charts.length + 1}`
         };
     }
 
@@ -502,7 +503,14 @@ export class ReportsComponent implements OnInit {
     updateCharts(): void {
         this.charts = this.charts.map(chart => {
             const selectedColumn = this.summaryKeys.find(key => key.id === chart.columnId);
-           return this.createChartConfig(selectedColumn?.id ?? '', chart.type, selectedColumn?.label ?? '')
+            return {
+                ...this.createChartConfig(
+                    selectedColumn?.id ?? '',
+                    chart.type,
+                    selectedColumn?.label ?? ''
+                ),
+                name: chart.name
+            };
         });
     }
 

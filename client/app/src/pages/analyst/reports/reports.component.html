@@ -53,7 +53,7 @@
                         <input
                             class="form-control inputelem mx-1"
                             type="text"
-                            [value]="('Chart' | translate) + ' ' + (i + 1)"
+                            [(ngModel)]="chart.name"
                             [placeholder]="('Chart' | translate) + ' ' + (i + 1)"
                         />
                         <button type="button" class="btn btn-outline-secondary" aria-label="Close" (click)="removeChart(i)">
