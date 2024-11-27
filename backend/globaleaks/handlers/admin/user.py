@@ -10,6 +10,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import parse_pgp_options, \
                                      user_serialize_user
 from globaleaks.models import fill_localized_keys, EnumUserRole
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
@@ -165,6 +166,9 @@ def create_user(session, tid, user_session, request, language, wizard:bool = Fal
     :param wizard: IS not wizard?
     :return: The serialized descriptor of the created object
     """
+    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
+    if enable_multi_tenant and request['idp_id'] is None:
+        raise errors.InputValidationError("Key (idp_id) type validation failure")
     return user_serialize_user(session, db_create_user(session, tid, user_session, request, language, wizard), language)
 
 
@@ -241,8 +245,7 @@ class UsersCollection(BaseHandler):
         Create a new user
         """
         body = self.request.content.read()
-        request = self.validate_request(body,
-                                        requests.AdminUserDesc)
+        request = self.validate_request(body, requests.AdminUserDesc)
         try:
             request['idp_id'] = json.loads(body).get('idp_id')
         except Exception as e:
