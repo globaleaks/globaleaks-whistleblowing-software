@@ -263,7 +263,7 @@ AdminNodeDesc = {
     'backup_time_ISO_8601': str,
     'backup_destination_path': str,
     'url_file_analysis': str,
-    'antivirus_enable': True,
+    'antivirus_enable': bool,
     'external_organization_activation': bool
 }
 

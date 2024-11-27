@@ -220,7 +220,7 @@ def is_download(session, file_location, name, state, can_download_infected):
         if can_download_infected:
             return status, True
         return status, False
-    if status.name != state:
+    if status.value != state:
         save_status_file_scanning(name, status)
     return status, True
 
