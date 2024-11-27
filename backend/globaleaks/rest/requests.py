@@ -154,8 +154,7 @@ AdminUserDesc = {
     'can_mask_information': bool,
     'can_reopen_reports': bool,
     'can_transfer_access_to_reports': bool,
-    'forcefully_selected': bool,
-    'idp_id': str
+    'forcefully_selected': bool
 }
 
 UserUserDesc = {

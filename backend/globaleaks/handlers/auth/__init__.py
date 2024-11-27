@@ -12,6 +12,7 @@ import globaleaks.handlers.auth.token
 
 from globaleaks.handlers.base import connection_check, BaseHandler
 from globaleaks.models import InternalTip, User
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import initialize_submission_session, Sessions
@@ -115,8 +116,9 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     return session
 
 
-def check_user_tax_code(user, tax_code, tid):
-    if tid == 1:
+def check_user_tax_code(session, user, tax_code, tid):
+    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
+    if tid == 1 or not enable_multi_tenant:
         return True
     if user.idp_id and user.idp_id != tax_code:
         raise errors.ForbiddenOperation
@@ -157,7 +159,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
         State.totp_verify(user.two_factor_secret, authcode)
 
-    check_user_tax_code(user, tax_code, tid)
+    check_user_tax_code(session, user, tax_code, tid)
 
     crypto_prv_key = ''
     if user.crypto_prv_key:
