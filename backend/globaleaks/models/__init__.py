@@ -954,8 +954,8 @@ class _Subscriber(Model):
     admin_name = Column(UnicodeText, nullable=True)
     admin_surname = Column(UnicodeText, nullable=True)
     admin_email = Column(UnicodeText, nullable=True)
-    admin_fiscal_code = Column(UnicodeText, nullable=True)
-    recipient_fiscal_code = Column(UnicodeText, nullable=True)
+    admin_tax_code = Column(UnicodeText, nullable=True)
+    recipient_tax_code = Column(UnicodeText, nullable=True)
     sharing_id = Column(UnicodeText(36), nullable=False, default=uuid4)
     instructor_id = Column(UnicodeText, nullable=True)
 
@@ -964,8 +964,8 @@ class _Subscriber(Model):
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',
                     'organization_institutional_site', 'admin_name', 'admin_surname', 'admin_email',
-                    'admin_fiscal_code', 'recipient_email',
-                    'recipient_fiscal_code', 'sharing_id', 'instructor_id']
+                    'admin_tax_code', 'recipient_email',
+                    'recipient_tax_code', 'sharing_id', 'instructor_id']
 
     bool_keys = ['tos1', 'tos2']
 
@@ -1091,7 +1091,7 @@ class _User(Model):
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     status = Column(Enum(EnumUserStatus), default='active', nullable=False)
-    fiscal_code = Column(UnicodeText(18), default='', nullable=False)
+    idp_id = Column(UnicodeText(18), default='', nullable=False)
 
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
@@ -1107,7 +1107,7 @@ class _User(Model):
                     'name', 'public_name',
                     'language', 'change_email_address',
                     'salt',
-                    'two_factor_secret', 'status', 'fiscal_code']
+                    'two_factor_secret', 'status', 'idp_id']
 
     localized_keys = ['description']
 

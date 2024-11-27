@@ -6,9 +6,8 @@ import {IDropdownSettings} from "ng-multiselect-dropdown";
 import { ReportEntry, Results, ResultsRow, StatisticalRequestModel, StatisticalResponseModel, Summary } from "@app/analyst/statistical-data";
 import { HttpService } from "@app/shared/services/http.service";
 import { UtilsService } from "@app/shared/services/utils.service";
-import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
-import { preferenceResolverModel } from "@app/models/resolvers/preference-resolver-model";
 import { formatDate } from "@angular/common";
+import { AppDataService } from "@app/app-data.service";
 
 @Component({
     selector: "src-reports",
@@ -109,7 +108,7 @@ export class ReportsComponent implements OnInit {
     patternDate = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
     
     constructor(private readonly httpService: HttpService, private readonly translateService: TranslateService,
-        protected utils: UtilsService, protected preference: PreferenceResolver) {}
+        protected utils: UtilsService, protected appDataService: AppDataService) {}
 
     ngOnInit(): void {
         this.maxDate = {
@@ -118,7 +117,7 @@ export class ReportsComponent implements OnInit {
             day: this.today.getDate()
         };
         this.clearDateRange();
-        this.eo_activation = this.preference.dataModel.external_organization_activation;
+        this.eo_activation = this.appDataService.public.node.external_organization_activation;
     }
 
     clearDateRange(): void {
@@ -470,7 +469,8 @@ export class ReportsComponent implements OnInit {
             type: chartType,
             columnId,
             data: this.getChartData(columnId ?? '', columnLabel),
-            options: this.getChartOptions()
+            options: this.getChartOptions(),
+            name:`Chart ${this.charts.length + 1}`
         };
     }
 
@@ -503,7 +503,14 @@ export class ReportsComponent implements OnInit {
     updateCharts(): void {
         this.charts = this.charts.map(chart => {
             const selectedColumn = this.summaryKeys.find(key => key.id === chart.columnId);
-           return this.createChartConfig(selectedColumn?.id ?? '', chart.type, selectedColumn?.label ?? '')
+            return {
+                ...this.createChartConfig(
+                    selectedColumn?.id ?? '',
+                    chart.type,
+                    selectedColumn?.label ?? ''
+                ),
+                name: chart.name
+            };
         });
     }
 

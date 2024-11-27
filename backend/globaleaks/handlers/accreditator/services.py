@@ -273,13 +273,13 @@ def activate_tenant(session, accreditation_id, request):
         'admin_name': f"{accreditation_item.admin_name} {accreditation_item.admin_surname}",
         'admin_password': generateRandomPassword(16),
         'admin_mail_address': accreditation_item.admin_email,
-        'admin_fiscal_code': accreditation_item.admin_fiscal_code,
+        'admin_tax_code': accreditation_item.admin_tax_code,
         'admin_escrow': config_element.get_val('escrow'),
         'receiver_username': 'recipient',
         'receiver_name': f"{accreditation_item.name} {accreditation_item.surname}",
         'receiver_password': generateRandomPassword(16),
         'receiver_mail_address': accreditation_item.email,
-        'receiver_fiscal_code': accreditation_item.recipient_fiscal_code,
+        'receiver_tax_code': accreditation_item.recipient_tax_code,
         'profile': 'default',
         'skip_admin_account_creation': False,
         'skip_recipient_account_creation': False,
@@ -325,11 +325,11 @@ def from_invited_to_request(session, request, accreditation_id: str):
         accreditation_item.admin_name = request.get('admin_name')
         accreditation_item.admin_surname = request.get('admin_surname')
         accreditation_item.admin_email = request.get('admin_email')
-        accreditation_item.admin_fiscal_code = request.get('admin_fiscal_code')
+        accreditation_item.admin_tax_code = request.get('admin_tax_code')
         accreditation_item.name = request.get('recipient_name')
         accreditation_item.surname = request.get('recipient_surname')
         accreditation_item.email = request.get('recipient_email')
-        accreditation_item.recipient_fiscal_code = request.get('recipient_fiscal_code')
+        accreditation_item.recipient_tax_code = request.get('recipient_tax_code')
         accreditation_item.tos1 = request.get('tos1', False)
         accreditation_item.tos2 = request.get('tos2', False)
         accreditation_item.state = EnumSubscriberStatus.requested.name

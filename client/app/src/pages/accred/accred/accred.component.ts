@@ -34,13 +34,13 @@ export class AccredComponent implements OnInit{
     name: '',
     email: '',
     surname: '',
-    fiscal_code: ""
+    idp_id: ""
   };
 
   receiverInfo: EOPrimaryReceiver = {
     name: '',
     surname: '',
-    fiscal_code: '',
+    idp_id: '',
     email: ''
   };
 
@@ -67,9 +67,8 @@ export class AccredComponent implements OnInit{
 
       if(cookie == null)
         window.location.href="/onboarding"
-        // this.router.navigate(['/']); //redirect to onboarding
       else
-        this.adminInfo.fiscal_code = cookie;
+        this.adminInfo.idp_id = cookie;
     }
     
   }
@@ -93,12 +92,12 @@ export class AccredComponent implements OnInit{
 
             this.adminInfo.name = response.admin_name
             this.adminInfo.surname = response.admin_surname
-            this.adminInfo.fiscal_code = response.admin_fiscal_code
+            this.adminInfo.idp_id = response.admin_tax_code
             this.adminInfo.email = response.admin_email
 
             this.receiverInfo.name = response.recipient_name
             this.receiverInfo.surname = response.recipient_surname
-            this.receiverInfo.fiscal_code = response.recipient_fiscal_code
+            this.receiverInfo.idp_id = response.recipient_tax_code
             this.receiverInfo.email = response.recipient_email
 
 
@@ -157,7 +156,7 @@ export class AccredComponent implements OnInit{
     request.recipient_name = this.receiverInfo.name
     request.recipient_surname = this.receiverInfo.surname
     request.recipient_email = this.receiverInfo.email
-    request.recipient_fiscal_code = this.receiverInfo.fiscal_code
+    request.recipient_tax_code = this.receiverInfo.idp_id
 
     request.tos1 = this.privacyAccept;
     request.tos2 = false;

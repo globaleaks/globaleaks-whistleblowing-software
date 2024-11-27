@@ -138,7 +138,7 @@ export class TipComponent implements OnInit {
           title: "Only me",
           component: this.tab3
         },
-        ...(this.preferenceData?.external_organization_activation ? [{
+        ...(this.appDataService.public.node.external_organization_activation ? [{
           title: "External Organization and Receivers",
           component: this.tab4
         }] : [])

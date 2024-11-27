@@ -6,12 +6,12 @@ export class ExternalOrganization {
     organization_institutional_site: string;
     admin_name: string;
     admin_surname: string;
-    admin_fiscal_code: string;
+    admin_tax_code: string;
     admin_email: string;
 
     recipient_name:string;
     recipient_surname:string;
-    recipient_fiscal_code:string;
+    recipient_tax_code:string;
     recipient_email:string;
     
     type: string;
@@ -65,14 +65,14 @@ export interface EOAdmin {
     name: string;
     surname: string;
     email: string;
-    fiscal_code: string;
+    idp_id: string;
 }
 
 export interface EOPrimaryReceiver {
     name: string;
     surname: string;
     email: string;
-    fiscal_code: string;
+    idp_id: string;
 }
 
 

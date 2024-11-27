@@ -74,12 +74,12 @@
                     </div>
 
                     <div class="form-group" ngModelGroup="receiverInfo">
-                        <label for="adminFiscalCode">
+                        <label for="adminTaxCode">
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="!org_id">
-                        <div class="text-danger" *ngIf="adminFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
+                        <input name="adminTaxCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="adminInfo.idp_id" required #adminTaxCode="ngModel" [disabled]="!org_id">
+                        <div class="text-danger" *ngIf="adminTaxCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
 
                     <div class="form-group" ngModelGroup="adminInfo">
@@ -114,12 +114,12 @@
                     <input name="recipientSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="receiverInfo.surname" required [disabled]="readOnly">
                     </div>
                     <div class="form-group" ngModelGroup="receiverInfo">
-                        <label for="recipientFiscalCode">
+                        <label for="recipientTaxCode">
                             <span>{{'Fiscal Code'|translate}}</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="receiverInfo.fiscal_code" required #recipientFiscalCode="ngModel" [disabled]="readOnly">
-                        <div class="text-danger" *ngIf="recipientFiscalCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
+                        <input name="recipientTaxCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [pattern]="Constants.fiscalCodeRegexp" [(ngModel)]="receiverInfo.idp_id" required #recipientTaxCode="ngModel" [disabled]="readOnly">
+                        <div class="text-danger" *ngIf="recipientTaxCode.errors?.['pattern']">{{'Invalid fiscal code format' | translate}}</div>
                     </div>
                     <div class="form-group" ngModelGroup="receiverInfo">
                         <label for="recipientEmail">

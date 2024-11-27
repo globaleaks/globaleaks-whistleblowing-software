@@ -20,7 +20,7 @@
                 <span>{{'Fiscal Code'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="recipientFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.fiscal_code" required #recipientFiscalCode="ngModel" [disabled]="visualization">
+            <input name="recipientTaxCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="recipientInfo.idp_id" required #recipientTaxCode="ngModel" [disabled]="visualization">
         </div>
         <div class="form-group" >
             <label>

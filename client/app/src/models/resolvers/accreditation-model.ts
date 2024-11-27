@@ -7,7 +7,7 @@ export class AccreditationSubscriberModel {
     admin_email: string;
     recipient_name: string;
     recipient_surname: string;
-    recipient_fiscal_code: string;
+    recipient_tax_code: string;
     recipient_email: string;
     tos1: boolean;
     tos2: boolean;

@@ -22,7 +22,7 @@
                 <span>{{'Fiscal Code'|translate}}</span>
                 <span *ngIf="!visualization" class="text-danger">*</span>
             </label>
-            <input name="adminFiscalCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.fiscal_code" required #adminFiscalCode="ngModel" [disabled]="visualization">
+            <input name="adminTaxCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.idp_id" required #adminTaxCode="ngModel" [disabled]="visualization">
         </div>
 
 

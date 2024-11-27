@@ -105,7 +105,7 @@
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [key]="'whistleblower'" 
-                    [maximum_number]="preferencesService.dataModel.t_affiliated ? preferencesService.dataModel.max_msg_external_to_whistle : preferencesService.dataModel.max_msg_external_to_whistle_not_aff"
+                    [maximum_number]="preferencesService.dataModel.t_affiliated ? appDataService.public.node.max_msg_external_to_whistle : appDataService.public.node.max_msg_external_to_whistle_not_aff"
                     [placeholder]="'Insert here a comment for the WhistleBlower. Don\'t ask questions, this comment cannot be replied.'"></src-tip-comments>
                 </ng-container>
             </div>
@@ -117,7 +117,7 @@
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-comments [tipService]="RTipService" [key]="'eo'" [tids]="[preferencesService.dataModel.tid]" 
-                    [maximum_number]="preferencesService.dataModel.t_affiliated ? preferencesService.dataModel.max_msg_external_to_whistle : preferencesService.dataModel.max_msg_external_to_whistle_not_aff"></src-tip-comments>
+                    [maximum_number]="preferencesService.dataModel.t_affiliated ? appDataService.public.node.max_msg_external_to_whistle : appDataService.public.node.max_msg_external_to_whistle_not_aff"></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>

@@ -29,13 +29,13 @@ export class OrganizationComponent implements OnInit{
     name: '',
     email: '',
     surname: '',
-    fiscal_code: ''
+    idp_id: ''
   };
 
   receiverInfo: EOPrimaryReceiver = {
     name: '',
     surname: '',
-    fiscal_code: '',
+    idp_id: '',
     email: ''
   };
 
@@ -73,12 +73,12 @@ export class OrganizationComponent implements OnInit{
 
           this.adminInfo.name = response.admin_name;
           this.adminInfo.surname = response.admin_surname;
-          this.adminInfo.fiscal_code = response.admin_fiscal_code;
+          this.adminInfo.idp_id = response.admin_tax_code;
           this.adminInfo.email = response.admin_email;
 
           this.receiverInfo.name = response.recipient_name;
           this.receiverInfo.surname = response.recipient_surname;
-          this.receiverInfo.fiscal_code = response.recipient_fiscal_code;
+          this.receiverInfo.idp_id = response.recipient_tax_code;
           this.receiverInfo.email = response.recipient_email;
 
           const container = document.getElementById('actions-container');

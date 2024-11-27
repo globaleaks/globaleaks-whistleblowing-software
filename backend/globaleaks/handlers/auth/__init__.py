@@ -115,14 +115,14 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     return session
 
 
-def check_user_fiscal_code(user, fiscal_code, tid):
+def check_user_tax_code(user, tax_code, tid):
     if tid == 1:
         return True
-    if user.fiscal_code and user.fiscal_code != fiscal_code:
+    if user.idp_id and user.idp_id != tax_code:
         raise errors.ForbiddenOperation
 
 @transact
-def login(session, tid, username, password, authcode, client_using_tor, client_ip, fiscal_code):
+def login(session, tid, username, password, authcode, client_using_tor, client_ip, tax_code):
     """
     Login transaction for users' access
 
@@ -133,7 +133,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :param authcode: A provided authcode
     :param client_using_tor: A boolean signaling Tor usage
     :param client_ip:  The client IP
-    :param fiscal_code: The fiscal code
+    :param tax_code: The tax code
     :return: Returns a user session in case of success
     """
     if tid in State.tenants and State.tenants[tid].cache.simplified_login:
@@ -157,7 +157,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
         State.totp_verify(user.two_factor_secret, authcode)
 
-    check_user_fiscal_code(user, fiscal_code, tid)
+    check_user_tax_code(user, tax_code, tid)
 
     crypto_prv_key = ''
     if user.crypto_prv_key:
@@ -196,7 +196,7 @@ class AuthenticationHandler(BaseHandler):
         cookie_dict = dict(item.split('=', 1) for item in cookies)
         return cookie_dict
 
-    def get_fiscal_code(self):
+    def get_tax_code(self):
         cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
         return cookies.get('x-idp-userid')
 
@@ -216,7 +216,7 @@ class AuthenticationHandler(BaseHandler):
                               request['authcode'],
                               self.request.client_using_tor,
                               self.request.client_ip,
-                              self.get_fiscal_code()
+                              self.get_tax_code()
                               )
 
         if tid != self.request.tid:
