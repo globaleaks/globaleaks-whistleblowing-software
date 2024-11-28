@@ -127,7 +127,7 @@ def get_base_stats(session, internal_tip_id):
         models.ReceiverTip.internaltip_id == internal_tip_id
     ).scalar()
     return {
-        'internal_tip_id': internal_tip.id,
+        'internal_tip_id': is_fw_tip.internaltip_id if is_fw_tip is not None else internal_tip.id,
         'internal_tip_status': internal_tip.status,
         'internal_tip_creation_date': internal_tip.creation_date,
         'internal_tip_creation_date_month': get_month_safe(internal_tip.creation_date),
@@ -139,7 +139,7 @@ def get_base_stats(session, internal_tip_id):
         'internal_tip_comment_count': count_comment,
         'internal_tip_receiver_count': count_receivers,
         'is_fw_tip': is_fw_tip is not None,
-        'from_tip_id': is_fw_tip.internaltip_id if is_fw_tip is not None else None,
+        'fw_id': internal_tip.id if is_fw_tip is not None else None,
         'fw_tip_count': count_fw_tip,
         'eo_name': sub.organization_name if sub is not None else None
     }
