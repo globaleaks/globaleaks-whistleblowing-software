@@ -14,7 +14,7 @@ export class AccredRoutingGuard implements CanActivate {
       const external_organization_activation = this.appDataService.public.node.external_organization_activation;
   
       if (!external_organization_activation) {
-        this.router.navigateByUrl('/');
+        this.router.navigate(['/']);
         return false;
       }
       else

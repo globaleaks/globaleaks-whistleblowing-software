@@ -21,7 +21,7 @@
                 </tr>
                 </thead>
                 <tbody id="fileListBody">
-                <ng-container *ngFor="let file of getSortedRFiles(tipService.tip.rfiles | filter : 'visibility' : key | orderBy:'creation_date') as index">
+                <ng-container *ngFor="let file of getSortedRFiles(tipService.tip.rfiles | filter : 'visibility' : key | orderBy:'creation_date'); let index = index">
                     <tr id="file-{{index}}" *ngIf="(file.name !== 'audio.webm')"
                      [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }" >
                         <td>{{ file.name }}</td>
@@ -38,6 +38,9 @@
                                     data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewWBFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
+                            {{appDataService.public.node.antivirus_enable &&
+                                ((file.status ==='INFECTED'|| file.status ==='PENDING') &&
+                                !preferenceResolver.dataModel.can_download_infected)}}
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-download-file"
