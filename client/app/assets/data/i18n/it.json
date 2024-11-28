@@ -751,5 +751,6 @@
   "toolptip review form": "toolptip review form",
   "Files to attach to the send tip": "File da allegare all'inoltro",
   "Requested by": "Richiesto da",
-  "Enable virus scanning of files": "Abilita la scansione antivirus dei file"
+  "Enable virus scanning of files": "Abilita la scansione antivirus dei file",
+  "Antivirus URL": "URL Antivirus"
 }

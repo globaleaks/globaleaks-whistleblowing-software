@@ -175,10 +175,6 @@
             <input [(ngModel)]="nodeResolver.dataModel.external_organization_activation" type="checkbox">
             <label>{{ 'EO multitenant mode' | translate }}</label>
         </div>
-        <div class="form-group">
-            <input [(ngModel)]="nodeResolver.dataModel.antivirus_enable" type="checkbox">
-            <label>{{ 'Enable virus scanning of files' | translate }}</label>
-        </div>
         <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
             <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
@@ -186,6 +182,14 @@
         <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
             <label>{{ 'Maximum Comments from Not Affiliated EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle_not_aff" type="number" min="0" />
+        </div>
+        <div class="form-group">
+            <input [(ngModel)]="nodeResolver.dataModel.antivirus_enable" type="checkbox">
+            <label>{{ 'Enable virus scanning of files' | translate }}</label>
+        </div>
+        <div class="form-group" *ngIf="nodeResolver.dataModel.antivirus_enable">
+            <label for="antivirus-url">{{ 'Antivirus URL' | translate }}</label>
+            <input type="text" [(ngModel)]="nodeResolver.dataModel.url_file_analysis" id="antivirus-url" class="form-control" />
         </div>
         <div class="form-group">
             <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">

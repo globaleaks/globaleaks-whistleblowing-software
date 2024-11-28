@@ -82,4 +82,5 @@ export class nodeResolverModel {
   max_msg_external_to_whistle_not_aff: number;
   external_organization_activation: boolean;
   antivirus_enable: boolean;
+  url_file_analysis: string;
 }
