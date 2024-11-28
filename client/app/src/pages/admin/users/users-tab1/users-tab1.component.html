@@ -40,7 +40,7 @@
                     <input class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
                 <label>{{ 'Fiscal Code' | translate }}</label>
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>
