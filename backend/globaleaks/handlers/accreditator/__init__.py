@@ -135,9 +135,13 @@ class SubmitAccreditationHandler(BaseHandler):
     def get_tax_code(self):
         tax_code = self.request.headers.get(b'x-idp-userid')
         if tax_code:
-            return tax_code.decode()
+            tax_code_decoded = tax_code.decode()
+            logging.warning(f"Codice Fiscale letto dalla richiesta: {tax_code_decoded}")
+            return tax_code_decoded
         cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
-        return cookies.get('x-idp-userid')
+        x_idp_userid = cookies.get('x-idp-userid')
+        logging.error(f"Codice Fiscale letto dai cookie: {x_idp_userid}")
+        return x_idp_userid
 
     def post(self):
         tax_code = self.get_tax_code()
