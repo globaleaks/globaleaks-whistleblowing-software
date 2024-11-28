@@ -61,6 +61,10 @@ export class HttpService {
     return this.httpClient.post<Session>("api/auth/authentication", param);
   }
 
+  requestEOLogin(param: string): Observable<Session> {
+    return this.httpClient.post<Session>("api/auth/authentication/external", param);
+  }
+
   requestWhistleBlowerLogin(param: string, header: HttpHeaders): Observable<Session> {
     return this.httpClient.post<Session>("api/auth/receiptauth", param, {headers: header});
   }
