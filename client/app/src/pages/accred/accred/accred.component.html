@@ -73,14 +73,6 @@
                         <input name="adminSurname" class="form-control" [placeholder]="'Surname' | translate" type="text" [(ngModel)]="adminInfo.surname" required [disabled]="readOnly">
                     </div>
 
-                    <div class="form-group" ngModelGroup="receiverInfo">
-                        <label for="adminTaxCode">
-                            <span>{{'Fiscal Code'|translate}}</span>
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input name="adminTaxCode" class="form-control" [placeholder]="'Fiscal Code' | translate" type="text" [(ngModel)]="adminInfo.idp_id" required #adminTaxCode="ngModel" [disabled]="!org_id">
-                    </div>
-
                     <div class="form-group" ngModelGroup="adminInfo">
                         <label for="adminEmail">
                             <span>{{'Email'|translate}}</span>

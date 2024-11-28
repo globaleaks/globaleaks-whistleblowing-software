@@ -239,10 +239,10 @@ export class UtilsService {
   }
 
   showUserStatusBox(authenticationService: AuthenticationService, appDataService: AppDataService) {
-    return appDataService.public.node.wizard_done &&
+    return appDataService.page === "accreditation-request" || (appDataService.public.node.wizard_done &&
         appDataService.page !== "homepage" &&
         appDataService.page !== "submissionpage" &&
-        authenticationService.session;
+        authenticationService.session);
   }
 
   isWhistleblowerPage(authenticationService: AuthenticationService, appDataService: AppDataService) {

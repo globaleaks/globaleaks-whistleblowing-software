@@ -9,6 +9,7 @@ import { UtilsService } from "@app/shared/services/utils.service";
 import { EOAdmin, EOInfo, EOPrimaryReceiver, ExternalOrganization } from "@app/models/accreditor/organization-data";
 import { HttpService } from "@app/shared/services/http.service";
 import { Observable } from "rxjs";
+import { AppConfigService } from "@app/services/root/app-config.service";
 
 @Component({
   selector: "app-login",
@@ -53,7 +54,6 @@ export class AccredComponent implements OnInit{
 
   constructor(public router: Router, private activatedRoute: ActivatedRoute, protected appDataService: AppDataService, private modalService: NgbModal, private utilsService: UtilsService, private httpService: HttpService) {}
   
-
   
   ngOnInit(): void {
 
@@ -62,15 +62,6 @@ export class AccredComponent implements OnInit{
     if(this.org_id)
       this.loadOrganizationData();
 
-    else{
-      let cookie = this.utilsService.getCookie('x-idp-userid');
-
-      if(cookie == null)
-        window.location.href="/onboarding"
-      else
-        this.adminInfo.idp_id = cookie;
-    }
-    
   }
 
   loadOrganizationData(){
@@ -92,14 +83,12 @@ export class AccredComponent implements OnInit{
 
             this.adminInfo.name = response.admin_name
             this.adminInfo.surname = response.admin_surname
-            this.adminInfo.idp_id = response.admin_tax_code
             this.adminInfo.email = response.admin_email
 
             this.receiverInfo.name = response.recipient_name
             this.receiverInfo.surname = response.recipient_surname
             this.receiverInfo.idp_id = response.recipient_tax_code
             this.receiverInfo.email = response.recipient_email
-
 
           }
         }
@@ -114,7 +103,7 @@ export class AccredComponent implements OnInit{
 
   closeModal(modal: any) {
     modal.close('Close click');
-    this.router.navigate(['/']);
+    window.location.href="/logout"
   }
 
   openConfirmModal() {

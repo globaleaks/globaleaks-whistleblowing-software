@@ -52,7 +52,10 @@ export class UserComponent {
       this.appConfigService.onValidateInitialConfiguration();
     };
 
-    this.authentication.logout(promise);
+    if(this.appDataService.page === 'accreditation-request')
+      window.location.href='/logout';
+    else
+      this.authentication.logout(promise);
   }
 
   onChangeLanguage() {

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate,  Router } from '@angular/router';
 import { AppDataService } from '@app/app-data.service';
+import { AppConfigService } from '@app/services/root/app-config.service';
 
 
 @Injectable({
@@ -8,7 +9,7 @@ import { AppDataService } from '@app/app-data.service';
 })
 export class AccredRoutingGuard implements CanActivate {
 
-  constructor(private router: Router, protected appDataService: AppDataService) {}
+  constructor(private router: Router, protected appConfigService: AppConfigService, protected appDataService: AppDataService) {}
 
   canActivate(): boolean {
       const external_organization_activation = this.appDataService.public.node.external_organization_activation;
@@ -17,7 +18,10 @@ export class AccredRoutingGuard implements CanActivate {
         this.router.navigate(['/']);
         return false;
       }
-      else
+      else{
+        this.appConfigService.setPage("accreditation-request")
         return true;
+      }
+       
   }
 }
