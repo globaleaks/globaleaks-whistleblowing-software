@@ -192,15 +192,11 @@ class AuthenticationHandler(BaseHandler):
     """
     check_roles = 'any'
 
-    @staticmethod
-    def cookies_to_dict(cookie_string):
-        cookies = [item.strip() for item in cookie_string.split(';') if item]
-        cookie_dict = dict(item.split('=', 1) for item in cookies)
-        return cookie_dict
-
     def get_tax_code(self):
-        cookies = self.cookies_to_dict(self.request.headers.get(b'cookie', b'').decode())
-        return cookies.get('x-idp-userid')
+        tax_code = self.request.headers.get(b'x-idp-userid')
+        if tax_code:
+            tax_code_decoded = tax_code.decode()
+            return tax_code_decoded
 
     @inlineCallbacks
     def post(self):
