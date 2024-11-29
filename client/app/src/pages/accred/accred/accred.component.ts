@@ -102,7 +102,9 @@ export class AccredComponent implements OnInit{
 
   closeModal(modal: any) {
     modal.close('Close click');
-    window.location.href="/logout"
+
+    if(this.appDataService.public.node.enable_proxy_idp)
+      window.location.href="/logout"
   }
 
   openConfirmModal() {
