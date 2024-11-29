@@ -7,11 +7,12 @@ import {Field} from "@app/models/resolvers/field-template-model";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgClass} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
 
 @Component({
     selector: "src-voice-recorder",
     templateUrl: "./voice-recorder.component.html",
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [NgClass, FormsModule]
 })
@@ -27,7 +28,8 @@ export class VoiceRecorderComponent implements OnInit {
   @Input() fileUploadUrl: string;
   @Input() entryIndex: number;
   @Input() fieldEntry: string;
-  _fakeModel: File;
+  @Input() entry: any;
+  _fakeModel: string;
   fileInput: string;
   seconds: number = 0;
   activeButton: string | null = null;
@@ -44,7 +46,6 @@ export class VoiceRecorderComponent implements OnInit {
 
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
   private audioContext: AudioContext|null;
-  entry: any;
   iframeUrl: SafeResourceUrl;
   @ViewChild("viewer") viewerFrame: ElementRef;
 
@@ -182,6 +183,7 @@ export class VoiceRecorderComponent implements OnInit {
       }
 
       if (this.seconds >= parseInt(this.field.attrs.min_len.value) && this.seconds <= parseInt(this.field.attrs.max_len.value)) {
+        this._fakeModel = "audio";
         this.flow.addFile(this.recording_blob);
         window.addEventListener("message", (message: MessageEvent) => {
           const iframe = this.viewerFrame.nativeElement;
@@ -215,6 +217,7 @@ export class VoiceRecorderComponent implements OnInit {
 
   deleteRecording(): void {
     this.audioPlayer = false;
+    this._fakeModel = "";
     if (this.flow) {
       this.flow.cancel();
     }

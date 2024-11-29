@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {Transfer} from "@flowjs/ngx-flow";
@@ -16,7 +16,7 @@ import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 export class RFileUploadStatusComponent {
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-
+  @Output() dataToParent: EventEmitter<any> = new EventEmitter<any>();
   @Input() file: Transfer;
   @Input() formUploader: boolean;
 }

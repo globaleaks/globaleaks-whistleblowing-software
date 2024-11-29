@@ -2,7 +2,7 @@
   <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
   <div class="drag-drop" flowDrop [flow]="flow.flowJs">
     <div class="custom-file">
-      <input [attr.id]="'customFile-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="field && field.required" />
+      <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="entry.required_status" />
       <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
         <i class="fa-solid fa-upload"></i>
         <span> {{'Upload'|translate}}</span>
@@ -18,7 +18,7 @@
                 <span>{{'File size not accepted.' | translate}}</span> {{errorFile.flowFile.name}} {{'Maximum file size is:' | translate}} {{appDataService.public.node.maximum_filesize}} MB
               </div>
             }
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile.flowFile.cancel(); showError=false"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="dismissError();errorFile.flowFile.cancel(); showError=false; fileModel = null"></button>
           </div>
         </div>
       }
@@ -30,7 +30,7 @@
             <div class="fileUploadBox mt-2 mb-2">
               @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
                 <div>
-                  <src-rfile-upload-status [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
+                  <src-rfile-upload-status (dataToParent)="receiveData($event)" [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
                 </div>
               }
             </div>

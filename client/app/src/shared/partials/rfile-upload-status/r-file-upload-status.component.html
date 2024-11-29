@@ -6,7 +6,7 @@
           <div class="file-buttons">
             @if (appDataService.page === 'submissionpage' || !file.complete) {
               <div class="removeFileButton text-danger">
-                <div class="btn btn-sm btn-danger" (click)="file.flowFile.cancel()">
+                <div class="btn btn-sm btn-danger" (click)="file.flowFile.cancel();dataToParent.emit(null)">
                   <i class="fa-solid fa-times" aria-label="{'Remove' | translate}"></i>
                 </div>
               </div>

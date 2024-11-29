@@ -1,7 +1,7 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
 import {FlowDirective, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
-import {ControlContainer, NgForm} from "@angular/forms";
+import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
 import {Subscription} from "rxjs";
 import {FlowOptions} from "@flowjs/flow.js";
 import {Field} from "@app/models/resolvers/field-template-model";
@@ -18,7 +18,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     templateUrl: "./r-file-upload-button.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [NgxFlowModule, NgClass, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule, TranslatorPipe]
+    imports: [NgxFlowModule, NgClass, FormsModule, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule, TranslatorPipe]
 })
 export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
@@ -32,6 +32,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   @Input() uploads: { [key: string]: any };
   @Input() field: Field | undefined = undefined;
   @Input() file_id: string;
+  @Input() entry: any;
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild("flow") flow: FlowDirective;
 
@@ -41,6 +42,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   errorFile: Transfer;
   confirmButton = false;
   flowConfig: FlowOptions;
+  fileModel: File | null = null;
 
   ngOnInit(): void {
     this.file_id = this.file_id ? this.file_id:"status_page";
@@ -80,6 +82,11 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
     });
   }
 
+  receiveData(data: any) {
+    if(this.flow.flowJs.files.length == 0){
+      this.fileModel = data;
+    }
+  }
 
   ngOnDestroy() {
     this.autoUploadSubscription.unsubscribe();

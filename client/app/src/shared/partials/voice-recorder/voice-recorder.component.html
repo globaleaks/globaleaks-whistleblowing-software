@@ -26,7 +26,7 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="field && field.required && !uploads[fileInput]?.files.length" [name]="'input-' + entryIndex" type="file" />
+        <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="entry.required_status" [name]="'input-' + fileInput" type="text" />
         @if (audioPlayer) {
           <iframe #viewer id="{{fieldEntry}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
         }
