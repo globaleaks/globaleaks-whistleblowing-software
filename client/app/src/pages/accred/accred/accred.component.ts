@@ -9,7 +9,6 @@ import { UtilsService } from "@app/shared/services/utils.service";
 import { EOAdmin, EOInfo, EOPrimaryReceiver, ExternalOrganization } from "@app/models/accreditor/organization-data";
 import { HttpService } from "@app/shared/services/http.service";
 import { Observable } from "rxjs";
-import { AppConfigService } from "@app/services/root/app-config.service";
 
 @Component({
   selector: "app-login",

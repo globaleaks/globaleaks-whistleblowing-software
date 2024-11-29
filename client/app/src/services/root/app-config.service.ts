@@ -64,6 +64,7 @@ export class AppConfigService {
         if (data.body !== null) {
           this.appDataService.public = data.body;
         }
+        
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);
@@ -142,7 +143,11 @@ export class AppConfigService {
     if (this.appDataService.public.node) {
       if (!this.appDataService.public.node.wizard_done) {
         location.replace("/#/wizard");
-      } else if ((this.router.url === "/" || this.router.url === "/submission") && !this.appDataService.public.node.enable_signup && this.appDataService.public.node.adminonly && !this.authenticationService.session) {
+      } 
+      else if (this.router.url === "/" && !this.appDataService.public.node.root_tenant && this.appDataService.public.node.external_organization_activation){
+        location.replace("/#/login")
+      }
+      else if ((this.router.url === "/" || this.router.url === "/submission") && !this.appDataService.public.node.enable_signup && this.appDataService.public.node.adminonly && !this.authenticationService.session) {
         location.replace("/#/admin/home");
       } else if (this.router.url === "/" && this.appDataService.public.node.enable_signup && !location.href.endsWith("admin/home")) {
         location.replace("/#/signup");
