@@ -109,8 +109,14 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
 
     return next.handle(request)
       .pipe(
-        catchError((error: HttpErrorResponse) => {
+        catchError((error: HttpErrorResponse) => {       
+
           if(error.error){
+
+            if(request.url === "api/auth/authentication/external" && error.status === 401 && error.error["error_code"] == undefined && this.appDataService.public.node.enabled_proxy_idp){
+              window.location.href="/onboarding"
+            }  
+
             if (error.error["error_code"] === 10) {
               this.authenticationService.deleteSession();
               this.authenticationService.reset();
@@ -119,9 +125,9 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
               if (this.authenticationService.session.role !== "whistleblower") {
                 location.pathname = this.authenticationService.session.homepage;
               }
-            }
+            } 
             this.appDataService.errorCodes = new ErrorCodes(error.error["error_message"], error.error["error_code"], error.error["arguments"]);
-          }
+          }          
           return throwError(() => error);
         })
       );
