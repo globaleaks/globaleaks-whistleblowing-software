@@ -22,7 +22,7 @@ export class ReportsComponent implements OnInit {
     reportType: string = '';
 
     readonly INTERNAL_TIP_ID: string = 'internal_tip_id';
-    readonly FROM_TIP_ID: string = 'from_tip_id';
+    readonly FW_ID: string = 'fw_id';
     readonly IS_FW_TIP: string = 'is_fw_tip';
     readonly EO_NAME: string = 'eo_name';
     readonly FW_TIP_COUNT: string = 'fw_tip_count';
@@ -39,7 +39,7 @@ export class ReportsComponent implements OnInit {
     readonly LAST_ACCESS: string = 'last_access';
     
     fixedHeaders: string[] = [
-        this.INTERNAL_TIP_ID, this.FROM_TIP_ID, this.IS_FW_TIP, this.EO_NAME,
+        this.INTERNAL_TIP_ID, this.FW_ID, this.IS_FW_TIP, this.EO_NAME,
         this.FW_TIP_COUNT, this.INTERNAL_TIP_STATUS, this.INTERNAL_TIP_CREATION_DATE,
         this.INTERNAL_TIP_UPDATE_DATE, this.INTERNAL_TIP_EXPIRATION_DATE,
         this.INTERNAL_TIP_READ_RECEIPT, this.INTERNAL_TIP_FILE_COUNT,
@@ -234,7 +234,7 @@ export class ReportsComponent implements OnInit {
         results.forEach((reportArray: ReportEntry[]) => {
             reportArray.forEach((entry: ReportEntry) => {
                 if(!this.eo_activation) {
-                    const addExludedHeaders = [this.FROM_TIP_ID, this.IS_FW_TIP, this.EO_NAME, this.FW_TIP_COUNT];
+                    const addExludedHeaders = [this.FW_ID, this.IS_FW_TIP, this.EO_NAME, this.FW_TIP_COUNT];
                     this.excludedHeaders.push(...addExludedHeaders);
                     this.fixedHeaders = this.fixedHeaders.filter(
                         header => !addExludedHeaders.includes(header)
@@ -268,7 +268,7 @@ export class ReportsComponent implements OnInit {
                     updateDate = value;
                     row[entry.id] = updateDate;
                     break;        
-                case this.FROM_TIP_ID:
+                case this.FW_ID:
                 case this.EO_NAME:
                 case this.FW_TIP_COUNT:
                     if (this.eo_activation) {
@@ -303,6 +303,7 @@ export class ReportsComponent implements OnInit {
         this.tableRows = results.map(this.buildTableRow.bind(this));
         this.populateDropdownAndDateRanges();
         this.filteredRows = [...this.tableRows];
+        console.log("populateTableRows", this.filteredRows);
     }
 
     private populateDropdownAndDateRanges(): void {

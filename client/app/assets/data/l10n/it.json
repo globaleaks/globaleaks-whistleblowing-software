@@ -749,7 +749,7 @@
   "Overview": "Panoramica",
   "No results found.": "Nessun risultato trovato.",
   "internal_tip_id": "ID",
-  "from_tip_id": "ID Segnalazione",
+  "fw_id": "ID Inoltro",
   "is_fw_tip": "Inoltrata",
   "eo_name": "OE",
   "fw_tip_count": "Numero Inoltri",

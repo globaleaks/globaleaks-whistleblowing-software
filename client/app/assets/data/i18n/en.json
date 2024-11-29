@@ -703,7 +703,7 @@
   "Maximum Comments from EO to whistleblower": "Maximum Comments from EO to whistleblower",
   "Select a review form": "Select a review form",
   "internal_tip_id": "ID",
-  "from_tip_id": "Tip ID",
+  "fw_id": "Forwarded ID",
   "is_fw_tip": "Forwarded",
   "eo_name": "EO",
   "fw_tip_count": "Forwarded Tips",
