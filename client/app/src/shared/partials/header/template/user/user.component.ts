@@ -53,7 +53,7 @@ export class UserComponent {
     };
 
 
-    if(this.appDataService.page === 'accreditation-request' && this.appDataService.public.node.enable_proxy_idp){
+    if(this.appDataService.page === 'accreditation-request' && this.appDataService.public.node.enabled_proxy_idp){
       window.location.href='/logout';
     }     
     else{
