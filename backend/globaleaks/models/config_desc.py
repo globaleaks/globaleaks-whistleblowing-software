@@ -128,15 +128,15 @@ ConfigDescriptor = {
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
     'url_file_analysis': Unicode(default='http://localhost:3000/api/v1/scan'),
-    'antivirus_enable': Bool(default=True),
+    'antivirus_enabled': Bool(default=True),
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
     'external_organization_activation': Bool(default=True),
-    'enable_proxy_idp': Bool(default=True),
+    'enabled_proxy_idp': Bool(default=True),
     'global_stat_pub_key': Unicode(default=''),
-    'backup_enable': Bool(default=False),
-    'backup_time_ISO_8601': Unicode(default='2:00'),
-    'backup_destination_path': Unicode(default='/var/backup/')
+    'backup_enabled': Bool(default=False),
+    'backup_time': Unicode(default='2:00'),
+    'backup_path': Unicode(default='/var/backup/')
 }
 
 
@@ -213,9 +213,9 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'url_file_analysis',
-        'antivirus_enable',
+        'antivirus_enabled',
         'external_organization_activation',
-        'enable_proxy_idp'
+        'enabled_proxy_idp'
     ],
     'admin_node': [
         'acme',
@@ -271,12 +271,12 @@ ConfigFilters = {
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff',
         'external_organization_activation',
-        'enable_proxy_idp'
-        'backup_destination_path',
-        'backup_enable',
-        'backup_time_ISO_8601',
+        'enabled_proxy_idp'
+        'backup_path',
+        'backup_enabled',
+        'backup_time',
         'url_file_analysis',
-        'antivirus_enable'
+        'antivirus_enabled'
 
     ],
     'admin_network': [
@@ -360,9 +360,9 @@ ConfigFilters = {
         'subdomain',
         'wizard_done',
         'external_organization_activation',
-        'enable_proxy_idp'
+        'enabled_proxy_idp'
         'url_file_analysis',
-        'antivirus_enable',
+        'antivirus_enabled',
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff'
     ],

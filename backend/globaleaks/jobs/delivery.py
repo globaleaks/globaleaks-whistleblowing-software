@@ -96,7 +96,7 @@ def write_plaintext_file(sf, dest_path):
 
 def write_encrypted_file(session, key, sf, dest_path):
     url_clam_av = ConfigFactory(session, 1).get_val('url_file_analysis')
-    antivirus_enable = ConfigFactory(session, 1).get_val('antivirus_enable')
+    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
     af = FileAnalysis(url = url_clam_av)
     status_file = EnumStateFile.verified
     try:
@@ -108,7 +108,7 @@ def write_encrypted_file(session, key, sf, dest_path):
                     status_file = af.wrap_scanning(
                         file_name=id_file,
                         data_bytes=chunk,
-                        antivirus_enable=antivirus_enable
+                        antivirus_enabled=antivirus_enabled
                     )
                 seo.encrypt_chunk(chunk, 0)
                 chunk = encrypted_file.read(abstract.FileDescriptor.bufferSize)

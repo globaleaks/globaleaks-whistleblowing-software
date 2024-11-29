@@ -53,7 +53,7 @@ class SubmitInstructorRequestHandler(BaseHandler):
         return accreditation(request, is_instructor = True)
 
 class ToggleStatusActiveHandler(BaseHandler):
-    check_roles = 'any'
+    check_roles = 'accreditor'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -64,7 +64,7 @@ class AccreditationConfirmHandler(BaseHandler):
     """
     This manager is responsible for confirm accreditation requests
     """
-    check_roles = 'any'
+    check_roles = 'accreditor'
     invalidate_cache = True
     root_tenant_only = True
 
@@ -84,6 +84,20 @@ class AccreditationApprovedHandler(BaseHandler):
     def post(self, accreditation_id: str):
         return toggle_status_activate(accreditation_id)
 
+class AccreditationDeleteHandler(BaseHandler):
+    check_roles = 'accreditor'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def delete(self, accreditation_id: str):
+        request = self.validate_request(
+            self.request.content.read().decode('utf-8'),
+            requests.deleteAccreditation)
+        return persistent_drop(
+            accreditation_id,
+            request
+        )
+
 class AccreditationHandler(BaseHandler):
     """
     This manager is responsible for receiving accreditation requests and forwarding them to the accreditation manager
@@ -99,15 +113,6 @@ class AccreditationHandler(BaseHandler):
         payload = self.request.content.read().decode('utf-8')
         data = json.loads(payload) if payload else {}
         return update_accreditation_by_id(accreditation_id, data)
-
-    def delete(self, accreditation_id: str):
-        request = self.validate_request(
-            self.request.content.read().decode('utf-8'),
-            requests.deleteAccreditation)
-        return persistent_drop(
-            accreditation_id,
-            request
-        )
 
 class GetAllAccreditationHandler(BaseHandler):
     """
@@ -133,7 +138,7 @@ class SubmitAccreditationHandler(BaseHandler):
     def check_request_tax_code(session):
         if not ConfigFactory(session, 1).get_val('external_organization_activation'):
             return True
-        if ConfigFactory(session, 1).get_val('enable_proxy_idp'):
+        if ConfigFactory(session, 1).get_val('enabled_proxy_idp'):
             raise errors.ForbiddenOperation
         return False
 

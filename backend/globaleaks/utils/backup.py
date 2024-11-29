@@ -10,34 +10,34 @@ from globaleaks.utils.log import log
 
 def get_backups_parameter(session):
     config = ConfigFactory(session, 1)
-    backup_enable = config.get_val('backup_enable')
-    backup_time_iso_8601 = config.get_val('backup_time_ISO_8601')
-    backup_destination_path = config.get_val('backup_destination_path')
+    backup_enabled = config.get_val('backup_enabled')
+    backup_time = config.get_val('backup_time')
+    backup_path = config.get_val('backup_path')
 
     return {
-        'backup_enable': backup_enable,
-        'backup_time_iso_8601': backup_time_iso_8601,
-        'backup_destination_path': backup_destination_path
+        'backup_enabled': backup_enabled,
+        'backup_time': backup_time,
+        'backup_path': backup_path
     }
 
 
-def get_audit_log_file_path(backup_destination_path):
-    return os.path.join(backup_destination_path, 'audit.log')
+def get_audit_log_file_path(backup_path):
+    return os.path.join(backup_path, 'audit.log')
 
 
 def write_audit_log_on_file(session, row):
     backup_params = get_backups_parameter(
         session)
-    backup_enable = backup_params['backup_enable']
-    backup_time_iso_8601 = backup_params['backup_time_iso_8601']
-    backup_destination_path = backup_params['backup_destination_path']
+    backup_enabled = backup_params['backup_enabled']
+    backup_time = backup_params['backup_time']
+    backup_path = backup_params['backup_path']
 
-    if not backup_enable or not backup_time_iso_8601 or not backup_destination_path:
+    if not backup_enabled or not backup_time or not backup_path:
         return
 
-    audit_log_path = get_audit_log_file_path(backup_destination_path)
+    audit_log_path = get_audit_log_file_path(backup_path)
     if not os.path.exists(audit_log_path):
-        reset_audit_log_file(backup_destination_path)
+        reset_audit_log_file(backup_path)
 
     with open(audit_log_path, 'a') as outfile:
         outfile.write(json.dumps((audit_log_to_dict(row))) + '\n')
@@ -68,14 +68,14 @@ def dict_to_audit_log(audit_log_dict):
 def get_list_from_audit_log_file(session):
     backup_params = get_backups_parameter(
         session)
-    backup_enable = backup_params['backup_enable']
-    backup_time_iso_8601 = backup_params['backup_time_iso_8601']
-    backup_destination_path = backup_params['backup_destination_path']
+    backup_enabled = backup_params['backup_enabled']
+    backup_time = backup_params['backup_time']
+    backup_path = backup_params['backup_path']
 
-    if not backup_enable or not backup_time_iso_8601 or not backup_destination_path:
+    if not backup_enabled or not backup_time or not backup_path:
         return
 
-    audit_log_path = get_audit_log_file_path(backup_destination_path)
+    audit_log_path = get_audit_log_file_path(backup_path)
     audit_log_list = list()
 
     with open(audit_log_path, 'r') as file:
@@ -85,11 +85,11 @@ def get_list_from_audit_log_file(session):
     return audit_log_list
 
 
-def reset_audit_log_file(backup_destination_path):
-    audit_log_path = get_audit_log_file_path(backup_destination_path)
+def reset_audit_log_file(backup_path):
+    audit_log_path = get_audit_log_file_path(backup_path)
 
-    if not os.path.exists(backup_destination_path):
-        os.mkdir(backup_destination_path)
+    if not os.path.exists(backup_path):
+        os.mkdir(backup_path)
 
     with open(audit_log_path, 'w') as outfile:
         outfile.write('')

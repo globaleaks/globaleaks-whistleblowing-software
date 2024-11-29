@@ -371,13 +371,13 @@ class MockDict:
             'pgp': False,
             'user_privacy_policy_text': '',
             'user_privacy_policy_url': '',
-            'backup_enable': True,
-            'backup_time_ISO_8601': '',
-            'backup_destination_path': '',
-            'antivirus_enable': True,
+            'backup_enabled': True,
+            'backup_time': '',
+            'backup_path': '',
+            'antivirus_enabled': True,
             'url_file_analysis': '',
             'external_organization_activation': True,
-            'enable_proxy_idp': True
+            'enabled_proxy_idp': True
         }
 
         self.dummyNetwork = {

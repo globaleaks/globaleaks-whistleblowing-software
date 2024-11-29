@@ -258,13 +258,13 @@ AdminNodeDesc = {
     'pgp': bool,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str,
-    'backup_enable': bool,
-    'backup_time_ISO_8601': str,
-    'backup_destination_path': str,
+    'backup_enabled': bool,
+    'backup_time': str,
+    'backup_path': str,
     'url_file_analysis': str,
-    'antivirus_enable': bool,
+    'antivirus_enabled': bool,
     'external_organization_activation': bool,
-    'enable_proxy_idp': bool
+    'enabled_proxy_idp': bool
 }
 
 AdminNetworkDesc = {

@@ -161,6 +161,7 @@ api_spec = [
     (accreditation_api, accreditator.AccreditationHandler),
     (r'/api/accreditation/request/instructor_request', accreditator.SubmitInstructorRequestHandler),
     (accreditation_api + r'/approved', accreditator.AccreditationApprovedHandler),
+    (accreditation_api + r'/deleted', accreditator.AccreditationDeleteHandler),
     (accreditation_api + r'/invited', accreditator.AccreditationApprovedHandler),
     (accreditation_api + r'/confirm_invited', accreditator.ConfirmRequestHandler),
     (accreditation_api + r'/accredited', accreditator.AccreditationConfirmHandler),

@@ -57,39 +57,39 @@ def db_backup_log(session, exception):
 @transact_sync
 def wrap_get_backups_parameter(session):
     backup_params = get_backups_parameter(session)
-    return (backup_params['backup_enable'], backup_params['backup_time_iso_8601'], backup_params['backup_destination_path'])
+    return (backup_params['backup_enabled'], backup_params['backup_time'], backup_params['backup_path'])
 
 
 def do_backup():
-    backup_enable, backup_time_iso_8601, backup_destination_path = wrap_get_backups_parameter()
+    backup_enabled, backup_time, backup_path = wrap_get_backups_parameter()
 
-    if not backup_enable or not backup_time_iso_8601 or not backup_destination_path:
+    if not backup_enabled or not backup_time or not backup_path:
         return
 
     try:
-        backup_time_iso_8601_object = datetime.strptime(
-            backup_time_iso_8601, '%H:%M').time()
-        if datetime_now().time() <= backup_time_iso_8601_object:
+        backup_time_object = datetime.strptime(
+            backup_time, '%H:%M').time()
+        if datetime_now().time() <= backup_time_object:
             return
     except Exception as e:
         db_backup_log(e)
         return
 
-    if not os.path.exists(backup_destination_path):
-        os.mkdir(backup_destination_path)
+    if not os.path.exists(backup_path):
+        os.mkdir(backup_path)
 
     last_backup_log = get_last_backup_log()
 
     if not last_backup_log or last_backup_log.date + timedelta(days=1) <= datetime_now():
         try:
             backup_sqlite_database_and_attachments(os.path.join(
-                                                   backup_destination_path, 'globaleaks.db'),
-                                                   backup_destination_path)
+                                                   backup_path, 'globaleaks.db'),
+                                                   backup_path)
         except Exception as e:
             db_backup_log(e)
             return
         finally:
-            reset_audit_log_file(backup_destination_path)
+            reset_audit_log_file(backup_path)
             db_backup_log(None)
 
 

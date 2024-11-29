@@ -206,11 +206,11 @@ class MigrationScript(MigrationBase):
         file_analisys_config.tid = 1
         self.session_new.add(file_analisys_config)
         self.entries_count['Config'] += 1
-        add_enable_antivirus = self.model_to['Config']()
-        add_enable_antivirus.var_name = 'antivirus_enable'
-        add_enable_antivirus.value = True
-        add_enable_antivirus.tid = 1
-        self.session_new.add(add_enable_antivirus)
+        add_enabled_antivirus = self.model_to['Config']()
+        add_enabled_antivirus.var_name = 'antivirus_enabled'
+        add_enabled_antivirus.value = True
+        add_enabled_antivirus.tid = 1
+        self.session_new.add(add_enabled_antivirus)
         self.entries_count['Config'] += 1
 
     def add_msg_external_to_whistle(self):
@@ -236,7 +236,7 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
 
         add_config = self.model_to['Config']()
-        add_config.var_name = 'enable_proxy_idp'
+        add_config.var_name = 'enabled_proxy_idp'
         add_config.value = True
         add_config.tid = 1
         self.session_new.add(add_config)
@@ -308,25 +308,25 @@ class MigrationScript(MigrationBase):
             self.entries_count['ConfigL10N'] += 1
 
     def add_backup_configs(self):
-        backup_enable_config = self.model_to['Config']()
-        backup_enable_config.var_name = 'backup_enable'
-        backup_enable_config.value = False
-        backup_enable_config.tid = 1
-        self.session_new.add(backup_enable_config)
+        backup_enabled_config = self.model_to['Config']()
+        backup_enabled_config.var_name = 'backup_enabled'
+        backup_enabled_config.value = False
+        backup_enabled_config.tid = 1
+        self.session_new.add(backup_enabled_config)
         self.entries_count['Config'] += 1
 
         backup_time_config = self.model_to['Config']()
-        backup_time_config.var_name = 'backup_time_ISO_8601'
+        backup_time_config.var_name = 'backup_time'
         backup_time_config.value = '2:00'
         backup_time_config.tid = 1
         self.session_new.add(backup_time_config)
         self.entries_count['Config'] += 1
 
-        backup_destination_path_config = self.model_to['Config']()
-        backup_destination_path_config.var_name = 'backup_destination_path'
-        backup_destination_path_config.value = '/var/backup/'
-        backup_destination_path_config.tid = 1
-        self.session_new.add(backup_destination_path_config)
+        backup_path_config = self.model_to['Config']()
+        backup_path_config.var_name = 'backup_path'
+        backup_path_config.value = '/var/backup/'
+        backup_path_config.tid = 1
+        self.session_new.add(backup_path_config)
         self.entries_count['Config'] += 1
 
     def epilogue(self):
