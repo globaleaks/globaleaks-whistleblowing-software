@@ -143,8 +143,8 @@ describe("globaleaks process", function () {
     cy.wait(6000);
     cy.get("#stop_recording").click();
     cy.get("#NextStepButton").click();
-    cy.get("input[type='text']").eq(1).should("be.visible").type("abc");
-    cy.get("input[type='text']").eq(2).should("be.visible").type("xyz");
+    cy.get("input[type='text']").eq(2).should("be.visible").type("abc");
+    cy.get("input[type='text']").eq(3).should("be.visible").type("xyz");
     cy.get("select").first().select(1);
     cy.get("#SubmitButton").should("be.visible");
     cy.get("#SubmitButton").click();
