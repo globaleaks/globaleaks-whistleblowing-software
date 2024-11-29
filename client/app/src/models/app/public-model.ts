@@ -70,6 +70,7 @@ export class Node {
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
   url_file_analysis: string;
+  enable_proxy_idp: boolean;
 }
 
 export interface LanguagesSupported {

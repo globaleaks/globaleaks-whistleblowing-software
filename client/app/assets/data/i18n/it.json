@@ -752,5 +752,6 @@
   "Files to attach to the send tip": "File da allegare all'inoltro",
   "Requested by": "Richiesto da",
   "Enable virus scanning of files": "Abilita la scansione antivirus dei file",
-  "Antivirus URL": "URL Antivirus"
+  "Antivirus URL": "URL Antivirus",
+  "Enable Proxy IDP": "Abilita Proxy IDP"
 }

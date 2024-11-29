@@ -83,4 +83,5 @@ export class nodeResolverModel {
   external_organization_activation: boolean;
   antivirus_enable: boolean;
   url_file_analysis: string;
+  enable_proxy_idp: boolean;
 }

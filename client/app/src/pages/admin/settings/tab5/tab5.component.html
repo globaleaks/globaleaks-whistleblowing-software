@@ -176,6 +176,10 @@
             <label>{{ 'EO multitenant mode' | translate }}</label>
         </div>
         <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
+            <input [(ngModel)]="nodeResolver.dataModel.enable_proxy_idp" type="checkbox">
+            <label>{{ 'Enable Proxy IDP' | translate }}</label>
+        </div>
+        <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
             <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
         </div>
