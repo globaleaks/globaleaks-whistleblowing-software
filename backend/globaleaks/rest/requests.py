@@ -263,7 +263,8 @@ AdminNodeDesc = {
     'backup_destination_path': str,
     'url_file_analysis': str,
     'antivirus_enable': bool,
-    'external_organization_activation': bool
+    'external_organization_activation': bool,
+    'enable_proxy_idp': bool
 }
 
 AdminNetworkDesc = {

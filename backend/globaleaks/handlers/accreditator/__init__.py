@@ -2,6 +2,8 @@ from globaleaks.handlers.accreditator.services import accreditation, get_all_acc
     get_accreditation_by_id, update_accreditation_by_id, toggle_status_activate, activate_tenant, \
     from_invited_to_request
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models.config import ConfigFactory
+from globaleaks.orm import transact
 from globaleaks.rest import requests, errors
 import logging
 import json
@@ -127,16 +129,20 @@ class SubmitAccreditationHandler(BaseHandler):
     invalidate_cache = True
 
     @staticmethod
-    def cookies_to_dict(cookie_string):
-        cookies = [item.strip() for item in cookie_string.split(';') if item]
-        cookie_dict = dict(item.split('=', 1) for item in cookies)
-        return cookie_dict
+    @transact
+    def check_request_tax_code(session):
+        if not ConfigFactory(session, 1).get_val('external_organization_activation'):
+            return True
+        if ConfigFactory(session, 1).get_val('enable_proxy_idp'):
+            raise errors.ForbiddenOperation
+        return False
 
     def get_tax_code(self):
         tax_code = self.request.headers.get(b'x-idp-userid')
         if tax_code:
             return tax_code.decode()
-        raise errors.ForbiddenOperation
+        self.check_request_tax_code()
+        return None
 
     def post(self):
         tax_code = self.get_tax_code()

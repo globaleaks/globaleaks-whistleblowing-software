@@ -132,6 +132,7 @@ ConfigDescriptor = {
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
     'external_organization_activation': Bool(default=True),
+    'enable_proxy_idp': Bool(default=True),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enable': Bool(default=False),
     'backup_time_ISO_8601': Unicode(default='2:00'),
@@ -213,7 +214,8 @@ ConfigFilters = {
         'uuid',
         'url_file_analysis',
         'antivirus_enable',
-        'external_organization_activation'
+        'external_organization_activation',
+        'enable_proxy_idp'
     ],
     'admin_node': [
         'acme',
@@ -269,6 +271,7 @@ ConfigFilters = {
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff',
         'external_organization_activation',
+        'enable_proxy_idp'
         'backup_destination_path',
         'backup_enable',
         'backup_time_ISO_8601',
@@ -357,6 +360,7 @@ ConfigFilters = {
         'subdomain',
         'wizard_done',
         'external_organization_activation',
+        'enable_proxy_idp'
         'url_file_analysis',
         'antivirus_enable',
         'max_msg_external_to_whistle',

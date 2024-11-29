@@ -376,7 +376,8 @@ class MockDict:
             'backup_destination_path': '',
             'antivirus_enable': True,
             'url_file_analysis': '',
-            'external_organization_activation': True
+            'external_organization_activation': True,
+            'enable_proxy_idp': True
         }
 
         self.dummyNetwork = {

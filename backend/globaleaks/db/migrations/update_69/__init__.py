@@ -235,6 +235,13 @@ class MigrationScript(MigrationBase):
         self.session_new.add(add_config)
         self.entries_count['Config'] += 1
 
+        add_config = self.model_to['Config']()
+        add_config.var_name = 'enable_proxy_idp'
+        add_config.value = True
+        add_config.tid = 1
+        self.session_new.add(add_config)
+        self.entries_count['Config'] += 1
+
 
     def add_pec_and_mail(self):
         for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username', 'smtp2_authentication']:
