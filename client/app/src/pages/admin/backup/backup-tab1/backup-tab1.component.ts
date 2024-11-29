@@ -9,7 +9,7 @@ import { UtilsService } from "@app/shared/services/utils.service";
 })
 export class BackupTab1Component implements OnInit {
     nodeData: nodeResolverModel;
-    backupEnable: boolean = false;
+    backupEnabled: boolean = false;
     backupTime: string = '';
     backupDestinationPath: string = '';
 
@@ -22,9 +22,9 @@ export class BackupTab1Component implements OnInit {
 
     loadBackupInterval() {
 
-        this.backupEnable = this.nodeData.backup_enable;
-        this.backupTime = this.formatBackupTime(this.nodeData.backup_time_ISO_8601);
-        this.backupDestinationPath = this.nodeData.backup_destination_path;
+        this.backupEnabled = this.nodeData.backup_enabled;
+        this.backupTime = this.formatBackupTime(this.nodeData.backup_time);
+        this.backupDestinationPath = this.nodeData.backup_path;
     }
 
     formatBackupTime(iso8601: string): string {
@@ -34,9 +34,9 @@ export class BackupTab1Component implements OnInit {
 
     save(): void {
         
-        this.nodeData.backup_enable = this.backupEnable;
-        this.nodeData.backup_time_ISO_8601 = this.backupTime;
-        this.nodeData.backup_destination_path = this.backupDestinationPath;
+        this.nodeData.backup_enabled = this.backupEnabled;
+        this.nodeData.backup_time = this.backupTime;
+        this.nodeData.backup_path = this.backupDestinationPath;
 
         try {
             this.utilsService.updateNode(this.nodeData);

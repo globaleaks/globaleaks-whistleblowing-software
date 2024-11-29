@@ -21,7 +21,7 @@ export class AuditLogTab1Component implements OnInit {
   }
 
   ngOnInit() {
-    this.isBackupEnabled = this.nodeResolver.dataModel.backup_enable;
+    this.isBackupEnabled = this.nodeResolver.dataModel.backup_enabled;
     this.loadAuditLogData();
   }
 

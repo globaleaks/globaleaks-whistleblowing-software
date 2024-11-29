@@ -65,12 +65,12 @@ export class Node {
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
-  antivirus_enable: boolean;
+  antivirus_enabled: boolean;
   external_organization_activation: boolean;
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
   url_file_analysis: string;
-  enable_proxy_idp: boolean;
+  enabled_proxy_idp: boolean;
 }
 
 export interface LanguagesSupported {

@@ -2,7 +2,7 @@
     <div class="col-md-6">
         <div class="form-group">
             <label for="backup-enable">{{ 'Enable Backup' | translate }}</label>
-            <input type="checkbox" [(ngModel)]="backupEnable" id="backup-enable" />
+            <input type="checkbox" [(ngModel)]="backupEnabled" id="backup-enable" />
         </div>
     
         <div class="form-group">
@@ -16,7 +16,7 @@
         </div>
 
         <div class="form-group">
-            <button class="btn btn-primary" id="save_settings" [disabled]="!backupEnable" (click)="save()" type="submit">
+            <button class="btn btn-primary" id="save_settings" [disabled]="!backupEnabled" (click)="save()" type="submit">
                 <i class="fa-solid fa-check"></i>
                 <span>{{ 'Save' | translate }}</span>
             </button>

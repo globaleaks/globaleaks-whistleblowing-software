@@ -31,20 +31,20 @@
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
                                     [disabled]="!utilsService.supportedViewTypes.includes(file.type) ||
-                                                (appDataService.public.node.antivirus_enable &&
+                                                (appDataService.public.node.antivirus_enabled &&
                                                     ((file.status ==='INFECTED'|| file.status ==='PENDING') &&
                                                     !preferenceResolver.dataModel.can_download_infected)
                                                 )"
                                     data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewWBFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
-                            {{appDataService.public.node.antivirus_enable &&
+                            {{appDataService.public.node.antivirus_enabled &&
                                 ((file.status ==='INFECTED'|| file.status ==='PENDING') &&
                                 !preferenceResolver.dataModel.can_download_infected)}}
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-download-file"
-                                    [disabled]="appDataService.public.node.antivirus_enable &&
+                                    [disabled]="appDataService.public.node.antivirus_enabled &&
                                                 ((file.status ==='INFECTED'|| file.status ==='PENDING') &&
                                                   !preferenceResolver.dataModel.can_download_infected
                                                 )"

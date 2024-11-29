@@ -62,7 +62,7 @@
 
     <sendtip-files *ngIf="tip && detail.files && detail.files.length > 0" [tip]="tip" 
                     [canDownloadInfected]="preferencesService.dataModel.can_download_infected"
-                    [isAntivirusEnable]="appDataService.public.node.antivirus_enable"
+                    [isAntivirusEnable]="appDataService.public.node.antivirus_enabled"
                     [isSelectable]="false"
                     [forwardingDetailFiles]="detail.files">
     </sendtip-files>
