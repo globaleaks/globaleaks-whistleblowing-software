@@ -2,8 +2,13 @@
   <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
   <div class="drag-drop" flowDrop [flow]="flow.flowJs">
     <div class="custom-file">
-      <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="entry.required_status" />
-      <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
+        @if(!formUploader){
+          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" />
+        }
+        @else{
+          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="entry.required_status"/>
+        }
+        <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
         <i class="fa-solid fa-upload"></i>
         <span> {{'Upload'|translate}}</span>
       </label>
