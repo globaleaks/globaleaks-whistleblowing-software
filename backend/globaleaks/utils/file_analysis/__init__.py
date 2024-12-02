@@ -4,7 +4,6 @@ import json
 
 from twisted.internet import abstract
 
-from backend.globaleaks.models import enums
 from globaleaks.models import EnumStateFile
 from globaleaks.rest import errors
 from globaleaks.utils.file_analysis.ScanResponse import ScanResponse
