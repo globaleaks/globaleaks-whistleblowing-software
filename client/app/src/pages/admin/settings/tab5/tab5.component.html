@@ -192,8 +192,12 @@
             <label>{{ 'Enable virus scanning of files' | translate }}</label>
         </div>
         <div class="form-group" *ngIf="nodeResolver.dataModel.antivirus_enabled">
-            <label for="antivirus-url">{{ 'Antivirus URL' | translate }}</label>
-            <input type="text" [(ngModel)]="nodeResolver.dataModel.url_file_analysis" id="antivirus-url" class="form-control" />
+            <label for="antivirus-host">{{ 'Antivirus Host' | translate }}</label>
+            <input type="text" [(ngModel)]="nodeResolver.dataModel.clamav_host" id="antivirus-host" class="form-control" />
+        </div>
+        <div class="form-group" *ngIf="nodeResolver.dataModel.antivirus_enabled">
+            <label for="antivirus-port">{{ 'Antivirus port' | translate }}</label>
+            <input type="text" [(ngModel)]="nodeResolver.dataModel.clamav_port" id="antivirus-port" class="form-control" />
         </div>
         <div class="form-group">
             <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">

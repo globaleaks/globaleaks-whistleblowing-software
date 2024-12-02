@@ -160,14 +160,6 @@ def initialize_config(session, tid, mode):
         for name in inherit_from_root_tenant:
             variables[name] = root_tenant_node[name]
 
-    variables['max_msg_external_to_whistle'] = 1
-    variables['max_msg_external_to_whistle_not_aff'] = 1
-    variables['external_organization_activation'] = True
-    variables['enabled_proxy_idp'] = True
-    variables['url_file_analysis'] = 'http://localhost:3000/api/v1/scan'
-    variables['antivirus_enabled'] = True
-    variables['global_stat_pub_key'] = ''
-
     for name, value in variables.items():
         session.add(Config({'tid': tid, 'var_name': name, 'value': value}))
 

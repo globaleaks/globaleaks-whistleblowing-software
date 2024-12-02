@@ -261,7 +261,8 @@ AdminNodeDesc = {
     'backup_enabled': bool,
     'backup_time': str,
     'backup_path': str,
-    'url_file_analysis': str,
+    'clamav_host': str,
+    'clamav_port': int,
     'antivirus_enabled': bool,
     'external_organization_activation': bool,
     'enabled_proxy_idp': bool

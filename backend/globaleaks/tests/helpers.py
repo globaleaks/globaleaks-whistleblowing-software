@@ -375,7 +375,8 @@ class MockDict:
             'backup_time': '',
             'backup_path': '',
             'antivirus_enabled': True,
-            'url_file_analysis': '',
+            'clamav_host': 'localhost',
+            'clamav_port': 3310,
             'external_organization_activation': True,
             'enabled_proxy_idp': True
         }

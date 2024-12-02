@@ -69,7 +69,8 @@ export class Node {
   external_organization_activation: boolean;
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
-  url_file_analysis: string;
+  clamav_host: string;
+  clamav_port: number;
   enabled_proxy_idp: boolean;
 }
 

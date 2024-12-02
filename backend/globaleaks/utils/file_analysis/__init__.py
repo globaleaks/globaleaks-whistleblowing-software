@@ -1,45 +1,53 @@
+import logging
 import requests
 import json
 
 from twisted.internet import abstract
 
+from backend.globaleaks.models import enums
 from globaleaks.models import EnumStateFile
 from globaleaks.rest import errors
 from globaleaks.utils.file_analysis.ScanResponse import ScanResponse
 from globaleaks.utils.log import log
+import pyclamd
 
 
 class FileAnalysis:
-    def __init__(self, url='http://localhost:3000/api/v1/scan'):
-        self._url = url
+    def __init__(self, host='localhost', port=3310):
+        self._host = host
+        self._port = port
 
     def _scan_file(self, file_name: str, data_bytes: bytes) -> ScanResponse:
-        files = {
-            'FILES': (file_name, data_bytes)
-        }
-        # Esegui la richiesta POST
-        response = requests.post(self._url, files=files)
-        if response.status_code != 200:
-            raise errors.InternalServerError('Error')
-        json_data = json.loads(response.text)
-        return ScanResponse.from_dict(json_data)
+        # files = {
+        #     'FILES': (file_name, data_bytes)
+        # }
+        # # Esegui la richiesta POST
+        # response = requests.post(self._url, files=files)
+        # if response.status_code != 200:
+        #     raise errors.InternalServerError('Error')
+        try: 
+            cd = pyclamd.ClamdNetworkSocket(self._host, int(self._port))
+            result = cd.scan_stream(data_bytes)
+            
+            if result:
+                return EnumStateFile.infected
+            
+            return EnumStateFile.verified
+        except Exception as e:
+            logging.error(e)
+            return EnumStateFile.pending
+        
+        # json_data = json.loads(response.text)
+        # return ScanResponse.from_dict(json_data)
 
     def wrap_scanning(self, file_name: str, data_bytes: bytes, antivirus_enabled:bool=True) -> EnumStateFile:
         if not antivirus_enabled:
             return EnumStateFile.pending
-        try:
-            response = self._scan_file(
-                file_name=file_name,
-                data_bytes=data_bytes
-            )
-            if not response.success:
-                raise errors.InternalServerError('File scan Fail')
-            if any(result.is_infected for result in response.data.result):
-                return EnumStateFile.infected
-            return EnumStateFile.verified
-        except Exception as e:
-            log.err(f"Scan failed for {e}")
-            return EnumStateFile.pending
+        
+        return self._scan_file(
+            file_name=file_name,
+            data_bytes=data_bytes
+        )
 
     def read_file_for_scanning(self, fp, file_name, state, antivirus_enabled: bool = True):
         status_file = EnumStateFile.verified

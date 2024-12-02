@@ -127,12 +127,13 @@ ConfigDescriptor = {
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
-    'url_file_analysis': Unicode(default='http://localhost:3000/api/v1/scan'),
-    'antivirus_enabled': Bool(default=True),
+    'clamav_host': Unicode(default='localhost'),
+    'clamav_port': Int(default=3310),
+    'antivirus_enabled': Bool(default=False),
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
-    'external_organization_activation': Bool(default=True),
-    'enabled_proxy_idp': Bool(default=True),
+    'external_organization_activation': Bool(default=False),
+    'enabled_proxy_idp': Bool(default=False),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='2:00'),
@@ -212,7 +213,8 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'url_file_analysis',
+        'clamav_host',
+        'clamav_port',
         'antivirus_enabled',
         'external_organization_activation',
         'enabled_proxy_idp'
@@ -275,7 +277,8 @@ ConfigFilters = {
         'backup_path',
         'backup_enabled',
         'backup_time',
-        'url_file_analysis',
+        'clamav_host',
+        'clamav_port',
         'antivirus_enabled'
 
     ],
@@ -361,7 +364,8 @@ ConfigFilters = {
         'wizard_done',
         'external_organization_activation',
         'enabled_proxy_idp'
-        'url_file_analysis',
+        'clamav_host',
+        'clamav_port',
         'antivirus_enabled',
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff'

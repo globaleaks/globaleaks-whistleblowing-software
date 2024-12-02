@@ -82,6 +82,7 @@ export class nodeResolverModel {
   max_msg_external_to_whistle_not_aff: number;
   external_organization_activation: boolean;
   antivirus_enabled: boolean;
-  url_file_analysis: string;
+  clamav_host: string;
+  clamav_port: number;
   enabled_proxy_idp: boolean;
 }

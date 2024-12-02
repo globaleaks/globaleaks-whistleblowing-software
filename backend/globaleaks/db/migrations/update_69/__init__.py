@@ -199,20 +199,6 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
         self.add_global_stat_prv_key_to_users(global_stat_prv_key)
 
-    def add_file_analisys_url(self):
-        file_analisys_config = self.model_to['Config']()
-        file_analisys_config.var_name = 'url_file_analysis'
-        file_analisys_config.value = 'http://localhost:3000/api/v1/scan'
-        file_analisys_config.tid = 1
-        self.session_new.add(file_analisys_config)
-        self.entries_count['Config'] += 1
-        add_enabled_antivirus = self.model_to['Config']()
-        add_enabled_antivirus.var_name = 'antivirus_enabled'
-        add_enabled_antivirus.value = True
-        add_enabled_antivirus.tid = 1
-        self.session_new.add(add_enabled_antivirus)
-        self.entries_count['Config'] += 1
-
     def add_msg_external_to_whistle(self):
         add_config = self.model_to['Config']()
         add_config.var_name = 'max_msg_external_to_whistle'
