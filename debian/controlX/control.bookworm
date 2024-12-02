@@ -34,6 +34,7 @@ Depends:
   python3-sqlalchemy,
   python3-twisted,
   python3-txtorcon,
+  python3-pyclamd,
   tor
 Description: Free and open-source whistleblowing software
  GlobaLeaks is free, open source software enabling anyone to easily set up and
