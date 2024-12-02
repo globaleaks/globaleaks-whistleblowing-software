@@ -198,8 +198,28 @@ class MigrationScript(MigrationBase):
         self.session_new.add(global_stat_pub_key_config)
         self.entries_count['Config'] += 1
         self.add_global_stat_prv_key_to_users(global_stat_prv_key)
+        
+    def add_file_analisys_configs(self):
+        clamav_host_config = self.model_to['Config']()
+        clamav_host_config.var_name = 'clamav_host'
+        clamav_host_config.value = 'localhost'
+        clamav_host_config.tid = 1
+        self.session_new.add(clamav_host_config)
+        self.entries_count['Config'] += 1
+        clamav_port_config = self.model_to['Config']()
+        clamav_port_config.var_name = 'clamav_port'
+        clamav_port_config.value = 3310
+        clamav_port_config.tid = 1
+        self.session_new.add(clamav_port_config)
+        self.entries_count['Config'] += 1
+        antivirus_enabled_config = self.model_to['Config']()
+        antivirus_enabled_config.var_name = 'antivirus_enabled'
+        antivirus_enabled_config.value = True
+        antivirus_enabled_config.tid = 1
+        self.session_new.add(antivirus_enabled_config)
+        self.entries_count['Config'] += 1
 
-    def add_msg_external_to_whistle(self):
+    def add_external_organization_configs(self):
         add_config = self.model_to['Config']()
         add_config.var_name = 'max_msg_external_to_whistle'
         add_config.value = 1
@@ -229,13 +249,13 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
 
 
-    def add_pec_and_mail(self):
+    def add_smtp2_mail_configs(self):
         for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username', 'smtp2_authentication']:
-            pec_config = self.model_to['Config']()
-            pec_config.var_name = i
-            pec_config.value = '' if i != 'smtp2_port' else 0
-            pec_config.tid = 1
-            self.session_new.add(pec_config)
+            smtp_2_config = self.model_to['Config']()
+            smtp_2_config.var_name = i
+            smtp_2_config.value = '' if i != 'smtp2_port' else 0
+            smtp_2_config.tid = 1
+            self.session_new.add(smtp_2_config)
             self.entries_count['Config'] += 1
 
         for lan in ['en', 'it']:
@@ -316,8 +336,8 @@ class MigrationScript(MigrationBase):
         self.entries_count['Config'] += 1
 
     def epilogue(self):
-        # self.add_msg_external_to_whistle()
-        # self.add_file_analisys_url()
+        self.add_external_organization_configs()
+        self.add_file_analisys_configs()
         self.add_global_stat_keys()
-        # self.add_backup_configs()
-        self.add_pec_and_mail()
+        self.add_backup_configs()
+        self.add_smtp2_mail_configs()
