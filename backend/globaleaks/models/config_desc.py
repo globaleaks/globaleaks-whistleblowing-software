@@ -273,7 +273,7 @@ ConfigFilters = {
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff',
         'external_organization_activation',
-        'enabled_proxy_idp'
+        'enabled_proxy_idp',
         'backup_path',
         'backup_enabled',
         'backup_time',
