@@ -98,7 +98,7 @@ def write_encrypted_file(session, key, sf, dest_path):
     clamav_host = ConfigFactory(session, 1).get_val('clamav_host')
     clamav_port = ConfigFactory(session, 1).get_val('clamav_port')
     antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
-    af = FileAnalysis(clamav_host = clamav_host, clamav_port = clamav_port)
+    af = FileAnalysis(host = clamav_host, port = clamav_port)
     status_file = EnumStateFile.verified
     try:
         with sf.open('rb') as encrypted_file, GCE.streaming_encryption_open('ENCRYPT', key, dest_path) as seo:

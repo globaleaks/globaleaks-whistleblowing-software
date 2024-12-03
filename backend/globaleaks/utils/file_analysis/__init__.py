@@ -16,7 +16,7 @@ class FileAnalysis:
         self._host = host
         self._port = port
 
-    def _scan_file(self, file_name: str, data_bytes: bytes) -> ScanResponse:
+    def _scan_file(self, file_name: str, data_bytes: bytes) -> EnumStateFile:
         # files = {
         #     'FILES': (file_name, data_bytes)
         # }
@@ -24,6 +24,8 @@ class FileAnalysis:
         # response = requests.post(self._url, files=files)
         # if response.status_code != 200:
         #     raise errors.InternalServerError('Error')
+        # json_data = json.loads(response.text)
+        #         # return ScanResponse.from_dict(json_data)
         try: 
             cd = pyclamd.ClamdNetworkSocket(self._host, int(self._port))
             result = cd.scan_stream(data_bytes)
@@ -35,9 +37,6 @@ class FileAnalysis:
         except Exception as e:
             logging.error(e)
             return EnumStateFile.pending
-        
-        # json_data = json.loads(response.text)
-        # return ScanResponse.from_dict(json_data)
 
     def wrap_scanning(self, file_name: str, data_bytes: bytes, antivirus_enabled:bool=True) -> EnumStateFile:
         if not antivirus_enabled:
