@@ -138,7 +138,7 @@ export class TipComponent implements OnInit {
           title: "Only me",
           component: this.tab3
         },
-        ...(this.appDataService.public.node.forwardings_enabled ? [{
+        ...(this.appDataService.public.node.enable_forwarding ? [{
           title: "External Organization and Receivers",
           component: this.tab4
         }] : [])

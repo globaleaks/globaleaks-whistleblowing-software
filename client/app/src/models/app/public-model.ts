@@ -65,7 +65,7 @@ export class Node {
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
-  forwardings_enabled: boolean;
+  enable_forwarding: boolean;
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
   antivirus_enabled: boolean;

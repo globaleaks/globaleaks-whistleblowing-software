@@ -157,7 +157,7 @@
                             </div>
                         </span>
                     </th>
-                    <th class="TipInfoSent" *ngIf="appDataService.public.node.forwardings_enabled">
+                    <th class="TipInfoSent" *ngIf="appDataService.public.node.enable_forwarding">
                         <i class="fa-solid fa-file-arrow-up"></i>
                     </th>
                     <th class="TipInfoReadReceipt">
@@ -226,7 +226,7 @@
                             <span *ngIf="!utils.isNever(tip.expiration_date)">{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
                             <span *ngIf="utils.isNever(tip.expiration_date)">-</span>
                         </td>
-                        <td class="TipInfoSendNum" *ngIf="appDataService.public.node.forwardings_enabled" data-toggle="tooltip" title="{{forwardingNames(tip.forwardings)}}">
+                        <td class="TipInfoSendNum" *ngIf="appDataService.public.node.enable_forwarding" data-toggle="tooltip" title="{{forwardingNames(tip.forwardings)}}">
                             {{tip.total_forwardings_eo}}
                         </td>
                         <td class="TipInfoLastAccess">
