@@ -503,7 +503,7 @@ export class HttpService {
     return this.httpClient.post<void>(`/api/accreditation/request/${id}/approved`, { responseType: 'text' as 'json'});
   }
 
-  deleteAccreditationRequest(id: string, bodyReq: any): Observable<any> { ///api/accreditation/request/{uuid}/deleted
+  deleteAccreditationRequest(id: string, bodyReq: any): Observable<any> {
     return this.httpClient.delete<void>(`/api/accreditation/request/${id}/deleted`, {body : bodyReq});
   }
 
