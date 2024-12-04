@@ -17,13 +17,11 @@ from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_archive_questionnaire_schema, db_set_internaltip_data
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers, EnumStateFile
-from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import Base64Encoder, GCE
-from globaleaks.utils.file_analysis import FileAnalysis
-from globaleaks.utils.file_analysis.utils import save_status_file_scanning
+from globaleaks.utils.file_analysis.utils import is_download
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -80,35 +78,6 @@ def db_get_wbtip(session, itip_id, language):
 @transact
 def get_wbtip(session, itip_id, language):
     return db_get_wbtip(session, itip_id, language)
-
-
-@transact
-def is_download(session, file_location, name, state, can_download_infected):
-    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
-    if not antivirus_enabled:
-        return EnumStateFile.pending, True
-    clamav_host = ConfigFactory(session, 1).get_val('clamav_host')
-    clamav_port = ConfigFactory(session, 1).get_val('clamav_port')
-    af = FileAnalysis(host=clamav_host, port=clamav_port)
-    try:
-        status = af.read_file_for_scanning(file_location, name, state, antivirus_enabled)
-    except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
-        logging.debug(e_p)
-        status = EnumStateFile.pending if isinstance(
-            e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
-        if can_download_infected:
-            save_status_file_scanning(name, status)
-            return status, True
-        return status, False
-    except Exception as e:
-        logging.debug(e)
-        status = EnumStateFile.pending
-        if can_download_infected:
-            return status, True
-        return status, False
-    if status.value != state:
-        save_status_file_scanning(name, status)
-    return status, True
 
 
 @transact
@@ -311,7 +280,7 @@ class WhistleblowerFileDownload(BaseHandler):
                     'DECRYPT', tip_prv_key, aux_path)
             except Exception as e:
                 logging.debug(e)
-        status, run_download = yield is_download(aux_file, name, state, dl_infected)
+        status, run_download = yield is_download(aux_file, name, state, dl_infected, ifile_id)
         if not run_download:
             if status == EnumStateFile.infected:
                 raise errors.FileInfectedDownloadPermissionDenied

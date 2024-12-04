@@ -1,9 +1,14 @@
 import logging
 from datetime import datetime
 
+from sqlalchemy.exc import NoResultFound
+
 from globaleaks import models
 from globaleaks.models import EnumStateFile
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
+from globaleaks.rest import errors
+from globaleaks.utils.file_analysis import FileAnalysis
 
 
 @transact
@@ -20,6 +25,8 @@ def save_status_file_scanning(session, file_id: str, status_file: EnumStateFile)
             update_file_state(file_obj)
             session.commit()
             return True
+        except NoResultFound as e:
+            logging.debug(e)
         except Exception as e:
             logging.debug(f"Unexpected error updating {model.__name__} with id {file_id}: {e}")
             session.rollback()
@@ -29,3 +36,32 @@ def save_status_file_scanning(session, file_id: str, status_file: EnumStateFile)
     if process_file(models.InternalFile):
         return True
     return process_file(models.ReceiverFile)
+
+
+@transact
+def is_download(session, file_location, name, state, can_download_infected, ifile):
+    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
+    if not antivirus_enabled:
+        return EnumStateFile.pending, True
+    clamav_host = ConfigFactory(session, 1).get_val('clamav_host')
+    clamav_port = ConfigFactory(session, 1).get_val('clamav_port')
+    af = FileAnalysis(host=clamav_host, port=clamav_port)
+    try:
+        status = af.read_file_for_scanning(file_location, name, state, antivirus_enabled)
+    except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
+        logging.debug(e_p)
+        status = EnumStateFile.pending if isinstance(
+            e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
+        if can_download_infected:
+            save_status_file_scanning(ifile, status)
+            return status, True
+        return status, False
+    except Exception as e:
+        logging.debug(e)
+        status = EnumStateFile.pending
+        if can_download_infected:
+            return status, True
+        return status, False
+    if not (status.value == state or status.name == state):
+        save_status_file_scanning(ifile, status)
+    return status, True

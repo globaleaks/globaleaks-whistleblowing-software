@@ -7,11 +7,10 @@ import copy
 import json
 import logging
 import os
-from pyexpat import model
 import re
 import time
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from twisted.internet import defer
 from twisted.internet.threads import deferToThread
@@ -27,16 +26,13 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import user_serialize_user
-from globaleaks.models import serializers
 from globaleaks.models import serializers, EnumStateFile
 from globaleaks.models.config import ConfigFactory
-from globaleaks.models.serializers import process_logs
 from globaleaks.orm import db_get, db_del, db_log, db_query, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.file_analysis import FileAnalysis
-from globaleaks.utils.file_analysis.utils import save_status_file_scanning
+from globaleaks.utils.file_analysis.utils import is_download
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -197,33 +193,6 @@ def transfer_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
         db_notify_grant_access(session, new_receiver)
         db_log(session, tid=tid, type='transfer_access',
                user_id=user_id, object_id=itip.id, data=log_data)
-
-@transact
-def is_download(session, file_location, name, state, can_download_infected):
-    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
-    if not antivirus_enabled:
-        return EnumStateFile.pending, True
-    clamav_host = ConfigFactory(session, 1).get_val('clamav_host')
-    clamav_port = ConfigFactory(session, 1).get_val('clamav_port')
-    af = FileAnalysis(host=clamav_host, port=clamav_port)
-    try:
-        status = af.read_file_for_scanning(file_location, name, state, antivirus_enabled)
-    except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:
-        logging.debug(e_p)
-        status = EnumStateFile.pending if isinstance(e_p, errors.FilePendingDownloadPermissionDenied) else EnumStateFile.infected
-        if can_download_infected:
-            save_status_file_scanning(name, status)
-            return status, True
-        return status, False
-    except Exception as e:
-        logging.debug(e)
-        status = EnumStateFile.pending
-        if can_download_infected:
-            return status, True
-        return status, False
-    if status.value != state:
-        save_status_file_scanning(name, status)
-    return status, True
 
 def get_ttl(session, orm_object_model, orm_object_id):
     """
@@ -1485,7 +1454,7 @@ class WhistleblowerFileDownload(BaseHandler):
                 aux_path = filelocation
                 filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
                 aux_file = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, aux_path)
-            status, run_download = yield is_download(aux_file, name, state, dl_infected)
+            status, run_download = yield is_download(aux_file, name, state, dl_infected, ifile_id)
             if not run_download:
                 if status == EnumStateFile.infected:
                     raise errors.FileInfectedDownloadPermissionDenied
@@ -1676,7 +1645,7 @@ class ReceiverFileDownload(BaseHandler):
             aux_path = filelocation
             filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
             aux_file = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, aux_path)
-        status, run_download = yield is_download(aux_file, name, state, dl_infected)
+        status, run_download = yield is_download(aux_file, name, state, dl_infected, rfile_id)
         if not run_download:
             if status == EnumStateFile.infected:
                 raise errors.FileInfectedDownloadPermissionDenied

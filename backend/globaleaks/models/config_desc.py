@@ -2,7 +2,7 @@
 
 from globaleaks import __version__, DATABASE_VERSION
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import datetime_never, uuid4
+from globaleaks.utils.utility import uuid4
 
 
 class Item:
