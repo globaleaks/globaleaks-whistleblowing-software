@@ -65,3 +65,17 @@ def is_download(session, file_location, name, state, can_download_infected, ifil
     if not (status.value == state or status.name == state):
         save_status_file_scanning(ifile, status)
     return status, True
+
+@transact
+def is_exportable(session, files:list, user_id: str) -> bool:
+    """
+    check if report is exportable.
+
+    """
+    user = session.query(models.User).get(user_id)
+
+    for file in files:
+        if file.get('status', '') != 'VERIFIED' and not user.can_download_infected:
+            return False
+
+    return True

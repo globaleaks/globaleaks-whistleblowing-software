@@ -32,7 +32,7 @@ from globaleaks.orm import db_get, db_del, db_log, db_query, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.file_analysis.utils import is_download
+from globaleaks.utils.file_analysis.utils import is_download, is_exportable
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -772,6 +772,10 @@ def redact_report(session, user_id, report, enforce=False):
 
     report['wbfiles'] = [x for x in report['wbfiles']
                          if x['ifile_id'] not in redactions_by_reference_id]
+
+    for file in report['wbfiles']:
+        if file.get('status', '') != 'VERIFIED' and not user.can_download_infected:
+            raise errors.ForbiddenOperation
 
     return report
 

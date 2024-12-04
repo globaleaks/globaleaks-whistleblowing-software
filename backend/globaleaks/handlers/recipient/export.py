@@ -20,6 +20,7 @@ from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import Base64Encoder, GCE
+from globaleaks.utils.file_analysis.utils import is_exportable
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.templating import Templating
@@ -146,6 +147,9 @@ def create_pdf_report(input_text, data):
 @inlineCallbacks
 def prepare_tip_export(user_session, tip_export):
     tip_export['tip']['rfiles'] = list(filter(lambda x: x['visibility'] != 'personal', tip_export['tip']['rfiles']))
+
+    if not is_exportable(tip_export['tip']['rfiles'], user_session.user_id):
+        raise errors.ForbiddenOperation
 
     files = tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
 
