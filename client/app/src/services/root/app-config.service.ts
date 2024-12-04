@@ -144,8 +144,7 @@ export class AppConfigService {
       if (!this.appDataService.public.node.wizard_done) {
         location.replace("/#/wizard");
       } 
-      // else if (this.router.url === "/" && !this.appDataService.public.node.root_tenant && this.appDataService.public.node.external_organization_activation){ // TODO mode 'accreditation'
-      else if (this.router.url === "/" && !this.appDataService.public.node.root_tenant){
+      else if (this.router.url === "/" && !this.appDataService.public.node.root_tenant && this.appDataService.public.node.mode === 'accreditation') {
         location.replace("/#/login")
       }
       else if ((this.router.url === "/" || this.router.url === "/submission") && !this.appDataService.public.node.enable_signup && this.appDataService.public.node.adminonly && !this.authenticationService.session) {
