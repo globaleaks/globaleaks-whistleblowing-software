@@ -18,7 +18,7 @@
                             <option value="analyst">{{ 'Analyst' | translate }}</option>
                             <option value="custodian">{{ 'Custodian' | translate }}</option>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>
-                            <option *ngIf="appDataService.public.node.enable_forwarding" value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
+                            <option *ngIf="appDataService.public.node.forwarding_enabled" value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
                         </ng-container>
                         <ng-template #restrictedOptions>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>

@@ -117,7 +117,7 @@ export class ReportsComponent implements OnInit {
             day: this.today.getDate()
         };
         this.clearDateRange();
-        this.eo_activation = this.appDataService.public.node.enable_forwarding;
+        this.eo_activation = this.appDataService.public.node.forwarding_enabled;
     }
 
     clearDateRange(): void {

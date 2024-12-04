@@ -172,18 +172,18 @@
               translate }}</div>
         </div>
         <div class="form-group">
-            <input [(ngModel)]="nodeResolver.dataModel.enabled_proxy_idp" type="checkbox">
+            <input [(ngModel)]="nodeResolver.dataModel.proxy_idp_enabled" type="checkbox">
             <label>{{ 'Enable Proxy IDP' | translate }}</label>
         </div>
         <div class="form-group">
-            <input [(ngModel)]="nodeResolver.dataModel.enable_forwarding" type="checkbox">
+            <input [(ngModel)]="nodeResolver.dataModel.forwarding_enabled" type="checkbox">
             <label>{{ 'Enable Forwardings' | translate }}</label>
         </div>
-        <div class="form-group" *ngIf="nodeResolver.dataModel.enable_forwarding">
+        <div class="form-group" *ngIf="nodeResolver.dataModel.forwarding_enabled">
             <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
         </div>
-        <div class="form-group" *ngIf="nodeResolver.dataModel.enable_forwarding">
+        <div class="form-group" *ngIf="nodeResolver.dataModel.forwarding_enabled">
             <label>{{ 'Maximum Comments from Not Affiliated EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle_not_aff" type="number" min="0" />
         </div>
