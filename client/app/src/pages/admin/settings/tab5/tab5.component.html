@@ -172,18 +172,18 @@
               translate }}</div>
         </div>
         <div class="form-group">
-            <input [(ngModel)]="nodeResolver.dataModel.external_organization_activation" type="checkbox">
-            <label>{{ 'EO multitenant mode' | translate }}</label>
-        </div>
-        <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
             <input [(ngModel)]="nodeResolver.dataModel.enabled_proxy_idp" type="checkbox">
             <label>{{ 'Enable Proxy IDP' | translate }}</label>
         </div>
-        <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
+        <div class="form-group">
+            <input [(ngModel)]="nodeResolver.dataModel.forwardings_enabled" type="checkbox">
+            <label>{{ 'Enable Forwardings' | translate }}</label>
+        </div>
+        <div class="form-group" *ngIf="nodeResolver.dataModel.forwardings_enabled">
             <label>{{ 'Maximum Comments from EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle" type="number" min="0" />
         </div>
-        <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
+        <div class="form-group" *ngIf="nodeResolver.dataModel.forwardings_enabled">
             <label>{{ 'Maximum Comments from Not Affiliated EO to whistleblower' | translate }}</label>
             <input class="form-control" [(ngModel)]="nodeResolver.dataModel.max_msg_external_to_whistle_not_aff" type="number" min="0" />
         </div>

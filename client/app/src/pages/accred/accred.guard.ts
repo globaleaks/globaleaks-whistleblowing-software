@@ -12,16 +12,17 @@ export class AccredRoutingGuard implements CanActivate {
   constructor(private router: Router, protected appConfigService: AppConfigService, protected appDataService: AppDataService) {}
 
   canActivate(): boolean {
-      const external_organization_activation = this.appDataService.public.node.external_organization_activation;
+    // TODO mode 'accreditation' 
+      // const external_organization_activation = this.appDataService.public.node.external_organization_activation;
   
-      if (!external_organization_activation) {
+      // if (!external_organization_activation) {
         this.router.navigate(['/']);
         return false;
-      }
-      else{
-        this.appConfigService.setPage("accreditation-request")
-        return true;
-      }
+      // }
+      // else{
+      //   this.appConfigService.setPage("accreditation-request")
+      //   return true;
+      // }
        
   }
 }
