@@ -97,10 +97,7 @@ def user_serialize_user(session, user, language):
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
         'contexts': contexts,
-        'idp_id': user.idp_id,
-        'external_organization_activation': ConfigFactory(session, 1).get_val('external_organization_activation'),
-        'max_msg_external_to_whistle': ConfigFactory(session, 1).get_val('max_msg_external_to_whistle'),
-        'max_msg_external_to_whistle_not_aff': ConfigFactory(session, 1).get_val('max_msg_external_to_whistle_not_aff')
+        'idp_id': user.idp_id
     }
 
     if State.tenants[user.tid].cache.two_factor and \

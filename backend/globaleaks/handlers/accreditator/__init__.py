@@ -136,9 +136,9 @@ class SubmitAccreditationHandler(BaseHandler):
     @staticmethod
     @transact
     def check_request_tax_code(session):
-        if not ConfigFactory(session, 1).get_val('external_organization_activation'):
+        if ConfigFactory(session, 1).get_val('mode') != 'accreditation':
             return True
-        if ConfigFactory(session, 1).get_val('enabled_proxy_idp'):
+        if ConfigFactory(session, 1).get_val('proxy_idp_enabled'):
             raise errors.ForbiddenOperation
         return False
 

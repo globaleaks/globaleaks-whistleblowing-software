@@ -116,16 +116,16 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     return session
 
 def check_user_tax_code(session, user, tax_code, tid):
-    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
-    enabled_proxy_idp = ConfigFactory(session, 1).get_val('enabled_proxy_idp')
+    accreditation_mode = ConfigFactory(session, 1).get_val('mode') == 'accreditation'
+    proxy_idp_enabled = ConfigFactory(session, 1).get_val('proxy_idp_enabled')
 
-    if tid == 1 or not enable_multi_tenant:
+    if tid == 1 or not accreditation_mode:
         return True
 
-    if enabled_proxy_idp and user.idp_id and user.idp_id != tax_code:
+    if proxy_idp_enabled and user.idp_id and user.idp_id != tax_code:
         raise errors.ForbiddenOperation
 
-    return not enabled_proxy_idp
+    return not proxy_idp_enabled
 
 @transact
 def login(session, tid, username, password, authcode, client_using_tor, client_ip, tax_code):

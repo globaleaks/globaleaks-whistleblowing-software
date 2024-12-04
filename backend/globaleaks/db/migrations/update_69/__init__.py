@@ -234,18 +234,18 @@ class MigrationScript(MigrationBase):
         self.session_new.add(add_config)
         self.entries_count['Config'] += 1
 
-        add_config = self.model_to['Config']()
-        add_config.var_name = 'external_organization_activation'
-        add_config.value = True
-        add_config.tid = 1
-        self.session_new.add(add_config)
+        forwarding_enabled = self.model_to['Config']()
+        forwarding_enabled.var_name = 'forwarding_enabled'
+        forwarding_enabled.value = False
+        forwarding_enabled.tid = 1
+        self.session_new.add(forwarding_enabled)
         self.entries_count['Config'] += 1
 
-        add_config = self.model_to['Config']()
-        add_config.var_name = 'enabled_proxy_idp'
-        add_config.value = True
-        add_config.tid = 1
-        self.session_new.add(add_config)
+        proxy_idp_enabled_config = self.model_to['Config']()
+        proxy_idp_enabled_config.var_name = 'proxy_idp_enabled'
+        proxy_idp_enabled_config.value = True
+        proxy_idp_enabled_config.tid = 1
+        self.session_new.add(proxy_idp_enabled_config)
         self.entries_count['Config'] += 1
 
 

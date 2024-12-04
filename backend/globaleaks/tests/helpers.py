@@ -377,8 +377,8 @@ class MockDict:
             'antivirus_enabled': True,
             'antivirus_clamd_ip': 'localhost',
             'antivirus_clamd_port': 3310,
-            'external_organization_activation': True,
-            'enabled_proxy_idp': True
+            'forwarding_enabled': True,
+            'proxy_idp_enabled': True
         }
 
         self.dummyNetwork = {

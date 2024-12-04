@@ -1063,10 +1063,10 @@ def db_add_comment(session, internaltip_id, type, author_id, content, visibility
     return comment
 
 
-def db_add_content_forwarding(session, internaltip_forwarding_id, eo_content_id, content_id, content_origin, author_type):
+def db_add_content_forwarding(session, internaltip_forwarding_id, forwarding_content_id, content_id, content_origin, author_type):
     comment_forwarding = models.ContentForwarding()
     comment_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
-    comment_forwarding.eo_content_id = eo_content_id
+    comment_forwarding.forwarding_content_id = forwarding_content_id
     comment_forwarding.content_id = content_id
     comment_forwarding.content_origin = content_origin
     comment_forwarding.author_type = author_type
@@ -1098,7 +1098,7 @@ def forward_comment_from_main(session, user_id, internaltip_forwardings, content
     comment_forwardings = list()
     for internaltip_forwarding in internaltip_forwardings:
         eo_itip = db_get(session, models.InternalTip, models.InternalTip.id ==
-                         internaltip_forwarding.eo_internaltip_id)
+                         internaltip_forwarding.forwarding_internaltip_id)
 
         if eo_itip is None or visibility not in (models.EnumVisibility.eo.name):
             return
@@ -1117,7 +1117,7 @@ def forward_comment_from_main(session, user_id, internaltip_forwardings, content
 
 def forward_comment(session, user_id, itip_id, content, visibility, content_id, tids_to_forward=[]):
     internaltip_forwarding_from_eo = db_query(
-        session, models.InternalTipForwarding, models.InternalTipForwarding.eo_internaltip_id == itip_id).one_or_none()
+        session, models.InternalTipForwarding, models.InternalTipForwarding.forwarding_internaltip_id == itip_id).one_or_none()
     internaltip_forwarding_from_main = db_query(session, models.InternalTipForwarding,
                                                 (models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids_to_forward))).all()
 
@@ -1507,7 +1507,7 @@ class ReceiverFileUpload(BaseHandler):
         for internaltip_forwarding in internaltip_forwardings:
 
             eo_itip = db_query(session, models.InternalTip, models.InternalTip.id ==
-                               internaltip_forwarding.eo_internaltip_id).one_or_none()
+                               internaltip_forwarding.forwarding_internaltip_id).one_or_none()
 
             if eo_itip is None or visibility != models.EnumVisibility.eo.name:
                 return
@@ -1559,7 +1559,7 @@ class ReceiverFileUpload(BaseHandler):
             self.session.cc, base64.b64decode(rtip.crypto_tip_prv_key))
 
         internaltip_forwarding_from_eo = db_query(
-            session, models.InternalTipForwarding, models.InternalTipForwarding.eo_internaltip_id == itip_id).one_or_none()
+            session, models.InternalTipForwarding, models.InternalTipForwarding.forwarding_internaltip_id == itip_id).one_or_none()
         internaltip_forwarding_from_main = session.query(models.InternalTipForwarding)\
             .filter(models.InternalTipForwarding.internaltip_id == itip_id, models.InternalTipForwarding.tid.in_(tids)).all()
 

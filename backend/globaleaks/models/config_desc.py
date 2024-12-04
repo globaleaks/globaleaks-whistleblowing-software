@@ -132,8 +132,8 @@ ConfigDescriptor = {
     'antivirus_clamd_port': Int(default=3310),
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
-    'external_organization_activation': Bool(default=False),
-    'enabled_proxy_idp': Bool(default=False),
+    'forwarding_enabled': Bool(default=False),
+    'proxy_idp_enabled': Bool(default=False),
     'global_stat_pub_key': Unicode(default=''),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='2:00'),
@@ -216,8 +216,8 @@ ConfigFilters = {
         'antivirus_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
-        'external_organization_activation',
-        'enabled_proxy_idp'
+        'forwarding_enabled',
+        'proxy_idp_enabled'
     ],
     'admin_node': [
         'acme',
@@ -272,8 +272,8 @@ ConfigFilters = {
         'unread_reminder_time',
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff',
-        'external_organization_activation',
-        'enabled_proxy_idp',
+        'forwarding_enabled',
+        'proxy_idp_enabled',
         'backup_path',
         'backup_enabled',
         'backup_time',
@@ -363,8 +363,8 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
-        'external_organization_activation',
-        'enabled_proxy_idp'
+        'forwarding_enabled',
+        'proxy_idp_enabled',
         'antivirus_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',

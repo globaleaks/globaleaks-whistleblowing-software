@@ -264,8 +264,8 @@ AdminNodeDesc = {
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,
-    'external_organization_activation': bool,
-    'enabled_proxy_idp': bool
+    'forwarding_enabled': bool,
+    'proxy_idp_enabled': bool
 }
 
 AdminNetworkDesc = {

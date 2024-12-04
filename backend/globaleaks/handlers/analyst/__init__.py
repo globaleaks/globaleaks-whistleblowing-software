@@ -104,7 +104,7 @@ def get_base_stats(session, internal_tip_id):
         models.InternalTip.id == internal_tip_id
     ).one_or_none()
     is_fw_tip = session.query(models.InternalTipForwarding).filter(
-        models.InternalTipForwarding.eo_internaltip_id == internal_tip_id
+        models.InternalTipForwarding.forwarding_internaltip_id == internal_tip_id
     ).one_or_none()
     if is_fw_tip is not None:
         sub = session.query(models.Subscriber).filter(
@@ -192,10 +192,10 @@ def get_all_element(session, param_session, request):
     user = db_get(session, models.User, models.User.id == param_session['user_id'])
     sts_prv_key = base64.b64decode(user.crypto_global_stat_prv_key)
     sts_key = GCE.asymmetric_decrypt(param_session['key_user_prv'], sts_prv_key)
-    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
+    forwarding_enabled = ConfigFactory(session, 1).get_val('forwarding_enabled')
     for answer in answers:
         base_dict = get_base_stats(session, answer[1])
-        if enable_multi_tenant or (not enable_multi_tenant and not base_dict.get('is_fw_tip')):
+        if forwarding_enabled or (not forwarding_enabled and not base_dict.get('is_fw_tip')):
             row = transform_base_tip_into_statistical(base_dict)
             try:
                 for k, v in json.loads(GCE.asymmetric_decrypt(sts_key, base64.b64decode(answer[0].encode())).decode()).items():

@@ -4,6 +4,7 @@
 import base64
 import logging
 import json
+from backend.globaleaks.models.config import ConfigFactory
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.handlers.admin.tenant import db_get_tenant_list
 from globaleaks.utils.json import JSONEncoder
@@ -17,11 +18,16 @@ from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
 
+@transact
+def check_forwarding_enabled(session):
+    if not ConfigFactory(session, 1).get_val('forwarding_enabled'):
+        raise errors.ForbiddenOperation()
+
 
 def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id, questionnaire_hash):
     internaltip_forwarding = models.InternalTipForwarding()
     internaltip_forwarding.internaltip_id = original_itip_id
-    internaltip_forwarding.eo_internaltip_id = forwarded_itip.id
+    internaltip_forwarding.forwarding_internaltip_id = forwarded_itip.id
     internaltip_forwarding.tid = tid
     internaltip_forwarding.creation_date = forwarded_itip.creation_date
     internaltip_forwarding.update_date = forwarded_itip.update_date
@@ -39,7 +45,7 @@ def add_file_forwarding(session, internaltip_forwarding_id, file, original_file_
 
     file_forwarding = models.ContentForwarding()
     file_forwarding.internaltip_forwarding_id = internaltip_forwarding_id
-    file_forwarding.eo_content_id = file.id
+    file_forwarding.forwarding_content_id = file.id
     file_forwarding.content_id = original_file_id
     file_forwarding.author_type = models.EnumAuthorType.main.value
     if isinstance(file, models.ReceiverFile):
@@ -172,7 +178,7 @@ class CloseForwardedSubmission(BaseHandler):
                               models.InternalTipAnswers.internaltip_id == itip.id)
 
         internaltip_forwarding = session.query(models.InternalTipForwarding)\
-            .filter(models.InternalTipForwarding.tid == itip.tid, models.InternalTipForwarding.eo_internaltip_id == itip.id)\
+            .filter(models.InternalTipForwarding.tid == itip.tid, models.InternalTipForwarding.forwarding_internaltip_id == itip.id)\
             .one_or_none()
 
         if (internaltip_forwarding is None):
@@ -236,6 +242,7 @@ class CloseForwardedSubmission(BaseHandler):
         return internaltip_forwarding.id
 
     def post(self, itip_id):
+        check_forwarding_enabled()
         request = self.validate_request(
             self.request.content.read(), requests.CloseForwardedSubmissionDesc)
         return self.close_forwarded_submission(request, itip_id, self.session)
@@ -359,7 +366,7 @@ class ForwardSubmission(BaseHandler):
         return internaltip_forwarding.id
 
     def post(self, itip_id):
-
+        check_forwarding_enabled()
         request = self.validate_request(
             self.request.content.read(), requests.ForwardSubmissionDesc)
         return self.forward_submission(request, itip_id, self.session)
@@ -377,6 +384,7 @@ class ForwardingsTenantCollection(BaseHandler):
         return db_get_tenant_list(session, True)
 
     def get(self):
+        check_forwarding_enabled()
         return self.get_external_tenants()
 
 
@@ -400,4 +408,5 @@ class ForwardingsQuestionnaireCollection(BaseHandler):
         return [serialize_questionnaire(session, tid, questionnaire, language) for questionnaire in valid_questionnaires]
 
     def get(self):
+        check_forwarding_enabled()
         return self.get_questionnaires(self.request.tid, self.request.language)

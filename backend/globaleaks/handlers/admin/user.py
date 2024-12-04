@@ -42,7 +42,7 @@ def db_set_user_password(session, tid, user, password):
             if crypto_escrow_pub_key_tenant_n:
                 user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
 
-def generate_analyst_key_pair(session, user, user_session):
+def share_analyst_key_pair(session, user, user_session):
     if user.role not in [EnumUserRole.analyst.name, EnumUserRole.admin.name]:
         return
     try:
@@ -128,7 +128,7 @@ def db_create_user(session, tid, user_session, request, language, wizard: bool =
     session.add(user)
     session.flush()
     if not wizard and tid == 1:
-        generate_analyst_key_pair(session, user, user_session)
+        share_analyst_key_pair(session, user, user_session)
 
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
@@ -166,8 +166,8 @@ def create_user(session, tid, user_session, request, language, wizard:bool = Fal
     :param wizard: IS not wizard?
     :return: The serialized descriptor of the created object
     """
-    enable_multi_tenant = ConfigFactory(session, 1).get_val('external_organization_activation')
-    if enable_multi_tenant and request['idp_id'] is None:
+    accreditation_mode = ConfigFactory(session, 1).get_val('mode') == 'accreditation'
+    if accreditation_mode and request['idp_id'] is None:
         raise errors.InputValidationError("Key (idp_id) type validation failure")
     return user_serialize_user(session, db_create_user(session, tid, user_session, request, language, wizard), language)
 
@@ -202,7 +202,7 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
     if user.role != request['role'] and tid == 1:
-        generate_analyst_key_pair(session, user, user_session)
+        share_analyst_key_pair(session, user, user_session)
     user.update(request)
 
     return user_serialize_user(session, user, language)
