@@ -71,10 +71,10 @@ export class OrganizationComponent implements OnInit{
           this.organizationInfo.organization_name = response.organization_name;
           this.organizationInfo.organization_institutional_site = response.organization_institutional_site;
 
-          this.adminInfo.name = response.admin_name;
-          this.adminInfo.surname = response.admin_surname;
-          this.adminInfo.idp_id = response.admin_tax_code;
-          this.adminInfo.email = response.admin_email;
+          this.adminInfo.name = response.name;
+          this.adminInfo.surname = response.surname;
+          this.adminInfo.idp_id = response.tax_code;
+          this.adminInfo.email = response.email;
 
           this.receiverInfo.name = response.recipient_name;
           this.receiverInfo.surname = response.recipient_surname;

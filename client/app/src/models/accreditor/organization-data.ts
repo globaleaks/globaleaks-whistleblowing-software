@@ -4,10 +4,10 @@ export class ExternalOrganization {
     organization_name: string;
     organization_email: string;
     organization_institutional_site: string;
-    admin_name: string;
-    admin_surname: string;
-    admin_tax_code: string;
-    admin_email: string;
+    name: string;
+    surname: string;
+    tax_code: string;
+    email: string;
 
     recipient_name:string;
     recipient_surname:string;

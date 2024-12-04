@@ -2,9 +2,9 @@ export class AccreditationSubscriberModel {
     organization_name: string;
     organization_email: string;
     organization_institutional_site: string;
-    admin_name: string;
-    admin_surname: string;
-    admin_email: string;
+    name: string;
+    surname: string;
+    email: string;
     recipient_name: string;
     recipient_surname: string;
     recipient_tax_code: string;
