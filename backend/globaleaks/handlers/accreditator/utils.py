@@ -72,7 +72,7 @@ def count_user_tip(session, accreditation_item: Subscriber):
             InternalTipForwarding.state,
             func.count(distinct(InternalTipForwarding.id))
         )
-        .filter(InternalTipForwarding.forwarding_internaltip_id == accreditation_item.tid)
+        .filter(InternalTipForwarding.tid == accreditation_item.tid)
         .group_by(InternalTipForwarding.state)
         .all()
     )
