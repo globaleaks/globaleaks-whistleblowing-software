@@ -193,11 +193,11 @@
         </div>
         <div class="form-group" *ngIf="nodeResolver.dataModel.antivirus_enabled">
             <label for="antivirus-host">{{ 'Antivirus Host' | translate }}</label>
-            <input type="text" [(ngModel)]="nodeResolver.dataModel.clamav_host" id="antivirus-host" class="form-control" />
+            <input type="text" [(ngModel)]="nodeResolver.dataModel.antivirus_clamd_ip" id="antivirus-host" class="form-control" />
         </div>
         <div class="form-group" *ngIf="nodeResolver.dataModel.antivirus_enabled">
             <label for="antivirus-port">{{ 'Antivirus port' | translate }}</label>
-            <input type="number" [(ngModel)]="nodeResolver.dataModel.clamav_port" id="antivirus-port" class="form-control" />
+            <input type="number" [(ngModel)]="nodeResolver.dataModel.antivirus_clamd_port" id="antivirus-port" class="form-control" />
         </div>
         <div class="form-group">
             <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">
