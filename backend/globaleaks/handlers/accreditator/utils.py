@@ -117,14 +117,14 @@ def add_user_primary(accreditation_item, dict_element):
     dict_element.update({
         'organization_email': accreditation_item.organization_email,
         'organization_institutional_site': accreditation_item.organization_institutional_site,
-        'admin_name': accreditation_item.admin_name,
-        'admin_surname': accreditation_item.admin_surname,
-        'admin_tax_code': accreditation_item.admin_tax_code,
-        'admin_email': accreditation_item.admin_email,
-        'recipient_name': accreditation_item.name,
-        'recipient_surname': accreditation_item.surname,
+        'admin_name': accreditation_item.name,
+        'admin_surname': accreditation_item.surname,
+        'admin_tax_code': accreditation_item.tax_code,
+        'admin_email': accreditation_item.email,
+        'recipient_name': accreditation_item.recipient_name,
+        'recipient_surname': accreditation_item.recipient_surname,
         'recipient_tax_code': accreditation_item.recipient_tax_code,
-        'recipient_email': accreditation_item.email,
+        'recipient_email': accreditation_item.recipient_email,
         'tos1': accreditation_item.tos1,
         'tos2': accreditation_item.tos2
     })

@@ -44,8 +44,12 @@
             </div>
         </div>
         
+        <div class="form-group">
+            <input name="notification.dataModel.smtp2_enabled" [(ngModel)]="notificationResolver.dataModel.smtp2_enabled" type="checkbox">
+            <label>{{ 'Enable PEC' | translate }}</label>
+        </div>
  
-        <div id="pecConfiguration" class="card card-default" [attr.aria-expanded]="collapsed" style="margin-top: 2em;">
+        <div id="pecConfiguration" class="card card-default" [attr.aria-expanded]="collapsed" style="margin-top: 2em;" *ngIf="notificationResolver.dataModel.smtp2_enabled">
             <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
                 <span>{{'PEC Configuration' | translate}}</span>
                 <span class="">

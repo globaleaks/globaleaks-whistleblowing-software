@@ -13,7 +13,7 @@ export class RecipientRoutingGuard {
     canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
         const isExternal = this.preference.dataModel.t_external;
     
-        if (isExternal && this.appDataService.public.node.external_organization_activation) {
+        if (isExternal && this.appDataService.public.node.forwardings_enabled) { // TODO mode 'accreditation' - doppio controllo
             return this.router.parseUrl(`/recipient/tip-eo/${route.params["tip_id"]}`);
         } else {
             return this.router.parseUrl(`/recipient/tip/${route.params["tip_id"]}`);

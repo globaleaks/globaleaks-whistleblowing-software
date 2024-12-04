@@ -80,9 +80,9 @@ export class nodeResolverModel {
   backup_path: string;
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
-  external_organization_activation: boolean;
+  forwardings_enabled: boolean;
   antivirus_enabled: boolean;
-  clamav_host: string;
-  clamav_port: number;
+  antivirus_clamd_ip: string;
+  antivirus_clamd_port: number;
   enabled_proxy_idp: boolean;
 }

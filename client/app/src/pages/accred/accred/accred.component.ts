@@ -80,9 +80,9 @@ export class AccredComponent implements OnInit{
             this.organizationInfo.organization_name = response.organization_name
             this.organizationInfo.organization_institutional_site = response.organization_institutional_site
 
-            this.adminInfo.name = response.admin_name
-            this.adminInfo.surname = response.admin_surname
-            this.adminInfo.email = response.admin_email
+            this.adminInfo.name = response.name
+            this.adminInfo.surname = response.surname
+            this.adminInfo.email = response.email
 
             this.receiverInfo.name = response.recipient_name
             this.receiverInfo.surname = response.recipient_surname
@@ -135,9 +135,9 @@ export class AccredComponent implements OnInit{
 
     let request: AccreditationSubscriberModel = new AccreditationSubscriberModel();
 
-    request.admin_email = this.adminInfo.email
-    request.admin_name = this.adminInfo.name
-    request.admin_surname = this.adminInfo.surname
+    request.email = this.adminInfo.email
+    request.name = this.adminInfo.name
+    request.surname = this.adminInfo.surname
 
     request.organization_email = this.organizationInfo.organization_email
     request.organization_name = this.organizationInfo.organization_name

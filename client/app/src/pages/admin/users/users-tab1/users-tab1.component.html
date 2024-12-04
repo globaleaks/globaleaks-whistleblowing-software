@@ -18,7 +18,7 @@
                             <option value="analyst">{{ 'Analyst' | translate }}</option>
                             <option value="custodian">{{ 'Custodian' | translate }}</option>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>
-                            <option *ngIf="appDataService.public.node.external_organization_activation" value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
+                            <option *ngIf="appDataService.public.node.forwardings_enabled" value="accreditor">{{ 'Accreditation Manager' | translate }}</option>
                         </ng-container>
                         <ng-template #restrictedOptions>
                             <option value="receiver">{{ 'Recipient' | translate }}</option>
@@ -40,7 +40,8 @@
                     <input class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
                 </div>
             </div>
-            <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation">
+            <!-- <div class="form-group" *ngIf="nodeResolver.dataModel.external_organization_activation"> // TODO mode 'accreditation' -->
+            <div class="form-group">
                 <label>{{ 'Fiscal Code' | translate }}</label>
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>

@@ -65,12 +65,12 @@ export class Node {
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
-  antivirus_enabled: boolean;
-  external_organization_activation: boolean;
+  forwardings_enabled: boolean;
   max_msg_external_to_whistle: number;
   max_msg_external_to_whistle_not_aff: number;
-  clamav_host: string;
-  clamav_port: number;
+  antivirus_enabled: boolean;
+  antivirus_clamd_ip: string;
+  antivirus_clamd_port: number;
   enabled_proxy_idp: boolean;
 }
 

@@ -270,15 +270,15 @@ def activate_tenant(session, accreditation_id, request):
         'node_language': language,
         'node_name': accreditation_item.organization_name,
         'admin_username': 'admin',
-        'admin_name': f"{accreditation_item.admin_name} {accreditation_item.admin_surname}",
+        'admin_name': f"{accreditation_item.name} {accreditation_item.surname}",
         'admin_password': generateRandomPassword(16),
-        'admin_mail_address': accreditation_item.admin_email,
-        'admin_tax_code': accreditation_item.admin_tax_code,
+        'admin_mail_address': accreditation_item.email,
+        'admin_tax_code': accreditation_item.tax_code,
         'admin_escrow': config_element.get_val('escrow'),
         'receiver_username': 'recipient',
-        'receiver_name': f"{accreditation_item.name} {accreditation_item.surname}",
+        'receiver_name': f"{accreditation_item.recipient_name} {accreditation_item.recipient_surname}",
         'receiver_password': generateRandomPassword(16),
-        'receiver_mail_address': accreditation_item.email,
+        'receiver_mail_address': accreditation_item.recipient_email,
         'receiver_tax_code': accreditation_item.recipient_tax_code,
         'profile': 'default',
         'skip_admin_account_creation': False,
@@ -322,13 +322,13 @@ def from_invited_to_request(session, request, accreditation_id: str):
         accreditation_item.organization_name = request.get('organization_name')
         accreditation_item.organization_email = request.get('organization_email')
         accreditation_item.organization_institutional_site = request.get('organization_institutional_site')
-        accreditation_item.admin_name = request.get('admin_name')
-        accreditation_item.admin_surname = request.get('admin_surname')
-        accreditation_item.admin_email = request.get('admin_email')
-        accreditation_item.admin_tax_code = request.get('admin_tax_code')
-        accreditation_item.name = request.get('recipient_name')
-        accreditation_item.surname = request.get('recipient_surname')
-        accreditation_item.email = request.get('recipient_email')
+        accreditation_item.name = request.get('admin_name')
+        accreditation_item.surname = request.get('admin_surname')
+        accreditation_item.email = request.get('admin_email')
+        accreditation_item.tax_code = request.get('admin_tax_code')
+        accreditation_item.recipient_name = request.get('recipient_name')
+        accreditation_item.recipient_surname = request.get('recipient_surname')
+        accreditation_item.recipient_email = request.get('recipient_email')
         accreditation_item.recipient_tax_code = request.get('recipient_tax_code')
         accreditation_item.tos1 = request.get('tos1', False)
         accreditation_item.tos2 = request.get('tos2', False)

@@ -43,9 +43,9 @@ def is_download(session, file_location, name, state, can_download_infected, ifil
     antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
     if not antivirus_enabled:
         return EnumStateFile.pending, True
-    clamav_host = ConfigFactory(session, 1).get_val('clamav_host')
-    clamav_port = ConfigFactory(session, 1).get_val('clamav_port')
-    af = FileAnalysis(host=clamav_host, port=clamav_port)
+    antivirus_clamd_ip = ConfigFactory(session, 1).get_val('antivirus_clamd_ip')
+    antivirus_clamd_port = ConfigFactory(session, 1).get_val('antivirus_clamd_port')
+    af = FileAnalysis(host=antivirus_clamd_ip, port=antivirus_clamd_port)
     try:
         status = af.read_file_for_scanning(file_location, name, state, antivirus_enabled)
     except (errors.FilePendingDownloadPermissionDenied, errors.FileInfectedDownloadPermissionDenied) as e_p:

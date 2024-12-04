@@ -936,6 +936,7 @@ class _Subscriber(Model):
     surname = Column(UnicodeText, nullable=False)
     phone = Column(UnicodeText, default='', nullable=False)
     email = Column(UnicodeText, nullable=False)
+    tax_code = Column(UnicodeText, nullable=True)
     organization_name = Column(UnicodeText, default='', nullable=False, unique=True)
     organization_tax_code = Column(UnicodeText, unique=True, nullable=True)
     organization_vat_code = Column(UnicodeText, unique=True, nullable=True)
@@ -951,20 +952,18 @@ class _Subscriber(Model):
     organization_email = Column(UnicodeText, nullable=True)
     organization_institutional_site = Column(UnicodeText, default='', nullable=False)
     accreditation_date = Column(DateTime, nullable=True)
-    admin_name = Column(UnicodeText, nullable=True)
-    admin_surname = Column(UnicodeText, nullable=True)
-    admin_email = Column(UnicodeText, nullable=True)
-    admin_tax_code = Column(UnicodeText, nullable=True)
+    recipient_name = Column(UnicodeText, nullable=True)
+    recipient_surname = Column(UnicodeText, nullable=True)
+    recipient_email = Column(UnicodeText, nullable=True)
     recipient_tax_code = Column(UnicodeText, nullable=True)
     sharing_id = Column(UnicodeText(36), nullable=False, default=uuid4)
     instructor_id = Column(UnicodeText, nullable=True)
 
-    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email',
+    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code'
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',
-                    'organization_institutional_site', 'admin_name', 'admin_surname', 'admin_email',
-                    'admin_tax_code', 'recipient_email',
+                    'organization_institutional_site', 'recipient_name', 'recipient_surname', 'recipient_email',
                     'recipient_tax_code', 'sharing_id', 'instructor_id']
 
     bool_keys = ['tos1', 'tos2']

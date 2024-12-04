@@ -127,9 +127,9 @@ ConfigDescriptor = {
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
-    'clamav_host': Unicode(default='localhost'),
-    'clamav_port': Int(default=3310),
     'antivirus_enabled': Bool(default=False),
+    'antivirus_clamd_ip': Unicode(default='localhost'),
+    'antivirus_clamd_port': Int(default=3310),
     'max_msg_external_to_whistle': Int(default=1),
     'max_msg_external_to_whistle_not_aff': Int(default=1),
     'external_organization_activation': Bool(default=False),
@@ -213,9 +213,9 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'clamav_host',
-        'clamav_port',
         'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port',
         'external_organization_activation',
         'enabled_proxy_idp'
     ],
@@ -277,9 +277,10 @@ ConfigFilters = {
         'backup_path',
         'backup_enabled',
         'backup_time',
-        'clamav_host',
-        'clamav_port',
-        'antivirus_enabled'
+        'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port'
+        
 
     ],
     'admin_network': [
@@ -364,9 +365,9 @@ ConfigFilters = {
         'wizard_done',
         'external_organization_activation',
         'enabled_proxy_idp'
-        'clamav_host',
-        'clamav_port',
         'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port',
         'max_msg_external_to_whistle',
         'max_msg_external_to_whistle_not_aff'
     ],

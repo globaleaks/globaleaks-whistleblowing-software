@@ -200,17 +200,17 @@ class MigrationScript(MigrationBase):
         self.add_global_stat_prv_key_to_users(global_stat_prv_key)
         
     def add_file_analisys_configs(self):
-        clamav_host_config = self.model_to['Config']()
-        clamav_host_config.var_name = 'clamav_host'
-        clamav_host_config.value = 'localhost'
-        clamav_host_config.tid = 1
-        self.session_new.add(clamav_host_config)
+        antivirus_clamd_ip_config = self.model_to['Config']()
+        antivirus_clamd_ip_config.var_name = 'antivirus_clamd_ip'
+        antivirus_clamd_ip_config.value = 'localhost'
+        antivirus_clamd_ip_config.tid = 1
+        self.session_new.add(antivirus_clamd_ip_config)
         self.entries_count['Config'] += 1
-        clamav_port_config = self.model_to['Config']()
-        clamav_port_config.var_name = 'clamav_port'
-        clamav_port_config.value = 3310
-        clamav_port_config.tid = 1
-        self.session_new.add(clamav_port_config)
+        antivirus_clamd_port_config = self.model_to['Config']()
+        antivirus_clamd_port_config.var_name = 'antivirus_clamd_port'
+        antivirus_clamd_port_config.value = 3310
+        antivirus_clamd_port_config.tid = 1
+        self.session_new.add(antivirus_clamd_port_config)
         self.entries_count['Config'] += 1
         antivirus_enabled_config = self.model_to['Config']()
         antivirus_enabled_config.var_name = 'antivirus_enabled'

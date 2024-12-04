@@ -54,7 +54,8 @@
                     <input class="form-control" name="name" [(ngModel)]="user.name" type="text" required />
                     <div class="text-danger" *ngIf="editUser.form.get('name')?.errors?.['required']">This field is mandatory </div>
                 </div>
-                <div class="form-group" *ngIf="nodeData.external_organization_activation">
+                <!-- <div class="form-group" *ngIf="nodeData.external_organization_activation"> // TODO mode 'accreditation'  -->
+                <div class="form-group">
                     <label>{{ 'Fiscal Code' | translate }}</label>
                     <input class="form-control" name="idp_id" [(ngModel)]="user.idp_id" type="text" required />
                     <div class="text-danger" *ngIf="editUser.form.get('idp_id')?.errors?.['required']">This field is mandatory </div>
