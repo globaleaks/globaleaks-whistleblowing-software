@@ -25,7 +25,7 @@
           </div>
         </div>
       </div>
-      <div class="col-6">
+      <div class="col-6" *ngIf="appDataService.public.node.mode == 'accreditation'">
         <div class="row form-group">
           <div class="col-md-12">
             <span>{{'Register new organization'|translate}}</span>
