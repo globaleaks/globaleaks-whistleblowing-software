@@ -181,6 +181,7 @@ def db_reset_smtp_settings(session, tid):
     config.set_val('smtp_source_email', 'notifications@globaleaks.org')
     config.set_val('smtp_security', 'TLS')
     config.set_val('smtp_authentication', True)
+    config.set_val('smtp2_enabled', False)
     config.set_val('smtp2_server', '')
     config.set_val('smtp2_port', 587)
     config.set_val('smtp2_authentication', False)

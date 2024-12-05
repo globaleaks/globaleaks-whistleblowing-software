@@ -66,13 +66,13 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
         'signup': signup
     }
     if not notify_email:
-        notify_email = [{"email": accreditation_item.organization_email, "pec": True}]
+        notify_email = [{"email": accreditation_item.organization_email, "secondary_smtp": True}]
     if accreditation_item.admin_email:
-        notify_email.append({"email": accreditation_item.admin_email, "pec": False})
+        notify_email.append({"email": accreditation_item.admin_email, "secondary_smtp": False})
 
     for notify in notify_email:
-        is_pec = True if notify.get('pec') else False
-        State.format_and_send_mail(session, 1, notify.get('email'), template_vars, is_pec)
+        secondary_smtp = True if notify.get('secondary_smtp') else False
+        State.format_and_send_mail(session, 1, notify.get('email'), template_vars, secondary_smtp)
 
 
 def send_email_request_approved(session, language, accreditation_item):
@@ -96,7 +96,7 @@ def send_email_request_approved(session, language, accreditation_item):
         'signup': signup
     }
     for email in [accreditation_item.organization_email]:
-        State.format_and_send_mail(session, 1, email, template_vars, is_pec = True)
+        State.format_and_send_mail(session, 1, email, template_vars, secondary_smtp = True)
 
 def send_alert_accreditor_incoming_request(session, language, accreditation_item):
     accreditor = (session.query(models.User.mail_address)

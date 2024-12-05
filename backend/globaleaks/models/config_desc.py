@@ -106,6 +106,7 @@ ConfigDescriptor = {
     'smtp2_security': Unicode(default=''),
     'smtp2_authentication': Bool(default=False),
     'smtp2_server': Unicode(default=''),
+    'smtp2_enabled': Bool(default=False),
     'smtp2_source_email': Unicode(default=''),
     'smtp2_username': Unicode(default=''),
     'subdomain': Unicode(default=''),
@@ -334,6 +335,7 @@ ConfigFilters = {
         'smtp2_port',
         'smtp2_security',
         'smtp2_server',
+        'smtp2_enabled',
         'smtp2_source_email',
         'smtp2_username',
         'smtp2_authentication'
