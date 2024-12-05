@@ -143,7 +143,7 @@ def extract_user(session, accreditation_item):
     """
     query = (session.query(User)
              .filter(User.tid == accreditation_item.tid)
-             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.admin_email]))).all()
+             .filter(User.mail_address.notin_([accreditation_item.email, accreditation_item.recipient_email]))).all()
     return [
         {
             'id': user.id,
@@ -283,3 +283,27 @@ def _change_status(session, accreditation_id: str, from_status: str, to_status: 
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError
+
+def add_users_id_to_subscriber(session, accreditation_item):
+    """
+    Updates the subscriber object setting admin's and recipient's id.
+
+    Args:
+        session: The database session.
+        accreditation_item: The Subscriber object.
+
+    Returns:
+        dict: A dictionary containing the `id` of the subscriber whose status was successfully updated.
+    """
+    admin_user = (session.query(User)
+             .filter(User.tid == accreditation_item.tid)
+             .filter(User.mail_address == accreditation_item.email)).one_or_none()
+    recipient_user = (session.query(User)
+             .filter(User.tid == accreditation_item.tid)
+             .filter(User.mail_address == accreditation_item.recipient_email)).one_or_none()
+    if admin_user:
+        accreditation_item.user_id = admin_user.id
+    if recipient_user:
+        accreditation_item.recipient_user_id = recipient_user.id
+
+    return accreditation_item

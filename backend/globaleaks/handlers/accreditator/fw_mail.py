@@ -67,8 +67,8 @@ def send_email_request_accreditation(session, language, accreditation_item, noti
     }
     if not notify_email:
         notify_email = [{"email": accreditation_item.organization_email, "secondary_smtp": True}]
-    if accreditation_item.admin_email:
-        notify_email.append({"email": accreditation_item.admin_email, "secondary_smtp": False})
+    if accreditation_item.email:
+        notify_email.append({"email": accreditation_item.email, "secondary_smtp": False})
 
     for notify in notify_email:
         secondary_smtp = True if notify.get('secondary_smtp') else False

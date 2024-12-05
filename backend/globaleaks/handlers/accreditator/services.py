@@ -4,7 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from globaleaks.handlers.accreditator.fw_mail import send_email_request_accreditation, \
     send_alert_accreditor_incoming_request, send_email_accreditation_user
 from globaleaks.models.config import ConfigFactory
-from globaleaks.handlers.accreditator.utils import is_call_from_instructor, create_tenant, save_step, count_user_tip, \
+from globaleaks.handlers.accreditator.utils import add_users_id_to_subscriber, extract_user, is_call_from_instructor, create_tenant, save_step, count_user_tip, \
     serialize_element, accreditation_by_id, determine_type, revert_tenant, _change_status
 from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus
 from globaleaks.orm import transact
@@ -286,6 +286,7 @@ def activate_tenant(session, accreditation_id, request):
         'enable_developers_exception_notification': True
     }
     db_wizard(session, accreditation_item.tid, '', wizard)
+    add_users_id_to_subscriber(session, accreditation_item)
     deferToThread(sync_refresh_tenant_cache, t)
     send_email_request_accreditation(
         session,
@@ -295,7 +296,7 @@ def activate_tenant(session, accreditation_id, request):
     )
     send_email_accreditation_user(
         session=session,
-        emails=[accreditation_item.admin_email],
+        emails=[accreditation_item.email],
         language=language,
         accreditation_item=accreditation_item,
         wizard=wizard,
@@ -303,7 +304,7 @@ def activate_tenant(session, accreditation_id, request):
     )
     send_email_accreditation_user(
         session,
-        [accreditation_item.email],
+        [accreditation_item.recipient_email],
         language,
         accreditation_item,
         wizard

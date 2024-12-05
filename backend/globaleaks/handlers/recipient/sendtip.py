@@ -4,7 +4,7 @@
 import base64
 import logging
 import json
-from backend.globaleaks.models.config import ConfigFactory
+from globaleaks.models.config import ConfigFactory
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.handlers.admin.tenant import db_get_tenant_list
 from globaleaks.utils.json import JSONEncoder
