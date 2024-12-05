@@ -961,7 +961,7 @@ class _Subscriber(Model):
     recipient_tax_code = Column(UnicodeText, nullable=True)
     requestor_id = Column(UnicodeText, nullable=True)
 
-    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code'
+    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code',
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',

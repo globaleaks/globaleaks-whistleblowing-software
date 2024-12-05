@@ -215,7 +215,7 @@ def accreditation_by_id(session, accreditation_id):
         element = add_user_primary(accreditation_item, element)
         element['closed_tips'] = count_tip.get('closed', 0)
         element['users'] = extract_user(session, accreditation_item)
-        element['instructor_detail'] = add_instructor_info(session, accreditation_item)
+        element['requestor_id'] = add_instructor_info(session, accreditation_item)
         return element
     except NoResultFound:
         logging.debug(f"Error: Accreditation with ID {accreditation_id} not found")
