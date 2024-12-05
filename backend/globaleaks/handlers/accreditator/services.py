@@ -51,7 +51,7 @@ def accreditation(session, request, is_instructor=False):
         sub.tid = t.id
         save_step(session, sub)
 
-        sub.subdomain = sub.sharing_id
+        sub.subdomain = sub.id
 
         save_step(session, sub)
         try:
@@ -69,7 +69,7 @@ def accreditation(session, request, is_instructor=False):
         except Exception as e:
             logging.debug(e)
 
-        return {'id': sub.sharing_id}
+        return {'id': sub.id}
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError
@@ -108,7 +108,7 @@ def persistent_drop(session, accreditation_id: str, request):
         aux_acc = (
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
-            .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.id == accreditation_id)
             .one()
         )
         status = accreditation_item.get('state')
@@ -127,7 +127,7 @@ def persistent_drop(session, accreditation_id: str, request):
             tenant_item = (
                 session.query(Tenant)
                 .join(Subscriber, Tenant.id == Subscriber.tid)
-                .filter(Subscriber.sharing_id == accreditation_id)
+                .filter(Subscriber.id == accreditation_id)
                 .one()
             )
             session.delete(tenant_item)
@@ -174,7 +174,7 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
     try:
         accreditation_item = (
             session.query(Subscriber)
-            .filter(Subscriber.organization_name.isnot(None), Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.organization_name.isnot(None), Subscriber.id == accreditation_id)
             .one()
         )
         if accreditation_item.state == EnumSubscriberStatus.requested.name:
@@ -185,7 +185,7 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
         if 'type' in data:
             tenant = session.query(Tenant).filter(Tenant.id == accreditation_item.tid).one()
             tenant.affiliated = determine_type(data)
-        return {'id': accreditation_item.sharing_id}
+        return {'id': accreditation_item.id}
     except NoResultFound:
         log.error(f"Error: Accreditation with ID {accreditation_id} not found")
         raise errors.ResourceNotFound
@@ -197,7 +197,7 @@ def update_accreditation_by_id(session, accreditation_id, data: dict = None):
 def toggle_status_activate(session, accreditation_id: str, is_toggle=False):
     accreditation_item = (
         session.query(Subscriber)
-        .filter(Subscriber.sharing_id == accreditation_id)
+        .filter(Subscriber.id == accreditation_id)
         .one()
     )
     status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
@@ -244,7 +244,7 @@ def activate_tenant(session, accreditation_id, request):
     accreditation_item = (
         session.query(Subscriber)
         .filter(Subscriber.organization_name.isnot(None))
-        .filter(Subscriber.sharing_id == accreditation_id)
+        .filter(Subscriber.id == accreditation_id)
         .one()
     )
     status = accreditation_item.state if isinstance(accreditation_item.state, str) else EnumSubscriberStatus(
@@ -310,14 +310,14 @@ def activate_tenant(session, accreditation_id, request):
         wizard
     )
     accreditation_item.state = EnumSubscriberStatus.accredited.value
-    return {'id': accreditation_item.sharing_id}
+    return {'id': accreditation_item.id}
 
 @transact
 def from_invited_to_request(session, request, accreditation_id: str):
     try:
         accreditation_item = (
             session.query(Subscriber)
-            .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.id == accreditation_id)
             .one()
         )
         accreditation_item.organization_name = request.get('organization_name')
@@ -343,7 +343,7 @@ def from_invited_to_request(session, request, accreditation_id: str):
             )
         except Exception as e:
             logging.debug(e)
-        return {'id': accreditation_item.sharing_id}
+        return {'id': accreditation_item.id}
     except Exception as e:
         log.err(f"Error: Accreditation Fail: {e}")
         raise errors.InternalServerError

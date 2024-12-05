@@ -929,6 +929,7 @@ class _SubmissionSubStatus(Model):
 class _Subscriber(Model):
     __tablename__ = 'subscriber'
 
+    id = Column(UnicodeText(36), nullable=False, default=uuid4, primary_key=True)
     tid = Column(Integer, primary_key=True)
     subdomain = Column(UnicodeText, unique=True, nullable=False)
     language = Column(UnicodeText(12), nullable=False)
@@ -958,15 +959,14 @@ class _Subscriber(Model):
     recipient_surname = Column(UnicodeText, nullable=True)
     recipient_email = Column(UnicodeText, nullable=True)
     recipient_tax_code = Column(UnicodeText, nullable=True)
-    sharing_id = Column(UnicodeText(36), nullable=False, default=uuid4)
-    instructor_id = Column(UnicodeText, nullable=True)
+    requestor_id = Column(UnicodeText, nullable=True)
 
     unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code'
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent', 'state', 'organization_email',
                     'organization_institutional_site', 'recipient_name', 'recipient_surname', 'recipient_email',
-                    'recipient_tax_code', 'sharing_id', 'instructor_id']
+                    'recipient_tax_code', 'requestor_id']
 
     bool_keys = ['tos1', 'tos2']
 

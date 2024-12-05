@@ -31,7 +31,7 @@ def revert_tenant(session, accreditation_id: str):
     t = (
         session.query(Tenant)
         .join(Subscriber, Tenant.id == Subscriber.tid)
-        .filter(Subscriber.sharing_id == accreditation_id)
+        .filter(Subscriber.id == accreditation_id)
         .one()
     )
     t.active = not t.active
@@ -92,7 +92,7 @@ def serialize_element(accreditation_item, count_tip, count_user, t):
         A dictionary containing serialized accreditation information.
     """
     return {
-        'id': accreditation_item.sharing_id,
+        'id': accreditation_item.id,
         'organization_name': accreditation_item.organization_name,
         'organization_institutional_site': accreditation_item.organization_institutional_site,
         'type': "AFFILIATED" if t.affiliated else 'NOT_AFFILIATED',
@@ -171,10 +171,10 @@ def add_instructor_info(session, accreditation_item):
     Returns:
         A dictionaries containing instructor user information, if exists else None
     """
-    if not accreditation_item.instructor_id:
+    if not accreditation_item.requestor_id:
         return None
     try:
-        user = (session.query(User).filter(User.id == accreditation_item.instructor_id)).one_or_none()
+        user = (session.query(User).filter(User.id == accreditation_item.requestor_id)).one_or_none()
         return {
             'id': user.id,
             'username': user.username
@@ -202,7 +202,7 @@ def accreditation_by_id(session, accreditation_id):
         accreditation_item = (
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
-            .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.id == accreditation_id)
             .one()
         )
         t = (
@@ -260,7 +260,7 @@ def _change_status(session, accreditation_id: str, from_status: str, to_status: 
         accreditation_item = (
             session.query(Subscriber)
             .filter(Subscriber.organization_name.isnot(None))
-            .filter(Subscriber.sharing_id == accreditation_id)
+            .filter(Subscriber.id == accreditation_id)
             .filter(
                 or_(
                     Subscriber.state == from_status,
@@ -276,7 +276,7 @@ def _change_status(session, accreditation_id: str, from_status: str, to_status: 
                 language='en',
                 accreditation_item=accreditation_item
             )
-        return {'id': accreditation_item.sharing_id}
+        return {'id': accreditation_item.id}
     except NoResultFound:
         log.err(f"Error: Accreditation with ID {accreditation_id} not found")
         raise errors.ResourceNotFound
