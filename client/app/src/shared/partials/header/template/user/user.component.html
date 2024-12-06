@@ -9,20 +9,20 @@
 	</div>
 	<div id="LoginStatusBox" *ngIf="utils.showUserStatusBox(authentication, appDataService)">
 		<span id="HomeLinkBox">
-            <span *ngIf="authentication.session.role !== 'whistleblower'">
+            <span *ngIf="authentication.session && authentication.session.role !== 'whistleblower'">
                 <a id="HomepageLink" [href]="'#'+authentication.session.homepage" title="{{'Home' | translate }}">
                     <i class="fa-solid fa-fw fa-home"></i>
                 </a>
                 <span class="text-separator">|</span>
             </span>
         </span>
-		<span id="PreferencesLinkBox" *ngIf="authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session">
+		<span id="PreferencesLinkBox" *ngIf="authentication.session && authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session">
             <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" title="{{'Preferences' | translate}}">
                 <i class="fa-solid fa-fw fa-user"></i>
             </a>
             <span class="text-separator">|</span>
         </span>
-		<span id="SupportLinkBox" *ngIf="authentication.session && authentication.session.role !== 'whistleblower'">
+		<span id="SupportLinkBox" *ngIf="authentication.session && authentication.session && authentication.session.role !== 'whistleblower'">
             <a id="SupportLink" (click)="utils.openSupportModal(appDataService)" title="{{'Request support' | translate}}">
                 <i class="fa-solid fa-fw fa-life-ring"></i>
             </a>
@@ -34,7 +34,7 @@
 		<span id="LogoutLinkBox">
             <a href="#" id="LogoutLink" (click)="onLogout($event)" title="{{'Logout' | translate}}">
                 <i class="pointer fa-solid fa-fw fa-sign-out-alt"></i>
-                <span *ngIf="authentication.session.role === 'whistleblower'">
+                <span *ngIf="authentication.session && authentication.session.role === 'whistleblower'">
                     <span></span>
                     <span>{{'Logout'|translate}}</span>
                 </span>
