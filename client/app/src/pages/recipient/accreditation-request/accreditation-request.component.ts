@@ -26,7 +26,7 @@ export class AccreditationRequestComponent {
 
     onSubmit() {
         if (this.isFormValid) {
-            this.organizationInfo.instructor_id = this.preferences.dataModel.id;
+            this.organizationInfo.requestor_id = this.preferences.dataModel.id;
             
             this.httpService.sendAccreditationRequest(this.organizationInfo).subscribe({
                 next: () => {

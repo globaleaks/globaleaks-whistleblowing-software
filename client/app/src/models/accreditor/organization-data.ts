@@ -57,7 +57,7 @@ export interface EOInfo {
     organization_email: string;
     organization_institutional_site: string;
     organization_accreditation_reason?: string;
-    instructor_id?: string;
+    requestor_id?: string;
 }
   
   
