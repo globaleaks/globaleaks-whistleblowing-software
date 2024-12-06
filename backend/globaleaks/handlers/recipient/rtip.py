@@ -747,6 +747,7 @@ def redact_answers(answers, redactions):
 def redact_report(session, user_id, report, enforce=False):
     user = session.query(models.User).get(user_id)
     report['max_eo_to_whistleblower_comments'] = ConfigFactory(session, 1).get_val('max_msg_external_to_whistle')
+    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
     redactions = session.query(models.Redaction).filter(
         models.Redaction.internaltip_id == report['id']).all()
 
@@ -773,9 +774,11 @@ def redact_report(session, user_id, report, enforce=False):
     report['wbfiles'] = [x for x in report['wbfiles']
                          if x['ifile_id'] not in redactions_by_reference_id]
 
-    for file in report['wbfiles']:
-        if file.get('status', '') != 'VERIFIED' and not user.can_download_infected:
-            raise errors.ForbiddenOperation
+    if antivirus_enabled and any(file.get('status', '').upper() == EnumStateFile.pending.name.upper() for file in report['wbfiles']):
+        raise errors.ForbiddenOperation
+
+    if not user.can_download_infected and any(file.get('status', '').upper() == EnumStateFile.infected.name.upper() for file in report['wbfiles']):
+        raise errors.ForbiddenOperation
 
     return report
 

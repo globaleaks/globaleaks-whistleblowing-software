@@ -64,7 +64,7 @@ class AccreditationConfirmHandler(BaseHandler):
     """
     This manager is responsible for confirm accreditation requests
     """
-    check_roles = 'accreditor'
+    check_roles = 'any'
     invalidate_cache = True
     root_tenant_only = True
 

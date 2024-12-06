@@ -17,15 +17,7 @@ class FileAnalysis:
         self._port = port
 
     def _scan_file(self, file_name: str, data_bytes: bytes) -> EnumStateFile:
-        # files = {
-        #     'FILES': (file_name, data_bytes)
-        # }
-        # # Esegui la richiesta POST
-        # response = requests.post(self._url, files=files)
-        # if response.status_code != 200:
-        #     raise errors.InternalServerError('Error')
-        # json_data = json.loads(response.text)
-        #         # return ScanResponse.from_dict(json_data)
+        logging.info(file_name)
         try: 
             cd = pyclamd.ClamdNetworkSocket(self._host, int(self._port))
             result = cd.scan_stream(data_bytes)

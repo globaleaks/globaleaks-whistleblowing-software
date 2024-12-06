@@ -67,15 +67,27 @@ def is_download(session, file_location, name, state, can_download_infected, ifil
     return status, True
 
 @transact
-def is_exportable(session, files:list, user_id: str) -> bool:
+def is_exportable(session, files: list, user_id: str) -> bool:
     """
-    check if report is exportable.
+    Check if the report is exportable based on file statuses and user permissions.
 
+    Args:
+        session: Database session object.
+        files (list): List of file dictionaries containing 'status' keys.
+        user_id (str): ID of the user performing the check.
+
+    Returns:
+        bool: True if the report is exportable, False otherwise.
     """
+    # Fetch user and configuration settings
     user = session.query(models.User).get(user_id)
+    antivirus_enabled = ConfigFactory(session, 1).get_val('antivirus_enabled')
 
-    for file in files:
-        if file.get('status', '') != 'VERIFIED' and not user.can_download_infected:
-            return False
+    # Check conditions
+    if antivirus_enabled and any(file.get('status', '').upper() == EnumStateFile.pending.name.upper() for file in files):
+        return False
+
+    if not user.can_download_infected and any(file.get('status', '').upper() != EnumStateFile.infected.name.upper() for file in files):
+        return False
 
     return True
