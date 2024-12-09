@@ -206,7 +206,9 @@ def toggle_status_activate(session, accreditation_id: str, is_toggle=False):
     if not is_toggle:
         status_mapping = {
             'requested': EnumSubscriberStatus.approved,
-            'instructor_request': EnumSubscriberStatus.invited
+            'instructor_request': EnumSubscriberStatus.invited,
+            'invited': EnumSubscriberStatus.invited
+
         }
     else:
         status_mapping = {
