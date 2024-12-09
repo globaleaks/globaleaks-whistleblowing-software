@@ -44,8 +44,7 @@ export class SendtipFilesComponent implements OnInit {
   
   prepareFilesToDisplay(): void {
     const rfilesFiltered = this.rfiles.filter(file => 
-      file.visibility !== 'personal' && 
-      (this.isAntivirusEnable ? file.status === 'VERIFIED' : true)
+      file.visibility !== 'personal'
     );
 
     const rfilesMapped = rfilesFiltered
@@ -60,11 +59,7 @@ export class SendtipFilesComponent implements OnInit {
         download_url: "api/recipient/rfiles/"+file.id
     }));
 
-    const wbfilesFiltered = this.isAntivirusEnable
-      ? this.wbfiles.filter(file => file.status === 'VERIFIED')
-      : this.wbfiles;
-
-    const wbfilesMapped = wbfilesFiltered.map(file => ({
+    const wbfilesMapped = this.wbfiles.map(file => ({
       id: file.ifile_id,
       name: file.name,
       status: file.status,
