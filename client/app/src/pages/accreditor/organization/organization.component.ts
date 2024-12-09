@@ -102,7 +102,7 @@ export class OrganizationComponent implements OnInit{
         this.aggiornaDatiOrganizazzione();
       }
 
-      if(this.organization.state === 'instructor_request'){
+      if(this.organization.state === 'instructor_request' || this.organization.state === 'invited'){
         this.httpService.sendAccreditationInvitation(this.organization.id).subscribe({
           next: () => {
             this.loadOrganizationData();
