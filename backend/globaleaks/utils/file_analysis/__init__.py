@@ -1,13 +1,7 @@
 import logging
-import requests
-import json
-
 from twisted.internet import abstract
-
 from globaleaks.models import EnumStateFile
 from globaleaks.rest import errors
-from globaleaks.utils.file_analysis.ScanResponse import ScanResponse
-from globaleaks.utils.log import log
 import pyclamd
 
 
