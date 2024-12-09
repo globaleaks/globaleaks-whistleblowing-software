@@ -88,7 +88,7 @@ def db_wizard(session, tid, hostname, request):
             node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
 
     admin_user = None
-    is_tenant_anac = False
+    is_tenant_primary = False
 
     if not request['skip_admin_account_creation']:
         admin_desc = models.User().dict(language)
@@ -107,7 +107,7 @@ def db_wizard(session, tid, hostname, request):
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
             admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
 
-        is_tenant_anac = generate_analyst_key_pair(session, admin_user, tid)
+        is_tenant_primary = generate_analyst_key_pair(session, admin_user, tid)
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)
@@ -118,8 +118,8 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['role'] = 'receiver'
         receiver_desc['pgp_key_remove'] = False
         receiver_desc['idp_id'] = request.get('receiver_tax_code')
-        receiver_desc['can_grant_access_to_reports'] = not is_tenant_anac
-        receiver_desc['can_transfer_access_to_reports'] = not is_tenant_anac
+        receiver_desc['can_grant_access_to_reports'] = not is_tenant_primary
+        receiver_desc['can_transfer_access_to_reports'] = not is_tenant_primary
         receiver_user = db_create_user(session, tid, None, receiver_desc, language)
         db_set_user_password(session, tid, receiver_user, request['receiver_password'])
         receiver_user.password_change_needed = (tid != 1)
