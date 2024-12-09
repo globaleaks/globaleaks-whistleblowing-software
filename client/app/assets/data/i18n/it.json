@@ -754,5 +754,6 @@
   "Enable virus scanning of files": "Abilita la scansione antivirus dei file",
   "Antivirus Host": "Host Antivirus",
   "Antivirus port": "Porta Antivirus",
-  "Enable Proxy IDP": "Abilita Proxy IDP"
+  "Enable Proxy IDP": "Abilita Proxy IDP",
+  "Primary Organization": "Organizzazione Principale"
 }

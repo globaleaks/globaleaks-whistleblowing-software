@@ -124,7 +124,7 @@ export class TipEoComponent implements OnInit {
           component: this.tab1
         },
         {
-          title: "ANAC",
+          title: "Primary Organization",
           component: this.tab2
         }
       ];
