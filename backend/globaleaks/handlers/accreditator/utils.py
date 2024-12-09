@@ -297,10 +297,12 @@ def add_users_id_to_subscriber(session, accreditation_item):
     """
     admin_user = (session.query(User)
              .filter(User.tid == accreditation_item.tid)
-             .filter(User.mail_address == accreditation_item.email)).one_or_none()
+             .filter(User.mail_address == accreditation_item.email)
+             .filter(User.role == 0)).one_or_none()
     recipient_user = (session.query(User)
              .filter(User.tid == accreditation_item.tid)
-             .filter(User.mail_address == accreditation_item.recipient_email)).one_or_none()
+             .filter(User.mail_address == accreditation_item.recipient_email)
+             .filter(User.role == 1)).one_or_none()
     if admin_user:
         accreditation_item.user_id = admin_user.id
     if recipient_user:

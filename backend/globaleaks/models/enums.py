@@ -56,12 +56,12 @@ class EnumStateFile(_Enum):
 
 class EnumSubscriberStatus(_Enum):
     requested = 0
-    accredited = 1  # 2
-    rejected = 2 # 3
-    instructor_request = 3 #4
-    invited = 4 #5
-    suspended = 5 #6
-    approved = 6 # 1
+    accredited = 1
+    rejected = 2
+    instructor_request = 3
+    invited = 4
+    suspended = 5
+    approved = 6
 
 class EnumContentForwarding(_Enum):
     internal_file = 0
