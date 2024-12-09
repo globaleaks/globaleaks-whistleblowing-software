@@ -1,5 +1,6 @@
 # -*- coding: utf-8
 import json
+import logging
 
 from datetime import timedelta
 from twisted.internet import defer
@@ -91,6 +92,28 @@ def decorator_require_session_or_token(f):
 
     return wrapper
 
+def decorator_define_visibility_of_api(f):
+    def check_path(path, rules):
+        return any(rule in path for rule in rules)
+    def wrapper(self, *args, **kwargs):
+        PATH_RULES = {
+            'primary_path': ['/api/admin', '/api/analyst', '/api/whistleblower'],
+            'accreditation_path': ['/api/accreditation'],
+            'allowed_external_path': ['/api/admin/users']
+        }
+        request_path = self.request.path.decode()
+        tenant = self.state.tenants.get(1)
+        if not tenant:
+            raise errors.ForbiddenOperation
+        tenant_mode = tenant.cache.mode
+        if self.request.tid != 1 and tenant_mode == 'accreditation':
+            if check_path(request_path, PATH_RULES['primary_path']) and not check_path(request_path, PATH_RULES['allowed_external_path']):
+                raise errors.ForbiddenOperation
+        if check_path(request_path, PATH_RULES['accreditation_path']) and tenant_mode != 'accreditation':
+            raise errors.ForbiddenOperation
+        return f(self, *args, **kwargs)
+    return wrapper
+
 
 def decorator_authentication(f, roles):
     # Decorator that performs role checks on the user session
@@ -172,6 +195,8 @@ def decorate_method(h, method):
     if method in ['delete', 'post', 'put']:
         f = decorator_require_session_or_token(f)
         f = decorator_rate_limit(f)
+
+    f = decorator_define_visibility_of_api(f)
 
     f = decorator_authentication(f, roles)
 
