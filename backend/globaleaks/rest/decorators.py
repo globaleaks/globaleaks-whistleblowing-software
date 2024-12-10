@@ -196,7 +196,7 @@ def decorate_method(h, method):
         f = decorator_require_session_or_token(f)
         f = decorator_rate_limit(f)
 
-    f = decorator_define_visibility_of_api(f)
+    # f = decorator_define_visibility_of_api(f)
 
     f = decorator_authentication(f, roles)
 

@@ -136,11 +136,11 @@ class SubmitAccreditationHandler(BaseHandler):
     @staticmethod
     @transact
     def check_request_tax_code(session):
-        if ConfigFactory(session, 1).get_val('mode') != 'accreditation':
-            return True
+        if ConfigFactory(session, 1).get_val('mode') == 'accreditation':
+            raise errors.ForbiddenOperation
         if ConfigFactory(session, 1).get_val('proxy_idp_enabled'):
             raise errors.ForbiddenOperation
-        return False
+        return True
 
     def get_tax_code(self):
         tax_code = self.request.headers.get(b'x-idp-userid')
@@ -157,7 +157,7 @@ class SubmitAccreditationHandler(BaseHandler):
             requests.SubmitAccreditation)
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
-        request['admin_tax_code'] = tax_code
+        request['tax_code'] = tax_code
         try:
             request['organization_institutional_site'] = json.loads(body_req).get('organization_institutional_site')
         except Exception as e:

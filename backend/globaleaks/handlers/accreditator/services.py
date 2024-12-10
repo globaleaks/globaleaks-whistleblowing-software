@@ -35,9 +35,9 @@ def accreditation(session, request, is_instructor=False):
         InternalServerError: If the accreditation process fails.
     """
     try:
-        request['name'] = request.get('recipient_name', '')
-        request['surname'] = request.get('recipient_surname', '')
-        request['email'] = request.get('recipient_email', '')
+        request['name'] = request.get('admin_name', '')
+        request['surname'] = request.get('admin_surname', '')
+        request['email'] = request.get('admin_email', '')
         request['organization_institutional_site'] = request.get('organization_institutional_site')
         sub = Subscriber(request)
         sub.language = ''
