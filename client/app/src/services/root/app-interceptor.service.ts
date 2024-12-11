@@ -112,8 +112,9 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
         catchError((error: HttpErrorResponse) => {       
 
           if(error.error){
+            console.log("error:    {}", error.error)
 
-            if((request.url === "api/auth/authentication/external" || request.url === "api/user/reset/password/external") && error.status === 401 && error.error["error_code"] == undefined && this.appDataService.public.node.proxy_idp_enabled){
+            if((request.url === "api/auth/authentication/external" || request.url === "api/user/reset/password/external") && error.status === 401 && error.error["error_code"] == undefined && this.appDataService.public.proxy_idp_enabled){
               window.location.href="/login-external-organizazion/"+this.appDataService.public.node.uuid
             }  
 

@@ -6,6 +6,7 @@ export class Root {
   submission_statuses: Status[];
   receivers: Receiver[];
   contexts: Context[];
+  proxy_idp_enabled: boolean;
 }
 
 export class Node {
@@ -73,6 +74,7 @@ export class Node {
   antivirus_clamd_port: number;
   proxy_idp_enabled: boolean;
   uuid: string;
+  external: boolean;
 }
 
 export interface LanguagesSupported {
