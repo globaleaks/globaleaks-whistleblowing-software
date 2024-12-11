@@ -131,6 +131,10 @@ export class HttpService {
     return this.httpClient.post<void>("api/user/reset/password", param);
   }
 
+  requestResetEOLogin(param: string): Observable<void> {
+    return this.httpClient.post<void>("api/user/reset/password/external", param);
+  }
+
   requestSignup(param: string): Observable<void> {
     return this.httpClient.post<void>("api/signup", param);
   }

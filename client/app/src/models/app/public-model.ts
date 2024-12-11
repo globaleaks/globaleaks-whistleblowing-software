@@ -72,6 +72,7 @@ export class Node {
   antivirus_clamd_ip: string;
   antivirus_clamd_port: number;
   proxy_idp_enabled: boolean;
+  uuid: string;
 }
 
 export interface LanguagesSupported {

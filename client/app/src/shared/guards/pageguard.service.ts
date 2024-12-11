@@ -18,7 +18,7 @@ export class Pageguard {
         this.router.navigate([this.authenticationService.session.homepage]).then();
       }
     } else if (state.url === "/") {
-      if (this.appDataService.public.node && this.appDataService.public.node.enable_signup && this.appDataService.public.node.mode !== 'accreditation') {
+      if (this.appDataService.public.node && this.appDataService.public.node.enable_signup) {
         this.router.navigate(["/signup"]).then();
       }
     } else if (state.url === "/submission") {

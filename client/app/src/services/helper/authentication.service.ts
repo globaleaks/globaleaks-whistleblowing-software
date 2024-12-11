@@ -66,13 +66,25 @@ export class AuthenticationService {
 
   resetPassword(username: string) {
     const param = JSON.stringify({"username": username});
-    this.httpService.requestResetLogin(param).subscribe(
-      {
-        next: () => {
-          this.router.navigate(["/login/passwordreset/requested"]).then();
+
+    if (!this.appDataService.public.node.root_tenant && this.appDataService.public.node.mode == 'accreditation' && this.appDataService.public.node.proxy_idp_enabled){
+      this.httpService.requestResetEOLogin(param).subscribe(
+        {
+          next: () => {
+            this.router.navigate(["/login/passwordreset/requested"]).then();
+          }
         }
-      }
-    );
+      );
+    }
+    else {
+      this.httpService.requestResetLogin(param).subscribe(
+        {
+          next: () => {
+            this.router.navigate(["/login/passwordreset/requested"]).then();
+          }
+        }
+      );
+    }
   }
 
   login(tid?: number, username?: string, password?: string | undefined, authcode?: string | null, authtoken?: string | null, callback?: () => void) {
