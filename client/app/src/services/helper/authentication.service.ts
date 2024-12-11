@@ -90,7 +90,7 @@ export class AuthenticationService {
         const authHeader = this.getHeader();
         requestObservable = this.httpService.requestWhistleBlowerLogin(JSON.stringify({"receipt": password}), authHeader);
       }
-      else if (!this.appDataService.public.node.root_tenant && this.appDataService.public.node.mode == 'accreditation') {
+      else if (!this.appDataService.public.node.root_tenant && this.appDataService.public.node.mode == 'accreditation' && this.appDataService.public.node.proxy_idp_enabled ) {
         requestObservable = this.httpService.requestEOLogin(JSON.stringify({
           "tid": tid,
           "username": username,
