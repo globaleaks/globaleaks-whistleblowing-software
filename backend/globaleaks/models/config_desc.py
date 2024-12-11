@@ -75,7 +75,6 @@ ConfigDescriptor = {
     'idp_redirectUri': Unicode(default=''),
     'idp_clientId': Unicode(default=''),
     'idp_responseType': Unicode(default=''),
-    'idp_responseType': Unicode(default=''),
     'idp_scope': Unicode(default='code'),
     'ip_filter_admin': Unicode(default=''),
     'ip_filter_admin_enable': Bool(default=False),
@@ -221,6 +220,10 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
+        'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff',
+        'backup_path',
+        'backup_time',
         'antivirus_enabled',
         'backup_enabled',
         'antivirus_clamd_ip',
@@ -289,8 +292,6 @@ ConfigFilters = {
         'antivirus_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port'
-        
-
     ],
     'admin_network': [
         'anonymize_outgoing_connections',

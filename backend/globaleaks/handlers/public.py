@@ -584,15 +584,30 @@ def get_public_resources(session, tid, language):
     :param language: The language to be used for serialization
     :return: The public API descriptor
     """
+    is_root_tenant = tid == 1
 
-    return {
-        'node': db_serialize_node(session, tid, language),
-        'questionnaires': db_get_questionnaires(session, tid, language, True),
+    root_node = db_serialize_node(session, 1, language)
+    tenant_node = root_node if is_root_tenant else db_serialize_node(session, tid, language)
+
+    api_descriptor = {
+        'node': tenant_node,
+        'questionnaires': db_get_questionnaires(session, tid, language),
         'submission_statuses': db_get_submission_statuses(session, tid, language),
         'receivers': db_get_receivers(session, tid, language),
-        'contexts': db_get_contexts(session, tid, language)
+        'contexts': db_get_contexts(session, tid, language),
+        'proxy_idp_enabled': root_node.get('proxy_idp_enabled', False)
     }
 
+    if not is_root_tenant and root_node.get('mode') == 'accreditation':
+        tenant = session.query(models.Tenant).filter(models.Tenant.id == tid).one_or_none()
+        api_descriptor['node'] = {
+            'max_msg_external_to_whistle': root_node.get('max_msg_external_to_whistle', 0),
+            'max_msg_external_to_whistle_not_aff': root_node.get('max_msg_external_to_whistle_not_aff', 0),
+            'external': None if not tenant else tenant.external,
+            'affiliated': None if not tenant else tenant.affiliated
+        }
+
+    return api_descriptor
 
 class PublicResource(BaseHandler):
     """
