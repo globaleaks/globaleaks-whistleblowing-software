@@ -27,7 +27,7 @@
                 <button class="btn btn-sm btn-outline-secondary" *ngIf="editing" (click)="toggleEditing();">
                     <span>{{ 'Cancel' | translate }}</span>
                 </button>
-                <button class="btn btn-sm btn-danger" *ngIf="getUserID() !== user.id && (preferenceData.t_external ? !user.can_grant_access_to_reports : true)" id="delete_user" (click)="deleteUser(user)">
+                <button class="btn btn-sm btn-danger" *ngIf="getUserID() !== user.id && (appServiceData.public.node.external)" id="delete_user" (click)="deleteUser(user)">
                     <span>{{ 'Delete' | translate }}</span>
                 </button>
             </span>
@@ -178,7 +178,7 @@
             </div>
         </div>
         <div class="row" *ngIf="user.role === 'receiver'">
-            <ng-container *ngIf="!preferenceData.t_external">
+            <ng-container *ngIf="!appServiceData.public.node.external">
             <div class="col-md-12">
                 <div class="form-group">
                     <input [(ngModel)]="user.forcefully_selected" type="checkbox">
@@ -219,7 +219,7 @@
             </div>
             </ng-container>         
         </div>
-        <div class="row" *ngIf="user.role !== 'admin' && !preferenceData.t_external">
+        <div class="row" *ngIf="user.role !== 'admin' && !appServiceData.public.node.external">
             <div class="col-md-12">
                 <label>{{ 'Give the user administrative access to the following features:' | translate }}</label>
                 <div class="form-group">

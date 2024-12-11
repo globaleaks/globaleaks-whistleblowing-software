@@ -13,7 +13,7 @@
                 <span class="text-danger" data-toggle="tooltip" title="{{'This field is mandatory' | translate}}">*</span>
                 <div>
                     <select name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
-                        <ng-container *ngIf="!preferenceData.t_external; else restrictedOptions">
+                        <ng-container *ngIf="!appDataService.public.node.external; else restrictedOptions">
                             <option value="admin">{{ 'Admin' | translate }}</option>
                             <option value="analyst">{{ 'Analyst' | translate }}</option>
                             <option value="custodian">{{ 'Custodian' | translate }}</option>
