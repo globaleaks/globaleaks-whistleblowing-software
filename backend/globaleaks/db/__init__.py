@@ -3,8 +3,11 @@ import os
 import sys
 import traceback
 import warnings
+from collections import defaultdict
+from operator import or_
 
 from sqlalchemy.exc import SAWarning
+from globaleaks.rest.cache import Cache
 
 from globaleaks import models, DATABASE_VERSION
 from globaleaks.handlers.admin.https import db_load_tls_configs
@@ -68,7 +71,8 @@ def initialize_db(session):
     :param session: An ORM session
     """
     from globaleaks.handlers.admin import tenant
-    tenant.db_create(session, {'active': True, 'mode': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''})
+    tenant.db_create(session, {'active': False, 'mode': 'default', 'profile_counter': 1000000, 'name': 'GLOBALEAKS', 'subdomain': ''},False)
+    tenant.db_create(session, {'active': True, 'mode': 'default', 'profile_counter': 1000000, 'name': 'GLOBALEAKS', 'subdomain': ''})
 
 
 def update_db():
@@ -156,8 +160,17 @@ def sync_initialize_snimap(session):
     for cfg in db_load_tls_configs(session):
         State.snimap.load(cfg['tid'], cfg)
 
+def update_cache(cfg, tid):
+    tenant_cache = State.tenants[tid].cache
+    if cfg.var_name in ['https_cert', 'tor_onion_key'] or cfg.var_name in ConfigFilters['node']:
+        tenant_cache[cfg.var_name] = cfg.value
+    elif cfg.var_name in ConfigFilters['notification']:
+        tenant_cache.setdefault('notification', {})[cfg.var_name] = cfg.value
+    elif cfg.var_name in ConfigFilters['node']:
+        tenant_cache[cfg.var_name] = cfg.value
 
 def db_refresh_tenant_cache(session, to_refresh=None):
+
     active_tids = set([tid[0] for tid in session.query(models.Tenant.id).filter(models.Tenant.active.is_(True))])
 
     cached_tids = set(State.tenants.keys())
@@ -187,7 +200,21 @@ def db_refresh_tenant_cache(session, to_refresh=None):
     if to_refresh is None or to_refresh == 1:
         tids = active_tids
     else:
-        tids = [to_refresh] if to_refresh in active_tids else []
+        if to_refresh in active_tids:
+            tids = [to_refresh]
+            if to_refresh < 1000001:
+                default_profile_exists = session.query(Config).filter_by(tid=to_refresh, var_name='default_profile').first()
+                if default_profile_exists:
+                    tids.append(default_profile_exists.tid)
+
+            elif to_refresh > 1000001:
+                matching_tids = [tid[0] for tid in session.query(Config.tid).filter_by(var_name='default_profile', value=str(to_refresh)).all()]
+                tids.extend(matching_tids)
+
+                for tid in matching_tids:
+                    Cache.invalidate(tid)
+        else:
+            tids = []
 
     if not tids:
         return
@@ -214,15 +241,31 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                             .filter(models.EnabledLanguage.tid.in_(tids)):
         State.tenants[tid].cache['languages_enabled'].append(lang)
 
-    for cfg in session.query(Config).filter(Config.tid.in_(tids)):
-        tenant_cache = State.tenants[cfg.tid].cache
+    configs = defaultdict(dict)
+    default_configs = {}
 
-        if cfg.var_name in ['https_cert', 'tor_onion_key']:
-            tenant_cache[cfg.var_name] = cfg.value
-        elif cfg.var_name in ConfigFilters['node']:
-            tenant_cache[cfg.var_name] = cfg.value
-        elif cfg.var_name in ConfigFilters['notification']:
-            tenant_cache['notification'][cfg.var_name] = cfg.value
+    for cfg in session.query(Config).filter(or_(Config.tid.in_(tids), Config.tid == 1000001)):
+        if cfg.tid == 1000001:
+            default_configs[cfg.var_name] = cfg
+        else:
+            configs[cfg.tid][cfg.var_name] = cfg
+
+    for var_name, default_cfg in default_configs.items():
+        for tid, tenant in list(configs.items()):
+            if "default_profile" in tenant:
+                profile_id = int(tenant["default_profile"].value)
+                profile = configs[profile_id]
+            else:
+                profile_id = None
+                profile = None
+
+            if to_refresh == 1 or to_refresh is None or (to_refresh < 1000001 and to_refresh == tid) or (1000001 < to_refresh == profile_id) or (1000001 < to_refresh == tid):
+                if var_name in tenant:
+                    update_cache(tenant[var_name], tid)
+                elif profile and var_name in profile:
+                    update_cache(profile[var_name], tid)
+                elif tid:
+                    update_cache(default_cfg, tid)
 
     for tid, mail, pub_key in session.query(models.User.tid, models.User.mail_address, models.User.pgp_key_public) \
                                      .filter(models.User.role == 'admin',

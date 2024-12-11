@@ -3,13 +3,16 @@ from globaleaks import models
 from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.wizard import db_wizard
-from globaleaks.models import config, serializers
+from globaleaks.models import Config, config, serializers
 from globaleaks.models.config import db_get_configs, \
     db_get_config_variable, db_set_config_variable
 from globaleaks.orm import db_del, db_get, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.tls import gen_selfsigned_certificate
+import json
+from twisted.internet.defer import inlineCallbacks
 
+default_profile_id = 1000001
 
 def db_initialize_tenant_submission_statuses(session, tid):
     """
@@ -23,15 +26,30 @@ def db_initialize_tenant_submission_statuses(session, tid):
               {'tid': tid, 'id': 'closed', 'label': {'en': 'Closed'}, 'tip_timetolive': 0}]:
         session.add(models.SubmissionStatus(s))
 
+def get_tenant_id(session, isTenant, is_profile):
+    id_key = 'tenant_counter' if isTenant and not is_profile else 'profile_counter'
+    tid = db_get_config_variable(session, 1, id_key)
+    return id_key, tid
 
-def db_create(session, desc):
+def calculate_tenant_id(tid, is_profile):
+    if tid == 1000000 and is_profile:
+        return tid + 2
+    else:
+        return tid + 1
+    
+def db_create(session, desc, isTenant = True, **kwargs):
+    is_profile = kwargs.get('is_profile', False)
+    
+    id_key, tid = get_tenant_id(session, isTenant, is_profile)
+    
+    tenant_id = calculate_tenant_id(tid, is_profile)
+    
     t = models.Tenant()
-
+    t.id = tenant_id
     t.active = desc['active']
 
     session.add(t)
 
-    # required to generate the tenant id
     session.flush()
 
     appdata = load_appdata()
@@ -41,14 +59,14 @@ def db_create(session, desc):
         db_load_defaults(session)
     else:
         language = db_get_config_variable(session, 1, 'default_language')
-
-    models.config.initialize_config(session, t.id, desc['mode'])
+    models.config.initialize_config(session, t.id, desc)
 
     if t.id == 1:
         key, cert = gen_selfsigned_certificate()
         db_set_config_variable(session, 1, 'https_selfsigned_key', key)
         db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
 
+    db_set_config_variable(session, 1, id_key, t.id)
     for var in ['mode', 'name', 'subdomain']:
         db_set_config_variable(session, t.id, var, desc[var])
 
@@ -65,6 +83,12 @@ def create(session, desc, *args, **kwargs):
 
     return serializers.serialize_tenant(session, t)
 
+@transact
+def is_profile_mapped(session, tid):
+    if int(tid) > 1000001:
+        return session.query(Config).filter_by(value=tid, var_name='default_profile').first() is not None
+    else:
+        return False
 
 @transact
 def create_and_initialize(session, desc, *args, **kwargs):
@@ -86,10 +110,9 @@ def create_and_initialize(session, desc, *args, **kwargs):
 
 def db_get_tenant_list(session):
     ret = []
-
     configs = db_get_configs(session, 'tenant')
 
-    for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True):
+    for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != default_profile_id):
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
         if s:
             tenant_dict['signup'] = serializers.serialize_signup(s)
@@ -102,7 +125,6 @@ def db_get_tenant_list(session):
 @transact
 def get_tenant_list(session):
     return db_get_tenant_list(session)
-
 
 @transact
 def get(session, tid):
@@ -141,10 +163,12 @@ class TenantCollection(BaseHandler):
         """
         Create a new tenant
         """
-        request = self.validate_request(self.request.content.read(),
-                                        requests.AdminTenantDesc)
+        raw_content = self.request.content.read()
+        request = self.validate_request(raw_content, requests.AdminTenantDesc)
+        content = json.loads(raw_content)
+        is_profile = content.get('is_profile', False)
 
-        return create_and_initialize(request)
+        return create_and_initialize(request, is_profile=is_profile)
 
 
 class TenantInstance(BaseHandler):
@@ -164,8 +188,15 @@ class TenantInstance(BaseHandler):
 
         return update(int(tid), request)
 
+    @inlineCallbacks
     def delete(self, tid):
         """
         Delete the specified tenant.
         """
-        return tw(db_del, models.Tenant, models.Tenant.id == int(tid))
+
+        profile_mapped_status = yield is_profile_mapped(tid)
+        if profile_mapped_status:
+            raise errors.ForbiddenOperation
+
+        tid = int(tid)
+        tw(db_del, models.Tenant, models.Tenant.id == tid)
