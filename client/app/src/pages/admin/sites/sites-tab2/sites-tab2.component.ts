@@ -26,7 +26,7 @@ export class SitesTab2Component implements OnInit {
 
   onModeChange() {
     if (this.nodeResolver.dataModel.mode === 'accreditation') {
-      this.nodeResolver.dataModel.enable_signup = true;
+      this.nodeResolver.dataModel.enable_signup = false;
       this.nodeResolver.dataModel.signup_tos1_enable = true;
       this.nodeResolver.dataModel.signup_tos2_enable = true;
     } else {

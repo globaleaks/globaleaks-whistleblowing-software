@@ -28,13 +28,13 @@
             </select>
         </div>
         <div *ngIf="!nodeResolver.dataModel.adminonly">
-            <div class="form-group">
+            <div class="form-group" *ngIf="nodeResolver.dataModel.mode !== 'accreditation'">
                 <label>
                     <input name="nodeResolver.dataModel.enable_signup" [(ngModel)]="nodeResolver.dataModel.enable_signup" type="checkbox" [disabled]="nodeResolver.dataModel.mode === 'accreditation'"/>
                     <span>{{'Allow users to sign up'|translate}}</span>
                 </label>
             </div>
-            <div *ngIf="nodeResolver.dataModel.enable_signup">
+            <div *ngIf="nodeResolver.dataModel.enable_signup || nodeResolver.dataModel.mode === 'accreditation'">
                 <div class="form-group">
                     <label>
                         <input [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" [disabled]="nodeResolver.dataModel.mode === 'accreditation'"/>
