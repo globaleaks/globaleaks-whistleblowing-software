@@ -262,12 +262,16 @@ def db_serialize_node(session, tid, language):
     languages = db_get_languages(session, tid)
     ret = ConfigFactory(session, tid).serialize('public_node')
     ret.update(ConfigL10NFactory(session, tid,).serialize('public_node', language))
+    tenant = session.query(models.Tenant).filter(models.Tenant.id == tid).one_or_none()
 
     ret['start_time'] = State.start_time
     ret['secret_loaded'] = False if not State.secret else True
     ret['root_tenant'] = tid == 1
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
+
+    ret['external'] = None if not tenant else tenant.external
+    ret['affiliated'] = None if not tenant else tenant.affiliated
 
     for x in special_files:
         ret[x] = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == x).one_or_none()
@@ -599,12 +603,9 @@ def get_public_resources(session, tid, language):
     }
 
     if not is_root_tenant and root_node.get('mode') == 'accreditation':
-        tenant = session.query(models.Tenant).filter(models.Tenant.id == tid).one_or_none()
         api_descriptor['node'] = {
             'max_msg_external_to_whistle': root_node.get('max_msg_external_to_whistle', 0),
-            'max_msg_external_to_whistle_not_aff': root_node.get('max_msg_external_to_whistle_not_aff', 0),
-            'external': None if not tenant else tenant.external,
-            'affiliated': None if not tenant else tenant.affiliated
+            'max_msg_external_to_whistle_not_aff': root_node.get('max_msg_external_to_whistle_not_aff', 0)
         }
 
     return api_descriptor
