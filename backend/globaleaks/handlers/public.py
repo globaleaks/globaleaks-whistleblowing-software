@@ -613,8 +613,7 @@ class PublicResource(BaseHandler):
     Handler responsible of serving the public API
     """
     check_roles = 'any'
-    cache_resource = False
-    invalidate_cache = True
+    cache_resource = True
 
     def get(self):
         """
