@@ -604,7 +604,7 @@ def get_public_resources(session, tid, language):
 
     if not is_root_tenant and root_node.get('mode') == 'accreditation':
         api_descriptor['node']['max_msg_external_to_whistle'] = root_node.get('max_msg_external_to_whistle', 0)
-        api_descriptor['mode']['max_msg_external_to_whistle_not_aff']: root_node.get('max_msg_external_to_whistle_not_aff', 0)
+        api_descriptor['node']['max_msg_external_to_whistle_not_aff']: root_node.get('max_msg_external_to_whistle_not_aff', 0)
 
     return api_descriptor
 
@@ -613,7 +613,8 @@ class PublicResource(BaseHandler):
     Handler responsible of serving the public API
     """
     check_roles = 'any'
-    cache_resource = True
+    cache_resource = False
+    invalidate_cache = True
 
     def get(self):
         """
