@@ -755,5 +755,7 @@
   "Antivirus Host": "Host Antivirus",
   "Antivirus port": "Porta Antivirus",
   "Enable Proxy IDP": "Abilita Proxy IDP",
-  "Primary Organization": "Organizzazione Principale"
+  "Primary Organization": "Organizzazione Principale",
+  "Enable PEC":"Abilita notifiche PEC",
+  "ACCREDITATION": "ACCREDITAMENTO"
 }

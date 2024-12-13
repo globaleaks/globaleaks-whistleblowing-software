@@ -718,5 +718,7 @@
   "close": "Closed",
   "tooltip forward text": "tooltip forward text",
   "toolptip review form": "toolptip review form",
-  "Requested by": "Requested By"
+  "Requested by": "Requested By",
+  "Enable PEC":"Enable PEC notifications",
+  "ACCREDITATION": "ACCREDITATION"
 }
