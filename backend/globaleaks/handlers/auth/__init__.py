@@ -198,8 +198,7 @@ class AuthenticationHandler(BaseHandler):
 
     def get_tax_code(self):
         tax_code = self.request.headers.get(b'x-idp-userid')
-        if tax_code:
-            return tax_code.decode() if tax_code else None
+        return tax_code.decode() if tax_code else None
 
     @inlineCallbacks
     def post(self):
