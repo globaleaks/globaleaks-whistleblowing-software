@@ -5,23 +5,26 @@
         <span class="badge bg-secondary">{{indexNumber}}</span>
         <span>{{tenant.name}}</span>
       </div>
-      @if (tenant.active && (tenant.onionservice || tenant.hostname || (tenant.subdomain || nodeResolver.dataModel.rootdomain))) {
+      @if (tenant.active && tenant.id > 1000001 && (tenant.onionservice || tenant.hostname || (tenant.subdomain || nodeResolver.dataModel.rootdomain))) {
         <div class="tenant-badge"
           >
           @if (tenant.onionservice) {
-            <a class="badge bg-primary" [href]="'https://' + tenant.onionservice" target="_blank">{{tenant.onionservice}}</a>
+            <a class="badge bg-primary" [href]="'https://' + tenant.onionservice"
+            rel="noreferrer" target="_blank">{{tenant.onionservice}}</a>
           }
           @if (tenant.subdomain) {
             <span>
               @if (nodeResolver.dataModel.onionservice && tenant.subdomain) {
                 <a class="badge bg-primary"
-                  [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{ tenant.subdomain }}
+                  [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice"
+                  rel="noreferrer" target="_blank">{{ tenant.subdomain }}
                 .{{ nodeResolver.dataModel.onionservice }}</a>
               }
             </span>
           }
           @if (tenant.hostname) {
-            <a class="badge bg-primary" [href]="'https://' + tenant.hostname" target="_blank"> {{ tenant.hostname }} </a>
+            <a class="badge bg-primary" [href]="'https://' + tenant.hostname"
+            rel="noreferrer" target="_blank"> {{ tenant.hostname }} </a>
           }
         </div>
       }
@@ -59,18 +62,6 @@
           <div class="form-group">
             <label>{{'Name'|translate}}</label>
             <input name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
-          </div>
-          <div class="form-group">
-            <label>{{'Subdomain'|translate}}</label>
-            <input name="subdomain" class="form-control" [(ngModel)]="tenant.subdomain" type="text" required>
-          </div>
-          <div class="form-group">
-            <label>{{'Mode:'|translate}}</label>
-            <select name="type" class="form-select-custom" [(ngModel)]="tenant.mode" required>
-              <option value="default" [selected]="tenant.mode === 'default'">DEFAULT</option>
-              <option value="demo">DEMO</option>
-              <option value="wbpa">WHISTLEBLOWINGPA</option>
-            </select>
           </div>
           <div class="form-group">
             <label>

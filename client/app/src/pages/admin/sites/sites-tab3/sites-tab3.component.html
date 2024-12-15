@@ -1,15 +1,16 @@
 <div class="row">
   <div class="col-md-12">
     <div>
-      <span>{{'Sites'|translate}}</span>
-      <button class="btn btn-sm btn-primary show-add-tenant-btn" (click)="toggleAddTenant()">
+      <span>{{'Profiles'|translate}}</span>
+      <button class="btn btn-sm btn-primary show-add-profile-btn" (click)="toggleAddTenant()">
         <i class="fa-solid fa-plus"></i>
         <span>{{'Add'|translate}}</span>
       </button>
       <span id="SearchFilter" class="form-group float-end">
         <br>
           <br>
-            <input type="text" class="form-control" [placeholder]="'Search' | translate" [attr.placeholder]="'Search' | translate" [(ngModel)]="search" name="search">
+            <input type="text" class="form-control" [placeholder]="'Search' | translate"
+              [attr.placeholder]="'Search' | translate" [(ngModel)]="search" name="search">
           </span>
         </div>
       </div>
@@ -24,29 +25,13 @@
                 <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
               </label>
               <div>
-                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
+                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120"
+                  type="text" required />
               </div>
             </div>
-            <div class="form-group">
-              <label>{{'Mode:'|translate}}</label>
-              <select name="type" class="form-select-custom" [(ngModel)]="newTenant.mode" required>
-                <option value="default" [selected]="newTenant.mode === 'default'">DEFAULT</option>
-                <option value="wbpa">WHISTLEBLOWINGPA</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>{{ 'Profile:' | translate }}</label>
-              <select name="profile" class="form-select-custom" [(ngModel)]="newTenant.default_profile" required>
-                <option value="default">DEFAULT</option>
-                @for (tenant of profileTenants; track tenant) {
-                  @if (tenant.active) {
-                    <option [value]="tenant.id">{{ tenant.name }}</option>
-                  }
-                }
-              </select>
-            </div>
             <div class="form-group clearfix">
-              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
+              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid"
+                (click)="addTenant();toggleAddTenant()" type="button">
                 <i class="fa-solid fa-plus"></i>
                 <span>Add</span>
               </button>
@@ -59,9 +44,11 @@
       @if (tenants) {
         <div class="col-md-12">
           @for (tenant of tenants | orderBy:'id' | filter:'name':search | slice: (currentPage - 1) * itemsPerPage : currentPage * itemsPerPage; track tenant; let index = $index) {
-            <div>
+            <div
+              >
               <form id="tenant-{{index}}" #editTenant="ngForm" novalidate>
-                <src-siteslist [editTenant]="editTenant" [index]="(currentPage - 1) * itemsPerPage + index" [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)"></src-siteslist>
+                <src-profilelist [editTenant]="editTenant" [index]="(currentPage - 1) * itemsPerPage + index"
+                [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)"></src-profilelist>
               </form>
             </div>
           }

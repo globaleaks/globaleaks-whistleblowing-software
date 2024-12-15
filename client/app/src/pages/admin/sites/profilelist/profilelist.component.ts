@@ -13,12 +13,12 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: "src-siteslist",
-    templateUrl: "./siteslist.component.html",
-    standalone: true,
-    imports: [FormsModule, DatePipe, TranslatorPipe, TranslateModule]
+  selector: "src-profilelist",
+  templateUrl: "./profilelist.component.html",
+  standalone: true,
+  imports: [FormsModule, DatePipe, TranslatorPipe, TranslateModule]
 })
-export class SiteslistComponent {
+export class ProfilelistComponent {
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
   private modalService = inject(NgbModal);
@@ -37,8 +37,7 @@ export class SiteslistComponent {
     this.tenant.active = !this.tenant.active;
     this.tenant.default_profile = "default";
     const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe(_ => {
-    });
+    this.httpService.requestUpdateTenant(url, this.tenant).subscribe((_) => {});
   }
 
   isRemovableTenant(): boolean {
@@ -47,34 +46,40 @@ export class SiteslistComponent {
 
   saveTenant() {
     const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe(_ => {
-    });
+    this.httpService.requestUpdateTenant(url, this.tenant).subscribe((_) => {});
   }
 
   deleteTenant(event: Event, tenant: tenantResolverModel) {
     event.stopPropagation();
-    this.openConfirmableModalDialog(tenant, "").subscribe(_ => {
-    });
+    this.openConfirmableModalDialog(tenant, "").subscribe((_) => {});
   }
 
   configureTenant($event: Event, tid: number): void {
     $event.stopPropagation();
 
-    this.httpService.requestTenantSwitch("api/auth/tenantauthswitch/" + tid).subscribe(res => {
-      window.open(res.redirect);
-    });
+    this.httpService
+      .requestTenantSwitch("api/auth/tenantauthswitch/" + tid)
+      .subscribe((res) => {
+        window.open(res.redirect);
+      });
   }
 
-  openConfirmableModalDialog(arg: tenantResolverModel, scope: any): Observable<string> {
+  openConfirmableModalDialog(
+    arg: tenantResolverModel,
+    scope: any
+  ): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(DeleteConfirmationComponent, {
+        backdrop: "static",
+        keyboard: false,
+      });
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
+        observer.complete();
         const url = "api/admin/tenants/" + arg.id;
-        return this.httpService.requestDeleteTenant(url).subscribe(_ => {
+        return this.httpService.requestDeleteTenant(url).subscribe((_) => {
           this.utilsService.deleteResource(this.tenants, arg);
         });
       };

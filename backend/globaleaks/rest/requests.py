@@ -84,7 +84,8 @@ AdminTenantDesc = {
     'name': str,
     'mode': str,
     'active': bool,
-    'subdomain': subdomain_regexp_or_empty
+    'subdomain': subdomain_regexp_or_empty,
+    'default_profile': str,
 }
 
 FileDesc = {
