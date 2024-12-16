@@ -36,7 +36,7 @@
                         <th class="UserCreationDate">
                             <span (click)="sortKey = 'creation_date'; sortReverse = !sortReverse">
                                 <i class="fa-solid fa-calendar"></i>
-                                <span>{{'Creation Date' | translate}}</span>
+                                <span>{{'Creation date' | translate}}</span>
                                 <span *ngIf="sortKey === 'creation_date'">
                                     <span *ngIf="!sortReverse" class="fa-solid fa-caret-down"></span>
                                     <span *ngIf="sortReverse" class="fa-solid fa-caret-up"></span>
@@ -83,8 +83,8 @@
                     <tr *ngFor="let user of orderbyCast(users | orderBy:sortKey:sortReverse); let i = index"
                     id="user-{{i}}">
                         <td>{{user.id}}</td>
-                        <td>{{user.role}}</td>
-                        <td>{{user.creation_date}}</td>
+                        <td>{{user.role | translate}}</td>
+                        <td>{{user.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                         <td>{{user.last_login}}</td>
                         <td>{{user.opened_rtips}}</td>
                         <td>{{user.closed_rtips}}</td>
