@@ -18,10 +18,10 @@
           }
         }
       </span>
-      @if (!user.enabled) {
+      @if (!user.enabled || (defualtUsersArr.includes(user.name) && is_profile)) {
         <span class="badge bg-secondary">{{ 'Disabled' | translate }}</span>
       }
-      @if (nodeData.encryption && !user.encryption) {
+      @if (nodeData.encryption && !user.encryption && !is_profile) {
         <span class="badge bg-default text-dark" ngbTooltip="{{'This user has not performed the first login yet.' | translate}}">
           <i class="fa-solid fa-exclamation-circle"></i>
         </span>
@@ -29,22 +29,22 @@
     </span>
     <span class="col-md-5 clearfix">
       <span class="float-end">
-        @if (!editing) {
+        @if (!editing && (!defualtUsersArr.includes(user.name) || !is_profile)) {
           <button class="btn btn-sm btn-outline-secondary" id="edit_user" (click)="toggleEditing();">
             <span>{{ 'Edit' | translate }}</span>
           </button>
         }
-        @if (editing) {
+        @if (editing && (!defualtUsersArr.includes(user.name) || !is_profile)) {
           <button class="btn btn-sm btn-primary" id="save_user" [disabled]="editUser.invalid" (click)="saveUser(user);toggleEditing();">
             <span>{{ 'Save' | translate }}</span>
           </button>
         }
-        @if (editing) {
+        @if (editing && (!defualtUsersArr.includes(user.name) || !is_profile)) {
           <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing();">
             <span>{{ 'Cancel' | translate }}</span>
           </button>
         }
-        @if (getUserID() !== user.id) {
+        @if (getUserID() !== user.id && (!defualtUsersArr.includes(user.name) || !is_profile)) {
           <button class="btn btn-sm btn-danger" id="delete_user" (click)="deleteUser(user)">
             <span>{{ 'Delete' | translate }}</span>
           </button>
@@ -52,43 +52,59 @@
       </span>
     </span>
   </div>
-  @if (editing) {
+  @if (editing && (!defualtUsersArr.includes(user.name) || !is_profile)) {
     <div class="editor">
       <hr />
-      <div class="row">
+      @if (!is_profile) {
+        <div class="row">
         <div class="col-md-6">
           <div class="form-group">
             <div appImageUpload [imageUploadModel]="user" [imageUploadModelAttr]="'picture'" [imageUploadId]="user.id"></div>
           </div>
         </div>
-      </div>
+        </div>
+      }
       <div class="row">
         <div class="col-md-12">
-          @if (user.role !== 'receiver' || !nodeData.simplified_login) {
+          @if (!is_profile) {
             <div class="form-group">
+              <label>{{ 'Profile' | translate }}</label>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              <div>
+                <select name="role" class="form-select-custom" [(ngModel)]="user.profile_id" [disabled]="getUserID() == user.id" required>
+                  @for (user of userProfiles; track user) {
+                    <option [value]="user.id">
+                      {{ user.name | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+            @if (user.role !== 'receiver' || !nodeData.simplified_login) {
+              <div class="form-group">
               <label>{{ 'Username' | translate }}</label>
               <input class="form-control" name="username" [(ngModel)]="user.username" type="text" required />
               @if (editUser.form.get('username')?.errors?.['required']) {
                 <div class="text-danger">{{'This field is mandatory' | translate }}</div>
               }
-            </div>
-          }
-          <div class="form-group">
+              </div>
+            }
+            <div class="form-group">
             <label>{{ 'Name' | translate }}</label>
             <input class="form-control" name="name" [(ngModel)]="user.name" type="text" required />
             @if (editUser.form.get('name')?.errors?.['required']) {
               <div class="text-danger">This field is mandatory </div>
             }
-          </div>
-          <div class="form-group">
+            </div>
+            <div class="form-group">
             <label>{{ 'Public name' | translate }}</label>
             <input class="form-control" name="public_name" [(ngModel)]="user.public_name" type="text" required />
-          </div>
-          <div class="form-group">
+            </div>
+            <div class="form-group">
             <label>{{ 'Description' | translate }}</label>
             <textarea name="description" class="form-control" [(ngModel)]="user.description"></textarea>
-          </div>
-          <div class="form-group">
+            </div>
+            <div class="form-group">
             <label>{{ 'Email address' | translate }}</label>
             <input class="form-control" name="email" [(ngModel)]="user.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
             @if (editUser.form.get('email')?.errors?.['required']) {
@@ -99,9 +115,9 @@
             @if (editUser.form.get('email')?.errors?.['pattern']) {
               <div class="text-danger"> Invalid email address </div>
             }
-          </div>
-          @if (getUserID() !== user.id) {
-            <div class="form-group">
+            </div>
+            @if (getUserID() !== user.id) {
+              <div class="form-group">
               <label>{{ 'Password' | translate }}</label>
               <div>
                 <span class="btn btn-outline-secondary" (click)="resetUserPassword(user)">
@@ -140,24 +156,29 @@
                   @if (passwordStrengthScore && passwordStrengthScore < 2) {
                     <div class="text-danger">{{ 'The chosen password is too weak. A valid password should be at least 12 characters long and contain a variety of characters including at least a lowercase character, a capital character, a number and a special character.' | translate }}</div>
                   }
+                  </div>
+                }
+              </div>
+            }
+          }
+          @if (!is_profile) {
+            <div class="form-group">
+              <input class="form-check-input" [(ngModel)]="user.password_change_needed" [disabled]="user.password_change_needed" type="checkbox" />
+              <label>{{ 'Force password change' | translate }}</label>
+              @if (changePasswordArgs.password_change_needed) {
+                <div>
+                  <span class="badge bg-primary">{{ 'Enabled' | translate }}</span>
+                  <span>{{ 'The user will be forced to change its password on next login.' | translate}}</span>
                 </div>
               }
             </div>
           }
+          @if (is_profile) {
           <div class="form-group">
             <input class="form-check-input" [(ngModel)]="user.enabled" type="checkbox" />
             <label>{{ 'Enabled' | translate }}</label>
           </div>
-          <div class="form-group">
-            <input class="form-check-input" [(ngModel)]="user.password_change_needed" [disabled]="user.password_change_needed" type="checkbox" />
-            <label>{{ 'Force password change' | translate }}</label>
-            @if (changePasswordArgs.password_change_needed) {
-              <div>
-                <span class="badge bg-primary">{{ 'Enabled' | translate }}</span>
-                <span>{{ 'The user will be forced to change its password on next login.' | translate}}</span>
-              </div>
-            }
-          </div>
+          }
           @if (user.two_factor) {
             <div class="form-group">
               <span class="btn btn-danger" (click)="disable2FA(user)">
@@ -166,23 +187,25 @@
               </span>
             </div>
           }
-          <div class="form-group">
-            <label>{{ 'Language' | translate }}</label>
-            <select class="form-select-custom" [(ngModel)]="user.language" [ngModelOptions]="{standalone: true}">
-              @for (item of appServiceData.languages_enabled_selector; track item) {
-                <option [value]="item.code">
-                  {{ item.name }}
-                </option>
-              }
-            </select>
-          </div>
-          <div class="form-group">
-            <input class="form-check-input" [(ngModel)]="user.notification" type="checkbox">
-            <label>{{ 'Enable email notifications' | translate }}</label>
-          </div>
+          @if (is_profile) {
+            <div class="form-group">
+              <label>{{ 'Language' | translate }}</label>
+              <select class="form-select-custom" [(ngModel)]="user.language" [ngModelOptions]="{standalone: true}">
+                @for (item of appServiceData.languages_enabled_selector; track item) {
+                  <option [value]="item.code">
+                    {{ item.name }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" [(ngModel)]="user.notification" type="checkbox">
+              <label>{{ 'Enable email notifications' | translate }}</label>
+            </div>
+          }
         </div>
       </div>
-      @if (nodeData.pgp) {
+      @if (nodeData.pgp && is_profile) {
         <div class="row">
           <div class="col-md-12">
             @if (user.pgp_key_fingerprint) {
@@ -198,12 +221,12 @@
                   </p>
                 </div>
                 <div class="form-group">
-                  <input class="form-check-input" [(ngModel)]="user.pgp_key_remove" type="checkbox" />
+                  <input class="form-check-input" [(ngModel)]="user.pgp_key_remove" type="checkbox"/>
                   <label>{{ 'Remove' | translate }}</label>
                 </div>
               </div>
             }
-            @if (user.pgp_key_fingerprint === '') {
+            @if (user.pgp_key_fingerprint === '' && is_profile) {
               <div class="form-group">
                 <div class="position-relative">
                   <label>{{ 'Set up encryption by providing a PGP public key' | translate }}</label>
@@ -232,7 +255,7 @@
           </div>
         </div>
       }
-      @if (user.role === 'receiver') {
+      @if (user.role === 'receiver' && is_profile) {
         <div class="row">
           <div class="col-md-12">
             <div class="form-group">
@@ -272,7 +295,7 @@
           </div>
         </div>
       }
-      @if (user.role !== 'admin') {
+      @if (user.role !== 'admin' && is_profile) {
         <div class="row">
           <div class="col-md-12">
             <label>{{ 'Give the user administrative access to the following features:' | translate }}</label>

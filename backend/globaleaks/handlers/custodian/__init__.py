@@ -51,26 +51,30 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
     :param rtip: A rtip ID of the rtip involved in the request
     :param iar: A identity access request model
     """
-    for user, rtip in session.query(models.User, models.ReceiverTip) \
-                             .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                     models.ReceiverTip.internaltip_id == itip.id,
-                                     models.User.notification.is_(True)):
+    query = (session.query(models.User, models.ReceiverTip, models.UserProfile.language)
+        .join(models.UserProfile, models.User.profile_id == models.UserProfile.id)
+        .filter(
+            models.User.id == models.ReceiverTip.receiver_id,
+            models.ReceiverTip.internaltip_id == itip.id,
+            models.UserProfile.notification.is_(True)
+        ))
+    for user, rtip, language in query:
         context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
 
         data = {
             'type': 'identity_access_authorized' if iar.reply == 'authorized' else 'identity_access_denied'
         }
 
-        data['user'] = user_serialize_user(session, user, user.language)
-        data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
-        data['context'] = admin_serialize_context(session, context, user.language)
+        data['user'] = user_serialize_user(session, user, language)
+        data['tip'] = serializers.serialize_rtip(session, itip, rtip, language)
+        data['context'] = admin_serialize_context(session, context, language)
         data['iar'] = serializers.serialize_identityaccessrequest(session, iar)
-        data['node'] = db_admin_serialize_node(session, user.tid, user.language)
+        data['node'] = db_admin_serialize_node(session, user.tid, language)
 
         if data['node']['mode'] == 'default':
-            data['notification'] = db_get_notification(session, user.tid, user.language)
+            data['notification'] = db_get_notification(session, user.tid, language)
         else:
-            data['notification'] = db_get_notification(session, 1, user.language)
+            data['notification'] = db_get_notification(session, 1, language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 

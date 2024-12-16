@@ -1,0 +1,49 @@
+<div class="config-section">
+    <div>
+      <span>{{ 'Profiles' | translate }}</span>
+      <button class="btn btn-sm btn-primary show-add-profile-btn" (click)="toggleAddUser()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{ 'Add' | translate }}</span>
+      </button>
+    </div>
+    @if (showAddUser) {
+      <div class="row">
+        <div ngForm="newUser" #newUser="ngForm" class="addUser col-md-6">
+          <div class="form-group">
+            <label>{{ 'Role' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <select name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
+                <option value="admin">{{ 'Admin' | translate }}</option>
+                <option value="analyst">{{ 'Analyst' | translate }}</option>
+                <option value="custodian">{{ 'Custodian' | translate }}</option>
+                <option value="receiver">{{ 'Recipient' | translate }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ 'Name' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="add-btn" class="btn btn-primary" [disabled]="newUser.invalid" (click)="addUser(); toggleAddUser()" type="submit">
+              <i class="fa-solid fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  @if (usersData.length > 0) {
+    @for (user of usersData | orderBy:'name'; track user; let index = $index) {
+      <div class="userList">
+        <form id="user-{{index}}" name="editUser" #editUser="ngForm" novalidate>
+          <src-user-editor [user]="user" [editUser]="editUser" [index]="index" [is_profile]="true" [users]="usersData"></src-user-editor>
+        </form>
+      </div>
+    }
+  }

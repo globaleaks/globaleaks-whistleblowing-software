@@ -27,13 +27,14 @@ def db_generate_password_reset_token(session, user):
     :param user: The user for which issuing a password reset token
     """
     token = generateRandomKey()
+    language = session.query(models.UserProfile.language).filter(models.UserProfile.id == user.profile_id).scalar()
 
     if user.last_login > datetime_null():
         template = 'password_reset_validation'
     else:
         template = 'account_activation'
 
-    user_desc = user_serialize_user(session, user, user.language)
+    user_desc = user_serialize_user(session, user, language)
 
     try:
         with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "wb") as f:
@@ -45,8 +46,8 @@ def db_generate_password_reset_token(session, user):
         'type': template,
         'user': user_desc,
         'reset_token': token,
-        'node': db_admin_serialize_node(session, user.tid, user.language),
-        'notification': db_get_notification(session, user.tid, user.language)
+        'node': db_admin_serialize_node(session, user.tid, language),
+        'notification': db_get_notification(session, user.tid, language)
     }
 
     State.format_and_send_mail(session, user.tid, user_desc['mail_address'], template_vars)

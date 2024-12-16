@@ -492,7 +492,7 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
     return get_localized_values(ret, questionnaire, questionnaire.localized_keys, language)
 
 
-def serialize_receiver(session, user, language, data=None):
+def serialize_receiver(session, user, profile, language, data=None):
     """
     Serialize a receiver.
 
@@ -508,7 +508,7 @@ def serialize_receiver(session, user, language, data=None):
     ret = {
         'id': user.id,
         'name': user.public_name,
-        'forcefully_selected': user.forcefully_selected,
+        'forcefully_selected': profile.forcefully_selected,
         'picture': data['imgs'].get(user.id, False)
     }
 
@@ -565,11 +565,11 @@ def db_get_receivers(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of receivers descriptors
     """
-    receivers = session.query(models.User).filter(models.User.role == models.EnumUserRole.receiver.value,
-                                                  models.User.tid == tid)
-    data = db_prepare_receivers_serialization(session, receivers)
+    receivers = (session.query(models.User, models.UserProfile).join(models.UserProfile, models.User.profile_id == models.UserProfile.id)
+        .filter(models.User.role == models.EnumUserRole.receiver.value, models.User.tid == tid).all())
+    data = db_prepare_receivers_serialization(session, [user for user, _ in receivers])
 
-    return [serialize_receiver(session, receiver, language, data) for receiver in receivers]
+    return [serialize_receiver(session, user, profile, language, data) for user, profile in receivers]
 
 
 @transact

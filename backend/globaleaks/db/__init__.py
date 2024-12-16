@@ -6,6 +6,7 @@ import warnings
 from collections import defaultdict
 from operator import or_
 
+from globaleaks.handlers.admin.user import db_create_user_profile
 from sqlalchemy.exc import SAWarning
 from globaleaks.rest.cache import Cache
 
@@ -71,9 +72,10 @@ def initialize_db(session):
     :param session: An ORM session
     """
     from globaleaks.handlers.admin import tenant
+    roles = ['admin', 'receiver', 'analyst', 'custodian']
     tenant.db_create(session, {'active': False, 'mode': 'default', 'profile_counter': 1000000, 'name': 'GLOBALEAKS', 'subdomain': ''},False)
     tenant.db_create(session, {'active': True, 'mode': 'default', 'profile_counter': 1000000, 'name': 'GLOBALEAKS', 'subdomain': ''})
-
+    create_default_user_profiles(session, roles)
 
 def update_db():
     """
@@ -111,6 +113,16 @@ def update_db():
 
     return DATABASE_VERSION
 
+def create_default_user_profiles(session, roles):
+    for role in roles:
+        user_desc = {
+            "name": role.capitalize(),
+            "role": role,
+            "language": "en",
+            "pgp_key_public": "",
+            "pgp_key_remove": False
+        }
+        db_create_user_profile(session, user_desc)
 
 def db_get_tracked_files(session):
     """
@@ -266,18 +278,27 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                     update_cache(profile[var_name], tid)
                 elif tid:
                     update_cache(default_cfg, tid)
-
-    for tid, mail, pub_key in session.query(models.User.tid, models.User.mail_address, models.User.pgp_key_public) \
-                                     .filter(models.User.role == 'admin',
-                                             models.User.enabled.is_(True),
-                                             models.User.notification.is_(True),
-                                             models.User.tid.in_(tids)):
+    query = (session.query(models.User.tid,models.User.mail_address,models.UserProfile.pgp_key_public)
+            .join(models.UserProfile, models.User.profile_id == models.UserProfile.id)
+            .filter(
+                models.User.role == 'admin',
+                models.UserProfile.enabled.is_(True),
+                models.UserProfile.notification.is_(True),
+                models.User.tid.in_(tids)
+            ))
+    results = query.all()
+    
+    for tid, mail, pub_key in results:
         State.tenants[tid].cache.notification.admin_list.extend([(mail, pub_key)])
 
-    for custodian in session.query(models.User) \
-                            .filter(models.User.role == 'custodian',
-                                    models.User.enabled.is_(True),
-                                    models.User.tid.in_(tids)):
+    custodians = (session.query(models.User).join(models.UserProfile, models.User.profile_id == models.UserProfile.id)
+        .filter(
+            models.User.role == 'custodian',
+            models.UserProfile.enabled.is_(True),
+            models.User.tid.in_(tids)
+        ))
+    
+    for custodian in custodians:
         State.tenants[custodian.tid].cache['custodian'] = True
 
     for redirect in session.query(models.Redirect).filter(models.Redirect.tid.in_(tids)):

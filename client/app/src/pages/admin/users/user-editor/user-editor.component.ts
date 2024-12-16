@@ -9,7 +9,7 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {NgClass, DatePipe} from "@angular/common";
@@ -32,16 +32,19 @@ export class UserEditorComponent implements OnInit {
   private nodeResolver = inject(NodeResolver);
   private utilsService = inject(UtilsService);
 
-  @Input() user: userResolverModel;
-  @Input() users: userResolverModel[];
+  @Input() user: User | UserProfile;
+  @Input() users: User[] | UserProfile[];
   @Input() index: number;
   @Input() editUser: NgForm;
+  @Input() is_profile: boolean;
+  @Input() userProfiles: UserProfile[];
   @Output() dataToParent = new EventEmitter<string>();
   @ViewChild("uploader") uploaderInput: ElementRef;
   editing = false;
   setPasswordArgs: { user_id: string, password: string };
   changePasswordArgs: { password_change_needed: string };
   passwordStrengthScore: number = 0;
+  defualtUsersArr = ['Admin', 'Analyst', 'Custodian', 'Receiver'];
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
   authenticationData: AuthenticationService;
@@ -78,7 +81,7 @@ export class UserEditorComponent implements OnInit {
     this.passwordStrengthScore = score;
   }
 
-  disable2FA(user: userResolverModel) {
+  disable2FA(user: User | UserProfile) {
     this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, true).subscribe();
   }
 
@@ -88,7 +91,7 @@ export class UserEditorComponent implements OnInit {
     this.setPasswordArgs.password = "";
   }
 
-  saveUser(userData: userResolverModel) {
+  saveUser(userData: User | UserProfile ) {
     const user = userData;
     if (user.pgp_key_remove) {
       user.pgp_key_public = "";
@@ -96,7 +99,8 @@ export class UserEditorComponent implements OnInit {
     if (user.pgp_key_public !== "") {
       user.pgp_key_remove = false;
     }
-    return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
+    let url = "api/admin/users/";
+    return this.utilsService.updateAdminUser(userData.id,url,userData).subscribe({
       next:()=>{
         this.sendDataToParent();
       },
@@ -112,11 +116,11 @@ export class UserEditorComponent implements OnInit {
     this.dataToParent.emit();
   }
 
-  deleteUser(user: userResolverModel) {
+  deleteUser(user: User | UserProfile) {
     this.openConfirmableModalDialog(user, "").subscribe();
   }
 
-  openConfirmableModalDialog(arg: userResolverModel, scope: any): Observable<string> {
+  openConfirmableModalDialog(arg: User | UserProfile, scope: any): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
@@ -125,18 +129,19 @@ export class UserEditorComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
+        let url = "api/admin/users/";
+        return this.utilsService.deleteAdminUser(arg.id,url,this.is_profile).subscribe(_ => {
           this.utilsService.deleteResource(this.users, arg);
         });
       };
     });
   }
 
-  resetUserPassword(user: userResolverModel) {
+  resetUserPassword(user: User | UserProfile) {
     this.utilsService.runAdminOperation("send_password_reset_email", {"value": user.id}, true).subscribe();
   }
 
-  loadPublicKeyFile(files: FileList | null,user:userResolverModel) {
+  loadPublicKeyFile(files: FileList | null,user:User | UserProfile ) {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0])
         .subscribe((txt: string) => {
@@ -150,7 +155,7 @@ export class UserEditorComponent implements OnInit {
     return this.authenticationData.session?.user_id;
   }
 
-  toggleUserEscrow(user: userResolverModel) {
+  toggleUserEscrow(user: User | UserProfile ) {
     this.user.escrow = !this.user.escrow;
     this.utilsService.runAdminOperation("toggle_user_escrow", {"value": user.id}, true).subscribe();
   }

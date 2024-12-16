@@ -33,17 +33,18 @@ def db_notify_report_update(session, user, rtip, itip):
     :param rtip: A rtip ORM object
     :param itip: A itip ORM object
     """
+    language = session.query(models.UserProfile.language).filter(models.UserProfile.id == user.profile_id).scalar()
     data = {
       'type': 'tip_update',
-      'user': user_serialize_user(session, user, user.language),
-      'node': db_admin_serialize_node(session, user.tid, user.language),
-      'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
+      'user': user_serialize_user(session, user, language),
+      'node': db_admin_serialize_node(session, user.tid, language),
+      'tip': serializers.serialize_rtip(session, itip, rtip, language),
     }
 
     if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
+        data['notification'] = db_get_notification(session, user.tid, language)
     else:
-        data['notification'] = db_get_notification(session, 1, user.language)
+        data['notification'] = db_get_notification(session, 1, language)
 
     subject, body = Templating().get_mail_subject_and_body(data)
 

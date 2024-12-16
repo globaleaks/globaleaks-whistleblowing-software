@@ -34,8 +34,9 @@ def file_delivery(session):
         ifile.new = False
         src = ifile.id
 
-        for rtip, user in session.query(models.ReceiverTip, models.User) \
+        for rtip, user, profle in session.query(models.ReceiverTip, models.User, models.UserProfile) \
                                  .filter(models.ReceiverTip.internaltip_id == ifile.internaltip_id,
+                                         models.UserProfile.id == models.User.profile_id,
                                          models.User.id == models.ReceiverTip.receiver_id):
             receiverfile = models.WhistleblowerFile()
             receiverfile.internalfile_id = ifile.id
@@ -57,7 +58,7 @@ def file_delivery(session):
 
             receiverfiles_maps[ifile.id]['wbfiles'].append({
                 'dst': os.path.abspath(os.path.join(Settings.attachments_path, receiverfile.internalfile_id)),
-                'pgp_key_public': user.pgp_key_public
+                'pgp_key_public': profle.pgp_key_public
             })
 
     for rfile, itip in session.query(models.ReceiverFile, models.InternalTip)\

@@ -16,7 +16,7 @@ import {ClipboardService} from "ngx-clipboard";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NewUser} from "@app/models/admin/new-user";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User,UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
@@ -591,8 +591,8 @@ export class UtilsService {
     return this.http.delete<void>(url);
   }
 
-  deleteAdminUser(user_id: string) {
-    return this.httpService.requestDeleteAdminUser(user_id);
+  deleteAdminUser(user_id: string,url:string,is_profile:any) {
+    return this.httpService.requestDeleteAdminUser(user_id,url,is_profile);
   }
 
   deleteAdminContext(user_id: string) {
@@ -611,8 +611,8 @@ export class UtilsService {
     return this.httpService.requestAddAdminUser(user);
   }
 
-  updateAdminUser(id: string, user: userResolverModel) {
-    return this.httpService.requestUpdateAdminUser(id, user);
+  updateAdminUser(id: string, url:string, user: User | UserProfile ) {
+    return this.httpService.requestUpdateAdminUser(id, url, user);
   }
 
   addAdminContext(context: NewContext) {

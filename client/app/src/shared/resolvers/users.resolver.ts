@@ -12,12 +12,12 @@ export class UsersResolver {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
 
-  dataModel: userResolverModel[];
+  dataModel: userResolverModel;
 
   resolve(): Observable<boolean> {
     if (this.authenticationService.session.role === "admin") {
       return this.httpService.requestUsersResource().pipe(
-        map((response: userResolverModel[]) => {
+        map((response: userResolverModel) => {
           this.dataModel = response;
           return true;
         })

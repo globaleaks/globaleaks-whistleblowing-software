@@ -930,10 +930,8 @@ class _User(Model):
     description = Column(JSON, default=dict, nullable=False)
     public_name = Column(UnicodeText, default='', nullable=False)
     role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
-    enabled = Column(Boolean, default=True, nullable=False)
     last_login = Column(DateTime, default=datetime_null, nullable=False)
     mail_address = Column(UnicodeText, default='', nullable=False)
-    language = Column(UnicodeText(12), nullable=False)
     password_change_needed = Column(Boolean, default=True, nullable=False)
     password_change_date = Column(DateTime, default=datetime_null, nullable=False)
     crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)
@@ -946,25 +944,10 @@ class _User(Model):
     change_email_address = Column(UnicodeText, default='', nullable=False)
     change_email_token = Column(UnicodeText, unique=True)
     change_email_date = Column(DateTime, default=datetime_null, nullable=False)
-    notification = Column(Boolean, default=True, nullable=False)
-    forcefully_selected = Column(Boolean, default=False, nullable=False)
-    can_delete_submission = Column(Boolean, default=False, nullable=False)
-    can_postpone_expiration = Column(Boolean, default=True, nullable=False)
-    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
-    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
-    can_redact_information = Column(Boolean, default=False, nullable=False)
-    can_mask_information = Column(Boolean, default=True, nullable=False)
-    can_reopen_reports = Column(Boolean, default=True, nullable=False)
-    can_edit_general_settings = Column(Boolean, default=False, nullable=False)
     readonly = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
-
-    # BEGIN of PGP key fields
-    pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
-    pgp_key_public = Column(UnicodeText, default='', nullable=False)
-    pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
-    # END of PGP key fields
+    profile_id = Column(Integer, default='', nullable=False)
 
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
@@ -973,7 +956,7 @@ class _User(Model):
                     'language', 'mail_address',
                     'name', 'public_name',
                     'language', 'change_email_address',
-                    'salt',
+                    'salt','profile_id',
                     'two_factor_secret']
 
     localized_keys = ['description']
@@ -1005,6 +988,33 @@ class _User(Model):
         return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 UniqueConstraint('tid', 'username'),
                 CheckConstraint(self.role.in_(EnumUserRole.keys())))
+    
+class _UserProfile(Model):
+    """
+    This model keeps track of user_profiles.
+    """
+    __tablename__ = 'user_profile'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    name = Column(UnicodeText, default='', nullable=False)
+    role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
+    enabled = Column(Boolean, default=True, nullable=False)
+    notification = Column(Boolean, default=True, nullable=False)
+    forcefully_selected = Column(Boolean, default=False, nullable=False)
+    can_delete_submission = Column(Boolean, default=False, nullable=False)
+    can_postpone_expiration = Column(Boolean, default=True, nullable=False)
+    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_redact_information = Column(Boolean, default=False, nullable=False)
+    can_mask_information = Column(Boolean, default=True, nullable=False)
+    can_reopen_reports = Column(Boolean, default=True, nullable=False)
+    can_edit_general_settings = Column(Boolean, default=False, nullable=False)
+    language = Column(UnicodeText(12), nullable=False)
+    # BEGIN of PGP key fields
+    pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
+    pgp_key_public = Column(UnicodeText, default='', nullable=False)
+    pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
+    # END of PGP key fields
 
 
 class _ReceiverFile(Model):
@@ -1164,6 +1174,8 @@ class Tenant(_Tenant, Base):
 class User(_User, Base):
     pass
 
+class UserProfile(_UserProfile, Base):
+    pass
 
 class WhistleblowerFile(_WhistleblowerFile, Base):
     pass

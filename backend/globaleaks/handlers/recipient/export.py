@@ -99,9 +99,10 @@ def serialize_rtip_export(session, user, itip, rtip, context, language):
 
 @transact
 def get_tip_export(session, tid, user_id, itip_id, language):
-    user, context, itip, rtip = session.query(models.User, models.Context, models.InternalTip, models.ReceiverTip) \
+    user, profile, context, itip, rtip = session.query(models.User, models.UserProfile, models.Context, models.InternalTip, models.ReceiverTip) \
                                        .filter(models.User.id == user_id,
                                                models.User.tid == tid,
+                                               models.User.profile_id == models.UserProfile.id,
                                                models.ReceiverTip.receiver_id == models.User.id,
                                                models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                                models.InternalTip.id == itip_id,
@@ -115,9 +116,9 @@ def get_tip_export(session, tid, user_id, itip_id, language):
         rtip.access_date = rtip.last_access
 
     if itip.status == 'new':
-        db_update_submission_status(session, tid, user_id, itip, 'opened', None)
+        db_update_submission_status(session, tid, user_id, itip, 'opened', None, profile)
 
-    return user.pgp_key_public, serialize_rtip_export(session, user, itip, rtip, context, language)
+    return profile.pgp_key_public, serialize_rtip_export(session, user, itip, rtip, context, language)
 
 
 def create_pdf_report(input_text, data):

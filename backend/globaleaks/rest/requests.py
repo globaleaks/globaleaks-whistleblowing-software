@@ -132,13 +132,19 @@ AdminUserDesc = {
     'public_name': str,
     'role': user_role_regexp,
     'password_change_needed': bool,
-    'enabled': bool,
     'mail_address': email_regexp,
     'pgp_key_remove': bool,
-    'pgp_key_fingerprint': str,
     'pgp_key_expiration': str,
+    'profile_id': str
+}
+
+AdminUserProfileDesc = {
+    'name': str,
+    'role': user_role_regexp,
+    'enabled': bool,
+    'pgp_key_fingerprint': str,
     'pgp_key_public': str,
-    'language': str,
+    'pgp_key_remove': bool,
     'notification': bool,
     'can_edit_general_settings': bool,
     'can_delete_submission': bool,
@@ -148,7 +154,8 @@ AdminUserDesc = {
     'can_mask_information': bool,
     'can_reopen_reports': bool,
     'can_transfer_access_to_reports': bool,
-    'forcefully_selected': bool
+    'forcefully_selected': bool,
+    'language': str,
 }
 
 UserUserDesc = {

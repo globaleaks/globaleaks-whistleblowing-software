@@ -50,44 +50,48 @@ def user_serialize_user(session, user, language):
     # take only contexts for the current tenant
     contexts = [x[0] for x in session.query(models.ReceiverContext.context_id)
                                      .filter(models.ReceiverContext.receiver_id == user.id)]
+    
+    profile = session.query(models.UserProfile).filter(models.UserProfile.id == user.profile_id).first()
+   
     ret = {
         'id': user.id,
         'creation_date': user.creation_date,
         'username': user.username,
         'salt': '',
-        'role': user.role,
-        'enabled': user.enabled,
+        'role': profile.role,
+        'enabled': profile.enabled,
         'last_login': user.last_login,
         'name': user.name,
         'description': user.description,
         'public_name': user.public_name,
         'mail_address': user.mail_address,
         'change_email_address': user.change_email_address,
-        'language': user.language,
+        'language': profile.language,
         'password_change_needed': user.password_change_needed,
         'password_change_date': user.password_change_date,
-        'pgp_key_fingerprint': user.pgp_key_fingerprint,
-        'pgp_key_public': user.pgp_key_public,
-        'pgp_key_expiration': user.pgp_key_expiration,
+        'pgp_key_fingerprint': profile.pgp_key_fingerprint,
+        'pgp_key_public': profile.pgp_key_public,
+        'pgp_key_expiration': profile.pgp_key_expiration,
         'pgp_key_remove': False,
         'picture': picture,
         'tid': user.tid,
-        'notification': user.notification,
+        'notification': profile.notification,
         'encryption': user.crypto_pub_key != '',
         'escrow': user.crypto_escrow_prv_key != '',
         'two_factor': user.two_factor_secret != '',
-        'forcefully_selected': user.forcefully_selected,
-        'can_postpone_expiration': user.can_postpone_expiration,
-        'can_delete_submission': user.can_delete_submission,
-        'can_grant_access_to_reports': user.can_grant_access_to_reports,
-        'can_redact_information': user.can_redact_information,
-        'can_mask_information': user.can_mask_information,
-        'can_transfer_access_to_reports': user.can_transfer_access_to_reports,
-        'can_reopen_reports': user.can_reopen_reports,
-        'can_edit_general_settings': user.can_edit_general_settings,
+        'forcefully_selected': profile.forcefully_selected,
+        'can_postpone_expiration': profile.can_postpone_expiration,
+        'can_delete_submission': profile.can_delete_submission,
+        'can_grant_access_to_reports': profile.can_grant_access_to_reports,
+        'can_redact_information': profile.can_redact_information,
+        'can_mask_information': profile.can_mask_information,
+        'can_transfer_access_to_reports': profile.can_transfer_access_to_reports,
+        'can_reopen_reports': profile.can_reopen_reports,
+        'can_edit_general_settings': profile.can_edit_general_settings,
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
-        'contexts': contexts
+        'contexts': contexts,
+        'profile_id': user.profile_id
 
     }
 
@@ -95,7 +99,7 @@ def user_serialize_user(session, user, language):
       user.two_factor_secret == '':
         ret['require_two_factor'] = True
 
-    return get_localized_values(ret, user, user.localized_keys, language)
+    return get_localized_values(ret, user, user.localized_keys, profile.language)
 
 
 @transact

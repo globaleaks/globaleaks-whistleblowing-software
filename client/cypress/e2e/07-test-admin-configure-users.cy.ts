@@ -2,43 +2,85 @@ describe("admin add, configure, and delete users", () => {
   const new_users = [
     {
       name: "Recipient",
-      value:"receiver",
+      value:"Profile1",
       address: "globaleaks-receiver1@mailinator.com",
     },
     {
       name: "Recipient2",
-      value:"receiver",
+      value:"Profile2",
       address: "globaleaks-receiver2@mailinator.com",
     },
     {
       name: "Recipient3",
-      value:"receiver",
+      value:"Profile3",
       address: "globaleaks-receiver3@mailinator.com",
     },
     {
       name: "Custodian",
-      value:"custodian",
+      value:"Profile4",
       address: "globaleaks-custodian1@mailinator.com",
     },
     {
       name: "Admin2",
-      value:"admin",
+      value:"Profile5",
       address: "globaleaks-admin2@mailinator.com",
     },
     {
       name: "Analyst",
-      value:"analyst",
+      value:"Profile6",
       address: "globaleaks-analyst1@mailinator.com",
     },
   ];
 
-  it("should add new users", () => {
+  const new_profiles = [
+    {
+      name: "Profile1",
+      value:"receiver",
+    },
+    {
+      name: "Profile2",
+      value:"receiver",
+    },
+    {
+      name: "Profile3",
+      value:"receiver",
+    },
+    {
+      name: "Profile4",
+      value:"custodian",
+    },
+    {
+      name: "Profile5",
+      value:"admin",
+    },
+    {
+      name: "Profile6",
+      value:"analyst",
+    },
+  ];
+
+  it("should add new users and profiles", () => {
     cy.login_admin();
     cy.visit("/#/admin/users");
+    cy.get('[data-cy="profiles"]').click();
+
+    const make_profile = (user:any) => {
+      cy.get(".show-add-profile-btn").click();
+      cy.get('select[name="role"]').select(user.value);
+      cy.get('input[name="name"]').clear().type(user.name);
+      cy.get("#add-btn").click();
+    };
+
+    for (let i = 0; i < new_profiles.length; i++) {
+      make_profile(new_profiles[i]);
+      cy.get(".userList").should('have.length', i+5);
+    }
+
+    cy.get('[data-cy="users"]').click();
 
     const make_account = (user:any) => {
       cy.get(".show-add-user-btn").click();
-      cy.get('select[name="role"]').select(user.value);
+      cy.get('select[name="profile"]').select(user.value);
       cy.get('input[name="username"]').clear().type(user.name);
       cy.get('input[name="name"]').clear().type(user.name);
       cy.get('input[name="email"]').clear().type(user.address);
@@ -54,9 +96,11 @@ describe("admin add, configure, and delete users", () => {
   it("should grant permissions to the first recipient", () => {
     cy.login_admin();
     cy.visit("/#/admin/users");
+    cy.get('[data-cy="profiles"]').click().should("be.visible").click();
 
-    cy.get(".userList").eq(4).within(() => {
+    cy.get(".userList").eq(3).within(() => {
       cy.get("#edit_user").click();
+
       cy.get('input[name="can_mask_information"]').click();
       cy.get('input[name="can_redact_information"]').click();
       cy.get('input[name="can_grant_access_to_reports"]').click();

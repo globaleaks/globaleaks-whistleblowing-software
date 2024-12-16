@@ -10,14 +10,15 @@
     <div class="row">
       <div ngForm="newUser" #newUser="ngForm" class="addUser col-md-6">
         <div class="form-group">
-          <label>{{ 'Role' | translate }}</label>
+          <label>{{ 'Profile' | translate }}</label>
           <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           <div>
-            <select name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
-              <option value="admin">{{ 'Admin' | translate }}</option>
-              <option value="analyst">{{ 'Analyst' | translate }}</option>
-              <option value="custodian">{{ 'Custodian' | translate }}</option>
-              <option value="receiver">{{ 'Recipient' | translate }}</option>
+            <select name="profile" class="form-select-custom" [(ngModel)]="new_user.profile_id" required>
+              @for (user of userProfiles; track user) {
+                <option [value]="user.id">
+                  {{ user.name | translate }}
+                </option>
+              }
             </select>
           </div>
         </div>
@@ -59,11 +60,11 @@
     </div>
   }
 </div>
-@if (usersData.length > 0) {
+@if (usersData && usersData.length > 0) {
   @for (user of usersData | orderBy:'name'; track user; let index = $index) {
     <div class="userList">
       <form id="user-{{index}}" name="editUser" #editUser="ngForm" novalidate>
-        <src-user-editor [user]="user" [editUser]="editUser" [index]="index" [users]="usersData"></src-user-editor>
+        <src-user-editor (dataToParent)="receiveData()" [user]="user" [editUser]="editUser" [is_profile]="false" [userProfiles]="userProfiles" [index]="index" [users]="usersData"></src-user-editor>
       </form>
     </div>
   }

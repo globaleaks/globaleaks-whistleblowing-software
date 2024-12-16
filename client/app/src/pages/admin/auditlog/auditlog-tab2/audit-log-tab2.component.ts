@@ -1,6 +1,6 @@
 import {Component, OnInit, inject} from "@angular/core";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User} from "@app/models/resolvers/user-resolver-model";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgClass, DatePipe} from "@angular/common";
 import {NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,17 +19,17 @@ export class AuditLogTab2Component implements OnInit{
 
   currentPage = 1;
   pageSize = 20;
-  users: userResolverModel[] = [];
+  users: User[] = [];
 
   ngOnInit() {
     this.loadAuditLogData();
   }
 
   loadAuditLogData() {
-    this.users = this.usersResolver.dataModel;
+    this.users = this.usersResolver.dataModel.users;
   }
 
-  getPaginatedData(): userResolverModel[] {
+  getPaginatedData(): User[] {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     return this.users.slice(startIndex, endIndex);

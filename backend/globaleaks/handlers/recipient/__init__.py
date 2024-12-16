@@ -150,14 +150,15 @@ def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
     :param operation: An operation command (grant/revoke)
     :param args: The operation arguments
     """
-    receiver = db_get(session, models.User, models.User.id == user_id)
+    profile = (session.query(models.UserProfile).join(models.User, models.User.profile_id == models.UserProfile.id)
+                .filter(models.User.id == user_id).first())
 
     result = session.query(models.InternalTip, models.ReceiverTip) \
                                  .filter(models.ReceiverTip.receiver_id == user_id,
                                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                          models.InternalTip.id.in_(args['rtips']))
 
-    if operation == 'grant' and receiver.can_grant_access_to_reports:
+    if operation == 'grant' and profile.can_grant_access_to_reports:
         notify = False
         for itip, rtip in result:
             new_receiver, _ = db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, args['receiver'])
@@ -166,9 +167,9 @@ def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
                 db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id)
 
         if notify:
-            db_notify_grant_access(session, new_receiver)
+            db_notify_grant_access(session, new_receiver, profile.language)
 
-    elif operation == 'revoke' and receiver.can_grant_access_to_reports:
+    elif operation == 'revoke' and profile.can_grant_access_to_reports:
         for itip, _ in result:
             if db_revoke_tip_access(session, tid, user_id, itip, args['receiver']):
                 db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id)
