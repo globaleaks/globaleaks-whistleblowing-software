@@ -149,9 +149,6 @@ def db_wizard(session, tid, hostname, request):
     if mode != 'default':
         node.set_val('tor', False)
 
-    if mode in ['accreditation'] and tid != 1:
-        node.set_val('hostname', root_tenant_node.get_val('hostname'))
-
     if mode in ['wbpa']:
         node.set_val('simplified_login', True)
 
