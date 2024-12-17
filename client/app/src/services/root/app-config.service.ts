@@ -153,6 +153,10 @@ export class AppConfigService {
         location.replace("/#/signup");
       } else if (this.router.url === "/signup" && !this.appDataService.public.node.enable_signup) {
         location.replace("/#/");
+      }
+      else if (this.router.url === "/accreditation-request" && this.appDataService.public.node.mode !== 'accreditation') {
+        this.appDataService.page = "blank"
+        location.replace("/#/login")
       } else if (this.appDataService.page === "blank") {
         this.appDataService.page = "homepage"
       }
