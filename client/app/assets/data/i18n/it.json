@@ -757,5 +757,6 @@
   "Enable Proxy IDP": "Abilita Proxy IDP",
   "Primary Organization": "Organizzazione Principale",
   "Enable PEC":"Abilita notifiche PEC",
-  "ACCREDITATION": "ACCREDITAMENTO"
+  "ACCREDITATION": "ACCREDITAMENTO",
+  "receiver": "ricevente"
 }
