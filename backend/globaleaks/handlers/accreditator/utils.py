@@ -183,6 +183,13 @@ def add_instructor_info(session, accreditation_item):
         logging.debug(e)
         return None
 
+def find_mail_for_persistent_drop(session, status, accreditation_obj) -> dict:
+    if status == EnumSubscriberStatus.instructor_request.name and accreditation_obj.requestor_id:
+        user = (session.query(User).filter(User.id == accreditation_obj.requestor_id)).one_or_none()
+        if user.mail_address:
+            return {"email": user.mail_address, "secondary_smtp": False}
+    return {"email": accreditation_obj.organization_email, "secondary_smtp": True}
+
 def accreditation_by_id(session, accreditation_id):
     """
     Retrieve an accreditation item by its ID.

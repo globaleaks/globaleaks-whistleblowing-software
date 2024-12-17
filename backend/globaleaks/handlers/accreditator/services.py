@@ -4,8 +4,9 @@ from sqlalchemy.exc import NoResultFound
 from globaleaks.handlers.accreditator.fw_mail import send_email_request_accreditation, \
     send_alert_accreditor_incoming_request, send_email_accreditation_user
 from globaleaks.models.config import ConfigFactory
-from globaleaks.handlers.accreditator.utils import add_users_id_to_subscriber, extract_user, is_call_from_instructor, create_tenant, save_step, count_user_tip, \
-    serialize_element, accreditation_by_id, determine_type, revert_tenant, _change_status
+from globaleaks.handlers.accreditator.utils import add_users_id_to_subscriber, is_call_from_instructor, \
+    create_tenant, save_step, count_user_tip, \
+    serialize_element, accreditation_by_id, determine_type, revert_tenant, _change_status, find_mail_for_persistent_drop
 from globaleaks.models import Subscriber, Tenant, EnumSubscriberStatus
 from globaleaks.orm import transact
 from uuid import uuid4
@@ -136,7 +137,7 @@ def persistent_drop(session, accreditation_id: str, request):
                     session,
                     'en',
                     accreditation_item=aux_acc,
-                    notify_email=[{"email": aux_acc.organization_email, "secondary_smtp": True}],
+                    notify_email=[find_mail_for_persistent_drop(session, status=status, accreditation_obj=aux_acc)],
                     motivation_text=request['motivation_text']
                 )
             except Exception as e:
