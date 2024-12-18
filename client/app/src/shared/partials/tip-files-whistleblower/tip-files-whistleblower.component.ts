@@ -6,7 +6,6 @@ import {AppDataService} from "@app/app-data.service";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {WbFile} from "@app/models/app/shared-public-model";
-import { PreferenceResolver } from "@app/shared/resolvers/preference.resolver";
 
 
 @Component({

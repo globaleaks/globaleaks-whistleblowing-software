@@ -22,7 +22,7 @@
                 <tbody id="fileListBody">
                 <tr id="file-{{index}}" *ngFor="let file of getSortedWBFiles(wbTipService.tip.wbfiles | orderBy:'creation_date'); let index = index">
                     <td>{{file.name}}</td>
-                    <td>{{ file.status}}</td>
+                    <td>{{ file.status | translate }}</td>
                     <td *ngIf="wbTipService.tip.enable_whistleblower_download">
                         <button class="btn btn-sm btn-primary tip-action-download-file"
                                 [disabled]="file.error || appDataService.public.node.antivirus_enabled && (file.status === 'PENDING' || file.status ==='INFECTED')"
