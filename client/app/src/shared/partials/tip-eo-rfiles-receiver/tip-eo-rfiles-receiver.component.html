@@ -38,9 +38,6 @@
                                     data-toggle="tooltip" [title]="'View' | translate" (click)="utilsService.viewWBFile(file)">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
-                            {{appDataService.public.node.antivirus_enabled &&
-                                ((file.status ==='INFECTED'|| file.status ==='PENDING') &&
-                                !preferenceResolver.dataModel.can_download_infected)}}
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-download-file"
