@@ -1,11 +1,13 @@
 # -*- coding: utf-8
 import copy
+import logging
 import os
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pyexpat import model
 
 from globaleaks import models
+from globaleaks.models import EnumStateFile
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
@@ -140,6 +142,22 @@ def serialize_ifile(session, ifile):
     error = not os.path.exists(os.path.join(
         State.settings.attachments_path, ifile.id))
 
+    status = "PENDING"
+    try:
+        verification_date = ifile.verification_date
+        if isinstance(verification_date, str):
+            verification_date = datetime.strptime(verification_date, '%Y-%m-%d')
+        current_date = datetime.now()
+        date_diff = current_date - verification_date
+        if date_diff.days > 60:
+            status = "PENDING"
+            ifile.state = EnumStateFile.pending.value
+            session.commit()
+        else:
+            status = "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper()
+    except Exception as e:
+        logging.debug(e)
+
     return {
         'id': ifile.id,
         'creation_date': ifile.creation_date,
@@ -147,7 +165,7 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
+        'status': status,
         'verification_date': ifile.verification_date,
         'error': error
     }
@@ -166,6 +184,22 @@ def serialize_wbfile(session, ifile, wbfile):
         not os.path.exists(os.path.join(
             State.settings.attachments_path, wbfile.id))
 
+    status = "PENDING"
+    try:
+        verification_date = ifile.verification_date
+        if isinstance(verification_date, str):
+            verification_date = datetime.strptime(verification_date, '%Y-%m-%d')
+        current_date = datetime.now()
+        date_diff = current_date - verification_date
+        if date_diff.days > 60:
+            status = "PENDING"
+            ifile.state = EnumStateFile.pending.value
+            session.commit()
+        else:
+            status = "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper()
+    except Exception as e:
+        logging.debug(e)
+
     return {
         'id': wbfile.id,
         'ifile_id': ifile.id,
@@ -174,7 +208,7 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'status': "PENDING" if ifile.state is None or ifile.state == '' else ifile.state.upper(),
+        'status': status,
         'verification_date': ifile.verification_date,
         'error': error
     }
@@ -191,6 +225,22 @@ def serialize_rfile(session, rfile):
     error = not os.path.exists(os.path.join(
         State.settings.attachments_path, rfile.id))
 
+    status = "PENDING"
+    try:
+        verification_date = rfile.verification_date
+        if isinstance(verification_date, str):
+            verification_date = datetime.strptime(verification_date, '%Y-%m-%d')
+        current_date = datetime.now()
+        date_diff = current_date - verification_date
+        if date_diff.days > 60:
+            status = "PENDING"
+            rfile.state = EnumStateFile.pending.value
+            session.commit()
+        else:
+            status = "PENDING" if rfile.state is None or rfile.state == '' else rfile.state.upper()
+    except Exception as e:
+        logging.debug(e)
+
     return {
         'id': rfile.id,
         'creation_date': rfile.creation_date,
@@ -200,7 +250,7 @@ def serialize_rfile(session, rfile):
         'description': rfile.description,
         'visibility': rfile.visibility,
         'error': error,
-        'status': "PENDING" if rfile.state is None or rfile.state == '' else rfile.state.upper(),
+        'status': status,
         'verification_date': rfile.verification_date
     }
 
