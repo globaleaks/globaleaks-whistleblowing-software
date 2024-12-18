@@ -541,7 +541,7 @@ class PlatformSignupKeyword(NodeKeyword):
         return ''
 
     def RecipientName(self):
-        return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
+        return self.data['signup']['recipient_name'] + ' ' + self.data['signup']['recipient_surname']
 
     def ActivationUrl(self):
         if self.data['node']['hostname']:
