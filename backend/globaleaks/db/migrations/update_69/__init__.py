@@ -253,7 +253,7 @@ class MigrationScript(MigrationBase):
         for i in ['smtp2_password', 'smtp2_port', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username', 'smtp2_authentication', 'smtp2_enabled']:
             smtp_2_config = self.model_to['Config']()
             smtp_2_config.var_name = i
-            smtp_2_config.value = '' if i not in ['smtp2_port', 'smtp2_enabled', 'smpt2_authentication'] else 0
+            smtp_2_config.value = '' if i not in ['smtp2_port', 'smtp2_enabled', 'smtp2_authentication'] else 0
             smtp_2_config.tid = 1
             self.session_new.add(smtp_2_config)
             self.entries_count['Config'] += 1
