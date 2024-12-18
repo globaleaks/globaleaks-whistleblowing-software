@@ -1,4 +1,6 @@
 import {Component, Input} from "@angular/core";
+import { AppDataService } from "@app/app-data.service";
+import { RFile, WbFile } from "@app/models/app/shared-public-model";
 import {ReceiversById} from "@app/models/reciever/reciever-tip-data";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -16,7 +18,7 @@ export class WidgetWbFilesComponent {
   collapsed = false;
   submission = {};
 
-  constructor(protected wbTipService: WbtipService, protected utilsService: UtilsService) {
+  constructor(protected wbTipService: WbtipService, protected utilsService: UtilsService, private appDataService: AppDataService) {
   }
 
   public toggleCollapse() {
@@ -26,4 +28,13 @@ export class WidgetWbFilesComponent {
   listenToWbfiles(files: string) {
     this.utilsService.deleteResource(this.wbTipService.tip.rfiles, files);
   }
+
+  getSortedRFiles(data: RFile[]): RFile[]{
+    if(this.appDataService.public.node.antivirus_enabled)
+      data = data.filter( f =>  f.status === 'VERIFIED' )
+
+    return data;
+  }
+
+
 }
