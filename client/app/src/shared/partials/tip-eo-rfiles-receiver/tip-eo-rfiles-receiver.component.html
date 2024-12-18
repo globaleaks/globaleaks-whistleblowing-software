@@ -26,7 +26,7 @@
                      [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }" >
                         <td>{{ file.name }}</td>
                         <td>
-                            {{ file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status | translate }}
+                            {{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status ) | translate }}
                         </td>
                         <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"

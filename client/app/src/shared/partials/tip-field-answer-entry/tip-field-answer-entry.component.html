@@ -71,7 +71,7 @@
                             <i class="fa-solid fa-download"></i>
                         </button>
                     </span>
-                    <span class="pe-2">{{'Antivirus Verification Status' | translate}}: {{filteredWbFiles[0].status | translate}}</span>
+                    <span class="pe-2">{{'Antivirus Verification Status' | translate}}: {{ (filteredWbFiles[0].status==='PENDING' && filteredWbFiles[0].verification_date ? 'Verification Expired' : filteredWbFiles[0].status) | translate }} </span>
                 </li>
             </ol>
         </ng-container>
@@ -97,7 +97,7 @@
                                 <i class="fa-solid fa-download"></i>
                             </button>
                         </span>
-                        <span class="pe-2">{{'Antivirus Verification Status' | translate}}: {{wbfile.status | translate}}</span>
+                        <span class="pe-2">{{'Antivirus Verification Status' | translate}}: {{ (wbfile.status==='PENDING' && wbfile.verification_date ? 'Verification Expired' : wbfile.status) | translate }}</span>
                     </li>
                 </ol>
             </div>
