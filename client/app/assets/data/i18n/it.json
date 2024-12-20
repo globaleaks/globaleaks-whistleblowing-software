@@ -758,5 +758,8 @@
   "Primary Organization": "Organizzazione Principale",
   "Enable PEC":"Abilita notifiche PEC",
   "ACCREDITATION": "ACCREDITAMENTO",
-  "receiver": "ricevente"
+  "receiver": "ricevente",
+  "Confirm suspension": "Conferma sospensione",
+  "Confirm reactivation": "Conferma riattivazione",
+  "Confirm message suspension/reactivation": "La OE non riceverà alcuna comunicazione automatica di sospensione/riattivazione. Se lo si ritiene opportuno, è possibile inviare personalmente un avviso."
 }

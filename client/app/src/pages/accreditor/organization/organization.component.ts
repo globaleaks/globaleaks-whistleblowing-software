@@ -7,6 +7,7 @@ import { AuthenticationService } from '@app/services/helper/authentication.servi
 import { HttpService } from '@app/shared/services/http.service';
 import { Observable } from 'rxjs';
 import { CustomModalComponent } from '@app/shared/modals/custom-modal/custom-modal.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'src-organization',
@@ -41,14 +42,14 @@ export class OrganizationComponent implements OnInit{
 
   private readonly actionHandlers: { [key: string]: () => void } = {
     'reload': () => this.loadOrganizationData(),
-    'suspend': () => this.sospendiAttivaOrganizzazioneAccreditata(),
-    'reactivate': () => this.sospendiAttivaOrganizzazioneAccreditata(),
+    'suspend': () => this.sospendiAttivaOrganizzazioneAccreditata("suspend"),
+    'reactivate': () => this.sospendiAttivaOrganizzazioneAccreditata("reactivate"),
     'delete': () => this.rifiuta()
   };
 
   constructor(private readonly activatedRoute: ActivatedRoute, private readonly httpService: HttpService,
     private readonly orgService : AccreditorOrgService, private readonly authenticationService: AuthenticationService,
-    private readonly modalService: NgbModal, private readonly router: Router){
+    private readonly modalService: NgbModal, private readonly router: Router, private readonly translateService: TranslateService){
 
   }
 
@@ -160,16 +161,23 @@ export class OrganizationComponent implements OnInit{
     }
   }
 
-  sospendiAttivaOrganizzazioneAccreditata() {
+  sospendiAttivaOrganizzazioneAccreditata(action: 'suspend' | 'reactivate') {
     if (this.authenticationService.session.role === "accreditor") {
-      this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
-        next: () => {
-          this.loadOrganizationData();
-        },
-        error: (err) => {
-          console.error("Errore durante il rifiuto della richiesta", err);
-        }
-      }); 
+      const modalRef = this.modalService.open(CustomModalComponent);
+      modalRef.componentInstance.title = action === 'suspend' ? this.translateService.instant("Confirm suspension") : this.translateService.instant("Confirm reactivation");
+      modalRef.componentInstance.message = this.translateService.instant("Confirm message suspension/reactivation");
+      modalRef.componentInstance.showInputText = false;
+
+      modalRef.componentInstance.confirmFunction = () => {
+        this.httpService.toggleAccreditedOrganizationStatus(this.organization.id).subscribe({
+          next: () => {
+            this.loadOrganizationData();
+          },
+          error: (err) => {
+            console.error("Errore durante il rifiuto della richiesta", err);
+          }
+        }); 
+      };      
     }
   }
 
