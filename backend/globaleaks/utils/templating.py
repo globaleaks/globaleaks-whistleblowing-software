@@ -147,7 +147,25 @@ accreditor_signup_external_organization_alert = [
     '{NodeName}'
 ]
 
+new_user_recipient_signup_external_organization_alert = [
+    '{RecipientName}',
+    '{ExternalOrganizationName}',
+    '{Url}',
+    '{LoginUrl}',
+    '{RecipientCredentials}',
+    '{DocumentationUrl}',
+    '{NodeName}'
+]
 
+new_user_admin_signup_external_organization_alert = [
+    '{Name}',
+    '{ExternalOrganizationName}',
+    '{Url}',
+    '{LoginUrl}',
+    '{AdminCredentials}',
+    '{DocumentationUrl}',
+    '{NodeName}'
+]
 
 def indent(n=1):
     return '  ' * n
@@ -671,6 +689,98 @@ class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
     def AccreditationName(self):
         return f"{self.data['signup']['organization_name']}"
 
+class NewUserRecipientSignupExternalOrganizationAlert(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + new_user_recipient_signup_external_organization_alert
+    data_keys = NodeKeyword.data_keys + ['signup']
+
+    def TorSite(self):
+        return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
+
+    def HTTPSSite(self):
+        if self.data['node'].get('is_eo'):
+            return f"https://{self.data['node']['hostname']}"
+        return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
+
+    def Site(self):
+        if self.data['node']['hostname']:
+            return self.HTTPSSite()
+
+        elif self.data['node']['onionservice']:
+            return self.TorSite()
+
+        return ''
+
+    def LoginUrl(self):
+        site = self.Site()
+        if self.data['node'].get('is_eo'):
+            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
+        return f"{site}/#/login"
+
+    def RecipientName(self):
+        return self.data['signup']['recipient_name'] + ' ' + self.data['signup']['recipient_surname']
+
+    def ExternalOrganizationName(self):
+        return self.data['signup']['organization_name']
+
+    def RecipientCredentials(self):
+        if not self.data['password_recipient']:
+            return ''
+
+        data = {
+            'type': 'user_credentials',
+            'role': 'recipient',
+            'username': 'recipient',
+            'password': self.data['password_recipient']
+        }
+
+        return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
+
+
+class NewUserAdminSignupExternalOrganizationAlert(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + new_user_admin_signup_external_organization_alert
+    data_keys = NodeKeyword.data_keys + ['signup']
+
+    def TorSite(self):
+        return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
+
+    def HTTPSSite(self):
+        if self.data['node'].get('is_eo'):
+            return f"https://{self.data['node']['hostname']}"
+        return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
+
+    def Site(self):
+        if self.data['node']['hostname']:
+            return self.HTTPSSite()
+
+        elif self.data['node']['onionservice']:
+            return self.TorSite()
+
+        return ''
+
+    def LoginUrl(self):
+        site = self.Site()
+        if self.data['node'].get('is_eo'):
+            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
+        return f"{site}/#/login"
+
+    def Name(self):
+        return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
+
+    def ExternalOrganizationName(self):
+        return self.data['signup']['organization_name']
+
+    def AdminCredentials(self):
+        if not self.data['password_admin']:
+            return ''
+
+        data = {
+            'type': 'user_credentials',
+            'role': 'admin',
+            'username': 'admin',
+            'password': self.data['password_admin']
+        }
+
+        return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
 
 class PasswordResetValidationKeyword(UserNodeKeyword):
@@ -722,7 +832,9 @@ supported_template_types = {
     'identity_access_denied': TipKeyword,
     'sign_up_external_organization': SignUpExternalOrganization,
     'sign_up_external_organization_info': SignUpExternalOrganizationInfo,
-    'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert
+    'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert,
+    'new_user_recipient_signup_external_organization_alert': NewUserRecipientSignupExternalOrganizationAlert,
+    'new_user_admin_signup_external_organization_alert': NewUserAdminSignupExternalOrganizationAlert
 }
 
 

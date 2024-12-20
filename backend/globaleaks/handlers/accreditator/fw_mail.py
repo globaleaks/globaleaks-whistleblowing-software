@@ -20,22 +20,23 @@ def send_email_accreditation_user(session, emails: list, language, accreditation
     node = db_admin_serialize_node(session, 1, language)
     notification = db_get_notification(session, 1, language)
     signup = serializers.serialize_signup(accreditation_item)
+    signup['recipient_name'] = accreditation_item.recipient_name
+    signup['recipient_surname'] = accreditation_item.recipient_surname
     node['is_eo_admin'] = is_admin
     node['is_eo'] = True
     node['eo_uuid'] = eo_uuid.value if eo_uuid else ''
     admin_pwd = 'None' if not wizard or not wizard.get('admin_password') else wizard.get('admin_password')
     rec_pwd = 'None' if not wizard or not wizard.get('receiver_password') else wizard.get('receiver_password')
     template_vars = {
-        'type': 'activation',
         'node': node,
         'notification': notification,
         'signup': signup
     }
     if is_admin:
+        template_vars['type'] = 'new_user_admin_signup_external_organization_alert'
         template_vars['password_admin'] = admin_pwd
-        template_vars['password_recipient'] = None
     else:
-        template_vars['password_admin'] = None
+        template_vars['type'] = 'new_user_recipient_signup_external_organization_alert'
         template_vars['password_recipient'] = rec_pwd
 
     for email in emails:

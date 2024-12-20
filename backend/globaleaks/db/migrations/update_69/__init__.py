@@ -259,6 +259,45 @@ class MigrationScript(MigrationBase):
             self.entries_count['Config'] += 1
 
         for lan in ['en', 'it']:
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'new_user_recipient_signup_external_organization_alert_mail_title'
+            template_mail_config.value = 'Access instructions'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'new_user_recipient_signup_external_organization_alert_mail_template'
+            template_mail_config.value = 'Dear {RecipientName},\nYour platform {ExternalOrganizationName} is now accessible at:\n{Url}\nTo log in, visit:\n{LoginUrl}\nUsers credentials:\n{RecipientCredentials}\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'new_user_admin_signup_external_organization_alert_mail_title'
+            template_mail_config.value = 'Access instructions'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'new_user_admin_signup_external_organization_alert_mail_template'
+            template_mail_config.value = 'Dear {Name},\nYour platform {ExternalOrganizationName} is now accessible at:\n{Url}\nTo log in, visit:\n{LoginUrl}\nUsers credentials:\n{AdminCredentials}\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+
+
             template_mail_config = self.model_to['ConfigL10N']()
             template_mail_config.tid = 1
             template_mail_config.lang = lan
