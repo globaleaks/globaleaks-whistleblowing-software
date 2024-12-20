@@ -35,7 +35,7 @@
                     <span class="px-1">
                         <span>{{'Date'|translate}}</span>:
                         <ng-container *ngIf="!wbFile.isLoading; else loadingTemplate">
-                            <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
+                            <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:mm'}}</span>
                         </ng-container>
                     </span>
                     <span class="px-1">
@@ -72,7 +72,7 @@
                 <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
             </span>
             <span class="px-1">
-                <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
+                <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:mm'}}</span>
             </span>
             <span class="px-1">
                 <span>{{'Size:'|translate}}</span>
