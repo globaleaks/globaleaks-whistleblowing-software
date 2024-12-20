@@ -129,8 +129,8 @@ export class OrganizationComponent implements OnInit{
   rifiuta(){
     if (this.authenticationService.session.role === "accreditor") {
       const modalRef = this.modalService.open(CustomModalComponent);
-      modalRef.componentInstance.title = "Are you sure you want to reject?";
-      modalRef.componentInstance.message = "Insert here the reason of the rejection:"
+      modalRef.componentInstance.title = this.translateService.instant("Do you confirm the operation?");
+      modalRef.componentInstance.message = this.translateService.instant("Insert here the reason of the operation:");
       modalRef.componentInstance.arg = this.organization.id;
       modalRef.componentInstance.showInputText = true;
 
