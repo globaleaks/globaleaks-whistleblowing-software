@@ -204,6 +204,12 @@ class NodeKeyword(Keyword):
         return '[UNDEFINED]'
 
     def HTTPSSite(self):
+        if self.data['node'].get('is_eo'):
+            parent_hostname = self.data['node']['is_e0']['parent']['hostname']
+            if isIPAddress(parent_hostname):
+                return 'http://' + parent_hostname
+            else:
+                return 'https://' + parent_hostname
         if self.data['node']['hostname']:
             if isIPAddress(self.data['node']['hostname']):
                 return 'http://' + self.data['node']['hostname']
@@ -239,6 +245,8 @@ class NodeKeyword(Keyword):
         return 'https://docs.globaleaks.org'
 
     def LoginUrl(self):
+        if self.data['node'].get('is_eo'):
+            return f"/login-external-organization/{self.data['node'].uuid}"
         return self.Site() + '/#/login'
 
 
@@ -640,6 +648,8 @@ class AccountActivationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + account_activation_keywords
 
     def UrlPath(self):
+        if self.data['node'].get('is_eo'):
+            return f"/reset-password-external-organization/{self.data['node'].uuid}/{self.data['reset_token']}"
         return '/#/password/reset' + '?token=' + self.data['reset_token']
 
     def AccountRecoveryKeyInstructions(self):
@@ -789,6 +799,8 @@ class PasswordResetValidationKeyword(UserNodeKeyword):
     data_keys = UserNodeKeyword.data_keys + ['reset_token']
 
     def UrlPath(self):
+        if self.data['node'].get('is_eo'):
+            return f"/reset-password-external-organization/{self.data['node'].uuid}/{self.data['reset_token']}"
         return '/#/password/reset?token=' + self.data['reset_token']
 
 
