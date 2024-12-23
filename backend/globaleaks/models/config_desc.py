@@ -374,6 +374,7 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
+        'uuid',
         'forwarding_enabled',
         'proxy_idp_enabled',
         'antivirus_enabled',
