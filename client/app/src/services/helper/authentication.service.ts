@@ -21,6 +21,11 @@ export class AuthenticationService {
   requireAuthCode: boolean = false;
   loginData: LoginDataRef = new LoginDataRef();
 
+  private regexProtectedUrl = [
+    "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/accredited",
+    "api\/accreditation\/request\/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})\/confirm_invited"
+  ]
+
   constructor(private http: HttpClient, private modalService: NgbModal,private titleService: TitleService, private activatedRoute: ActivatedRoute, private httpService: HttpService, private appDataService: AppDataService, private router: Router) {
     this.init();
   }
@@ -260,4 +265,11 @@ export class AuthenticationService {
       this.router.navigateByUrl("/login").then();
     }
   };
+
+  checkRegexProtectedUrl(url: string){
+
+    let arrayContainsString = this.regexProtectedUrl.some(item => url.match(item));
+    return arrayContainsString;
+
+  }
 }

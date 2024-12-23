@@ -699,8 +699,8 @@
 	"Enable Backup": "Abilita backup",
 	"Backup Time (hh:mm)": "Ora del backup (hh:mm)",
 	"Backup Destination Path": "Percorso di destinazione del backup",
-  "Are you sure you want to reject?": "Sei sicuro di voler rifiutare?",
-	"Insert here the reason of the rejection:":"Inserisci qui la motivazione del rifiuto:",
+  "Do you confirm the operation?": "Confermi l'operazione?",
+	"Insert here the reason of the operation:":"Inserisci qui la motivazione dell'operazione:",
 	"Tips": "Segnalazioni",
 	"Closed Tips": "Segnalazioni Chiuse",
 	"Convert in Not Affiliated": "Converti in Non Affiliata",
@@ -773,5 +773,8 @@
   "Primary Organization": "Organizzazione Principale",
   "Enable PEC":"Abilita notifiche PEC",
   "ACCREDITATION": "ACCREDITAMENTO",
-  "receiver": "ricevente"
+  "receiver": "ricevente",
+  "Confirm suspension": "Conferma sospensione",
+  "Confirm reactivation": "Conferma riattivazione",
+  "Confirm message suspension/reactivation": "La OE non riceverà alcuna comunicazione automatica di sospensione/riattivazione. Se lo si ritiene opportuno, è possibile inviare personalmente un avviso."
 }
