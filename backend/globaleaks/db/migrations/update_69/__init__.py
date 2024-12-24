@@ -296,8 +296,6 @@ class MigrationScript(MigrationBase):
             self.session_new.add(template_mail_config)
             self.entries_count['ConfigL10N'] += 1
 
-
-
             template_mail_config = self.model_to['ConfigL10N']()
             template_mail_config.tid = 1
             template_mail_config.lang = lan
@@ -348,6 +346,24 @@ class MigrationScript(MigrationBase):
             template_mail_config.lang = lan
             template_mail_config.var_name = 'sign_up_external_organization_info_mail_template'
             template_mail_config.value = 'Dear {RecipientName},\n\nYour accreditation request is in status: {AccreditationStatus}\n\n{AccreditationMotivationText}\n\nKind regards,\n\n{NodeName}'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'close_forwarding_external_organization_mail_title'
+            template_mail_config.value = 'Closed forwarding'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'close_forwarding_external_organization_mail_template'
+            template_mail_config.value = 'Dear {RecipientName},\nThe forwarded submission with ID {OriginalTipId} to the external organization {ExternalOrganizationName} has been closed.\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
             template_mail_config.update_date = datetime_now()
             self.session_new.add(template_mail_config)
             self.entries_count['ConfigL10N'] += 1

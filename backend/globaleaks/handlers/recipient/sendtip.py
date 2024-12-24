@@ -4,8 +4,10 @@
 import base64
 import logging
 import json
+from globaleaks.handlers.admin.node import db_admin_serialize_node
+from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.models.config import ConfigFactory
-from globaleaks.handlers.public import serialize_questionnaire
+from globaleaks.handlers.public import db_get_receivers, serialize_questionnaire
 from globaleaks.handlers.admin.tenant import db_get_tenant_list
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.handlers.base import BaseHandler
@@ -17,11 +19,37 @@ from globaleaks.utils.utility import datetime_now, get_expiration
 from globaleaks import models
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.rest import requests, errors
+from globaleaks.state import State
 
 @transact
 def check_forwarding_enabled(session):
     if not ConfigFactory(session, 1).get_val('forwarding_enabled'):
         raise errors.ForbiddenOperation()
+
+def send_email_close_forwarding(session, original_tip_id, eo_name):
+    """
+    Send forwarding closed emails to the all receivers.
+
+    Args:
+        session: The database session.
+        original_tip_id: The forwarded tip's id.
+        eo_name: The external organization's name.
+    """
+    language = ConfigFactory(session, 1).get_val('default_language')
+    node = db_admin_serialize_node(session, 1, language)
+    notification = db_get_notification(session, 1, language)
+    receivers = db_get_receivers(session, 1, language)
+    for user in receivers:
+        template_vars = {
+            'type': 'close_forwarding_external_organization',
+            'node': node,
+            'notification': notification,
+            'original_tip_id': original_tip_id,
+            'eo_name': eo_name,
+            'recipient_name': user.username
+        }
+
+        State.format_and_send_mail(session, 1, user.mail_address, template_vars)
 
 
 def add_internaltip_forwarding(session, tid, original_itip_id, forwarded_itip, data, questionnaire_id, questionnaire_hash):
@@ -236,9 +264,10 @@ class CloseForwardedSubmission(BaseHandler):
         internaltip_forwarding.update_date = now
         internaltip_forwarding.stat_data = stat_answers
 
+        eo_name = ConfigFactory(session, internaltip_forwarding.tid).get_val('name')
+        send_email_close_forwarding(session, original_itip.id, eo_name)
 
         session.flush()
-
         return internaltip_forwarding.id
 
     def post(self, itip_id):

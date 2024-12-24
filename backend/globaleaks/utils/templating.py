@@ -167,6 +167,14 @@ new_user_admin_signup_external_organization_alert = [
     '{NodeName}'
 ]
 
+close_forwarding_external_organization = [
+    '{OriginalTipId}',
+    '{RecipientName}',
+    '{ExternalOrganizationName}',
+    '{DocumentationUrl}',
+    '{NodeName}'
+]
+
 def indent(n=1):
     return '  ' * n
 
@@ -205,7 +213,7 @@ class NodeKeyword(Keyword):
 
     def HTTPSSite(self):
         if self.data['node'].get('is_eo'):
-            parent_hostname = self.data['node']['is_e0']['parent']['hostname']
+            parent_hostname = self.data['node']['is_eo']['parent']['hostname']
             if isIPAddress(parent_hostname):
                 return 'http://' + parent_hostname
             else:
@@ -792,6 +800,19 @@ class NewUserAdminSignupExternalOrganizationAlert(NodeKeyword):
 
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
+class CloseForwardingExternalOrganization(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + close_forwarding_external_organization
+    data_keys = NodeKeyword.data_keys
+
+    def RecipientName(self):
+        return self.data['recipient_name']
+
+    def ExternalOrganizationName(self):
+        return self.data['eo_name']
+
+    def OriginalTipId(self):
+        return self.data['original_tip_id']
+
 
 class PasswordResetValidationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list
@@ -846,7 +867,8 @@ supported_template_types = {
     'sign_up_external_organization_info': SignUpExternalOrganizationInfo,
     'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert,
     'new_user_recipient_signup_external_organization_alert': NewUserRecipientSignupExternalOrganizationAlert,
-    'new_user_admin_signup_external_organization_alert': NewUserAdminSignupExternalOrganizationAlert
+    'new_user_admin_signup_external_organization_alert': NewUserAdminSignupExternalOrganizationAlert,
+    'close_forwarding_external_organization': CloseForwardingExternalOrganization
 }
 
 
