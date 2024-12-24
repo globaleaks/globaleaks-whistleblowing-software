@@ -261,7 +261,7 @@ class NodeKeyword(Keyword):
 
     def LoginUrl(self):
         if self.data['node'].get('is_eo'):
-            return f"/login-external-organization/{self.data['node'].get('uuid')}"
+            return self.Site() + f"/login-external-organization/{self.data['node'].get('uuid')}"
         return self.Site() + '/#/login'
 
 
@@ -714,32 +714,9 @@ class AccreditorSignupExternalOrganizationAlert(NodeKeyword):
     def AccreditationName(self):
         return f"{self.data['signup']['organization_name']}"
 
-class NewUserRecipientSignupExternalOrganizationAlert(NodeKeyword):
+class NewUserRecipientSignupExternalOrganizationAlert(PlatformSignupKeyword):
     keyword_list = NodeKeyword.data_keys + new_user_recipient_signup_external_organization_alert
     data_keys = NodeKeyword.data_keys + ['signup']
-
-    def TorSite(self):
-        return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
-
-    def HTTPSSite(self):
-        if self.data['node'].get('is_eo'):
-            return f"https://{self.data['node']['hostname']}"
-        return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
-
-    def Site(self):
-        if self.data['node']['hostname']:
-            return self.HTTPSSite()
-
-        elif self.data['node']['onionservice']:
-            return self.TorSite()
-
-        return ''
-
-    def LoginUrl(self):
-        site = self.Site()
-        if self.data['node'].get('is_eo'):
-            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
-        return f"{site}/#/login"
 
     def RecipientName(self):
         return self.data['signup']['recipient_name'] + ' ' + self.data['signup']['recipient_surname']
@@ -761,32 +738,9 @@ class NewUserRecipientSignupExternalOrganizationAlert(NodeKeyword):
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
 
-class NewUserAdminSignupExternalOrganizationAlert(NodeKeyword):
+class NewUserAdminSignupExternalOrganizationAlert(PlatformSignupKeyword):
     keyword_list = NodeKeyword.data_keys + new_user_admin_signup_external_organization_alert
     data_keys = NodeKeyword.data_keys + ['signup']
-
-    def TorSite(self):
-        return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
-
-    def HTTPSSite(self):
-        if self.data['node'].get('is_eo'):
-            return f"https://{self.data['node']['hostname']}"
-        return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
-
-    def Site(self):
-        if self.data['node']['hostname']:
-            return self.HTTPSSite()
-
-        elif self.data['node']['onionservice']:
-            return self.TorSite()
-
-        return ''
-
-    def LoginUrl(self):
-        site = self.Site()
-        if self.data['node'].get('is_eo'):
-            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
-        return f"{site}/#/login"
 
     def Name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']

@@ -39,14 +39,15 @@ def send_email_close_forwarding(session, original_tip_id, eo_name):
     node = db_admin_serialize_node(session, 1, language)
     notification = db_get_notification(session, 1, language)
     receivers = db_get_receivers(session, 1, language)
-    for user in receivers:
+    for receiver in receivers:
+        user = db_get(session, models.User, models.User.id == receiver['id'])
         template_vars = {
             'type': 'close_forwarding_external_organization',
             'node': node,
             'notification': notification,
             'original_tip_id': original_tip_id,
             'eo_name': eo_name,
-            'recipient_name': user['name']
+            'recipient_name': user.public_name
         }
 
         State.format_and_send_mail(session, 1, user.mail_address, template_vars)

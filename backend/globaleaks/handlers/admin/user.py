@@ -31,7 +31,7 @@ def send_email_delete_eo_user(session, tid, user, eo_name):
     """
     language = ConfigFactory(session, tid).get_val('default_language')
     node = db_admin_serialize_node(session, tid, language)
-    notification = db_get_notification(session, tid, language)
+    notification = db_get_notification(session, 1, language)
     template_vars = {
         'type': 'delete_user_external_organization',
         'node': node,
@@ -40,7 +40,7 @@ def send_email_delete_eo_user(session, tid, user, eo_name):
         'eo_name': eo_name
     }
 
-    State.format_and_send_mail(session, 1, user.mail_address, template_vars)
+    State.format_and_send_mail(session, tid, user.mail_address, template_vars)
 
 
 def db_set_user_password(session, tid, user, password):
