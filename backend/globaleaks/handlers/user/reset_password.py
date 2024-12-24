@@ -52,8 +52,8 @@ def db_generate_password_reset_token(session, user):
 
     tenant = session.query(models.Tenant).filter(models.Tenant.id == user.tid).first()
     if tenant.external:
-        template_vars['node']['is_eo']= dict()
-        template_vars['node']['is_eo']['parent'] = db_admin_serialize_node(session, 1, user.language)
+        template_vars['node']['is_eo']= True
+        template_vars['node']['parent'] = db_admin_serialize_node(session, 1, user.language)
 
     State.format_and_send_mail(session, user.tid, user_desc['mail_address'], template_vars)
 

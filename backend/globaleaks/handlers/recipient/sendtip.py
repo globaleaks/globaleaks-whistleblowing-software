@@ -46,7 +46,7 @@ def send_email_close_forwarding(session, original_tip_id, eo_name):
             'notification': notification,
             'original_tip_id': original_tip_id,
             'eo_name': eo_name,
-            'recipient_name': user.username
+            'recipient_name': user.name
         }
 
         State.format_and_send_mail(session, 1, user.mail_address, template_vars)

@@ -213,7 +213,7 @@ class NodeKeyword(Keyword):
 
     def HTTPSSite(self):
         if self.data['node'].get('is_eo'):
-            parent_hostname = self.data['node']['is_eo']['parent']['hostname']
+            parent_hostname = self.data['node']['parent']['hostname']
             if isIPAddress(parent_hostname):
                 return 'http://' + parent_hostname
             else:
