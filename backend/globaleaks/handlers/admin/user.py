@@ -5,6 +5,8 @@ import logging
 
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import parse_pgp_options, \
@@ -17,6 +19,28 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, Base64Encoder, generateRandomPassword
 from globaleaks.utils.utility import datetime_now, datetime_null, uuid4
+
+def send_email_delete_eo_user(session, tid, user, eo_name):
+    """
+    Send deleted user email to the user.
+
+    Args:
+        session: The database session.
+        username: The username that has been deleted
+        eo_name: The external organization's name.
+    """
+    language = ConfigFactory(session, tid).get_val('default_language')
+    node = db_admin_serialize_node(session, tid, language)
+    notification = db_get_notification(session, tid, language)
+    template_vars = {
+        'type': 'delete_user_external_organization',
+        'node': node,
+        'notification': notification,
+        'username': user.public_name,
+        'eo_name': eo_name
+    }
+
+    State.format_and_send_mail(session, 1, user.mail_address, template_vars)
 
 
 def db_set_user_password(session, tid, user, password):
@@ -148,6 +172,11 @@ def db_delete_user(session, tid, user_session, user_id):
     if user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
+
+    tenant = db_get(session, models.Tenant, models.Tenant.id == tid)
+    if tenant.external:
+        eo_name = ConfigFactory(session, tid).get_val('name')
+        send_email_delete_eo_user(session, tid, user_to_be_deleted, eo_name)
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)

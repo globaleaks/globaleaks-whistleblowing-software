@@ -483,7 +483,9 @@ ConfigL10NFilters = {
         'new_user_admin_signup_external_organization_alert_mail_template',
         'new_user_admin_signup_external_organization_alert_mail_title',
         'close_forwarding_external_organization_mail_template',
-        'close_forwarding_external_organization_mail_title'
+        'close_forwarding_external_organization_mail_title',
+        'delete_user_external_organization_mail_template',
+        'delete_user_external_organization_mail_title'
     ]
 }
 

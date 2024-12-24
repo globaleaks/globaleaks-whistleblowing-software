@@ -368,6 +368,24 @@ class MigrationScript(MigrationBase):
             self.session_new.add(template_mail_config)
             self.entries_count['ConfigL10N'] += 1
 
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'delete_user_external_organization_mail_title'
+            template_mail_config.value = 'User deleted'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
+            template_mail_config = self.model_to['ConfigL10N']()
+            template_mail_config.tid = 1
+            template_mail_config.lang = lan
+            template_mail_config.var_name = 'delete_user_external_organization_mail_template'
+            template_mail_config.value = 'Dear {Username},\nYour account associated with the external organization {ExternalOrganizationName} has been deleted.\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
+            template_mail_config.update_date = datetime_now()
+            self.session_new.add(template_mail_config)
+            self.entries_count['ConfigL10N'] += 1
+
     def add_backup_configs(self):
         backup_enabled_config = self.model_to['Config']()
         backup_enabled_config.var_name = 'backup_enabled'

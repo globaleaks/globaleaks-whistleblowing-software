@@ -175,6 +175,13 @@ close_forwarding_external_organization = [
     '{NodeName}'
 ]
 
+delete_user_external_organization = [
+    '{Username}',
+    '{ExternalOrganizationName}',
+    '{DocumentationUrl}',
+    '{NodeName}'
+]
+
 def indent(n=1):
     return '  ' * n
 
@@ -227,7 +234,7 @@ class NodeKeyword(Keyword):
         return '[UNDEFINED]'
 
     def Site(self):
-        if self.data['node']['hostname']:
+        if self.data['node']['hostname'] or self.data['node'].get('is_eo'):
             return self.HTTPSSite()
 
         elif self.data['node']['onionservice']:
@@ -813,6 +820,16 @@ class CloseForwardingExternalOrganization(NodeKeyword):
     def OriginalTipId(self):
         return self.data['original_tip_id']
 
+class DeleteUserExternalOrganization(NodeKeyword):
+    keyword_list = NodeKeyword.data_keys + delete_user_external_organization
+    data_keys = NodeKeyword.data_keys
+
+    def Username(self):
+        return self.data['username']
+
+    def ExternalOrganizationName(self):
+        return self.data['eo_name']
+
 
 class PasswordResetValidationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list
@@ -868,7 +885,8 @@ supported_template_types = {
     'accreditor_signup_external_organization_alert': AccreditorSignupExternalOrganizationAlert,
     'new_user_recipient_signup_external_organization_alert': NewUserRecipientSignupExternalOrganizationAlert,
     'new_user_admin_signup_external_organization_alert': NewUserAdminSignupExternalOrganizationAlert,
-    'close_forwarding_external_organization': CloseForwardingExternalOrganization
+    'close_forwarding_external_organization': CloseForwardingExternalOrganization,
+    'delete_user_external_organization': DeleteUserExternalOrganization
 }
 
 
