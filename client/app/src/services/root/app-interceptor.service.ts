@@ -110,7 +110,7 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
           } 
           
           if((request.url === "api/auth/authentication/external" || request.url === "api/user/reset/password/external") && error.status === 401 && error.error["error_code"] == undefined && this.appDataService.public.proxy_idp_enabled){
-            window.location.href="/login-external-organizazion/"+this.appDataService.public.node.uuid
+            window.location.href="/login-external-organization/"+this.appDataService.public.node.uuid
           }  
 
           if(error.error){
