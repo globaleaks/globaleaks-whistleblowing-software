@@ -588,7 +588,6 @@ class PlatformSignupKeyword(NodeKeyword):
         if self.data['node']['hostname']:
             site = 'https://' + self.data['node']['hostname']
             if self.data['node'].get('is_eo'):
-                # site = f"{site}/t/{self.data['node'].get('eo_uuid')}"
                 site = f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
         elif self.data['node']['onionservice']:
             site = 'http://' + self.data['node']['onionservice']
@@ -596,12 +595,6 @@ class PlatformSignupKeyword(NodeKeyword):
             site = ''
 
         return site + '/#/activation?token=' + self.data['signup']['activation_token']
-
-    def LoginUrl(self):
-        site = self.Site()
-        if self.data['node'].get('is_eo'):
-            return f"{site}/login-external-organization/{self.data['node'].get('eo_uuid')}"
-        return f"{site}/#/login"
 
     def ExpirationDate(self):
         date = self.data['signup']['registration_date'] + timedelta(30)

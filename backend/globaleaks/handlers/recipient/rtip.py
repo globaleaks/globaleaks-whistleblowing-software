@@ -52,6 +52,10 @@ def db_notify_grant_access(session, user):
 
     data['user'] = user_serialize_user(session, user, user.language)
     data['node'] = db_admin_serialize_node(session, user.tid, user.language)
+    tenant = db_get(session, models.Tenant, models.Tenant.id == user.tid)
+    if tenant.external:
+        data['node']['is_eo'] = True
+        data['node']['parent'] = db_admin_serialize_node(session, 1, user.language)
 
     if data['node']['mode'] == 'default':
         data['notification'] = db_get_notification(
