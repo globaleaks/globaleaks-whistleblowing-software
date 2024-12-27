@@ -116,8 +116,7 @@
                 <src-tip-eo-rfiles-receiver [key]="'eo'"></src-tip-eo-rfiles-receiver>
 
                 <ng-container *ngIf="tip && tip.context">
-                    <src-tip-comments [tipService]="RTipService" [key]="'eo'" [tids]="[preferencesService.dataModel.tid]" 
-                    [maximum_number]="preferencesService.dataModel.t_affiliated ? appDataService.public.node.max_msg_external_to_whistle : appDataService.public.node.max_msg_external_to_whistle_not_aff"></src-tip-comments>
+                    <src-tip-comments [tipService]="RTipService" [key]="'eo'" [tids]="[preferencesService.dataModel.tid]" ></src-tip-comments>
                 </ng-container>
             </div>
         </ng-template>
