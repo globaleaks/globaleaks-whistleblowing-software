@@ -23,7 +23,7 @@ from globaleaks.utils.crypto import GCE
 from globaleaks.utils.ip import check_ip
 from globaleaks.utils.log import log
 from globaleaks.utils.pgp import PGPContext
-from globaleaks.utils.securetempfile import SecureTemporaryFile
+from globaleaks.utils.eph_fs import EphemeralFile
 from globaleaks.utils.utility import datetime_now
 
 mimetypes.add_type('text/javascript', '.js')
@@ -347,7 +347,7 @@ class BaseHandler(object):
                 State.RateLimitingTable.check(self.request.path + b'#' + self.request.client_ip.encode(),
                                               State.tenants[1].cache.threshold_attachments_per_hour_per_ip)
 
-            self.state.TempUploadFiles[file_id] = SecureTemporaryFile(Settings.tmp_path)
+            self.state.TempUploadFiles[file_id] = EphemeralFile(Settings.tmp_path)
 
         f = self.state.TempUploadFiles[file_id]
 
@@ -363,8 +363,6 @@ class BaseHandler(object):
 
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return None
-
-            f.finalize_write()
 
         mime_type, _ = mimetypes.guess_type(self.request.args[b'flowFilename'][0].decode())
         if mime_type is None:

@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import sys
+from globaleaks.utils.eph_fs import main
+if __name__ == '__main__':
+    sys.exit(main())

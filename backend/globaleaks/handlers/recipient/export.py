@@ -20,8 +20,8 @@ from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import Base64Encoder, GCE
+from globaleaks.utils.eph_fs import EphemeralFile
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, msdos_encode
 from globaleaks.utils.zipstream import ZipStream
@@ -216,12 +216,11 @@ class ExportHandler(BaseHandler):
 
         zipstream = ZipStream(files)
 
-        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+        stf = EphemeralFile(self.state.settings.tmp_path)
 
         with stf.open('w') as f:
             for x in zipstream:
                 f.write(x)
-            f.finalize_write()
 
         with stf.open('r') as f:
             yield self.write_file_as_download(filename, f, pgp_key)
