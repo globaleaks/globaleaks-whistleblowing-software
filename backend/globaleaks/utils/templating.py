@@ -168,7 +168,9 @@ new_user_admin_signup_external_organization_alert = [
 ]
 
 close_forwarding_external_organization = [
-    '{OriginalTipId}',
+    '{TipID}',
+    '{TipNum}',
+    '{TipUrl}',
     '{RecipientName}',
     '{ExternalOrganizationName}',
     '{DocumentationUrl}',
@@ -243,8 +245,6 @@ class NodeKeyword(Keyword):
         return ''
 
     def UrlPath(self):
-        if self.data['node'].get('is_eo'):
-            return f"/login-external-organization/{self.data['node'].get('eo_uuid')}/"
         return '/'
 
     def Url(self):
@@ -764,8 +764,14 @@ class CloseForwardingExternalOrganization(NodeKeyword):
     def ExternalOrganizationName(self):
         return self.data['eo_name']
 
-    def OriginalTipId(self):
+    def TipID(self):
         return self.data['original_tip_id']
+
+    def TipNum(self):
+        return self.data['original_tip_progressive']
+
+    def TipUrl(self):
+        return f"{self.Site()}/#/reports/{self.TipID()}"
 
 class DeleteUserExternalOrganization(NodeKeyword):
     keyword_list = NodeKeyword.data_keys + delete_user_external_organization

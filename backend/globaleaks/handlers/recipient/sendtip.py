@@ -26,7 +26,7 @@ def check_forwarding_enabled(session):
     if not ConfigFactory(session, 1).get_val('forwarding_enabled'):
         raise errors.ForbiddenOperation()
 
-def send_email_close_forwarding(session, original_tip_id, eo_name):
+def send_email_close_forwarding(session, original_tip_id, original_tip_progressive, eo_name):
     """
     Send forwarding closed emails to the all receivers.
 
@@ -46,6 +46,7 @@ def send_email_close_forwarding(session, original_tip_id, eo_name):
             'node': node,
             'notification': notification,
             'original_tip_id': original_tip_id,
+            'original_tip_progressive': original_tip_progressive,
             'eo_name': eo_name,
             'recipient_name': user.public_name
         }
@@ -266,7 +267,7 @@ class CloseForwardedSubmission(BaseHandler):
         internaltip_forwarding.stat_data = stat_answers
 
         eo_name = ConfigFactory(session, internaltip_forwarding.tid).get_val('name')
-        send_email_close_forwarding(session, original_itip.id, eo_name)
+        send_email_close_forwarding(session, original_itip.id, original_itip.progressive, eo_name)
 
         session.flush()
         return internaltip_forwarding.id
