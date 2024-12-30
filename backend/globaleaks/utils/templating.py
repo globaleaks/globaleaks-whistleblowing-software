@@ -261,7 +261,7 @@ class NodeKeyword(Keyword):
 
     def LoginUrl(self):
         if self.data['node'].get('is_eo'):
-            return self.Site() + f"/login-external-organization/{self.data['node'].get('uuid')}"
+            return self.Site() + f"/login-external-organization/{self.data['node'].get('eo_uuid')}"
         return self.Site() + '/#/login'
 
 
@@ -791,7 +791,7 @@ class PasswordResetValidationKeyword(UserNodeKeyword):
 
     def UrlPath(self):
         if self.data['node'].get('is_eo'):
-            return f"/reset-password-external-organization/{self.data['node'].uuid}/{self.data['reset_token']}"
+            return f"/reset-password-external-organization/{self.data['node'].get('uuid')}/{self.data['reset_token']}"
         return '/#/password/reset?token=' + self.data['reset_token']
 
 
