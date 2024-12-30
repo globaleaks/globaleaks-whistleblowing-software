@@ -768,7 +768,7 @@ class CloseForwardingExternalOrganization(NodeKeyword):
         return self.data['original_tip_id']
 
     def TipNum(self):
-        return self.data['original_tip_progressive']
+        return str(self.data['original_tip_progressive'])
 
     def TipUrl(self):
         return f"{self.Site()}/#/reports/{self.TipID()}"
