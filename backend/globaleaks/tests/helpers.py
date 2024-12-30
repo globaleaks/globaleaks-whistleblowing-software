@@ -45,7 +45,7 @@ from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
 from globaleaks.utils import tempdict, token
 from globaleaks.utils.crypto import generateRandomKey, GCE
-from globaleaks.utils.securetempfile import SecureTemporaryFile
+from globaleaks.utils.eph_fs import EphemeralFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
 
@@ -432,11 +432,10 @@ def get_dummy_file(content=None):
     if content is None:
         content = base64.b64decode(VALID_BASE64_IMG)
 
-    temporary_file = SecureTemporaryFile(Settings.tmp_path)
+    temporary_file = EphemeralFile(Settings.tmp_path)
 
     with temporary_file.open('w') as f:
         f.write(content)
-        f.finalize_write()
 
     State.TempUploadFiles[os.path.basename(temporary_file.filepath)] = temporary_file
 
