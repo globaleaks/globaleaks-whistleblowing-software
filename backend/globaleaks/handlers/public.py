@@ -259,7 +259,7 @@ def db_serialize_node(session, tid, language):
     """
     languages = db_get_languages(session, tid)
     ret = ConfigFactory(session, tid).serialize('public_node')
-    ret.update(ConfigL10NFactory(session, tid,).serialize('public_node', language))
+    ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
