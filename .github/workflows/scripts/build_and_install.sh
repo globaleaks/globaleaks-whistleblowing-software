@@ -8,7 +8,7 @@ cd /build/globaleaks-whistleblowing-software
 
 sudo apt-get -y update
 
-sudo apt-get -y install curl git debhelper devscripts dh-apparmor dh-python python3-all python3-pip python3-setuptools python3-sphinx
+sudo apt-get -y install curl git debhelper devscripts dh-apparmor dh-python libfuse2 python3-all python3-pip python3-setuptools python3-sphinx
 
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get update

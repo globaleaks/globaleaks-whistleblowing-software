@@ -15,7 +15,7 @@ setupClient() {
 
 echo "Running setup"
 sudo apt-get update
-sudo apt-get install -y tor
+sudo apt-get install -y libfuse2 tor
 npm install -g grunt grunt-cli
 setupBackend
 setupClient

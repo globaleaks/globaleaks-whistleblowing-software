@@ -1,5 +1,6 @@
 acme==0.31.0
 cryptography==2.6.1
+fusepy==3.0.1
 h2==3.0.1
 idna==2.6
 priority==1.3.0

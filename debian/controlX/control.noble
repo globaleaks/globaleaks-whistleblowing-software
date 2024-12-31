@@ -27,6 +27,7 @@ Depends:
   python3-acme,
   python3-cryptography,
   python3-fpdf,
+  python3-fusepy,
   python3-h2,
   python3-nacl,
   python3-openssl,

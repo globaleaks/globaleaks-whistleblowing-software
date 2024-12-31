@@ -13,6 +13,7 @@ The guide assumes you run a Debian based system and that the following software 
 * dh-python
 * git
 * grunt-cli
+* libfuse2
 * node
 * npm
 * python3
@@ -21,6 +22,7 @@ The guide assumes you run a Debian based system and that the following software 
 * python3-setuptools
 * python3-sphinx
 * python3-virtualenv
+* tor
 
 Setup
 =====
