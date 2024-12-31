@@ -135,7 +135,7 @@ DO "apt-get -y install gnupg net-tools software-properties-common wget"
 # Depending on the intention of the user to proceed anyhow installing on
 # a not supported distro we using the experimental package if it exists
 # or bookworm as fallback.
-if echo "$DISTRO_CODENAME" | grep -vqE "^(bionic|bookworm|bullseye|buster|focal|jammy|noble)$"; then
+if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm|bullseye|buster|focal|jammy|noble)$"; then
   # In case of unsupported platforms we fallback on bookworm
   echo "No packages available for the current distribution; the install script will use the bookworm repository."
   DISTRO="Debian"

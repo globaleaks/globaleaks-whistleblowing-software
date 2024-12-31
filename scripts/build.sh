@@ -15,7 +15,7 @@ usage() {
   echo " -h"
   echo -e " -t tagname (build specific release/branch)"
   echo -e " -l (Use local repository & enviroment)"
-  echo -e " -d distribution (available: bionic, bookworm, bullseye, buster, focal, jammy, noble)"
+  echo -e " -d distribution (available: bookworm, bullseye, buster, focal, jammy, noble)"
   echo -e " -n (do not sign)"
   echo -e " -p (push on repository)"
 }
@@ -99,12 +99,6 @@ for TARGET in $TARGETS; do
   cd "$BUILDDIR/src"
 
   rm debian/control backend/requirements.txt
-
-  if [ "$TARGET" == "bionic" ]; then
-    echo 10 > debian/compat
-  else
-    echo 12 > debian/compat
-  fi
 
   cp debian/controlX/control.$TARGET  debian/control
   cp backend/requirements/requirements-$TARGET.txt backend/requirements.txt
