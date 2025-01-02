@@ -436,7 +436,6 @@ def get_dummy_file(content=None):
 
     with temporary_file.open('w') as f:
         f.write(content)
-        f.finalize_write()
 
     State.TempUploadFiles[os.path.basename(temporary_file.filepath)] = temporary_file
 

@@ -424,7 +424,7 @@ The default configuration has this feature disabled.
 
 Encryption of temporary files
 -----------------------------
-Files uploaded and temporarily stored on disk during the upload process are encrypted with a temporary, symmetric AES key to prevent any unencrypted data from being written to disk. Encryption is performed in streaming mode using `AES 128-bit` in `CTR mode`. Key files are stored in memory and are unique for each file being uploaded.
+Files uploaded and temporarily stored on disk during the upload process are encrypted with a ChaCha20 and temporary 256bit keys to prevent any unencrypted data from being written to disks. Key files are stored in memory and are unique for each file being uploaded.
 
 Secure file delete
 ------------------
