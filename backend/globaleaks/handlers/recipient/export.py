@@ -221,7 +221,6 @@ class ExportHandler(BaseHandler):
         with stf.open('w') as f:
             for x in zipstream:
                 f.write(x)
-            f.finalize_write()
 
         with stf.open('r') as f:
             yield self.write_file_as_download(filename, f, pgp_key)

@@ -364,8 +364,6 @@ class BaseHandler(object):
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return None
 
-            f.finalize_write()
-
         mime_type, _ = mimetypes.guess_type(self.request.args[b'flowFilename'][0].decode())
         if mime_type is None:
             mime_type = 'application/octet-stream'
