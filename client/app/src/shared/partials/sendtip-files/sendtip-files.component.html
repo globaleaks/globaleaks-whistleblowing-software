@@ -9,7 +9,6 @@
                 <tr>
                     <th *ngIf="isSelectable"></th>
                     <th>{{ 'Filename' | translate }}</th>
-                    <th>{{ 'Description' | translate }}</th>
                     <th>{{ 'Antivirus Verification Status' | translate}}</th>
                     <th>{{ 'Origin' | translate }}</th>
                     <th>{{ 'Download' | translate }}</th>
@@ -23,7 +22,6 @@
                         <input *ngIf="file.status !== 'INFECTED'" type="checkbox" (change)="toggleFileSelection(file)" [checked]="selectedFiles.includes(file)">
                       </td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.name }}</td>
-                    <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">{{ file.description }}</td>
                     <td [ngClass]="{'text-danger': file.status === 'INFECTED'}">
                         {{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status) | translate }}
                     </td>

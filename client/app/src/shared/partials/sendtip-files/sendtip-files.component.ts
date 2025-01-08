@@ -51,7 +51,6 @@ export class SendtipFilesComponent implements OnInit {
       .map(file => ({
         id: file.id,
         name: file.name,
-        description: file.description,
         status: file.status, 
         origin: this.mapVisibility(file.visibility, 'file.authorType'), 
         uploadDate: file.creation_date,
@@ -63,7 +62,6 @@ export class SendtipFilesComponent implements OnInit {
     const wbfilesMapped = this.wbfiles.map(file => ({
       id: file.ifile_id,
       name: file.name,
-      description: '-',
       status: file.status,
       origin: 'whistleblower',
       uploadDate: file.creation_date,
