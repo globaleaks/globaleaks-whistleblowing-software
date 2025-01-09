@@ -177,7 +177,7 @@
                 </div>
                 
                 <src-tip-upload-wbfile [tip]="tip" (dataToParent)="listenToFields()" [canUpload]="selectedEo && selectedEo.length == 1 ? selectedEo[0].state !== 'closed' : true"
-                    [key]="'eo'" [organizations]="selectedEo"></src-tip-upload-wbfile>
+                    [key]="'eo'" [organizations]="selectedEo" [disableDescriptionOnUpload]="true"></src-tip-upload-wbfile>
 
                 <ng-container *ngIf="tip && tip.context">
                     <src-tip-eo-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle"

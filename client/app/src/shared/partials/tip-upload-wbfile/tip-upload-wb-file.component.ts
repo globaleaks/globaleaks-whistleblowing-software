@@ -16,6 +16,7 @@ export class TipUploadWbFileComponent{
   @Input() key: string;
   @Input() canUpload: boolean = true;
   @Input() organizations: Forwarding[] = [];
+  @Input() disableDescriptionOnUpload: boolean = false;
 
   @Input() onlyNew: boolean = false;
 
@@ -120,7 +121,7 @@ export class TipUploadWbFileComponent{
     this.showError = false;
   }
 
-
-
-
+  isUploadDisabled(): boolean {
+    return this.key === 'eo' && (!this.organizations || this.organizations.length === 0);
+  }
 }

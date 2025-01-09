@@ -21,8 +21,6 @@ export class SendTipFileUploadComponent {
 
   collapsed = false;
 
-  newFileDescription: string = "";
-
   constructor(protected utilsService: UtilsService, protected authenticationService: AuthenticationService, protected appDataService: AppDataService, private cdr: ChangeDetectorRef, protected httpService: HttpService) { }
 
   addFile(files: FileList | null) {
@@ -32,7 +30,7 @@ export class SendTipFileUploadComponent {
       const file = files[0];
       let item: FileItem = {
         file: file,
-        description: this.newFileDescription,
+        description: '',
         id: 'uuid-' + (Math.random() * 10000).toFixed(0),
         name: file.name,
         status: 'PENDING', 
@@ -42,7 +40,6 @@ export class SendTipFileUploadComponent {
       }
       this.files.push(item);
       this.filesChange.emit(this.files);
-      this.newFileDescription = "";
   }
 }
 
