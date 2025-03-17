@@ -1,7 +1,6 @@
-
 from globaleaks import __version__, DATABASE_VERSION
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import datetime_never, uuid4
+from globaleaks.utils.utility import uuid4
 
 
 class Item:
@@ -58,6 +57,7 @@ ConfigDescriptor = {
     'escrow': Bool(default=False),
     'hostname': Unicode(default=''),
     'https_admin': Bool(default=True),
+    'https_accreditor': Bool(default=True),
     'https_analyst': Bool(default=True),
     'https_cert': Unicode(),
     'https_chain': Unicode(),
@@ -68,6 +68,12 @@ ConfigDescriptor = {
     'https_selfsigned_key': Unicode(),
     'https_selfsigned_cert': Unicode(),
     'https_whistleblower': Bool(default=True),
+    'idp': Bool(default=False),
+    'idp_issuer': Unicode(default=''),
+    'idp_redirectUri': Unicode(default=''),
+    'idp_clientId': Unicode(default=''),
+    'idp_responseType': Unicode(default=''),
+    'idp_scope': Unicode(default='code'),
     'ip_filter_admin': Unicode(default=''),
     'ip_filter_admin_enable': Bool(default=False),
     'ip_filter_analyst': Unicode(default=''),
@@ -99,6 +105,14 @@ ConfigDescriptor = {
     'smtp_server': Unicode(default='mail.globaleaks.org'),
     'smtp_source_email': Unicode(default='notifications@globaleaks.org'),
     'smtp_username': Unicode(default='globaleaks'),
+    'smtp2_password': Unicode(default=''),
+    'smtp2_port': Int(default=587),
+    'smtp2_security': Unicode(default=''),
+    'smtp2_authentication': Bool(default=False),
+    'smtp2_server': Unicode(default=''),
+    'smtp2_enabled': Bool(default=False),
+    'smtp2_source_email': Unicode(default=''),
+    'smtp2_username': Unicode(default=''),
     'subdomain': Unicode(default=''),
     'threshold_free_disk_megabytes_high': Int(default=200),
     'threshold_free_disk_megabytes_low': Int(default=1000),
@@ -117,7 +131,18 @@ ConfigDescriptor = {
     'version': Unicode(default=str(__version__)),
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
-    'uuid': Unicode(default=uuid4)
+    'uuid': Unicode(default=uuid4),
+    'antivirus_enabled': Bool(default=False),
+    'antivirus_clamd_ip': Unicode(default='localhost'),
+    'antivirus_clamd_port': Int(default=3310),
+    'max_msg_external_to_whistle': Int(default=1),
+    'max_msg_external_to_whistle_not_aff': Int(default=1),
+    'forwarding_enabled': Bool(default=False),
+    'proxy_idp_enabled': Bool(default=False),
+    'global_stat_pub_key': Unicode(default=''),
+    'backup_enabled': Bool(default=False),
+    'backup_time': Unicode(default='2:00'),
+    'backup_path': Unicode(default='/var/backup/')
 }
 
 
@@ -147,6 +172,7 @@ ConfigFilters = {
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor',
         'https_custodian',
         'https_enabled',
         'https_receiver',
@@ -191,7 +217,17 @@ ConfigFilters = {
         'version',
         'version_db',
         'wizard_done',
-        'uuid'
+        'uuid',
+        'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff',
+        'backup_path',
+        'backup_time',
+        'antivirus_enabled',
+        'backup_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port',
+        'forwarding_enabled',
+        'proxy_idp_enabled'
     ],
     'admin_node': [
         'acme',
@@ -243,13 +279,24 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'unread_reminder_time'
+        'unread_reminder_time',
+        'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff',
+        'forwarding_enabled',
+        'proxy_idp_enabled',
+        'backup_path',
+        'backup_enabled',
+        'backup_time',
+        'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port'
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor',
         'https_custodian',
         'https_receiver',
         'https_whistleblower',
@@ -290,7 +337,15 @@ ConfigFilters = {
         'smtp_server',
         'smtp_source_email',
         'smtp_username',
-        'tip_expiration_threshold'
+        'tip_expiration_threshold',
+        'smtp2_password',
+        'smtp2_port',
+        'smtp2_security',
+        'smtp2_server',
+        'smtp2_enabled',
+        'smtp2_source_email',
+        'smtp2_username',
+        'smtp2_authentication'
     ],
     'public_node': [
         'adminonly',
@@ -318,6 +373,15 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
+        'uuid',
+        'forwarding_enabled',
+        'proxy_idp_enabled',
+        'antivirus_enabled',
+        'backup_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port',
+        'max_msg_external_to_whistle',
+        'max_msg_external_to_whistle_not_aff'
     ],
     'tenant': [
         'hostname',
@@ -349,7 +413,7 @@ ConfigL10NFilters = {
         'signup_tos2_text',
         'signup_tos2_checkbox_label',
         'user_privacy_policy_text',
-        'user_privacy_policy_url',
+        'user_privacy_policy_url'
     ],
 
     'notification': [
@@ -406,7 +470,21 @@ ConfigL10NFilters = {
         'tip_update_mail_title',
         'unread_tips_mail_template',
         'unread_tips_mail_title',
-        'user_credentials'
+        'user_credentials',
+        'sign_up_external_organization_mail_template',
+        'sign_up_external_organization_mail_title',
+        'accreditor_signup_external_organization_alert_mail_template',
+        'accreditor_signup_external_organization_alert_mail_title',
+        'sign_up_external_organization_info_mail_title',
+        'sign_up_external_organization_info_mail_template',
+        'new_user_recipient_signup_external_organization_alert_mail_template',
+        'new_user_recipient_signup_external_organization_alert_mail_title',
+        'new_user_admin_signup_external_organization_alert_mail_template',
+        'new_user_admin_signup_external_organization_alert_mail_title',
+        'close_forwarding_external_organization_mail_template',
+        'close_forwarding_external_organization_mail_title',
+        'delete_user_external_organization_mail_template',
+        'delete_user_external_organization_mail_title'
     ]
 }
 
