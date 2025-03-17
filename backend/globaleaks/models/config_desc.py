@@ -38,6 +38,8 @@ ConfigDescriptor = {
     'custom_support_url': Unicode(default=''),
     'crypto_escrow_prv_key': Unicode(default=''),
     'crypto_escrow_pub_key': Unicode(default=''),
+    'crypto_stat_prv_key': Unicode(default=''),
+    'crypto_stat_pub_prv': Unicode(default=''),
     'default_language': Unicode(default='en'),
     'default_questionnaire': Unicode(default='default'),
     'description': Unicode(default='Secure reporting platform based on GlobaLeaks free and open-source whistleblowing software.'),
@@ -135,11 +137,7 @@ ConfigDescriptor = {
     'antivirus_enabled': Bool(default=False),
     'antivirus_clamd_ip': Unicode(default='localhost'),
     'antivirus_clamd_port': Int(default=3310),
-    'max_msg_external_to_whistle': Int(default=1),
-    'max_msg_external_to_whistle_not_aff': Int(default=1),
     'forwarding_enabled': Bool(default=False),
-    'proxy_idp_enabled': Bool(default=False),
-    'global_stat_pub_key': Unicode(default=''),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='2:00'),
     'backup_path': Unicode(default='/var/backup/')
@@ -218,16 +216,13 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'max_msg_external_to_whistle',
-        'max_msg_external_to_whistle_not_aff',
         'backup_path',
         'backup_time',
         'antivirus_enabled',
         'backup_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
-        'forwarding_enabled',
-        'proxy_idp_enabled'
+        'forwarding_enabled'
     ],
     'admin_node': [
         'acme',
@@ -280,8 +275,6 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'unread_reminder_time',
-        'max_msg_external_to_whistle',
-        'max_msg_external_to_whistle_not_aff',
         'forwarding_enabled',
         'proxy_idp_enabled',
         'backup_path',
@@ -379,9 +372,7 @@ ConfigFilters = {
         'antivirus_enabled',
         'backup_enabled',
         'antivirus_clamd_ip',
-        'antivirus_clamd_port',
-        'max_msg_external_to_whistle',
-        'max_msg_external_to_whistle_not_aff'
+        'antivirus_clamd_port'
     ],
     'tenant': [
         'hostname',
@@ -470,21 +461,7 @@ ConfigL10NFilters = {
         'tip_update_mail_title',
         'unread_tips_mail_template',
         'unread_tips_mail_title',
-        'user_credentials',
-        'sign_up_external_organization_mail_template',
-        'sign_up_external_organization_mail_title',
-        'accreditor_signup_external_organization_alert_mail_template',
-        'accreditor_signup_external_organization_alert_mail_title',
-        'sign_up_external_organization_info_mail_title',
-        'sign_up_external_organization_info_mail_template',
-        'new_user_recipient_signup_external_organization_alert_mail_template',
-        'new_user_recipient_signup_external_organization_alert_mail_title',
-        'new_user_admin_signup_external_organization_alert_mail_template',
-        'new_user_admin_signup_external_organization_alert_mail_title',
-        'close_forwarding_external_organization_mail_template',
-        'close_forwarding_external_organization_mail_title',
-        'delete_user_external_organization_mail_template',
-        'delete_user_external_organization_mail_title'
+        'user_credentials'
     ]
 }
 

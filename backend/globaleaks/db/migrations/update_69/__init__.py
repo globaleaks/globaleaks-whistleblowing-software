@@ -178,255 +178,44 @@ class User_v_68(Model):
 
 
 class MigrationScript(MigrationBase):
-    def add_global_stat_prv_key_to_users(self, global_stat_prv_key):
+    def add_encryption_keys_for_statistics(self):
+        root_tenant_escrow_pub = self.session_old.query(self.model_from['Config'].value).filter(self.model_from['Config'].tid == 1, self.model_from['Config'].var_name == 'crypto_escrow_pub_key').one()[0]
+
+        keys = {}
+
+        for t in self.session_new.query(self.model_to['Tenant']):
+            crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+
+            config = self.model_to['Config']()
+            config.var_name = 'crypto_global_stat_pub_key'
+            config.value = crypto_stat_pub_key
+            config.tid = t.id
+            self.session_new.add(config)
+
+            if t.id != 1 and root_tenant_escrow_pub:
+                _prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_escrow_pub, crypto_stat_prv_key))
+            else:
+                _prv_key = ''
+
+            config = self.model_to['Config']()
+            config.var_name = 'crypto_global_stat_prv_key'
+            config.value = _prv_key
+            config.tid = t.id
+            self.session_new.add(config)
+
+            keys[t.id] = crypto_stat_prv_key
+
+            self.entries_count['Config'] += 2
+
         users = self.session_new.query(self.model_from['User']) \
-                                .filter(self.model_from['User'].tid == 1)\
                                 .filter(self.model_from['User'].role.in_([EnumUserRole.admin.name, EnumUserRole.analyst.name]))
 
         for user in users:
             crypto_stat_key = Base64Encoder.encode(
-                GCE.asymmetric_encrypt(user.crypto_pub_key, global_stat_prv_key)).decode()
+                GCE.asymmetric_encrypt(user.crypto_pub_key, keys[user.tid])).decode()
             self.session_new.query(models.User) \
                                 .filter(models.User.id == user.id)\
                                 .update({'crypto_global_stat_prv_key': crypto_stat_key})
 
-    def add_global_stat_keys(self):
-        global_stat_prv_key, global_stat_pub_key = GCE.generate_keypair()
-        global_stat_pub_key_config = self.model_to['Config']()
-        global_stat_pub_key_config.var_name = 'global_stat_pub_key'
-        global_stat_pub_key_config.value = global_stat_pub_key
-        global_stat_pub_key_config.tid = 1
-        self.session_new.add(global_stat_pub_key_config)
-        self.entries_count['Config'] += 1
-        self.add_global_stat_prv_key_to_users(global_stat_prv_key)
-        
-    def add_file_analisys_configs(self):
-        antivirus_clamd_ip_config = self.model_to['Config']()
-        antivirus_clamd_ip_config.var_name = 'antivirus_clamd_ip'
-        antivirus_clamd_ip_config.value = 'localhost'
-        antivirus_clamd_ip_config.tid = 1
-        self.session_new.add(antivirus_clamd_ip_config)
-        self.entries_count['Config'] += 1
-        antivirus_clamd_port_config = self.model_to['Config']()
-        antivirus_clamd_port_config.var_name = 'antivirus_clamd_port'
-        antivirus_clamd_port_config.value = 3310
-        antivirus_clamd_port_config.tid = 1
-        self.session_new.add(antivirus_clamd_port_config)
-        self.entries_count['Config'] += 1
-        antivirus_enabled_config = self.model_to['Config']()
-        antivirus_enabled_config.var_name = 'antivirus_enabled'
-        antivirus_enabled_config.value = False
-        antivirus_enabled_config.tid = 1
-        self.session_new.add(antivirus_enabled_config)
-        self.entries_count['Config'] += 1
-
-    def add_external_organization_configs(self):
-        add_config = self.model_to['Config']()
-        add_config.var_name = 'max_msg_external_to_whistle'
-        add_config.value = 1
-        add_config.tid = 1
-        self.session_new.add(add_config)
-        self.entries_count['Config'] += 1
-
-        add_config = self.model_to['Config']()
-        add_config.var_name = 'max_msg_external_to_whistle_not_aff'
-        add_config.value = 1
-        add_config.tid = 1
-        self.session_new.add(add_config)
-        self.entries_count['Config'] += 1
-
-        forwarding_enabled = self.model_to['Config']()
-        forwarding_enabled.var_name = 'forwarding_enabled'
-        forwarding_enabled.value = False
-        forwarding_enabled.tid = 1
-        self.session_new.add(forwarding_enabled)
-        self.entries_count['Config'] += 1
-
-        proxy_idp_enabled_config = self.model_to['Config']()
-        proxy_idp_enabled_config.var_name = 'proxy_idp_enabled'
-        proxy_idp_enabled_config.value = True
-        proxy_idp_enabled_config.tid = 1
-        self.session_new.add(proxy_idp_enabled_config)
-        self.entries_count['Config'] += 1
-
-
-    def add_smtp2_mail_configs(self):
-        for i in ['smtp2_password', 'smtp2_security', 'smtp2_server', 'smtp2_source_email', 'smtp2_username']:
-            smtp_2_config = self.model_to['Config']()
-            smtp_2_config.var_name = i
-            smtp_2_config.value = ''
-            smtp_2_config.tid = 1
-            self.session_new.add(smtp_2_config)
-            self.entries_count['Config'] += 1
-        
-        for i in ['smtp2_authentication', 'smtp2_enabled']:
-            smtp_2_config = self.model_to['Config']()
-            smtp_2_config.var_name = i
-            smtp_2_config.value = False
-            smtp_2_config.tid = 1
-            self.session_new.add(smtp_2_config)
-            self.entries_count['Config'] += 1
-            
-        smtp_2_config = self.model_to['Config']()
-        smtp_2_config.var_name = 'smtp2_port'
-        smtp_2_config.value = 3310
-        smtp_2_config.tid = 1
-        self.session_new.add(smtp_2_config)
-        self.entries_count['Config'] += 1
-
-        for lan in ['en', 'it']:
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'new_user_recipient_signup_external_organization_alert_mail_title'
-            template_mail_config.value = 'Access instructions'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'new_user_recipient_signup_external_organization_alert_mail_template'
-            template_mail_config.value = 'Dear {RecipientName},\nYour platform {ExternalOrganizationName} is now accessible at:\n{Url}\nTo log in, visit:\n{LoginUrl}\nUsers credentials:\n{RecipientCredentials}\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'new_user_admin_signup_external_organization_alert_mail_title'
-            template_mail_config.value = 'Access instructions'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'new_user_admin_signup_external_organization_alert_mail_template'
-            template_mail_config.value = 'Dear {Name},\nYour platform {ExternalOrganizationName} is now accessible at:\n{Url}\nTo log in, visit:\n{LoginUrl}\nUsers credentials:\n{AdminCredentials}\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'accreditor_signup_external_organization_alert_mail_template'
-            template_mail_config.value = 'A new external organization has been accredited.\n\nAccreditation data:\n\nid: {AccreditationId}\n\nName: {AccreditationName}\n\nStatus: {AccreditationStatus}\n\nregards,\n\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'accreditor_signup_external_organization_alert_mail_title'
-            template_mail_config.value = 'An new external organization has been accredited.'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'sign_up_external_organization_mail_title'
-            template_mail_config.value = 'external organization confirm accreditation'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'sign_up_external_organization_mail_template'
-            template_mail_config.value = 'Dear {RecipientName},\n\nYour accreditation request is in status: {AccreditationStatus}\n\nClick the link to confirm the request:\n\n{ActivationUrl}\n\nKind regards,\n\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'sign_up_external_organization_info_mail_title'
-            template_mail_config.value = 'external organization request accreditation'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'sign_up_external_organization_info_mail_template'
-            template_mail_config.value = 'Dear {RecipientName},\n\nYour accreditation request is in status: {AccreditationStatus}\n\n{AccreditationMotivationText}\n\nKind regards,\n\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'close_forwarding_external_organization_mail_title'
-            template_mail_config.value = 'Closed forwarding'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'close_forwarding_external_organization_mail_template'
-            template_mail_config.value = 'Dear {RecipientName},\nThe forwarded submission with ID {OriginalTipId} to the external organization {ExternalOrganizationName} has been closed.\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'delete_user_external_organization_mail_title'
-            template_mail_config.value = 'User deleted'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-            template_mail_config = self.model_to['ConfigL10N']()
-            template_mail_config.tid = 1
-            template_mail_config.lang = lan
-            template_mail_config.var_name = 'delete_user_external_organization_mail_template'
-            template_mail_config.value = 'Dear {Username},\nYour account associated with the external organization {ExternalOrganizationName} has been deleted.\nFor the user documentation, visit:\n{DocumentationUrl}\nKind regards,\n{NodeName}'
-            template_mail_config.update_date = datetime_now()
-            self.session_new.add(template_mail_config)
-            self.entries_count['ConfigL10N'] += 1
-
-    def add_backup_configs(self):
-        backup_enabled_config = self.model_to['Config']()
-        backup_enabled_config.var_name = 'backup_enabled'
-        backup_enabled_config.value = False
-        backup_enabled_config.tid = 1
-        self.session_new.add(backup_enabled_config)
-        self.entries_count['Config'] += 1
-
-        backup_time_config = self.model_to['Config']()
-        backup_time_config.var_name = 'backup_time'
-        backup_time_config.value = '2:00'
-        backup_time_config.tid = 1
-        self.session_new.add(backup_time_config)
-        self.entries_count['Config'] += 1
-
-        backup_path_config = self.model_to['Config']()
-        backup_path_config.var_name = 'backup_path'
-        backup_path_config.value = '/var/backup/'
-        backup_path_config.tid = 1
-        self.session_new.add(backup_path_config)
-        self.entries_count['Config'] += 1
-
     def epilogue(self):
-        self.add_external_organization_configs()
-        self.add_file_analisys_configs()
-        self.add_global_stat_keys()
-        self.add_backup_configs()
-        self.add_smtp2_mail_configs()
+        self.add_encryption_keys_for_statistics()

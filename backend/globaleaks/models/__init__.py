@@ -923,7 +923,7 @@ class _Subscriber(Model):
     phone = Column(UnicodeText, default='', nullable=False)
     email = Column(UnicodeText, nullable=False)
     tax_code = Column(UnicodeText, nullable=True)
-    organization_name = Column(UnicodeText, default='', nullable=False, unique=True)
+    organization_name = Column(UnicodeText, default='', nullable=False)
     organization_tax_code = Column(UnicodeText, unique=True, nullable=True)
     organization_vat_code = Column(UnicodeText, unique=True, nullable=True)
     organization_location = Column(UnicodeText, default='', nullable=False)
@@ -979,20 +979,11 @@ class _Tenant(Model):
 
 class _InternalTipForwarding(Model):
     """
-        This model keeps track of forward tip.
-        """
+    This model keeps track of forward tip.
+    """
     __tablename__ = 'internaltip_forwarding'
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    tid = Column(Integer, default=1, nullable=False)
-    creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    update_date = Column(DateTime, default=datetime_now, nullable=False)
-    data = Column(UnicodeText, default='{}', nullable=False)
-    questionnaire_id = Column(UnicodeText(36), nullable=False, index=True)
-    state = Column(Enum(EnumForwardingState), default='open', nullable=False)
-    stat_data = Column(UnicodeText, default='{}', nullable=False)
-    questionnaire_hash = Column(UnicodeText(64), nullable=True)
+    internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
 
     @declared_attr
     def __table_args__(self):
@@ -1007,20 +998,6 @@ class _InternalTipForwarding(Model):
             ForeignKeyConstraint(
                 ['forwarding_internaltip_id'],
                 ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['questionnaire_id'],
-                ['questionnaire.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['tid'],
-                ['tenant.id'],
                 ondelete='CASCADE',
                 deferrable=True,
                 initially='DEFERRED'
