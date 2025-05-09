@@ -161,7 +161,7 @@ Fingerprint
 First
 Fiscal code
 Footer
-For security reasons the code needs to be changed.
+For security reasons, the code needs to be changed.
 For security reasons, password changes are required at regular intervals.
 For the user documentation, visit:
 Forbidden operation
