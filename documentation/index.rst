@@ -1,7 +1,7 @@
 Documentation
 =============
 
-.. note:: This documentation is thank to the support of our community. Join us and contribute with your additions and suggestion. In any of the page you find a link that enables you to provide suggestions and corrections. We remind you that in case of any software issue or bug you may always report on the `ticketing system <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_.
+.. note:: This documentation is made possible thanks to the support of our community. Join us and contribute with your additions and suggestions. On any page, you will find a link that allows you to provide feedback and corrections. If you encounter any software issues or bugs, please report them through our `ticketing system <https://github.com/globaleaks/globaleaks-whistleblowing-software/issues>`_.
 
 .. toctree::
   gettingstarted/index.rst
