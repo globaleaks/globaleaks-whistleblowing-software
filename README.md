@@ -53,7 +53,7 @@ A big thank you to everyone who has already [contributed](https://github.com/glo
 
 ## Brand Guidelines and Brand Assets
 Within the GlobaLeaks project we researched a nice and smooth brand style, using accessible colors and trying to communicate our values.
-If you are planning some press releases, a conference, or promoting GlobaLeaks please keep at reference our official [Brand Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/globaleaks-brand-guidelines.pdf) and use our [Brand Assets](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/assets/).
+If you are planning some press releases, a conference, or promoting GlobaLeaks please refer to our official [Brand Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/globaleaks-brand-guidelines.pdf) and use our [Brand Assets](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/assets/).
 
 ## License
 GlobaLeaks is released under the [AGPLv3 license](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/LICENSE) with [additional terms](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/LICENSE#L679) allowed under section 7 of the AGPLv3. These terms are designed to make whistleblowers aware of the technology they are using and to enhance administrators' responsibility in keeping systems up-to-date.
