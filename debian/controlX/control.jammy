@@ -33,6 +33,7 @@ Depends:
   python3-openssl,
   python3-gnupg,
   python3-priority,
+  python3-pyclamd,
   python3-pyotp,
   python3-six,
   python3-sqlalchemy,

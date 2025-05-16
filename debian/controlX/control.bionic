@@ -28,6 +28,7 @@ Depends:
   lsb-base,
   python3-acme (>=0.25.1),
   python3-brotli,
+  python3-pyclamd,
   python3-cryptography (>=2.6),
   python3-h2,
   python3-nacl (>= 1.2),

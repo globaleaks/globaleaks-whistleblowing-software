@@ -5,8 +5,9 @@ h2==4.0.0
 idna==2.10
 josepy==1.2.0
 priority==1.3.0
-pyopenSSL==20.0.1
+pyclamd==0.4.0
 pynacl==1.4.0
+pyopenSSL==20.0.1
 pyotp==2.3.0
 python_gnupg==0.4.6
 six==1.16
