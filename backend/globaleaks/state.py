@@ -136,6 +136,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         os.umask(0o77)
         self.settings.eval_paths()
         self.create_directories()
+        self.create_configs()
         self.csp_report_log = openLogFile(Settings.csp_report_file, Settings.log_file_size, Settings.num_log_files)
 
     def set_orm_tp(self, orm_tp):
@@ -176,8 +177,35 @@ class StateClass(ObjectDict, metaclass=Singleton):
                         self.settings.attachments_path,
                         self.settings.ramdisk_path,
                         self.settings.tmp_path,
-                        self.settings.log_path]:
+                        self.settings.log_path,
+                        self.settings.antivirus_path,
+                        self.settings.antivirus_db_path,
+                        self.settings.antivirus_tmp_path]:
             self.create_directory(dirpath)
+
+    def create_configs(self):
+        temp_dir = self.settings.antivirus_tmp_path
+        db_dir = self.settings.antivirus_db_path
+        socket = os.path.join(self.settings.antivirus_path, 'clamd.sock')
+        group_id = os.getgid()
+        config_content = (
+            f"TemporaryDirectory {temp_dir}\n"
+            f"DatabaseDirectory {db_dir}\n"
+            f"LocalSocket {socket}\n"
+            f"LocalSocketGroup {group_id}\n"
+            f"LocalSocketMode 660\n"
+        )
+        with open(self.settings.conf_clamd, "w") as config_file:
+            config_file.write(config_content)
+
+        config_content = (
+            f"DatabaseDirectory {db_dir}\n"
+            f"NotifyClamd {self.settings.conf_clamd}\n"
+            f"DatabaseMirror database.clamav.net"
+
+        )
+        with open(self.settings.conf_freshclam, "w") as config_file:
+            config_file.write(config_content)
 
     def bind_tcp_ports(self):
         # Allocate local ports

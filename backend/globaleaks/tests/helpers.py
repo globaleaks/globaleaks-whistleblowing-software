@@ -627,7 +627,7 @@ class TestGL(unittest.TestCase):
         self.dummyNode = dummyStuff.dummyNode
 
         self.assertEqual(os.listdir(Settings.attachments_path), [])
-        self.assertEqual(os.listdir(Settings.tmp_path), [])
+        self.assertEqual(os.listdir(Settings.tmp_path), ['antivirus'])
 
     def get_dummy_user(self, role, username):
         new_u = dict(MockDict().dummyUser)

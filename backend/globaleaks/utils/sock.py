@@ -4,6 +4,8 @@ import socket
 from twisted.internet import abstract
 from twisted.protocols import tls
 
+from urllib.parse import urlparse
+
 
 def isIPAddress(hostname):
     return abstract.isIPAddress(hostname) or abstract.isIPv6Address(hostname)
@@ -44,3 +46,14 @@ def reserve_tcp_socket(ip, port):
         return [sock, None]
     except Exception as err:
         return [None, err]
+
+
+def parse_endpoint(endpoint):
+    parsed = urlparse(endpoint)
+
+    if parsed.scheme == 'unix':
+        return {'type': 'unix', 'path': parsed.path}
+    elif parsed.scheme == 'tcp':
+        return {'type': 'tcp', 'host': parsed.hostname, 'port': parsed.port}
+    else:
+        raise ValueError(f"Unsupported socket type: {parsed.scheme}")

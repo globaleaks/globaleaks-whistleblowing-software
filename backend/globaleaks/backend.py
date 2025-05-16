@@ -10,7 +10,7 @@ from twisted.python.log import addObserver
 from twisted.web import resource, server
 
 from globaleaks.jobs import job, jobs_list
-from globaleaks.services import tor
+from globaleaks.services import antivirus, tor
 
 from globaleaks.db import create_db, initialize_db, update_db, \
     sync_refresh_tenant_cache, sync_initialize_snimap
@@ -53,6 +53,9 @@ class Service(service.Service):
     def start_jobs(self):
         for j in jobs_list:
             self.state.jobs.append(j())
+
+        self.state.antivirus = antivirus.Clamd()
+        self.state.services.append(self.state.antivirus)
 
         self.state.tor = tor.Tor()
         self.state.services.append(self.state.tor)
