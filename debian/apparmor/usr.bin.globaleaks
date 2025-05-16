@@ -31,6 +31,9 @@ profile usr.bin.globaleaks flags=(attach_disconnected) {
     /usr/bin/gpg ix,
     /usr/bin/tor ix,
 
+    /usr/sbin/clamd Px -> globaleaks_usr.sbin.clamd,
+    /usr/bin/freshclam Px -> globaleaks_usr.bin.freshclam,
+
     /usr/ r,
     /usr/share/** r,
 

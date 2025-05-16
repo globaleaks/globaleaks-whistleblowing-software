@@ -2,4 +2,4 @@ LICENSE usr/share/globaleaks/
 CHANGELOG usr/share/globaleaks/
 backend/default usr/share/globaleaks
 client/build/* usr/share/globaleaks/client
-debian/apparmor/usr.bin.globaleaks etc/apparmor.d/
+debian/apparmor/* etc/apparmor.d/

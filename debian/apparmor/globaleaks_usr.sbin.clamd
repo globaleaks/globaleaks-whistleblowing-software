@@ -1,0 +1,30 @@
+#include <tunables/global>
+
+profile globaleaks_usr.sbin.clamd flags=(attach_disconnected) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+
+  capability dac_override,
+
+  @{PROC}/filesystems r,
+  @{PROC}/[0-9]*/status r,
+
+  # ClamAV binary
+  /usr/sbin/clamd mr,
+
+  # ClamAV database
+  /var/globaleaks/antivirus/ r,
+  /var/globaleaks/antivirus/** r,
+
+  # Temporary files for stream scanning
+  /var/globaleaks/tmp/clamav rw,
+  /tmp/globaleaks/tmp/clamav/** rw,
+
+  # Explicitly allow only Unix domain sockets
+  network unix,
+
+  # Explicitly deny all other network types (INet, INet6)
+  deny network inet,
+  deny network inet6,
+}

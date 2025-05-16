@@ -1,0 +1,19 @@
+#include <tunables/global>
+
+profile globaleaks_usr.bin.freshclam flags=(attach_disconnected) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/user-tmp>
+  #include <abstractions/openssl>
+
+  capability dac_override,
+
+  @{PROC}/filesystems r,
+  owner @{PROC}/[0-9]*/status r,
+
+  /usr/bin/freshclam mr,
+
+  # ClamAV database
+  /var/globaleaks/antivirus/ r,
+  /var/globaleaks/antivirus/** krw,
+}
