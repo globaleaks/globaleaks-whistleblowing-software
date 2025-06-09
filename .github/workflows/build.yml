@@ -80,8 +80,26 @@ jobs:
 
           WORKDIR /workspace
           COPY . .
-          RUN chmod +x scripts/build.sh
-          CMD ["bash", "-c", "./scripts/build.sh -d ${{ matrix.distribution }} -n -l && cp build/${{ matrix.distribution }}/*.deb /output/"]
+          
+          # Build directly without using build.sh
+          RUN mkdir -p build/src && \
+              cp -r . build/src/ && \
+              cd build/src && \
+              # Remove any existing control files
+              rm -f debian/control backend/requirements.txt && \
+              # Set compat version based on distribution
+              (if [ "${{ matrix.distribution }}" = "bionic" ]; then echo 10 > debian/compat; else echo 12 > debian/compat; fi) && \
+              # Copy distribution-specific files
+              cp debian/controlX/control.${{ matrix.distribution }} debian/control && \
+              cp backend/requirements/requirements-${{ matrix.distribution }}.txt backend/requirements.txt && \
+              # Update changelog for distribution
+              sed -i "s/stable; urgency=/${{ matrix.distribution }}; urgency=/g" debian/changelog && \
+              # Build client
+              (cd client && npm install -d && ./node_modules/grunt/bin/grunt build) && \
+              # Build package
+              debuild -i -us -uc -b
+          
+          CMD ["bash", "-c", "cp build/*.deb /output/ 2>/dev/null || find . -name '*.deb' -exec cp {} /output/ \\;"]
           EOF
           
           # Build the package inside Docker
@@ -112,8 +130,26 @@ jobs:
       - name: Start Docker container for testing
         run: |
           cd docker
-          # Modify docker-compose for testing
-          ./.github/workflows/scripts/setup_test_compose.sh ${{ matrix.distribution }}
+          
+          # Create docker-compose.test.yml
+          cat > docker-compose.test.yml << EOF
+          version: '3.8'
+          
+          services:
+            globaleaks:
+              image: globaleaks-test:${{ matrix.distribution }}
+              ports:
+                - "8080:8080"
+                - "8443:8443"
+              container_name: globaleaks-test-${{ matrix.distribution }}
+              healthcheck:
+                test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
+                interval: 10s
+                timeout: 5s
+                retries: 12
+                start_period: 30s
+          EOF
+          
           docker-compose -f docker-compose.test.yml up -d
           
           # Wait for service to be ready
