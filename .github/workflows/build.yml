@@ -34,17 +34,21 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           node-version: 'lts/*'
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y git docker-compose curl
+          sudo apt-get install -y git curl wget ca-certificates gnupg lsb-release
+          sudo apt-get install -y build-essential debhelper devscripts
+          sudo apt-get install -y brotli dh-apparmor
+          sudo apt-get install -y dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-sphinx
+          sudo apt-get install -y docker-compose
           
           # Install Chrome for Cypress
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -52,88 +56,51 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y google-chrome-stable
 
-      - name: Build Debian package using Docker
+      - name: Build Debian package using build.sh
         run: |
           echo "Building for distribution: ${{ matrix.distribution }}"
           
-          # Create Docker build environment
-          mkdir -p docker-build/output
+          # Set up git configuration
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           
-          # Create Dockerfile for building
-          cat > docker-build/Dockerfile << 'EOF'
-          FROM debian:${{ matrix.distribution }}-slim
-
-          # Set environment variables
-          ENV DEBIAN_FRONTEND=noninteractive
-
-          # Install build dependencies
-          RUN apt-get update -q && \
-              apt-get dist-upgrade -y && \
-              apt-get install -y git curl wget ca-certificates gnupg lsb-release && \
-              apt-get install -y build-essential debhelper devscripts && \
-              apt-get install -y brotli dh-apparmor && \
-              apt-get install -y dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-sphinx && \
-              curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-              apt-get update && \
-              apt-get install -y nodejs && \
-              apt-get clean && \
-              rm -rf /var/lib/apt/lists/*
-
-          WORKDIR /workspace
-          COPY . .
+          # Create a temporary parent directory structure that build.sh expects
+          mkdir -p ../temp-build
+          cd ../temp-build
           
-          # Prepare build directory
-          RUN echo "=== Setting up build directory ===" && \
-              mkdir -p build/src && \
-              tar --exclude='./build' -cf - . | tar -xf - -C build/src && \
-              echo "Build directory created successfully"
+          # Create the expected directory structure for local builds
+          mkdir -p globaleaks-whistleblowing-software
           
-          # Configure distribution-specific files
-          RUN echo "=== Configuring distribution files ===" && \
-              cd build/src && \
-              rm -f debian/control backend/requirements.txt && \
-              if [ "${{ matrix.distribution }}" = "bionic" ]; then echo 10 > debian/compat; else echo 12 > debian/compat; fi && \
-              echo "Compat file set: $(cat debian/compat)" && \
-              cp debian/controlX/control.${{ matrix.distribution }} debian/control && \
-              echo "Control file copied" && \
-              cp backend/requirements/requirements-${{ matrix.distribution }}.txt backend/requirements.txt && \
-              echo "Requirements file copied" && \
-              sed -i "s/stable; urgency=/${{ matrix.distribution }}; urgency=/g" debian/changelog && \
-              echo "Changelog updated"
+          # Copy the source code into the expected location
+          cp -r ../globaleaks-whistleblowing-software/* globaleaks-whistleblowing-software/
+          cp -r ../globaleaks-whistleblowing-software/.git globaleaks-whistleblowing-software/ 2>/dev/null || true
           
-          # Build client
-          RUN echo "=== Building client ===" && \
-              cd build/src/client && \
-              echo "Node version: $(node --version)" && \
-              echo "NPM version: $(npm --version)" && \
-              npm install -d && \
-              echo "NPM install completed" && \
-              ./node_modules/grunt/bin/grunt build && \
-              echo "Client build completed"
+          # Initialize git repository in the copied location if needed
+          cd globaleaks-whistleblowing-software
+          if [ ! -d .git ]; then
+            git init
+            git add .
+            git commit -m "Initial commit for build"
+          fi
           
-          # Build Debian package
-          RUN echo "=== Building Debian package ===" && \
-              cd build/src && \
-              echo "Starting debuild..." && \
-              debuild -i -us -uc -b && \
-              echo "Debuild completed successfully"
+          # Run the build script with local environment flag
+          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l
           
-          CMD ["bash", "-c", "echo 'Finding .deb files...'; find . -name '*.deb' -ls; cp build/*.deb /output/ 2>/dev/null || find . -name '*.deb' -exec cp {} /output/ \\;"]
-          EOF
+          # Copy build results back to original location
+          cp -r build ../globaleaks-whistleblowing-software/
           
-          # Build the package inside Docker
-          docker build -f docker-build/Dockerfile -t globaleaks-builder:${{ matrix.distribution }} .
-          docker run --rm -v "$(pwd)/docker-build/output:/output" globaleaks-builder:${{ matrix.distribution }}
+          # Return to original directory
+          cd ../globaleaks-whistleblowing-software
           
           # Show what was built
-          echo "Build completed. Contents of output directory:"
-          find docker-build/output/ -name "*.deb" -ls || echo "No .deb files found"
+          echo "Build completed. Looking for .deb files:"
+          find build/ -name "*.deb" -ls || echo "No .deb files found"
 
       - name: Create Docker testing environment
         run: |
           # Copy the built .deb file to docker directory
           mkdir -p docker/deb
-          cp docker-build/output/*.deb docker/deb/ || true
+          find build/ -name "*.deb" -exec cp {} docker/deb/ \;
           
           # Copy the install script to docker directory
           cp scripts/install.sh docker/
