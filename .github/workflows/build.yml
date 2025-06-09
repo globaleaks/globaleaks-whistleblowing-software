@@ -81,25 +81,43 @@ jobs:
           WORKDIR /workspace
           COPY . .
           
-          # Build directly without using build.sh
-          RUN mkdir -p build/src && \
+          # Prepare build directory
+          RUN echo "=== Setting up build directory ===" && \
+              mkdir -p build/src && \
               cp -r . build/src/ && \
-              cd build/src && \
-              # Remove any existing control files
-              rm -f debian/control backend/requirements.txt && \
-              # Set compat version based on distribution
-              (if [ "${{ matrix.distribution }}" = "bionic" ]; then echo 10 > debian/compat; else echo 12 > debian/compat; fi) && \
-              # Copy distribution-specific files
-              cp debian/controlX/control.${{ matrix.distribution }} debian/control && \
-              cp backend/requirements/requirements-${{ matrix.distribution }}.txt backend/requirements.txt && \
-              # Update changelog for distribution
-              sed -i "s/stable; urgency=/${{ matrix.distribution }}; urgency=/g" debian/changelog && \
-              # Build client
-              (cd client && npm install -d && ./node_modules/grunt/bin/grunt build) && \
-              # Build package
-              debuild -i -us -uc -b
+              echo "Build directory created successfully"
           
-          CMD ["bash", "-c", "cp build/*.deb /output/ 2>/dev/null || find . -name '*.deb' -exec cp {} /output/ \\;"]
+          # Configure distribution-specific files
+          RUN echo "=== Configuring distribution files ===" && \
+              cd build/src && \
+              rm -f debian/control backend/requirements.txt && \
+              if [ "${{ matrix.distribution }}" = "bionic" ]; then echo 10 > debian/compat; else echo 12 > debian/compat; fi && \
+              echo "Compat file set: $(cat debian/compat)" && \
+              cp debian/controlX/control.${{ matrix.distribution }} debian/control && \
+              echo "Control file copied" && \
+              cp backend/requirements/requirements-${{ matrix.distribution }}.txt backend/requirements.txt && \
+              echo "Requirements file copied" && \
+              sed -i "s/stable; urgency=/${{ matrix.distribution }}; urgency=/g" debian/changelog && \
+              echo "Changelog updated"
+          
+          # Build client
+          RUN echo "=== Building client ===" && \
+              cd build/src/client && \
+              echo "Node version: $(node --version)" && \
+              echo "NPM version: $(npm --version)" && \
+              npm install -d && \
+              echo "NPM install completed" && \
+              ./node_modules/grunt/bin/grunt build && \
+              echo "Client build completed"
+          
+          # Build Debian package
+          RUN echo "=== Building Debian package ===" && \
+              cd build/src && \
+              echo "Starting debuild..." && \
+              debuild -i -us -uc -b && \
+              echo "Debuild completed successfully"
+          
+          CMD ["bash", "-c", "echo 'Finding .deb files...'; find . -name '*.deb' -ls; cp build/*.deb /output/ 2>/dev/null || find . -name '*.deb' -exec cp {} /output/ \\;"]
           EOF
           
           # Build the package inside Docker
