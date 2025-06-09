@@ -52,20 +52,51 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y google-chrome-stable
 
-      - name: Build Debian package
+      - name: Build Debian package using Docker
         run: |
           echo "Building for distribution: ${{ matrix.distribution }}"
-          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l
+          
+          # Create Docker build environment
+          mkdir -p docker-build/output
+          
+          # Create Dockerfile for building
+          cat > docker-build/Dockerfile << 'EOF'
+          FROM debian:${{ matrix.distribution }}-slim
+
+          # Set environment variables
+          ENV DEBIAN_FRONTEND=noninteractive
+
+          # Install build dependencies
+          RUN apt-get update -q && \
+              apt-get dist-upgrade -y && \
+              apt-get install -y git curl wget ca-certificates gnupg lsb-release && \
+              apt-get install -y build-essential debhelper devscripts && \
+              apt-get install -y brotli dh-apparmor && \
+              curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+              apt-get update && \
+              apt-get install -y nodejs && \
+              apt-get clean && \
+              rm -rf /var/lib/apt/lists/*
+
+          WORKDIR /workspace
+          COPY . .
+          RUN chmod +x scripts/build.sh
+          CMD ["bash", "-c", "./scripts/build.sh -d ${{ matrix.distribution }} -n -l && cp build/${{ matrix.distribution }}/*.deb /output/"]
+          EOF
+          
+          # Build the package inside Docker
+          docker build -f docker-build/Dockerfile -t globaleaks-builder:${{ matrix.distribution }} .
+          docker run --rm -v "$(pwd)/docker-build/output:/output" globaleaks-builder:${{ matrix.distribution }}
           
           # Show what was built
-          echo "Build completed. Contents of build directory:"
-          find build/ -name "*.deb" -ls || echo "No .deb files found"
+          echo "Build completed. Contents of output directory:"
+          find docker-build/output/ -name "*.deb" -ls || echo "No .deb files found"
 
       - name: Create Docker testing environment
         run: |
           # Copy the built .deb file to docker directory
           mkdir -p docker/deb
-          cp build/${{ matrix.distribution }}/*.deb docker/deb/ || true
+          cp docker-build/output/*.deb docker/deb/ || true
           
           # Copy the install script to docker directory
           cp scripts/install.sh docker/

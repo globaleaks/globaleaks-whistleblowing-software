@@ -10,6 +10,7 @@ docker/docker-compose.test.yml
 docker/deb/
 docker/install.sh
 docker/build/
+docker-build/
 
 # Build artifacts
 build/
