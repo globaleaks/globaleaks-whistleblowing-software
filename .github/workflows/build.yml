@@ -72,6 +72,7 @@ jobs:
               apt-get install -y git curl wget ca-certificates gnupg lsb-release && \
               apt-get install -y build-essential debhelper devscripts && \
               apt-get install -y brotli dh-apparmor && \
+              apt-get install -y dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-sphinx && \
               curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
               apt-get update && \
               apt-get install -y nodejs && \
