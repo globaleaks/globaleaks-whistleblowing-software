@@ -84,7 +84,7 @@ jobs:
           # Prepare build directory
           RUN echo "=== Setting up build directory ===" && \
               mkdir -p build/src && \
-              cp -r . build/src/ && \
+              tar --exclude='./build' -cf - . | tar -xf - -C build/src && \
               echo "Build directory created successfully"
           
           # Configure distribution-specific files
