@@ -1,25 +1,119 @@
 name: Build
 
-on: [ push, pull_request ]
+on: 
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_distribution:
+        description: 'Target distribution (bookworm, noble, jammy, focal, or all)'
+        required: false
+        default: bookworm
+        type: choice
+        options:
+          - bookworm
+          - noble
+          - jammy
+          - focal
+          - all
 
 # Declare default permissions as read only.
 permissions: read-all
 
+env:
+  TARGET_DISTRIBUTION: ${{ github.event.inputs.target_distribution || 'bookworm' }}
+
 jobs:
-  run_build:
+  build_and_test:
     runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "noble", "jammy", "focal"]' || format('["{0}"]', github.event.inputs.target_distribution || 'bookworm')) }}
+    
     steps:
       - name: Check out repository code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 1
 
-      - name: Install git
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y git
+          sudo apt-get install -y git docker-compose curl
+          
+          # Install Chrome for Cypress
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
 
-      - name: Run tests
+      - name: Build Debian package
         run: |
-          cd $GITHUB_WORKSPACE
-          ./.github/workflows/scripts/run_build.sh
+          echo "Building for distribution: ${{ matrix.distribution }}"
+          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l
+          
+          # Show what was built
+          echo "Build completed. Contents of build directory:"
+          find build/ -name "*.deb" -ls || echo "No .deb files found"
+
+      - name: Create Docker testing environment
+        run: |
+          # Copy the built .deb file to docker directory
+          mkdir -p docker/deb
+          cp build/${{ matrix.distribution }}/*.deb docker/deb/ || true
+          
+          # Copy the install script to docker directory
+          cp scripts/install.sh docker/
+          
+          # Create a test Dockerfile for this distribution
+          ./.github/workflows/scripts/create_test_dockerfile.sh ${{ matrix.distribution }}
+
+      - name: Build test Docker image
+        run: |
+          cd docker
+          docker build -f Dockerfile.test -t globaleaks-test:${{ matrix.distribution }} .
+
+      - name: Start Docker container for testing
+        run: |
+          cd docker
+          # Modify docker-compose for testing
+          ./.github/workflows/scripts/setup_test_compose.sh ${{ matrix.distribution }}
+          docker-compose -f docker-compose.test.yml up -d
+          
+          # Wait for service to be ready
+          echo "Waiting for GlobaLeaks to start..."
+          timeout 120 bash -c 'until curl -k https://localhost:8443 2>/dev/null; do echo "Waiting..."; sleep 5; done'
+          echo "GlobaLeaks is ready!"
+          
+          # Show container logs for debugging
+          docker-compose -f docker-compose.test.yml logs
+
+      - name: Install Cypress dependencies
+        run: |
+          cd client
+          npm install -d
+
+      - name: Run Cypress tests
+        run: |
+          cd client
+          npx cypress run --browser chrome --config baseUrl=https://localhost:8443,chromeWebSecurity=false
+
+      - name: Stop Docker container
+        if: always()
+        run: |
+          cd docker
+          docker-compose -f docker-compose.test.yml down || true
+
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: cypress-artifacts-${{ matrix.distribution }}
+          path: |
+            client/cypress/screenshots/
+            client/cypress/videos/
