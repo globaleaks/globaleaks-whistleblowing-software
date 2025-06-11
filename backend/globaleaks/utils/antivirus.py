@@ -25,7 +25,7 @@ def wait_for_socket(path, timeout=10):
 
 
 class FileAnalysis:
-    def __init__(self, endpoint='unix:///run/clamav/clamd.ctl'):
+    def __init__(self, endpoint='unix:///var/globaleaks/antivirus/clamd.sock'):
         self._endpoint = parse_endpoint(endpoint)
 
     def _scan_file_blocking(self, file_obj) -> str:
@@ -74,8 +74,10 @@ class ProcessProtocol(protocol.ProcessProtocol):
 
 def launch_clamd(conf, unconfined=False):
     if unconfined:
+        # Production"
         args = ["aa-exec", "-p", "unconfined", "--", "/usr/sbin/clamd", "--foreground", f"--config-file={conf}"]
     else:
+        # Development
         args = ["/usr/sbin/clamd", "--foreground", f"--config-file={conf}"]
 
     pp = ProcessProtocol(name='clamd', launcher=launch_clamd)
@@ -84,11 +86,13 @@ def launch_clamd(conf, unconfined=False):
 
 
 def launch_freshclam(conf, unconfined=False):
-    # if unconfined:
-    #     args = ["aa-exec", "-p", "unconfined", "--", "/usr/bin/freshclam", "--foreground", f"--config-file={conf}"]
-    # else:
-    #     args = ["/usr/bin/freshclam", "--foreground", f"--config-file={conf}"]
-    #
-    # pp = ProcessProtocol(name='freshclam', launcher=launch_freshclam)
-    # reactor.spawnProcess(pp, executable=args[0], args=args)
+    if unconfined:
+        # Production
+        args = ["aa-exec", "-p", "unconfined", "--", "/usr/bin/freshclam", "--foreground", f"--config-file={conf}"]
+    else:
+        # Development
+        args = ["/usr/bin/freshclam", "--foreground", f"--config-file={conf}"]
+
+    pp = ProcessProtocol(name='freshclam', launcher=launch_freshclam)
+    reactor.spawnProcess(pp, executable=args[0], args=args)
     return None
