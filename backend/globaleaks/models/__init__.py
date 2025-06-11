@@ -17,6 +17,7 @@ user_permissions = [
     'can_postpone_expiration',
     'can_grant_access_to_reports',
     'can_redact_information',
+    'can_download_infected',
     'can_mask_information',
     'can_transfer_access_to_reports'
 ]
@@ -918,6 +919,8 @@ class _ReceiverFile(Model):
     description = Column(UnicodeText, default="", nullable=False)
     visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
 
 class ReceiverFile(_ReceiverFile, Base):
@@ -1203,6 +1206,7 @@ class _User(Model):
                  'can_redact_information',
                  'can_mask_information',
                  'can_transfer_access_to_reports',
+                 'can_download_infected',
                  'can_edit_general_settings',
                  'forcefully_selected',
                  'readonly',

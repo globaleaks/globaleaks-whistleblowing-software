@@ -9,6 +9,7 @@ import {DatePipe} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 
 @Component({
     selector: "src-wbfiles",
@@ -17,7 +18,8 @@ import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
     imports: [DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe]
 })
 export class WbFilesComponent implements OnInit {
-  private appDataService = inject(AppDataService);
+  protected appDataService = inject(AppDataService);
+  protected preferenceResolver = inject(PreferenceResolver);
   private cryptoService = inject(CryptoService);
   private httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);

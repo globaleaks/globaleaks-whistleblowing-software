@@ -13,6 +13,7 @@ user_permissions = [
     'can_postpone_expiration',
     'can_grant_access_to_reports',
     'can_redact_information',
+    'can_download_infected',
     'can_mask_information',
     'can_transfer_access_to_reports'
 ]

@@ -11,8 +11,8 @@ from globaleaks.jobs import anomalies, \
                             pgp_check, \
                             session_management, \
                             update_antivirus, \
-                            update_check
-
+                            update_check, \
+                            antivirus_decryptor
 jobs_list = [
     anomalies.Anomalies,
     cache_reset.CacheReset,
@@ -28,4 +28,5 @@ jobs_list = [
     session_management.SessionManagement,
     update_antivirus.UpdateAntivirus,
     update_check.UpdateCheck,
+    antivirus_decryptor.AntivirusDecryptor
 ]

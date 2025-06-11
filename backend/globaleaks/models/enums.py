@@ -52,7 +52,6 @@ class EnumStateFile(_Enum):
     verified = 1
     infected = 2
 
-
 class EnumSubscriberStatus(_Enum):
     requested = 0
     accredited = 1

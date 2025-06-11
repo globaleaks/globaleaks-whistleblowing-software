@@ -77,5 +77,6 @@ export class nodeResolverModel {
   can_postpone_expiration: boolean;
   profile:boolean;
   is_profile:boolean;
+  antivirus_enabled:boolean;
   tid: number;
 }

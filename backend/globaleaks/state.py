@@ -4,6 +4,7 @@ import sys
 import traceback
 
 from acme.errors import ValidationError
+from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
@@ -72,7 +73,6 @@ class RateLimitingDict(TempDict):
 
 RateLimitingTable = RateLimitingDict(3600)
 
-
 class TenantState(object):
     def __init__(self):
         self.cache = ObjectDict()
@@ -108,7 +108,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.jobs_monitor = None
         self.services = []
         self.tor = None
-
+        self.antivirus_files = []
+        self.antivirus_file_ids = set()
         self.exceptions = {}
         self.exceptions_email_count = 0
         self.stats_collection_start_time = datetime_now()
@@ -148,6 +149,18 @@ class StateClass(ObjectDict, metaclass=Singleton):
             return get_tor_agent(self.settings.socks_port)
 
         return get_web_agent()
+
+    def track_antivirus_files(self, tip, crypto_tip_prv_key, files_to_track=None):
+        if files_to_track is None:
+            files_to_track = set()
+
+        for file_obj in tip.get('wbfiles', []) + tip.get('rfiles', []):
+            name = file_obj.get('id')
+            if name in self.antivirus_file_ids:
+                continue
+            if name in files_to_track:
+                self.antivirus_files.append((name, crypto_tip_prv_key))
+                self.antivirus_file_ids.add(name)
 
     def create_directory(self, path):
         """

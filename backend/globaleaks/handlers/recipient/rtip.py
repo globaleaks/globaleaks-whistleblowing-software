@@ -2,10 +2,12 @@
 import copy
 import json
 import os
+import pprint
 import re
+import sys
 import time
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from nacl.encoding import Base64Encoder
 from twisted.internet.threads import deferToThread
@@ -20,6 +22,8 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import serialize_user
+
+from globaleaks.models import EnumStateFile
 from globaleaks.models import UserProfile, serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
@@ -30,6 +34,8 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
+
+from globaleaks.settings import Settings
 
 
 def db_notify_grant_access(session, user):
@@ -606,6 +612,35 @@ def db_access_rfile(session, tid, user_id, rfile_id):
                   (models.ReceiverFile.id == rfile_id,
                    models.ReceiverFile.internaltip_id.in_(itips_ids)))
 
+@transact
+def track_expired_verification_status(session, tip):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=90)
+    files_to_track = set()
+
+    for file_obj in tip.get('wbfiles', []) + tip.get('rfiles', []):
+        name = file_obj.get('id')
+        path = os.path.join(Settings.tmp_path, name)
+        validation_date = file_obj.get('verification_date')
+        status = file_obj.get('status')
+
+        if validation_date and validation_date.tzinfo is None:
+            validation_date = validation_date.replace(tzinfo=timezone.utc)
+
+        if ((not status and not validation_date and not os.path.exists(path))
+            or (validation_date and validation_date < cutoff and status!=models.EnumStateFile.pending.name)):
+            files_to_track.add(name)
+
+            if file_obj in tip.get('wbfiles', []):
+                ifile = session.query(models.InternalFile).get(name)
+                if ifile:
+                    ifile.state = models.EnumStateFile.pending.name
+            else:
+                rfile = session.query(models.ReceiverFile).get(name)
+                print(rfile, flush=True)
+                if rfile:
+                    rfile.state = models.EnumStateFile.pending.name
+
+    return files_to_track
 
 @transact
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
@@ -1179,7 +1214,9 @@ class RTipInstance(OperationHandler):
     def get(self, tip_id):
         tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, tip_id, self.request.language)
 
-        tip = yield serializers.process_logs(tip, tip['id'])
+        key = GCE.asymmetric_decrypt(self.session.cc, crypto_tip_prv_key)
+        files = yield track_expired_verification_status(tip)
+        State.track_antivirus_files(tip, key, files)
 
         if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
@@ -1267,6 +1304,13 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
                                             models.WhistleblowerFile.id == file_id))
 
+        if not any(p.permission == 'can_download_infected' for p in profile.permissions):
+            if ifile.state == EnumStateFile.infected.name:
+                raise errors.FileInfectedDownloadPermissionDenied
+
+            if ifile.state == EnumStateFile.pending.name:
+                raise errors.FilePendingDownloadPermissionDenied
+
         redaction = session.query(models.Redaction) \
                            .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
 
@@ -1345,6 +1389,13 @@ class ReceiverFileDownload(BaseHandler):
                                            models.User.id == models.ReceiverTip.receiver_id,
                                            models.ReceiverFile.id == file_id,
                                            models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
+
+            if rfile.state == EnumStateFile.infected.name:
+                raise errors.FileInfectedDownloadPermissionDenied
+
+            elif rfile.state == EnumStateFile.pending.name:
+                raise errors.FilePendingDownloadPermissionDenied
+
         except:
             raise errors.ResourceNotFound
         else:

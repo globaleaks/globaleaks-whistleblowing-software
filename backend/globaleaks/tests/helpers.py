@@ -273,6 +273,7 @@ class MockDict:
             'can_edit_general_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
+            'can_download_infected': False,
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,
@@ -371,6 +372,7 @@ class MockDict:
             'basic_auth_password': '',
             'custom_support_url': '',
             'pgp': False,
+            'antivirus_enabled': False,
             'user_privacy_policy_text': '',
             'user_privacy_policy_url': ''
         }

@@ -6,6 +6,7 @@ from nacl.encoding import Base64Encoder
 from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
+from globaleaks.models import EnumStateFile
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
@@ -228,6 +229,12 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalTip.id == user_id))
         log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
 
+        if ifile.state == EnumStateFile.infected.name:
+            raise errors.FileInfectedDownloadPermissionDenied
+
+        elif ifile.state == EnumStateFile.pending.name:
+            raise errors.FilePendingDownloadPermissionDenied
+
         return ifile.name, ifile.id, itip.crypto_tip_prv_key
 
     @inlineCallbacks
@@ -264,6 +271,12 @@ class ReceiverFileDownload(BaseHandler):
 
         if rfile.access_date == datetime_null():
             rfile.access_date = datetime_now()
+
+        if rfile.state == EnumStateFile.infected.name:
+            raise errors.FileInfectedDownloadPermissionDenied
+
+        elif rfile.state == EnumStateFile.pending.name:
+            raise errors.FilePendingDownloadPermissionDenied
 
         log.debug("Download of file %s by whistleblower %s",
                   rfile.id, self.session.user_id)

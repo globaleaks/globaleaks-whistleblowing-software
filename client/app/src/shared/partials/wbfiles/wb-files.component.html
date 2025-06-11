@@ -10,9 +10,11 @@
         </span>
         <span class="float-end">
           <span>
-            <span class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)">
+            <button class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)" [disabled]="appDataService.public.node.antivirus_enabled &&
+                                    (wbFile.status === 'PENDING' || wbFile.status === 'INFECTED') &&
+                                    !preferenceResolver.dataModel.can_download_infected">
               <i class="fa-solid fa-download"></i>
-            </span>
+            </button>
             @if (authenticationService.session?.role === 'receiver') {
               <button class="btn btn-sm btn-danger" (click)="deleteWBFile(wbFile)">
                 <i class="fa-solid fa-trash"></i>
@@ -47,5 +49,16 @@
             <span> {{wbFile.description}} </span>
           </div>
         }
+        <div>
+          <span class="px-1">{{ 'Antivirus Verification Status' | translate }}</span>:
+          @if (!wbFile.isLoading) {
+            <span>
+              {{ wbFile.status | translate }}
+              @if (wbFile.verification_date) { ({{ wbFile.verification_date }}) }
+            </span>
+          } @else {
+            <span>Loading...</span>
+          }
+        </div>
       </div>
     </div>

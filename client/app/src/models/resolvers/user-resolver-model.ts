@@ -12,6 +12,7 @@ export class UserProfile {
     can_transfer_access_to_reports: boolean;
     can_mask_information: boolean;
     can_redact_information: boolean;
+    can_download_infected: boolean;
   };
   custom: boolean;
 }

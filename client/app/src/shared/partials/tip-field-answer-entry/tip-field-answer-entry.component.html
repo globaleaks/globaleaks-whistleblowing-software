@@ -96,16 +96,46 @@
     @case ('fileupload') {
       <div>
         @for (wbFile of filteredWbFiles; track wbFile) {
-          <div class="mb-2">
-            <span>{{wbFile.name}}</span>
-            @if (utilsService.supportedViewTypes.includes(wbFile.type)) {
-              <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbFile)"><i class="fa-solid fa-eye"></i></button>
-            }
-            <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)"><i class="fa-solid fa-download"></i></button>
-          </div>
+          <ol class="selection-list w-75 mb-2">
+            <li>
+              <span class="pe-2">{{ wbFile.name }}</span>
+
+                <span class="pt-3">
+                  @if (utilsService.supportedViewTypes.includes(wbFile.type)) {
+                    <button
+                      class="ml-2 btn btn-sm btn-primary tip-action-views-file"
+                      [disabled]="appDataService.public.node.antivirus_enabled &&
+                                  ((wbFile.status === 'PENDING' || wbFile.status === 'INFECTED') &&
+                                  !(preferenceResolver.dataModel.profile &&
+                                    preferenceResolver.dataModel.profile.permissions.can_download_infected))"
+                      [ngbTooltip]="'View' | translate"
+                      (click)="utilsService.viewRFile(wbFile)">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  }
+
+                  <button
+                    class="ml-2 btn btn-sm btn-primary tip-action-download-file"
+                    [disabled]="appDataService.public.node.antivirus_enabled &&
+                                ((wbFile.status === 'PENDING' || wbFile.status === 'INFECTED') &&
+                                !(preferenceResolver.dataModel.profile &&
+                                  preferenceResolver.dataModel.profile.permissions.can_download_infected))"
+                    [ngbTooltip]="'Download' | translate"
+                    (click)="utilsService.downloadRFile(wbFile)">
+                    <i class="fa-solid fa-download"></i>
+                  </button>
+                </span>
+
+              <span class="pe-2">
+                {{ 'Antivirus Verification Status' | translate }}:
+                {{ (wbFile.status === 'PENDING' && wbFile.verification_date ? 'Verification Expired' : wbFile.status) | translate }}
+              </span>
+            </li>
+          </ol>
         }
       </div>
     }
+
     @default {
       <span class="entry-text">
         @if (entry['value']) {

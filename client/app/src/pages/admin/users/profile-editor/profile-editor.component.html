@@ -81,6 +81,10 @@
               <input class="form-check-input" name="can_delete_submission" [(ngModel)]="user.permissions.can_delete_submission" type="checkbox" [disabled]="nodeData.tid !== user.tid" />
               <label [ngClass]="{'text-gray': nodeData.tid !== user.tid}">{{ 'Allow the recipient to delete reports' | translate }}</label>
             </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_download_infected" [(ngModel)]="user.permissions.can_download_infected" type="checkbox" [disabled]="nodeData.tid !== user.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== user.tid}">{{ 'Allow the recipient to download infected file' | translate }}</label>
+            </div>
             @if (!nodeData.can_postpone_expiration) {
               <div class="form-group">
                   <input class="form-check-input" name="can_postpone_expiration" [(ngModel)]="user.permissions.can_postpone_expiration" type="checkbox" [disabled]="nodeData.tid !== user.tid" />

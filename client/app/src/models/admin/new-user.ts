@@ -6,6 +6,7 @@ export class NewUserPermissions {
   can_transfer_access_to_reports = false;
   can_mask_information = true;
   can_redact_information = false;
+  can_download_infected = false;
 }
 
 export class NewUserProfile {
