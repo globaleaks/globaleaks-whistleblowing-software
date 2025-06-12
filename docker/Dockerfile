@@ -21,15 +21,21 @@ RUN apt-get update -q && \
 
 # For local installation, the build context must contain:
 # ./deb/${DISTRIBUTION}/*.deb  (The built packages)
-# ./install.sh                (The local install script)
+# ./install-docker.sh         (The Docker-specific install script)
 COPY deb/${DISTRIBUTION} /globaleaks/deb/
-COPY install.sh /tmp/install.sh
+COPY install-docker.sh /tmp/install-docker.sh
+
+# Configure Docker-specific settings to disable sandboxing features
+RUN mkdir -p /etc/default && \
+    echo "NETWORK_SANDBOXING=0" >> /etc/default/globaleaks && \
+    echo "APPARMOR_SANDBOXING=0" >> /etc/default/globaleaks && \
+    echo "REACHABLE_VIA_WEB=0" >> /etc/default/globaleaks
 
 # Run the appropriate installation method based on INSTALL_FROM argument
 RUN if [ "${INSTALL_FROM}" = "local" ]; then \
         echo "--- Performing local installation ---"; \
-        chmod +x /tmp/install.sh && \
-        /tmp/install.sh -y -n; \
+        chmod +x /tmp/install-docker.sh && \
+        /tmp/install-docker.sh; \
     else \
         echo "--- Performing remote installation ---"; \
         wget https://deb.globaleaks.org/install-globaleaks.sh -O /tmp/install-globaleaks.sh && \
@@ -37,7 +43,7 @@ RUN if [ "${INSTALL_FROM}" = "local" ]; then \
         /tmp/install-globaleaks.sh -y -n; \
     fi && \
     # Cleanup installation files
-    rm -rf /tmp/install.sh /tmp/install-globaleaks.sh /globaleaks/deb
+    rm -rf /tmp/install-docker.sh /tmp/install-globaleaks.sh /globaleaks/deb
 
 EXPOSE 8080 8443
 

@@ -144,8 +144,8 @@ jobs:
             fi
           done
           
-          # Copy the install script to docker directory
-          cp scripts/install.sh docker/
+          # Use the Docker-specific install script
+          echo "Using Docker-specific installation script"
 
       - name: Build and start all Docker containers
         run: |
