@@ -128,12 +128,18 @@ jobs:
           # Create distribution-specific .deb directories
           for dist in "${distributions[@]}"; do
             mkdir -p docker/deb/$dist
-            if find build/$dist -name "*.deb" -print -quit | grep -q .; then
-              cp build/$dist/*.deb docker/deb/$dist/
+            # Find .deb files in the build directory structure
+            deb_files=$(find build/$dist -name "*.deb" -type f)
+            if [ -n "$deb_files" ]; then
+              echo "Found .deb files for $dist:"
+              echo "$deb_files"
+              cp $deb_files docker/deb/$dist/
               echo "Copied .deb files for $dist:"
               ls -la docker/deb/$dist/
             else
               echo "No .deb files found for $dist"
+              echo "Build directory structure:"
+              find build/$dist -type f -name "*.deb" -o -name "*.changes" -o -name "*.buildinfo" | head -20
               exit 1
             fi
           done
