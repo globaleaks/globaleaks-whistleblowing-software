@@ -3,8 +3,8 @@
 
 # Include only the necessary files
 !deb/
-!install.sh
-!Dockerfile.test*
+!install-docker.sh
+!Dockerfile*
 
 # Exclude any backup or temporary files
 *.bak
