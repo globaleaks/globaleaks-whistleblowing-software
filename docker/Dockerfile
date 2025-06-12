@@ -25,11 +25,8 @@ RUN apt-get update -q && \
 COPY deb/${DISTRIBUTION} /globaleaks/deb/
 COPY install-docker.sh /tmp/install-docker.sh
 
-# Configure Docker-specific settings to disable sandboxing features
-RUN mkdir -p /etc/default && \
-    echo "NETWORK_SANDBOXING=0" >> /etc/default/globaleaks && \
-    echo "APPARMOR_SANDBOXING=0" >> /etc/default/globaleaks && \
-    echo "REACHABLE_VIA_WEB=0" >> /etc/default/globaleaks
+# Set environment for non-interactive installation
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Run the appropriate installation method based on INSTALL_FROM argument
 RUN if [ "${INSTALL_FROM}" = "local" ]; then \
@@ -44,6 +41,11 @@ RUN if [ "${INSTALL_FROM}" = "local" ]; then \
     fi && \
     # Cleanup installation files
     rm -rf /tmp/install-docker.sh /tmp/install-globaleaks.sh /globaleaks/deb
+
+# Configure Docker-specific settings to disable sandboxing features (after installation)
+RUN echo "NETWORK_SANDBOXING=0" >> /etc/default/globaleaks && \
+    echo "APPARMOR_SANDBOXING=0" >> /etc/default/globaleaks && \
+    echo "REACHABLE_VIA_WEB=0" >> /etc/default/globaleaks
 
 EXPOSE 8080 8443
 

@@ -82,13 +82,13 @@ if [ -d /globaleaks/deb ]; then
     echo "deb file:///globaleaks/deb/ /" >> /etc/apt/sources.list.d/globaleaks.local.list
   fi
   DO "apt -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true update"
-  DO "apt-get -y --allow-unauthenticated install globaleaks"
+  DO "apt-get -y --allow-unauthenticated -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\" install globaleaks"
   
   # Skip service restart for Docker - service will be started via CMD
   echo "Skipping service restart for Docker container"
 else
   DO "apt-get update -y"
-  DO "apt-get install globaleaks -y"
+  DO "apt-get install globaleaks -y -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\""
 fi
 
 echo "GlobaLeaks Docker installation completed successfully."
