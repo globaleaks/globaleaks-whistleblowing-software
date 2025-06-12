@@ -56,111 +56,197 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y google-chrome-stable
 
-      - name: Build Debian package using build.sh
+      - name: Build packages for all distributions
         run: |
-          echo "Building for distribution: ${{ matrix.distribution }}"
+          # Get all distributions for this matrix
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            distributions=("bookworm" "noble" "jammy" "focal")
+          else
+            distributions=("${{ matrix.distribution }}")
+          fi
+          
+          echo "Building packages for distributions: ${distributions[*]}"
           
           # Set up git configuration
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           
-          # Create a temporary parent directory structure that build.sh expects
-          mkdir -p ../temp-build
-          cd ../temp-build
-          
-          # Create the expected directory structure for local builds
-          mkdir -p globaleaks-whistleblowing-software
-          
-          # Copy the source code into the expected location
-          cp -r ../globaleaks-whistleblowing-software/* globaleaks-whistleblowing-software/
-          cp -r ../globaleaks-whistleblowing-software/.git globaleaks-whistleblowing-software/ 2>/dev/null || true
-          
-          # Initialize git repository in the copied location if needed
-          cd globaleaks-whistleblowing-software
-          if [ ! -d .git ]; then
-            git init
-            git add .
-            git commit -m "Initial commit for build"
+          # Build packages for each distribution
+          for dist in "${distributions[@]}"; do
+            echo "Building for distribution: $dist"
+            
+            # Create a temporary parent directory structure that build.sh expects
+            mkdir -p ../temp-build-$dist
+            cd ../temp-build-$dist
+            
+            # Create the expected directory structure for local builds
+            mkdir -p globaleaks-whistleblowing-software
+            
+            # Copy the source code into the expected location
+            cp -r ../globaleaks-whistleblowing-software/* globaleaks-whistleblowing-software/
+            cp -r ../globaleaks-whistleblowing-software/.git globaleaks-whistleblowing-software/ 2>/dev/null || true
+            
+            # Initialize git repository in the copied location if needed
+            cd globaleaks-whistleblowing-software
+            if [ ! -d .git ]; then
+              git init
+              git add .
+              git commit -m "Initial commit for build"
+            fi
+            
+            # Run the build script with local environment flag
+            ./scripts/build.sh -d $dist -n -l
+            
+            # Copy build results back to original location with distribution-specific path
+            mkdir -p ../globaleaks-whistleblowing-software/build/$dist
+            cp -r build/* ../globaleaks-whistleblowing-software/build/$dist/
+            
+            # Return to original directory
+            cd ../globaleaks-whistleblowing-software
+            
+            # Show what was built
+            echo "Build completed for $dist. Looking for .deb files:"
+            find build/$dist -name "*.deb" -ls || echo "No .deb files found for $dist"
+          done
+
+      - name: Prepare Docker testing environment
+        run: |
+          # Create docker directory structure for all distributions
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            distributions=("bookworm" "noble" "jammy" "focal")
+          else
+            distributions=("${{ matrix.distribution }}")
           fi
           
-          # Run the build script with local environment flag
-          ./scripts/build.sh -d ${{ matrix.distribution }} -n -l
+          echo "Preparing Docker environment for: ${distributions[*]}"
           
-          # Copy build results back to original location
-          cp -r build ../globaleaks-whistleblowing-software/
-          
-          # Return to original directory
-          cd ../globaleaks-whistleblowing-software
-          
-          # Show what was built
-          echo "Build completed. Looking for .deb files:"
-          find build/ -name "*.deb" -ls || echo "No .deb files found"
-
-      - name: Create Docker testing environment
-        run: |
-          # Copy the built .deb file to docker directory
-          mkdir -p docker/deb
-          find build/ -name "*.deb" -exec cp {} docker/deb/ \;
+          # Create distribution-specific .deb directories
+          for dist in "${distributions[@]}"; do
+            mkdir -p docker/deb/$dist
+            if find build/$dist -name "*.deb" -print -quit | grep -q .; then
+              cp build/$dist/*.deb docker/deb/$dist/
+              echo "Copied .deb files for $dist:"
+              ls -la docker/deb/$dist/
+            else
+              echo "No .deb files found for $dist"
+              exit 1
+            fi
+          done
           
           # Copy the install script to docker directory
           cp scripts/install.sh docker/
-          
-          # Create a test Dockerfile for this distribution
-          ./.github/workflows/scripts/create_test_dockerfile.sh ${{ matrix.distribution }}
 
-      - name: Build test Docker image
-        run: |
-          cd docker
-          docker build -f Dockerfile.test -t globaleaks-test:${{ matrix.distribution }} .
-
-      - name: Start Docker container for testing
+      - name: Build and start all Docker containers
         run: |
           cd docker
           
-          # Create docker-compose.test.yml
-          cat > docker-compose.test.yml << EOF
-          version: '3.8'
+          # Determine distributions and compose profiles
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            distributions=("bookworm" "noble" "jammy" "focal")
+            profiles="test-bookworm,test-noble,test-jammy,test-focal"
+          else
+            distributions=("${{ matrix.distribution }}")
+            profiles="test-${{ matrix.distribution }}"
+          fi
           
-          services:
-            globaleaks:
-              image: globaleaks-test:${{ matrix.distribution }}
-              ports:
-                - "8080:8080"
-                - "8443:8443"
-              container_name: globaleaks-test-${{ matrix.distribution }}
-              healthcheck:
-                test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
-                interval: 10s
-                timeout: 5s
-                retries: 12
-                start_period: 30s
-          EOF
+          # Build and start containers using enhanced docker-compose.yml with profiles
+          echo "Building and starting Docker containers for profiles: $profiles"
+          COMPOSE_PROFILES="$profiles" docker-compose up -d --build
           
-          docker-compose -f docker-compose.test.yml up -d
-          
-          # Wait for service to be ready
-          echo "Waiting for GlobaLeaks to start..."
-          timeout 120 bash -c 'until curl -k https://localhost:8443 2>/dev/null; do echo "Waiting..."; sleep 5; done'
-          echo "GlobaLeaks is ready!"
-          
-          # Show container logs for debugging
-          docker-compose -f docker-compose.test.yml logs
+          echo "Waiting for services to be ready..."
+          for dist in "${distributions[@]}"; do
+            # Use predefined ports from docker-compose.yml
+            case $dist in
+              "bookworm") port=8443 ;;
+              "noble") port=8444 ;;
+              "jammy") port=8445 ;;
+              "focal") port=8446 ;;
+            esac
+            echo "Waiting for $dist on port $port..."
+            timeout 120 bash -c "until curl -k https://localhost:$port 2>/dev/null; do echo 'Waiting for $dist...'; sleep 5; done" || {
+              echo "Error: $dist service failed to start"
+              docker-compose logs "globaleaks-test-$dist"
+              exit 1
+            }
+            echo "✅ $dist is ready on port $port"
+          done
 
-      - name: Install Cypress dependencies
+      - name: Install Cypress dependencies efficiently
         run: |
           cd client
-          npm install -d
+          
+          # Use existing package.json with efficient installation
+          npm ci --only=dev --silent
+          
+          # Verify Cypress installation
+          npx cypress verify
+          echo "Cypress dependencies installed successfully"
 
-      - name: Run Cypress tests
+      - name: Run Cypress tests against all distributions
         run: |
           cd client
-          npx cypress run --browser chrome --config baseUrl=https://localhost:8443,chromeWebSecurity=false
+          
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            distributions=("bookworm" "noble" "jammy" "focal")
+          else
+            distributions=("${{ matrix.distribution }}")
+          fi
+          
+          # Run tests against each distribution
+          test_results=()
+          for dist in "${distributions[@]}"; do
+            # Use predefined ports from docker-compose.yml
+            case $dist in
+              "bookworm") port=8443 ;;
+              "noble") port=8444 ;;
+              "jammy") port=8445 ;;
+              "focal") port=8446 ;;
+            esac
+            
+            echo "🧪 Running Cypress tests for $dist on port $port..."
+            
+            # Run tests and capture exit code
+            if npx cypress run --browser chrome --config baseUrl=https://localhost:$port,chromeWebSecurity=false; then
+              echo "✅ Cypress tests passed for $dist"
+              test_results+=("$dist:PASS")
+            else
+              echo "❌ Cypress tests failed for $dist"
+              test_results+=("$dist:FAIL")
+            fi
+          done
+          
+          # Print comprehensive summary
+          echo ""
+          echo "🏁 Test Results Summary:"
+          echo "========================"
+          for result in "${test_results[@]}"; do
+            echo "  $result"
+          done
+          
+          # Check if any tests failed
+          if echo "${test_results[@]}" | grep -q "FAIL"; then
+            echo ""
+            echo "❌ Some tests failed"
+            exit 1
+          else
+            echo ""
+            echo "✅ All tests passed!"
+          fi
 
-      - name: Stop Docker container
+      - name: Cleanup Docker containers
         if: always()
         run: |
           cd docker
-          docker-compose -f docker-compose.test.yml down || true
+          echo "Stopping all Docker containers..."
+          
+          # Stop using the same profiles that were started
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            COMPOSE_PROFILES="test-bookworm,test-noble,test-jammy,test-focal" docker-compose down || true
+          else
+            COMPOSE_PROFILES="test-${{ matrix.distribution }}" docker-compose down || true
+          fi
+          
+          echo "Cleanup completed"
 
       - name: Upload test artifacts
         if: failure()
@@ -170,3 +256,5 @@ jobs:
           path: |
             client/cypress/screenshots/
             client/cypress/videos/
+            docker/docker-compose.test.yml
+            build/

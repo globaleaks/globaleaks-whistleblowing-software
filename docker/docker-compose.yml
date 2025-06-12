@@ -1,8 +1,33 @@
-version: '3'
+version: '3.8'
+
+# GlobaLeaks Docker Compose Configuration
+# 
+# Usage Examples:
+# 
+# Production:
+#   docker-compose up -d                                    # Start production service
+#   docker-compose --profile production up -d              # Explicit production profile
+# 
+# Testing:
+#   docker-compose --profile test-bookworm up -d --build   # Test single distribution
+#   docker-compose --profile test-all up -d --build        # Test all distributions
+#   COMPOSE_PROFILES=test-bookworm,test-noble docker-compose up -d --build  # Test multiple
+# 
+# Environment variables for testing (can be overridden):
+# DOCKERFILE: Path to Dockerfile for testing (default: Dockerfile.test)
+# TEST_PORT_BOOKWORM: Port for bookworm testing (default: 8443)
+# TEST_PORT_NOBLE: Port for noble testing (default: 8444)
+# TEST_PORT_JAMMY: Port for jammy testing (default: 8445)
+# TEST_PORT_FOCAL: Port for focal testing (default: 8446)
 
 services:
+  # Production service (default)
   globaleaks:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_FROM: remote
     restart: unless-stopped
     container_name: globaleaks
     network_mode: bridge
@@ -10,7 +35,113 @@ services:
       - globaleaks:/var/globaleaks
     ports:
       - 80:8080
+      - 8080:8080
       - 443:8443
+      - 8443:8443
+    profiles:
+      - production
+      - ""  # Default profile
+
+  # Testing services for each distribution
+  globaleaks-test-bookworm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_FROM: local
+        DISTRIBUTION: bookworm
+        BASE_IMAGE: ${BASE_IMAGE_BOOKWORM:-debian:bookworm-slim}
+    image: globaleaks-test:bookworm
+    container_name: globaleaks-test-bookworm
+    ports:
+      - "${TEST_PORT_BOOKWORM:-8443}:8443"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    environment:
+      - DISTRIBUTION=bookworm
+    profiles:
+      - testing
+      - test-bookworm
+      - test-all
+
+  globaleaks-test-noble:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_FROM: local
+        DISTRIBUTION: noble
+        BASE_IMAGE: ${BASE_IMAGE_NOBLE:-ubuntu:24.04}
+    image: globaleaks-test:noble
+    container_name: globaleaks-test-noble
+    ports:
+      - "${TEST_PORT_NOBLE:-8444}:8443"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    environment:
+      - DISTRIBUTION=noble
+    profiles:
+      - testing
+      - test-noble
+      - test-all
+
+  globaleaks-test-jammy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_FROM: local
+        DISTRIBUTION: jammy
+        BASE_IMAGE: ${BASE_IMAGE_JAMMY:-ubuntu:22.04}
+    image: globaleaks-test:jammy
+    container_name: globaleaks-test-jammy
+    ports:
+      - "${TEST_PORT_JAMMY:-8445}:8443"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    environment:
+      - DISTRIBUTION=jammy
+    profiles:
+      - testing
+      - test-jammy
+      - test-all
+
+  globaleaks-test-focal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        INSTALL_FROM: local
+        DISTRIBUTION: focal
+        BASE_IMAGE: ${BASE_IMAGE_FOCAL:-ubuntu:20.04}
+    image: globaleaks-test:focal
+    container_name: globaleaks-test-focal
+    ports:
+      - "${TEST_PORT_FOCAL:-8446}:8443"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    environment:
+      - DISTRIBUTION=focal
+    profiles:
+      - testing
+      - test-focal
+      - test-all
 
 volumes:
   globaleaks:
