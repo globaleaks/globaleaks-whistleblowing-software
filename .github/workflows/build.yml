@@ -103,11 +103,11 @@ jobs:
             ./scripts/build.sh -d $dist -n -l
             
             # Copy build results back to original location with distribution-specific path
-            mkdir -p ../globaleaks-whistleblowing-software/build/$dist
-            cp -r build/* ../globaleaks-whistleblowing-software/build/$dist/
+            mkdir -p ../../globaleaks-whistleblowing-software/build/$dist
+            cp -r build/* ../../globaleaks-whistleblowing-software/build/$dist/
             
             # Return to original directory
-            cd ../globaleaks-whistleblowing-software
+            cd ../../globaleaks-whistleblowing-software
             
             # Show what was built
             echo "Build completed for $dist. Looking for .deb files:"
