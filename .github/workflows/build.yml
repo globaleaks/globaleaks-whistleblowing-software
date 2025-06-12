@@ -186,10 +186,23 @@ jobs:
         run: |
           cd client
           
-          # Use existing package.json with efficient installation
-          npm ci --only=dev --silent
+          # Check Node.js and npm versions
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          
+          # Clear npm cache to avoid any potential issues
+          npm cache clean --force || true
+          
+          # Use existing package.json with efficient installation (without --silent to see errors)
+          echo "Installing npm dependencies..."
+          npm ci --include=dev || {
+            echo "npm ci failed, trying alternative approach..."
+            # Fallback: regular npm install with older syntax
+            npm install --only=dev || npm install --include=dev
+          }
           
           # Verify Cypress installation
+          echo "Verifying Cypress installation..."
           npx cypress verify
           echo "Cypress dependencies installed successfully"
 
