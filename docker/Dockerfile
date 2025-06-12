@@ -12,6 +12,10 @@ ARG INSTALL_FROM=remote
 
 FROM ${BASE_IMAGE}
 
+# Redeclare build arguments to make them available after FROM
+ARG INSTALL_FROM=remote
+ARG DISTRIBUTION=bookworm
+
 # Install basic dependencies common to all builds
 RUN apt-get update -q && \
     apt-get dist-upgrade -y && \
@@ -29,7 +33,8 @@ COPY install-docker.sh /tmp/install-docker.sh
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Run the appropriate installation method based on INSTALL_FROM argument
-RUN if [ "${INSTALL_FROM}" = "local" ]; then \
+RUN echo "DEBUG: INSTALL_FROM=${INSTALL_FROM}, DISTRIBUTION=${DISTRIBUTION}" && \
+    if [ "${INSTALL_FROM}" = "local" ]; then \
         echo "--- Performing local installation ---"; \
         chmod +x /tmp/install-docker.sh && \
         /tmp/install-docker.sh; \
