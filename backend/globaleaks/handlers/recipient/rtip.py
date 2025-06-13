@@ -37,6 +37,8 @@ from globaleaks.utils.json import JSONEncoder
 
 from globaleaks.settings import Settings
 
+from globaleaks.models.config import db_get_config_variable
+
 
 def db_notify_grant_access(session, user):
     """
@@ -1304,7 +1306,8 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
                                             models.WhistleblowerFile.id == file_id))
 
-        if not any(p.permission == 'can_download_infected' for p in profile.permissions):
+        antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
+        if antivirus_enabled and not any(p.permission == 'can_download_infected' for p in profile.permissions):
             if ifile.state == EnumStateFile.infected.name:
                 raise errors.FileInfectedDownloadPermissionDenied
 

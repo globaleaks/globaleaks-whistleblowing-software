@@ -50,7 +50,10 @@
           </div>
         }
         <div>
-          <span class="px-1">{{ 'Antivirus Verification Status' | translate }}</span>:
+            @if (appDataService.public.node.antivirus_enabled) {
+              <span class="px-1">{{ 'Antivirus Verification Status' | translate }}</span>:
+            }
+
           @if (!wbFile.isLoading) {
             <span>
               {{ wbFile.status | translate }}

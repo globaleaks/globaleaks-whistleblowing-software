@@ -125,11 +125,12 @@
                     <i class="fa-solid fa-download"></i>
                   </button>
                 </span>
-
-              <span class="pe-2">
-                {{ 'Antivirus Verification Status' | translate }}:
-                {{ (wbFile.status === 'PENDING' && wbFile.verification_date ? 'Verification Expired' : wbFile.status) | translate }}
-              </span>
+                @if (appDataService.public.node.antivirus_enabled) {
+                  <span class="pe-2">
+                    {{ 'Antivirus Verification Status' | translate }}:
+                    {{ (wbFile.status === 'PENDING' && wbFile.verification_date ? 'Verification Expired' : wbFile.status) | translate }}
+                  </span>
+                }
             </li>
           </ol>
         }

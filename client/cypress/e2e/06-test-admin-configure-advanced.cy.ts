@@ -47,6 +47,22 @@ describe("admin enable submissions", () => {
   });
 });
 
+describe("admin enable antivirus", () => {
+  it("should enable submission", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings")
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+
+    cy.get('input[name="toggle_antivirus"]').click();
+    cy.get("#save").click();
+    cy.get('[data-cy="advanced"]').click().should('be.visible').click();
+
+    cy.get('input[name="toggle_antivirus"]').should("be.visible").should("be.checked");
+    cy.logout();
+    cy.waitForUrl("/#/login")
+  });
+});
+
 describe("Should browser opens a pop while clicking the support icon", () => {
   it("should open a pop-up modal", () => {
     cy.login_admin();

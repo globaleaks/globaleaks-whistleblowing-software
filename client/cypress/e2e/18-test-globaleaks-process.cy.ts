@@ -92,6 +92,86 @@ describe("globaleaks process", function () {
       cy.logout();
     });
 
+    it("Whistleblower actions with antivirus eicar file attachments", function () {
+      cy.login_whistleblower(receipts[1]);
+
+      const filenames = [
+        "eicar.com",
+        "eicarcom2.zip",
+        "eicar.com.txt",
+        "eicar_com.zip"
+      ];
+
+      filenames.forEach(filename => {
+        cy.fixture(`files/${filename}`).then(fileContent => {
+
+          cy.get('input[type="file"]').then(input => {
+            const blob = new Blob([fileContent], { type: "application/octet-stream" });
+            const file = new File([blob], filename);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            const inputElement = input[0] as HTMLInputElement;
+            inputElement.files = dataTransfer.files;
+
+            const changeEvent = new Event("change", { bubbles: true });
+            inputElement.dispatchEvent(changeEvent);
+          });
+
+          cy.get("#files-action-confirm").click();
+          cy.get('[data-cy="progress-bar-complete"]').should("be.visible");
+        });
+      });
+
+      cy.wait(5000);
+      cy.get('#link-reload').click();
+
+      cy.get('#file-0').within(() => {
+        cy.contains('td', 'VERIFIED');
+        cy.get('button.tip-action-download-file').should('not.be.disabled');
+      });
+
+      cy.get('#file-1').within(() => {
+        cy.contains('td', 'INFECTED');
+        cy.get('button.tip-action-download-file').should('be.disabled');
+      });
+
+      cy.get('#file-2').within(() => {
+        cy.contains('td', 'VERIFIED');
+        cy.get('button.tip-action-download-file').should(`not.be.disabled`);
+      });
+
+      cy.get('#file-3').within(() => {
+        cy.contains('td', 'INFECTED');
+        cy.get('button.tip-action-download-file').should('be.disabled');
+      });
+
+      cy.logout();
+    });
+
+    it("Recipient antivirus action", function () {
+      cy.login_receiver();
+      cy.visit("/#/recipient/reports");
+
+      cy.get("#tip-1").first().click();
+      cy.get('#file-0').within(() => {
+        cy.contains('td', 'VERIFIED');
+        cy.get('button.tip-action-download-file').should('not.be.disabled');
+      });
+
+      cy.get('#file-1').within(() => {
+        cy.contains('td', 'INFECTED');
+        cy.get('button.tip-action-download-file').should('not.be.disabled');
+      });
+
+      cy.get('#file-2').within(() => {
+        cy.contains('td', 'VERIFIED');
+        cy.get('button.tip-action-download-file').should(`not.be.disabled`);
+      });
+
+      cy.logout();
+    });
+
+
     it("Recipient actions", function () {
       cy.login_receiver();
       cy.visit("/#/recipient/reports");

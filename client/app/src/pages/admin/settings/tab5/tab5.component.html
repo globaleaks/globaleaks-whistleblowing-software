@@ -120,7 +120,7 @@
       <label>{{ 'Enable scoring system' | translate }}</label>
     </div>
       <div class="form-group">
-          <input [(ngModel)]="nodeResolver.dataModel.antivirus_enabled" type="checkbox">
+          <input [(ngModel)]="nodeResolver.dataModel.antivirus_enabled" type="checkbox" name="toggle_antivirus">
           <label>{{ 'Enable virus scanning of files' | translate }}</label>
       </div>
     @if (nodeResolver.dataModel.root_tenant) {

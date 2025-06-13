@@ -25,6 +25,8 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null
 
+from globaleaks.models.config import db_get_config_variable
+
 
 def db_notify_report_update(session, user, rtip, itip):
     """
@@ -228,12 +230,14 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalFile.internaltip_id == models.InternalTip.id,
                               models.InternalTip.id == user_id))
         log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
+        antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
 
-        if ifile.state == EnumStateFile.infected.name:
-            raise errors.FileInfectedDownloadPermissionDenied
+        if antivirus_enabled:
+          if ifile.state == EnumStateFile.infected.name:
+              raise errors.FileInfectedDownloadPermissionDenied
 
-        elif ifile.state == EnumStateFile.pending.name:
-            raise errors.FilePendingDownloadPermissionDenied
+          elif ifile.state == EnumStateFile.pending.name:
+              raise errors.FilePendingDownloadPermissionDenied
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key
 

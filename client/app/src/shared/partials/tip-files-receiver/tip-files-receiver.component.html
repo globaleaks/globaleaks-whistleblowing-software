@@ -19,7 +19,9 @@
               <thead>
                 <tr>
                   <th>{{ 'Filename' | translate }}</th>
-                  <th>{{ 'Antivirus Verification Status' | translate}}</th>
+                    @if (appDataService.public.node.antivirus_enabled) {
+                      <th>{{ 'Antivirus Verification Status' | translate}}</th>
+                    }
                   <th>{{ 'View' | translate }}</th>
                   <th>{{ 'Download' | translate }}</th>
                   <th>{{ 'Upload date' | translate }}</th>
@@ -32,7 +34,10 @@
                   @if ((file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)) {
                     <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
                       <td>{{ file.name }}</td>
-                      <td>{{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status) | translate }}</td>
+                        @if (appDataService.public.node.antivirus_enabled) {
+                          <td>{{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status) | translate }}</td>
+                        }
+
                       <td>
                             <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
                                     [disabled]="!utilsService.supportedViewTypes.includes(file.type) ||

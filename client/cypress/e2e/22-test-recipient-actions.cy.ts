@@ -1,4 +1,20 @@
 describe("recipient admin tip actions", () => {
+
+  it("should disable antivirus", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings")
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+
+    cy.get('input[name="toggle_antivirus"]').then($el => {
+      if (!$el.is(':disabled')) {
+        cy.wrap($el).click();
+      }
+    });
+    cy.get("#save").click();
+    cy.logout();
+    cy.waitForUrl("/#/login")
+  });
+
   it("should close and reopen reports", function () {
     cy.login_receiver();
 
@@ -87,14 +103,14 @@ describe("recipient admin tip actions", () => {
     cy.get('i.fa-solid.fa-upload').click();
     cy.fixture("files/test.txt").then(fileContent => {
       cy.get('input[type="file"]').then(input => {
-        const blob = new Blob([fileContent], { type: "text/plain" });
+        const blob = new Blob([fileContent], {type: "text/plain"});
         const testFile = new File([blob], "files/test.txt");
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(testFile);
         const inputElement = input[0] as HTMLInputElement;
         inputElement.files = dataTransfer.files;
 
-        const changeEvent = new Event("change", { bubbles: true });
+        const changeEvent = new Event("change", {bubbles: true});
         input[0].dispatchEvent(changeEvent);
       });
     });
@@ -132,7 +148,7 @@ describe("recipient admin tip actions", () => {
 
     cy.get('.TipInfoSubmissionDate .fas.fa-calendar').click();
     cy.get('.custom-date-selector').first().click();
-    cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
+    cy.get('.custom-date-selector').eq(4).click({shiftKey: true});
     cy.contains('button.btn.btn-danger', 'Reset').click();
 
     cy.logout();

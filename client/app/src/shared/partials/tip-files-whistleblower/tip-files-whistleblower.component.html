@@ -17,10 +17,11 @@
           <thead>
             <tr>
               <th>{{'Filename'|translate}}</th>
-              <th>{{ 'Antivirus Verification Status' | translate}}</th>
-              @if (wbTipService.tip.enable_whistleblower_download) {
-                <th>{{'Download' | translate}}</th>
-              }
+                @if (appDataService.public.node.antivirus_enabled) {
+                    <th>{{ 'Antivirus Verification Status' | translate}}</th>
+                }
+
+              <th>{{'Download' | translate}}</th>
               <th>{{'Upload date'|translate}}</th>
               <th>{{'Type'|translate}}</th>
               <th>{{'File size'|translate}}</th>
@@ -28,13 +29,15 @@
           </thead>
           <tbody id="fileListBody">
             @for (file of getSortedWBFiles(wbTipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
-              <tr id="file-{{index}}">
+                <tr id="file-{{index}}">
                 <td>{{file.name}}</td>
-                <td>{{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status) | translate }}</td>
+                 @if (appDataService.public.node.antivirus_enabled) {
+                    <td>{{ (file.status==='PENDING' && file.verification_date ? 'Verification Expired' : file.status) | translate }}</td>
+                }
                 @if (wbTipService.tip.enable_whistleblower_download) {
                   <td>
                     <button class="btn btn-sm btn-primary tip-action-download-file"
-                      [disabled]="file.error || appDataService.public.node.antivirus_enabled && (file.status === 'PENDING' || file.status ==='INFECTED')"
+                      [disabled]="file.error || (file.status === 'PENDING' || file.status ==='INFECTED')"
                       ngbTooltip="{{'Download' | translate}}"
                       (click)="downloadWBFile(file)">
                       <i class="fa-solid fa-download"></i>

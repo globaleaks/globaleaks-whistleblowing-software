@@ -102,6 +102,7 @@ describe("admin add, configure, and delete users", () => {
       cy.get('button[name="edit_profile"]').click();
 
       cy.get('input[name="can_mask_information"]').click();
+      cy.get('input[name="can_download_infected"]').click();
       cy.get('input[name="can_redact_information"]').click();
       cy.get('input[name="can_grant_access_to_reports"]').click();
       cy.get('input[name="can_transfer_access_to_reports"]').click();
