@@ -250,39 +250,48 @@ jobs:
             
             # Check Lighthouse results and thresholds
             if [ -f "./lighthouse-results/$dist/lighthouse-report.json" ]; then
-              # Validate against thresholds
-              lighthouse_validation=$(node -e "
-                const fs = require('fs');
-                const report = JSON.parse(fs.readFileSync('./lighthouse-results/$dist/lighthouse-report.json', 'utf8'));
-                
-                const thresholds = {
-                  performance: 60,
-                  accessibility: 85,
-                  'best-practices': 80,
-                  seo: 95,
-                  pwa: 30
-                };
-                
-                let failedChecks = [];
-                let scores = {};
-                
-                Object.entries(thresholds).forEach(([category, threshold]) => {
-                  const score = Math.round(report.categories[category].score * 100);
-                  scores[category] = score;
-                  if (score < threshold) {
-                    failedChecks.push(category + ': ' + score + '% (min: ' + threshold + '%)');
-                  }
-                });
-                
-                console.log('SCORES:' + JSON.stringify(scores));
-                
-                if (failedChecks.length > 0) {
-                  console.log('FAILED:' + failedChecks.join(', '));
-                  process.exit(1);
-                } else {
-                  console.log('PASSED:All thresholds met');
+              # Simple score extraction
+              scores_output=$(node -e "
+                try {
+                  const report = JSON.parse(require('fs').readFileSync('./lighthouse-results/$dist/lighthouse-report.json', 'utf8'));
+                  const categories = report.categories;
+                  const scores = {
+                    performance: Math.round(categories.performance.score * 100),
+                    accessibility: Math.round(categories.accessibility.score * 100),
+                    'best-practices': Math.round(categories['best-practices'].score * 100),
+                    seo: Math.round(categories.seo.score * 100),
+                    pwa: Math.round(categories.pwa.score * 100)
+                  };
+                  console.log(JSON.stringify(scores));
+                } catch(e) {
+                  console.log('ERROR');
                 }
-              " 2>/dev/null)
+              ")
+              
+              if [ "$scores_output" != "ERROR" ]; then
+                # Parse scores and check thresholds manually
+                perf_score=$(echo "$scores_output" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).performance)")
+                a11y_score=$(echo "$scores_output" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).accessibility)")
+                bp_score=$(echo "$scores_output" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'))['best-practices'])")
+                seo_score=$(echo "$scores_output" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).seo)")
+                pwa_score=$(echo "$scores_output" | node -e "console.log(JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).pwa)")
+                
+                # Check thresholds
+                failed_checks=""
+                [ "$perf_score" -lt 60 ] && failed_checks="$failed_checks performance:${perf_score}%(min:60%)"
+                [ "$a11y_score" -lt 85 ] && failed_checks="$failed_checks accessibility:${a11y_score}%(min:85%)"
+                [ "$bp_score" -lt 80 ] && failed_checks="$failed_checks best-practices:${bp_score}%(min:80%)"
+                [ "$seo_score" -lt 95 ] && failed_checks="$failed_checks seo:${seo_score}%(min:95%)"
+                [ "$pwa_score" -lt 30 ] && failed_checks="$failed_checks pwa:${pwa_score}%(min:30%)"
+                
+                if [ -n "$failed_checks" ]; then
+                  lighthouse_validation="FAILED:$failed_checks"
+                else
+                  lighthouse_validation="PASSED:$scores_output"
+                fi
+              else
+                lighthouse_validation="ERROR:Could not parse report"
+              fi
               
               if echo "$lighthouse_validation" | grep -q "FAILED:"; then
                 failed_audits=$(echo "$lighthouse_validation" | grep "FAILED:" | cut -d: -f2-)
