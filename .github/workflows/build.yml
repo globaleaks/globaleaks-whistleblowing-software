@@ -276,7 +276,7 @@ jobs:
             all_passed_scores=""
             
             for page in "home" "submission" "login"; do
-              report_file="./lighthouse-results/$dist/lighthouse-report-${page}.json"
+              report_file="./lighthouse-results/$dist/lighthouse-report-${page}.report.json"
               if [ -f "$report_file" ]; then
                 echo "  Checking $page page scores..."
                 
