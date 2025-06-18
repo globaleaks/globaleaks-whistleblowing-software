@@ -182,7 +182,7 @@ jobs:
             echo "✅ $dist is ready on port $port"
           done
 
-      - name: Install Cypress dependencies efficiently
+      - name: Install Cypress and Lighthouse dependencies efficiently
         run: |
           cd client
           
@@ -205,8 +205,12 @@ jobs:
           echo "Verifying Cypress installation..."
           npx cypress verify
           echo "Cypress dependencies installed successfully"
+          
+          # Install Lighthouse globally for CI use
+          echo "Installing Lighthouse CLI..."
+          npm install -g lighthouse@11.7.1
 
-      - name: Run Cypress tests against all distributions
+      - name: Run Cypress tests and Lighthouse audits against all distributions
         run: |
           cd client
           
@@ -218,6 +222,8 @@ jobs:
           
           # Run tests against each distribution
           test_results=()
+          lighthouse_results=()
+          
           for dist in "${distributions[@]}"; do
             # Use predefined ports from docker-compose.yml
             case $dist in
@@ -227,15 +233,80 @@ jobs:
               "focal") port=8446 ;;
             esac
             
+            echo "🔍 Running Lighthouse audits for $dist on port $port..."
+            
+            # Create lighthouse directory for this distribution
+            mkdir -p lighthouse-results/$dist
+            
+            # Run Lighthouse audit for this distribution
+            lighthouse_exit_code=0
+            lighthouse https://localhost:$port \
+              --chrome-flags="--allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --preset=desktop \
+              --output=json \
+              --output=html \
+              --output-path=./lighthouse-results/$dist/lighthouse-report \
+              --only-categories=performance,accessibility,best-practices,seo,pwa || lighthouse_exit_code=$?
+            
+            # Check Lighthouse results and thresholds
+            if [ -f "./lighthouse-results/$dist/lighthouse-report.json" ]; then
+              # Validate against thresholds
+              lighthouse_validation=$(node -e "
+                const fs = require('fs');
+                const report = JSON.parse(fs.readFileSync('./lighthouse-results/$dist/lighthouse-report.json', 'utf8'));
+                
+                const thresholds = {
+                  performance: 60,
+                  accessibility: 85,
+                  'best-practices': 80,
+                  seo: 95,
+                  pwa: 30
+                };
+                
+                let failedChecks = [];
+                let scores = {};
+                
+                Object.entries(thresholds).forEach(([category, threshold]) => {
+                  const score = Math.round(report.categories[category].score * 100);
+                  scores[category] = score;
+                  if (score < threshold) {
+                    failedChecks.push(\`\${category}: \${score}% (min: \${threshold}%)\`);
+                  }
+                });
+                
+                console.log('SCORES:' + JSON.stringify(scores));
+                
+                if (failedChecks.length > 0) {
+                  console.log('FAILED:' + failedChecks.join(', '));
+                  process.exit(1);
+                } else {
+                  console.log('PASSED:All thresholds met');
+                }
+              " 2>/dev/null)
+              
+              if echo "$lighthouse_validation" | grep -q "FAILED:"; then
+                failed_audits=$(echo "$lighthouse_validation" | grep "FAILED:" | cut -d: -f2-)
+                echo "❌ Lighthouse audit failed for $dist: $failed_audits"
+                lighthouse_results+=("$dist:LIGHTHOUSE_FAIL")
+              else
+                scores=$(echo "$lighthouse_validation" | grep "SCORES:" | cut -d: -f2-)
+                echo "✅ Lighthouse audit passed for $dist: $scores"
+                lighthouse_results+=("$dist:LIGHTHOUSE_PASS")
+              fi
+            else
+              echo "❌ Lighthouse report not found for $dist"
+              lighthouse_results+=("$dist:LIGHTHOUSE_ERROR")
+            fi
+            
             echo "🧪 Running Cypress tests for $dist on port $port..."
             
-            # Run tests and capture exit code
-            if npx cypress run --browser chrome --config baseUrl=https://localhost:$port,chromeWebSecurity=false; then
+            # Run Cypress tests and capture exit code
+            if npx cypress run --browser chrome then
               echo "✅ Cypress tests passed for $dist"
-              test_results+=("$dist:PASS")
+              test_results+=("$dist:CYPRESS_PASS")
             else
               echo "❌ Cypress tests failed for $dist"
-              test_results+=("$dist:FAIL")
+              test_results+=("$dist:CYPRESS_FAIL")
             fi
           done
           
@@ -243,18 +314,35 @@ jobs:
           echo ""
           echo "🏁 Test Results Summary:"
           echo "========================"
+          echo "Cypress Results:"
           for result in "${test_results[@]}"; do
+            echo "  $result"
+          done
+          echo ""
+          echo "Lighthouse Results:"
+          for result in "${lighthouse_results[@]}"; do
             echo "  $result"
           done
           
           # Check if any tests failed
+          failed=false
           if echo "${test_results[@]}" | grep -q "FAIL"; then
             echo ""
-            echo "❌ Some tests failed"
+            echo "❌ Some Cypress tests failed"
+            failed=true
+          fi
+          
+          if echo "${lighthouse_results[@]}" | grep -q "FAIL\|ERROR"; then
+            echo ""
+            echo "❌ Some Lighthouse audits failed"
+            failed=true
+          fi
+          
+          if [ "$failed" = true ]; then
             exit 1
           else
             echo ""
-            echo "✅ All tests passed!"
+            echo "✅ All tests and audits passed!"
           fi
 
       - name: Cleanup Docker containers
@@ -272,13 +360,16 @@ jobs:
           
           echo "Cleanup completed"
 
-      - name: Upload test artifacts
-        if: failure()
+      - name: Upload test and audit artifacts
+        if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: cypress-artifacts-${{ matrix.distribution }}
+          name: test-artifacts-${{ matrix.distribution }}
           path: |
             client/cypress/screenshots/
             client/cypress/videos/
-            docker/docker-compose.test.yml
-            build/
+            client/lighthouse-results/
+            build/**/*.log
+            build/**/*.deb
+            docker/docker-compose.yml
+          retention-days: 7
