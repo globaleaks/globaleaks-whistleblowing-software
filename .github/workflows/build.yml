@@ -244,7 +244,7 @@ jobs:
             # Audit home page
             echo "  Auditing home page..."
             lighthouse https://localhost:$port \
-              --chrome-flags="--allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
               --preset=desktop \
               --output=json \
               --output=html \
@@ -254,7 +254,7 @@ jobs:
             # Audit submission page
             echo "  Auditing submission page..."
             lighthouse https://localhost:$port/#/submission \
-              --chrome-flags="--allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
               --preset=desktop \
               --output=json \
               --output=html \
@@ -264,7 +264,7 @@ jobs:
             # Audit login page
             echo "  Auditing login page..."
             lighthouse https://localhost:$port/#/login \
-              --chrome-flags="--allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
               --preset=desktop \
               --output=json \
               --output=html \
