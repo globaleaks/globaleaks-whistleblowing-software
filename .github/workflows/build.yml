@@ -270,7 +270,7 @@ jobs:
                   const score = Math.round(report.categories[category].score * 100);
                   scores[category] = score;
                   if (score < threshold) {
-                    failedChecks.push(\`\${category}: \${score}% (min: \${threshold}%)\`);
+                    failedChecks.push(category + ': ' + score + '% (min: ' + threshold + '%)');
                   }
                 });
                 
