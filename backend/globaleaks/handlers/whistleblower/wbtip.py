@@ -12,7 +12,8 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_set_internaltip_answers, db_get_questionnaire, \
-    db_archive_questionnaire_schema, db_set_internaltip_data
+    db_archive_questionnaire_schema, db_set_internaltip_data, \
+    db_set_or_update_internaltip_data, db_get_internaltip_data
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
@@ -62,6 +63,36 @@ def db_notify_recipients_of_tip_update(session, itip_id):
         db_notify_report_update(session, user, rtip, itip)
 
 
+def db_notify_wb_tip_update(session, itip):
+    email = db_get_internaltip_data(session, itip.id, 'contact_email')
+    if not email:
+        return
+
+    language = State.tenants[itip.tid].cache.default_language
+    data = {
+      'type': 'tip_update',
+      'user': {
+          'mail_address': email,
+          'name': 'Whistleblower',
+          'username': '',
+          'language': language
+      },
+      'node': db_admin_serialize_node(session, itip.tid, language),
+      'tip': serializers.serialize_wbtip(session, itip, language),
+    }
+
+    data['notification'] = db_get_notification(session, itip.tid, language)
+
+    subject, body = Templating().get_mail_subject_and_body(data)
+
+    session.add(models.Mail({
+        'address': email,
+        'subject': subject,
+        'body': body,
+        'tid': itip.tid
+    }))
+
+
 def db_get_wbtip(session, itip_id, language):
     itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
 
@@ -98,6 +129,17 @@ def create_comment(session, tid, user_id, content):
     ret['content'] = content
 
     return ret
+
+
+@transact
+def set_contact_email(session, tid, user_id, contact_email):
+    itip = db_get(session,
+                  models.InternalTip,
+                  (models.InternalTip.id == user_id,
+                   models.InternalTip.status != 'closed',
+                   models.InternalTip.tid == tid))
+
+    db_set_or_update_internaltip_data(session, itip.id, 'contact_email', contact_email)
 
 
 @transact
@@ -312,3 +354,14 @@ class WBTipAdditionalQuestionnaire(BaseHandler):
                                                       self.session.user_id,
                                                       request['answers'],
                                                       self.request.language)
+
+
+class WBTipContactEmail(BaseHandler):
+    """Allow the whistleblower to store a contact email"""
+    check_roles = 'whistleblower'
+
+    def post(self):
+        request = self.validate_request(self.request.content.read(), requests.ContactEmailDesc)
+        return set_contact_email(self.request.tid,
+                                 self.session.user_id,
+                                 request['contact_email'])

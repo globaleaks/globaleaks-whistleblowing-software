@@ -593,6 +593,8 @@
   "Report updated": "Report updated",
   "This email is to remind you the presence of unread or updated reports.": "This email is to remind you the presence of unread or updated reports.",
   "Reminder about unread or updated reports": "Reminder about unread or updated reports",
+  "Manage notifications": "Manage notifications",
+  "Contact email": "Contact email",
   "Role: {Role}": "Role: {Role}",
   "Password: {Password}": "Password: {Password}"
 }

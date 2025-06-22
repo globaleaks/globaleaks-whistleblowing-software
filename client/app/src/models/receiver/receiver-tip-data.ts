@@ -70,6 +70,7 @@ export interface Data {
   whistleblower_identity_provided: boolean;
   whistleblower_identity: WhistleblowerIdentity;
   whistleblower_identity_date: string;
+  contact_email?: string;
 }
 
 export interface Context {

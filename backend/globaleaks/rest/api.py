@@ -94,6 +94,7 @@ api_spec = [
     ('/api/whistleblower/wbtip/wbfiles', whistleblower.wbtip.WhistleblowerFileDownload, r'/api/whistleblower/wbtip/wbfiles/' + uuid_regexp),
     ('/api/whistleblower/wbtip/identity', whistleblower.wbtip.WBTipIdentityHandler),
     ('/api/whistleblower/wbtip/fillform', whistleblower.wbtip.WBTipAdditionalQuestionnaire),
+    ('/api/whistleblower/wbtip/contactemail', whistleblower.wbtip.WBTipContactEmail),
 
     # Custodian Handlers
     ('/api/custodian/iars', custodian.IdentityAccessRequestsCollection),

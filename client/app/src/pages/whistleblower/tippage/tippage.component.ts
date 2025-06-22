@@ -19,6 +19,7 @@ import {WhistleblowerIdentityComponent} from "@app/shared/partials/whistleblower
 import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
+import {TipContactEmailComponent} from "@app/shared/partials/tip-contact-email/tip-contact-email.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -26,7 +27,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TipContactEmailComponent, TranslateModule, TranslatorPipe]
 })
 export class TippageComponent implements OnInit {
   private fieldUtilities = inject(FieldUtilitiesService);

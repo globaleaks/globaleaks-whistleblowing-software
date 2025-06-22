@@ -135,6 +135,7 @@ export class Receiver {
 export class Data {
   whistleblower_identity: WhistleblowerIdentity;
   whistleblower_identity_provided: boolean = false;
+  contact_email?: string;
 }
 
 export interface MsgReceiversSelector {

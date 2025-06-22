@@ -191,6 +191,10 @@ WhisleblowerIdentityAnswers = {
     'identity_field_answers': dict
 }
 
+ContactEmailDesc = {
+    'contact_email': email_regexp
+}
+
 AdminNodeDesc = {
     'name': str,
     'description': str,

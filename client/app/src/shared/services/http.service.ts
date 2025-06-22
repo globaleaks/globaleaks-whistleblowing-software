@@ -273,6 +273,10 @@ export class HttpService {
     return this.httpClient.post<void>("api/whistleblower/wbtip/identity", param);
   }
 
+  whistleBlowerContactEmailUpdate(param: { contact_email: string }): Observable<void> {
+    return this.httpClient.post<void>("api/whistleblower/wbtip/contactemail", param);
+  }
+
   requestAdminFieldTemplateResource(): Observable<fieldtemplatesResolverModel[]> {
     return this.httpClient.get<fieldtemplatesResolverModel[]>("api/admin/fieldtemplates");
   }

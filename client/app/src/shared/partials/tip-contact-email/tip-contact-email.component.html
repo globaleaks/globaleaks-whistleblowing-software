@@ -1,0 +1,15 @@
+<div id="TipContactEmailBox" class="card card-default" [attr.aria-expanded]="collapsed">
+  <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+    <span>{{'Manage notifications'|translate}}</span>
+  </div>
+  @if (!collapsed) {
+    <div class="card-body">
+      <label for="contactEmailInput" class="form-label">{{'Contact email'|translate}}</label>
+      <input id="contactEmailInput" type="email" class="form-control" [(ngModel)]="email" />
+      <button class="btn btn-primary mt-2" (click)="updateEmail()" [disabled]="!email">
+        <i class="fa-solid fa-save"></i>
+        <span>{{'Save'|translate}}</span>
+      </button>
+    </div>
+  }
+</div>

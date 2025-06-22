@@ -125,6 +125,32 @@ def db_set_internaltip_data(session, itip_id, key, value, date=None):
     return itd
 
 
+def db_set_or_update_internaltip_data(session, itip_id, key, value, date=None):
+    itd = session.query(models.InternalTipData) \
+              .filter(models.InternalTipData.internaltip_id == itip_id,
+                      models.InternalTipData.key == key).one_or_none()
+
+    if itd is None:
+        itd = models.InternalTipData()
+        itd.internaltip_id = itip_id
+        itd.key = key
+        if date:
+            itd.creation_date = date
+        session.add(itd)
+
+    itd.value = value
+    return itd
+
+
+def db_get_internaltip_data(session, itip_id, key):
+    itd = session.query(models.InternalTipData.value) \
+              .filter(models.InternalTipData.internaltip_id == itip_id,
+                      models.InternalTipData.key == key).one_or_none()
+    if itd is None:
+        return None
+    return itd[0]
+
+
 def db_assign_submission_progressive(session, tid):
     counter = session.query(models.Config).filter(models.Config.tid == tid, models.Config.var_name == 'counter_submissions').one()
     counter.value += 1
