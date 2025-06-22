@@ -162,7 +162,7 @@ export class TippageComponent implements OnInit {
     return (100 - (progress / totalFiles) * 100);
   }
 
-  provideIdentityInformation(_: { param1: string, param2: Answers }) {
+  provideIdentityInformation(_: { param1: string, param2: Answers, email: string }) {
     const intervalId = setInterval(() => {
       if (this.uploads) {
         for (const key in this.uploads) {
@@ -180,6 +180,11 @@ export class TippageComponent implements OnInit {
       (
         {
           next: () => {
+            if (_.email) {
+              this.httpService.whistleBlowerContactEmailUpdate({ contact_email: _.email }).subscribe(() => {
+                this.tip.data.contact_email = _.email;
+              });
+            }
             clearInterval(intervalId);
             this.reload();
           },

@@ -49,9 +49,13 @@
               <src-whistleblower-identity-field [step]="step" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [identity_provided]="identity_provided" [answers]="answers" [field]="field" [index]="0"></src-whistleblower-identity-field>
             }
             <src-rfiles-upload-status [progress]="uploadProgress" [estimatedTime]="uploadEstimateTime" [uploading]="isUploading"></src-rfiles-upload-status>
+            <div class="mt-3">
+              <label for="wbContactEmail" class="form-label">{{'Contact email'|translate}}</label>
+              <input id="wbContactEmail" type="email" name="contact_email" class="form-control" [(ngModel)]="email" />
+            </div>
             <div id="SubmitBox">
               @if (identity_provided) {
-                <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers })" [disabled]="wbform.invalid" type="submit">
+                <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers, email: email })" [disabled]="wbform.invalid" type="submit">
                   <i id="SubmitIconOK" class="fa-solid fa-check"></i>
                   <span>{{'Submit'|translate}}</span>
                 </button>

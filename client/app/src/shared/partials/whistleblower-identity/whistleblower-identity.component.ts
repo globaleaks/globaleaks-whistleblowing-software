@@ -28,16 +28,18 @@ export class WhistleblowerIdentityComponent {
   @Input() isUploading: boolean | undefined;
   @Input() uploadProgress: number | undefined;
 
-  @Output() provideIdentityInformation = new EventEmitter<{ param1: string, param2: Answers }>();
+  @Output() provideIdentityInformation = new EventEmitter<{ param1: string, param2: Answers, email: string }>();
   @Output() onFormUpdate = new EventEmitter<void>();
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
 
   collapsed = false;
   protected readonly JSON = JSON;
   identity_provided: boolean = true;
+  email = '';
 
   constructor() {
     this.collapsed = this.wbTipService.tip.data.whistleblower_identity_provided;
+    this.email = this.wbTipService.tip.data.contact_email || '';
   }
 
   public toggleCollapse() {
