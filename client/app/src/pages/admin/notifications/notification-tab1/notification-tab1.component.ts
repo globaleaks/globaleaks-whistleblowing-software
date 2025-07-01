@@ -8,20 +8,28 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {switchMap} from "rxjs";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
+import {NgTemplateOutlet} from "@angular/common";
+import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
+import {SendMailComponent} from "@app/shared/modals/send-mail/send-mail.component";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-notification-tab1",
     templateUrl: "./notification-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslatorPipe]
+    imports: [NgbNav, NgSelectComponent, NgOptionTemplateDirective, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet,FormsModule, NgbTooltipModule, TranslatorPipe]
 })
 export class NotificationTab1Component {
   protected nodeResolver = inject(NodeResolver);
   protected notificationResolver = inject(NotificationsResolver);
   private utilsService = inject(UtilsService);
+  private modalService = inject(NgbModal);
 
   @Input() notificationForm: NgForm;
   protected readonly Constants = Constants;
+  smtpTabActive = 'smtp1';
+  selected = {value: []};
 
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe(_ => {
@@ -29,17 +37,28 @@ export class NotificationTab1Component {
     });
   }
 
-  updateThenTestMail(notification: notificationResolverModel): void {
-    this.utilsService
-      .updateAdminNotification(notification)
-      .pipe(
-        switchMap(() => this.utilsService.runAdminOperation("test_mail", {}, true))
-      )
-      .subscribe();
+  updateThenTestMail(notification: notificationResolverModel,smtp2?: boolean): void {
+    const modalRef = this.modalService.open(SendMailComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.confirmFunction = (email: string) => {
+      this.utilsService.updateAdminNotification(notification)
+        .pipe(switchMap(() => this.utilsService.runAdminOperation("test_mail", smtp2 ? {smtp2 : smtp2, to_mail_address : email} : {to_mail_address : email}, true))).subscribe();
+    };
   }
 
-  resetSMTPSettings() {
-    this.utilsService.runAdminOperation("reset_smtp_settings", {}, true).subscribe();
+  selectTemplate(template: string) {
+    if (template && (this.notificationResolver.dataModel.smtp2_use_templates.indexOf(template) === -1)) {
+      this.notificationResolver.dataModel.smtp2_use_templates.push(template)
+      this.notificationResolver.dataModel.smtp2_use_templates.sort();
+    }
+    this.selected.value = [];
+  }
+
+  removeTemplate(index: number) {
+    this.notificationResolver.dataModel.smtp2_use_templates.splice(index, 1);
+  }
+
+  resetSMTPSettings(smtp2?: boolean) {
+    this.utilsService.runAdminOperation("reset_smtp_settings", smtp2 ? {smtp2 : smtp2} : {}, true).subscribe();
   }
 
   resetTemplates() {

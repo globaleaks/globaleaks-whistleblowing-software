@@ -161,21 +161,30 @@ def disable_user_permission_file_upload(session, tid, user_session):
     user_session.permissions['can_upload_files'] = False
 
 
-def db_reset_smtp_settings(session, tid):
+def db_reset_smtp_settings(session, self, tid, use_smtp2=False):
     config = ConfigFactory(session, tid)
-    config.set_val('smtp_server', 'mail.globaleaks.org')
-    config.set_val('smtp_port', 587)
-    config.set_val('smtp_username', 'globaleaks')
-    config.set_val('smtp_password', 'globaleaks')
-    config.set_val('smtp_source_email', 'notifications@globaleaks.org')
-    config.set_val('smtp_security', 'TLS')
-    config.set_val('smtp_authentication', True)
+    notification = self.state.tenants[tid].cache.notification
 
+    if use_smtp2 and getattr(notification, "smtp2_enabled", False):
+        config.set_val('smtp2_server', 'mail.globaleaks.org')
+        config.set_val('smtp2_port', 587)
+        config.set_val('smtp2_username', 'globaleaks')
+        config.set_val('smtp2_password', 'globaleaks')
+        config.set_val('smtp2_source_email', 'notifications@globaleaks.org')
+        config.set_val('smtp2_security', 'TLS')
+        config.set_val('smtp2_authentication', True)
+    else:
+        config.set_val('smtp_server', 'mail.globaleaks.org')
+        config.set_val('smtp_port', 587)
+        config.set_val('smtp_username', 'globaleaks')
+        config.set_val('smtp_password', 'globaleaks')
+        config.set_val('smtp_source_email', 'notifications@globaleaks.org')
+        config.set_val('smtp_security', 'TLS')
+        config.set_val('smtp_authentication', True)
 
 @transact
-def reset_smtp_settings(session, tid):
-    return db_reset_smtp_settings(session, tid)
-
+def reset_smtp_settings(session, self, tid, use_smtp2):
+    return db_reset_smtp_settings(session, self, tid, use_smtp2)
 
 @transact
 def reset_templates(session, tid):
@@ -271,7 +280,8 @@ class AdminOperationHandler(OperationHandler):
         return enable_encryption(self.request.tid)
 
     def reset_smtp_settings(self, req_args, *args, **kwargs):
-        return reset_smtp_settings(self.request.tid)
+        use_smtp2 = req_args.get('smtp2', False)
+        return reset_smtp_settings(self, self.request.tid, use_smtp2=use_smtp2)
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
@@ -339,7 +349,9 @@ class AdminOperationHandler(OperationHandler):
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
-        yield self.state.sendmail(tid, user['mail_address'], subject, body)
+        use_smtp2 = req_args.get('smtp2', False)
+        mail_address = req_args.get('to_mail_address', '')
+        yield self.state.sendmail(tid, mail_address, subject, body, use_smtp2=use_smtp2)
 
     def toggle_escrow(self, req_args, *args, **kwargs):
         return toggle_escrow(self.request.tid, self.session)

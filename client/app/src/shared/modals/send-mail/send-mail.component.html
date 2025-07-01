@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <div class="modal-title">{{'Send Email'|translate}}</div>
+</div>
+<div class="modal-body">
+    <form name="mail_address" #mail_address="ngForm" novalidate>
+        <div class="form-group">
+            <div>
+                <span>{{'To Email Address'|translate}}</span>
+            </div>
+            <input class="form-control" name="to_mail_address" [(ngModel)]="to_mail_address" type="email" [pattern]="Constants.emailRegexp" />
+            @if (mail_address.form.get('to_mail_address')?.errors?.['pattern']) {
+              <div class="text-danger">Invalid email address</div>
+            }
+        </div>      
+    </form>
+</div>
+<div class="modal-footer">
+    <button (click)="confirm()" id="confirm" [disabled]="!to_mail_address || mail_address.form.get('to_mail_address')?.invalid" class="btn btn-primary">{{'Confirm'|translate}}</button>
+    <button (click)="cancel()" id="close" class="btn btn-light">{{'Close'|translate}}</button>
+</div>

@@ -27,6 +27,13 @@ class Int(Item):
 class Bool(Item):
     _type = bool
 
+class List(Item):
+    _type = list
+
+    def __init__(self, *args, **kwargs):
+        if 'default' not in kwargs:
+            kwargs['default'] = []
+        Item.__init__(self, *args, **kwargs)
 
 ConfigDescriptor = {
     'acme': Bool(default=False),
@@ -110,14 +117,16 @@ ConfigDescriptor = {
     'smtp_server': Unicode(default='mail.globaleaks.org'),
     'smtp_source_email': Unicode(default='notifications@globaleaks.org'),
     'smtp_username': Unicode(default='globaleaks'),
-    'smtp2_password': Unicode(default=''),
+    'smtp2_password': Unicode(default='globaleaks'),
     'smtp2_port': Int(default=587),
-    'smtp2_security': Unicode(default=''),
-    'smtp2_authentication': Bool(default=False),
-    'smtp2_server': Unicode(default=''),
+    'smtp2_security': Unicode(default='TLS'),
+    'smtp2_authentication': Bool(default=True),
+    'smtp2_server': Unicode(default='mail.globaleaks.org'),
     'smtp2_enabled': Bool(default=False),
-    'smtp2_source_email': Unicode(default=''),
-    'smtp2_username': Unicode(default=''),
+    'smtp2_use_templates': List(default=[]),
+    'smtp2_failover': Bool(default=False),
+    'smtp2_source_email': Unicode(default='notifications@globaleaks.org'),
+    'smtp2_username': Unicode(default='globaleaks'),
     'subdomain': Unicode(default=''),
     'threshold_free_disk_megabytes_high': Int(default=200),
     'threshold_free_disk_megabytes_low': Int(default=1000),
@@ -344,9 +353,11 @@ ConfigFilters = {
         'smtp2_security',
         'smtp2_server',
         'smtp2_enabled',
+        'smtp2_use_templates',
         'smtp2_source_email',
         'smtp2_username',
-        'smtp2_authentication'
+        'smtp2_authentication',
+        'smtp2_failover'
     ],
     'public_node': [
         'adminonly',

@@ -233,28 +233,49 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         self.stats_collection_start_time = datetime_now()
 
-    def sendmail(self, tid, to_address, subject, body):
+    def sendmail(self, tid, to_address, subject, body, use_smtp2=False):
         if self.settings.disable_notifications:
             return succeed(True)
-
+    
         if self.tenants[tid].cache.mode != 'default':
             tid = 1
-
-        return sendmail(tid,
-                        self.tenants[tid].cache.notification.smtp_server,
-                        self.tenants[tid].cache.notification.smtp_port,
-                        self.tenants[tid].cache.notification.smtp_security,
-                        self.tenants[tid].cache.notification.smtp_authentication,
-                        self.tenants[tid].cache.notification.smtp_username,
-                        self.tenants[tid].cache.notification.smtp_password,
-                        self.tenants[tid].cache.name,
-                        self.tenants[tid].cache.notification.smtp_source_email,
-                        to_address,
-                        self.tenants[tid].cache.name + ' - ' + subject,
-                        body,
-                        self.tenants[1].cache.anonymize_outgoing_connections,
-                        self.settings.socks_port)
-
+    
+        notification = self.tenants[tid].cache.notification
+    
+        if use_smtp2 and getattr(notification, "smtp2_enabled", False):
+            smtp_server = notification.smtp2_server
+            smtp_port = notification.smtp2_port
+            smtp_security = notification.smtp2_security
+            smtp_authentication = notification.smtp2_authentication
+            smtp_username = notification.smtp2_username
+            smtp_password = notification.smtp2_password
+            smtp_source_email = notification.smtp2_source_email
+        else:
+            smtp_server = notification.smtp_server
+            smtp_port = notification.smtp_port
+            smtp_security = notification.smtp_security
+            smtp_authentication = notification.smtp_authentication
+            smtp_username = notification.smtp_username
+            smtp_password = notification.smtp_password
+            smtp_source_email = notification.smtp_source_email
+       
+        return sendmail(
+            tid,
+            smtp_server,
+            smtp_port,
+            smtp_security,
+            smtp_authentication,
+            smtp_username,
+            smtp_password,
+            self.tenants[tid].cache.name,
+            smtp_source_email,
+            to_address,
+            self.tenants[tid].cache.name + ' - ' + subject,
+            body,
+            self.tenants[1].cache.anonymize_outgoing_connections,
+            self.settings.socks_port
+        )
+        
     def schedule_support_email(self, tid, text):
         subject = "Support request"
         delivery_list = set.union(set(self.tenants[1].cache.notification.admin_list),
