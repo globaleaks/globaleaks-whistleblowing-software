@@ -30,7 +30,35 @@ export class NotificationTab1Component {
   protected readonly Constants = Constants;
   smtpTabActive = 'smtp1';
   selected = {value: []};
-
+  supported_template_types = [
+    'null',
+    'tip',
+    'tip_access',
+    'tip_reminder',
+    'tip_update',
+    'tip_expiration_summary',
+    'unread_tips',
+    'pgp_alert',
+    'admin_pgp_alert',
+    'export_template',
+    'export_comment',
+    'admin_anomaly',
+    'admin_test',
+    'https_certificate_expiration',
+    'https_certificate_renewal_failure',
+    'software_update_available',
+    'admin_signup_alert',
+    'signup',
+    'activation',
+    'email_validation',
+    'account_activation',
+    'password_reset_validation',
+    'user_credentials',
+    'identity_access_request',
+    'identity_access_authorized',
+    'identity_access_denied'
+  ]
+  
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe(_ => {
       this.utilsService.reloadComponent();
@@ -46,15 +74,15 @@ export class NotificationTab1Component {
   }
 
   selectTemplate(template: string) {
-    if (template && (this.notificationResolver.dataModel.smtp2_use_templates.indexOf(template) === -1)) {
-      this.notificationResolver.dataModel.smtp2_use_templates.push(template)
-      this.notificationResolver.dataModel.smtp2_use_templates.sort();
+    if (template && (this.notificationResolver.dataModel.smtp2_template_types.indexOf(template) === -1)) {
+      this.notificationResolver.dataModel.smtp2_template_types.push(template)
+      this.notificationResolver.dataModel.smtp2_template_types.sort();
     }
     this.selected.value = [];
   }
 
   removeTemplate(index: number) {
-    this.notificationResolver.dataModel.smtp2_use_templates.splice(index, 1);
+    this.notificationResolver.dataModel.smtp2_template_types.splice(index, 1);
   }
 
   resetSMTPSettings(smtp2?: boolean) {

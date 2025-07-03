@@ -277,7 +277,7 @@ AdminNotificationDesc = {
     'smtp_password': str,
     'smtp_source_email': email_regexp,
     'smtp2_enabled': bool,
-    'smtp2_use_templates': [str],
+    'smtp2_template_types': [str],
     'smtp2_server': str,
     'smtp2_port': int,
     'smtp2_security': str,  # 'TLS' or 'SSL' only

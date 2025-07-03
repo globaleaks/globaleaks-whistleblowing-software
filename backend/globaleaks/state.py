@@ -241,8 +241,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
             tid = 1
     
         notification = self.tenants[tid].cache.notification
-    
-        if use_smtp2 and getattr(notification, "smtp2_enabled", False):
+
+        if getattr(notification, "smtp2_enabled", False) and use_smtp2:
             smtp_server = notification.smtp2_server
             smtp_port = notification.smtp2_port
             smtp_security = notification.smtp2_security

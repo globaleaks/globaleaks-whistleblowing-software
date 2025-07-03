@@ -180,15 +180,15 @@
       }
       <div class="form-group">
         <label>{{ 'Use secondary SMTP server for the following templates' | translate }}</label>
-        <ng-select [(ngModel)]="selected.value" [items]="notificationResolver.dataModel.templates" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="selectTemplate($event)">
+        <ng-select [(ngModel)]="selected.value" [items]="supported_template_types" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="selectTemplate($event)">
           <ng-template ng-option-tmp let-item="item">
             {{ item | translate }}
           </ng-template>
         </ng-select>
-        @if (notificationResolver.dataModel.smtp2_use_templates.length > 0) {
+        @if (notificationResolver.dataModel.smtp2_template_types.length > 0) {
           <br />
           <ul class="selection-list">
-            @for (template of notificationResolver.dataModel.smtp2_use_templates; track template; let index = $index) {
+            @for (template of notificationResolver.dataModel.smtp2_template_types; track template; let index = $index) {
               <li>
                 <label>{{ template }}</label>
                 <span class="action-btns ms-1">

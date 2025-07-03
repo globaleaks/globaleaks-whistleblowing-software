@@ -10,7 +10,7 @@ export class notificationResolverModel {
   smtp_server: string;
   smtp_source_email: string;
   smtp_username: string;
-  smtp2_use_templates: any;
+  smtp2_template_types: any;
   smtp2_failover: boolean
   smtp2_enabled: boolean;
   smtp2_authentication: boolean;
