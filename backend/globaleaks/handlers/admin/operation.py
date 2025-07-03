@@ -161,11 +161,10 @@ def disable_user_permission_file_upload(session, tid, user_session):
     user_session.permissions['can_upload_files'] = False
 
 
-def db_reset_smtp_settings(session, self, tid, use_smtp2=False):
+def db_reset_smtp_settings(session, tid, use_smtp2=False):
     config = ConfigFactory(session, tid)
-    notification = self.state.tenants[tid].cache.notification
 
-    if use_smtp2 and getattr(notification, "smtp2_enabled", False):
+    if use_smtp2:
         config.set_val('smtp2_server', 'mail.globaleaks.org')
         config.set_val('smtp2_port', 587)
         config.set_val('smtp2_username', 'globaleaks')
@@ -183,8 +182,8 @@ def db_reset_smtp_settings(session, self, tid, use_smtp2=False):
         config.set_val('smtp_authentication', True)
 
 @transact
-def reset_smtp_settings(session, self, tid, use_smtp2):
-    return db_reset_smtp_settings(session, self, tid, use_smtp2)
+def reset_smtp_settings(session, tid, use_smtp2):
+    return db_reset_smtp_settings(session, tid, use_smtp2)
 
 @transact
 def reset_templates(session, tid):
@@ -281,7 +280,7 @@ class AdminOperationHandler(OperationHandler):
 
     def reset_smtp_settings(self, req_args, *args, **kwargs):
         use_smtp2 = req_args.get('smtp2', False)
-        return reset_smtp_settings(self, self.request.tid, use_smtp2=use_smtp2)
+        return reset_smtp_settings(self.request.tid, use_smtp2=use_smtp2)
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
