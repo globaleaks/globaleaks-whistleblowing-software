@@ -1,5 +1,6 @@
 @if (!authentication.requireAuthCode) {
   <div>
+    @if (!authentication.loginData.loginOICDToken) {
     <div class="form-group">
       <div class="input-group mb-3">
         <span class="input-group-text">
@@ -8,6 +9,7 @@
         <input class="form-control" name="username" [attr.aria-label]="'Username' | translate" placeholder="{{'Username' | translate}}" [(ngModel)]="authentication.loginData.loginUsername" type="text" autofocus required />
       </div>
     </div>
+    }
     <div class="form-group mb-3">
       <div class="input-group">
         <span class="input-group-text">

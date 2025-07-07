@@ -52,6 +52,7 @@
         "@types/qrcode": "1.5.5",
         "@typescript-eslint/types": "8.32.1",
         "@typescript-eslint/utils": "8.32.1",
+        "angular-oauth2-oidc": "20.0.2",
         "angularx-qrcode": "19.0.0",
         "bootstrap": "5.3.6",
         "chart.js": "4.4.9",
@@ -7723,6 +7724,19 @@
         "eslint": "^8.57.0 || ^9.0.0",
         "typescript": "*",
         "typescript-eslint": "^8.0.0"
+      }
+    },
+    "node_modules/angular-oauth2-oidc": {
+      "version": "20.0.2",
+      "resolved": "https://registry.npmjs.org/angular-oauth2-oidc/-/angular-oauth2-oidc-20.0.2.tgz",
+      "integrity": "sha512-bMSXEQIuvgq8yqnsIatZggAvCJvY+pm7G8MK0tWCHR93UpFuNN+L5B6pY9CzRg8Ys+VVhkLIBx4zEHbJnv9icg==",
+      "license": "MIT",
+      "dependencies": {
+        "tslib": "^2.5.2"
+      },
+      "peerDependencies": {
+        "@angular/common": ">=20.0.0",
+        "@angular/core": ">=20.0.0"
       }
     },
     "node_modules/angularx-qrcode": {

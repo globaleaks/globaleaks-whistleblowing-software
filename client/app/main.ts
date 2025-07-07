@@ -44,6 +44,8 @@ import { ApplicationRef, importProvidersFrom } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import Flow from "@flowjs/flow.js";
 
+import { provideOAuthClient } from 'angular-oauth2-oidc';
+
 bootstrapApplication(AppComponent, {
     providers: [
         provideRouter(appRoutes),
@@ -98,7 +100,8 @@ bootstrapApplication(AppComponent, {
         TranslatorPipe,
         TranslateService,
         provideHttpClient(withInterceptorsFromDi()),
-        provideAnimations()
+        provideAnimations(),
+        provideOAuthClient()
     ]
 }).then(moduleRef => {
     // Expose Angular stability status to Cypress

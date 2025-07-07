@@ -13,7 +13,8 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
 import {CryptoService} from "@app/shared/services/crypto.service";
-import {TokenResponse} from "@app/models/authentication/token-response";
+import {TokenResponse} from "@app/models/authentication/token-response"
+import {OAuthService} from "angular-oauth2-oidc";
 
 @Injectable({
   providedIn: "root"
@@ -28,6 +29,7 @@ export class AuthenticationService {
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
   private cryptoService = inject(CryptoService);
+  private oauthService = inject(OAuthService);
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
@@ -102,6 +104,7 @@ export class AuthenticationService {
         requestObservable = this.httpService.requestAuthTokenLogin(JSON.stringify({"authtoken": authtoken}));
       } else {
         const authHeader = this.getHeader();
+
         if (password) {
             if (username === "whistleblower") {
               password = password.replace(/\D/g, "");
@@ -122,7 +125,7 @@ export class AuthenticationService {
             "tid": tid,
             "username": username,
             "password": password,
-            "authcode": authcode
+            "authcode": authcode,
           }), authHeader);
         }
       }
@@ -232,6 +235,11 @@ export class AuthenticationService {
 
   public getHeader(confirmation?: string): HttpHeaders {
     let headers = new HttpHeaders();
+
+    if (this.oauthService.hasValidAccessToken()) {
+      const token = this.oauthService.getAccessToken();
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
     if (this.session) {
       headers = headers.set('X-Session', this.session.id);

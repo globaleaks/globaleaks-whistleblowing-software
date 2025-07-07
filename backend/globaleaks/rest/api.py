@@ -173,6 +173,22 @@ default_api = staticfile.StaticFileHandler
 default_regexp = re.compile(r'/([a-zA-Z0-9_\-\/\.\@]*)')
 
 
+def extract_bearer_token(request):
+    try:
+        auth_header = request.getHeader('Authorization')
+        if not auth_header:
+            request.setResponseCode(401)
+            return None
+
+        if not auth_header.startswith('Bearer '):
+            request.setResponseCode(401)
+            return None
+
+        return auth_header[len('Bearer '):].strip()
+    except:
+        return None
+
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -345,6 +361,15 @@ class APIResourceWrapper(Resource):
         request.language = 'en'
         request.multilang = False
         request.finished = False
+        request.oidc_token = None
+
+        # Check presence of OIDC token
+        bearer_token = extract_bearer_token(request)
+        if bearer_token:
+            try:
+                request.oidc_token = State.oidcauth.verify_token(bearer_token)
+            except:
+                pass
 
         request.client_ip = request.getClientIP()
         if isinstance(request.client_ip, bytes):
@@ -550,7 +575,7 @@ class APIResourceWrapper(Resource):
         if request.path == b'/' or request.path == b'/index.html':
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
-                              b"connect-src 'self';"
+                              b"connect-src 'self' http://127.0.0.1:9090;"
                               b"default-src 'none';"
                               b"font-src 'self';"
                               b"form-action 'none';"

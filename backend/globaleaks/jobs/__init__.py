@@ -5,6 +5,7 @@ from globaleaks.jobs import anomalies, \
                             delivery, \
                             exit_nodes_refresh, \
                             notification, \
+                            oidc, \
                             periodic_daily, \
                             periodic_hourly, \
                             periodic_minutely, \
@@ -20,6 +21,7 @@ jobs_list = [
     delivery.Delivery,
     exit_nodes_refresh.ExitNodesRefresh,
     notification.Notification,
+    oidc.OIDC,
     periodic_daily.PeriodicDaily,
     periodic_hourly.PeriodicHourly,
     periodic_minutely.PeriodicMinutely,

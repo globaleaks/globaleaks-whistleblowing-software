@@ -21,6 +21,7 @@ class TestIdentityAccessRequestInstance(helpers.TestHandlerWithPopulatedDB):
                                         rtip_desc['receiver_id'],
                                         1,
                                         'recipient',
+                                        'recipient',
                                         helpers.USER_PRV_KEY,
                                         '')
 
