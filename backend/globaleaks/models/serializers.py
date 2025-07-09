@@ -308,12 +308,16 @@ def serialize_rtip(session, itip, rtip, language):
         if comment.author_id:
             other_receiver_ids.add(comment.author_id)
 
-    users = session.query(models.User).filter(models.User.id.in_(active_receiver_ids | other_receiver_ids)).all()
-    for user in users:
+    receiver_ids = active_receiver_ids | other_receiver_ids
+
+    users = session.query(models.User).filter(models.User.id.in_(receiver_ids)).all()
+    user_map = {user.id: user for user in users}
+    for uid in receiver_ids:
+        user = user_map.get(uid)
         ret['receivers'].append({
-            'id': user.id,
-            'name': user.name,
-            'active': user.id in active_receiver_ids
+            'id': uid,
+            'name': user.name if user else 'Recipient',
+            'active': uid in active_receiver_ids
         })
 
     return ret
@@ -346,12 +350,16 @@ def serialize_wbtip(session, itip, language):
         if comment.author_id:
             other_receiver_ids.add(comment.author_id)
 
-    users = session.query(models.User).filter(models.User.id.in_(active_receiver_ids | other_receiver_ids)).all()
-    for user in users:
+    receiver_ids = active_receiver_ids | other_receiver_ids
+
+    users = session.query(models.User).filter(models.User.id.in_(receiver_ids)).all()
+    user_map = {user.id: user for user in users}
+    for uid in receiver_ids:
+        user = user_map.get(uid)
         ret['receivers'].append({
-            'id': user.id,
-            'name': user.public_name,
-            'active': user.id in active_receiver_ids
+            'id': uid,
+            'name': user.public_name if user else 'Recipient',
+            'active': uid in active_receiver_ids
         })
 
     return ret

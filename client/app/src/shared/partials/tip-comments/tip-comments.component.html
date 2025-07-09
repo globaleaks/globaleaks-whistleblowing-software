@@ -47,7 +47,7 @@
                 @if (tipService.tip.receivers_by_id[comment.author_id]) {
                   <div class="message">
                     <div class="row">
-                      <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
+                      <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name | translate}}</div>
                       <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
                     @if (!comment.type) {
