@@ -312,7 +312,7 @@ def serialize_rtip(session, itip, rtip, language):
     for user in users:
         ret['receivers'].append({
             'id': user.id,
-            'name': user.public_name,
+            'name': user.name,
             'active': user.id in active_receiver_ids
         })
 
