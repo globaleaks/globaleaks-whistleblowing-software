@@ -127,6 +127,8 @@ else
   # In Docker, assume -y (non-interactive) and -n (disable autostart)
   ASSUMEYES=1
   DISABLEAUTOSTART=1
+  # Mask the service immediately to prevent any startup attempts during package installation
+  systemctl mask globaleaks 2>/dev/null || true
 fi
 
 if [ $DOCKER_ENV -eq 1 ]; then
@@ -189,7 +191,8 @@ if [ ! -d /globaleaks/deb ]; then
   echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] http://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
 fi
 
-if [ $DISABLEAUTOSTART -eq 1 ]; then
+if [ $DISABLEAUTOSTART -eq 1 ] && [ $DOCKER_ENV -eq 0 ]; then
+  # Only mask for non-Docker environments (Docker already masked earlier)
   systemctl mask globaleaks
 fi
 
