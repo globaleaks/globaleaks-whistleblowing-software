@@ -4,7 +4,20 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Detect if we're running in a Docker container
 DOCKER_ENV=0
-if [ -f /.dockerenv ] || [ -n "${DOCKER_CONTAINER}" ] || grep -q 'docker\|lxc' /proc/1/cgroup 2>/dev/null; then
+
+# Debug: Show what we're checking
+echo "Checking Docker environment..."
+echo "/.dockerenv exists: $([ -f /.dockerenv ] && echo 'yes' || echo 'no')"
+echo "DOCKER_CONTAINER var: '${DOCKER_CONTAINER}'"
+echo "Container runtime check: $(cat /proc/1/cgroup 2>/dev/null | head -n 5)"
+
+# Multiple detection methods for Docker environment
+if [ -f /.dockerenv ] || \
+   [ -n "${DOCKER_CONTAINER}" ] || \
+   [ "${container}" = "docker" ] || \
+   grep -q '/docker/' /proc/1/cgroup 2>/dev/null || \
+   grep -q '/lxc/' /proc/1/cgroup 2>/dev/null || \
+   [ -f /proc/1/cgroup ] && [ "$(cat /proc/1/cgroup | wc -l)" -eq 1 ] && grep -q '0::/$' /proc/1/cgroup; then
     DOCKER_ENV=1
     echo "Docker environment detected"
 fi
@@ -212,7 +225,12 @@ if [ -d /globaleaks/deb ]; then
     echo "Skipping service restart for Docker container"
   else
     DO "apt-get -y --allow-unauthenticated install globaleaks"
-    DO "/etc/init.d/globaleaks restart"
+    # Additional safety: check if we're in a containerized environment before restarting
+    if [ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker\|/lxc' /proc/1/cgroup 2>/dev/null; then
+      echo "Container environment detected - skipping service restart"
+    else
+      DO "/etc/init.d/globaleaks restart"
+    fi
   fi
 else
   DO "apt-get update -y"
@@ -228,6 +246,13 @@ else
     else
       DO "apt-get install globaleaks -y"
     fi
+  fi
+  
+  # For remote installation, also prevent service restart in containers
+  if [ $DOCKER_ENV -eq 0 ] && ([ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker\|/lxc' /proc/1/cgroup 2>/dev/null); then
+    echo "Container environment detected during remote installation - setting Docker mode"
+    DOCKER_ENV=1
+    DISABLEAUTOSTART=1
   fi
 fi
 
