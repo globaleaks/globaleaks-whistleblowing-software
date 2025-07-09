@@ -16,7 +16,6 @@ if [ -f /.dockerenv ] || \
    [ -n "${DOCKER_CONTAINER}" ] || \
    [ "${container}" = "docker" ] || \
    grep -q '/docker/' /proc/1/cgroup 2>/dev/null || \
-   grep -q '/lxc/' /proc/1/cgroup 2>/dev/null || \
    [ -f /proc/1/cgroup ] && [ "$(cat /proc/1/cgroup | wc -l)" -eq 1 ] && grep -q '0::/$' /proc/1/cgroup; then
     DOCKER_ENV=1
     echo "Docker environment detected"
@@ -226,7 +225,7 @@ if [ -d /globaleaks/deb ]; then
   else
     DO "apt-get -y --allow-unauthenticated install globaleaks"
     # Additional safety: check if we're in a containerized environment before restarting
-    if [ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker\|/lxc' /proc/1/cgroup 2>/dev/null; then
+    if [ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker' /proc/1/cgroup 2>/dev/null; then
       echo "Container environment detected - skipping service restart"
     else
       DO "/etc/init.d/globaleaks restart"
@@ -249,7 +248,7 @@ else
   fi
   
   # For remote installation, also prevent service restart in containers
-  if [ $DOCKER_ENV -eq 0 ] && ([ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker\|/lxc' /proc/1/cgroup 2>/dev/null); then
+  if [ $DOCKER_ENV -eq 0 ] && ([ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker' /proc/1/cgroup 2>/dev/null); then
     echo "Container environment detected during remote installation - setting Docker mode"
     DOCKER_ENV=1
     DISABLEAUTOSTART=1

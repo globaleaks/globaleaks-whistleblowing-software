@@ -2,11 +2,11 @@
 # Supports both production (remote) and testing (local) installs.
 #
 # Build Arguments:
-#   BASE_IMAGE:     The base image for the OS (e.g., debian:bookworm-slim)
+#   BASE_IMAGE:     The base image for the OS (e.g., debian:bookworm-slim@sha256:...)
 #   DISTRIBUTION:   The target distribution codename (e.g., bookworm)
 #   INSTALL_FROM:   Installation mode. 'remote' (default) or 'local'.
 
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG BASE_IMAGE=debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22
 ARG DISTRIBUTION=bookworm
 ARG INSTALL_FROM=remote
 
