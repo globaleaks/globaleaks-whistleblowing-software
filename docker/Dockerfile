@@ -25,9 +25,8 @@ RUN apt-get update -q && \
 
 # For local installation, the build context must contain:
 # ./deb/${DISTRIBUTION}/*.deb  (The built packages)
-# ./install-docker.sh         (The Docker-specific install script)
-# For remote installation, the build context must contain:
-# ./install-globaleaks.sh     (The GlobaLeaks install script)
+# ./docker/install-docker.sh  (The Docker-specific install script)
+# For remote installation, we use the scripts/install.sh from the codebase
 COPY deb/${DISTRIBUTION} /globaleaks/deb/
 COPY docker/install-docker.sh /tmp/install-docker.sh
 COPY scripts/install.sh /tmp/install-globaleaks.sh
