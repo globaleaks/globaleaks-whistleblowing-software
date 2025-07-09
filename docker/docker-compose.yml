@@ -24,8 +24,8 @@ services:
   # Production service (default)
   globaleaks:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: remote
     restart: unless-stopped
@@ -45,8 +45,8 @@ services:
   # Testing services for each distribution
   globaleaks-test-bookworm:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: bookworm
@@ -70,8 +70,8 @@ services:
 
   globaleaks-test-noble:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: noble
@@ -95,8 +95,8 @@ services:
 
   globaleaks-test-jammy:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: jammy
@@ -120,8 +120,8 @@ services:
 
   globaleaks-test-focal:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: focal
