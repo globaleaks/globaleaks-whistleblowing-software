@@ -23,13 +23,20 @@ RUN apt-get update -q && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# For local installation, the build context must contain:
-# ./deb/${DISTRIBUTION}/*.deb  (The built packages)
-# ./docker/install-docker.sh  (The Docker-specific install script)
-# For remote installation, we use the scripts/install.sh from the codebase
-COPY deb/${DISTRIBUTION} /globaleaks/deb/
-COPY docker/install-docker.sh /tmp/install-docker.sh
+# Create temporary directory for install scripts
+RUN mkdir -p /tmp/install
+
+# Copy install scripts from the repository (build context is project root)
 COPY scripts/install.sh /tmp/install-globaleaks.sh
+COPY docker/install-docker.sh /tmp/install-docker.sh
+
+# Create directory for potential local packages
+RUN mkdir -p /globaleaks/deb
+
+# For local installation builds, copy deb packages if they exist
+# Note: In CI, deb packages are built and placed in docker/deb/${DISTRIBUTION}/
+# For local development, this directory exists but may be empty, which is handled in the install logic
+COPY docker/deb/ /globaleaks/deb/
 
 # Set environment for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -38,8 +45,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo "DEBUG: INSTALL_FROM=${INSTALL_FROM}, DISTRIBUTION=${DISTRIBUTION}" && \
     if [ "${INSTALL_FROM}" = "local" ]; then \
         echo "--- Performing local installation ---"; \
-        chmod +x /tmp/install-docker.sh && \
-        /tmp/install-docker.sh; \
+        # Check if we have local packages for this distribution
+        if [ -d "/globaleaks/deb/${DISTRIBUTION}" ] && [ "$(ls -A /globaleaks/deb/${DISTRIBUTION} 2>/dev/null)" ]; then \
+            echo "Using local .deb packages for ${DISTRIBUTION}"; \
+            chmod +x /tmp/install-docker.sh && \
+            /tmp/install-docker.sh; \
+        else \
+            echo "No local packages found for ${DISTRIBUTION}, falling back to remote installation"; \
+            chmod +x /tmp/install-globaleaks.sh && \
+            /tmp/install-globaleaks.sh -y -n; \
+        fi; \
     else \
         echo "--- Performing remote installation ---"; \
         chmod +x /tmp/install-globaleaks.sh && \
