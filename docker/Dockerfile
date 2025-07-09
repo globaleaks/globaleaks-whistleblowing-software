@@ -26,9 +26,8 @@ RUN apt-get update -q && \
 # Create temporary directory for install scripts
 RUN mkdir -p /tmp/install
 
-# Copy install scripts from the repository (build context is project root)
-COPY scripts/install.sh /tmp/install-globaleaks.sh
-COPY docker/install-docker.sh /tmp/install-docker.sh
+# Copy the unified install script from the repository (build context is project root)  
+COPY scripts/install.sh /tmp/install.sh
 
 # Create directory for potential local packages
 RUN mkdir -p /globaleaks/deb
@@ -41,27 +40,13 @@ COPY docker/deb/ /globaleaks/deb/
 # Set environment for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Run the appropriate installation method based on INSTALL_FROM argument
+# Run the unified installation script
+# The script automatically detects Docker environment and adapts its behavior
 RUN echo "DEBUG: INSTALL_FROM=${INSTALL_FROM}, DISTRIBUTION=${DISTRIBUTION}" && \
-    if [ "${INSTALL_FROM}" = "local" ]; then \
-        echo "--- Performing local installation ---"; \
-        # Check if we have local packages for this distribution
-        if [ -d "/globaleaks/deb/${DISTRIBUTION}" ] && [ "$(ls -A /globaleaks/deb/${DISTRIBUTION} 2>/dev/null)" ]; then \
-            echo "Using local .deb packages for ${DISTRIBUTION}"; \
-            chmod +x /tmp/install-docker.sh && \
-            /tmp/install-docker.sh; \
-        else \
-            echo "No local packages found for ${DISTRIBUTION}, falling back to remote installation"; \
-            chmod +x /tmp/install-globaleaks.sh && \
-            /tmp/install-globaleaks.sh -y -n; \
-        fi; \
-    else \
-        echo "--- Performing remote installation ---"; \
-        chmod +x /tmp/install-globaleaks.sh && \
-        /tmp/install-globaleaks.sh -y -n; \
-    fi && \
+    chmod +x /tmp/install.sh && \
+    /tmp/install.sh && \
     # Cleanup installation files
-    rm -rf /tmp/install-docker.sh /tmp/install-globaleaks.sh /globaleaks/deb
+    rm -rf /tmp/install.sh /globaleaks/deb
 
 # Configure Docker-specific settings to disable sandboxing features (after installation)
 RUN echo "NETWORK_SANDBOXING=0" >> /etc/default/globaleaks && \
