@@ -26,8 +26,11 @@ RUN apt-get update -q && \
 # For local installation, the build context must contain:
 # ./deb/${DISTRIBUTION}/*.deb  (The built packages)
 # ./install-docker.sh         (The Docker-specific install script)
+# For remote installation, the build context must contain:
+# ./install-globaleaks.sh     (The GlobaLeaks install script)
 COPY deb/${DISTRIBUTION} /globaleaks/deb/
 COPY install-docker.sh /tmp/install-docker.sh
+COPY install-globaleaks.sh /tmp/install-globaleaks.sh
 
 # Set environment for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,7 +43,6 @@ RUN echo "DEBUG: INSTALL_FROM=${INSTALL_FROM}, DISTRIBUTION=${DISTRIBUTION}" && 
         /tmp/install-docker.sh; \
     else \
         echo "--- Performing remote installation ---"; \
-        wget https://deb.globaleaks.org/install-globaleaks.sh -O /tmp/install-globaleaks.sh && \
         chmod +x /tmp/install-globaleaks.sh && \
         /tmp/install-globaleaks.sh -y -n; \
     fi && \
