@@ -2,15 +2,18 @@ version: '3.8'
 
 # GlobaLeaks Docker Compose Configuration
 # 
-# Base Image SHA256 Hashes
+# Base Image SHA256 Hashes (single source of truth)
+x-bookworm-image: &bookworm-image debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22
+x-noble-image: &noble-image ubuntu:24.04@sha256:440dcf6a5640b2ae5c77724e68787a906afb8ddee98bf86db94eea8528c2c076
+x-jammy-image: &jammy-image ubuntu:22.04@sha256:3c61d3759c2639d4b836d32a2d3c83fa0214e36f195a3421018dbaaf79cbe37f
+x-focal-image: &focal-image ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2fafe15388214
+
+# Environment variables anchor (references the images above)
 x-base-images: &base-images
-  # Debian images
-  BASE_IMAGE_BOOKWORM: debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22
-  
-  # Ubuntu images
-  BASE_IMAGE_NOBLE: ubuntu:24.04@sha256:440dcf6a5640b2ae5c77724e68787a906afb8ddee98bf86db94eea8528c2c076
-  BASE_IMAGE_JAMMY: ubuntu:22.04@sha256:3c61d3759c2639d4b836d32a2d3c83fa0214e36f195a3421018dbaaf79cbe37f
-  BASE_IMAGE_FOCAL: ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2fafe15388214
+  BASE_IMAGE_BOOKWORM: *bookworm-image
+  BASE_IMAGE_NOBLE: *noble-image
+  BASE_IMAGE_JAMMY: *jammy-image
+  BASE_IMAGE_FOCAL: *focal-image
 
 # Usage Examples:
 # 
@@ -33,12 +36,14 @@ x-base-images: &base-images
 services:
   # Production service (default)
   globaleaks:
+    environment:
+      <<: *base-images
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: remote
-        BASE_IMAGE: ${BASE_IMAGE_BOOKWORM}
+        BASE_IMAGE: *bookworm-image
     restart: unless-stopped
     container_name: globaleaks
     network_mode: bridge
@@ -52,18 +57,19 @@ services:
     profiles:
       - production
       - ""  # Default profile
-    environment:
-      <<: *base-images
 
   # Testing services for each distribution
   globaleaks-test-bookworm:
+    environment:
+      <<: *base-images
+      DISTRIBUTION: bookworm
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: bookworm
-        BASE_IMAGE: ${BASE_IMAGE_BOOKWORM}
+        BASE_IMAGE: *bookworm-image
     image: globaleaks-test:bookworm
     container_name: globaleaks-test-bookworm
     ports:
@@ -74,22 +80,22 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
-    environment:
-      <<: *base-images
-      DISTRIBUTION: bookworm
     profiles:
       - testing
       - test-bookworm
       - test-all
 
   globaleaks-test-noble:
+    environment:
+      <<: *base-images
+      DISTRIBUTION: noble
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: noble
-        BASE_IMAGE: ${BASE_IMAGE_NOBLE}
+        BASE_IMAGE: *noble-image
     image: globaleaks-test:noble
     container_name: globaleaks-test-noble
     ports:
@@ -100,22 +106,22 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
-    environment:
-      <<: *base-images
-      DISTRIBUTION: noble
     profiles:
       - testing
       - test-noble
       - test-all
 
   globaleaks-test-jammy:
+    environment:
+      <<: *base-images
+      DISTRIBUTION: jammy
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: jammy
-        BASE_IMAGE: ${BASE_IMAGE_JAMMY}
+        BASE_IMAGE: *jammy-image
     image: globaleaks-test:jammy
     container_name: globaleaks-test-jammy
     ports:
@@ -126,22 +132,22 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
-    environment:
-      <<: *base-images
-      DISTRIBUTION: jammy
     profiles:
       - testing
       - test-jammy
       - test-all
 
   globaleaks-test-focal:
+    environment:
+      <<: *base-images
+      DISTRIBUTION: focal
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         INSTALL_FROM: local
         DISTRIBUTION: focal
-        BASE_IMAGE: ${BASE_IMAGE_FOCAL}
+        BASE_IMAGE: *focal-image
     image: globaleaks-test:focal
     container_name: globaleaks-test-focal
     ports:
@@ -152,9 +158,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 30s
-    environment:
-      <<: *base-images
-      DISTRIBUTION: focal
     profiles:
       - testing
       - test-focal
