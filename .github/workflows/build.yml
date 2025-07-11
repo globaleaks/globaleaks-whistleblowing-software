@@ -161,7 +161,7 @@ jobs:
           echo "Waiting for services to be ready..."
           i=0
           for dist in $DISTRIBUTIONS; do
-            port=$(($BASE_PORT + i))
+            port=$((BASE_PORT + $(echo $ALL_DISTRIBUTIONS | tr ' ' '\n' | grep -n "^$dist$" | cut -d: -f1 | awk '{print $1 - 1}')))
             i=$((i + 1))
 
             echo "Waiting for $dist on port $port..."
@@ -211,7 +211,7 @@ jobs:
 
           i=0
           for dist in $DISTRIBUTIONS; do
-            port=$(($BASE_PORT + i))
+            port=$(( BASE_PORT + $(echo $ALL_DISTRIBUTIONS | tr ' ' '\n' | grep -n "^$dist$" | cut -d: -f1 | awk '{print $1 - 1}')))
             i=$((i + 1))
 
             echo "🔍 Running Lighthouse audits for $dist on port $port..."
