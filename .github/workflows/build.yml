@@ -47,11 +47,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure stable branch is available
-        run: |
-          git config remote.origin.url "https://github.com/globaleaks/globaleaks-whistleblowing-software.git"
-          git fetch origin stable:stable
-          
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
