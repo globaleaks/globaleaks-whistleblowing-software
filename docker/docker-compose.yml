@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 services:
   globaleaks:
@@ -11,6 +11,12 @@ services:
     ports:
       - 80:8080
       - 443:8443
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
 
 volumes:
   globaleaks:

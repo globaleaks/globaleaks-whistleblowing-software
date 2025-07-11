@@ -1,25 +1,382 @@
 name: Build
 
-on: [ push, pull_request ]
+on: 
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_distribution:
+        description: 'Target distribution (bookworm, bullseye, noble, jammy, focal, or all)'
+        required: false
+        default: bookworm
+        type: choice
+        options:
+          - bookworm
+          - bullseye
+          - noble
+          - jammy
+          - focal
+          - all
 
 # Declare default permissions as read only.
 permissions: read-all
 
+env:
+  ALL_DISTRIBUTIONS: "bookworm bullseye noble jammy focal"
+  TARGET_DISTRIBUTION: ${{ github.event.inputs.target_distribution || 'bookworm' }}
+  BASE_PORT: 8443
+
 jobs:
-  run_build:
+  build_and_test:
     runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "noble", "jammy", "focal"]' || format('["{0}"]', github.event.inputs.target_distribution || 'bookworm')) }}
+    
     steps:
+      - name: Set DISTRIBUTIONS env
+        run: |
+          if [ "${{ github.event.inputs.target_distribution }}" = "all" ]; then
+            echo "DISTRIBUTIONS=$ALL_DISTRIBUTIONS" >> $GITHUB_ENV
+          else
+            echo "DISTRIBUTIONS=$TARGET_DISTRIBUTION" >> $GITHUB_ENV
+          fi
+
       - name: Check out repository code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
-      - name: Install git
+      - name: Ensure stable branch is available
+        run: |
+          git config remote.origin.url "https://github.com/globaleaks/globaleaks-whistleblowing-software.git"
+          git fetch origin stable:stable
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Install build dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y git
+          sudo apt-get install -y git curl wget ca-certificates gnupg lsb-release
+          sudo apt-get install -y build-essential debhelper devscripts
+          sudo apt-get install -y brotli dh-apparmor
+          sudo apt-get install -y dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-sphinx
+          sudo apt-get install -y docker-compose
+          
+          # Install Chrome for Cypress
+          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google.gpg
+          echo "deb [signed-by=/usr/share/keyrings/google.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
 
-      - name: Run tests
+      - name: Build packages for all distributions
         run: |
-          cd $GITHUB_WORKSPACE
-          ./.github/workflows/scripts/run_build.sh
+          echo "Building packages"
+          
+          # Set up git configuration
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # Build packages for each distribution
+          for dist in $DISTRIBUTIONS; do
+            echo "Building for distribution: $dist"
+            
+            # Create a temporary parent directory structure that build.sh expects
+            mkdir -p ../temp-build-$dist
+            cd ../temp-build-$dist
+            
+            # Create the expected directory structure for local builds
+            mkdir -p globaleaks-whistleblowing-software
+            
+            # Copy the source code into the expected location
+            cp -r ../globaleaks-whistleblowing-software/* globaleaks-whistleblowing-software/
+            cp -r ../globaleaks-whistleblowing-software/.git globaleaks-whistleblowing-software/ 2>/dev/null || true
+            
+            # Initialize git repository in the copied location if needed
+            cd globaleaks-whistleblowing-software
+            if [ ! -d .git ]; then
+              git init
+              git add .
+              git commit -m "Initial commit for build"
+            fi
+            
+            # Run the build script with local environment flag
+            ./scripts/build.sh -d $dist -n -l
+            
+            # Copy build results back to original location with distribution-specific path
+            mkdir -p ../../globaleaks-whistleblowing-software/build/$dist
+            cp -r build/* ../../globaleaks-whistleblowing-software/build/$dist/
+            
+            # Return to original directory
+            cd ../../globaleaks-whistleblowing-software
+            
+            # Show what was built
+            echo "Build completed for $dist. Looking for .deb files:"
+            find build/$dist -name "*.deb" -ls || echo "No .deb files found for $dist"
+          done
+
+      - name: Prepare Docker testing environment
+        run: |
+          echo "Preparing docker environments"
+          
+          # Create distribution-specific .deb directories
+          for dist in $DISTRIBUTIONS; do
+            mkdir -p docker/deb/$dist
+            # Find .deb files in the build directory structure
+            deb_files=$(find build/$dist -name "*.deb" -type f)
+            if [ -n "$deb_files" ]; then
+              echo "Found .deb files for $dist:"
+              echo "$deb_files"
+              cp $deb_files docker/deb/$dist/
+              echo "Copied .deb files for $dist:"
+              ls -la docker/deb/$dist/
+            else
+              echo "No .deb files found for $dist"
+              echo "Build directory structure:"
+              find build/$dist -type f -name "*.deb" -o -name "*.changes" -o -name "*.buildinfo" | head -20
+              exit 1
+            fi
+          done
+          
+          # Use the Docker-specific install script
+          echo "Using Docker-specific installation script"
+
+      - name: Build and start all Docker containers
+        run: |
+          cd docker
+
+          ./generate_testing_docker_compose.sh
+
+          distributions=($DISTRIBUTIONS)   # converts string to array
+          profiles=$(echo "${distributions[@]}" | sed 's/ /,testing-/g')
+          profiles="testing-$profiles"
+          
+          # Build and start containers using enhanced docker-compose.yml with profiles
+          echo "Building and starting Docker containers for profiles: $profiles"
+          COMPOSE_PROFILES="$profiles" docker-compose up -d --build
+          
+          echo "Waiting for services to be ready..."
+          i=0
+          for dist in $DISTRIBUTIONS; do
+            port=$((BASE_PORT + $(echo $ALL_DISTRIBUTIONS | tr ' ' '\n' | grep -n "^$dist$" | cut -d: -f1 | awk '{print $1 - 1}')))
+            i=$((i + 1))
+
+            echo "Waiting for $dist on port $port..."
+            timeout 120 bash -c "until curl -k https://localhost:$port 2>/dev/null; do echo 'Waiting for $dist...'; sleep 5; done" || {
+              echo "Error: $dist service failed to start"
+              docker-compose logs "globaleaks-$dist"
+              exit 1
+            }
+            echo "✅ $dist is ready on port $port"
+          done
+
+      - name: Install Cypress and Lighthouse dependencies efficiently
+        run: |
+          cd client
+          
+          # Check Node.js and npm versions
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          
+          # Clear npm cache to avoid any potential issues
+          npm cache clean --force || true
+          
+          # Use existing package.json with efficient installation (without --silent to see errors)
+          echo "Installing npm dependencies..."
+          npm ci --include=dev || {
+            echo "npm ci failed, trying alternative approach..."
+            # Fallback: regular npm install with older syntax
+            npm install --only=dev || npm install --include=dev
+          }
+          
+          # Verify Cypress installation
+          echo "Verifying Cypress installation..."
+          npx cypress verify
+          echo "Cypress dependencies installed successfully"
+          
+          # Install Lighthouse globally for CI use
+          echo "Installing Lighthouse CLI..."
+          npm install -g lighthouse@11.7.1
+
+      - name: Run Cypress tests and Lighthouse audits against all distributions
+        run: |
+          cd client
+          
+          # Run tests against each distribution
+          test_results=()
+          lighthouse_results=()
+
+          i=0
+          for dist in $DISTRIBUTIONS; do
+            port=$(( BASE_PORT + $(echo $ALL_DISTRIBUTIONS | tr ' ' '\n' | grep -n "^$dist$" | cut -d: -f1 | awk '{print $1 - 1}')))
+            i=$((i + 1))
+
+            echo "🔍 Running Lighthouse audits for $dist on port $port..."
+            
+            # Create lighthouse directory for this distribution
+            mkdir -p lighthouse-results/$dist
+            
+            # Run Lighthouse audits for multiple pages
+            lighthouse_exit_code=0
+            
+            # Audit home page
+            echo "  Auditing home page..."
+            lighthouse https://localhost:$port \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --preset=desktop \
+              --output=json \
+              --output=html \
+              --output-path=./lighthouse-results/$dist/lighthouse-report-home \
+              --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
+            
+            # Audit submission page
+            echo "  Auditing submission page..."
+            lighthouse https://localhost:$port/#/submission \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --preset=desktop \
+              --output=json \
+              --output=html \
+              --output-path=./lighthouse-results/$dist/lighthouse-report-submission \
+              --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
+            
+            # Audit login page
+            echo "  Auditing login page..."
+            lighthouse https://localhost:$port/#/login \
+              --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+              --preset=desktop \
+              --output=json \
+              --output=html \
+              --output-path=./lighthouse-results/$dist/lighthouse-report-login \
+              --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
+            
+            # Check Lighthouse results and thresholds for all pages
+            all_failed_checks=""
+            all_passed_scores=""
+            
+            for page in "home" "submission" "login"; do
+              report_file="./lighthouse-results/$dist/lighthouse-report-${page}.report.json"
+              if [ -f "$report_file" ]; then
+                echo "  Checking $page page scores..."
+                
+                # Extract scores using jq (JSON processor)
+                if command -v jq >/dev/null 2>&1; then
+                  perf_score=$(jq -r '.categories.performance.score * 100 | floor' "$report_file" 2>/dev/null || echo "0")
+                  a11y_score=$(jq -r '.categories.accessibility.score * 100 | floor' "$report_file" 2>/dev/null || echo "0")
+                  bp_score=$(jq -r '.categories["best-practices"].score * 100 | floor' "$report_file" 2>/dev/null || echo "0")
+                  seo_score=$(jq -r '.categories.seo.score * 100 | floor' "$report_file" 2>/dev/null || echo "0")
+                else
+                  # Fallback: use grep and basic text parsing
+                  perf_score=$(grep -o '"performance":{"id":"performance","title":"Performance","score":[0-9.]*' "$report_file" | grep -o '[0-9.]*$' | awk '{print int($1*100)}' || echo "0")
+                  a11y_score=$(grep -o '"accessibility":{"id":"accessibility","title":"Accessibility","score":[0-9.]*' "$report_file" | grep -o '[0-9.]*$' | awk '{print int($1*100)}' || echo "0")
+                  bp_score=$(grep -o '"best-practices":{"id":"best-practices","title":"Best Practices","score":[0-9.]*' "$report_file" | grep -o '[0-9.]*$' | awk '{print int($1*100)}' || echo "0")
+                  seo_score=$(grep -o '"seo":{"id":"seo","title":"SEO","score":[0-9.]*' "$report_file" | grep -o '[0-9.]*$' | awk '{print int($1*100)}' || echo "0")
+                fi
+                
+                # Check thresholds for this page
+                page_failed_checks=""
+                [ "$perf_score" -lt 60 ] && page_failed_checks="$page_failed_checks ${page}-performance:${perf_score}%(min:60%)"
+                [ "$a11y_score" -lt 85 ] && page_failed_checks="$page_failed_checks ${page}-accessibility:${a11y_score}%(min:85%)"
+                [ "$bp_score" -lt 80 ] && page_failed_checks="$page_failed_checks ${page}-best-practices:${bp_score}%(min:80%)"
+                [ "$seo_score" -lt 95 ] && page_failed_checks="$page_failed_checks ${page}-seo:${seo_score}%(min:95%)"
+                
+                if [ -n "$page_failed_checks" ]; then
+                  all_failed_checks="$all_failed_checks$page_failed_checks"
+                fi
+                
+                page_scores="${page}(perf:${perf_score}% a11y:${a11y_score}% bp:${bp_score}% seo:${seo_score}%)"
+                all_passed_scores="$all_passed_scores $page_scores"
+              else
+                echo "❌ Lighthouse report not found for $page page: $report_file"
+                all_failed_checks="$all_failed_checks ${page}-missing"
+              fi
+            done
+            
+            # Determine overall result
+            if [ -n "$all_failed_checks" ]; then
+              lighthouse_validation="FAILED:$all_failed_checks"
+              echo "❌ Lighthouse audit failed for $dist: $all_failed_checks"
+              lighthouse_results+=("$dist:LIGHTHOUSE_FAIL")
+            else
+              lighthouse_validation="PASSED:$all_passed_scores"
+              echo "✅ Lighthouse audit passed for $dist: $all_passed_scores"
+              lighthouse_results+=("$dist:LIGHTHOUSE_PASS")
+            fi
+            
+            echo "🧪 Running Cypress tests for $dist on port $port..."
+            
+            # Run Cypress tests and capture exit code
+            if npx cypress run --browser chrome; then
+              echo "✅ Cypress tests passed for $dist"
+              test_results+=("$dist:CYPRESS_PASS")
+            else
+              echo "❌ Cypress tests failed for $dist"
+              test_results+=("$dist:CYPRESS_FAIL")
+            fi
+          done
+          
+          # Print comprehensive summary
+          echo ""
+          echo "🏁 Test Results Summary:"
+          echo "========================"
+          echo "Cypress Results:"
+          for result in "${test_results[@]}"; do
+            echo "  $result"
+          done
+          echo ""
+          echo "Lighthouse Results:"
+          for result in "${lighthouse_results[@]}"; do
+            echo "  $result"
+          done
+          
+          # Check if any tests failed
+          failed=false
+          if echo "${test_results[@]}" | grep -q "FAIL"; then
+            echo ""
+            echo "❌ Some Cypress tests failed"
+            failed=true
+          fi
+          
+          if echo "${lighthouse_results[@]}" | grep -q "FAIL\|ERROR"; then
+            echo ""
+            echo "❌ Some Lighthouse audits failed"
+            failed=true
+          fi
+          
+          if [ "$failed" = true ]; then
+            exit 1
+          else
+            echo ""
+            echo "✅ All tests and audits passed!"
+          fi
+
+      - name: Cleanup Docker containers
+        if: always()
+        run: |
+          cd docker
+          echo "Stopping all Docker containers..."
+          
+          # Stop using the same profiles that were started
+          if [ "${{ github.event.inputs.target_distribution }}" == "all" ]; then
+            COMPOSE_PROFILES="testing-all" docker-compose down || true
+          else
+            COMPOSE_PROFILES="testing-${{ matrix.distribution }}" docker-compose down || true
+          fi
+          
+          echo "Cleanup completed"
+
+      - name: Upload test and audit artifacts
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: test-artifacts-${{ matrix.distribution }}
+          path: |
+            client/cypress/screenshots/
+            client/cypress/videos/
+            client/lighthouse-results/
+            build/**/*.log
+            build/**/*.deb
+            docker/docker-compose.yml
+          retention-days: 7

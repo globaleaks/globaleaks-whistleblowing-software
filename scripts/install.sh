@@ -2,8 +2,27 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-# User Permission Check
-if [ ! $(id -u) = 0 ]; then
+# Detect if we're running in a Docker container
+DOCKER_ENV=0
+
+# Debug: Show what we're checking
+echo "Checking Docker environment..."
+echo "/.dockerenv exists: $([ -f /.dockerenv ] && echo 'yes' || echo 'no')"
+echo "DOCKER_CONTAINER var: '${DOCKER_CONTAINER}'"
+echo "Container runtime check: $(cat /proc/1/cgroup 2>/dev/null | head -n 5)"
+
+# Multiple detection methods for Docker environment
+if [ -f /.dockerenv ] || \
+   [ -n "${DOCKER_CONTAINER}" ] || \
+   [ "${container}" = "docker" ] || \
+   grep -q '/docker/' /proc/1/cgroup 2>/dev/null || \
+   [ -f /proc/1/cgroup ] && [ "$(cat /proc/1/cgroup | wc -l)" -eq 1 ] && grep -q '0::/$' /proc/1/cgroup; then
+    DOCKER_ENV=1
+    echo "Docker environment detected"
+fi
+
+# User Permission Check (skip in Docker)
+if [ $DOCKER_ENV -eq 0 ] && [ ! $(id -u) = 0 ]; then
   echo "Error: GlobaLeaks install script must be run by root"
   exit 1
 fi
@@ -22,8 +41,10 @@ function DO () {
 
   STATUS=$?
 
-  last_command $CMD
-  last_status $STATUS
+  if [ $DOCKER_ENV -eq 0 ]; then
+    last_command $CMD
+    last_status $STATUS
+  fi
 
   if [ "$STATUS" -eq "$EXPECTED_RET" ]; then
     echo "SUCCESS"
@@ -47,30 +68,43 @@ if which lsb_release >/dev/null; then
   DISTRO_CODENAME="$(lsb_release -cs)"
 fi
 
-# Report last executed command and its status
-TMPDIR=$(mktemp -d)
-echo '' > $TMPDIR/last_command
-echo '' > $TMPDIR/last_status
+# Report last executed command and its status (not needed in Docker)
+if [ $DOCKER_ENV -eq 0 ]; then
+  TMPDIR=$(mktemp -d)
+  echo '' > $TMPDIR/last_command
+  echo '' > $TMPDIR/last_status
 
-function last_command () {
-  echo $1 > $TMPDIR/last_command
-}
+  function last_command () {
+    echo $1 > $TMPDIR/last_command
+  }
 
-function last_status () {
-  echo $1 > $TMPDIR/last_status
-}
+  function last_status () {
+    echo $1 > $TMPDIR/last_status
+  }
+else
+  # Dummy functions for Docker environment
+  function last_command () {
+    true
+  }
+
+  function last_status () {
+    true
+  }
+fi
 
 function prompt_for_continuation () {
-  if [ $ASSUMEYES -eq 0 ]; then
-    while true; do
-      read -p "Do you wish to continue anyway? [y|n]?" yn
-      case $yn in
-        [Yy]*) break;;
-        [Nn]*) exit 1;;
-        *) echo $yn; echo "Please answer y/n.";  continue;;
-      esac
-    done
+  if [ $DOCKER_ENV -eq 1 ] || [ $ASSUMEYES -eq 1 ]; then
+    return 0  # Auto-continue in Docker or when -y is specified
   fi
+  
+  while true; do
+    read -p "Do you wish to continue anyway? [y|n]?" yn
+    case $yn in
+      [Yy]*) break;;
+      [Nn]*) exit 1;;
+      *) echo $yn; echo "Please answer y/n.";  continue;;
+    esac
+  done
 }
 
 usage() {
@@ -82,25 +116,38 @@ usage() {
   echo -e " -v install a specific software version"
 }
 
-while getopts "ynv:h" opt; do
-  case $opt in
-    y) ASSUMEYES=1
-    ;;
-    n) DISABLEAUTOSTART=1
-    ;;
-    v) VERSION="$OPTARG"
-    ;;
-    h)
-        usage
-        exit 1
-    ;;
-    \?) usage
-        exit 1
-    ;;
-  esac
-done
+# Parse command line arguments (not in Docker environment)
+if [ $DOCKER_ENV -eq 0 ]; then
+  while getopts "ynv:h" opt; do
+    case $opt in
+      y) ASSUMEYES=1
+      ;;
+      n) DISABLEAUTOSTART=1
+      ;;
+      v) VERSION="$OPTARG"
+      ;;
+      h)
+          usage
+          exit 1
+      ;;
+      \?) usage
+          exit 1
+      ;;
+    esac
+  done
+else
+  # In Docker, assume -y (non-interactive) and -n (disable autostart)
+  ASSUMEYES=1
+  DISABLEAUTOSTART=1
+  # Mask the service immediately to prevent any startup attempts during package installation
+  systemctl mask globaleaks 2>/dev/null || true
+fi
 
-echo -e "Running the GlobaLeaks installation...\nIn case of failure please report encountered issues to the ticketing system at: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues\n"
+if [ $DOCKER_ENV -eq 1 ]; then
+  echo "Running Docker-specific GlobaLeaks installation..."
+else
+  echo -e "Running the GlobaLeaks installation...\nIn case of failure please report encountered issues to the ticketing system at: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues\n"
+fi
 
 echo "Detected OS: $DISTRO - $DISTRO_CODENAME"
 
@@ -124,8 +171,13 @@ if [ ! -f /etc/timezone ]; then
   echo "Etc/UTC" > /etc/timezone
 fi
 
-apt-get install -y tzdata
-dpkg-reconfigure -f noninteractive tzdata
+if [ $DOCKER_ENV -eq 1 ]; then
+  DO "apt-get -y install tzdata"
+  dpkg-reconfigure -f noninteractive tzdata
+else
+  apt-get install -y tzdata
+  dpkg-reconfigure -f noninteractive tzdata
+fi
 
 DO "apt-get -y install gnupg net-tools software-properties-common wget"
 
@@ -142,13 +194,17 @@ if echo "$DISTRO_CODENAME" | grep -vqE "^(bionic|bookworm|bullseye|buster|focal|
   DISTRO_CODENAME="bookworm"
 fi
 
-echo "Adding GlobaLeaks PGP key to trusted APT keys"
-wget -qO- https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/globaleaks.gpg
+# Add GlobaLeaks repository (only if not installing from local packages)
+if [ ! -d /globaleaks/deb ]; then
+  echo "Adding GlobaLeaks PGP key to trusted APT keys"
+  wget -qO- https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/globaleaks.gpg
 
-echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] http://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
+  echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
+  echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] http://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
+fi
 
-if [ $DISABLEAUTOSTART -eq 1 ]; then
+if [ $DISABLEAUTOSTART -eq 1 ] && [ $DOCKER_ENV -eq 0 ]; then
+  # Only mask for non-Docker environments (Docker already masked earlier)
   systemctl mask globaleaks
 fi
 
@@ -161,18 +217,56 @@ if [ -d /globaleaks/deb ]; then
     echo "deb file:///globaleaks/deb/ /" >> /etc/apt/sources.list.d/globaleaks.local.list
   fi
   DO "apt -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true update"
-  DO "apt-get -y --allow-unauthenticated install globaleaks"
-  DO "/etc/init.d/globaleaks restart"
+  
+  if [ $DOCKER_ENV -eq 1 ]; then
+    # In Docker, use non-interactive options to avoid prompts
+    DO "apt-get -y --allow-unauthenticated -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\" install globaleaks"
+    echo "Skipping service restart for Docker container"
+  else
+    DO "apt-get -y --allow-unauthenticated install globaleaks"
+    # Additional safety: check if we're in a containerized environment before restarting
+    if [ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker' /proc/1/cgroup 2>/dev/null; then
+      echo "Container environment detected - skipping service restart"
+    else
+      DO "/etc/init.d/globaleaks restart"
+    fi
+  fi
 else
   DO "apt-get update -y"
   if [[ $VERSION ]]; then
-    DO "apt-get install globaleaks=$VERSION -y"
+    if [ $DOCKER_ENV -eq 1 ]; then
+      DO "apt-get install globaleaks=$VERSION -y -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\""
+    else
+      DO "apt-get install globaleaks=$VERSION -y"
+    fi
   else
-    DO "apt-get install globaleaks -y"
+    if [ $DOCKER_ENV -eq 1 ]; then
+      DO "apt-get install globaleaks -y -o Dpkg::Options::=\"--force-confdef\" -o Dpkg::Options::=\"--force-confold\""
+    else
+      DO "apt-get install globaleaks -y"
+    fi
+  fi
+  
+  # For remote installation, also prevent service restart in containers
+  if [ $DOCKER_ENV -eq 0 ] && ([ -f /.dockerenv ] || [ -n "${container}" ] || grep -q '/docker' /proc/1/cgroup 2>/dev/null); then
+    echo "Container environment detected during remote installation - setting Docker mode"
+    DOCKER_ENV=1
+    DISABLEAUTOSTART=1
   fi
 fi
 
 if [ $DISABLEAUTOSTART -eq 1 ]; then
+  if [ $DOCKER_ENV -eq 1 ]; then
+    echo "GlobaLeaks Docker installation completed successfully."
+    echo "The service will be started when the container runs."
+  fi
+  exit 0
+fi
+
+# Skip startup verification in Docker environment
+if [ $DOCKER_ENV -eq 1 ]; then
+  echo "GlobaLeaks Docker installation completed successfully."
+  echo "The service will be started when the container runs."
   exit 0
 fi
 
