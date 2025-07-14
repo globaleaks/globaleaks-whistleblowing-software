@@ -15,7 +15,7 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
     this.translationService.currentLocale$.subscribe(locale => {
       if (locale === 'crh') {
         this.locale = 'tk';
-      } else if (locale === 'dv') {
+      } else if (locale === 'ba' || locale === 'dv' || locale.startsWith('ug')) {
         this.locale = 'en';
       } else {
         this.locale = locale;
@@ -34,7 +34,7 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
                                             // Ora e sempre resistenza!
     const targetDate = new Date(baseDate);
     targetDate.setDate(baseDate.getDate() + (weekday - 3));
-    return formatDate(targetDate, 'EEEEE', this.locale);
+    return formatDate(targetDate, 'EEEEEE', this.locale);
   }
 
   // Full month name using Angular's formatDate
