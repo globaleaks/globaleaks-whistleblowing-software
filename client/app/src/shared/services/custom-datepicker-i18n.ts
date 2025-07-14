@@ -34,7 +34,7 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
                                             // Ora e sempre resistenza!
     const targetDate = new Date(baseDate);
     targetDate.setDate(baseDate.getDate() + (weekday - 3));
-    return formatDate(targetDate, 'EEE', this.locale);
+    return formatDate(targetDate, 'EEEEE', this.locale);
   }
 
   // Full month name using Angular's formatDate

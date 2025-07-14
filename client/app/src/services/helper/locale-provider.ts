@@ -75,6 +75,8 @@ import localeLo from '@angular/common/locales/lo';
 import localeLoExtra from '@angular/common/locales/extra/lo';
 import localeLt from '@angular/common/locales/lt';
 import localeLtExtra from '@angular/common/locales/extra/lt';
+import localeLv from '@angular/common/locales/lv';
+import localeLvExtra from '@angular/common/locales/extra/lv';
 import localeMg from '@angular/common/locales/mg';
 import localeMgExtra from '@angular/common/locales/extra/mg';
 import localeMk from '@angular/common/locales/mk';
@@ -145,6 +147,10 @@ import localeZhHk from '@angular/common/locales/zh-Hant-HK';
 import localeZhHkExtra from '@angular/common/locales/extra/zh-Hant-HK';
 import localeZhTw from '@angular/common/locales/zh-Hant';
 import localeZhTwExtra from '@angular/common/locales/extra/zh-Hant';
+import localeHy from '@angular/common/locales/hy';
+import localeHyExtra from '@angular/common/locales/extra/hy';
+import localeKl from '@angular/common/locales/kl';
+import localeKlExtra from '@angular/common/locales/extra/kl';
 
 // Registering all locales using your original codes
 export function registerLocales(): void {
@@ -185,6 +191,7 @@ export function registerLocales(): void {
   registerLocaleData(localeKy, 'ky', localeKyExtra);
   registerLocaleData(localeLo, 'lo', localeLoExtra);
   registerLocaleData(localeLt, 'lt', localeLtExtra);
+  registerLocaleData(localeLv, 'lv', localeLvExtra);
   registerLocaleData(localeMg, 'mg', localeMgExtra);
   registerLocaleData(localeMk, 'mk', localeMkExtra);
   registerLocaleData(localeMs, 'ms', localeMsExtra);
@@ -220,4 +227,6 @@ export function registerLocales(): void {
   registerLocaleData(localeZhCn, 'zh_CN', localeZhCnExtra); // Using 'zh_CN'
   registerLocaleData(localeZhHk, 'zh_HK', localeZhHkExtra); // Using 'zh_HK'
   registerLocaleData(localeZhTw, 'zh_TW', localeZhTwExtra); // Using 'zh_TW'
+  registerLocaleData(localeHy, 'hy', localeHyExtra);
+  registerLocaleData(localeKl, 'kl', localeKlExtra);
 }
