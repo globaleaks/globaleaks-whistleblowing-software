@@ -595,7 +595,7 @@ def get_public_resources(session, tid, language):
 
     api_descriptor = {
         'node': tenant_node,
-        'questionnaires': db_get_questionnaires(session, tid, language),
+        'questionnaires': db_get_questionnaires(session, tid, language, True),
         'submission_statuses': db_get_submission_statuses(session, tid, language),
         'receivers': db_get_receivers(session, tid, language),
         'contexts': db_get_contexts(session, tid, language),
