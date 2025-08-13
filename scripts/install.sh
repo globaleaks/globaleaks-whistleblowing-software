@@ -181,6 +181,10 @@ fi
 
 DO "apt-get -y install gnupg net-tools software-properties-common wget"
 
+if [[ "$DISTRO" != "trixie" ]]; then
+  DO "apt-get -y install software-properties-common"
+fi
+
 # The supported platforms are experimentally more than only Ubuntu as
 # publicly communicated to users.
 #
