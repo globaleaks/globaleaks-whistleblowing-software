@@ -1,0 +1,16 @@
+acme==4.0.0
+brotli==1.1.0
+cryptography==43.0.0
+fpdf2==2.8.3
+h2==4.2.0
+idna==3.10
+josepy==2.0.0
+priority==2.0.0
+pyopenSSL==25.0.0
+pynacl==1.5.0
+pyotp==2.9.0
+python_gnupg==0.5.4
+six==1.17.0
+sqlalchemy==2.0.40
+twisted==24.11.0
+txtorcon==24.8.0

@@ -153,8 +153,8 @@ echo "Detected OS: $DISTRO - $DISTRO_CODENAME"
 
 last_command "check_distro"
 
-if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm)|(noble)$" ; then
-  echo "WARNING: The recommended up-to-date platforms are Debian 12 (Bookworm) and Ubuntu 24.04 (Noble)"
+if echo "$DISTRO_CODENAME" | grep -vqE "^(trixie)|(noble)$" ; then
+  echo "WARNING: The recommended up-to-date platforms are Debian 13 (Trixie) and Ubuntu 24.04 (Noble)"
   echo "WARNING: Use one of these platforms to ensure best stability and security"
 
   prompt_for_continuation
@@ -181,15 +181,19 @@ fi
 
 DO "apt-get -y install gnupg net-tools software-properties-common wget"
 
+if [[ "$DISTRO" != "trixie" ]]; then
+  DO "apt-get -y install software-properties-common"
+fi
+
 # The supported platforms are experimentally more than only Ubuntu as
 # publicly communicated to users.
 #
 # Depending on the intention of the user to proceed anyhow installing on
 # a not supported distro we using the experimental package if it exists
-# or bookworm as fallback.
-if echo "$DISTRO_CODENAME" | grep -vqE "^(bionic|bookworm|bullseye|buster|focal|jammy|noble)$"; then
-  # In case of unsupported platforms we fallback on bookworm
-  echo "No packages available for the current distribution; the install script will use the bookworm repository."
+# or trixie as fallback.
+if echo "$DISTRO_CODENAME" | grep -vqE "^(bionic|bookworm|bullseye|buster|focal|jammy|noble|trixie)$"; then
+  # In case of unsupported platforms we fallback on trixie
+  echo "No packages available for the current distribution; the install script will use the trixie repository."
   DISTRO="Debian"
   DISTRO_CODENAME="trixie"
 fi

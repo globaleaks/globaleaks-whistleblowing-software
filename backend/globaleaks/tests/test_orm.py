@@ -1,4 +1,4 @@
-from sqlalchemy.exc import DatabaseError
+import sqlalchemy
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.models import Tenant
@@ -52,4 +52,4 @@ class TestORM(helpers.TestGL):
         session = get_session()
 
         # Denied operation, such as DROP TABLE (we expect an exception)
-        yield self.assertRaises(DatabaseError, session.execute, "DROP TABLE Tenant")
+        yield self.assertRaises(sqlalchemy.exc.DatabaseError, session.execute, sqlalchemy.text("DROP TABLE Tenant"))

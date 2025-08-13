@@ -3,11 +3,13 @@ import os
 
 from datetime import datetime
 
+from sqlalchemy import or_, not_
+from sqlalchemy.orm import aliased
+
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
-from sqlalchemy import or_, not_
 
 
 def get_identity_files(data):
@@ -66,9 +68,13 @@ def serialize_archived_questionnaire_schema(questionnaire_schema, language):
 
 
 def serialize_identityaccessrequest(session, identityaccessrequest):
-    itip, request_user = session.query(models.InternalTip, models.User) \
-       .join(models.InternalTip, models.InternalTip.id == identityaccessrequest.internaltip_id) \
-       .filter(models.User.id == identityaccessrequest.request_user_id).one()
+    InternalTipAlias = aliased(models.InternalTip)
+    UserAlias = aliased(models.User)
+
+    itip, request_user = session.query(InternalTipAlias, UserAlias) \
+        .join(UserAlias, UserAlias.id == identityaccessrequest.request_user_id) \
+        .filter(InternalTipAlias.id == identityaccessrequest.internaltip_id) \
+        .one()
 
     reply_user = session.query(models.User) \
                         .filter(models.User.id == identityaccessrequest.reply_user_id).one_or_none()

@@ -6,24 +6,25 @@ on:
   workflow_dispatch:
     inputs:
       target_distribution:
-        description: 'Target distribution (bookworm, bullseye, noble, jammy, focal, or all)'
+        description: 'Target distribution (bionic, bookworm, bullseye, focal, jammy, noble, trixie or all)'
         required: false
-        default: bookworm
+        default: trixie
         type: choice
         options:
+          - all
+          - bionic
           - bookworm
           - bullseye
-          - noble
-          - jammy
           - focal
-          - all
+          - jammy
+          - noble
 
 # Declare default permissions as read only.
 permissions: read-all
 
 env:
-  ALL_DISTRIBUTIONS: "bookworm bullseye noble jammy focal"
-  TARGET_DISTRIBUTION: ${{ github.event.inputs.target_distribution || 'bookworm' }}
+  ALL_DISTRIBUTIONS: "bionic bookworm bullseye focal jammy noble trixie"
+  TARGET_DISTRIBUTION: ${{ github.event.inputs.target_distribution || 'trixie' }}
   BASE_PORT: 8443
 
 jobs:
@@ -31,7 +32,9 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["trixie", "bookworm", "bullseye", "noble", "jammy", "focal"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
+      
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bionic", "bookworm", "bullseye", "focal", "jammy", "noble", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
+
     
     steps:
       - name: Set DISTRIBUTIONS env

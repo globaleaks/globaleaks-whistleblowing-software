@@ -2,19 +2,20 @@
 # Supports both production (remote) and testing (local) installs.
 #
 # Build Arguments:
-#   BASE_IMAGE:     The base image for the OS (e.g., debian:bookworm-slim@sha256:...)
-#   DISTRIBUTION:   The target distribution codename (e.g., bookworm)
+#   BASE_IMAGE:     The base image for the OS (e.g., debian:trixie-slim@sha256:...)
+#   DISTRIBUTION:   The target distribution codename (e.g., trixie)
 #   INSTALL_FROM:   Installation mode. 'remote' (default) or 'local'.
 
-ARG BASE_IMAGE=debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22
+
+ARG BASE_IMAGE=debian:trixie-slim@sha256:f2306da7a8fb6440535937baed0ce0018736742d6dc5beec9d6a31355b259726
 ARG DISTRIBUTION=trixie
 ARG INSTALL_FROM=remote
 
 FROM ${BASE_IMAGE}
 
 # Redeclare build arguments to make them available after FROM
-ARG INSTALL_FROM=remote
 ARG DISTRIBUTION=trixie
+ARG INSTALL_FROM=remote
 
 # Install basic dependencies common to all builds
 RUN apt-get update -q && \

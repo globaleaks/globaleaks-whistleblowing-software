@@ -1,6 +1,7 @@
 import os
 import sys
 import traceback
+import sqlalchemy
 import warnings
 
 from globaleaks import models, DATABASE_VERSION
@@ -43,10 +44,16 @@ def create_db():
     Utility function to create a new database
     """
     engine = get_engine(orm_lockdown=False)
-    engine.execute('PRAGMA foreign_keys = ON')
-    engine.execute('PRAGMA secure_delete = ON')
-    engine.execute('PRAGMA auto_vacuum = FULL')
-    engine.execute('PRAGMA automatic_index = ON')
+
+    conn = engine.connect()
+    try:
+        conn.execute(sqlalchemy.text('PRAGMA foreign_keys = ON'))
+        conn.execute(sqlalchemy.text('PRAGMA secure_delete = ON'))
+        conn.execute(sqlalchemy.text('PRAGMA auto_vacuum = FULL'))
+        conn.execute(sqlalchemy.text('PRAGMA automatic_index = ON'))
+    finally:
+        conn.close()
+
     Base.metadata.create_all(engine)
 
 
@@ -55,7 +62,11 @@ def compact_db():
     Execute VACUUM command to deallocate database space
     """
     engine = get_engine(orm_lockdown=False)
-    engine.execute('VACUUM')
+    conn = engine.connect()
+    try:
+        conn.execute(sqlalchemy.text('VACUUM'))
+    finally:
+        conn.close()
 
 
 @transact_sync
