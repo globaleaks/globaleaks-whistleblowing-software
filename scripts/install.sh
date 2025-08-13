@@ -191,7 +191,7 @@ if echo "$DISTRO_CODENAME" | grep -vqE "^(bionic|bookworm|bullseye|buster|focal|
   # In case of unsupported platforms we fallback on bookworm
   echo "No packages available for the current distribution; the install script will use the bookworm repository."
   DISTRO="Debian"
-  DISTRO_CODENAME="bookworm"
+  DISTRO_CODENAME="trixie"
 fi
 
 # Add GlobaLeaks repository (only if not installing from local packages)

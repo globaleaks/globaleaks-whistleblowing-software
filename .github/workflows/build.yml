@@ -31,7 +31,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "noble", "jammy", "focal"]' || format('["{0}"]', github.event.inputs.target_distribution || 'bookworm')) }}
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["trixie", "bookworm", "bullseye", "noble", "jammy", "focal"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
     
     steps:
       - name: Set DISTRIBUTIONS env

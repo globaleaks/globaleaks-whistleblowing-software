@@ -12,7 +12,7 @@ from globaleaks.rest.cache import Cache
 from globaleaks.utils.agent import get_page
 from globaleaks.utils.log import log
 
-DEB_PACKAGE_URL = b'https://deb.globaleaks.org/bookworm/Packages'
+DEB_PACKAGE_URL = b'https://deb.globaleaks.org/trixie/Packages'
 
 
 import re

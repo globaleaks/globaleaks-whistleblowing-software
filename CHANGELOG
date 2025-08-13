@@ -1,3 +1,6 @@
+Changes in version 5.0.75
+    Add support for Debian 13 (Trixie)
+
 Changes in version 5.0.74
     Fix defect of visualization of reports list introduced in 5.0.73
     Bump client dependencies to latest versions

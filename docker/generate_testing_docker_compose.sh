@@ -4,6 +4,8 @@ set -e
 
 # Define supported distros as: name|base_image
 distros=(
+  distros=(
+  "trixie|debian:trixie-slim"
   "bookworm|debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22"
   "bullseye|debian:bullseye-slim@sha256:b5f9bc44bdfbd9d551dfdd432607cbc6bb5d9d6dea726a1191797d7749166973"
   "noble|ubuntu:24.04@sha256:440dcf6a5640b2ae5c77724e68787a906afb8ddee98bf86db94eea8528c2c076"

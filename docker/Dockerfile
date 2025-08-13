@@ -7,14 +7,14 @@
 #   INSTALL_FROM:   Installation mode. 'remote' (default) or 'local'.
 
 ARG BASE_IMAGE=debian:bookworm-slim@sha256:36e591f228bb9b99348f584e83f16e012c33ba5cad44ef5981a1d7c0a93eca22
-ARG DISTRIBUTION=bookworm
+ARG DISTRIBUTION=trixie
 ARG INSTALL_FROM=remote
 
 FROM ${BASE_IMAGE}
 
 # Redeclare build arguments to make them available after FROM
 ARG INSTALL_FROM=remote
-ARG DISTRIBUTION=bookworm
+ARG DISTRIBUTION=trixie
 
 # Install basic dependencies common to all builds
 RUN apt-get update -q && \
