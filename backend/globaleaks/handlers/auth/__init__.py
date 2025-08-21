@@ -99,7 +99,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
 
     db_log(session, tid=tid, type='whistleblower_login', user_id=operator_id, object_id=itip.id)
 
-    session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key)
+    session = Sessions.new(tid, itip.id, tid, itip.id, 'whistleblower', crypto_prv_key)
 
     if itip.receipt_change_needed:
         session.properties["new_receipt"] = GCE.generate_receipt()
@@ -184,7 +184,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     for r in user_permissions:
         permissions[r] = r in user.profile.permissions_list
 
-    return Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions)
+    return Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions)
 
 
 @transact
@@ -240,6 +240,32 @@ class AuthenticationHandler(BaseHandler):
             tid = self.request.tid
 
         yield login_delay(tid)
+
+        if State.tenants[tid].cache.idp:
+            if self.request.oidc_token:
+                preferred_username = self.request.oidc_token.get('preferred_username')
+                email = self.request.oidc_token.get('email')
+                idp_user_id = self.request.oidc_token.get('sub')
+
+                def ensure_user(session):
+                    user = session.query(User).filter(User.username == preferred_username, User.mail_address == email, User.tid == tid).one_or_none()
+                    if not user:
+                       raise errors.InvalidAuthentication
+                    
+                    user.idp_id = idp_user_id
+                    profile = user.profile
+                    roles_list = profile.roles_list if profile else []
+                    permissions = {r: (r in profile.permissions_list) for r in user_permissions} if profile else {}
+
+                    return dict(id=user.id,tid=user.tid,username=user.username,role=user.role,crypto_escrow_prv_key=user.crypto_escrow_prv_key,roles_list=roles_list,permissions=permissions)
+
+                user_data = yield tw(ensure_user)
+
+                session = Sessions.new(tid,user_data['id'],user_data['tid'],user_data['username'],user_data['role'],'',user_data['crypto_escrow_prv_key'],user_data['roles_list'],user_data['permissions'])
+
+                returnValue(session.serialize())
+            else:
+                raise errors.InvalidAuthentication
 
         session = yield login(tid,
                               request['username'],
@@ -328,6 +354,12 @@ class SessionHandler(BaseHandler):
         """
         request = self.validate_request(self.request.content.read(), requests.SessionUpdateDesc)
 
+        # Check if the configuration requires authentication via the IDP
+        if State.tenants[self.request.tid].cache.idp:
+            # If the configuration requires authentication via the IDP session renewal requires valid IDP token
+            if not self.request.oidc_token or self.request.oidc_token['preferred_username'] != self.session.username:
+                raise errors.InvalidAuthentication
+
         try:
             self.session.token.validate(request['token'].encode().split(b":")[1])
             Sessions.reset_timeout(self.session)
@@ -366,6 +398,7 @@ class TenantAuthSwitchHandler(BaseHandler):
         session = Sessions.new(tid,
                                self.session.user_id,
                                self.session.user_tid,
+                               self.session.username,
                                self.session.role,
                                self.session.cc,
                                self.session.ek,
@@ -392,6 +425,7 @@ class RoleAuthSwitchHandler(BaseHandler):
         session = Sessions.new(self.session.tid,
                                self.session.user_id,
                                self.session.user_tid,
+                               self.session.username,
                                role,
                                self.session.cc,
                                self.session.ek,
@@ -410,6 +444,7 @@ class OperatorAuthSwitchHandler(BaseHandler):
         session = Sessions.new(self.session.user_tid,
                                uuid4(),
                                self.session.user_tid,
+                               "whistleblower",
                                "whistleblower",
                                self.session.cc,
                                self.session.ek,

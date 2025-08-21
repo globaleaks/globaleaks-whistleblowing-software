@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label for="idp-enable">Enable IDP</label>
+      <input type="checkbox" [(ngModel)]="nodeResolver.dataModel.idp" id="idp-enable" />
+    </div>
+
+    <div class="form-group">
+      <label for="idp-issuer">OIDC Issuer URL</label>
+      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" class="form-control" [disabled]="!nodeResolver.dataModel.idp" />
+    </div>
+
+    <div class="form-group">
+      <label for="idp-redirect">Redirect URL</label>
+      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_redirectUri" id="idp-redirect" class="form-control" [disabled]="!nodeResolver.dataModel.idp" />
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-primary" (click)="updateNode()">
+        <i class="fa-solid fa-check"></i> Save
+      </button>
+    </div>
+  </div>
+</div>

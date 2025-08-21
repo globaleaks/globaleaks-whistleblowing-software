@@ -10,6 +10,7 @@ import {DefaultLoginComponent} from "./templates/default-login/default-login.com
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
+import {OAuthService} from 'angular-oauth2-oidc';
 
 @Component({
     selector: "app-login",
@@ -22,10 +23,32 @@ export class LoginComponent implements OnInit {
   router = inject(Router);
   private route = inject(ActivatedRoute);
   protected appDataService = inject(AppDataService);
-
+  private oauthService = inject(OAuthService);
 
   protected readonly location = location;
   loginData = new LoginDataRef();
+
+  constructor() {
+    if (this.appDataService.public.node.idp) {
+      this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
+        if (!this.authentication.session && this.oauthService.hasValidAccessToken()) {
+          this.handleSuccessfulLogin();
+        } else {
+          if (!this.oauthService.hasValidAccessToken()) {
+            this.oauthService.initLoginFlow();
+          }
+        }
+      });
+    }
+  }
+
+  private handleSuccessfulLogin(): void {
+    this.authentication.login(0, "", "", "").then(() => {
+      if (this.authentication.session && this.authentication.session.homepage) {
+        this.router.navigateByUrl(this.authentication.session.homepage);
+      }
+    });
+  }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {

@@ -78,4 +78,7 @@ export class nodeResolverModel {
   profile:boolean;
   is_profile:boolean;
   tid: number;
+  idp:boolean;
+  idp_issuer: string;
+  idp_redirectUri: string;
 }

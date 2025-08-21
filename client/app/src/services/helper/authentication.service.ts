@@ -13,7 +13,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
 import {CryptoService} from "@app/shared/services/crypto.service";
-import {TokenResponse} from "@app/models/authentication/token-response";
+import {OAuthService} from "angular-oauth2-oidc";
 
 @Injectable({
   providedIn: "root"
@@ -28,6 +28,7 @@ export class AuthenticationService {
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
   private cryptoService = inject(CryptoService);
+  private oauthService = inject(OAuthService);
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
@@ -50,20 +51,31 @@ export class AuthenticationService {
     this.loginInProgress = false;
     this.requireAuthCode = false;
     this.loginData = new LoginDataRef();
+    this.performLogout();
   };
 
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
-
     this.session = null;
     window.sessionStorage.clear();
-
+    this.performLogout();
     if (role === "whistleblower") {
       window.location.replace("about:blank");
     } else {
       this.loginRedirect();
     }
   };
+
+  private performLogout() {
+    const idToken = this.oauthService.getIdToken();
+    if (this.appDataService.public.node.idp && this.oauthService && idToken) {
+      this.oauthService.logOut({
+        client_id: 'globaleaks',
+        id_token_hint: idToken,
+        post_logout_redirect_uri: window.location.origin + '/login'
+      });
+    }
+  }
 
   setSession(response: Session) {
     this.session = response;
@@ -102,6 +114,7 @@ export class AuthenticationService {
         requestObservable = this.httpService.requestAuthTokenLogin(JSON.stringify({"authtoken": authtoken}));
       } else {
         const authHeader = this.getHeader();
+
         if (password) {
             if (username === "whistleblower") {
               password = password.replace(/\D/g, "");
@@ -122,7 +135,7 @@ export class AuthenticationService {
             "tid": tid,
             "username": username,
             "password": password,
-            "authcode": authcode
+            "authcode": authcode,
           }), authHeader);
         }
       }
@@ -233,6 +246,11 @@ export class AuthenticationService {
   public getHeader(confirmation?: string): HttpHeaders {
     let headers = new HttpHeaders();
 
+    if (this.oauthService.hasValidAccessToken()) {
+      const token = this.oauthService.getAccessToken();
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
     if (this.session) {
       headers = headers.set('X-Session', this.session.id);
       headers = headers.set('Accept-Language', 'en');
@@ -251,7 +269,7 @@ export class AuthenticationService {
       {
         next: () => {
           this.reset();
-	  this.deleteSession();
+          this.deleteSession();
 
           if (callback) {
             callback();

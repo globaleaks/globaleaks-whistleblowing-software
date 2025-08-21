@@ -151,6 +151,10 @@ class BaseHandler(object):
         if session is None or session.tid != self.request.tid:
             return
 
+        # Check session and oidc_token consistency in case both are present
+        if session and self.request.oidc_token and session.username != self.request.oidc_token['preferred_username']:
+            return
+
         if session.role != 'whistleblower' and \
            self.state.tenants[1].cache.get('log_accesses_of_internal_users', False):
              self.request.log_ip_and_ua = True

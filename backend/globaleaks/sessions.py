@@ -19,7 +19,7 @@ user_permissions = [
 
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek='', roles=None, permissions=None):
+    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
@@ -31,7 +31,7 @@ class Session(dict):
             'tid': tid,
             'user_id': user_id,
             'user_tid': user_tid,
-            'username': '',
+            'username': user_username,
             'role': user_role,
             'ratelimit_time': datetime_now(),
             'ratelimit_count': 0,
@@ -107,9 +107,9 @@ class SessionsFactory(TempDict):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_role, cc='', ek='', roles=None, permissions=None):
+    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
         self.revoke(tid, user_id)
-        session = Session(tid, user_id, user_tid, user_role, cc, ek, roles, permissions)
+        session = Session(tid, user_id, user_tid, user_username, user_role, cc, ek, roles, permissions)
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session
@@ -127,4 +127,4 @@ Sessions = SessionsFactory(timeout=Settings.authentication_lifetime)
 
 def initialize_submission_session(tid):
     prv_key, pub_key = GCE.generate_keypair()
-    return Sessions.new(tid, uuid4(), tid, 'whistleblower', prv_key)
+    return Sessions.new(tid, uuid4(), tid, 'whistleblower', 'whistleblower', prv_key)
