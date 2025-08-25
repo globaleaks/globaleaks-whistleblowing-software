@@ -17,6 +17,7 @@ export default defineConfig({
     "pgp": false,
     "init_password": "Password12345#",
     "user_password": "ACollectionOfDiplomaticHistorySince_1966_ToThe_Pr esentDay#",
+    "keycloak_user_password": "Admin1234@#$",
     "field_types": [
       "Single-line text input",
       "Multi-line text input",

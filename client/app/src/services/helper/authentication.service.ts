@@ -75,6 +75,7 @@ export class AuthenticationService {
         post_logout_redirect_uri: window.location.origin + '/login'
       });
     }
+    window.location.replace("/login");
   }
 
   setSession(response: Session) {

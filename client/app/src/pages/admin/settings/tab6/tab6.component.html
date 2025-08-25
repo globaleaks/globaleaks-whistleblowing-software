@@ -7,16 +7,16 @@
 
     <div class="form-group">
       <label for="idp-issuer">OIDC Issuer URL</label>
-      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" class="form-control" [disabled]="!nodeResolver.dataModel.idp" />
+      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" class="form-control" />
     </div>
 
     <div class="form-group">
       <label for="idp-redirect">Redirect URL</label>
-      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_redirectUri" id="idp-redirect" class="form-control" [disabled]="!nodeResolver.dataModel.idp" />
+      <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_redirectUri" id="idp-redirect" class="form-control" />
     </div>
 
     <div class="form-group">
-      <button class="btn btn-primary" (click)="updateNode()">
+      <button class="btn btn-primary" id="save" (click)="updateNode()">
         <i class="fa-solid fa-check"></i> Save
       </button>
     </div>
