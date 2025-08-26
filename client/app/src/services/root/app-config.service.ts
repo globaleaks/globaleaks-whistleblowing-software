@@ -89,9 +89,6 @@ export class AppConfigService {
                 requireHttps: this.appDataService.public.node.idp_issuer.startsWith('https://'),
                 postLogoutRedirectUri: window.location.origin + '/',
             });
-            this.oauthService.events.pipe(filter(e => e.type === 'session_terminated')).subscribe(() => {
-              this.authenticationService.deleteSession();
-            });
             this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
               if (this.authenticationService.session) {
                   this.oauthService.setupAutomaticSilentRefresh();

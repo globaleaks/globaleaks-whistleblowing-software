@@ -245,25 +245,15 @@ class AuthenticationHandler(BaseHandler):
             if self.request.oidc_token:
                 preferred_username = self.request.oidc_token.get('preferred_username')
                 email = self.request.oidc_token.get('email')
-                idp_user_id = self.request.oidc_token.get('sub')
 
                 def ensure_user(session):
                     user = session.query(User).filter(User.username == preferred_username, User.mail_address == email, User.tid == tid).one_or_none()
                     if not user:
                        raise errors.InvalidAuthentication
                     
-                    user.idp_id = idp_user_id
-                    profile = user.profile
-                    roles_list = profile.roles_list if profile else []
-                    permissions = {r: (r in profile.permissions_list) for r in user_permissions} if profile else {}
-
-                    return dict(id=user.id,tid=user.tid,username=user.username,role=user.role,crypto_escrow_prv_key=user.crypto_escrow_prv_key,roles_list=roles_list,permissions=permissions)
-
-                user_data = yield tw(ensure_user)
-
-                session = Sessions.new(tid,user_data['id'],user_data['tid'],user_data['username'],user_data['role'],'',user_data['crypto_escrow_prv_key'],user_data['roles_list'],user_data['permissions'])
-
-                returnValue(session.serialize())
+                    return user.username
+                
+                request['username'] = yield tw(ensure_user)
             else:
                 raise errors.InvalidAuthentication
 

@@ -23,6 +23,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 export class DefaultLoginComponent {
   protected utilsService = inject(UtilsService);
   protected authentication = inject(AuthenticationService);
+  protected appDataService = inject(AppDataService);
 
   @Input() loginData: LoginDataRef;
   @Input() loginValidator: NgForm;

@@ -30,24 +30,10 @@ export class LoginComponent implements OnInit {
 
   constructor() {
     if (this.appDataService.public.node.idp) {
-      this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
-        if (!this.authentication.session && this.oauthService.hasValidAccessToken()) {
-          this.handleSuccessfulLogin();
-        } else {
-          if (!this.oauthService.hasValidAccessToken()) {
-            this.oauthService.initLoginFlow();
-          }
-        }
-      });
-    }
-  }
-
-  private handleSuccessfulLogin(): void {
-    this.authentication.login(0, "", "", "").then(() => {
-      if (this.authentication.session && this.authentication.session.homepage) {
-        this.router.navigateByUrl(this.authentication.session.homepage);
+       if (!this.oauthService.hasValidAccessToken()) {
+        this.oauthService.initLoginFlow();
       }
-    });
+    }
   }
 
   ngOnInit() {

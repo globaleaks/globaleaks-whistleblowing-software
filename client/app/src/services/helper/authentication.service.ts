@@ -120,7 +120,10 @@ export class AuthenticationService {
             if (username === "whistleblower") {
               password = password.replace(/\D/g, "");
             }
-
+            if(this.appDataService.public.node.idp && this.oauthService && username !== "whistleblower"){
+              const idpUserInfo = this.oauthService.getIdentityClaims();
+              username = idpUserInfo["preferred_username"];
+            }
             const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""})));
             if (res.type == 'key') {
               this.appDataService.updateShowLoadingPanel(true);
