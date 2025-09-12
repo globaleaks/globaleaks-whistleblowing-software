@@ -40,6 +40,7 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
     new_file.name = uploaded_file['name']
     new_file.content_type = uploaded_file['type']
     new_file.size = uploaded_file['size']
+    new_file.reference_id = uploaded_file['reference_id']
     new_file.internaltip_id = internaltip_id
 
     if uploaded_file['submission']:

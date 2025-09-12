@@ -50,9 +50,9 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
     this.flowConfig = this.utilsService.getFlowOptions();
     this.flowConfig.target = this.fileUploadUrl;
     this.flowConfig.singleFile = (this.field !== undefined && !this.field.multi_entry);
-    this.flowConfig.query = {reference_id: this.field ? this.field.id:""};
+    this.flowConfig.query = {reference_id: this.field && this.entry.index !== undefined  ? `${this.field.id}-${this.entry.index}`  : this.field ? this.field.id : ""};
 
-    this.fileInput = this.field ? this.field.id : "status_page";
+    this.fileInput = this.file_id;
   }
 
   ngAfterViewInit() {

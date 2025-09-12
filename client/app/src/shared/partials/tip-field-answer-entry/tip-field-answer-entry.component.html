@@ -95,7 +95,7 @@
     }
     @case ('fileupload') {
       <div>
-        @for (wbFile of filteredWbFiles; track wbFile) {
+        @for (wbFile of filterWbFilesByReferenceId(tipService.tip.wbfiles,entry['index']); track wbFile) {
           <div class="mb-2">
             <span>{{wbFile.name}}</span>
             @if (utilsService.supportedViewTypes.includes(wbFile.type)) {

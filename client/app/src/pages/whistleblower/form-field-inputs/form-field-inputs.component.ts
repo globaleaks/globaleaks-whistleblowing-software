@@ -66,6 +66,8 @@ export class FormFieldInputsComponent implements OnInit {
     if(!this.fieldEntry){
       this.fieldEntry = "";
     }
+    this.indexAnswers(this.answers);
+    this.indexAnswers(this.entries);
   }
 
   getAnswersEntries(entry: any) {
@@ -95,10 +97,42 @@ export class FormFieldInputsComponent implements OnInit {
     return obj;
   }
 
-  addAnswerEntry(entries:any) {
+  indexAnswers(node: any): void {
+    if (!node || typeof node !== 'object') return;
+    for (const key of Object.keys(node)) {
+      const arr = node[key];
+      if (Array.isArray(arr)) {
+        arr.forEach((entry, i) => {
+          entry.index = `${i}`;
+          for (const nestedKey of Object.keys(entry)) {
+            if (Array.isArray(entry[nestedKey])) {
+              entry[nestedKey].forEach((nestedItem, j) => {
+                nestedItem.index = `${i}-${j}`;
+              });
+            }
+          }
+        });
+      }
+    }
+  }
+
+  addAnswerEntry(entries: any) {
+    if (!Array.isArray(entries)) return;
+  
     let newEntry = cloneDeep(entries[0]);
-    newEntry = this.resetEntries(newEntry)
+    newEntry = this.resetEntries(newEntry);
+  
     entries.push(newEntry);
-  };
+    entries.forEach((entry, i) => {
+      entry.index = `${i}`;
+      for (const key in entry) {
+        if (Array.isArray(entry[key])) {
+          entry[key].forEach((nested, j) => {
+            nested.index = `${i}-${j}`;
+          });
+        }
+      }
+    });
+  }
 
 }
