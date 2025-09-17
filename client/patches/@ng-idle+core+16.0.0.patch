@@ -1,0 +1,26 @@
+diff --git a/node_modules/@ng-idle/core/esm2022/lib/interruptsource.mjs b/node_modules/@ng-idle/core/esm2022/lib/interruptsource.mjs
+index e19ab01..1af74b2 100644
+--- a/node_modules/@ng-idle/core/esm2022/lib/interruptsource.mjs
++++ b/node_modules/@ng-idle/core/esm2022/lib/interruptsource.mjs
+@@ -16,7 +16,7 @@ export class InterruptSource {
+         // If the current zone is the 'angular' zone (a.k.a. NgZone) then re-enter this method in its parent zone
+         // The parent zone is usually the '<root>' zone but it can also be 'long-stack-trace-zone' in debug mode
+         // In tests, the current zone is typically a 'ProxyZone' created by async/fakeAsync (from @angular/core/testing)
+-        if (Zone.current.get('isAngularZone') === true) {
++        if (typeof Zone !== 'undefined' && Zone.current.get('isAngularZone') === true) {
+             Zone.current.parent.run(() => this.attach());
+             return;
+         }
+diff --git a/node_modules/@ng-idle/core/fesm2022/ng-idle-core.mjs b/node_modules/@ng-idle/core/fesm2022/ng-idle-core.mjs
+index 7dcd68d..3211caa 100644
+--- a/node_modules/@ng-idle/core/fesm2022/ng-idle-core.mjs
++++ b/node_modules/@ng-idle/core/fesm2022/ng-idle-core.mjs
+@@ -709,7 +709,7 @@ class InterruptSource {
+         // If the current zone is the 'angular' zone (a.k.a. NgZone) then re-enter this method in its parent zone
+         // The parent zone is usually the '<root>' zone but it can also be 'long-stack-trace-zone' in debug mode
+         // In tests, the current zone is typically a 'ProxyZone' created by async/fakeAsync (from @angular/core/testing)
+-        if (Zone.current.get('isAngularZone') === true) {
++        if (typeof Zone !== 'undefined' && Zone.current.get('isAngularZone') === true) {
+             Zone.current.parent.run(() => this.attach());
+             return;
+         }
