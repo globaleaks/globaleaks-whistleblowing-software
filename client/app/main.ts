@@ -51,7 +51,7 @@ import { provideNgIdleKeepalive } from "@ng-idle/keepalive";
 import { MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
 import { AppComponent } from "@app/pages/app/app.component";
 import { provideRouter } from "@angular/router";
-import { ApplicationRef, enableProdMode, importProvidersFrom } from '@angular/core';
+import { ApplicationRef, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import Flow from "@flowjs/flow.js";
 
@@ -59,6 +59,7 @@ enableProdMode();
 
 bootstrapApplication(AppComponent, {
     providers: [
+        provideZonelessChangeDetection(),
         provideRouter(appRoutes),
         provideNgIdleKeepalive(),
         importProvidersFrom(NgbModule,
