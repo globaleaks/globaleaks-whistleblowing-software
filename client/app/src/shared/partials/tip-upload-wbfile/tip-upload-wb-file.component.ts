@@ -47,6 +47,7 @@ export class TipUploadWbFileComponent {
       flowJsInstance.on("fileSuccess", (_) => {
         this.dataToParent.emit()
         this.errorFile = null;
+        this.cdr.detectChanges();
       });
       flowJsInstance.on("fileError", (file, _) => {
         this.showError = true;

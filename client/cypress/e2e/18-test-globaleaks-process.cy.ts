@@ -129,21 +129,15 @@ describe("globaleaks process", function () {
     cy.get('#tip-action-silence').should('be.visible').should('be.visible');
 
     // Upload and delete file
-    cy.get('#upload_description').type("description");
-    cy.get('#tip-action-upload').click();
-    cy.fixture("files/test.txt").then(fileContent => {
-      cy.get('input[type="file"]').then(input => {
-        const blob = new Blob([fileContent], { type: "text/plain" });
-        const testFile = new File([blob], "files/test.txt");
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(testFile);
-        const inputElement = input[0] as HTMLInputElement;
-        inputElement.files = dataTransfer.files;
+    cy.get('#upload_description')
+      .type('description')
+      .should('have.value', 'description');
 
-        const changeEvent = new Event("change", { bubbles: true });
-        input[0].dispatchEvent(changeEvent);
-      });
-    });
+    cy.get('input[type="file"]').selectFile(
+      './cypress/fixtures/files/test.txt',
+      { force: true }
+    );
+
     cy.get('.download-button').should('be.visible');
     cy.get('.download-button').first().click();
     cy.get('.tip-action-delete-file').first().click();
@@ -282,10 +276,11 @@ describe("globaleaks process", function () {
     cy.get("#start_recording").click();
     cy.wait(10000);
     cy.get("#stop_recording").click();
-    cy.get("#delete_recording").click();
+    cy.get("#delete_recording").should("be.visible").click();
     cy.get("#start_recording").click();
     cy.wait(10000);
     cy.get("#stop_recording").click();
+    cy.get("#delete_recording").should("be.visible");
     cy.get("#NextStepButton").click();
     cy.takeScreenshot("whistleblower/report_identity", "#SubmissionTabsContentBox");
     cy.get("input[type='text']").eq(2).should("be.visible").type("abc");
@@ -294,8 +289,8 @@ describe("globaleaks process", function () {
     cy.get("#SubmitButton").should("be.visible");
     cy.get("#SubmitButton").click();
     cy.get("#ViewReportButton").should("be.visible");
-    cy.get("#ViewReportButton").click();
     cy.wait(5000);
+    cy.get("#ViewReportButton").click();
     cy.get("#open_additional_questionnaire").click();
     cy.get("input[type='text']").eq(1).should("be.visible").type("single line text input");
     cy.get("#SubmitButton").click();

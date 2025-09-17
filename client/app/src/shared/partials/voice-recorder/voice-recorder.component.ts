@@ -96,6 +96,7 @@ export class VoiceRecorderComponent implements OnInit {
         }
         this.stopRecording().subscribe();
       }
+      this.cd.markForCheck();
     }, 1000);
 
     this.enableNoiseSuppression(stream).subscribe();
