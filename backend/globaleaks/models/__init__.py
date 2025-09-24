@@ -1180,7 +1180,8 @@ class _User(Model):
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
-
+    no_expiration_reminder_until_date = Column(DateTime, default=datetime_null, nullable=False)
+    last_expiration_reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 

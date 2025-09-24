@@ -1,4 +1,5 @@
 from datetime import timedelta
+from globaleaks.utils.crypto import GCE
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -8,6 +9,8 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
+
+THRESHOLDS = [28, 14, 7, 3] 
 
 @transact
 def simulate_unread_tips(session):
@@ -98,3 +101,86 @@ class TestNotification(helpers.TestGLWithPopulatedDB):
         yield notification.spool_emails()
 
         yield self.test_model_count(models.Mail, 0)
+
+
+class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
+    """Simulates a full year of expiration reminders with thresholds and downtime."""
+
+    @transact
+    def create_expiring_tip(self, session, user_id, days_until_exp):
+        context = session.query(models.Context).first()
+        user = session.query(models.User).get(user_id)
+
+        itip = models.InternalTip()
+        itip.context_id = context.id
+        itip.tid = context.tid
+        itip.status = 'opened'
+        itip.expiration_date = datetime_now() + timedelta(days=days_until_exp)
+        itip.creation_date = datetime_now()
+        itip.update_date = datetime_now()
+        itip.last_access = datetime_now()
+
+        max_prog = session.query(models.InternalTip.progressive) \
+            .filter(models.InternalTip.tid == context.tid) \
+            .order_by(models.InternalTip.progressive.desc()).first()
+        itip.progressive = (max_prog[0] + 1) if max_prog and max_prog[0] is not None else 1
+
+        itip.receipt_hash = GCE.generate_receipt()
+        itip.crypto_prv_key = "test_prv_key"
+        itip.crypto_pub_key = "test_pub_key"
+        itip.crypto_tip_pub_key = "test_tip_pub_key"
+        itip.crypto_tip_prv_key = "test_tip_prv_key"
+        itip.deprecated_crypto_files_pub_key = "test_files_pub_key"
+
+        session.add(itip)
+        session.flush()
+
+        rtip = models.ReceiverTip()
+        rtip.internaltip_id = itip.id
+        rtip.receiver_id = user.id
+        session.add(rtip)
+        session.flush()
+
+        return itip.id
+
+    @transact
+    def get_first_two_receivers(self, session):
+        users = session.query(models.User).filter(models.User.role == 'receiver').limit(2).all()
+        return [u.id for u in users]
+
+    @transact
+    def get_mail_count(self, session):
+        return session.query(models.Mail).count()
+
+    @inlineCallbacks
+    def test_full_year_thresholds(self):
+        user_ids = yield self.get_first_two_receivers()
+        
+        yield self.create_expiring_tip(user_ids[0], days_until_exp=30)
+        yield self.create_expiring_tip(user_ids[1], days_until_exp=30)
+
+        notif = Notification()
+        notif.skip_sleep = True
+
+        import globaleaks.jobs.notification as notif_mod
+        orig_datetime_now = notif_mod.datetime_now
+        baseline = datetime_now()
+
+        total_days = 365
+        downtime_days = {50, 120, 200}
+
+        for day in range(total_days):
+            if day in downtime_days:
+                continue
+
+            fake_now = baseline + timedelta(days=day)
+            notif_mod.datetime_now = lambda: fake_now
+
+            yield notif.generate_emails()
+
+        final_mail_count = yield self.get_mail_count()
+        expected_min_emails = len(THRESHOLDS) * len(user_ids)
+
+        self.assertGreaterEqual(final_mail_count, expected_min_emails)
+
+        notif_mod.datetime_now = orig_datetime_now
