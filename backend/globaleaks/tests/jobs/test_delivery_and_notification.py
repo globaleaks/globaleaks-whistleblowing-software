@@ -10,7 +10,8 @@ from globaleaks.orm import transact
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
 
-THRESHOLDS = [28, 14, 7, 3] 
+THRESHOLDS = [28, 14, 7, 3]
+
 
 @transact
 def simulate_unread_tips(session):
@@ -155,7 +156,7 @@ class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
     @inlineCallbacks
     def test_full_year_thresholds(self):
         user_ids = yield self.get_first_two_receivers()
-        
+
         yield self.create_expiring_tip(user_ids[0], days_until_exp=30)
         yield self.create_expiring_tip(user_ids[1], days_until_exp=30)
 
