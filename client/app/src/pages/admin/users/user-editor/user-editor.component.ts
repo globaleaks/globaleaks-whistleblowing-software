@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
-import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbDateStruct, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
@@ -18,12 +18,13 @@ import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password
 import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {NgbInputDatepicker} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [CommonModule, ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgbTooltipModule, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
+    imports: [CommonModule, NgbInputDatepicker, ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgbTooltipModule, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -75,6 +76,10 @@ export class UserEditorComponent implements OnInit {
 
     this.user.profile = this.profiles.filter(profile => profile.id == this.user.profile_id)[0];
     this.filteredProfiles = this.profiles.filter(p => p.custom === false);
+
+    if (this.user.no_expiration_reminder_until_date) {
+      this.user.no_expiration_reminder_until_date = this.utilsService.parseNgbDate(this.user.no_expiration_reminder_until_date);
+    }
   }
 
   toggleEditing() {

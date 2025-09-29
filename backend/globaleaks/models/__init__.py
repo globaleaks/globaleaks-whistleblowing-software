@@ -1213,6 +1213,7 @@ class _User(Model):
     date_keys = ['accepted_privacy_policy',
                  'creation_date',
                  'reminder_date',
+                 'no_expiration_reminder_until_date',
                  'last_login',
                  'password_change_date',
                  'pgp_key_expiration']

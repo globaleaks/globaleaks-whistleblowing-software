@@ -74,20 +74,9 @@ export class TipOperationPostponeComponent implements OnInit {
     }
 
     if (this.args && this.args.dateOptions) {
-      this.minDate = this.parseNgbDate(this.args.dateOptions.minDate);
-      this.maxDate = this.parseNgbDate(this.args.dateOptions.maxDate);
+      this.minDate = this.utils.parseNgbDate(this.args.dateOptions.minDate);
+      this.maxDate = this.utils.parseNgbDate(this.args.dateOptions.maxDate);
     }
   }
 
-  private parseNgbDate(date: Date): NgbDateStruct {
-    const dateObj = new Date(date);
-    const year = dateObj.getUTCFullYear();
-    const month = dateObj.getUTCMonth() + 1;
-    const day = dateObj.getUTCDate();
-
-    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-      return {year, month, day};
-    }
-    return {year: 0, month: 0, day: 0};
-  }
 }

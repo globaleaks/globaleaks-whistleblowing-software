@@ -18,6 +18,7 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
+from datetime import datetime
 
 
 def db_create_user(session, tid, user_session, request, language):
@@ -191,6 +192,10 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     if user.password_change_needed:
         request['password_change_needed'] = True
 
+    if 'no_expiration_reminder_until_date' in request and request['no_expiration_reminder_until_date']:
+       d = request['no_expiration_reminder_until_date']
+       user.no_expiration_reminder_until_date = datetime(d['year'], d['month'], d['day'])
+         
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
 

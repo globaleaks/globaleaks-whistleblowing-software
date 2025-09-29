@@ -9,6 +9,7 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
+import globaleaks.jobs.notification as notif_mod
 
 THRESHOLDS = [28, 14, 7, 3] 
 
@@ -104,7 +105,6 @@ class TestNotification(helpers.TestGLWithPopulatedDB):
 
 
 class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
-    """Simulates a full year of expiration reminders with thresholds and downtime."""
 
     @transact
     def create_expiring_tip(self, session, user_id, days_until_exp):
@@ -152,25 +152,23 @@ class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
     def get_mail_count(self, session):
         return session.query(models.Mail).count()
 
-    @inlineCallbacks
-    def test_full_year_thresholds(self):
-        user_ids = yield self.get_first_two_receivers()
-        
-        yield self.create_expiring_tip(user_ids[0], days_until_exp=30)
-        yield self.create_expiring_tip(user_ids[1], days_until_exp=30)
+    @transact
+    def get_mail_count_by_address(self, session, address):
+        return session.query(models.Mail).filter(models.Mail.address == address).count()
 
+    @transact
+    def get_user_address(self, session, user_id):
+        return session.query(models.User.mail_address).filter(models.User.id == user_id).scalar()
+
+    @inlineCallbacks
+    def run_simulation(self, downtime_days=None):
         notif = Notification()
         notif.skip_sleep = True
-
-        import globaleaks.jobs.notification as notif_mod
         orig_datetime_now = notif_mod.datetime_now
         baseline = datetime_now()
 
-        total_days = 365
-        downtime_days = {50, 120, 200}
-
-        for day in range(total_days):
-            if day in downtime_days:
+        for day in range(365):
+            if downtime_days and day in downtime_days:
                 continue
 
             fake_now = baseline + timedelta(days=day)
@@ -178,9 +176,39 @@ class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
 
             yield notif.generate_emails()
 
-        final_mail_count = yield self.get_mail_count()
-        expected_min_emails = len(THRESHOLDS) * len(user_ids)
-
-        self.assertGreaterEqual(final_mail_count, expected_min_emails)
-
         notif_mod.datetime_now = orig_datetime_now
+        final_mail_count = yield self.get_mail_count()
+        return final_mail_count
+
+    @inlineCallbacks
+    def test_full_year_no_downtime(self):
+        user_ids = yield self.get_first_two_receivers()
+        for uid in user_ids:
+            yield self.create_expiring_tip(uid, days_until_exp=30)
+
+        yield self.run_simulation()
+
+        for uid in user_ids:
+            addr = yield self.get_user_address(uid)
+            mails_for_user = yield self.get_mail_count_by_address(addr)
+            self.assertGreaterEqual(mails_for_user, len(THRESHOLDS))
+            
+        total = yield self.get_mail_count()
+        self.assertGreaterEqual(total, len(THRESHOLDS) * len(user_ids))
+
+    @inlineCallbacks
+    def test_full_year_with_downtime(self):
+        user_ids = yield self.get_first_two_receivers()
+        for uid in user_ids:
+            yield self.create_expiring_tip(uid, days_until_exp=30)
+
+        downtime_days = {16, 23}
+        yield self.run_simulation(downtime_days)
+
+        for uid in user_ids:
+            addr = yield self.get_user_address(uid)
+            mails_for_user = yield self.get_mail_count_by_address(addr)
+            self.assertGreaterEqual(mails_for_user, 3)
+
+        total = yield self.get_mail_count()
+        self.assertGreaterEqual(total, 3 * len(user_ids))

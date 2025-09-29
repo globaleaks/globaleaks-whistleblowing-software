@@ -48,4 +48,5 @@ export class User {
   newpassword: boolean;
   profile_id: string;
   profile: UserProfile;
+  no_expiration_reminder_until_date: any;
 }

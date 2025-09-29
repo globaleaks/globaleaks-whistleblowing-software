@@ -184,6 +184,15 @@
             <input class="form-check-input" [(ngModel)]="user.notification" type="checkbox">
             <label>{{ 'Enable email notifications' | translate }}</label>
          </div>
+         @if (user.notification) {
+            <label>{{ 'Do not send expiration reminders until' | translate }}</label>
+            <div class="input-group">
+              <input type="text" readonly class="form-control" name="no_expiration_reminder_until_date" placeholder="yyyy-mm-dd" name="dp" [required]="true" [(ngModel)]="user.no_expiration_reminder_until_date" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
+              <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button">
+                  <i class="fas fa-calendar"></i>
+              </button>
+            </div>
+          }
           @if (user.role === 'receiver') {
             <div class="form-group">
               <input class="form-check-input" [(ngModel)]="user.forcefully_selected" type="checkbox" [disabled]="user.id !== user.profile_id">

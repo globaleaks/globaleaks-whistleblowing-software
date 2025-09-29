@@ -2,7 +2,7 @@ import {EventEmitter, Injectable, Renderer2, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgbDateStruct, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
@@ -850,5 +850,17 @@ export class UtilsService {
 
   public getFlowInstance(): Flow {
     return new Flow(this.getFlowOptions());
+  }
+
+  public parseNgbDate(date: Date): NgbDateStruct {
+    const dateObj = new Date(date);
+    const year = dateObj.getUTCFullYear();
+    const month = dateObj.getUTCMonth() + 1;
+    const day = dateObj.getUTCDate();
+
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      return {year, month, day};
+    }
+    return {year: 0, month: 0, day: 0};
   }
 }
