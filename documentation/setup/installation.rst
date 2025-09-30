@@ -1,26 +1,42 @@
 Installation
 ============
 .. WARNING::
-  GlobaLeaks is designed to provide optimal technical anonymity for whistleblowers.
-  Additionally, the software can be configured to protect the identity of the platform administrator and the server's location, but this requires advanced setup procedures not covered in this simplified installation guide.
+   GlobaLeaks is designed to provide optimal technical anonymity for whistleblowers.
+   Protecting the identity of platform administrators and the server's location requires advanced configuration, not covered by this basic guide.
 
-Before you begin, make sure your system meets the :doc:`Requirements </technical/requirements>`.
+Before You Begin
+----------------
+Ensure your system meets the required :doc:`Requirements </technical/requirements>`.
 
-To install, run the following commands:
+Standard Installation
+---------------------
+Run these commands to download and install GlobaLeaks:
 
-.. code:: sh
+.. code:: bash
 
-  wget https://deb.globaleaks.org/install.sh
-  chmod +x install.sh
-  ./install.sh
+   wget https://deb.globaleaks.org/install.sh
+   chmod +x install.sh
+   ./install.sh
 
-To install using Docker, run the following commands:
+Docker Installation
+-------------------
+If you prefer Docker, deploy GlobaLeaks with:
 
-.. code:: sh
+.. code:: bash
 
-  docker run -d --name globaleaks \
-    -p 80:80 -p 443:443 \
-    -v globaleaks-data:/var/globaleaks \
-    globaleaks/globaleaks:latest
+   docker run -d --name globaleaks \
+     -p 80:80 -p 443:443 \
+     -v globaleaks-data:/var/globaleaks \
+     globaleaks/globaleaks:latest
 
-After installation, follow the on-screen instructions to access and configure your platform.
+Post-Installation Steps
+-----------------------
+After installation:
+- Follow the on-screen instructions to complete configuration.
+- Access the GlobaLeaks admin interface via your web browser (URL will be shown after setup).
+- Refer to the documentation for advanced configuration tips if further anonymity or customization is needed.
+
+Troubleshooting
+---------------
+If you encounter issues, visit the :doc:`Trouble-Shooting Guide </setup/trouble-shooting>` or check the community forums for help.
+

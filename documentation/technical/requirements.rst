@@ -1,43 +1,44 @@
 Requirements
 ============
-Ensure you understand and meet each of the following technical requirements.
+Before installing GlobaLeaks, please verify that your environment meets the following technical requirements.
 
-Hardware requirements
+Hardware Requirements
 ---------------------
-**Requirements**:
+**Minimum Recommended Specifications:**
 
-- CPU: Dual-core 2.0GHz (64-bit)
-- RAM: 1GB
-- Storage: 20GB
-- I/O: 10Mbit/s (shared)
+- **CPU:** Dual-core 2.0GHz (64-bit)
+- **RAM:** 1GB or more
+- **Storage:** 20GB (adjust according to your retention policies and expected usage)
+- **Network I/O:** 10Mbit/s (shared)
 
-Please note that GlobaLeaks is designed to run on servers with specifications smaller than those listed above.
+*Note:* GlobaLeaks can operate on lower-spec servers; adjust sizing based on your deployment needs.
 
-The storage size should be determined based on your data retention policies and the expected use of the platform.
-
-Software requirements
+Software Requirements
 ---------------------
-GlobaLeaks is designed to run on GNU/Linux and is developed and tested specifically for Debian-based systems.
+GlobaLeaks is developed and tested primarily on GNU/Linux, with full support for Debian-based systems.
 
-The currently recommended distributions are: Debian 12 (Bookworm) and Ubuntu 24.04 (Noble)
+**Supported Distributions (Recommended):**
+- Debian 12 (Bookworm)
+- Ubuntu 24.04 (Noble)
 
-The software lifecycle of the platform includes full support for all Debian and Ubuntu LTS versions starting from `Debian 10 <https://www.debian.org/releases/buster/>`_ and `Ubuntu 20.04 <https://releases.ubuntu.com/20.04/>`_.
+**Also Supported:**
+- Debian 10+ (`Debian 10 <https://www.debian.org/releases/buster/>`_)
+- Ubuntu 20.04+ (`Ubuntu 20.04 <https://releases.ubuntu.com/20.04/>`_)
 
-Support is guaranteed on these platforms according to the official long-term support timelines:
-
+Support follows the official LTS (Long Term Support) timelines for each distribution:
 - `Debian Release End of Life Timeline <https://wiki.debian.org/LTS>`_
 - `Ubuntu Release End of Life Timeline <https://www.ubuntu.com/info/release-end-of-life>`_
 
-Currently, we do not plan to support additional distributions, as GlobaLeaks adheres to the Unix philosophy of making each program excel in a specific area. By focusing our efforts on mastering one domain, we aim to serve our community most effectively. If you are interested in helping us extend support to additional distributions, please get in touch.
+At this time, additional GNU/Linux distributions are not officially supported. The project’s philosophy is to maintain deep expertise in a focused set of environments for maximal reliability. Interested in helping with additional platform support? [Get in touch](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues).
 
-Supported browsers
+Supported Browsers
 ------------------
+GlobaLeaks aims for full compatibility across all major desktop and mobile browsers.
 
-GlobaLeaks is designed to fully support all commonly used browsers on desktop PCs, laptops, tablets, and smartphones. Unfortunately, this browser appears to lack some necessary capabilities.
+**Recommended for anonymity:**  
+Use the `Tor Browser <https://www.torproject.org/>`_ for the strongest privacy, security, and anonymity protections.
 
-We recommend using the `Tor Browser <https://www.torproject.org/>`_ for enhanced anonymity, as well as additional privacy and security features that are not available in other browsers.
-
-Other supported browsers include:
+**Supported browsers and versions:**
 
 .. csv-table::
    :header: "Browser", "Version"
@@ -49,3 +50,6 @@ Other supported browsers include:
    "Safari", ">= 8"
    "iOS", ">= 9"
    "Android", ">= 4.4"
+
+If your browser is unsupported, some features may not function as intended. Always use an up-to-date version for improved security and stability.
+

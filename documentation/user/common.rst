@@ -1,28 +1,29 @@
-Common to all users
+Common to All Users
 ===================
+
 Login
 -----
-Users could login by accessing the ``/#/login`` page.
+To log in, navigate to the ``/#/login`` page in your browser.
 
 .. image:: ../images/user/login.png
 
-Access the user preferences
----------------------------
-After login Users could access their preferences by clicking the ``Preferences`` link present in the login status bar.
+Access User Preferences
+-----------------------
+Once logged in, access your preferences by clicking the ``Preferences`` link in the login status bar.
 
 .. image:: ../images/user/preferences.png
 
-Change your password
+Change Your Password
 --------------------
-Users could change their own password by accessing the ``Password`` tab present in the ``Preferences`` page.
+To change your password, go to the ``Password`` tab within the ``Preferences`` page.
 
 .. image:: ../images/user/password.png
 
-Reset your password
+Reset Your Password
 -------------------
-Users could requests a password reset via the ``/#/login`` page by clicking the ``Forgot password?`` button.
+If you forget your password, you can request a reset by clicking the ``Forgot password?`` button on the ``/#/login`` page.
 
-After clicking the button users are requested to type their own username or email address.
+You will then be prompted to enter your username or email address.
 
 .. image:: ../images/user/login.png
 
@@ -30,18 +31,20 @@ After clicking the button users are requested to type their own username or emai
 
 .. image:: ../images/user/password_reset_2.png
 
-Enable two-factor-authentication (2FA)
+Enable Two-Factor Authentication (2FA)
 --------------------------------------
-Users could enable Two-Factor-Authentication by clicking the ``Enable two factor authentication`` option inside the ``Preferences`` page.
+Enhance your account security by enabling Two-Factor Authentication (2FA).  
+Click the ``Enable two factor authentication`` option inside the ``Preferences`` page.
 
-To enable the feature the user requires to have a phone with installed a common ``Authenticator APP`` implementing the TOTP standard as by `RFC 6238 <https://tools.ietf.org/html/rfc6238>`_
+To use this feature, install an Authenticator app (such as Google Authenticator or Authy) that implements the TOTP standard (`RFC 6238 <https://tools.ietf.org/html/rfc6238>`_).
 
 .. image:: ../images/user/2fa.png
 
-Access and save your account recovery key
------------------------------------------
-Users could access their own Account Recovery key by clicking the ``Account Recovery Key`` button present in the ``Preferences`` page.
+Access and Back Up Your Account Recovery Key
+--------------------------------------------
+To prevent account loss, access and securely store your Account Recovery key.  
+Find the ``Account Recovery Key`` button in the ``Preferences`` page.
 
-This is a fundamental step that any user should do at their first login after activating their own account in order to backup their own account recovery key and get sure to not incur in data loss due to password loss.
+It is strongly recommended to back up your recovery key immediately after activating your account and first login.
 
 .. image:: ../images/user/recoverykey.png
