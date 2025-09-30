@@ -166,6 +166,8 @@ export class AppModule implements OnDestroy {
           this.authenticationService.loginRedirect();
         }
       }
+
+      this.reset();
     });
 
     this.reset();
