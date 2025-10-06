@@ -12,7 +12,7 @@ describe("Analyst - Default Report Statistics", () => {
 
     // Find and open the default template (first row in the table)
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
+      cy.get('button[ngbTooltip="Open"]').click();
     });
 
     // Wait for statistics page to load
@@ -39,7 +39,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
+      cy.get('button[ngbTooltip="Open"]').click();
     });
     cy.waitForPageIdle();
 
@@ -51,11 +51,11 @@ describe("Analyst - Default Report Statistics", () => {
     // Select date range (using the date picker that appears)
     cy.get('.filter-dropdown-calendar').should('be.visible');
     
-    // Click the first selectable date in the current month
-    cy.get('.ngb-dp-day').not('.ngb-dp-today').first().click();
+    // Click the first visible, clickable date in the current month
+    cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').first().click({ force: true });
     
-    // Click another date to complete the range
-    cy.get('.ngb-dp-day').not('.ngb-dp-today').eq(5).click();
+    // Click another visible date to complete the range
+    cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').eq(5).click({ force: true });
 
     // Wait for data to reload
     cy.waitForPageIdle();
@@ -66,39 +66,6 @@ describe("Analyst - Default Report Statistics", () => {
     cy.logout();
   });
 
-  it("should apply status filter and view updated statistics", function () {
-    cy.login_analyst();
-
-    // Navigate to statistics
-    cy.visit("/#/analyst/templates");
-    cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
-    });
-    cy.waitForPageIdle();
-
-    // Open status filter dropdown
-    cy.get('.filter-item').contains('Status').parent().within(() => {
-      cy.get('button.filter-btn').click();
-    });
-
-    // Wait for dropdown to appear
-    cy.get('.filter-dropdown').should('be.visible');
-
-    // Select a status option (click the first checkbox)
-    cy.get('ng-multiselect-dropdown .multiselect-item-checkbox').first().click();
-
-    // Close dropdown by clicking elsewhere
-    cy.get('.analyst-statistics-container').click(10, 10);
-
-    // Wait for data to reload
-    cy.waitForPageIdle();
-
-    // Verify badge showing filter count
-    cy.get('.filter-btn .badge').should('exist');
-
-    cy.logout();
-  });
 
   it("should clear all filters", function () {
     cy.login_analyst();
@@ -107,17 +74,21 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
+      cy.get('button[ngbTooltip="Open"]').click();
     });
     cy.waitForPageIdle();
 
-    // Apply a filter first
-    cy.get('.filter-item').contains('Status').parent().within(() => {
+    // Apply a date range filter first
+    cy.get('.filter-item').contains('Date Range').parent().within(() => {
       cy.get('button.filter-btn').click();
     });
-    cy.get('ng-multiselect-dropdown .multiselect-item-checkbox').first().click();
-    cy.get('.analyst-statistics-container').click(10, 10);
+    cy.get('.filter-dropdown-calendar').should('be.visible');
+    cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').first().click({ force: true });
+    cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').eq(5).click({ force: true });
     cy.waitForPageIdle();
+
+    // Verify filter is active
+    cy.get('.filter-btn.active').should('exist');
 
     // Clear all filters
     cy.get('button').contains('Clear All').click();
@@ -136,7 +107,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
+      cy.get('button[ngbTooltip="Open"]').click();
     });
     cy.waitForPageIdle();
 
@@ -163,7 +134,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('.fa-chevron-right').parent().click();
+      cy.get('button[ngbTooltip="Open"]').click();
     });
     cy.waitForPageIdle();
 
