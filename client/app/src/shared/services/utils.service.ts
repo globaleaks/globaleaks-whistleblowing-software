@@ -852,15 +852,4 @@ export class UtilsService {
     return new Flow(this.getFlowOptions());
   }
 
-  public parseNgbDate(date: Date): NgbDateStruct {
-    const dateObj = new Date(date);
-    const year = dateObj.getUTCFullYear();
-    const month = dateObj.getUTCMonth() + 1;
-    const day = dateObj.getUTCDate();
-
-    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-      return {year, month, day};
-    }
-    return {year: 0, month: 0, day: 0};
-  }
 }

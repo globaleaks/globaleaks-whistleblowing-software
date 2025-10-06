@@ -95,7 +95,6 @@ def serialize_user(session, user, language):
         'contexts': contexts,
         'send_activation_link': False,
         'forcefully_selected': False,
-        'no_expiration_reminder_until_date': user.no_expiration_reminder_until_date,
         'profile_id': user.profile_id,
         'profile': serialize_user_profile(session, profile)
     }

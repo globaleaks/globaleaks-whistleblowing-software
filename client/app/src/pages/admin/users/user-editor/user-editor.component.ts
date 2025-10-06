@@ -76,10 +76,6 @@ export class UserEditorComponent implements OnInit {
 
     this.user.profile = this.profiles.filter(profile => profile.id == this.user.profile_id)[0];
     this.filteredProfiles = this.profiles.filter(p => p.custom === false);
-
-    if (this.user.no_expiration_reminder_until_date) {
-      this.user.no_expiration_reminder_until_date = this.utilsService.parseNgbDate(this.user.no_expiration_reminder_until_date);
-    }
   }
 
   toggleEditing() {

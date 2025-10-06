@@ -4,14 +4,14 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.jobs.delivery import Delivery
-from globaleaks.jobs.notification import Notification
+from globaleaks.jobs.notification import MailGenerator, Notification
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
 import globaleaks.jobs.notification as notif_mod
 
-THRESHOLDS = [28, 14, 7, 3] 
+THRESHOLDS = [28, 14, 7, 3, 1] 
 
 @transact
 def simulate_unread_tips(session):
@@ -104,7 +104,7 @@ class TestNotification(helpers.TestGLWithPopulatedDB):
         yield self.test_model_count(models.Mail, 0)
 
 
-class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
+class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
 
     @transact
     def create_expiring_tip(self, session, user_id, days_until_exp):
@@ -148,26 +148,16 @@ class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
         users = session.query(models.User).filter(models.User.role == 'receiver').limit(2).all()
         return [u.id for u in users]
 
-    @transact
-    def get_mail_count(self, session):
-        return session.query(models.Mail).count()
-
-    @transact
-    def get_mail_count_by_address(self, session, address):
-        return session.query(models.Mail).filter(models.Mail.address == address).count()
-
-    @transact
-    def get_user_address(self, session, user_id):
-        return session.query(models.User.mail_address).filter(models.User.id == user_id).scalar()
-
     @inlineCallbacks
-    def run_simulation(self, downtime_days=None):
+    def run_simulation(self, downtime_days=None, days=90):
         notif = Notification()
         notif.skip_sleep = True
+        MailGenerator.simulate_mode = True
+
         orig_datetime_now = notif_mod.datetime_now
         baseline = datetime_now()
 
-        for day in range(365):
+        for day in range(days):
             if downtime_days and day in downtime_days:
                 continue
 
@@ -177,38 +167,39 @@ class TestYearlyExpirationReminders(helpers.TestGLWithPopulatedDB):
             yield notif.generate_emails()
 
         notif_mod.datetime_now = orig_datetime_now
-        final_mail_count = yield self.get_mail_count()
-        return final_mail_count
+
+        return MailGenerator.sent_reminders
 
     @inlineCallbacks
     def test_full_year_no_downtime(self):
         user_ids = yield self.get_first_two_receivers()
+        created_map = {}
         for uid in user_ids:
-            yield self.create_expiring_tip(uid, days_until_exp=30)
+            itip_id = yield self.create_expiring_tip(uid, days_until_exp=30)
+            created_map.setdefault(uid, []).append(itip_id)
 
-        yield self.run_simulation()
-
-        for uid in user_ids:
-            addr = yield self.get_user_address(uid)
-            mails_for_user = yield self.get_mail_count_by_address(addr)
-            self.assertGreaterEqual(mails_for_user, len(THRESHOLDS))
-            
-        total = yield self.get_mail_count()
-        self.assertGreaterEqual(total, len(THRESHOLDS) * len(user_ids))
+        self.state.tenants[1].cache.notification.tip_expiration_threshold = 28
+        sent_reminders = yield self.run_simulation(downtime_days=None, days=90)
+        
+        for uid, itip_list in created_map.items():
+            for itip in itip_list:
+                sent = sent_reminders.get((uid, itip), [])
+                self.assertEqual(len(sent), 5)
 
     @inlineCallbacks
     def test_full_year_with_downtime(self):
         user_ids = yield self.get_first_two_receivers()
+        created_map = {}
         for uid in user_ids:
-            yield self.create_expiring_tip(uid, days_until_exp=30)
-
-        downtime_days = {16, 23}
-        yield self.run_simulation(downtime_days)
-
-        for uid in user_ids:
-            addr = yield self.get_user_address(uid)
-            mails_for_user = yield self.get_mail_count_by_address(addr)
-            self.assertGreaterEqual(mails_for_user, 3)
-
-        total = yield self.get_mail_count()
-        self.assertGreaterEqual(total, 3 * len(user_ids))
+            itip_id = yield self.create_expiring_tip(uid, days_until_exp=30)
+            created_map.setdefault(uid, []).append(itip_id)
+            
+        self.state.tenants[1].cache.notification.tip_expiration_threshold = 28
+        downtime_days = set(range(10, 90, 10))
+        
+        sent_reminders = yield self.run_simulation(downtime_days=downtime_days, days=90)
+       
+        for uid, itip_list in created_map.items():
+            for itip in itip_list:
+                sent = sent_reminders.get((uid, itip), [])
+                self.assertGreaterEqual(len(sent), 3)

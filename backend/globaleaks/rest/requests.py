@@ -150,8 +150,7 @@ AdminUserDesc = {
     'forcefully_selected': bool,
     'profile_id': str,
     'profile': dict,
-    'send_activation_link': bool,
-    'no_expiration_reminder_until_date': dict
+    'send_activation_link': bool
 }
 
 UserUserDesc = {

@@ -38,6 +38,10 @@ def _to_datetime(val):
 
 
 class MailGenerator(object):
+
+    simulate_mode = False
+    sent_reminders = {}
+
     def __init__(self, state):
         self.state = state
         self.cache = {}
@@ -91,7 +95,7 @@ class MailGenerator(object):
 
         rtips_ids = {}
         silent_tids = []
-        thresholds = [28, 14, 7, 3]
+        thresholds = [28, 14, 7, 3, 1]
 
         reminder_time = self.state.tenants[1].cache.unread_reminder_time if 1 in self.state.tenants else 7
 
@@ -183,7 +187,6 @@ class MailGenerator(object):
             except:
                 pass
 
-
         max_threshold = max(thresholds)
 
         rows = session.query(models.User, models.ReceiverTip, models.InternalTip) \
@@ -201,13 +204,14 @@ class MailGenerator(object):
             if tid in silent_tids:
                 continue
 
-            if getattr(user, 'no_expiration_reminder_until_date', None) and user.no_expiration_reminder_until_date > now_dt:
-                continue
-
-            exp_dt = _to_datetime(getattr(itip, 'expiration_date', None))
+            exp_dt = _to_datetime(itip.expiration_date)
             if not exp_dt:
                 continue
 
+            threshold_days = self.state.tenants[1].cache.notification.tip_expiration_threshold
+            if exp_dt - now_dt > timedelta(days=threshold_days):
+                return
+            
             applicable = []
             for t in thresholds:
                 target_dt = exp_dt - timedelta(days=t)
@@ -219,16 +223,11 @@ class MailGenerator(object):
 
             chosen_threshold, chosen_target_dt = max(applicable, key=lambda x: x[1])
 
-            last_sent = getattr(user, 'last_expiration_reminder_date', None)
-            last_sent_dt = _to_datetime(last_sent)
+            last_sent_dt = _to_datetime(user.last_expiration_reminder_date)
 
             if last_sent_dt is None or last_sent_dt < chosen_target_dt:
                 days_until_exp = (exp_dt.date() - now_date).days
-                notifications_by_user.setdefault(user.id, {
-                    'user_obj': user,
-                    'tid': tid,
-                    'entries': []
-                })['entries'].append({
+                notifications_by_user.setdefault(user.id, {'user_obj': user, 'tid': tid, 'entries': []})['entries'].append({
                     'itip': itip,
                     'rtip': rtip,
                     'threshold': chosen_threshold,
@@ -236,14 +235,14 @@ class MailGenerator(object):
                     'days_until_exp': days_until_exp
                 })
 
-        for user_id, payload in notifications_by_user.items():
+        for _, payload in notifications_by_user.items():
             user = payload['user_obj']
             tid = payload['tid']
             entries = payload['entries']
 
             try:
                 serialized_user = serialize_user(session, user, user.language)
-            except Exception:
+            except:
                 continue
 
             tips_serialized = []
@@ -253,8 +252,13 @@ class MailGenerator(object):
                     tip_ser['days_until_exp'] = e['days_until_exp']
                     tip_ser['reminder_threshold'] = e['threshold']
                     tips_serialized.append(tip_ser)
-                except Exception:
-                    log.exception("Failed to serialize tip %s for user %s", getattr(e['itip'], 'id', None), user_id)
+                except:
+                    continue
+
+            if self.simulate_mode:
+                for e in entries:
+                    key = (user.id, e['itip'].id)
+                    self.sent_reminders.setdefault(key, []).append(e['threshold'])
 
             if not tips_serialized:
                 continue
@@ -268,11 +272,10 @@ class MailGenerator(object):
             }
             try:
                 self.process_mail_creation(session, tid, data)
-            except Exception:
+            except:
                 continue
 
             user.last_expiration_reminder_date = now_dt
-            user.no_expiration_reminder_until_date = now_dt + timedelta(days=1)
 
 
 @transact

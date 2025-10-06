@@ -133,7 +133,7 @@ ConfigDescriptor = {
     'threshold_operations_per_minute_per_report': Int(default=20),
     'threshold_operations_per_second_per_report': Int(default=1),
     'timestamp_daily_notifications': Int(default=0),
-    'tip_expiration_threshold': Int(default=72),  # Hours
+    'tip_expiration_threshold': Int(default=3),  # Days
     'tor_onion_key': Unicode(),
     'two_factor': Bool(default=False),
     'unread_reminder_time': Int(default=7),  # Days
