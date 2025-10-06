@@ -98,9 +98,9 @@ export class AddMetricModalComponent implements OnInit {
     
     this.activeModal.close({
       metric: selectedMetric,
-      displayType: this.selectedDisplayType,
-      isChart: isChart,
-      compatibleTypes: ['number', 'percentage', 'bar', 'pie']
+      chartType: this.selectedDisplayType,
+      displayType: isChart ? 'chart' : 'card',
+      isChart: isChart
     });
   }
 
