@@ -1,0 +1,379 @@
+describe("Analyst - Custom Report Templates", () => {
+  const template1Name = `Test Report ${Date.now()}`;
+  const template2Name = `Test Report 2 ${Date.now()}`;
+
+  it("should create the first custom report template", function () {
+    cy.login_analyst();
+    cy.waitForUrl("/analyst/home");
+
+    // Navigate to templates list
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+
+    // Click the "New" button to create a template
+    cy.get('button').contains('New').click();
+
+    // Verify the creation form is visible
+    cy.get('#templateName').should('be.visible');
+
+    // Enter template name
+    cy.get('#templateName').type(template1Name);
+
+    // Click Create button
+    cy.get('button[type="submit"]').contains('Create').click();
+
+    // Wait for template to be created and redirect
+    cy.waitForPageIdle();
+
+    // Verify we're on the statistics page in edit mode
+    cy.url().should('include', '/analyst/statistics');
+    cy.get('button').contains('Save').should('be.visible');
+
+    cy.logout();
+  });
+
+  it("should create the second custom report template", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+
+    // Click the "New" button
+    cy.get('button').contains('New').click();
+
+    // Enter template name
+    cy.get('#templateName').type(template2Name);
+
+    // Click Create button
+    cy.get('button[type="submit"]').contains('Create').click();
+
+    // Wait for redirect
+    cy.waitForPageIdle();
+
+    // Verify we're on the statistics page
+    cy.url().should('include', '/analyst/statistics');
+
+    cy.logout();
+  });
+
+  it("should customize the first report by adding a number metric", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+
+    // Find and open the first custom template
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Verify add button is visible
+    cy.get('.add-metric-card').should('be.visible');
+
+    // Click add metric card
+    cy.get('.add-metric-card').click();
+
+    // Wait for modal to open
+    cy.get('.modal').should('be.visible');
+
+    // Select the first predefined metric
+    cy.get('.modal .metric-option').first().click();
+
+    // Select "Number" display type
+    cy.get('.display-option').contains('Number').parent().click();
+
+    // Click Add button
+    cy.get('.modal button').contains('Add').click();
+
+    // Wait for modal to close and metric to be added
+    cy.waitForPageIdle();
+
+    // Verify metric card was added
+    cy.get('.metric-card').should('have.length.at.least', 1);
+
+    // Save changes
+    cy.get('button').contains('Save').click();
+    cy.waitForPageIdle();
+
+    cy.logout();
+  });
+
+  it("should add a pie chart metric to the first report", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Click add metric card
+    cy.get('.add-metric-card').click();
+
+    // Wait for modal
+    cy.get('.modal').should('be.visible');
+
+    // Find and select a metric compatible with pie chart
+    // (e.g., reports by status, anonymous vs identified, etc.)
+    cy.get('.modal .metric-option').contains('Status').click();
+
+    // Select "Pie Chart" display type
+    cy.get('.display-option').contains('Pie Chart').parent().click();
+
+    // Click Add button
+    cy.get('.modal button').contains('Add').click();
+
+    // Wait for modal to close
+    cy.waitForPageIdle();
+
+    // Verify chart was added
+    cy.get('.chart-card').should('have.length.at.least', 1);
+
+    // Save changes
+    cy.get('button').contains('Save').click();
+    cy.waitForPageIdle();
+
+    cy.logout();
+  });
+
+  it("should add a bar chart metric to the first report", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Click add metric card
+    cy.get('.add-metric-card').click();
+
+    // Wait for modal
+    cy.get('.modal').should('be.visible');
+
+    // Find and select a metric compatible with bar chart
+    cy.get('.modal .metric-option').contains('Channel').click();
+
+    // Select "Bar Chart" display type
+    cy.get('.display-option').contains('Bar Chart').parent().click();
+
+    // Click Add button
+    cy.get('.modal button').contains('Add').click();
+
+    // Wait for modal to close
+    cy.waitForPageIdle();
+
+    // Verify chart was added
+    cy.get('.chart-card').should('exist');
+
+    // Save changes
+    cy.get('button').contains('Save').click();
+    cy.waitForPageIdle();
+
+    cy.logout();
+  });
+
+  it("should add a percentage metric to the first report", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Click add metric card
+    cy.get('.add-metric-card').click();
+
+    // Wait for modal
+    cy.get('.modal').should('be.visible');
+
+    // Select another predefined metric
+    cy.get('.modal .metric-option').eq(2).click();
+
+    // Select "Percentage" display type
+    cy.get('.display-option').contains('Percentage').parent().click();
+
+    // Click Add button
+    cy.get('.modal button').contains('Add').click();
+
+    // Wait for modal to close
+    cy.waitForPageIdle();
+
+    // Verify metric was added
+    cy.get('.metric-card').should('have.length.at.least', 2);
+
+    // Save changes
+    cy.get('button').contains('Save').click();
+    cy.waitForPageIdle();
+
+    cy.logout();
+  });
+
+  it("should manage/edit a metric in the first report", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Click the dropdown menu on the first metric card
+    cy.get('.metric-card .dropdown button').first().click();
+
+    // Click Manage option
+    cy.get('.dropdown-menu').contains('Manage').click();
+
+    // Wait for manage modal
+    cy.get('.modal').should('be.visible');
+
+    // Change display type (e.g., from Number to Percentage)
+    cy.get('.modal .display-type').eq(1).click();
+
+    // Click Update button
+    cy.get('.modal button').contains('Update').click();
+
+    // Wait for modal to close
+    cy.waitForPageIdle();
+
+    // Save changes
+    cy.get('button').contains('Save').click();
+    cy.waitForPageIdle();
+
+    cy.logout();
+  });
+
+  it("should remove a metric from the first report", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Enter edit mode
+    cy.get('button').contains('Edit').click();
+    cy.waitForPageIdle();
+
+    // Get initial count of metrics
+    cy.get('.metric-card').its('length').then((initialCount) => {
+      // Click the dropdown menu on the first metric card
+      cy.get('.metric-card .dropdown button').first().click();
+
+      // Click Remove option
+      cy.get('.dropdown-menu').contains('Remove').click();
+
+      // Verify one metric was removed
+      cy.get('.metric-card').should('have.length', initialCount - 1);
+
+      // Save changes
+      cy.get('button').contains('Save').click();
+      cy.waitForPageIdle();
+    });
+
+    cy.logout();
+  });
+
+  it("should export the customized first report as PDF", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list and open first custom template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Ensure we're in view mode (not edit mode)
+    cy.url().should('include', '/analyst/statistics');
+
+    // Wait for all content to load
+    cy.waitForPageIdle();
+
+    // Click export button
+    cy.get('button').contains('Export').click();
+
+    // Wait for PDF generation
+    cy.wait(3000);
+
+    // Verify we're still on the statistics page
+    cy.url().should('include', '/analyst/statistics');
+
+    cy.logout();
+  });
+
+  it("should delete the created custom templates", function () {
+    cy.login_analyst();
+
+    // Navigate to templates list
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+
+    // Delete first template
+    cy.get('#templatesList tbody tr').contains(template1Name).parent().within(() => {
+      cy.get('.fa-trash').parent().click();
+    });
+
+    // Confirm deletion in modal
+    cy.get('.modal').should('be.visible');
+    cy.get('.modal button').contains('Delete').click();
+
+    // Wait for deletion
+    cy.waitForPageIdle();
+
+    // Delete second template
+    cy.get('#templatesList tbody tr').contains(template2Name).parent().within(() => {
+      cy.get('.fa-trash').parent().click();
+    });
+
+    // Confirm deletion in modal
+    cy.get('.modal').should('be.visible');
+    cy.get('.modal button').contains('Delete').click();
+
+    // Wait for deletion
+    cy.waitForPageIdle();
+
+    // Verify templates are no longer in the list
+    cy.get('#templatesList tbody').should('not.contain', template1Name);
+    cy.get('#templatesList tbody').should('not.contain', template2Name);
+
+    cy.logout();
+  });
+});
+

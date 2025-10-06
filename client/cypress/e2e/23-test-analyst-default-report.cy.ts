@@ -1,0 +1,180 @@
+describe("Analyst - Default Report Statistics", () => {
+  it("should login as analyst and view the default report template", function () {
+    cy.login_analyst();
+    cy.waitForUrl("/analyst/home");
+
+    // Navigate to templates list
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+
+    // Verify templates table is visible
+    cy.get('#templatesList').should('be.visible');
+
+    // Find and open the default template (first row in the table)
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+
+    // Wait for statistics page to load
+    cy.url().should('include', '/analyst/statistics');
+    cy.waitForPageIdle();
+
+    // Verify page header and content loaded
+    cy.get('.analyst-statistics-container').should('be.visible');
+    cy.get('h2').should('be.visible');
+
+    // Verify metric cards are displayed
+    cy.get('.metric-card').should('exist');
+
+    // Verify filters section is visible
+    cy.get('.filter-section').should('be.visible');
+
+    cy.logout();
+  });
+
+  it("should apply date range filter and view updated statistics", function () {
+    cy.login_analyst();
+
+    // Navigate directly to templates and open first template
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Open date range filter
+    cy.get('.filter-item').contains('Date Range').parent().within(() => {
+      cy.get('button.filter-btn').click();
+    });
+
+    // Select date range (using the date picker that appears)
+    cy.get('.filter-dropdown-calendar').should('be.visible');
+    
+    // Click the first selectable date in the current month
+    cy.get('.ngb-dp-day').not('.ngb-dp-today').first().click();
+    
+    // Click another date to complete the range
+    cy.get('.ngb-dp-day').not('.ngb-dp-today').eq(5).click();
+
+    // Wait for data to reload
+    cy.waitForPageIdle();
+
+    // Verify the filter is now active
+    cy.get('.filter-btn.active').should('exist');
+
+    cy.logout();
+  });
+
+  it("should apply status filter and view updated statistics", function () {
+    cy.login_analyst();
+
+    // Navigate to statistics
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Open status filter dropdown
+    cy.get('.filter-item').contains('Status').parent().within(() => {
+      cy.get('button.filter-btn').click();
+    });
+
+    // Wait for dropdown to appear
+    cy.get('.filter-dropdown').should('be.visible');
+
+    // Select a status option (click the first checkbox)
+    cy.get('ng-multiselect-dropdown .multiselect-item-checkbox').first().click();
+
+    // Close dropdown by clicking elsewhere
+    cy.get('.analyst-statistics-container').click(10, 10);
+
+    // Wait for data to reload
+    cy.waitForPageIdle();
+
+    // Verify badge showing filter count
+    cy.get('.filter-btn .badge').should('exist');
+
+    cy.logout();
+  });
+
+  it("should clear all filters", function () {
+    cy.login_analyst();
+
+    // Navigate to statistics
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Apply a filter first
+    cy.get('.filter-item').contains('Status').parent().within(() => {
+      cy.get('button.filter-btn').click();
+    });
+    cy.get('ng-multiselect-dropdown .multiselect-item-checkbox').first().click();
+    cy.get('.analyst-statistics-container').click(10, 10);
+    cy.waitForPageIdle();
+
+    // Clear all filters
+    cy.get('button').contains('Clear All').click();
+    cy.waitForPageIdle();
+
+    // Verify no active filters
+    cy.get('.filter-btn.active').should('not.exist');
+
+    cy.logout();
+  });
+
+  it("should export the default report as PDF", function () {
+    cy.login_analyst();
+
+    // Navigate to statistics
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Wait for all content to load
+    cy.get('.metric-card').should('exist');
+    cy.waitForPageIdle();
+
+    // Click export button
+    cy.get('button').contains('Export').click();
+
+    // Wait for PDF generation (the button will be temporarily disabled)
+    cy.wait(3000);
+
+    // Verify we're still on the statistics page
+    cy.url().should('include', '/analyst/statistics');
+
+    cy.logout();
+  });
+
+  it("should navigate back to templates list", function () {
+    cy.login_analyst();
+
+    // Navigate to statistics
+    cy.visit("/#/analyst/templates");
+    cy.waitForPageIdle();
+    cy.get('#templatesList tbody tr').first().within(() => {
+      cy.get('.fa-chevron-right').parent().click();
+    });
+    cy.waitForPageIdle();
+
+    // Click back button
+    cy.get('.fa-arrow-left').parent().click();
+
+    // Verify we're back at templates list
+    cy.url().should('include', '/analyst/templates');
+    cy.get('#templatesList').should('be.visible');
+
+    cy.logout();
+  });
+});
+
