@@ -45,7 +45,7 @@ export class ReportTemplateService {
         const updatedTemplate = { 
           ...existingTemplate, 
           ...template, 
-          lastModified: new Date() 
+          lastModified: new Date().toISOString()
         } as ReportTemplate;
         
         return this.httpService.updateTemplate(updatedTemplate).pipe(
