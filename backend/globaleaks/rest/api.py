@@ -107,6 +107,11 @@ api_spec = [
 
     # Analyst Handlers
     ('/api/analyst/stats', analyst.Statistics),
+    ('/api/analyst/filter-options', analyst.FilterOptions),
+    ('/api/analyst/templates', analyst.Templates),
+    ('/api/analyst/templates', analyst.TemplateInstance, r'/api/analyst/templates/([a-f0-9\-]{8,36}|globaleaks-default)'),
+    ('/api/analyst/questionnaires', analyst.AnalystQuestionnairesCollection),
+    ('/api/analyst/custom-metric-data', analyst.CustomMetricData),
 
     # Admin Handlers
     ('/api/admin/node', admin.node.NodeInstance),

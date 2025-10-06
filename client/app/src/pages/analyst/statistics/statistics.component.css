@@ -1,0 +1,178 @@
+/* Statistics Component - Simplified to match codebase style */
+
+/* Container */
+.analyst-statistics-container {
+  padding: 1.5rem 0;
+}
+
+/* Metric Cards */
+.metric-card {
+  transition: all 0.2s ease-in-out;
+  min-height: 200px;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 12px rgba(16, 50, 83, 0.15);
+  border-color: #3679BB;
+  transform: translateY(-2px);
+  z-index: 1010;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #103253;
+}
+
+/* Add Metric Card */
+.add-metric-card {
+  border: 2px dashed #c8d1e0;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  min-height: 200px;
+}
+
+.add-metric-card:hover {
+  border-color: #3679BB;
+  background-color: #f5f7fa;
+  transform: translateY(-1px);
+}
+
+.add-metric-card:hover .add-icon,
+.add-metric-card:hover .add-text {
+  color: #3679BB;
+}
+
+/* Chart Cards */
+.chart-card {
+  transition: all 0.2s ease-in-out;
+  min-height: 200px;
+}
+
+.chart-card:hover {
+  box-shadow: 0 4px 12px rgba(16, 50, 83, 0.15);
+  border-color: #3679BB;
+  transform: translateY(-2px);
+}
+
+.chart-container {
+  position: relative;
+  min-height: 250px;
+}
+
+/* Dropdown Z-index fixes */
+.metric-card .dropdown {
+  position: relative;
+  z-index: 1050;
+}
+
+.metric-card .dropdown-menu {
+  z-index: 1051 !important;
+  box-shadow: 0 4px 12px rgba(16, 50, 83, 0.25);
+}
+
+.metric-card .dropdown.show {
+  z-index: 1052;
+}
+
+/* Remove dropdown toggle caret */
+.dropdown-toggle-no-caret::after {
+  display: none !important;
+}
+
+.metrics-section .col-xl-4,
+.metrics-section .col-lg-6,
+.metrics-section .col-md-6,
+.metrics-section .col-sm-12 {
+  overflow: visible;
+}
+
+/* Filter Section */
+.filters-section {
+  background: #f5f7fa;
+  border-radius: 0.5rem;
+}
+
+.filter-btn {
+  min-width: 120px;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.filter-btn.active {
+  border-color: #3679BB;
+  background-color: #e7f1ff;
+  color: #103253;
+}
+
+.filter-icon {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.filter-icon:hover {
+  background-color: #f5f7fa;
+  color: #3679BB;
+}
+
+.filter-icon.active {
+  color: #103253 !important;
+  background-color: #9FC9F1;
+  border-color: #103253;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.25rem;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 220px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-dropdown-calendar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.25rem;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(16, 50, 83, 0.15);
+  z-index: 1000;
+  padding: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metric-value {
+    font-size: 2rem;
+  }
+  
+  .chart-container {
+    min-height: 220px;
+  }
+  
+  .filter-btn {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .analyst-statistics-container {
+    padding: 1rem 0;
+  }
+  
+  .metric-value {
+    font-size: 1.75rem;
+  }
+  
+  .chart-container {
+    min-height: 200px;
+  }
+}

@@ -187,6 +187,28 @@ export class HttpService {
     return this.httpClient.get<questionnaireResolverModel[]>("api/admin/questionnaires");
   }
 
+  requestAnalystQuestionnaires(): Observable<questionnaireResolverModel[]> {
+    return this.httpClient.get<questionnaireResolverModel[]>("api/analyst/questionnaires");
+  }
+
+  requestCustomMetricData(questionnaireId: string, fieldId: string, optionIds: string[], filters?: any): Observable<any> {
+    let params = `?questionnaire_id=${questionnaireId}&field_id=${fieldId}&option_ids=${optionIds.join(',')}`;
+    
+    if (filters) {
+      if (filters.status) {
+        params += `&status=${Array.isArray(filters.status) ? filters.status.join(',') : filters.status}`;
+      }
+      if (filters.date_from) {
+        params += `&date_from=${filters.date_from}`;
+      }
+      if (filters.date_to) {
+        params += `&date_to=${filters.date_to}`;
+      }
+    }
+    
+    return this.httpClient.get<any>(`api/analyst/custom-metric-data${params}`);
+  }
+
   requestTipResource(): Observable<tipsResolverModel> {
     return this.httpClient.get<tipsResolverModel>("api/admin/auditlog/tips");
   }
@@ -329,8 +351,77 @@ export class HttpService {
     return this.httpClient.get<rtipResolverModel[]>("api/recipient/rtips");
   }
 
-  requestStatisticsResource(): Observable<statisticsResolverModel> {
-    return this.httpClient.get<statisticsResolverModel>("api/analyst/stats");
+  requestStatisticsResource(filters?: {
+    context_id?: string, 
+    status?: string[], 
+    tags?: string[], 
+    tenant?: string[], 
+    channel?: string[], 
+    date_from?: number, 
+    date_to?: number
+  }): Observable<statisticsResolverModel> {
+    let params = '';
+    if (filters) {
+      const queryParams = [];
+      if (filters.context_id) {
+        queryParams.push(`context_id=${encodeURIComponent(filters.context_id)}`);
+      }
+      if (filters.status && filters.status.length > 0) {
+        queryParams.push(`status=${encodeURIComponent(filters.status.join(','))}`);
+      }
+      if (filters.tags && filters.tags.length > 0) {
+        queryParams.push(`tags=${encodeURIComponent(filters.tags.join(','))}`);
+      }
+      if (filters.tenant && filters.tenant.length > 0) {
+        queryParams.push(`tenant=${encodeURIComponent(filters.tenant.join(','))}`);
+      }
+      if (filters.channel && filters.channel.length > 0) {
+        queryParams.push(`channel=${encodeURIComponent(filters.channel.join(','))}`);
+      }
+      if (filters.date_from) {
+        queryParams.push(`date_from=${filters.date_from}`);
+      }
+      if (filters.date_to) {
+        queryParams.push(`date_to=${filters.date_to}`);
+      }
+      
+      if (queryParams.length > 0) {
+        params = '?' + queryParams.join('&');
+      }
+    }
+    
+    const url = `api/analyst/stats${params}`;
+    return this.httpClient.get<statisticsResolverModel>(url);
+  }
+
+  requestFilterOptions(filterType?: string): Observable<any> {
+    let url = 'api/analyst/filter-options';
+    if (filterType) {
+      url += `?type=${encodeURIComponent(filterType)}`;
+    }
+    
+    return this.httpClient.get<any>(url);
+  }
+
+  // Template endpoints
+  getTemplates(): Observable<any[]> {
+    return this.httpClient.get<any[]>('api/analyst/templates');
+  }
+
+  getTemplate(templateId: string): Observable<any> {
+    return this.httpClient.get<any>(`api/analyst/templates/${templateId}`);
+  }
+
+  createTemplate(template: any): Observable<any> {
+    return this.httpClient.post<any>('api/analyst/templates', template);
+  }
+
+  updateTemplate(template: any): Observable<any> {
+    return this.httpClient.put<any>('api/analyst/templates', template);
+  }
+
+  deleteTemplate(templateId: string): Observable<any> {
+    return this.httpClient.delete<any>(`api/analyst/templates/${templateId}`);
   }
 
   iarResource(): Observable<IarData[]> {

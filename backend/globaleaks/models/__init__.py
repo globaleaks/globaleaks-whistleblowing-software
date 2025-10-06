@@ -1328,3 +1328,4 @@ class WhistleblowerFile(_WhistleblowerFile, Base):
     def __table_args__(self):
         return (ForeignKeyConstraint(['internalfile_id'], ['internalfile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['receivertip_id'], ['receivertip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
+
