@@ -23,10 +23,6 @@ interface MetricCard {
   chartType?: string; // 'number', 'percentage', 'pie', 'bar'
   category?: 'numeric' | 'comparative' | 'distribution';
   compatibleTypes?: string[];
-  isCustom?: boolean;
-  questionnaireId?: string;
-  fieldId?: string;
-  optionIds?: string[];
 }
 
 interface ChartConfig {
@@ -71,8 +67,6 @@ export class StatisticsComponent implements OnInit {
   availableMetrics: MetricCard[] = [];
   metricCards: MetricCard[] = [];
   chartMetrics: MetricCard[] = [];
-  customMetricDataCache: Map<string, any> = new Map();
-  questionnaireCache: Map<string, any> = new Map();
   
   // GlobalLeaks Brand Colors
   private readonly GLOBALEAKS_COLORS = [
@@ -306,34 +300,14 @@ export class StatisticsComponent implements OnInit {
     this.metricCards = [];
     this.chartMetrics = [];
 
-    // Apply template metrics configuration (can be array of IDs or objects with custom metric info)
+    // Apply template metrics configuration
     const selectedMetrics: any[] = (template.config && (template.config as any).selectedMetrics) ? (template.config as any).selectedMetrics : [];
     
     if (selectedMetrics && selectedMetrics.length > 0) {
       const templateMetrics = selectedMetrics
         .map(metricItem => {
-          // Handle both old format (string) and new format (object with custom metric info)
           const metricId = typeof metricItem === 'string' ? metricItem : metricItem.id;
-          const isCustom = typeof metricItem === 'object' && metricItem.isCustom;
-          
-          if (isCustom && metricItem.title) {
-            // Create custom metric card with saved title
-            return {
-              id: metricId,
-              title: metricItem.title,
-              value: 0,
-              chartType: 'number',
-              isCustom: true,
-              questionnaireId: metricItem.questionnaireId,
-              fieldId: metricItem.fieldId,
-              optionIds: metricItem.optionIds,
-              category: 'distribution' as const,
-              compatibleTypes: ['number', 'percentage', 'bar', 'pie']
-            };
-          } else {
-            // Find predefined metric
-            return this.availableMetrics.find(m => m.id === metricId);
-          }
+          return this.availableMetrics.find(m => m.id === metricId);
         })
         .filter((m): m is MetricCard => !!m);
 
@@ -362,33 +336,13 @@ export class StatisticsComponent implements OnInit {
     const selectedCharts: any[] = (template.config && (template.config as any).selectedCharts) ? (template.config as any).selectedCharts : [];
     
     if (selectedCharts && selectedCharts.length > 0) {
-      // Handle both old format (string array) and new format (object array with chartType)
       const templateCharts = selectedCharts
         .map(chartItem => {
-          // Support both formats: old (string) and new (object with id and chartType)
           const chartId = typeof chartItem === 'string' ? chartItem : chartItem.id;
           const chartType = typeof chartItem === 'string' ? 'pie' : (chartItem.chartType || 'pie');
-          const isCustom = typeof chartItem === 'object' && chartItem.isCustom;
           
-          if (isCustom && chartItem.title) {
-            // Create custom metric chart with saved title
-            return {
-              id: chartId,
-              title: chartItem.title,
-              value: 0,
-              chartType: chartType,
-              isCustom: true,
-              questionnaireId: chartItem.questionnaireId,
-              fieldId: chartItem.fieldId,
-              optionIds: chartItem.optionIds,
-              category: 'distribution' as const,
-              compatibleTypes: ['number', 'percentage', 'bar', 'pie']
-            };
-          } else {
-            // Find predefined metric
-            const found = this.availableMetrics.find(m => m.id === chartId);
-            return found ? { ...found, chartType } : null;
-          }
+          const found = this.availableMetrics.find(m => m.id === chartId);
+          return found ? { ...found, chartType } : null;
         })
         .filter((m): m is MetricCard & { chartType: string } => !!m);
 
@@ -415,12 +369,6 @@ export class StatisticsComponent implements OnInit {
 
     // Re-apply the template mapping now that metrics are available
     this.loadTemplateConfiguration(template);
-    
-    // Load data for any custom metrics
-    const customMetrics = [...this.metricCards, ...this.chartMetrics].filter(m => m.isCustom);
-    if (customMetrics.length > 0) {
-      await Promise.all(customMetrics.map(m => this.loadCustomMetricData(m)));
-    }
     
     // Initialize charts from the mapped selection
     this.initializeCharts();
@@ -824,12 +772,6 @@ export class StatisticsComponent implements OnInit {
       // Update predefined metrics with new data
       this.initializeMetrics();
       
-      // Reload custom metrics with new filters
-      const customMetrics = [...this.metricCards, ...this.chartMetrics].filter(m => m.isCustom);
-      if (customMetrics.length > 0) {
-        await Promise.all(customMetrics.map(m => this.loadCustomMetricData(m)));
-      }
-      
       // Update all charts with new data
       this.initializeCharts();
     } catch (error) {
@@ -860,11 +802,7 @@ export class StatisticsComponent implements OnInit {
           value: result.metric.value,
           chartType: result.chartType,
           category: result.metric.category,
-          compatibleTypes: result.metric.compatibleTypes,
-          isCustom: result.metric.isCustom,
-          questionnaireId: result.metric.questionnaireId,
-          fieldId: result.metric.fieldId,
-          optionIds: result.metric.optionIds
+          compatibleTypes: result.metric.compatibleTypes
         };
         
         // Determine if it should be a chart or card based on chartType
@@ -878,16 +816,8 @@ export class StatisticsComponent implements OnInit {
           this.metricCards.push(newMetricCard);
         }
         
-        // If it's a custom metric, load its data
-        if (newMetricCard.isCustom) {
-          this.loadCustomMetricData(newMetricCard).then(() => {
-            this.updateChartConfigs();
-            this.saveSelectedMetrics();
-          });
-        } else {
-          this.updateChartConfigs();
-          this.saveSelectedMetrics();
-        }
+        this.updateChartConfigs();
+        this.saveSelectedMetrics();
       }
     }).catch(() => {
       // Modal dismissed
@@ -939,41 +869,6 @@ export class StatisticsComponent implements OnInit {
     // Generate appropriate chart data based on the metric
     const dataModel = this.getFilteredStatistics();
     if (!dataModel) return { labels: [], datasets: [] };
-    
-    // Handle custom metrics
-    if (metric.isCustom && metric.questionnaireId && metric.fieldId && metric.optionIds) {
-      const cachedData = this.customMetricDataCache.get(metric.id);
-      
-      if (cachedData && cachedData.option_counts) {
-        // Generate chart data from cached custom metric data
-        const labels: string[] = [];
-        const data: number[] = [];
-        
-        Object.entries(cachedData.option_counts).forEach(([optionId, count]) => {
-          // Get actual option label from questionnaire data
-          const label = this.getOptionLabel(metric.questionnaireId!, metric.fieldId!, optionId);
-          labels.push(label);
-          data.push(count as number);
-        });
-        
-        return {
-          labels,
-          datasets: [{
-            data,
-            backgroundColor: this.GLOBALEAKS_COLORS.slice(0, labels.length)
-          }]
-        };
-      }
-      
-      // Return placeholder if data not yet loaded
-      return {
-        labels: ['Loading...'],
-        datasets: [{
-          data: [0],
-          backgroundColor: [this.GLOBALEAKS_COLORS[0]]
-        }]
-      };
-    }
     
     switch(metric.id) {
       case 'reports_anonymous_vs_identified':
@@ -1146,93 +1041,6 @@ export class StatisticsComponent implements OnInit {
     }).catch(() => {
       // Modal dismissed/cancelled - no action needed
     });
-  }
-
-  private async loadCustomMetricData(metric: MetricCard): Promise<void> {
-    if (!metric.isCustom || !metric.questionnaireId || !metric.fieldId || !metric.optionIds) {
-      return;
-    }
-
-    try {
-      // Load questionnaire data if not cached
-      if (!this.questionnaireCache.has(metric.questionnaireId)) {
-        const questionnaires = await firstValueFrom(
-    this.httpService.requestAnalystQuestionnaires().pipe(
-      timeout(5000),
-      catchError(() => of([]))
-    )
-        );
-        
-        // Cache all questionnaires
-        questionnaires.forEach((q: any) => {
-          this.questionnaireCache.set(q.id, q);
-        });
-      }
-      
-      // Get current filters
-      const filters = this.getCurrentFilters();
-      
-      // Fetch custom metric data from backend
-      const data = await firstValueFrom(
-        this.httpService.requestCustomMetricData(
-          metric.questionnaireId,
-          metric.fieldId,
-          metric.optionIds,
-          filters
-        ).pipe(
-          timeout(5000),
-          catchError(() => of({ option_counts: {}, total_submissions: 0 }))
-        )
-      );
-      
-      // Cache the data
-      this.customMetricDataCache.set(metric.id, data);
-      
-      // Calculate the metric value based on display type
-      const totalCount = Object.values(data.option_counts || {}).reduce((sum: number, count) => sum + (count as number), 0);
-      
-      if (metric.chartType === 'percentage' && data.total_submissions > 0) {
-        metric.value = ((totalCount / data.total_submissions) * 100).toFixed(1) + '%';
-      } else {
-        metric.value = totalCount;
-      }
-      
-      // Update the metric in the arrays
-      const cardIndex = this.metricCards.findIndex(c => c.id === metric.id);
-      if (cardIndex >= 0) {
-        this.metricCards[cardIndex] = metric;
-      }
-      
-      const chartIndex = this.chartMetrics.findIndex(c => c.id === metric.id);
-      if (chartIndex >= 0) {
-        this.chartMetrics[chartIndex] = metric;
-      }
-    } catch (error) {
-      // Error handled silently
-    }
-  }
-  
-  private getOptionLabel(questionnaireId: string, fieldId: string, optionId: string): string {
-    const questionnaire = this.questionnaireCache.get(questionnaireId);
-    if (!questionnaire || !questionnaire.steps) {
-      return optionId;
-    }
-    
-    // Find the field in questionnaire steps
-    for (const step of questionnaire.steps) {
-      if (step.children) {
-        for (const field of step.children) {
-          if (field.id === fieldId && field.options) {
-            const option = field.options.find((opt: any) => opt.id === optionId);
-            if (option) {
-              return option.label || optionId;
-            }
-          }
-        }
-      }
-    }
-    
-    return optionId;
   }
 
   private getCurrentFilters(): any {
@@ -1540,24 +1348,16 @@ export class StatisticsComponent implements OnInit {
       // Create updated template config with current metric and chart selections
       const updatedTemplate: ReportTemplate = {
         ...currentTemplate,
-        lastModified: new Date(),
+        lastModified: new Date().toISOString(),
         config: {
           selectedMetrics: this.metricCards.map(card => ({
             id: card.id,
-            title: card.title,
-            isCustom: card.isCustom,
-            questionnaireId: card.questionnaireId,
-            fieldId: card.fieldId,
-            optionIds: card.optionIds
+            title: card.title
           })),
           selectedCharts: this.chartMetrics.map(chart => ({ 
             id: chart.id, 
             title: chart.title,
-            chartType: chart.chartType,
-            isCustom: chart.isCustom,
-            questionnaireId: chart.questionnaireId,
-            fieldId: chart.fieldId,
-            optionIds: chart.optionIds
+            chartType: chart.chartType
           }))
         },
         name: this.templateNameEdit && this.templateViewMode === 'edit' ? this.templateNameEdit : currentTemplate.name

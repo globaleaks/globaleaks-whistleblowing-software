@@ -187,28 +187,6 @@ export class HttpService {
     return this.httpClient.get<questionnaireResolverModel[]>("api/admin/questionnaires");
   }
 
-  requestAnalystQuestionnaires(): Observable<questionnaireResolverModel[]> {
-    return this.httpClient.get<questionnaireResolverModel[]>("api/analyst/questionnaires");
-  }
-
-  requestCustomMetricData(questionnaireId: string, fieldId: string, optionIds: string[], filters?: any): Observable<any> {
-    let params = `?questionnaire_id=${questionnaireId}&field_id=${fieldId}&option_ids=${optionIds.join(',')}`;
-    
-    if (filters) {
-      if (filters.status) {
-        params += `&status=${Array.isArray(filters.status) ? filters.status.join(',') : filters.status}`;
-      }
-      if (filters.date_from) {
-        params += `&date_from=${filters.date_from}`;
-      }
-      if (filters.date_to) {
-        params += `&date_to=${filters.date_to}`;
-      }
-    }
-    
-    return this.httpClient.get<any>(`api/analyst/custom-metric-data${params}`);
-  }
-
   requestTipResource(): Observable<tipsResolverModel> {
     return this.httpClient.get<tipsResolverModel>("api/admin/auditlog/tips");
   }
