@@ -112,62 +112,6 @@
               </div>
             </div>
 
-            <!-- Tags Filter -->
-            <div class="filter-item">
-              <span class="filter-label">{{ 'Tags' | translate }}:</span>
-              <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn"
-                        [class.active]="tagFilterActive"
-                        (click)="toggleTagFilter(); closeOtherDropdowns('tags')"
-                        ngbTooltip="{{ getFilterTooltip('tags') }}">
-                  <i class="fas fa-filter me-1"></i>
-                  <span class="filter-value">{{ getFilterDisplayText('tags') }}</span>
-                  @if (tagDropdownModel.length > 0) {
-                    <span class="badge bg-primary ms-1">{{ tagDropdownModel.length }}</span>
-                  }
-                </button>
-                @if (tagDropdownVisible) {
-                  <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown
-                      [data]="tagDropdownData"
-                      [(ngModel)]="tagDropdownModel"
-                      [settings]="compactDropdownSettings"
-                      (onSelect)="onTagFilterChange()"
-                      (onDeSelect)="onTagFilterChange()">
-                    </ng-multiselect-dropdown>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Tenant Filter -->
-            <div class="filter-item">
-              <span class="filter-label">{{ 'Tenant' | translate }}:</span>
-              <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn"
-                        [class.active]="tenantFilterActive"
-                        (click)="toggleTenantFilter(); closeOtherDropdowns('tenant')"
-                        ngbTooltip="{{ getFilterTooltip('tenant') }}">
-                  <i class="fas fa-filter me-1"></i>
-                  <span class="filter-value">{{ getFilterDisplayText('tenant') }}</span>
-                  @if (tenantDropdownModel.length > 0) {
-                    <span class="badge bg-primary ms-1">{{ tenantDropdownModel.length }}</span>
-                  }
-                </button>
-                @if (tenantDropdownVisible) {
-                  <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown
-                      [data]="tenantDropdownData"
-                      [(ngModel)]="tenantDropdownModel"
-                      [settings]="compactDropdownSettings"
-                      (onSelect)="onTenantFilterChange()"
-                      (onDeSelect)="onTenantFilterChange()">
-                    </ng-multiselect-dropdown>
-                  </div>
-                }
-              </div>
-            </div>
-
             <!-- Channel Filter -->
             <div class="filter-item">
               <span class="filter-label">{{ 'Channel' | translate }}:</span>

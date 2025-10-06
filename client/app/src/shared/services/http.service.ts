@@ -332,7 +332,6 @@ export class HttpService {
   requestStatisticsResource(filters?: {
     context_id?: string,
     status?: string[],
-    tags?: string[],
     tenant?: string[],
     channel?: string[],
     date_from?: number,
@@ -346,9 +345,6 @@ export class HttpService {
       }
       if (filters.status && filters.status.length > 0) {
         queryParams.push(`status=${encodeURIComponent(filters.status.join(','))}`);
-      }
-      if (filters.tags && filters.tags.length > 0) {
-        queryParams.push(`tags=${encodeURIComponent(filters.tags.join(','))}`);
       }
       if (filters.tenant && filters.tenant.length > 0) {
         queryParams.push(`tenant=${encodeURIComponent(filters.tenant.join(','))}`);

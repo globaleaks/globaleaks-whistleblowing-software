@@ -533,7 +533,6 @@ export class StatisticsComponent implements OnInit {
 
       // Set the dropdown data from backend response only
       this.statusDropdownData = filterOptions.status || [];
-      this.tagDropdownData = filterOptions.tags || [];
       this.tenantDropdownData = filterOptions.tenant || [];
       this.channelDropdownData = filterOptions.channel || [];
 
@@ -636,7 +635,6 @@ export class StatisticsComponent implements OnInit {
 
   closeOtherDropdowns(except?: string): void {
     if (except !== 'status') this.statusDropdownVisible = false;
-    if (except !== 'tags') this.tagDropdownVisible = false;
     if (except !== 'tenant') this.tenantDropdownVisible = false;
     if (except !== 'channel') this.channelDropdownVisible = false;
     if (except !== 'date') this.datePicker = false;
@@ -647,9 +645,6 @@ export class StatisticsComponent implements OnInit {
       case 'status':
         if (this.statusDropdownModel.length === 0) return 'Any Status';
         return this.statusDropdownModel.map(item => item.label).join(', ');
-      case 'tags':
-        if (this.tagDropdownModel.length === 0) return 'Any Tags';
-        return this.tagDropdownModel.map(item => item.label).join(', ');
       case 'tenant':
         if (this.tenantDropdownModel.length === 0) return 'Any Tenant';
         return this.tenantDropdownModel.map(item => item.label).join(', ');
@@ -667,10 +662,6 @@ export class StatisticsComponent implements OnInit {
         if (this.statusDropdownModel.length === 0) return 'Any Status';
         if (this.statusDropdownModel.length === 1) return this.statusDropdownModel[0].label;
         return `${this.statusDropdownModel.length} selected`;
-      case 'tags':
-        if (this.tagDropdownModel.length === 0) return 'Any Tags';
-        if (this.tagDropdownModel.length === 1) return this.tagDropdownModel[0].label;
-        return `${this.tagDropdownModel.length} selected`;
       case 'tenant':
         if (this.tenantDropdownModel.length === 0) return 'Any Tenant';
         if (this.tenantDropdownModel.length === 1) return this.tenantDropdownModel[0].label;
@@ -748,10 +739,6 @@ export class StatisticsComponent implements OnInit {
 
       if (this.statusDropdownModel && this.statusDropdownModel.length > 0) {
         filters.status = this.statusDropdownModel.map(item => item.label);
-      }
-
-      if (this.tagDropdownModel && this.tagDropdownModel.length > 0) {
-        filters.tags = this.tagDropdownModel.map(item => item.label);
       }
 
       if (this.tenantDropdownModel && this.tenantDropdownModel.length > 0) {

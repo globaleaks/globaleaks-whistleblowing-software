@@ -17,7 +17,6 @@ export class StatisticsResolver {
   resolve(filters?: {
     context_id?: string,
     status?: string[],
-    tags?: string[],
     tenant?: string[],
     channel?: string[],
     date_from?: number,
@@ -40,7 +39,6 @@ export class StatisticsResolver {
   getFilteredStatistics(filters?: {
     context_id?: string,
     status?: string[],
-    tags?: string[],
     tenant?: string[],
     channel?: string[],
     date_from?: number,
