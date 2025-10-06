@@ -15,12 +15,12 @@ export class StatisticsResolver {
   dataModel: statisticsResolverModel;
 
   resolve(filters?: {
-    context_id?: string, 
-    status?: string[], 
-    tags?: string[], 
-    tenant?: string[], 
-    channel?: string[], 
-    date_from?: number, 
+    context_id?: string,
+    status?: string[],
+    tags?: string[],
+    tenant?: string[],
+    channel?: string[],
+    date_from?: number,
     date_to?: number
   }): Observable<boolean> {
     if (this.authenticationService.session?.role === "analyst") {
@@ -32,18 +32,18 @@ export class StatisticsResolver {
         catchError(() => of(false))
       );
     }
-    
+
     return of(true);
   }
-  
+
   // Method to get filtered statistics
   getFilteredStatistics(filters?: {
-    context_id?: string, 
-    status?: string[], 
-    tags?: string[], 
-    tenant?: string[], 
-    channel?: string[], 
-    date_from?: number, 
+    context_id?: string,
+    status?: string[],
+    tags?: string[],
+    tenant?: string[],
+    channel?: string[],
+    date_from?: number,
     date_to?: number
   }): Observable<statisticsResolverModel> {
     if (this.authenticationService.session.role === "analyst") {

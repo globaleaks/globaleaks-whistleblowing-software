@@ -6,10 +6,10 @@ export interface ReportTemplate {
   lastModified: string;
   isPublic?: boolean;
   isDefault?: boolean;
-  
+
   // Configuration
   config: ReportTemplateConfig;
-  
+
   // Sharing and permissions
   sharedWith?: string[];
   permissions: ReportTemplatePermissions;

@@ -7,7 +7,7 @@ export class statisticsResolverModel {
   reports_initially_anonymous: number;
   reports_mobile: number;
   reports_tor: number;
-  
+
   // Time-based metrics (from enhanced backend)
   avg_access_time_hours?: number;
   avg_response_time_hours?: number;

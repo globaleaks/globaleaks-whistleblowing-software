@@ -153,11 +153,11 @@
   .metric-value {
     font-size: 2rem;
   }
-  
+
   .chart-container {
     min-height: 220px;
   }
-  
+
   .filter-btn {
     min-width: 100px;
   }
@@ -167,11 +167,11 @@
   .analyst-statistics-container {
     padding: 1rem 0;
   }
-  
+
   .metric-value {
     font-size: 1.75rem;
   }
-  
+
   .chart-container {
     min-height: 200px;
   }

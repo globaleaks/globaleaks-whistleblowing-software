@@ -33,12 +33,12 @@
   .templates-container {
     padding: 0.5rem;
   }
-  
+
   .d-flex.justify-content-between {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .d-flex.gap-2 .btn {
     flex: 1;
   }

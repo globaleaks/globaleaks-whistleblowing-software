@@ -67,7 +67,7 @@ export class StatisticsComponent implements OnInit {
   availableMetrics: MetricCard[] = [];
   metricCards: MetricCard[] = [];
   chartMetrics: MetricCard[] = [];
-  
+
   // GlobalLeaks Brand Colors
   private readonly GLOBALEAKS_COLORS = [
     '#3679BB', // Primary blue
@@ -154,7 +154,7 @@ export class StatisticsComponent implements OnInit {
 
   tagDropdownSettings = {
     singleSelection: false,
-    idField: 'id', 
+    idField: 'id',
     textField: 'label',
     selectAllText: 'Select All',
     unSelectAllText: 'UnSelect All',
@@ -189,18 +189,18 @@ export class StatisticsComponent implements OnInit {
     // Check URL parameters to understand the intended mode
     const urlTemplate = this.activatedRoute.snapshot.queryParams['template'];
     const urlMode = this.activatedRoute.snapshot.queryParams['mode'];
-    
+
     // Store current template ID for navigation and saving
     this.currentTemplateId = urlTemplate || null;
-    
+
     // Set template viewing mode based on URL
     if (urlMode === 'view' || urlMode === 'edit') {
       this.templateViewMode = urlMode;
-      
+
     } else {
       this.templateViewMode = 'view';
-      
-    }    
+
+    }
     this.checkTemplateConfiguration().catch(() => {
       // Error handled by redirection
     });
@@ -212,29 +212,29 @@ export class StatisticsComponent implements OnInit {
       // Check if we have a specific template to load from query params
       const urlTemplate = this.activatedRoute.snapshot.queryParams['template'];
       const urlMode = this.activatedRoute.snapshot.queryParams['mode'];
-      
+
       // If no specific template requested, redirect to templates page immediately
       if (!urlTemplate) {
         this.router.navigate(['/analyst/templates']);
         return;
       }
-      
+
       // Store current template ID
       this.currentTemplateId = urlTemplate;
-      
+
       // Set template viewing mode
       if (urlMode === 'view' || urlMode === 'edit') {
         this.templateViewMode = urlMode;
       } else {
         this.templateViewMode = 'view';
       }
-      
+
       // Check if service is available
       if (!this.reportTemplateService) {
         this.router.navigate(['/analyst/templates']);
         return;
       }
-      
+
       // Get available templates with better error handling
       try {
         // Get the first emission quickly (may be empty), then handle fallbacks
@@ -259,7 +259,7 @@ export class StatisticsComponent implements OnInit {
                 })
               )
             );
-            
+
             // If we loaded it directly, promote it to current list for subsequent use
             if (template) {
               this.currentTemplate = template;
@@ -272,7 +272,7 @@ export class StatisticsComponent implements OnInit {
             return;
           }
         }
-        
+
         if (template) {
           this.currentTemplate = template; // Store current template for display
           await this.initializeComponentWithTemplate(template);
@@ -282,7 +282,7 @@ export class StatisticsComponent implements OnInit {
           this.router.navigate(['/analyst/templates']);
           return;
         }
-        
+
       } catch (serviceError) {
         // On error, redirect to templates page
         this.router.navigate(['/analyst/templates']);
@@ -295,14 +295,14 @@ export class StatisticsComponent implements OnInit {
   }
 
   private loadTemplateConfiguration(template: ReportTemplate): void {
-    
+
     // Reset current selections
     this.metricCards = [];
     this.chartMetrics = [];
 
     // Apply template metrics configuration
     const selectedMetrics: any[] = (template.config && (template.config as any).selectedMetrics) ? (template.config as any).selectedMetrics : [];
-    
+
     if (selectedMetrics && selectedMetrics.length > 0) {
       const templateMetrics = selectedMetrics
         .map(metricItem => {
@@ -311,7 +311,7 @@ export class StatisticsComponent implements OnInit {
         })
         .filter((m): m is MetricCard => !!m);
 
-      
+
       this.metricCards = templateMetrics.map(metric => ({
         ...metric,
         chartType: metric.chartType || 'number'
@@ -319,28 +319,28 @@ export class StatisticsComponent implements OnInit {
     } else {
       // If no metrics are configured in template, set some default metrics
     }
-    
+
     // Always apply fallback if no metrics were mapped
     if (this.metricCards.length === 0) {
-      
+
       if (this.availableMetrics.length >= 3) {
         this.metricCards = this.availableMetrics.slice(0, 3).map(metric => ({
           ...metric,
           chartType: 'number'
         }));
-        
+
       }
     }
 
     // Apply template charts configuration
     const selectedCharts: any[] = (template.config && (template.config as any).selectedCharts) ? (template.config as any).selectedCharts : [];
-    
+
     if (selectedCharts && selectedCharts.length > 0) {
       const templateCharts = selectedCharts
         .map(chartItem => {
           const chartId = typeof chartItem === 'string' ? chartItem : chartItem.id;
           const chartType = typeof chartItem === 'string' ? 'pie' : (chartItem.chartType || 'pie');
-          
+
           const found = this.availableMetrics.find(m => m.id === chartId);
           return found ? { ...found, chartType } : null;
         })
@@ -357,7 +357,7 @@ export class StatisticsComponent implements OnInit {
 
   private async initializeComponentWithTemplate(template: ReportTemplate): Promise<void> {
     this.initializeFilters();
-    
+
     try {
       await this.statisticsResolver.resolve({}).toPromise();
     } catch (error) {
@@ -369,7 +369,7 @@ export class StatisticsComponent implements OnInit {
 
     // Re-apply the template mapping now that metrics are available
     this.loadTemplateConfiguration(template);
-    
+
     // Initialize charts from the mapped selection
     this.initializeCharts();
 
@@ -392,19 +392,19 @@ export class StatisticsComponent implements OnInit {
       'reports_received', 'avg_access_time', 'avg_response_time', 'avg_disclosure_time',
       'avg_exchanges', 'total_exchanges', 'reports_with_exchanges', 'security_usage'
     ];
-    
+
     // Comparative metrics (can be displayed as numbers or simple charts)
     const comparativeMetrics = [
       'reports_accessed', 'reports_not_accessed', 'anonymous_reports', 'subscribed_reports',
-      'initially_anonymous_reports', 'tor_reports', 'direct_reports', 'mobile_reports', 
+      'initially_anonymous_reports', 'tor_reports', 'direct_reports', 'mobile_reports',
       'desktop_reports', 'disclosure_rate'
     ];
-    
+
     // Distribution metrics (designed for charts, can also be numbers)
     const distributionMetrics = [
       'reports_anonymous_vs_identified', 'reports_access_status', 'reports_platform_distribution'
     ];
-    
+
     if (numericOnlyMetrics.includes(metricId)) {
       return {
         category: 'numeric',
@@ -431,7 +431,7 @@ export class StatisticsComponent implements OnInit {
 
   private initializeMetrics(): void {
     const dataModel = this.getFilteredStatistics();
-    
+
     if (!dataModel) {
       this.availableMetrics = [];
       return;
@@ -459,7 +459,7 @@ export class StatisticsComponent implements OnInit {
     const anonymous_reports = reports_anonymous;
     const reports_desktop = reports_count - mobile_reports;
     const reports_direct = reports_count - tor_reports;
-    
+
     // Calculate percentage metrics
     const disclosure_rate = reports_count > 0 ? ((subscribed_reports + initially_anonymous_reports) / reports_count * 100).toFixed(1) : 0;
     const access_rate = reports_count > 0 ? (reports_accessed / reports_count * 100).toFixed(1) : 0;
@@ -494,7 +494,7 @@ export class StatisticsComponent implements OnInit {
       createMetric('desktop_reports', 'Desktop Reports', `${reports_desktop} (${(100 - parseFloat(mobile_usage_rate.toString())).toFixed(1)}%)`),
       createMetric('disclosure_rate', 'Identity Disclosure Rate', `${disclosure_rate}%`),
       createMetric('security_usage', 'High Security Reports', `${tor_reports + anonymous_reports}`),
-      
+
       // Time-based metrics (if available from enhanced backend)
       createMetric('avg_access_time', 'Average Access Time', (dataModel as any).avg_access_time_hours ? `${(dataModel as any).avg_access_time_hours}h` : 'N/A'),
       createMetric('avg_response_time', 'Average Response Time', (dataModel as any).avg_response_time_hours ? `${(dataModel as any).avg_response_time_hours}h` : 'N/A'),
@@ -530,13 +530,13 @@ export class StatisticsComponent implements OnInit {
     try {
       // Load all filter options from backend
       const filterOptions = await this.httpService.requestFilterOptions().toPromise();
-      
+
       // Set the dropdown data from backend response only
       this.statusDropdownData = filterOptions.status || [];
       this.tagDropdownData = filterOptions.tags || [];
       this.tenantDropdownData = filterOptions.tenant || [];
       this.channelDropdownData = filterOptions.channel || [];
-      
+
     } catch (error) {
       // Initialize with empty arrays if backend fails
       this.statusDropdownData = [];
@@ -628,7 +628,7 @@ export class StatisticsComponent implements OnInit {
     this.dateFilter = null;
     this.datePicker = false;
     this.currentFilteredData = null;
-    
+
     // Refresh data with no filters
     this.initializeMetrics();
     this.initializeCharts();
@@ -686,7 +686,7 @@ export class StatisticsComponent implements OnInit {
 
   onDocumentClick(event: Event): void {
     const target = event.target as Element;
-    
+
     // Close dropdowns if clicking outside
     if (!target.closest('.filter-dropdown-container')) {
     this.statusDropdownVisible = false;
@@ -694,7 +694,7 @@ export class StatisticsComponent implements OnInit {
     this.tenantDropdownVisible = false;
     this.channelDropdownVisible = false;
     }
-    
+
     // Close date picker if clicking outside
     if (!target.closest('.date-picker-container') && !target.closest('.fa-calendar')) {
       this.datePicker = false;
@@ -725,10 +725,10 @@ export class StatisticsComponent implements OnInit {
   }
 
   hasActiveFilters(): boolean {
-    return this.statusFilterActive || 
-           this.tagFilterActive || 
-           this.tenantFilterActive || 
-           this.channelFilterActive || 
+    return this.statusFilterActive ||
+           this.tagFilterActive ||
+           this.tenantFilterActive ||
+           this.channelFilterActive ||
            this.dateFilter !== null;
   }
 
@@ -740,38 +740,38 @@ export class StatisticsComponent implements OnInit {
     try {
       // Prepare filter object for backend API
       const filters: any = {};
-      
+
       if (this.dateFilter && this.dateFilter.fromDate && this.dateFilter.toDate) {
         filters.date_from = new Date(this.dateFilter.fromDate).getTime();
         filters.date_to = new Date(this.dateFilter.toDate).getTime();
       }
-      
+
       if (this.statusDropdownModel && this.statusDropdownModel.length > 0) {
         filters.status = this.statusDropdownModel.map(item => item.label);
       }
-      
+
       if (this.tagDropdownModel && this.tagDropdownModel.length > 0) {
         filters.tags = this.tagDropdownModel.map(item => item.label);
       }
-      
+
       if (this.tenantDropdownModel && this.tenantDropdownModel.length > 0) {
         filters.tenant = this.tenantDropdownModel.map(item => item.label);
       }
-      
+
       if (this.channelDropdownModel && this.channelDropdownModel.length > 0) {
         filters.channel = this.channelDropdownModel.map(item => item.label);
       }
-      
+
       // Call backend API with filters to get updated statistics
       const filteredData = await firstValueFrom(this.httpService.requestStatisticsResource(filters));
       this.currentFilteredData = filteredData;
-      
+
       // Update the resolver's dataModel so metrics use filtered data
       this.statisticsResolver.dataModel = filteredData;
-      
+
       // Update predefined metrics with new data
       this.initializeMetrics();
-      
+
       // Update all charts with new data
       this.initializeCharts();
     } catch (error) {
@@ -784,13 +784,13 @@ export class StatisticsComponent implements OnInit {
     const currentCardIds = this.metricCards.map(card => card.id);
     const currentChartIds = this.chartMetrics.map(chart => chart.id);
     const allCurrentIds = [...currentCardIds, ...currentChartIds];
-    
+
     const modalRef = this.modalService.open(AddMetricModalComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false
     });
-    
+
     modalRef.componentInstance.availableMetrics = this.availableMetrics;
     modalRef.componentInstance.currentMetricIds = allCurrentIds;
 
@@ -804,10 +804,10 @@ export class StatisticsComponent implements OnInit {
           category: result.metric.category,
           compatibleTypes: result.metric.compatibleTypes
         };
-        
+
         // Determine if it should be a chart or card based on chartType
         const isChart = ['bar', 'pie'].includes(result.chartType);
-        
+
         if (isChart) {
           // Add as chart metric
           this.chartMetrics.push(newMetricCard);
@@ -815,7 +815,7 @@ export class StatisticsComponent implements OnInit {
           // Add as card metric (number/percentage)
           this.metricCards.push(newMetricCard);
         }
-        
+
         this.updateChartConfigs();
         this.saveSelectedMetrics();
       }
@@ -839,11 +839,11 @@ export class StatisticsComponent implements OnInit {
     // Extract metric ID from chart ID (removes "chart-" prefix)
     return chartId.replace('chart-', '');
   }
-  
+
   private updateChartConfigs(): void {
     // Update the chart configurations based on the selected chart metrics
     this.chartConfigs = [];
-    
+
     this.chartMetrics.forEach((chartMetric, index) => {
       const chartConfig: ChartConfig = {
         id: `chart-${chartMetric.id}`,
@@ -855,7 +855,7 @@ export class StatisticsComponent implements OnInit {
       this.chartConfigs.push(chartConfig);
     });
   }
-  
+
   private getChartType(chartType?: string): 'bar' | 'pie' | 'line' {
     switch(chartType) {
       case 'bar': return 'bar';
@@ -864,12 +864,12 @@ export class StatisticsComponent implements OnInit {
       default: return 'pie';
     }
   }
-  
+
   private generateChartData(metric: MetricCard): any {
     // Generate appropriate chart data based on the metric
     const dataModel = this.getFilteredStatistics();
     if (!dataModel) return { labels: [], datasets: [] };
-    
+
     switch(metric.id) {
       case 'reports_anonymous_vs_identified':
         return {
@@ -905,7 +905,7 @@ export class StatisticsComponent implements OnInit {
         };
     }
   }
-  
+
   private getChartOptions(chartType?: string): any {
     const baseOptions = {
       responsive: true,
@@ -945,7 +945,7 @@ export class StatisticsComponent implements OnInit {
         }
       }
     };
-    
+
     if (chartType === 'bar') {
       return {
         ...baseOptions,
@@ -961,7 +961,7 @@ export class StatisticsComponent implements OnInit {
         }
       };
     }
-    
+
     // Add cutout for pie charts to maintain doughnut shape
     if (chartType === 'pie') {
       return {
@@ -969,7 +969,7 @@ export class StatisticsComponent implements OnInit {
         cutout: '50%'
       };
     }
-    
+
     return baseOptions;
   }
 
@@ -987,25 +987,25 @@ export class StatisticsComponent implements OnInit {
     // Find the metric in either cards or charts
     let currentItem = this.metricCards.find(card => card.id === metricId);
     let isChart = false;
-    
+
     if (!currentItem) {
       currentItem = this.chartMetrics.find(chart => chart.id === metricId);
       isChart = true;
     }
-    
+
     if (!currentItem) return;
 
     const allCurrentIds = [
       ...this.metricCards.map(card => card.id),
       ...this.chartMetrics.map(chart => chart.id)
     ];
-    
+
     const modalRef = this.modalService.open(ManageMetricModalComponent, {
       size: 'lg',
       backdrop: 'static',
       keyboard: false
     });
-    
+
     modalRef.componentInstance.availableMetrics = this.availableMetrics;
     modalRef.componentInstance.currentMetricIds = allCurrentIds;
     modalRef.componentInstance.currentMetricCard = currentItem;
@@ -1018,24 +1018,24 @@ export class StatisticsComponent implements OnInit {
           value: result.metric.value,
           chartType: result.chartType
         };
-        
+
         // Remove from current location
         if (isChart) {
           this.chartMetrics = this.chartMetrics.filter(chart => chart.id !== metricId);
         } else {
           this.metricCards = this.metricCards.filter(card => card.id !== metricId);
         }
-        
+
         // Add to appropriate location based on new chart type
         const newIsChart = ['bar', 'pie'].includes(result.chartType);
-        
+
         if (newIsChart) {
           this.chartMetrics.push(newMetricItem);
           this.updateChartConfigs();
         } else {
           this.metricCards.push(newMetricItem);
         }
-        
+
         this.saveSelectedMetrics();
       }
     }).catch(() => {
@@ -1045,27 +1045,27 @@ export class StatisticsComponent implements OnInit {
 
   private getCurrentFilters(): any {
     const filters: any = {};
-    
+
     if (this.statusDropdownModel && this.statusDropdownModel.length > 0) {
       filters.status = this.statusDropdownModel.map(item => item.label || item.id);
     }
-    
+
     if (this.dateFilter) {
       filters.date_from = this.dateFilter.fromDate;
       filters.date_to = this.dateFilter.toDate;
     }
-    
+
     return filters;
   }
 
   private saveSelectedMetrics(): void {
     const selectedCardIds = this.metricCards.map(card => card.id);
     const selectedChartIds = this.chartMetrics.map(card => ({ id: card.id, chartType: card.chartType }));
-    
+
     // Save to localStorage for standalone mode (fallback)
     localStorage.setItem('selected_metrics', JSON.stringify(selectedCardIds));
     localStorage.setItem('selected_chart_metrics', JSON.stringify(selectedChartIds));
-    
+
     // If in template mode, also save to the template
     if (this.currentTemplateId && this.templateViewMode === 'edit') {
       this.isAutoSaving = true;
@@ -1083,14 +1083,14 @@ export class StatisticsComponent implements OnInit {
     if (savedCards) {
       try {
         const selectedIds = JSON.parse(savedCards);
-        this.metricCards = selectedIds.map((id: string) => 
+        this.metricCards = selectedIds.map((id: string) =>
           this.availableMetrics.find(m => m.id === id)
         ).filter((card: MetricCard) => card !== undefined);
       } catch (error) {
         // Error handled silently
       }
     }
-    
+
     // Load chart metrics
     const savedCharts = localStorage.getItem('selected_chart_metrics');
     if (savedCharts) {
@@ -1112,10 +1112,10 @@ export class StatisticsComponent implements OnInit {
   exportReportAsPDF(): void {
     // Add print-specific CSS to hide elements that shouldn't be printed
     this.addPrintStyles();
-    
+
     // Add print-ready content for the PDF
     this.preparePrintContent();
-    
+
     // Trigger browser's print dialog
     setTimeout(() => {
       window.print();
@@ -1127,7 +1127,7 @@ export class StatisticsComponent implements OnInit {
 
   private addPrintStyles(): void {
     if (document.getElementById('print-styles')) return;
-    
+
     const style = document.createElement('style');
     style.id = 'print-styles';
     style.innerHTML = `
@@ -1136,12 +1136,12 @@ export class StatisticsComponent implements OnInit {
         body * {
           visibility: hidden;
         }
-        
+
         #Content,
         #Content * {
           visibility: visible;
         }
-        
+
         /* Position #Content at top of page */
         #Content {
           position: absolute !important;
@@ -1151,7 +1151,7 @@ export class StatisticsComponent implements OnInit {
           margin: 0 !important;
           padding: 20px !important;
         }
-        
+
         /* Style page for print */
         body {
           margin: 0;
@@ -1161,7 +1161,7 @@ export class StatisticsComponent implements OnInit {
           color: black !important;
           background: white !important;
         }
-        
+
         /* Hide page header, filters, and interactive elements */
         .analyst-statistics-container > .d-flex:first-child,
         .filter-section,
@@ -1173,14 +1173,14 @@ export class StatisticsComponent implements OnInit {
           visibility: hidden !important;
           display: none !important;
         }
-        
+
         /* Metric cards */
         .metrics-section .row {
           display: flex;
           flex-wrap: wrap;
           margin: 0 -10px;
         }
-        
+
         .metric-card {
           border: 1px solid #333 !important;
           margin-bottom: 15px;
@@ -1188,50 +1188,50 @@ export class StatisticsComponent implements OnInit {
           background: white !important;
           page-break-inside: avoid;
         }
-        
+
         .metric-card .card-header {
           background: #f5f5f5 !important;
           color: black !important;
           border-bottom: 1px solid #333 !important;
         }
-        
+
         .metric-value {
           font-size: 18pt !important;
           font-weight: bold !important;
           color: black !important;
         }
-        
+
         .card-title {
           font-weight: bold !important;
           color: black !important;
         }
-        
+
         /* Charts section */
         .charts-section {
           page-break-before: auto;
           margin-top: 30px;
         }
-        
+
         .section-title {
           font-size: 16pt !important;
           font-weight: bold !important;
           color: black !important;
           margin-bottom: 20px;
         }
-        
+
         .chart-card {
           border: 1px solid #333 !important;
           margin-bottom: 20px;
           break-inside: avoid;
           page-break-inside: avoid;
         }
-        
+
         .chart-card .card-header {
           background: #f5f5f5 !important;
           color: black !important;
           border-bottom: 1px solid #333 !important;
         }
-        
+
         .chart-legend {
           visibility: visible !important;
           display: block !important;
@@ -1240,14 +1240,14 @@ export class StatisticsComponent implements OnInit {
           background: #f9f9f9 !important;
           border: 1px solid #ddd;
         }
-        
+
         .legend-item {
           display: inline-block;
           margin-right: 15px;
           margin-bottom: 5px;
           font-size: 10pt;
         }
-        
+
         .legend-color {
           display: inline-block;
           width: 12px;
@@ -1255,12 +1255,12 @@ export class StatisticsComponent implements OnInit {
           margin-right: 5px;
           border: 1px solid #333;
         }
-        
+
         /* Hide canvas charts but show legends */
         canvas {
           visibility: hidden !important;
         }
-        
+
         .print-legend {
           visibility: visible !important;
         }
@@ -1272,7 +1272,7 @@ export class StatisticsComponent implements OnInit {
   private preparePrintContent(): void {
     const contentDiv = document.getElementById('Content');
     if (!contentDiv) return;
-    
+
     // Add chart legends for print
     this.chartMetrics.forEach(chart => {
       const chartElement = document.querySelector(`canvas[data-chart-id="${chart.id}"]`)?.closest('.chart-card');
@@ -1280,16 +1280,16 @@ export class StatisticsComponent implements OnInit {
         const chartData = this.generateChartData(chart);
         const legendDiv = document.createElement('div');
         legendDiv.className = 'chart-legend print-legend';
-        
+
         if (chartData.labels && chartData.datasets && chartData.datasets[0]) {
-          legendDiv.innerHTML = chartData.labels.map((label: string, i: number) => 
+          legendDiv.innerHTML = chartData.labels.map((label: string, i: number) =>
             `<div class="legend-item">
               <span class="legend-color" style="background-color: ${chartData.datasets[0].backgroundColor?.[i] || '#3679BB'}"></span>
               <span>${label}: ${chartData.datasets[0].data?.[i] || 0}</span>
             </div>`
           ).join('');
         }
-        
+
         chartElement.appendChild(legendDiv);
       }
     });
@@ -1326,7 +1326,7 @@ export class StatisticsComponent implements OnInit {
     if (!this.currentTemplateId) {
       return;
     }
-    
+
     try {
       // Get current template using direct subscription approach
       let templates: any[] = [];
@@ -1338,9 +1338,9 @@ export class StatisticsComponent implements OnInit {
           throw error;
         }
       }).unsubscribe();
-      
+
       const currentTemplate = templates.find(t => t.id === this.currentTemplateId);
-      
+
       if (!currentTemplate) {
         return;
       }
@@ -1354,8 +1354,8 @@ export class StatisticsComponent implements OnInit {
             id: card.id,
             title: card.title
           })),
-          selectedCharts: this.chartMetrics.map(chart => ({ 
-            id: chart.id, 
+          selectedCharts: this.chartMetrics.map(chart => ({
+            id: chart.id,
             title: chart.title,
             chartType: chart.chartType
           }))

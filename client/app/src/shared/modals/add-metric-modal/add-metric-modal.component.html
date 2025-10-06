@@ -12,10 +12,10 @@
       <span class="step-number">1</span>
       {{ 'Select' | translate }}
     </h6>
-  
+
   <!-- Search Bar -->
   <div class="mb-3">
-    <input type="text" class="form-control" 
+    <input type="text" class="form-control"
            placeholder="{{ 'Search' | translate }}"
            [(ngModel)]="searchTerm">
   </div>
@@ -23,7 +23,7 @@
   <!-- Available Metrics Grid -->
   <div class="metrics-grid">
     @for (metric of filteredMetrics; track metric.id) {
-      <div class="metric-option" 
+      <div class="metric-option"
            [class.selected]="selectedMetricId === metric.id"
            (click)="selectMetric(metric.id)">
         <div class="metric-content">
@@ -55,11 +55,11 @@
       <span class="step-number">2</span>
       {{ 'Display' | translate }}
     </h6>
-    
+
     <div class="display-types">
       <!-- Number Display -->
       @if (isDisplayTypeCompatible('number')) {
-        <div class="display-option" 
+        <div class="display-option"
              [class.selected]="selectedDisplayType === 'number'"
              (click)="selectDisplayType('number')">
           <div class="display-preview">
@@ -73,7 +73,7 @@
 
       <!-- Percentage Display -->
       @if (isDisplayTypeCompatible('percentage')) {
-        <div class="display-option" 
+        <div class="display-option"
              [class.selected]="selectedDisplayType === 'percentage'"
              (click)="selectDisplayType('percentage')">
           <div class="display-preview">
@@ -88,7 +88,7 @@
 
       <!-- Bar Chart -->
       @if (isDisplayTypeCompatible('bar')) {
-        <div class="display-option" 
+        <div class="display-option"
              [class.selected]="selectedDisplayType === 'bar'"
              (click)="selectDisplayType('bar')">
           <div class="display-preview">
@@ -102,7 +102,7 @@
 
       <!-- Pie Chart (Doughnut style) -->
       @if (isDisplayTypeCompatible('pie')) {
-        <div class="display-option" 
+        <div class="display-option"
              [class.selected]="selectedDisplayType === 'pie'"
              (click)="selectDisplayType('pie')">
           <div class="display-preview">
@@ -122,9 +122,9 @@
   <button type="button" class="btn btn-secondary" (click)="cancel()">
     {{ 'Cancel' | translate }}
   </button>
-  <button type="button" 
-          class="btn btn-primary" 
-          (click)="save()" 
+  <button type="button"
+          class="btn btn-primary"
+          (click)="save()"
           [disabled]="!selectedMetricId || !selectedDisplayType">
     {{ 'Add' | translate }}
   </button>
@@ -396,18 +396,18 @@
   .metrics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .display-types {
     grid-template-columns: 1fr;
   }
-  
+
   .display-option {
     flex-direction: column;
     text-align: center;
     min-height: auto;
     padding: 0.75rem;
   }
-  
+
   .display-preview {
     margin-right: 0;
     margin-bottom: 0.75rem;

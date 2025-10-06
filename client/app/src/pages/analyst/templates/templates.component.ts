@@ -34,12 +34,12 @@ export class TemplatesComponent implements OnInit {
   isLoading = false;
   selectedTemplate?: ReportTemplate;
   isCreating = false;
-  
+
   // Sorting and filtering
   sortField: string = 'name';
   sortDirection: 'asc' | 'desc' = 'asc';
   searchTerm: string = '';
-  
+
   // Form for creating/editing templates
   templateForm: FormGroup;
 
@@ -61,19 +61,19 @@ export class TemplatesComponent implements OnInit {
 
   getFilteredTemplates(): ReportTemplate[] {
     let filtered = [...this.templates];
-    
+
     // Apply search filter
     if (this.searchTerm && this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(template => 
+      filtered = filtered.filter(template =>
         template.name.toLowerCase().includes(searchLower)
       );
     }
-    
+
     // Apply sorting
     const sorted = filtered.sort((a, b) => {
       let aValue: any, bValue: any;
-      
+
       switch (this.sortField) {
         case 'name':
           aValue = a.name.toLowerCase();
@@ -92,7 +92,7 @@ export class TemplatesComponent implements OnInit {
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
       }
-      
+
       if (aValue < bValue) {
         return this.sortDirection === 'asc' ? -1 : 1;
       }
@@ -101,7 +101,7 @@ export class TemplatesComponent implements OnInit {
       }
       return 0;
     });
-    
+
     return sorted;
   }
 
@@ -129,7 +129,7 @@ export class TemplatesComponent implements OnInit {
   onSaveTemplate(): void {
     if (this.templateForm.valid) {
       const formValue = this.templateForm.value;
-      
+
       const templateData: Partial<ReportTemplate> = {
         id: this.selectedTemplate?.id,
         name: formValue.name
@@ -153,12 +153,12 @@ export class TemplatesComponent implements OnInit {
 
   onDeleteTemplate(template: ReportTemplate, event: Event): void {
     event.stopPropagation();
-    
+
     const modalRef = this.modalService.open(DeleteConfirmationComponent, {
       backdrop: 'static',
       keyboard: false
     });
-    
+
     modalRef.componentInstance.confirmFunction = () => {
       this.templateService.deleteTemplate(template.id).subscribe({
         next: () => {
@@ -189,11 +189,11 @@ export class TemplatesComponent implements OnInit {
 
   // Navigation methods
   viewTemplate(template: ReportTemplate): void {
-    this.router.navigate(['/analyst/statistics'], { 
-      queryParams: { 
+    this.router.navigate(['/analyst/statistics'], {
+      queryParams: {
         template: template.id,
         mode: 'view'
-      } 
+      }
     });
   }
 }

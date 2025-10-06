@@ -2,8 +2,8 @@
   <!-- Page Header with Navigation -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="d-flex align-items-center">
-      <a class="btn btn-outline-secondary me-3" 
-         (click)="navigateBackToTemplates()" 
+      <a class="btn btn-outline-secondary me-3"
+         (click)="navigateBackToTemplates()"
          ngbTooltip="{{ 'Back' | translate }}">
         <i class="fas fa-arrow-left"></i>
       </a>
@@ -21,8 +21,8 @@
     </div>
     <div class="d-flex gap-2 export-buttons">
       @if (templateViewMode !== 'edit') {
-      <button class="btn btn-outline-secondary" 
-              type="button" 
+      <button class="btn btn-outline-secondary"
+              type="button"
               (click)="exportReportAsPDF()"
               ngbTooltip="{{ 'Export as PDF' | translate }}">
         <i class="fas fa-file-export"></i>
@@ -62,8 +62,8 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Date Range' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn" 
-                        [class.active]="dateFilter" 
+                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                        [class.active]="dateFilter"
                         (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
                         ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Select date range' | translate) }}">
                   <i class="fas fa-calendar me-1"></i>
@@ -75,8 +75,8 @@
                 </button>
                 @if (datePicker) {
                   <div class="filter-dropdown-calendar" (click)="$event.stopPropagation()">
-                    <ngbd-datepicker-range 
-                      [currentDates]="dateModel" 
+                    <ngbd-datepicker-range
+                      [currentDates]="dateModel"
                       (emitDateSelection)="onDateFilterChange($event)">
                     </ngbd-datepicker-range>
                   </div>
@@ -88,8 +88,8 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Status' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn" 
-                        [class.active]="statusFilterActive" 
+                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                        [class.active]="statusFilterActive"
                         (click)="toggleStatusFilter(); closeOtherDropdowns('status')"
                         ngbTooltip="{{ getFilterTooltip('status') }}">
                   <i class="fas fa-filter me-1"></i>
@@ -100,7 +100,7 @@
                 </button>
                 @if (statusDropdownVisible) {
                   <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown 
+                    <ng-multiselect-dropdown
                       [data]="statusDropdownData"
                       [(ngModel)]="statusDropdownModel"
                       [settings]="compactDropdownSettings"
@@ -116,8 +116,8 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Tags' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn" 
-                        [class.active]="tagFilterActive" 
+                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                        [class.active]="tagFilterActive"
                         (click)="toggleTagFilter(); closeOtherDropdowns('tags')"
                         ngbTooltip="{{ getFilterTooltip('tags') }}">
                   <i class="fas fa-filter me-1"></i>
@@ -128,7 +128,7 @@
                 </button>
                 @if (tagDropdownVisible) {
                   <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown 
+                    <ng-multiselect-dropdown
                       [data]="tagDropdownData"
                       [(ngModel)]="tagDropdownModel"
                       [settings]="compactDropdownSettings"
@@ -144,8 +144,8 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Tenant' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn" 
-                        [class.active]="tenantFilterActive" 
+                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                        [class.active]="tenantFilterActive"
                         (click)="toggleTenantFilter(); closeOtherDropdowns('tenant')"
                         ngbTooltip="{{ getFilterTooltip('tenant') }}">
                   <i class="fas fa-filter me-1"></i>
@@ -156,7 +156,7 @@
                 </button>
                 @if (tenantDropdownVisible) {
                   <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown 
+                    <ng-multiselect-dropdown
                       [data]="tenantDropdownData"
                       [(ngModel)]="tenantDropdownModel"
                       [settings]="compactDropdownSettings"
@@ -172,8 +172,8 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Channel' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn" 
-                        [class.active]="channelFilterActive" 
+                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                        [class.active]="channelFilterActive"
                         (click)="toggleChannelFilter(); closeOtherDropdowns('channel')"
                         ngbTooltip="{{ getFilterTooltip('channel') }}">
                   <i class="fas fa-filter me-1"></i>
@@ -184,7 +184,7 @@
                 </button>
                 @if (channelDropdownVisible) {
                   <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown 
+                    <ng-multiselect-dropdown
                       [data]="channelDropdownData"
                       [(ngModel)]="channelDropdownModel"
                       [settings]="compactDropdownSettings"
@@ -225,8 +225,8 @@
                 </span>
                 @if (templateViewMode === 'edit') {
                   <div class="dropdown" ngbDropdown placement="bottom-end">
-                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" 
-                            type="button" 
+                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret"
+                            type="button"
                             ngbDropdownToggle
                             [attr.aria-label]="'Actions' | translate"
                             ngbTooltip="{{ 'Actions' | translate }}">
@@ -275,8 +275,8 @@
                 <span class="fw-bold">{{ chart.title | translate }}</span>
                 @if (templateViewMode === 'edit') {
                   <div class="dropdown" ngbDropdown placement="bottom-end">
-                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" 
-                            type="button" 
+                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret"
+                            type="button"
                             ngbDropdownToggle
                             [attr.aria-label]="'Actions' | translate"
                             ngbTooltip="{{ 'Actions' | translate }}">
@@ -298,8 +298,8 @@
               </div>
               <div class="card-body analyst-graph p-3">
                 <div class="chart-container" style="height: 300px;">
-                  <canvas 
-                    baseChart 
+                  <canvas
+                    baseChart
                     class="chart"
                     [type]="chart.type"
                     [data]="chart.data"
@@ -311,10 +311,10 @@
           </div>
         }
 
-        
+
 
       </div>
     </div>
   </div>
-  
+
 </div>

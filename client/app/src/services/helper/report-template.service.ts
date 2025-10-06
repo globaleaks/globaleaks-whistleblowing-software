@@ -10,11 +10,11 @@ import { ReportTemplate, ReportTemplateConfig } from '@app/models/analyst/report
 export class ReportTemplateService {
   private httpService = inject(HttpService);
   private templates$ = new BehaviorSubject<ReportTemplate[]>([]);
-  
+
   constructor() {
     this.loadTemplatesFromBackend();
   }
-  
+
   // Template Management
   getTemplates(): Observable<ReportTemplate[]> {
     return this.templates$.asObservable();
@@ -31,23 +31,23 @@ export class ReportTemplateService {
       }
     });
   }
-  
+
   getTemplate(id: string): Observable<ReportTemplate | undefined> {
     const template = this.templates$.value.find(t => t.id === id);
     return of(template);
   }
-  
+
   saveTemplate(template: Partial<ReportTemplate>): Observable<ReportTemplate> {
     if (template.id) {
       // Update existing template via HTTP
       const existingTemplate = this.templates$.value.find(t => t.id === template.id);
       if (existingTemplate) {
-        const updatedTemplate = { 
-          ...existingTemplate, 
-          ...template, 
+        const updatedTemplate = {
+          ...existingTemplate,
+          ...template,
           lastModified: new Date().toISOString()
         } as ReportTemplate;
-        
+
         return this.httpService.updateTemplate(updatedTemplate).pipe(
           tap((serverTemplate) => {
             const templates = this.templates$.value;
@@ -66,7 +66,7 @@ export class ReportTemplateService {
         isPublic: false,
         config: template.config || this.getDefaultConfig()
       };
-      
+
       return this.httpService.createTemplate(newTemplate).pipe(
         tap((serverTemplate) => {
           const templates = this.templates$.value;
@@ -75,11 +75,11 @@ export class ReportTemplateService {
         })
       );
     }
-    
+
     // Fallback return (shouldn't reach here normally)
     return of(template as ReportTemplate);
   }
-  
+
   deleteTemplate(id: string): Observable<boolean> {
     return this.httpService.deleteTemplate(id).pipe(
       tap(() => {
@@ -89,7 +89,7 @@ export class ReportTemplateService {
       tap(() => true)
     );
   }
-  
+
   private getDefaultConfig(): ReportTemplateConfig {
     return {
       selectedMetrics: [],

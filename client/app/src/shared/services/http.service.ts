@@ -330,12 +330,12 @@ export class HttpService {
   }
 
   requestStatisticsResource(filters?: {
-    context_id?: string, 
-    status?: string[], 
-    tags?: string[], 
-    tenant?: string[], 
-    channel?: string[], 
-    date_from?: number, 
+    context_id?: string,
+    status?: string[],
+    tags?: string[],
+    tenant?: string[],
+    channel?: string[],
+    date_from?: number,
     date_to?: number
   }): Observable<statisticsResolverModel> {
     let params = '';
@@ -362,12 +362,12 @@ export class HttpService {
       if (filters.date_to) {
         queryParams.push(`date_to=${filters.date_to}`);
       }
-      
+
       if (queryParams.length > 0) {
         params = '?' + queryParams.join('&');
       }
     }
-    
+
     const url = `api/analyst/stats${params}`;
     return this.httpClient.get<statisticsResolverModel>(url);
   }
@@ -377,7 +377,7 @@ export class HttpService {
     if (filterType) {
       url += `?type=${encodeURIComponent(filterType)}`;
     }
-    
+
     return this.httpClient.get<any>(url);
   }
 

@@ -39,15 +39,15 @@ export class AddMetricModalComponent implements OnInit {
 
   get filteredMetrics(): MetricCard[] {
     // First filter out already selected metrics
-    const nonSelectedMetrics = this.availableMetrics.filter(metric => 
+    const nonSelectedMetrics = this.availableMetrics.filter(metric =>
       !this.currentMetricIds.includes(metric.id)
     );
-    
+
     // Then apply search filter if provided
     if (!this.searchTerm.trim()) {
       return nonSelectedMetrics;
     }
-    
+
     const search = this.searchTerm.toLowerCase();
     return nonSelectedMetrics.filter(metric =>
       metric.title.toLowerCase().includes(search) ||
@@ -93,9 +93,9 @@ export class AddMetricModalComponent implements OnInit {
     if (!selectedMetric) {
       return;
     }
-    
+
     const isChart = ['pie', 'bar'].includes(this.selectedDisplayType);
-    
+
     this.activeModal.close({
       metric: selectedMetric,
       chartType: this.selectedDisplayType,

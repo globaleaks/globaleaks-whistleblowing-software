@@ -53,15 +53,15 @@ export class ManageMetricModalComponent implements OnInit {
 
   get filteredMetrics(): MetricCard[] {
     // Filter out already selected metrics, except the current one we're editing
-    const nonSelectedMetrics = this.availableMetrics.filter(metric => 
+    const nonSelectedMetrics = this.availableMetrics.filter(metric =>
       !this.currentMetricIds.includes(metric.id) || metric.id === this.currentMetricCard?.id
     );
-    
+
     // Then apply search filter if provided
     if (!this.searchTerm.trim()) {
       return nonSelectedMetrics;
     }
-    
+
     const search = this.searchTerm.toLowerCase();
     return nonSelectedMetrics.filter(metric =>
       metric.title.toLowerCase().includes(search)
@@ -91,7 +91,7 @@ export class ManageMetricModalComponent implements OnInit {
   }
 
   get hasChanges(): boolean {
-    return this.selectedMetricId !== this.currentMetricCard?.id || 
+    return this.selectedMetricId !== this.currentMetricCard?.id ||
            this.selectedChartType !== (this.currentMetricCard?.chartType || 'number');
   }
 
