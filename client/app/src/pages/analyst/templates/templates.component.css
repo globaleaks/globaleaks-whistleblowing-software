@@ -1,0 +1,45 @@
+/* Templates Component - Simplified to match codebase style */
+
+/* Table styling */
+.table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th.sortable:hover {
+  background-color: #e9ecef !important;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0,0,0,0.075);
+}
+
+/* Dropdown improvements */
+.dropdown-toggle::after {
+  display: none;
+}
+
+.dropdown-menu {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #f8d7da;
+  color: #721c24 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .templates-container {
+    padding: 0.5rem;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .d-flex.gap-2 .btn {
+    flex: 1;
+  }
+}

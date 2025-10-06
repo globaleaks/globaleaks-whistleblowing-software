@@ -1,0 +1,664 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Add' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Metric Type Selection -->
+  <div class="metric-type-tabs mb-4">
+    <button class="metric-type-tab" 
+            [class.active]="metricType === 'predefined'"
+            (click)="selectMetricType('predefined')">
+      <i class="fas fa-chart-pie me-2"></i>
+      {{ 'Predefined Metrics' | translate }}
+    </button>
+    <button class="metric-type-tab" 
+            [class.active]="metricType === 'custom'"
+            (click)="selectMetricType('custom')">
+      <i class="fas fa-circle-plus me-2"></i>
+      {{ 'Custom Metric' | translate }}
+    </button>
+  </div>
+
+  <!-- Predefined Metrics Section -->
+  @if (metricType === 'predefined') {
+    <!-- Step 1: Choose Metric -->
+    <div class="step-section">
+      <h6 class="step-title">
+        <span class="step-number">1</span>
+        {{ 'Select' | translate }}
+      </h6>
+    
+    <!-- Search Bar -->
+    <div class="mb-3">
+      <input type="text" class="form-control" 
+             placeholder="{{ 'Search' | translate }}"
+             [(ngModel)]="searchTerm">
+    </div>
+
+    <!-- Available Metrics Grid -->
+    <div class="metrics-grid">
+      @for (metric of filteredMetrics; track metric.id) {
+        <div class="metric-option" 
+             [class.selected]="selectedMetricId === metric.id"
+             (click)="selectMetric(metric.id)">
+          <div class="metric-content">
+            <div class="metric-title">{{ metric.title | translate }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (filteredMetrics.length === 0) {
+      <div class="empty-state">
+        @if (searchTerm.trim()) {
+          <div class="text-center py-4">
+            <h6 class="text-muted">{{ 'Not found' | translate }}</h6>
+          </div>
+        } @else {
+          <div class="text-center py-4">
+            <h6 class="text-muted">{{ 'All Metrics Added' | translate }}</h6>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Step 2: Choose Display Type -->
+  @if (selectedMetricId) {
+    <div class="step-section">
+      <h6 class="step-title">
+        <span class="step-number">2</span>
+        {{ 'Display' | translate }}
+      </h6>
+      
+      <div class="display-types">
+        <!-- Number Display -->
+        @if (isDisplayTypeCompatible('number')) {
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'number'"
+               (click)="selectDisplayType('number')">
+            <div class="display-preview">
+              <span class="display-number">#</span>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Number' | translate }}</div>
+            </div>
+          </div>
+        }
+
+        <!-- Percentage Display -->
+        @if (isDisplayTypeCompatible('percentage')) {
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'percentage'"
+               (click)="selectDisplayType('percentage')">
+            <div class="display-preview">
+              <span class="display-percentage">%</span>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Percentage' | translate }}</div>
+            </div>
+          </div>
+        }
+
+
+        <!-- Bar Chart -->
+        @if (isDisplayTypeCompatible('bar')) {
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'bar'"
+               (click)="selectDisplayType('bar')">
+            <div class="display-preview">
+              <div class="chart-preview bar"></div>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Bar Chart' | translate }}</div>
+            </div>
+          </div>
+        }
+
+        <!-- Pie Chart (Doughnut style) -->
+        @if (isDisplayTypeCompatible('pie')) {
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'pie'"
+               (click)="selectDisplayType('pie')">
+            <div class="display-preview">
+              <div class="chart-preview doughnut"></div>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Pie Chart' | translate }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  }
+
+  <!-- Custom Metrics Section -->
+  @if (metricType === 'custom') {
+    <div class="step-section">
+      <h6 class="step-title">
+        <span class="step-number">1</span>
+        {{ 'Name' | translate }}
+      </h6>
+      <input type="text" 
+             class="form-control mb-3" 
+             [(ngModel)]="customMetricName"
+             placeholder="{{ 'Name' | translate }}">
+    </div>
+
+    <div class="step-section">
+      <h6 class="step-title">
+        <span class="step-number">2</span>
+        {{ 'Questionnaire' | translate }}
+      </h6>
+      <select class="form-select mb-3" 
+              [(ngModel)]="selectedQuestionnaireId"
+              (change)="onQuestionnaireSelected()">
+        <option value="">{{ 'Select' | translate }}</option>
+        @for (questionnaire of questionnaires; track questionnaire.id) {
+          <option [value]="questionnaire.id">{{ questionnaire.name }}</option>
+        }
+      </select>
+    </div>
+
+    @if (selectedQuestionnaireId && availableFields.length > 0) {
+      <div class="step-section">
+        <h6 class="step-title">
+          <span class="step-number">3</span>
+          {{ 'Field' | translate }}
+        </h6>
+        <select class="form-select mb-3" 
+                [(ngModel)]="selectedFieldId"
+                (change)="onFieldSelected()">
+          <option value="">{{ 'Select' | translate }}</option>
+          @for (field of availableFields; track field.id) {
+            <option [value]="field.id">{{ field.label }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (selectedFieldId) {
+      <div class="step-section">
+        <h6 class="step-title">
+          <span class="step-number">4</span>
+          {{ 'Options' | translate }}
+        </h6>
+        <div class="options-grid">
+          @for (option of getSelectedField()?.options; track option.id) {
+            <div class="option-checkbox" 
+                 [class.selected]="isOptionSelected(option.id)"
+                 (click)="toggleOption(option.id)">
+              <input type="checkbox" 
+                     [checked]="isOptionSelected(option.id)"
+                     (click)="$event.stopPropagation()">
+              <label>{{ option.label }}</label>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="step-section">
+        <h6 class="step-title">
+          <span class="step-number">5</span>
+          {{ 'Display' | translate }}
+        </h6>
+        
+        <div class="display-types">
+          <!-- Number Display -->
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'number'"
+               (click)="selectDisplayType('number')">
+            <div class="display-preview">
+              <span class="display-number">#</span>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Number' | translate }}</div>
+            </div>
+          </div>
+
+          <!-- Percentage Display -->
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'percentage'"
+               (click)="selectDisplayType('percentage')">
+            <div class="display-preview">
+              <span class="display-percentage">%</span>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Percentage' | translate }}</div>
+            </div>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'bar'"
+               (click)="selectDisplayType('bar')">
+            <div class="display-preview">
+              <div class="chart-preview bar"></div>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Bar Chart' | translate }}</div>
+            </div>
+          </div>
+
+          <!-- Pie Chart (Doughnut style) -->
+          <div class="display-option" 
+               [class.selected]="selectedDisplayType === 'pie'"
+               (click)="selectDisplayType('pie')">
+            <div class="display-preview">
+              <div class="chart-preview doughnut"></div>
+            </div>
+            <div class="display-info">
+              <div class="display-name">{{ 'Pie Chart' | translate }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (selectedQuestionnaireId && availableFields.length === 0) {
+      <div class="alert alert-info">
+        <i class="fas fa-circle-info me-2"></i>
+        {{ 'No results found' | translate }}
+      </div>
+    }
+  }
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="cancel()">
+    {{ 'Cancel' | translate }}
+  </button>
+  <button type="button" 
+          class="btn btn-primary" 
+          (click)="save()" 
+          [disabled]="metricType === 'predefined' ? (!selectedMetricId || !selectedDisplayType) : !canSaveCustomMetric()">
+    {{ 'Add' | translate }}
+  </button>
+</div>
+
+<style>
+.metric-type-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #c8d1e0;
+  margin-bottom: 1.5rem;
+}
+
+.metric-type-tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.metric-type-tab:hover {
+  color: #3679BB;
+  background: #f5f7fa;
+}
+
+.metric-type-tab.active {
+  color: #3679BB;
+  border-bottom-color: #3679BB;
+  background: #f5f7fa;
+}
+
+.form-select {
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  color: #103253;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-select:focus {
+  border-color: #3679BB;
+  box-shadow: 0 0 0 0.2rem rgba(54, 121, 187, 0.25);
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.option-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.option-checkbox:hover {
+  border-color: #3679BB;
+  background: #f5f7fa;
+}
+
+.option-checkbox.selected {
+  border-color: #3679BB;
+  background: #e7f1ff;
+}
+
+.option-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.option-checkbox label {
+  cursor: pointer;
+  margin: 0;
+  flex: 1;
+  user-select: none;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.alert-info {
+  background-color: #e7f1ff;
+  border: 1px solid #9FC9F1;
+  color: #103253;
+}
+
+
+.modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #c8d1e0;
+}
+
+.modal-title {
+  color: #103253;
+  margin-bottom: 0.25rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid #c8d1e0;
+}
+
+.step-section {
+  margin-bottom: 2rem;
+}
+
+.step-section:last-child {
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #103253;
+  font-weight: 600;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #3679BB;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 0.75rem;
+}
+
+.form-control {
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  color: #103253;
+}
+
+.form-control:focus {
+  border-color: #3679BB;
+  box-shadow: 0 0 0 0.2rem rgba(54, 121, 187, 0.25);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric-option {
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.metric-option:hover {
+  border-color: #3679BB;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+  transform: translateY(-1px);
+}
+
+.metric-option.selected {
+  border-color: #3679BB;
+  background: #f5f7fa;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+}
+
+.metric-content {
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3679BB;
+  margin-bottom: 0.25rem;
+}
+
+.metric-title {
+  font-size: 0.875rem;
+  color: #103253;
+  line-height: 1.2;
+}
+
+.display-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.display-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 80px;
+}
+
+.display-option:hover {
+  border-color: #3679BB;
+  background: #f5f7fa;
+}
+
+.display-option.selected {
+  border-color: #3679BB;
+  background: #f5f7fa;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+}
+
+.display-preview {
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  border-radius: 4px;
+  margin-right: 1rem;
+  color: #205282;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.display-option.selected .display-preview {
+  background: #9FC9F1;
+  color: #103253;
+}
+
+.display-number {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.display-percentage {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.chart-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #205282;
+}
+
+.chart-preview.bar {
+  border-radius: 2px;
+  background: linear-gradient(to top, #205282 20%, #c8d1e0 20%, #c8d1e0 40%, #205282 40%, #205282 60%, #c8d1e0 60%);
+}
+
+
+.chart-preview.doughnut {
+  background: conic-gradient(#205282 0deg 120deg, #c8d1e0 120deg 240deg, #3679BB 240deg 360deg);
+  position: relative;
+}
+
+.chart-preview.doughnut::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #f5f7fa;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.display-option.selected .chart-preview {
+  background: #103253;
+}
+
+.display-option.selected .chart-preview.bar {
+  background: linear-gradient(to top, #103253 20%, #9FC9F1 20%, #9FC9F1 40%, #103253 40%, #103253 60%, #9FC9F1 60%);
+}
+
+
+.display-option.selected .chart-preview.doughnut {
+  background: conic-gradient(#103253 0deg 120deg, #9FC9F1 120deg 240deg, #3679BB 240deg 360deg);
+}
+
+.display-option.selected .chart-preview.doughnut::after {
+  background: #f5f7fa;
+}
+
+.display-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.display-name {
+  font-weight: 600;
+  color: #103253;
+  margin-bottom: 0.25rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: #f5f7fa;
+  border-radius: 4px;
+  border: 1px solid #c8d1e0;
+}
+
+.btn-primary {
+  background: #3679BB;
+  border-color: #3679BB;
+}
+
+.btn-primary:hover {
+  background: #205282;
+  border-color: #205282;
+}
+
+.btn-secondary {
+  background: #f5f7fa;
+  border-color: #c8d1e0;
+  color: #103253;
+}
+
+.btn-secondary:hover {
+  background: #c8d1e0;
+  border-color: #c8d1e0;
+  color: #103253;
+}
+
+@media (max-width: 576px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .display-types {
+    grid-template-columns: 1fr;
+  }
+  
+  .display-option {
+    flex-direction: column;
+    text-align: center;
+    min-height: auto;
+    padding: 0.75rem;
+  }
+  
+  .display-preview {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+    width: 100px;
+    height: 60px;
+  }
+}
+</style>

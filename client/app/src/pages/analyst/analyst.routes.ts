@@ -21,11 +21,17 @@ export const analystRoutes: Routes = [
   {
     path: "statistics",
     loadComponent: () => import('@app/pages/analyst/statistics/statistics.component').then(m => m.StatisticsComponent),
+    pathMatch: "full",
     resolve: {
       StatisticsResolver
     },
-    pathMatch: "full",
     data: {pageTitle: "statistics"},
+  },
+  {
+    path: "templates",
+    loadComponent: () => import('@app/pages/analyst/templates/templates.component').then(m => m.TemplatesComponent),
+    pathMatch: "full",
+    data: {pageTitle: "templates"},
   },
   {
     path: "preferences",

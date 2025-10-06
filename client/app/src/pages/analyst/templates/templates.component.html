@@ -1,0 +1,147 @@
+<div id="SectionContent" name="contentForm" novalidate class="reveal">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="mb-1">{{ 'Templates' | translate }}</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary" (click)="onCreateNew()">
+        <i class="fas fa-plus me-2"></i>
+        {{ 'New' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <!-- Loading State -->
+    <div class="text-center py-5">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">{{ 'Loading' | translate }}...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Templates Grid -->
+    @if (!selectedTemplate && !isCreating) {
+      @if (templates.length === 0) {
+        <!-- Empty State -->
+        <div class="card border-2 border-dashed text-center py-5">
+          <div class="card-body">
+            <h4 class="text-muted mb-3">{{ 'No Templates' | translate }}</h4>
+            <button class="btn btn-primary" (click)="onCreateNew()">
+              <i class="fas fa-plus me-2"></i>
+              {{ 'Add' | translate }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <!-- Search Bar - like audit log -->
+        <div class="row mb-3">
+          <div class="col d-flex justify-content-end">
+            <div class="input-group input-group-sm w-auto">
+              <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerm" (input)="onSearchChange()">
+              <span class="input-group-text">
+                <i class="fas fa-search"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates Table - simplified like audit log -->
+        <table id="templatesList" class="table table-condensed table-striped">
+          <thead>
+            <tr>
+              <th>
+                <span class="sortable" (click)="sortBy('name')">
+                  {{ 'Name' | translate }}
+                  @if (sortField === 'name') {
+                    @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+                  } @else {
+                    <span class="text-muted"><i class="fas fa-sort"></i></span>
+                  }
+                </span>
+              </th>
+              
+              <th class="sortable" (click)="sortBy('createdDate')">
+                {{ 'Created' | translate }}
+                @if (sortField === 'createdDate') {
+                  @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+                } @else {
+                  <span class="text-muted"><i class="fas fa-sort"></i></span>
+                }
+              </th>
+              <th class="sortable" (click)="sortBy('lastModified')">
+                {{ 'Modified' | translate }}
+                @if (sortField === 'lastModified') {
+                  @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+                } @else {
+                  <span class="text-muted"><i class="fas fa-sort"></i></span>
+                }
+              </th>
+              <th class="fit"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (template of getFilteredTemplates(); track template.id) {
+              <tr>
+                <td><strong>{{ template.name }}</strong></td>
+                <td>{{ template.createdDate | date:'dd-MM-yyyy' }}</td>
+                <td>{{ template.lastModified | date:'dd-MM-yyyy' }}</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-link" 
+                          (click)="viewTemplate(template)"
+                          ngbTooltip="{{ 'Open' | translate }}">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
+                  @if (!template.isDefault) {
+                    <button class="btn btn-sm btn-link text-danger" 
+                            (click)="onDeleteTemplate(template, $event)"
+                            ngbTooltip="{{ 'Delete' | translate }}">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    }
+
+    <!-- Template Editor/Viewer -->
+    @if (selectedTemplate || isCreating) {
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">{{ 'New' | translate }}</h5>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="templateForm" (ngSubmit)="onSaveTemplate()">
+                <div class="row mb-3">
+                  <div class="col-12">
+                    <label for="templateName" class="form-label fw-bold">{{ 'Name' | translate }}</label>
+                    <input type="text" class="form-control" id="templateName" formControlName="name" [placeholder]="'Enter name' | translate">
+                    @if (templateForm.get('name')?.invalid && templateForm.get('name')?.touched) {
+                      <div class="text-danger small mt-1">
+                        {{ 'Name is required' | translate }}
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+                    {{ 'Cancel' | translate }}
+                  </button>
+                  <button type="submit" class="btn btn-primary" [disabled]="templateForm.invalid">
+                    {{ selectedTemplate ? ('Update' | translate) : ('Create' | translate) }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -41,6 +41,7 @@ const icons = [
   solidIcons.faComment,
   solidIcons.faCopy,
   solidIcons.faDownload,
+  solidIcons.faEllipsisVertical,
   solidIcons.faEnvelope,
   solidIcons.faEnvelopeCircleCheck,
   solidIcons.faEraser,
@@ -88,8 +89,6 @@ const icons = [
   solidIcons.faUserMinus,
   solidIcons.faUserPlus,
   solidIcons.faUsers,
-  solidIcons.faVolumeLow,
-  solidIcons.faVolumeXmark,
   solidIcons.faXmark,
 ];
 
