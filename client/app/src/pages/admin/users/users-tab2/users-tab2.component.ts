@@ -19,7 +19,7 @@ import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select
 @Component({
   selector: 'src-users-tab2',
   standalone: true,
-  imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, ProfileEditorComponent, TranslatorPipe, OrderByPipe, FilterPipe],
+  imports: [FormsModule, NgbTooltipModule, ProfileEditorComponent, TranslatorPipe, OrderByPipe],
   templateUrl: './users-tab2.component.html',
 })
 export class UsersTab2Component implements OnInit {
