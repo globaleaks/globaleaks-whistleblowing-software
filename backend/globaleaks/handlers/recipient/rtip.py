@@ -12,7 +12,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import serialize_log
+from globaleaks.handlers.admin.auditlog import query_audit_logs_by_tip
 
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
@@ -38,12 +38,7 @@ from globaleaks.utils.json import JSONEncoder
 def get_report_audit_log(session, tid, user_id, itip_id):
     _, _, _ = db_access_rtip(session, tid, user_id, itip_id)
 
-    logs = session.query(models.AuditLog) \
-                  .filter(models.AuditLog.tid == tid,
-                          models.AuditLog.object_id == itip_id) \
-                  .order_by(models.AuditLog.date.desc())
-
-    return [serialize_log(log) for log in logs]
+    return query_audit_logs_by_tip(session, tid, itip_id)
 
 
 def db_notify_grant_access(session, user):
@@ -640,6 +635,10 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     if uploaded_file['visibility'].decode() == 'public':
         itip.update_date = rtip.last_access
 
+    # Store file type and name before encryption for audit log
+    file_type_for_log = uploaded_file['type']
+    filename_for_log = uploaded_file['name']
+
     if itip.crypto_tip_pub_key:
         for k in ['name', 'description', 'type', 'size']:
             if k == 'size':
@@ -657,6 +656,13 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     new_file.visibility = uploaded_file['visibility']
 
     session.add(new_file)
+
+    log_data = {
+        'file_type': file_type_for_log,
+        'filename': filename_for_log
+    }
+
+    db_log(session, tid=tid, type='upload_file', user_id=user_id, object_id=itip.id, data=log_data)
 
     return serializers.serialize_rfile(session, new_file)
 
@@ -855,6 +861,15 @@ def delete_wbfile(session, tid, user_id, file_id):
     )
 
     if ifile:
+        # Store filename and content_type for audit log
+        # If filename is encrypted (starts with base64), we'll only show content_type on frontend
+        log_data = {
+            'file_type': ifile.content_type,
+            'filename': ifile.name
+        }
+
+        db_log(session, tid=tid, type='delete_attachment', user_id=user_id, object_id=ifile.internaltip_id, data=log_data)
+
         session.delete(ifile)
 
 
@@ -1052,6 +1067,8 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     session.add(comment)
     session.flush()
 
+    db_log(session, tid=tid, type='add_comment', user_id=user_id, object_id=itip.id)
+
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     return ret
@@ -1136,6 +1153,15 @@ def delete_rfile(session, tid, user_id, file_id):
     :param file_id: The file ID of the rfile to be deleted
     """
     rfile = db_access_rfile(session, tid, user_id, file_id)
+
+    # Store filename and content_type for audit log
+    # If filename is encrypted (starts with base64), we'll only show content_type on frontend
+    log_data = {
+        'file_type': rfile.content_type,
+        'filename': rfile.name
+    }
+
+    db_log(session, tid=tid, type='delete_attachment', user_id=user_id, object_id=rfile.internaltip_id, data=log_data)
     session.delete(rfile)
 
 

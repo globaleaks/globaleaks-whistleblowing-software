@@ -17,7 +17,7 @@ from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     extract_statistical_data
 from globaleaks.handlers.user import serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import db_get, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
@@ -108,6 +108,8 @@ def create_comment(session, tid, user_id, content):
     comment.content = _content
     session.add(comment)
     session.flush()
+
+    db_log(session, tid=tid, type='add_comment', user_id=itip.operator_id, object_id=itip.id)
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
@@ -340,5 +342,5 @@ class ReportAuditLog(BaseHandler):
     """
     check_roles = 'whistleblower'
 
-    def get(self, tip_id):
+    def get(self):
         return get_report_audit_log(self.session.tid, self.session.user_id)

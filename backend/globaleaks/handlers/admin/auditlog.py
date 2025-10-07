@@ -18,6 +18,15 @@ def serialize_log(log):
     }
 
 
+def query_audit_logs_by_tip(session, tid, itip_id):
+    """Helper function to query audit logs for a specific tip"""
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid,
+                          models.AuditLog.object_id == itip_id) \
+                  .order_by(models.AuditLog.date.desc())
+    return [serialize_log(log) for log in logs]
+
+
 @transact
 def get_audit_log(session, tid):
     logs = session.query(models.AuditLog) \
@@ -25,6 +34,17 @@ def get_audit_log(session, tid):
                   .order_by(models.AuditLog.date.desc())
 
     return [serialize_log(log) for log in logs]
+
+
+@transact
+def get_tip_audit_log(session, tid, itip_id):
+    # Verify the tip exists and belongs to this tenant
+    session.query(models.InternalTip).filter(
+        models.InternalTip.id == itip_id,
+        models.InternalTip.tid == tid
+    ).one()
+
+    return query_audit_logs_by_tip(session, tid, itip_id)
 
 
 @transact
@@ -86,7 +106,7 @@ class TipsCollection(BaseHandler):
     check_roles = 'admin'
 
     def get(self):
-        return get_tips(self.request.tid)
+        return get_tips(self.request.tid)  # pylint: disable=no-value-for-parameter
 
 
 class JobsTiming(BaseHandler):
@@ -114,8 +134,16 @@ class AuditLog(BaseHandler):
     check_roles = 'admin'
 
     def get(self):
-        return get_audit_log(self.request.tid)
+        return get_audit_log(self.request.tid)  # pylint: disable=no-value-for-parameter
 
+class TipAuditLog(BaseHandler):
+    """
+    Handler that provides access to the audit log for a specific tip
+    """
+    check_roles = 'admin'
+
+    def get(self, itip_id):
+        return get_tip_audit_log(self.request.tid, itip_id)  # pylint: disable=no-value-for-parameter
 
 class AccessLog(BaseHandler):
     """

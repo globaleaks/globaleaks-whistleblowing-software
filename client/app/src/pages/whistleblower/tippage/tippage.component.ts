@@ -19,6 +19,7 @@ import {WhistleblowerIdentityComponent} from "@app/shared/partials/whistleblower
 import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -37,6 +38,7 @@ export class TippageComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   protected wbTipService = inject(WbtipService);
+  private tipAuditLogService = inject(TipAuditLogService);
 
   fileUploadUrl: string;
   answers = {};
@@ -211,5 +213,23 @@ export class TippageComponent implements OnInit {
     return tip?.status !== 'closed' &&
            !!tip?.context?.additional_questionnaire_id &&
            tip?.questionnaires?.length === 1;
+  }
+
+  openLogsModal() {
+    this.tipAuditLogService.openAuditLogModal({
+      tipId: this.tip?.id || '',
+      tipData: this.tip,
+      usersData: this.tip?.receivers || [],
+      lastAccess: this.tip?.last_access || undefined
+    });
+  }
+
+  hasNewAuditLogEntries(): boolean {
+    if (!this.tip?.id) return false;
+    return this.tipAuditLogService.hasNewEntriesSinceLastView(
+      this.tip.id,
+      this.tip.update_date,
+      this.tip.last_access
+    );
   }
 }

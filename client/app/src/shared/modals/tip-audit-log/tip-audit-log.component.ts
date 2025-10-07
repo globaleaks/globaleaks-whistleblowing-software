@@ -9,6 +9,8 @@ import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
+import {AppDataService} from "@app/app-data.service";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 
 interface AuditLogEntry {
   id: string;
@@ -17,6 +19,8 @@ interface AuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  detail?: string;
+  isNew?: boolean;
 }
 
 interface GroupedAuditLogEntry {
@@ -26,10 +30,13 @@ interface GroupedAuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  detail?: string;
   isGroup?: boolean;
   isExpanded?: boolean;
   groupedEntries?: AuditLogEntry[];
   groupCount?: number;
+  isNew?: boolean;
+  hasNewEntries?: boolean;
 }
 
 @Component({
@@ -37,9 +44,19 @@ interface GroupedAuditLogEntry {
   templateUrl: "./tip-audit-log.component.html",
   standalone: true,
   imports: [FormsModule, DatePipe, NgClass, TranslateModule, TranslatorPipe, NgMultiSelectDropDownModule, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule],
+  providers: [DatePipe],
   styles: [`
     .table {
       table-layout: fixed;
+    }
+    .table tbody tr.new-entry-highlight {
+      background-color: #fffbf0 !important;
+    }
+    .table tbody tr.new-entry-highlight:hover {
+      background-color: #fff9e6 !important;
+    }
+    .table tbody tr.new-entry-highlight > td {
+      background-color: inherit !important;
     }
   `]
 })
@@ -51,11 +68,15 @@ export class TipAuditLogComponent implements OnInit {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
   private utilsService = inject(UtilsService);
+  private appDataService = inject(AppDataService);
   private cdr = inject(ChangeDetectorRef);
+  private datePipe = inject(DatePipe);
+  private tipAuditLogService = inject(TipAuditLogService);
 
   @Input() tipId: string = '';
   @Input() tipData: any = null; // Will receive the tip data from parent
-  @Input() usersData: any[] = []; // Will receive users data from parent
+  @Input() usersData: any[] = [];
+  @Input() lastAccess?: string; // Last time user accessed the tip (from backend)
 
   // Component state
   searchTerm: string = '';
@@ -85,9 +106,22 @@ export class TipAuditLogComponent implements OnInit {
   // Audit log data
   auditLogEntries: AuditLogEntry[] = [];
   displayedEntries: GroupedAuditLogEntry[] = [];
+  lastAuditLogAccess: Date | null = null;
+  newEntriesCount: number = 0;
 
   ngOnInit() {
     this.initializeTypeFilterData();
+    
+    // Use the more recent of: last audit log view or last tip access
+    const lastAuditLogView = this.tipAuditLogService.getLastAuditLogView(this.tipId);
+    
+    if (lastAuditLogView) {
+      this.lastAuditLogAccess = lastAuditLogView;
+    } else if (this.lastAccess) {
+      // Fallback to tip's last_access if audit log was never viewed
+      this.lastAuditLogAccess = new Date(this.lastAccess);
+    }
+    
     this.loadAuditLogData();
   }
 
@@ -135,6 +169,10 @@ export class TipAuditLogComponent implements OnInit {
         error: (error) => {
           console.error('Error loading recipient audit log:', error);
           this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
         }
       });
     } else if (userRole === 'whistleblower') {
@@ -146,27 +184,194 @@ export class TipAuditLogComponent implements OnInit {
         error: (error) => {
           console.error('Error loading whistleblower audit log:', error);
           this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
+        }
+      });
+    } else if (userRole === 'admin' && this.tipId) {
+      // Use admin audit log API
+      this.httpService.requestAdminTipAuditLogResource(this.tipId).subscribe({
+        next: (auditLogData: auditlogResolverModel[]) => {
+          this.processAuditLogData(auditLogData);
+        },
+        error: (error) => {
+          console.error('Error loading admin audit log:', error);
+          this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
         }
       });
     } else {
       // Fallback: no audit log data available
       this.auditLogEntries = [];
+      this.createDisplayedEntries();
+      
+      // Mark as viewed even if no data
+      if (this.tipId) {
+        this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+      }
     }
   }
 
   private processAuditLogData(auditLogData: auditlogResolverModel[]) {
     this.auditLogEntries = auditLogData.map((log, index) => {
+      const actionInfo = this.formatActionText(log);
+      const entryTimestamp = new Date(log.date);
+      const isNew = this.lastAuditLogAccess ? entryTimestamp > this.lastAuditLogAccess : false;
+      
+      if (isNew) {
+        this.newEntriesCount++;
+      }
+      
       return {
         id: `audit_${index}`,
         user: this.getUserName(log.user_id || ''),
-        action: log.type,
+        action: actionInfo.action,
+        detail: actionInfo.detail,
         type: this.categorizeAuditLogType(log.type),
-        timestamp: new Date(log.date),
-        data: log.data
+        timestamp: entryTimestamp,
+        data: log.data,
+        isNew: isNew
       };
     });
 
     this.createDisplayedEntries();
+    
+    // Mark audit log as viewed after data is processed
+    if (this.tipId) {
+      this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+    }
+  }
+
+  private formatActionText(log: auditlogResolverModel): { action: string, detail?: string } {
+    const userRole = this.authenticationService.session.role;
+    const isAdminOrAuditor = userRole === 'admin' || userRole === 'auditor';
+
+    // Check common actions shown to all roles
+    const commonResult = this.formatCommonActions(log);
+    if (commonResult) return commonResult;
+
+    // For admin/auditor, only show details for status and expiration changes
+    if (isAdminOrAuditor) return { action: log.type };
+
+    // Format details for recipients and whistleblowers
+    return this.formatRecipientWhistleblowerActions(log);
+  }
+
+  private formatCommonActions(log: auditlogResolverModel): { action: string, detail?: string } | null {
+    if (log.type === 'update_report_status' && log.data?.status) {
+      const statusLabel = this.utilsService.getSubmissionStatusText(
+        log.data.status, log.data.substatus || '', this.appDataService.submissionStatuses
+      );
+      if (statusLabel) return { action: log.type, detail: statusLabel };
+    }
+
+    if (log.type === 'update_report_expiration' && log.data?.curr_expiration_date) {
+      const expirationDate = this.datePipe.transform(log.data.curr_expiration_date * 1000, 'dd-MM-yyyy');
+      if (expirationDate) return { action: log.type, detail: expirationDate };
+    }
+
+    return null;
+  }
+
+  private formatRecipientWhistleblowerActions(log: auditlogResolverModel): { action: string, detail?: string } {
+    const handlers: Record<string, () => { action: string, detail?: string }> = {
+      'grant_access': () => this.formatAccessAction(log),
+      'revoke_access': () => this.formatAccessAction(log),
+      'transfer_access': () => this.formatAccessAction(log),
+      'update_redaction': () => this.formatRedactionAction(log),
+      'set_reminder': () => this.formatReminderAction(log),
+      'upload_file': () => this.formatFileUploadAction(log),
+      'delete_attachment': () => this.formatFileDeletionAction(log),
+      'whistleblower_login': () => ({ action: log.type, detail: this.translateService.instant('Whistleblower') }),
+      'whistleblower_access': () => ({ action: log.type, detail: this.translateService.instant('Whistleblower') }),
+      'export_report': () => this.formatExportAction(log)
+    };
+
+    return handlers[log.type]?.() || { action: log.type };
+  }
+
+  private formatAccessAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.recipient_id) {
+      return { action: log.type, detail: this.getUserName(log.data.recipient_id) };
+    }
+    return { action: log.type };
+  }
+
+  private formatRedactionAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (!log.data) return { action: log.type };
+
+    const details: string[] = [];
+    this.addTemporaryRedactionDetail(log.data, details);
+    this.addPermanentRedactionDetail(log.data, details);
+
+    return details.length > 0 ? { action: log.type, detail: details.join(', ') } : { action: log.type };
+  }
+
+  private addTemporaryRedactionDetail(data: any, details: string[]): void {
+    if (data.new_temporary_redaction === undefined) return;
+    if (data.old_temporary_redaction === data.new_temporary_redaction) return;
+
+    const status = data.new_temporary_redaction ?
+      this.translateService.instant('Masked') : this.translateService.instant('Unmasked');
+    details.push(this.translateService.instant('Temporary') + ': ' + status);
+  }
+
+  private addPermanentRedactionDetail(data: any, details: string[]): void {
+    if (data.permanent_redaction === undefined) return;
+    if (data.old_permanent_redaction === data.permanent_redaction) return;
+
+    const status = data.permanent_redaction ?
+      this.translateService.instant('Redacted') : this.translateService.instant('Unredacted');
+    details.push(this.translateService.instant('Permanent') + ': ' + status);
+  }
+
+  private formatReminderAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.reminder_date) {
+      const reminderDate = this.datePipe.transform(log.data.reminder_date * 1000, 'dd-MM-yyyy');
+      if (reminderDate) return { action: log.type, detail: reminderDate };
+    }
+    return { action: log.type };
+  }
+
+  private formatFileUploadAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.filename) return { action: log.type, detail: log.data.filename };
+    if (log.data?.file_type) return { action: log.type, detail: log.data.file_type };
+    return { action: log.type };
+  }
+
+  private formatFileDeletionAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (!log.data?.file_type) return { action: log.type };
+
+    const extension = this.extractFileExtension(log.data.file_type);
+    if (extension && this.isValidExtension(extension)) {
+      return { action: log.type, detail: extension };
+    }
+    return { action: log.type };
+  }
+
+  private extractFileExtension(fileType: string): string | null {
+    const mimeParts = fileType.split('/');
+    if (mimeParts.length !== 2) return null;
+
+    let extension = mimeParts[1];
+    if (extension.includes('.')) {
+      extension = extension.split('.').pop() || extension;
+    }
+    return extension;
+  }
+
+  private isValidExtension(extension: string): boolean {
+    return extension.length < 20 && !extension.includes('=');
+  }
+
+  private formatExportAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.format) return { action: log.type, detail: log.data.format.toUpperCase() };
+    return { action: log.type };
   }
 
   private createDisplayedEntries() {
@@ -194,72 +399,67 @@ export class TipAuditLogComponent implements OnInit {
 
   private groupAccessReportEntries(entries: AuditLogEntry[]): GroupedAuditLogEntry[] {
     const grouped: GroupedAuditLogEntry[] = [];
-
-    // Sort entries by timestamp (oldest first for sequential processing)
     const sortedEntries = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-
+    
     let i = 0;
     while (i < sortedEntries.length) {
       const currentEntry = sortedEntries[i];
-
-      // Check if this is an access_report entry
+      
       if (currentEntry.action === 'access_report') {
-        const currentDayKey = currentEntry.timestamp.toISOString().split('T')[0];
-        const groupEntries: AuditLogEntry[] = [currentEntry];
-
-        // Look ahead to find consecutive access_report entries from the same user and same day
-        let j = i + 1;
-        while (j < sortedEntries.length) {
-          const nextEntry = sortedEntries[j];
-          const nextDayKey = nextEntry.timestamp.toISOString().split('T')[0];
-
-          // Check if next entry is access_report, same user, and same day
-          if (nextEntry.action === 'access_report' &&
-              nextEntry.user === currentEntry.user &&
-              nextDayKey === currentDayKey) {
-            groupEntries.push(nextEntry);
-            j++;
-          } else {
-            // Break the sequence if user alternates or different action/day
-            break;
-          }
-        }
-
-        // Create group or single entry based on count
-        if (groupEntries.length === 1) {
-          // Single entry - no need to group
-          grouped.push({
-            ...groupEntries[0],
-            isGroup: false
-          });
-        } else {
-          // Multiple consecutive entries - create a group
-          const earliestEntry = groupEntries[0]; // Already sorted oldest first
-
-          grouped.push({
-            ...earliestEntry,
-            id: `group_${currentEntry.user}_${i}`,
-            isGroup: true,
-            isExpanded: false,
-            groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
-            groupCount: groupEntries.length
-          });
-        }
-
-        // Move index to next unprocessed entry
-        i = j;
+        const { groupEntries, nextIndex } = this.collectConsecutiveAccessReports(sortedEntries, i);
+        this.addGroupedOrSingleEntry(grouped, groupEntries, currentEntry, i);
+        i = nextIndex;
       } else {
-        // Non-access_report entries are added directly
-        grouped.push({
-          ...currentEntry,
-          isGroup: false
-        });
+        grouped.push({ ...currentEntry, isGroup: false });
         i++;
       }
     }
-
-    // Sort the final array by timestamp (newest first for display)
+    
     return grouped.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  private collectConsecutiveAccessReports(sortedEntries: AuditLogEntry[], startIndex: number) {
+    const currentEntry = sortedEntries[startIndex];
+    const currentDayKey = this.getDayKey(currentEntry.timestamp);
+    const groupEntries: AuditLogEntry[] = [currentEntry];
+    
+    let j = startIndex + 1;
+    while (j < sortedEntries.length && this.shouldGroupWithCurrent(sortedEntries[j], currentEntry, currentDayKey)) {
+      groupEntries.push(sortedEntries[j]);
+      j++;
+    }
+    
+    return { groupEntries, nextIndex: j };
+  }
+
+  private shouldGroupWithCurrent(nextEntry: AuditLogEntry, currentEntry: AuditLogEntry, currentDayKey: string): boolean {
+    const nextDayKey = this.getDayKey(nextEntry.timestamp);
+    return nextEntry.action === 'access_report' && 
+           nextEntry.user === currentEntry.user && 
+           nextDayKey === currentDayKey;
+  }
+
+  private getDayKey(timestamp: Date): string {
+    return timestamp.toISOString().split('T')[0];
+  }
+
+  private addGroupedOrSingleEntry(grouped: GroupedAuditLogEntry[], groupEntries: AuditLogEntry[], currentEntry: AuditLogEntry, index: number): void {
+    if (groupEntries.length === 1) {
+      grouped.push({ ...groupEntries[0], isGroup: false });
+    } else {
+      const earliestEntry = groupEntries[0];
+      const hasNewEntries = groupEntries.some(entry => entry.isNew);
+      
+      grouped.push({
+        ...earliestEntry,
+        id: `group_${currentEntry.user}_${index}`,
+        isGroup: true,
+        isExpanded: false,
+        groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
+        groupCount: groupEntries.length,
+        hasNewEntries: hasNewEntries
+      });
+    }
   }
 
   categorizeAuditLogType(auditLogType: string): string {
@@ -268,6 +468,7 @@ export class TipAuditLogComponent implements OnInit {
       // Access actions
       case 'access_report':
       case 'whistleblower_access':
+      case 'whistleblower_login':
       case 'export_report':
       case 'scheduled_backup':
         return 'Access';
@@ -275,10 +476,12 @@ export class TipAuditLogComponent implements OnInit {
       // Update/modification actions
       case 'update_report_status':
       case 'update_report_expiration':
+      case 'update_redaction':
       case 'upload_file':
       case 'add_comment':
       case 'set_reminder':
       case 'grant_access':
+      case 'transfer_access':
       case 'mask_information':
       case 'auto_expiration_reminder':
         return 'Update';
@@ -296,10 +499,10 @@ export class TipAuditLogComponent implements OnInit {
           return 'Delete';
         } else if (auditLogType.includes('update') || auditLogType.includes('modify') || auditLogType.includes('change') ||
                    auditLogType.includes('add') || auditLogType.includes('grant') || auditLogType.includes('upload') ||
-                   auditLogType.includes('mask') || auditLogType.includes('set')) {
+                   auditLogType.includes('mask') || auditLogType.includes('set') || auditLogType.includes('transfer')) {
           return 'Update';
         } else if (auditLogType.includes('access') || auditLogType.includes('view') || auditLogType.includes('download') ||
-                   auditLogType.includes('export') || auditLogType.includes('backup')) {
+                   auditLogType.includes('export') || auditLogType.includes('backup') || auditLogType.includes('login')) {
           return 'Access';
         }
         return 'Access'; // Default to Access for unknown types
