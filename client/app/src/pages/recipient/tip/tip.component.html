@@ -43,15 +43,15 @@
                 </button>
                 <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="usersDropdown">
                   @if (preferencesService.dataModel.profile.permissions.can_grant_access_to_reports) {
-                    <button class="dropdown-item" (click)="openGrantTipAccessModal()">
+                    <button id="tip-action-grant-access" class="dropdown-item" (click)="openGrantTipAccessModal()">
                       <i class="fas fa-user-plus me-2"></i>{{'Add' | translate}}
                     </button>
-                    <button class="dropdown-item" (click)="openRevokeTipAccessModal()">
+                    <button id="tip-action-revoke-access" class="dropdown-item" (click)="openRevokeTipAccessModal()">
                       <i class="fas fa-user-minus me-2"></i>{{'Remove' | translate}}
                     </button>
                   }
                   @if (preferencesService.dataModel.profile.permissions.can_transfer_access_to_reports) {
-                    <button class="dropdown-item" (click)="openTipTransferModal()">
+                    <button id="tip-action-transfer-access" class="dropdown-item" (click)="openTipTransferModal()">
                       <i class="fas fa-people-arrows me-2"></i>{{'Transfer' | translate}}
                     </button>
                   }
@@ -68,24 +68,24 @@
               <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdown">
                 @if (!tip || tip.context) {
                   @if (!tip || preferencesService.dataModel.profile.permissions.can_postpone_expiration) {
-                    <button class="dropdown-item" (click)="tipPostpone()">
+                    <button id="tip-action-postpone" class="dropdown-item" (click)="tipPostpone()">
                       <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
                     </button>
                   }
                 }
                 @if ((preferencesService.dataModel.profile.permissions.can_redact_information || preferencesService.dataModel.profile.permissions.can_mask_information)) {
-                  <button class="dropdown-item" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}">
+                  <button id="tip-action-mask" class="dropdown-item" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}">
                     <i class="fas fa-eraser me-2"></i>{{redactOperationTitle | translate}}
                   </button>
                 }
                 <div class="dropdown-divider"></div>
                 @if (tip.status !== 'closed') {
-                  <button class="dropdown-item" (click)="openModalChangeState()">
+                  <button id="tip-action-change-status" class="dropdown-item" (click)="openModalChangeState()">
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
                 @if (tip.status === 'closed') {
-                  <button class="dropdown-item" (click)="openModalReopen()">
+                  <button id="tip-action-reopen" class="dropdown-item" (click)="openModalReopen()">
                     <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
                   </button>
                 }

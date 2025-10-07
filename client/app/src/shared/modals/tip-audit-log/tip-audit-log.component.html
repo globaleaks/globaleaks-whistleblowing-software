@@ -37,7 +37,7 @@
                 <i class="fas fa-sort text-muted"></i>
               }
               <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
-                <i class="fas fa-filter" [ngClass]="{ filterSelected: checkTypeFilter(dropdownTypeModel) }" (click)="toggleTypeDropdown();$event.stopPropagation();"></i>
+                <span id="auditlog-action-filter-type" [ngClass]="{ filterSelected: checkTypeFilter(dropdownTypeModel) }" (click)="toggleTypeDropdown();$event.stopPropagation();"><i class="fas fa-filter"></i></span>
                 <span [class.d-none]="!typeDropdownVisible" (click)="$event.stopPropagation()">
                   <ng-multiselect-dropdown [class.dropdown-visible]="typeDropdownVisible" [settings]="dropdownSettings" [data]="dropdownTypeData" [(ngModel)]="dropdownTypeModel" (ngModelChange)="onTypeFilterChange($event)"></ng-multiselect-dropdown>
                 </span>

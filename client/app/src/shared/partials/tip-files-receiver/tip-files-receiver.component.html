@@ -32,7 +32,7 @@
                     <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
                       <td>{{ file.name }}</td>
                       <td>
-                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
+                        <button class="btn btn-sm btn-primary tip-action-views-file" [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
                           [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)">
                           <i class="fas fa-eye"></i>
                         </button>

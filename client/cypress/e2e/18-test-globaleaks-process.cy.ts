@@ -75,9 +75,9 @@ describe("globaleaks process", function () {
           cy.get('th.sortable i.fa-sort-up, th.sortable i.fa-sort-down').should('exist');
 
           // Test type filter dropdown
-          cy.get('i.fa-filter').click();
-          cy.get('ng-multiselect-dropdown').should('be.visible');
-          cy.get('i.fa-filter').click(); // Close filter
+          cy.get('[id="auditlog-action-filter-type"]').click();
+          cy.get('ng-multiselect-dropdown').should('have.class', 'dropdown-visible');
+          cy.get('[id="auditlog-action-filter-type"]').click(); // Close filter
 
           // Test search functionality
           cy.get('input[placeholder="Search"]').type('access');
@@ -318,6 +318,7 @@ describe("globaleaks process", function () {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
+    cy.get('#actionsDropdown').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
 
@@ -327,6 +328,7 @@ describe("globaleaks process", function () {
       cy.get("#select_content").click();
     });
     cy.get("#save_masking").click();
+    cy.get('#actionsDropdown').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
     cy.get('textarea[name="controlElement"]').should('be.visible').then((textarea: any) => {

@@ -110,6 +110,7 @@ describe("Acquire screenshots necessary for user documentation - Recipient Secti
     cy.takeScreenshot("recipient/settings");
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
+    cy.get('#actionsDropdown').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
     cy.takeScreenshot("recipient/masking-popup", ".modal");
