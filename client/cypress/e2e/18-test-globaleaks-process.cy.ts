@@ -334,4 +334,59 @@ describe("globaleaks process", function () {
     cy.get("#save_masking").click();
     cy.logout();
   });
+
+  it("should test admin audit log reports tab with logs button", function () {
+    cy.login_admin();
+    cy.visit("/#/admin/auditlog");
+    
+    // Navigate to reports tab
+    cy.get('[data-cy="reports"]').first().click();
+    cy.wait(1000);
+    
+    // Check if there are any reports in the audit log
+    cy.get('body').then(($body) => {
+      const logsButtons = $body.find('#ReportsTable tbody tr td button .fa-clipboard-list');
+      if (logsButtons.length > 0) {
+        // Test logs button functionality - click the button with clipboard icon in Actions column
+        cy.get('#ReportsTable tbody tr td button').has('.fa-clipboard-list').first().click();
+        
+        // Verify modal opened
+        cy.get('.modal-title').should('contain', 'Audit log');
+        
+        // Check audit log table structure
+        cy.get('.table thead th').should('contain', 'User');
+        cy.get('.table thead th').should('contain', 'Type');
+        cy.get('.table thead th').should('contain', 'Date');
+        
+        // Test basic functionality if entries exist
+        cy.get('.table tbody tr').then(($rows) => {
+          if ($rows.length > 1) {
+            // Test sorting functionality
+            cy.get('th.sortable').contains('Date').click();
+            cy.get('th.sortable i.fa-sort-up, th.sortable i.fa-sort-down').should('exist');
+            
+            // Test search functionality
+            cy.get('input[placeholder="Search"]').type('access');
+            cy.get('input[placeholder="Search"]').clear();
+          }
+        });
+        
+        // Test pagination (if enough entries exist)
+        cy.get('body').then(($modalBody) => {
+          if ($modalBody.find('ngb-pagination').length > 0) {
+            cy.get('ngb-pagination button').should('exist');
+          }
+        });
+        
+        // Test export functionality in audit log modal
+        cy.get('button').contains('Export').should('be.visible').click();
+        
+        // Close audit log modal
+        cy.get('.modal-footer button').contains('Close').click();
+        cy.get('.modal-title').should('not.exist');
+      }
+    });
+    
+    cy.logout();
+  });
 });

@@ -134,6 +134,7 @@ api_spec = [
     ('/api/admin/auditlog/debug', admin.auditlog.DebugLog),
     ('/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
     ('/api/admin/auditlog/tips', admin.auditlog.TipsCollection),
+    ('/api/admin/auditlog/tips', admin.auditlog.TipAuditLog, r'/api/admin/auditlog/tips/' + uuid_regexp),
     ('/api/admin/l10n/', admin.l10n.AdminL10NHandler, r'/api/admin/l10n/(' + '|'.join(LANGUAGES_SUPPORTED_CODES) + ')'),
     ('/api/admin/config', admin.operation.AdminOperationHandler),
     ('/api/admin/config/csr/gen', admin.https.CSRHandler),

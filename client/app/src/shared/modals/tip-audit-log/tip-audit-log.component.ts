@@ -148,6 +148,17 @@ export class TipAuditLogComponent implements OnInit {
           this.auditLogEntries = [];
         }
       });
+    } else if ((userRole === 'admin' || userRole === 'auditor') && this.tipId) {
+      // Use admin/auditor audit log API
+      this.httpService.requestAdminTipAuditLogResource(this.tipId).subscribe({
+        next: (auditLogData: auditlogResolverModel[]) => {
+          this.processAuditLogData(auditLogData);
+        },
+        error: (error) => {
+          console.error('Error loading admin/auditor audit log:', error);
+          this.auditLogEntries = [];
+        }
+      });
     } else {
       // Fallback: no audit log data available
       this.auditLogEntries = [];

@@ -28,6 +28,22 @@ def get_audit_log(session, tid):
 
 
 @transact
+def get_tip_audit_log(session, tid, itip_id):
+    # Verify the tip exists and belongs to this tenant
+    itip = session.query(models.InternalTip).filter(
+        models.InternalTip.id == itip_id,
+        models.InternalTip.tid == tid
+    ).one()
+
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid,
+                          models.AuditLog.object_id == itip_id) \
+                  .order_by(models.AuditLog.date.desc())
+
+    return [serialize_log(log) for log in logs]
+
+
+@transact
 def get_tips(session, tid):
     tips = []
 
@@ -116,6 +132,14 @@ class AuditLog(BaseHandler):
     def get(self):
         return get_audit_log(self.request.tid)
 
+class TipAuditLog(BaseHandler):
+    """
+    Handler that provides access to the audit log for a specific tip
+    """
+    check_roles = {'admin', 'auditor'}
+
+    def get(self, tip_id):
+        return get_tip_audit_log(self.request.tid, tip_id)
 
 class AccessLog(BaseHandler):
     """

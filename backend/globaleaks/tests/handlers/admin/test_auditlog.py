@@ -52,6 +52,42 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(response), 2)
 
 
+class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
+    _handler = auditlog.TipAuditLog
+
+    @inlineCallbacks
+    def test_get(self):
+        yield self.perform_full_submission_actions()
+
+        # Get a tip ID to test with
+        tips_handler = self.request({}, role='admin', handler=auditlog.TipsCollection)
+        tips = yield tips_handler.get()
+        self.assertTrue(len(tips) > 0)
+        tip_id = tips[0]['id']
+
+        # Test admin access
+        handler = self.request({}, role='admin')
+        response = yield handler.get(tip_id)
+
+        self.assertTrue(isinstance(response, list))
+
+    @inlineCallbacks
+    def test_get_auditor(self):
+        yield self.perform_full_submission_actions()
+
+        # Get a tip ID to test with
+        tips_handler = self.request({}, role='admin', handler=auditlog.TipsCollection)
+        tips = yield tips_handler.get()
+        self.assertTrue(len(tips) > 0)
+        tip_id = tips[0]['id']
+
+        # Test auditor access
+        handler = self.request({}, role='auditor')
+        response = yield handler.get(tip_id)
+
+        self.assertTrue(isinstance(response, list))
+
+
 class TestJobsTiming(helpers.TestHandler):
     _handler = auditlog.JobsTiming
 
