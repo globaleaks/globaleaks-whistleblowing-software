@@ -66,7 +66,7 @@ describe("Analyst - Custom Report Templates", () => {
 
     // Find and open the first custom template by finding the row containing the template name
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -112,7 +112,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -156,7 +156,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -199,7 +199,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -242,7 +242,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -282,7 +282,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -316,7 +316,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -347,7 +347,7 @@ describe("Analyst - Custom Report Templates", () => {
 
     // Delete first template
     cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
-      cy.get('button[ngbTooltip="Delete"]').click();
+      cy.get('.analytics-action-delete').click();
     });
 
     // Confirm deletion in modal
@@ -359,7 +359,7 @@ describe("Analyst - Custom Report Templates", () => {
 
     // Delete second template
     cy.get('#templatesList tbody tr').contains(template2Name).within(() => {
-      cy.get('button[ngbTooltip="Delete"]').click();
+      cy.get('.analytics-action-delete').click();
     });
 
     // Confirm deletion in modal

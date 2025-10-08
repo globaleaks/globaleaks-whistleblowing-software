@@ -12,7 +12,7 @@ describe("Analyst - Default Report Statistics", () => {
 
     // Find and open the default template (first row in the table)
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
 
     // Wait for statistics page to load
@@ -39,7 +39,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -74,7 +74,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -107,7 +107,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
@@ -134,7 +134,7 @@ describe("Analyst - Default Report Statistics", () => {
     cy.visit("/#/analyst/templates");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
-      cy.get('button[ngbTooltip="Open"]').click();
+      cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 

@@ -87,13 +87,13 @@
                 <td>{{ template.createdDate | date:'dd-MM-yyyy' }}</td>
                 <td>{{ template.lastModified | date:'dd-MM-yyyy' }}</td>
                 <td class="text-end">
-                  <button class="btn btn-sm btn-link"
+                  <button class="analytics-action-open btn btn-sm btn-link"
                           (click)="viewTemplate(template)"
                           ngbTooltip="{{ 'Open' | translate }}">
                     <i class="fas fa-chevron-right"></i>
                   </button>
                   @if (!template.isDefault) {
-                    <button class="btn btn-sm btn-link text-danger"
+                    <button class="analytics-action-delete btn btn-sm btn-link text-danger"
                             (click)="onDeleteTemplate(template, $event)"
                             ngbTooltip="{{ 'Delete' | translate }}">
                       <i class="fas fa-trash"></i>
