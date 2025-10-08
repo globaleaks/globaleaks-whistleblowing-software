@@ -340,5 +340,5 @@ class ReportAuditLog(BaseHandler):
     """
     check_roles = 'whistleblower'
 
-    def get(self, tip_id):
+    def get(self):
         return get_report_audit_log(self.session.tid, self.session.user_id)

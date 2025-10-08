@@ -156,4 +156,4 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         for wbtip_desc in wbtips_desc:
             handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
 
-            yield handler.get(wbtip_desc['id'])
+            yield handler.get()
