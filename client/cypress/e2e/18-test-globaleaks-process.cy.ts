@@ -90,8 +90,8 @@ describe("globaleaks process", function () {
       });
 
       // Test pagination (if enough entries exist)
-      cy.get('ngb-pagination').then(($pagination) => {
-        if ($pagination.length > 0) {
+      cy.get('body').then(($body) => {
+        if ($body.find('ngb-pagination').length > 0) {
           cy.get('ngb-pagination button').should('exist');
         }
       });
@@ -161,32 +161,27 @@ describe("globaleaks process", function () {
         cy.get('[data-cy="progress-bar-complete"]').should("be.visible");
       });
 
-      // Test whistleblower audit log functionality (if available)
-      cy.get('body').then(($body) => {
-        // Check if Logs button exists for whistleblowers
-        if ($body.find('button[ngbTooltip="Logs"]').length > 0) {
-          cy.get('[id="tip-action-logs"]').should('be.visible').click();
-          cy.get('.modal-title').should('contain', 'Audit log');
+      // Test whistleblower audit log functionality
+      cy.get('[id="tip-action-logs"]').should('be.visible').click();
+      cy.get('.modal-title').should('contain', 'Audit log');
 
-          // Check audit log table structure
-          cy.get('.table thead th').should('contain', 'User');
-          cy.get('.table thead th').should('contain', 'Type');
-          cy.get('.table thead th').should('contain', 'Date');
+      // Check audit log table structure
+      cy.get('.table thead th').should('contain', 'User');
+      cy.get('.table thead th').should('contain', 'Type');
+      cy.get('.table thead th').should('contain', 'Date');
 
-          // Test basic functionality
-          cy.get('.table tbody tr').then(($rows) => {
-            if ($rows.length > 1) {
-              // Test search if entries exist
-              cy.get('input[placeholder="Search"]').type('upload');
-              cy.get('input[placeholder="Search"]').clear();
-            }
-          });
-
-          // Close modal
-          cy.get('.modal-footer button').contains('Close').click();
-          cy.get('.modal-title').should('not.exist');
+      // Test basic functionality
+      cy.get('.table tbody tr').then(($rows) => {
+        if ($rows.length > 1) {
+          // Test search if entries exist
+          cy.get('input[placeholder="Search"]').type('upload');
+          cy.get('input[placeholder="Search"]').clear();
         }
       });
+
+      // Close modal
+      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('.modal-title').should('not.exist');
 
       cy.logout();
     });

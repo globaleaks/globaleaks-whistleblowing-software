@@ -104,8 +104,12 @@ describe("recipient admin tip actions", () => {
 
     cy.get('.download-button').should('be.visible');
     cy.get('.download-button').first().click();
-    cy.get('.tip-action-delete-file').first().click();
-    cy.get("#modal-action-ok").click();
+    
+    // Delete the file
+    cy.get('.whistleblower-file .btn-danger').first().click();
+    
+    // Wait for the file to be deleted (the element should disappear)
+    cy.wait(1000);
 
     cy.logout();
   });
