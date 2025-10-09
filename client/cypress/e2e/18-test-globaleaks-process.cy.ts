@@ -348,7 +348,7 @@ describe("globaleaks process", function () {
       const logsButtons = $body.find('#ReportsTable tbody tr td button .fa-clipboard-list');
       if (logsButtons.length > 0) {
         // Test logs button functionality - click the button with clipboard icon in Actions column
-        cy.get('#ReportsTable tbody tr td button').has('.fa-clipboard-list').first().click();
+        cy.get('#ReportsTable tbody tr td button .fa-clipboard-list').first().parent().click();
         
         // Verify modal opened
         cy.get('.modal-title').should('contain', 'Audit log');

@@ -30,7 +30,7 @@ def get_audit_log(session, tid):
 @transact
 def get_tip_audit_log(session, tid, itip_id):
     # Verify the tip exists and belongs to this tenant
-    itip = session.query(models.InternalTip).filter(
+    session.query(models.InternalTip).filter(
         models.InternalTip.id == itip_id,
         models.InternalTip.tid == tid
     ).one()

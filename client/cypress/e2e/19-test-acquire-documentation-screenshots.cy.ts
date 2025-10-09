@@ -79,7 +79,7 @@ describe("acquire screenshots necessary for user documentation - Admin Section",
     cy.get('body').then(($body) => {
       const logsButtons = $body.find('#ReportsTable tbody tr td button .fa-clipboard-list');
       if (logsButtons.length > 0) {
-        cy.get('#ReportsTable tbody tr td button').has('.fa-clipboard-list').first().click();
+        cy.get('#ReportsTable tbody tr td button .fa-clipboard-list').first().parent().click();
         cy.wait(500);
         cy.takeScreenshot("admin/audit_log_tip_modal", ".modal");
         cy.get('.modal-footer button').contains('Close').click();
