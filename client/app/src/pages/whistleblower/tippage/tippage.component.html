@@ -2,9 +2,9 @@
   <div class="reveal" [ngClass]="['report-status-' + wbTipService.tip.status, 'report-substatus-' + wbTipService.tip.substatus]">
     <div id="Toolbar" class="row">
       <div class="col-md-12">
-        <div class="d-flex gap-2">
-          <!-- Logs Button -->
-          <button id="tip-action-logs" class="btn btn-outline-secondary" ngbTooltip="{{'Logs' | translate}}"
+        <div class="d-flex justify-content-end align-items-center gap-1">
+          <!-- Audit log Button -->
+          <button id="tip-action-logs" class="btn btn-outline-secondary" ngbTooltip="{{'Audit log' | translate}}"
             (click)="openLogsModal()">
             <i class="fas fa-clipboard-list"></i>
           </button>

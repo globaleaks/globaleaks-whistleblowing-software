@@ -96,3 +96,27 @@ class TestJobsTiming(helpers.TestHandler):
         handler = self.request({}, role='admin')
 
         yield handler.get()
+
+
+class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
+    _handler = auditlog.TipAuditLog
+
+    @inlineCallbacks
+    def test_get(self):
+        yield self.perform_full_submission_actions()
+
+        # Use the dummyRTip_id from the populated DB
+        handler = self.request({}, role='admin')
+        response = yield handler.get(self.dummyRTip_id)
+
+        self.assertTrue(isinstance(response, list))
+
+    @inlineCallbacks
+    def test_get_auditor(self):
+        yield self.perform_full_submission_actions()
+
+        # Test as auditor role
+        handler = self.request({}, role='auditor')
+        response = yield handler.get(self.dummyRTip_id)
+
+        self.assertTrue(isinstance(response, list))
