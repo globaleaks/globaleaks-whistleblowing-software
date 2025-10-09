@@ -59,13 +59,15 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
     def test_get(self):
         yield self.perform_full_submission_actions()
 
-        # Get a tip ID to test with
-        tips_handler = self.request({}, role='admin', handler=auditlog.TipsCollection)
+        # Get a tip ID to test with by setting the handler temporarily
+        self._handler = auditlog.TipsCollection
+        tips_handler = self.request({}, role='admin')
         tips = yield tips_handler.get()
         self.assertTrue(len(tips) > 0)
         tip_id = tips[0]['id']
 
-        # Test admin access
+        # Reset handler and test admin access
+        self._handler = auditlog.TipAuditLog
         handler = self.request({}, role='admin')
         response = yield handler.get(tip_id)
 
@@ -75,13 +77,15 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
     def test_get_auditor(self):
         yield self.perform_full_submission_actions()
 
-        # Get a tip ID to test with
-        tips_handler = self.request({}, role='admin', handler=auditlog.TipsCollection)
+        # Get a tip ID to test with by setting the handler temporarily
+        self._handler = auditlog.TipsCollection
+        tips_handler = self.request({}, role='admin')
         tips = yield tips_handler.get()
         self.assertTrue(len(tips) > 0)
         tip_id = tips[0]['id']
 
-        # Test auditor access
+        # Reset handler and test auditor access
+        self._handler = auditlog.TipAuditLog
         handler = self.request({}, role='auditor')
         response = yield handler.get(tip_id)
 
@@ -96,27 +100,3 @@ class TestJobsTiming(helpers.TestHandler):
         handler = self.request({}, role='admin')
 
         yield handler.get()
-
-
-class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
-    _handler = auditlog.TipAuditLog
-
-    @inlineCallbacks
-    def test_get(self):
-        yield self.perform_full_submission_actions()
-
-        # Use the dummyRTip_id from the populated DB
-        handler = self.request({}, role='admin')
-        response = yield handler.get(self.dummyRTip_id)
-
-        self.assertTrue(isinstance(response, list))
-
-    @inlineCallbacks
-    def test_get_auditor(self):
-        yield self.perform_full_submission_actions()
-
-        # Test as auditor role
-        handler = self.request({}, role='auditor')
-        response = yield handler.get(self.dummyRTip_id)
-
-        self.assertTrue(isinstance(response, list))
