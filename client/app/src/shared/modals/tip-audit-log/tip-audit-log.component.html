@@ -123,14 +123,14 @@
 
   <!-- Export Button -->
   <div class="d-flex justify-content-end mt-2">
-    <button class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
+    <button id="auditlog-action-export" class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
       <i class="fas fa-download"></i>
       <span>{{ 'Export' | translate }}</span>
     </button>
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-outline-secondary" (click)="cancel()">
+  <button id="auditlog-action-close" class="btn btn-outline-secondary" (click)="cancel()">
     <i class="fas fa-times"></i>
     <span>{{'Close' | translate}}</span>
   </button>

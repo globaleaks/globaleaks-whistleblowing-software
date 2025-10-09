@@ -77,12 +77,11 @@ describe("acquire screenshots necessary for user documentation - Admin Section",
     
     // Test and screenshot the tip audit log modal from admin reports tab (if reports exist)
     cy.get('body').then(($body) => {
-      const logsButtons = $body.find('#ReportsTable tbody tr td button .fa-clipboard-list');
-      if (logsButtons.length > 0) {
-        cy.get('#ReportsTable tbody tr td button .fa-clipboard-list').first().parent().click();
+      if ($body.find('#ReportsTable tbody tr').length > 0) {
+        cy.get('#ReportsTable tbody tr').first().find('.tip-action-logs').click();
         cy.wait(500);
         cy.takeScreenshot("admin/audit_log_tip_modal", ".modal");
-        cy.get('.modal-footer button').contains('Close').click();
+        cy.get('#auditlog-action-close').click();
       }
     });
 

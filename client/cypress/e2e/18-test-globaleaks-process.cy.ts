@@ -83,7 +83,7 @@ describe("globaleaks process", function () {
           cy.get('input[placeholder="Search"]').type('access');
 
           // Test export with filters applied
-          cy.get('button').contains('Export').should('be.visible').click();
+          cy.get('#auditlog-action-export').should('be.visible').click();
 
           cy.get('input[placeholder="Search"]').clear();
         }
@@ -97,10 +97,10 @@ describe("globaleaks process", function () {
       });
 
       // Test export functionality in audit log modal
-      cy.get('button').contains('Export').should('be.visible').click();
+      cy.get('#auditlog-action-export').should('be.visible').click();
 
       // Close audit log modal
-      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('#auditlog-action-close').click();
       cy.get('.modal-title').should('not.exist');
 
       // Test export dropdown functionality
@@ -180,7 +180,7 @@ describe("globaleaks process", function () {
       });
 
       // Close modal
-      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('#auditlog-action-close').click();
       cy.get('.modal-title').should('not.exist');
 
       cy.logout();
@@ -345,10 +345,9 @@ describe("globaleaks process", function () {
     
     // Check if there are any reports in the audit log
     cy.get('body').then(($body) => {
-      const logsButtons = $body.find('#ReportsTable tbody tr td button .fa-clipboard-list');
-      if (logsButtons.length > 0) {
-        // Test logs button functionality - click the button with clipboard icon in Actions column
-        cy.get('#ReportsTable tbody tr td button .fa-clipboard-list').first().parent().click();
+      if ($body.find('#ReportsTable tbody tr').length > 0) {
+        // Test logs button functionality
+        cy.get('#ReportsTable tbody tr').first().find('.tip-action-logs').click();
         
         // Verify modal opened
         cy.get('.modal-title').should('contain', 'Audit log');
@@ -379,10 +378,10 @@ describe("globaleaks process", function () {
         });
         
         // Test export functionality in audit log modal
-        cy.get('button').contains('Export').should('be.visible').click();
+        cy.get('#auditlog-action-export').should('be.visible').click();
         
         // Close audit log modal
-        cy.get('.modal-footer button').contains('Close').click();
+        cy.get('#auditlog-action-close').click();
         cy.get('.modal-title').should('not.exist');
       }
     });
