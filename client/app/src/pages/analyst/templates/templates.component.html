@@ -107,10 +107,10 @@
                 <div class="row mb-3">
                   <div class="col-12">
                     <label for="templateName" class="form-label fw-bold">{{ 'Name' | translate }}</label>
-                    <input type="text" class="form-control" id="templateName" formControlName="name" [placeholder]="'Enter name' | translate">
+                    <input type="text" class="form-control" id="templateName" formControlName="name" [placeholder]="'Name' | translate">
                     @if (templateForm.get('name')?.invalid && templateForm.get('name')?.touched) {
                       <div class="text-danger small mt-1">
-                        {{ 'Name is required' | translate }}
+                        {{ 'Required' | translate }}
                       </div>
                     }
                   </div>

@@ -34,12 +34,6 @@ export const analystRoutes: Routes = [
     data: {pageTitle: "statistics"},
   },
   {
-    path: "templates",
-    loadComponent: () => import('@app/pages/analyst/templates/templates.component').then(m => m.TemplatesComponent),
-    pathMatch: "full",
-    data: {pageTitle: "templates"},
-  },
-  {
     path: "preferences",
     loadComponent: () => import('@app/shared/partials/preferences/preferences.component').then(m => m.PreferencesComponent),
     pathMatch: "full",

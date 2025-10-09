@@ -3,8 +3,8 @@ describe("Analyst - Default Report Statistics", () => {
     cy.login_analyst();
     cy.waitForUrl("/analyst/home");
 
-    // Navigate to templates list
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page (templates list)
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
 
     // Verify templates table is visible
@@ -35,18 +35,16 @@ describe("Analyst - Default Report Statistics", () => {
   it("should apply date range filter and view updated statistics", function () {
     cy.login_analyst();
 
-    // Navigate directly to templates and open first template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
-    // Open date range filter
-    cy.get('.filter-item').contains('Date Range').parent().within(() => {
-      cy.get('button.filter-btn').click();
-    });
+    // Open date range filter using data-cy
+    cy.get('[data-cy="filter_date_button"]').click();
 
     // Select date range (using the date picker that appears)
     cy.get('.filter-dropdown-calendar').should('be.visible');
@@ -70,18 +68,16 @@ describe("Analyst - Default Report Statistics", () => {
   it("should clear all filters", function () {
     cy.login_analyst();
 
-    // Navigate to statistics
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
 
-    // Apply a date range filter first
-    cy.get('.filter-item').contains('Date Range').parent().within(() => {
-      cy.get('button.filter-btn').click();
-    });
+    // Apply a date range filter first using data-cy
+    cy.get('[data-cy="filter_date_button"]').click();
     cy.get('.filter-dropdown-calendar').should('be.visible');
     cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').first().click({ force: true });
     cy.get('.ngb-dp-day').not('.hidden').not('[aria-disabled="true"]').eq(5).click({ force: true });
@@ -90,8 +86,8 @@ describe("Analyst - Default Report Statistics", () => {
     // Verify filter is active
     cy.get('.filter-btn.active').should('exist');
 
-    // Clear all filters
-    cy.get('button').contains('Clear All').click();
+    // Clear all filters using data-cy
+    cy.get('[data-cy="filter_clear_button"]').click();
     cy.waitForPageIdle();
 
     // Verify no active filters
@@ -103,8 +99,8 @@ describe("Analyst - Default Report Statistics", () => {
   it("should export the default report as PDF", function () {
     cy.login_analyst();
 
-    // Navigate to statistics
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
       cy.get('.analytics-action-open').click();
@@ -130,8 +126,8 @@ describe("Analyst - Default Report Statistics", () => {
   it("should navigate back to templates list", function () {
     cy.login_analyst();
 
-    // Navigate to statistics
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
     cy.get('#templatesList tbody tr').first().within(() => {
       cy.get('.analytics-action-open').click();
@@ -141,8 +137,8 @@ describe("Analyst - Default Report Statistics", () => {
     // Click back button
     cy.get('.fa-arrow-left').parent().click();
 
-    // Verify we're back at templates list
-    cy.url().should('include', '/analyst/templates');
+    // Verify we're back at statistics page (templates list)
+    cy.url().should('include', '/analyst/statistics');
     cy.get('#templatesList').should('be.visible');
 
     cy.logout();

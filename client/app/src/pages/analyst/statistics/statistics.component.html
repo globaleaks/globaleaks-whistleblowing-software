@@ -15,7 +15,7 @@
       <div>
         @if (currentTemplate) {
           @if (templateViewMode === 'edit') {
-            <input class="form-control form-control-lg" style="max-width: 480px;" [(ngModel)]="templateNameEdit" placeholder="{{ 'Template Name' | translate }}" />
+            <input class="form-control form-control-lg" style="max-width: 480px;" [(ngModel)]="templateNameEdit" placeholder="{{ 'Name' | translate }}" />
           } @else {
             <h2 class="mb-1">{{ currentTemplate.name }}</h2>
           }
@@ -40,7 +40,7 @@
         <button class="btn btn-success"
                 data-cy="statistics_save_button"
                 (click)="saveTemplateChanges(true)"
-                ngbTooltip="{{ 'Save changes' | translate }}">
+                ngbTooltip="{{ 'Save' | translate }}">
           <i class="fas fa-save me-2"></i>
           <span>{{ 'Save' | translate }}</span>
         </button>
@@ -48,7 +48,7 @@
         <button class="btn btn-primary"
                 data-cy="statistics_edit_button"
                 (click)="toggleEditMode()"
-                ngbTooltip="{{ 'Edit template' | translate }}">
+                ngbTooltip="{{ 'Edit' | translate }}">
           <i class="fas fa-edit me-2"></i>
           <span>{{ 'Edit' | translate }}</span>
         </button>
@@ -58,7 +58,6 @@
       @if (isAutoSaving) {
         <small class="text-muted ms-2">
           <i class="fas fa-spinner fa-spin me-1"></i>
-          {{ 'Auto-saving...' | translate }}
         </small>
       }
     </div>
@@ -74,15 +73,16 @@
             <div class="filter-item">
               <span class="filter-label">{{ 'Date Range' | translate }}:</span>
               <div class="filter-dropdown-container">
-                <button class="btn btn-sm btn-outline-secondary filter-btn"
+                <button data-cy="filter_date_button"
+                        class="btn btn-sm btn-outline-secondary filter-btn"
                         [class.active]="dateFilter"
                         (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
-                        ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Select date range' | translate) }}">
+                        ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date Range' | translate) }}">
                   <i class="fas fa-calendar me-1"></i>
                   @if (dateFilter) {
                     <span class="filter-value">{{ dateFilter.fromDate | date:'dd-MM-yyyy' }} - {{ dateFilter.toDate | date:'dd-MM-yyyy' }}</span>
                   } @else {
-                    <span>{{ 'Any Date' | translate }}</span>
+                    <span>{{ 'Date' | translate }}</span>
                   }
                 </button>
                 @if (datePicker) {
@@ -155,9 +155,11 @@
             <!-- Clear Filters Button -->
             @if (hasActiveFilters()) {
               <div class="filter-item">
-                <button class="btn btn-sm btn-outline-danger" (click)="clearAllFilters()">
+                <button data-cy="filter_clear_button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="clearAllFilters()">
                   <i class="fas fa-times me-1"></i>
-                  {{ 'Clear All' | translate }}
+                  {{ 'Clear' | translate }}
                 </button>
               </div>
             }

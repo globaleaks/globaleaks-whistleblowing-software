@@ -6,8 +6,8 @@ describe("Analyst - Custom Report Templates", () => {
     cy.login_analyst();
     cy.waitForUrl("/analyst/home");
 
-    // Navigate to templates list
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page (which shows templates list)
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
 
     // Click the "New" button to create a template
@@ -35,8 +35,8 @@ describe("Analyst - Custom Report Templates", () => {
   it("should create the second custom report template", function () {
     cy.login_analyst();
 
-    // Navigate to templates list
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page (which shows templates list)
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
 
     // Click the "New" button
@@ -60,12 +60,15 @@ describe("Analyst - Custom Report Templates", () => {
   it("should customize the first report by adding a number metric", function () {
     cy.login_analyst();
 
-    // Navigate to templates list
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page (which shows templates list)
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
 
+    // Wait for templates list to be visible
+    cy.get('#templatesList').should('be.visible');
+
     // Find and open the first custom template by finding the row containing the template name
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -108,10 +111,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should add a pie chart metric to the first report", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -152,10 +156,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should add a bar chart metric to the first report", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -195,10 +200,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should add a percentage metric to the first report", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -238,10 +244,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should manage/edit a metric in the first report", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -278,10 +285,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should remove a metric from the first report", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -312,10 +320,11 @@ describe("Analyst - Custom Report Templates", () => {
   it("should export the customized first report as PDF", function () {
     cy.login_analyst();
 
-    // Navigate to templates list and open first custom template
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page and open first custom template
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList').should('be.visible');
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-open').click();
     });
     cy.waitForPageIdle();
@@ -341,12 +350,13 @@ describe("Analyst - Custom Report Templates", () => {
   it("should delete the created custom templates", function () {
     cy.login_analyst();
 
-    // Navigate to templates list
-    cy.visit("/#/analyst/templates");
+    // Navigate to statistics page
+    cy.visit("/#/analyst/statistics");
     cy.waitForPageIdle();
+    cy.get('#templatesList').should('be.visible');
 
     // Delete first template
-    cy.get('#templatesList tbody tr').contains(template1Name).within(() => {
+    cy.get('#templatesList tbody tr').contains(template1Name).parents('tr').within(() => {
       cy.get('.analytics-action-delete').click();
     });
 
@@ -358,7 +368,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.waitForPageIdle();
 
     // Delete second template
-    cy.get('#templatesList tbody tr').contains(template2Name).within(() => {
+    cy.get('#templatesList tbody tr').contains(template2Name).parents('tr').within(() => {
       cy.get('.analytics-action-delete').click();
     });
 
