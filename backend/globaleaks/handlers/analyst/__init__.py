@@ -31,7 +31,7 @@ def apply_filters_to_query(session, query, filters, tid):
     if 'status' in filters and filters['status']:
         # Convert status labels to IDs
         status_labels = filters['status'] if isinstance(filters['status'], list) else [filters['status']]
-        
+
         # Look up status IDs from labels
         status_ids = []
         for label in status_labels:
@@ -41,7 +41,7 @@ def apply_filters_to_query(session, query, filters, tid):
             ).first()
             if status_record:
                 status_ids.append(status_record[0])
-        
+
         if status_ids:
             query = query.filter(models.InternalTip.status.in_(status_ids))
 
@@ -57,19 +57,19 @@ def apply_filters_to_query(session, query, filters, tid):
     if 'channel' in filters and filters['channel']:
         # Filter by channel (context) - can be names or IDs
         channel_values = filters['channel'] if isinstance(filters['channel'], list) else [filters['channel']]
-        
+
         # Try to match by both name and ID
         # First, get all context IDs and names for this tenant
         contexts = session.query(models.Context.id, models.Context.name).filter(
             models.Context.tid == tid
         ).all()
-        
+
         context_id_list = []
         for ctx_id, ctx_name in contexts:
             # Match by either ID or name
             if ctx_id in channel_values or ctx_name in channel_values:
                 context_id_list.append(ctx_id)
-        
+
         if context_id_list:
             query = query.filter(models.InternalTip.context_id.in_(context_id_list))
 
