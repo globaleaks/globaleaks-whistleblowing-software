@@ -1152,8 +1152,6 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
-
-
   async saveTemplateChanges(manual: boolean = false): Promise<void> {
     if (!this.currentTemplateId) {
       return;
@@ -1197,10 +1195,10 @@ export class StatisticsComponent implements OnInit {
 
       // Save the updated template using direct subscription approach
       await firstValueFrom(this.reportTemplateService.saveTemplate(updatedTemplate));
-      
+
       // Update the current template with the saved data to reflect changes in the UI
       this.currentTemplate = updatedTemplate;
-      
+
       // If this was a manual save (Save button clicked), revert to view mode
       if (manual) {
         this.templateViewMode = 'view';

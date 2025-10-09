@@ -12,12 +12,14 @@ from globaleaks.orm import transact
 from globaleaks.rest import errors
 
 
-def apply_filters_to_query(query, filters):
+def apply_filters_to_query(session, query, filters, tid):
     """
     Apply filters to the base InternalTip query
 
+    :param session: SQLAlchemy session for lookups
     :param query: SQLAlchemy query object
     :param filters: Dictionary with filter parameters (context_id, status, tags, tenant, channel, date_from, date_to)
+    :param tid: Tenant ID
     :return: Filtered query object
     """
     if not filters:
@@ -27,13 +29,21 @@ def apply_filters_to_query(query, filters):
         query = query.filter(models.InternalTip.context_id == filters['context_id'])
 
     if 'status' in filters and filters['status']:
-        # Handle multiple statuses (comma-separated)
-        if isinstance(filters['status'], list):
-            query = query.filter(models.InternalTip.status.in_(filters['status']))
-        else:
-            # Handle single status or comma-separated string
-            statuses = filters['status'].split(',') if ',' in filters['status'] else [filters['status']]
-            query = query.filter(models.InternalTip.status.in_(statuses))
+        # Convert status labels to IDs
+        status_labels = filters['status'] if isinstance(filters['status'], list) else [filters['status']]
+        
+        # Look up status IDs from labels
+        status_ids = []
+        for label in status_labels:
+            status_record = session.query(models.SubmissionStatus.id).filter(
+                models.SubmissionStatus.tid == tid,
+                models.SubmissionStatus.label.contains(label)
+            ).first()
+            if status_record:
+                status_ids.append(status_record[0])
+        
+        if status_ids:
+            query = query.filter(models.InternalTip.status.in_(status_ids))
 
     if 'tags' in filters and filters['tags']:
         # Tags filtering not yet implemented - requires tags table schema
@@ -45,8 +55,23 @@ def apply_filters_to_query(query, filters):
         pass
 
     if 'channel' in filters and filters['channel']:
-        # Channel filtering not yet implemented - requires channel tracking in schema
-        pass
+        # Filter by channel (context) - can be names or IDs
+        channel_values = filters['channel'] if isinstance(filters['channel'], list) else [filters['channel']]
+        
+        # Try to match by both name and ID
+        # First, get all context IDs and names for this tenant
+        contexts = session.query(models.Context.id, models.Context.name).filter(
+            models.Context.tid == tid
+        ).all()
+        
+        context_id_list = []
+        for ctx_id, ctx_name in contexts:
+            # Match by either ID or name
+            if ctx_id in channel_values or ctx_name in channel_values:
+                context_id_list.append(ctx_id)
+        
+        if context_id_list:
+            query = query.filter(models.InternalTip.context_id.in_(context_id_list))
 
     if 'date_from' in filters and filters['date_from']:
         try:
@@ -84,7 +109,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
     """
     try:
         base_query = session.query(models.InternalTip).filter(models.InternalTip.tid == tid)
-        base_query = apply_filters_to_query(base_query, filters)
+        base_query = apply_filters_to_query(session, base_query, filters, tid)
 
         # Average time to first access (in hours) - simplified
         try:
@@ -98,7 +123,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
                 models.InternalTip.tid == tid,
                 models.InternalTip.access_count > 0
             )
-            access_times = apply_filters_to_query(access_times, filters)
+            access_times = apply_filters_to_query(session, access_times, filters, tid)
             avg_access_time = access_times.scalar() or 0
         except Exception:
             avg_access_time = 0
@@ -118,7 +143,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
             ).group_by(models.InternalTip.id)
 
             # Apply base filters using the existing apply_filters_to_query function
-            response_times = apply_filters_to_query(response_times, filters)
+            response_times = apply_filters_to_query(session, response_times, filters, tid)
 
             avg_response_times = response_times.all()
             avg_response_time = sum(avg_response_times) / len(avg_response_times) if avg_response_times else 0
@@ -140,7 +165,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
                     models.InternalTipData.creation_date != models.InternalTip.creation_date
                 )
             ).filter(models.InternalTip.tid == tid)
-            disclosure_times = apply_filters_to_query(disclosure_times, filters)
+            disclosure_times = apply_filters_to_query(session, disclosure_times, filters, tid)
             disclosure_times_list = disclosure_times.all()
             avg_disclosure_time = sum(disclosure_times_list) / len(disclosure_times_list) if disclosure_times_list else 0
         except Exception:
@@ -153,7 +178,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
             ).join(
                 models.InternalTip, models.Comment.internaltip_id == models.InternalTip.id
             ).filter(models.InternalTip.tid == tid)
-            exchange_counts = apply_filters_to_query(exchange_counts, filters)
+            exchange_counts = apply_filters_to_query(session, exchange_counts, filters, tid)
             total_exchanges = exchange_counts.scalar() or 0
         except Exception:
             total_exchanges = 0
@@ -165,7 +190,7 @@ def calculate_time_based_metrics(session, tid, filters=None):
             ).join(
                 models.Comment, models.Comment.internaltip_id == models.InternalTip.id
             ).filter(models.InternalTip.tid == tid)
-            tips_with_exchanges = apply_filters_to_query(tips_with_exchanges, filters)
+            tips_with_exchanges = apply_filters_to_query(session, tips_with_exchanges, filters, tid)
             num_tips_with_exchanges = tips_with_exchanges.scalar() or 0
         except Exception:
             num_tips_with_exchanges = 0
@@ -204,26 +229,26 @@ def get_stats(session, tid, filters=None):
     try:
         # Build base query with filters
         base_query = session.query(func.count(models.InternalTip.id)).filter(models.InternalTip.tid == tid)
-        base_query = apply_filters_to_query(base_query, filters)
+        base_query = apply_filters_to_query(session, base_query, filters, tid)
         reports_count = base_query.one()[0]
 
         # Apply filters to all count queries
         no_access_query = session.query(func.count(models.InternalTip.id)) \
                                 .filter(models.InternalTip.tid == tid,
                     models.InternalTip.access_count == 0)
-        no_access_query = apply_filters_to_query(no_access_query, filters)
+        no_access_query = apply_filters_to_query(session, no_access_query, filters, tid)
         num_tips_no_access = no_access_query.one()[0]
 
         mobile_query = session.query(func.count(models.InternalTip.id)) \
                              .filter(models.InternalTip.tid == tid,
                     models.InternalTip.mobile == True)
-        mobile_query = apply_filters_to_query(mobile_query, filters)
+        mobile_query = apply_filters_to_query(session, mobile_query, filters, tid)
         num_tips_mobile = mobile_query.one()[0]
 
         tor_query = session.query(func.count(models.InternalTip.id)) \
                              .filter(models.InternalTip.tid == tid,
                     models.InternalTip.tor == True)
-        tor_query = apply_filters_to_query(tor_query, filters)
+        tor_query = apply_filters_to_query(session, tor_query, filters, tid)
         num_tips_tor = tor_query.one()[0]
 
         subscribed_query = session.query(func.count(models.InternalTip.id)) \
@@ -232,7 +257,7 @@ def get_stats(session, tid, filters=None):
                                        and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
                                             models.InternalTipData.key == 'whistleblower_identity',
                                             models.InternalTipData.creation_date == models.InternalTip.creation_date))
-        subscribed_query = apply_filters_to_query(subscribed_query, filters)
+        subscribed_query = apply_filters_to_query(session, subscribed_query, filters, tid)
         num_subscribed_tips = subscribed_query.one()[0]
 
         initially_anonymous_query = session.query(func.count(models.InternalTip.id)) \
@@ -241,7 +266,7 @@ def get_stats(session, tid, filters=None):
                                              and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
                                                   models.InternalTipData.key == 'whistleblower_identity',
                                                   models.InternalTipData.creation_date != models.InternalTip.creation_date))
-        initially_anonymous_query = apply_filters_to_query(initially_anonymous_query, filters)
+        initially_anonymous_query = apply_filters_to_query(session, initially_anonymous_query, filters, tid)
         num_initially_anonymous_tips = initially_anonymous_query.one()[0]
 
         num_anonymous_tips = reports_count - num_subscribed_tips - num_initially_anonymous_tips
@@ -379,22 +404,27 @@ class FilterOptions(BaseHandler):
     def get_status_options(self, tid):
         """Get available status options from database"""
         try:
-            # Get distinct statuses from InternalTip
-            statuses = self.session.query(models.InternalTip.status) \
-                .filter(models.InternalTip.tid == tid) \
-                .distinct().all()
+            # Get all available statuses for this tenant
+            statuses = self.session.query(
+                models.SubmissionStatus.id,
+                models.SubmissionStatus.label
+            ).filter(
+                models.SubmissionStatus.tid == tid
+            ).order_by(models.SubmissionStatus.order).all()
 
             # Convert to the format expected by the frontend
             options = []
-            for i, (status,) in enumerate(statuses, 1):
-                if status:  # Only include non-null statuses
+            for status_id, label_dict in statuses:
+                if status_id and label_dict:
+                    # label_dict is a JSON field, get the localized label or use the first available
+                    label_text = label_dict.get('en', list(label_dict.values())[0] if label_dict else status_id)
                     options.append({
-                        'id': i,
-                        'label': status.title()
+                        'id': status_id,
+                        'label': label_text
                     })
 
             return options
-        except Exception:
+        except Exception as e:
             return []
 
     def get_tag_options(self, tid):
@@ -443,18 +473,20 @@ class FilterOptions(BaseHandler):
     def get_channel_options(self, tid):
         """Get available channel options from database"""
         try:
-            # Get channel information from contexts (submission channels)
-            channels = self.session.query(models.Context.name) \
-                .join(models.InternalTip, models.InternalTip.context_id == models.Context.id) \
-                .filter(models.InternalTip.tid == tid) \
-                .distinct().limit(10).all()
+            # Get all available channels (contexts) for this tenant
+            channels = self.session.query(
+                models.Context.id,
+                models.Context.name
+            ).filter(
+                models.Context.tid == tid
+            ).order_by(models.Context.name).all()
 
             options = []
-            for i, (channel,) in enumerate(channels, 1):
-                if channel and channel.strip():
+            for context_id, channel_name in channels:
+                if channel_name:
                     options.append({
-                        'id': i,
-                        'label': channel.strip()
+                        'id': context_id,
+                        'label': channel_name
                     })
 
             return options

@@ -139,9 +139,9 @@ export class TemplatesComponent implements OnInit {
         next: (savedTemplate) => {
           this.loadTemplates();
           this.cancelEdit();
-          // Navigate to the statistics page with the new/updated template
+          // Navigate to the statistics page with the new/updated template in edit mode
           this.router.navigate(['/analyst/statistics/view'], {
-            queryParams: { template: savedTemplate.id }
+            queryParams: { template: savedTemplate.id, mode: 'edit' }
           });
         },
         error: () => {
