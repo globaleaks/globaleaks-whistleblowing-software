@@ -60,6 +60,7 @@
       <!-- Number Display -->
       @if (isDisplayTypeCompatible('number')) {
         <div class="display-option"
+             data-cy="display-type-number"
              [class.selected]="selectedDisplayType === 'number'"
              (click)="selectDisplayType('number')">
           <div class="display-preview">
@@ -74,6 +75,7 @@
       <!-- Percentage Display -->
       @if (isDisplayTypeCompatible('percentage')) {
         <div class="display-option"
+             data-cy="display-type-percentage"
              [class.selected]="selectedDisplayType === 'percentage'"
              (click)="selectDisplayType('percentage')">
           <div class="display-preview">
@@ -89,6 +91,7 @@
       <!-- Bar Chart -->
       @if (isDisplayTypeCompatible('bar')) {
         <div class="display-option"
+             data-cy="display-type-bar"
              [class.selected]="selectedDisplayType === 'bar'"
              (click)="selectDisplayType('bar')">
           <div class="display-preview">
@@ -103,6 +106,7 @@
       <!-- Pie Chart (Doughnut style) -->
       @if (isDisplayTypeCompatible('pie')) {
         <div class="display-option"
+             data-cy="display-type-pie"
              [class.selected]="selectedDisplayType === 'pie'"
              (click)="selectDisplayType('pie')">
           <div class="display-preview">

@@ -89,8 +89,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select the first predefined metric
     cy.get('.modal .metric-option').first().click();
 
-    // Select "Number" display type
-    cy.get('.display-option').contains('Number').parent().click();
+    // Select "Number" display type using data-cy
+    cy.get('[data-cy="display-type-number"]').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -131,11 +131,11 @@ describe("Analyst - Custom Report Templates", () => {
     cy.get('.modal').should('be.visible');
 
     // Find and select a metric compatible with pie chart
-    // (e.g., reports by status, anonymous vs identified, etc.)
-    cy.get('.modal .metric-option').contains('Status').click();
+    // Use index since metric names are translated
+    cy.get('.modal .metric-option').eq(1).click();
 
-    // Select "Pie Chart" display type
-    cy.get('.display-option').contains('Pie Chart').parent().click();
+    // Select "Pie Chart" display type using data-cy
+    cy.get('[data-cy="display-type-pie"]').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -179,8 +179,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select the third available metric for bar chart compatibility
     cy.get('.modal .metric-option').eq(2).click();
 
-    // Select "Bar Chart" display type
-    cy.get('.display-option').contains('Bar Chart').parent().click();
+    // Select "Bar Chart" display type using data-cy
+    cy.get('[data-cy="display-type-bar"]').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -223,8 +223,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select another predefined metric
     cy.get('.modal .metric-option').eq(2).click();
 
-    // Select "Percentage" display type
-    cy.get('.display-option').contains('Percentage').parent().click();
+    // Select "Percentage" display type using data-cy
+    cy.get('[data-cy="display-type-percentage"]').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
