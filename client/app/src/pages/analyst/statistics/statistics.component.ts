@@ -1097,9 +1097,6 @@ export class StatisticsComponent implements OnInit {
   }
 
   exportReportAsPDF(): void {
-    // Add print-specific CSS to hide elements that shouldn't be printed
-    this.addPrintStyles();
-
     // Add print-ready content for the PDF
     this.preparePrintContent();
 
@@ -1107,153 +1104,8 @@ export class StatisticsComponent implements OnInit {
     setTimeout(() => {
       window.print();
       // Clean up after printing
-      this.removePrintStyles();
       this.removePrintContent();
     }, 100);
-  }
-
-  private addPrintStyles(): void {
-    if (document.getElementById('print-styles')) return;
-
-    const style = document.createElement('style');
-    style.id = 'print-styles';
-    style.innerHTML = `
-      @media print {
-        /* Hide everything except #Content */
-        body * {
-          visibility: hidden;
-        }
-
-        #Content,
-        #Content * {
-          visibility: visible;
-        }
-
-        /* Position #Content at top of page */
-        #Content {
-          position: absolute !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 100% !important;
-          margin: 0 !important;
-          padding: 20px !important;
-        }
-
-        /* Style page for print */
-        body {
-          margin: 0;
-          padding: 0;
-          font-size: 12pt;
-          line-height: 1.4;
-          color: black !important;
-          background: white !important;
-        }
-
-        /* Hide page header, filters, and interactive elements */
-        .analyst-statistics-container > .d-flex:first-child,
-        .filter-section,
-        #Content .btn,
-        #Content .dropdown,
-        #Content [ngbTooltip],
-        #Content .card-header .dropdown,
-        #Content .add-metric-card {
-          visibility: hidden !important;
-          display: none !important;
-        }
-
-        /* Metric cards */
-        .metrics-section .row {
-          display: flex;
-          flex-wrap: wrap;
-          margin: 0 -10px;
-        }
-
-        .metric-card {
-          border: 1px solid #333 !important;
-          margin-bottom: 15px;
-          break-inside: avoid;
-          background: white !important;
-          page-break-inside: avoid;
-        }
-
-        .metric-card .card-header {
-          background: #f5f5f5 !important;
-          color: black !important;
-          border-bottom: 1px solid #333 !important;
-        }
-
-        .metric-value {
-          font-size: 18pt !important;
-          font-weight: bold !important;
-          color: black !important;
-        }
-
-        .card-title {
-          font-weight: bold !important;
-          color: black !important;
-        }
-
-        /* Charts section */
-        .charts-section {
-          page-break-before: auto;
-          margin-top: 30px;
-        }
-
-        .section-title {
-          font-size: 16pt !important;
-          font-weight: bold !important;
-          color: black !important;
-          margin-bottom: 20px;
-        }
-
-        .chart-card {
-          border: 1px solid #333 !important;
-          margin-bottom: 20px;
-          break-inside: avoid;
-          page-break-inside: avoid;
-        }
-
-        .chart-card .card-header {
-          background: #f5f5f5 !important;
-          color: black !important;
-          border-bottom: 1px solid #333 !important;
-        }
-
-        .chart-legend {
-          visibility: visible !important;
-          display: block !important;
-          margin-top: 15px;
-          padding: 10px;
-          background: #f9f9f9 !important;
-          border: 1px solid #ddd;
-        }
-
-        .legend-item {
-          display: inline-block;
-          margin-right: 15px;
-          margin-bottom: 5px;
-          font-size: 10pt;
-        }
-
-        .legend-color {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          margin-right: 5px;
-          border: 1px solid #333;
-        }
-
-        /* Hide canvas charts but show legends */
-        canvas {
-          visibility: hidden !important;
-        }
-
-        .print-legend {
-          visibility: visible !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
   }
 
   private preparePrintContent(): void {
@@ -1280,13 +1132,6 @@ export class StatisticsComponent implements OnInit {
         chartElement.appendChild(legendDiv);
       }
     });
-  }
-
-  private removePrintStyles(): void {
-    const printStyles = document.getElementById('print-styles');
-    if (printStyles) {
-      printStyles.remove();
-    }
   }
 
   private removePrintContent(): void {
@@ -1352,6 +1197,15 @@ export class StatisticsComponent implements OnInit {
 
       // Save the updated template using direct subscription approach
       await firstValueFrom(this.reportTemplateService.saveTemplate(updatedTemplate));
+      
+      // Update the current template with the saved data to reflect changes in the UI
+      this.currentTemplate = updatedTemplate;
+      
+      // If this was a manual save (Save button clicked), revert to view mode
+      if (manual) {
+        this.templateViewMode = 'view';
+        this.isEditingInline = false;
+      }
     } catch (error) {
       // Error handled silently
     }

@@ -2,7 +2,7 @@
   <!-- Page Header -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <h2 class="mb-1">{{ 'Templates' | translate }}</h2>
+      <h2 class="mb-1">{{ 'Statistics' | translate }}</h2>
     </div>
     <div class="d-flex gap-2">
       <button class="btn btn-primary" (click)="onCreateNew()">
@@ -22,19 +22,7 @@
   } @else {
     <!-- Templates Grid -->
     @if (!selectedTemplate && !isCreating) {
-      @if (templates.length === 0) {
-        <!-- Empty State -->
-        <div class="card border-2 border-dashed text-center py-5">
-          <div class="card-body">
-            <h4 class="text-muted mb-3">{{ 'No Templates' | translate }}</h4>
-            <button class="btn btn-primary" (click)="onCreateNew()">
-              <i class="fas fa-plus me-2"></i>
-              {{ 'Add' | translate }}
-            </button>
-          </div>
-        </div>
-      } @else {
-        <!-- Search Bar - like audit log -->
+      <!-- Search Bar - like audit log -->
         <div class="row mb-3">
           <div class="col d-flex justify-content-end">
             <div class="input-group input-group-sm w-auto">
@@ -104,7 +92,6 @@
             }
           </tbody>
         </table>
-      }
     }
 
     <!-- Template Editor/Viewer -->

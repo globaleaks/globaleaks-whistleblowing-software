@@ -513,7 +513,7 @@ class Templates(BaseHandler):
         now = datetime.utcnow().isoformat() + 'Z'
         return {
             'id': 'globaleaks-default',
-            'name': 'GlobaLeaks Default Report',
+            'name': 'GlobaLeaks',
             'createdBy': 'system',
             'createdDate': now,
             'lastModified': now,
@@ -648,7 +648,7 @@ class TemplateInstance(BaseHandler):
         now = datetime.utcnow().isoformat() + 'Z'
         return {
             'id': 'globaleaks-default',
-            'name': 'GlobaLeaks Default Report',
+            'name': 'GlobaLeaks',
             'createdBy': 'system',
             'createdDate': now,
             'lastModified': now,

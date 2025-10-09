@@ -16,7 +16,7 @@ describe("Analyst - Default Report Statistics", () => {
     });
 
     // Wait for statistics page to load
-    cy.url().should('include', '/analyst/statistics');
+    cy.url().should('include', '/analyst/statistics/view');
     cy.waitForPageIdle();
 
     // Verify page header and content loaded
@@ -116,13 +116,13 @@ describe("Analyst - Default Report Statistics", () => {
     cy.waitForPageIdle();
 
     // Click export button
-    cy.get('button').contains('Export').click();
+    cy.get('[data-cy="statistics_export_button"]').click();
 
     // Wait for PDF generation (the button will be temporarily disabled)
     cy.wait(3000);
 
     // Verify we're still on the statistics page
-    cy.url().should('include', '/analyst/statistics');
+    cy.url().should('include', '/analyst/statistics/view');
 
     cy.logout();
   });

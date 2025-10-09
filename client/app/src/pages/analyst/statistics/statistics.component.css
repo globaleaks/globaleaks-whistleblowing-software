@@ -176,3 +176,282 @@
     min-height: 200px;
   }
 }
+
+/* Print header - hidden on screen, visible on print */
+.print-header {
+  display: none !important;
+}
+
+/* Print Styles - Use ::ng-deep to pierce view encapsulation */
+@media print {
+  /* Page setup */
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+
+  /* Global resets using ::ng-deep */
+  ::ng-deep html,
+  ::ng-deep body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  /* Explicitly hide all navigation and header elements */
+  ::ng-deep views-header,
+  ::ng-deep header,
+  ::ng-deep #HeaderBox,
+  ::ng-deep #Sidebar,
+  ::ng-deep nav,
+  ::ng-deep app-footer,
+  ::ng-deep footer,
+  ::ng-deep #Skip,
+  ::ng-deep #MessagesConsoleBox,
+  ::ng-deep .reveal > .btn,
+  ::ng-deep #PageOverlay,
+  ::ng-deep src-operation,
+  ::ng-deep src-demo,
+  ::ng-deep src-privacybadge,
+  ::ng-deep messageconsole,
+  ::ng-deep .navbar,
+  ::ng-deep .navbar-collapse {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Make sure main content container is visible */
+  ::ng-deep .container-fluid,
+  ::ng-deep #ContentBox,
+  ::ng-deep #ContentBox .row,
+  ::ng-deep main,
+  ::ng-deep #Content {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* Print header with template name */
+  .print-header {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 0 20px 0 !important;
+    padding: 10px 0 !important;
+    border-bottom: 2px solid #333 !important;
+    page-break-after: avoid !important;
+  }
+
+  .print-header h1 {
+    font-size: 16pt !important;
+    font-weight: bold !important;
+    color: #103253 !important;
+    margin: 0 !important;
+  }
+
+  /* Statistics container and main content - be visible */
+  .analyst-statistics-container,
+  #Content {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  /* Make all child elements visible by default */
+  .analyst-statistics-container *,
+  #Content * {
+    visibility: visible !important;
+  }
+
+  /* Reset positioning */
+  ::ng-deep .container-fluid,
+  ::ng-deep #ContentBox,
+  ::ng-deep #ContentBox .row,
+  ::ng-deep main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Hide page header and navigation within statistics */
+  .analyst-statistics-container > .d-flex.mb-4,
+  .filter-section,
+  .filter-section *,
+  .btn,
+  .dropdown,
+  .add-metric-card {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Override the display: block for flex containers */
+  .metrics-section {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  .metrics-section .row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    margin: 0 -5px !important;
+    visibility: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Metric card columns - 2 per row using flexbox */
+  .metrics-section .row > .col-xl-4,
+  .metrics-section .row > .col-lg-6,
+  .metrics-section .row > .col-md-6,
+  .metrics-section .row > .col-sm-12 {
+    display: block !important;
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+    padding: 0 5px 10px 5px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    visibility: visible !important;
+  }
+
+  /* Chart card columns - 2 per row using flexbox */
+  .metrics-section .row > .col-xl-6,
+  .metrics-section .row > .col-lg-12,
+  .metrics-section .row > .col-md-12 {
+    display: block !important;
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+    padding: 0 5px 10px 5px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    visibility: visible !important;
+  }
+
+  .metric-card,
+  .chart-card,
+  .card {
+    display: block !important;
+    border: 1px solid #333 !important;
+    border-radius: 4px !important;
+    margin: 0 !important;
+    break-inside: avoid !important;
+    background: white !important;
+    page-break-inside: avoid !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .metric-card .card-header,
+  .chart-card .card-header {
+    display: block !important;
+    background: #f5f5f5 !important;
+    color: black !important;
+    border-bottom: 1px solid #333 !important;
+    padding: 8px 10px !important;
+    visibility: visible !important;
+  }
+
+  .metric-card .card-body {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px 10px !important;
+    min-height: 100px !important;
+  }
+
+  .chart-card .card-body {
+    display: block !important;
+    visibility: visible !important;
+    padding: 10px !important;
+  }
+
+  .metric-value {
+    display: block !important;
+    font-size: 18pt !important;
+    font-weight: bold !important;
+    color: black !important;
+    visibility: visible !important;
+  }
+
+  .card-title,
+  span,
+  i {
+    display: inline !important;
+    visibility: visible !important;
+  }
+
+  .card-title {
+    font-weight: bold !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+
+  /* Make charts visible and properly sized for print */
+  canvas {
+    display: block !important;
+    visibility: visible !important;
+    max-height: 180px !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 auto !important;
+  }
+
+  .chart-container {
+    display: block !important;
+    position: relative !important;
+    height: 200px !important;
+    width: 100% !important;
+    visibility: visible !important;
+    overflow: visible !important;
+  }
+
+  .card-body.analyst-graph {
+    display: block !important;
+    padding: 10px !important;
+    visibility: visible !important;
+  }
+
+  .card-body.analyst-graph .chart-container {
+    height: 200px !important;
+  }
+
+  /* Chart legends */
+  .chart-legend {
+    visibility: visible !important;
+    display: block !important;
+    margin-top: 15px;
+    padding: 10px;
+    background: #f9f9f9 !important;
+    border: 1px solid #ddd;
+  }
+
+  .legend-item {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 5px;
+    font-size: 9pt;
+  }
+
+  .legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border: 1px solid #333;
+  }
+
+  .print-legend {
+    visibility: visible !important;
+  }
+}

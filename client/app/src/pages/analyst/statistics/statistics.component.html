@@ -1,4 +1,9 @@
 <div class="analyst-statistics-container">
+  <!-- Print Header (hidden on screen, visible on print) -->
+  <div class="print-header">
+    <h1>{{ currentTemplate?.name || 'Statistics Report' }}</h1>
+  </div>
+
   <!-- Page Header with Navigation -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="d-flex align-items-center">
@@ -23,20 +28,27 @@
       @if (templateViewMode !== 'edit') {
       <button class="btn btn-outline-secondary"
               type="button"
+              data-cy="statistics_export_button"
               (click)="exportReportAsPDF()"
-              ngbTooltip="{{ 'Export as PDF' | translate }}">
+              ngbTooltip="{{ 'Export' | translate }}">
         <i class="fas fa-file-export"></i>
         <span class="d-none d-md-inline ms-1">{{ 'Export' | translate }}</span>
       </button>
       }
       <!-- Edit/Save toggle -->
       @if (templateViewMode === 'edit') {
-        <button class="btn btn-success" (click)="saveTemplateChanges(true)" ngbTooltip="{{ 'Save changes' | translate }}">
+        <button class="btn btn-success"
+                data-cy="statistics_save_button"
+                (click)="saveTemplateChanges(true)"
+                ngbTooltip="{{ 'Save changes' | translate }}">
           <i class="fas fa-save me-2"></i>
           <span>{{ 'Save' | translate }}</span>
         </button>
       } @else {
-        <button class="btn btn-primary" (click)="toggleEditMode()" ngbTooltip="{{ 'Edit template' | translate }}">
+        <button class="btn btn-primary"
+                data-cy="statistics_edit_button"
+                (click)="toggleEditMode()"
+                ngbTooltip="{{ 'Edit template' | translate }}">
           <i class="fas fa-edit me-2"></i>
           <span>{{ 'Edit' | translate }}</span>
         </button>

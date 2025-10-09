@@ -26,8 +26,8 @@ describe("Analyst - Custom Report Templates", () => {
     cy.waitForPageIdle();
 
     // Verify we're on the statistics page in edit mode
-    cy.url().should('include', '/analyst/statistics');
-    cy.get('.export-buttons button').contains('Save').should('be.visible');
+    cy.url().should('include', '/analyst/statistics/view');
+    cy.get('[data-cy="statistics_save_button"]').should('be.visible');
 
     cy.logout();
   });
@@ -52,7 +52,7 @@ describe("Analyst - Custom Report Templates", () => {
     cy.waitForPageIdle();
 
     // Verify we're on the statistics page
-    cy.url().should('include', '/analyst/statistics');
+    cy.url().should('include', '/analyst/statistics/view');
 
     cy.logout();
   });
@@ -321,19 +321,19 @@ describe("Analyst - Custom Report Templates", () => {
     cy.waitForPageIdle();
 
     // Ensure we're in view mode (not edit mode)
-    cy.url().should('include', '/analyst/statistics');
+    cy.url().should('include', '/analyst/statistics/view');
 
     // Wait for all content to load
     cy.waitForPageIdle();
 
     // Click export button
-    cy.get('button').contains('Export').click();
+    cy.get('[data-cy="statistics_export_button"]').click();
 
     // Wait for PDF generation
     cy.wait(3000);
 
     // Verify we're still on the statistics page
-    cy.url().should('include', '/analyst/statistics');
+    cy.url().should('include', '/analyst/statistics/view');
 
     cy.logout();
   });

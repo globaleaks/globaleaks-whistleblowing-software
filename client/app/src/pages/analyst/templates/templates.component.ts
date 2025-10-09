@@ -140,7 +140,7 @@ export class TemplatesComponent implements OnInit {
           this.loadTemplates();
           this.cancelEdit();
           // Navigate to the statistics page with the new/updated template
-          this.router.navigate(['/analyst/statistics'], {
+          this.router.navigate(['/analyst/statistics/view'], {
             queryParams: { template: savedTemplate.id }
           });
         },
@@ -189,7 +189,7 @@ export class TemplatesComponent implements OnInit {
 
   // Navigation methods
   viewTemplate(template: ReportTemplate): void {
-    this.router.navigate(['/analyst/statistics'], {
+    this.router.navigate(['/analyst/statistics/view'], {
       queryParams: {
         template: template.id,
         mode: 'view'
