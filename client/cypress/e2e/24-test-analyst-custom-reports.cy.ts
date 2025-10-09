@@ -176,8 +176,17 @@ describe("Analyst - Custom Report Templates", () => {
     cy.get('.modal').should('be.visible');
 
     // Select a metric (use index since metric names are translated)
-    // Select the third available metric for bar chart compatibility
-    cy.get('.modal .metric-option').eq(2).click();
+    // Try different metrics until we find one compatible with bar charts
+    // First, try the second metric
+    cy.get('.modal .metric-option').eq(1).click();
+    
+    // Check if bar chart option is available, if not try another metric
+    cy.get('body').then($body => {
+      if ($body.find('[data-cy="display-type-bar"]').length === 0) {
+        // Bar chart not available, try first metric
+        cy.get('.modal .metric-option').eq(0).click();
+      }
+    });
 
     // Select "Bar Chart" display type using data-cy
     cy.get('[data-cy="display-type-bar"]').click();
