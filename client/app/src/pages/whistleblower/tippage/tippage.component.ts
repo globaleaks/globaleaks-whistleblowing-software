@@ -9,7 +9,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
-import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NgClass} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
@@ -19,7 +19,7 @@ import {WhistleblowerIdentityComponent} from "@app/shared/partials/whistleblower
 import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
-import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -38,7 +38,7 @@ export class TippageComponent implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   protected wbTipService = inject(WbtipService);
-  private modalService = inject(NgbModal);
+  private tipAuditLogService = inject(TipAuditLogService);
 
   fileUploadUrl: string;
   answers = {};
@@ -216,14 +216,10 @@ export class TippageComponent implements OnInit {
   }
 
   openLogsModal() {
-    const modalRef = this.modalService.open(TipAuditLogComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: true
+    this.tipAuditLogService.openAuditLogModal({
+      tipId: this.tip?.id || '',
+      tipData: this.tip,
+      usersData: this.tip?.receivers || []
     });
-
-    modalRef.componentInstance.tipId = this.tip?.id || '';
-    modalRef.componentInstance.tipData = this.tip;
-    modalRef.componentInstance.usersData = this.tip?.receivers || [];
   }
 }

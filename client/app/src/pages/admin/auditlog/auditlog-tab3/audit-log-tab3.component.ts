@@ -5,8 +5,8 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {tipsResolverModel} from "@app/models/resolvers/tips-resolver-model";
 import {AppDataService} from "@app/app-data.service";
 import {DatePipe} from "@angular/common";
-import {NgbModal, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -21,7 +21,7 @@ export class AuditLogTab3Component implements OnInit {
   private usersResolver = inject(UsersResolver);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-  private modalService = inject(NgbModal);
+  private tipAuditLogService = inject(TipAuditLogService);
 
   currentPage = 1;
   pageSize = 20;
@@ -50,14 +50,10 @@ export class AuditLogTab3Component implements OnInit {
   }
 
   openTipAuditLogModal(tip: tipsResolverModel) {
-    const modalRef = this.modalService.open(TipAuditLogComponent, {
-      size: 'xl',
-      backdrop: 'static',
-      keyboard: true
+    this.tipAuditLogService.openAuditLogModal({
+      tipId: tip.id,
+      tipData: tip,
+      usersData: this.usersResolver.dataModel || []
     });
-
-    modalRef.componentInstance.tipId = tip.id;
-    modalRef.componentInstance.tipData = tip;
-    modalRef.componentInstance.usersData = this.usersResolver.dataModel || [];
   }
 }

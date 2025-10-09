@@ -136,10 +136,10 @@ class TipAuditLog(BaseHandler):
     """
     Handler that provides access to the audit log for a specific tip
     """
-    check_roles = {'admin', 'auditor'}
+    check_roles = 'admin'
 
-    def get(self, tip_id):
-        return get_tip_audit_log(self.request.tid, tip_id)
+    def get(self, itip_id):
+        return get_tip_audit_log(self.request.tid, itip_id)
 
 class AccessLog(BaseHandler):
     """

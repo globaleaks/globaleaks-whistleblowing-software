@@ -56,37 +56,21 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
     _handler = auditlog.TipAuditLog
 
     @inlineCallbacks
-    def test_get(self):
-        yield self.perform_full_submission_actions()
-
-        # Get a tip ID to test with by setting the handler temporarily
+    def _get_test_tip_id(self):
+        """Helper method to get a tip ID for testing"""
         self._handler = auditlog.TipsCollection
         tips_handler = self.request({}, role='admin')
         tips = yield tips_handler.get()
         self.assertTrue(len(tips) > 0)
-        tip_id = tips[0]['id']
-
-        # Reset handler and test admin access
         self._handler = auditlog.TipAuditLog
-        handler = self.request({}, role='admin')
-        response = yield handler.get(tip_id)
-
-        self.assertTrue(isinstance(response, list))
+        return tips[0]['id']
 
     @inlineCallbacks
-    def test_get_auditor(self):
+    def test_get(self):
         yield self.perform_full_submission_actions()
+        tip_id = yield self._get_test_tip_id()
 
-        # Get a tip ID to test with by setting the handler temporarily
-        self._handler = auditlog.TipsCollection
-        tips_handler = self.request({}, role='admin')
-        tips = yield tips_handler.get()
-        self.assertTrue(len(tips) > 0)
-        tip_id = tips[0]['id']
-
-        # Reset handler and test auditor access
-        self._handler = auditlog.TipAuditLog
-        handler = self.request({}, role='auditor')
+        handler = self.request({}, role='admin')
         response = yield handler.get(tip_id)
 
         self.assertTrue(isinstance(response, list))

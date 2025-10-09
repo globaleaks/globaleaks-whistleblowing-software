@@ -39,7 +39,7 @@ import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 
 
 @Component({
@@ -81,6 +81,7 @@ export class TipComponent implements OnInit {
   protected utils = inject(UtilsService);
   protected preferencesService = inject(PreferenceResolver);
   protected modalService = inject(NgbModal);
+  private tipAuditLogService = inject(TipAuditLogService);
   private activatedRoute = inject(ActivatedRoute);
   protected httpService = inject(HttpService);
   protected http = inject(HttpClient);
@@ -390,15 +391,14 @@ export class TipComponent implements OnInit {
   }
 
   openLogsModal() {
-    const modalRef = this.modalService.open(TipAuditLogComponent, {
-      size: 'xl',
-      backdrop: 'static',
+    if (!this.tip_id) return;
+    
+    this.tipAuditLogService.openAuditLogModal({
+      tipId: this.tip_id,
+      tipData: this.tip,
+      usersData: this.tip?.receivers || [],
       keyboard: false
     });
-
-    modalRef.componentInstance.tipId = this.tip_id;
-    modalRef.componentInstance.tipData = this.tip; // Pass the tip data containing comments with audit logs
-    modalRef.componentInstance.usersData = this.tip?.receivers || []; // Pass receivers as users data
   }
 
   toggleRedactMode() {
