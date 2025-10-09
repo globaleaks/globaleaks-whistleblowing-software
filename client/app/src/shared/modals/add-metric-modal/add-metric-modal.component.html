@@ -119,10 +119,11 @@
 </div>
 
 <div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="cancel()">
+  <button type="button" id="modal-action-cancel" class="btn btn-secondary" (click)="cancel()">
     {{ 'Cancel' | translate }}
   </button>
   <button type="button"
+          id="modal-action-ok"
           class="btn btn-primary"
           (click)="save()"
           [disabled]="!selectedMetricId || !selectedDisplayType">

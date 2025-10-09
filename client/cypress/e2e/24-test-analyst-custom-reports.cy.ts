@@ -92,8 +92,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select "Number" display type
     cy.get('.display-option').contains('Number').parent().click();
 
-    // Click Add button
-    cy.get('.modal button').contains('Add').click();
+    // Click Add button using ID
+    cy.get('#modal-action-ok').click();
 
     // Wait for modal to close and metric to be added
     cy.waitForPageIdle();
@@ -137,8 +137,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select "Pie Chart" display type
     cy.get('.display-option').contains('Pie Chart').parent().click();
 
-    // Click Add button
-    cy.get('.modal button').contains('Add').click();
+    // Click Add button using ID
+    cy.get('#modal-action-ok').click();
 
     // Wait for modal to close
     cy.waitForPageIdle();
@@ -175,14 +175,15 @@ describe("Analyst - Custom Report Templates", () => {
     // Wait for modal
     cy.get('.modal').should('be.visible');
 
-    // Find and select a metric compatible with bar chart
-    cy.get('.modal .metric-option').contains('Channel').click();
+    // Select a metric (use index since metric names are translated)
+    // Select the third available metric for bar chart compatibility
+    cy.get('.modal .metric-option').eq(2).click();
 
     // Select "Bar Chart" display type
     cy.get('.display-option').contains('Bar Chart').parent().click();
 
-    // Click Add button
-    cy.get('.modal button').contains('Add').click();
+    // Click Add button using ID
+    cy.get('#modal-action-ok').click();
 
     // Wait for modal to close
     cy.waitForPageIdle();
@@ -225,8 +226,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Select "Percentage" display type
     cy.get('.display-option').contains('Percentage').parent().click();
 
-    // Click Add button
-    cy.get('.modal button').contains('Add').click();
+    // Click Add button using ID
+    cy.get('#modal-action-ok').click();
 
     // Wait for modal to close
     cy.waitForPageIdle();
@@ -269,8 +270,8 @@ describe("Analyst - Custom Report Templates", () => {
     // Change display type (e.g., from Number to Percentage)
     cy.get('.modal .display-type').eq(1).click();
 
-    // Click Update button
-    cy.get('.modal button').contains('Update').click();
+    // Click Apply button using ID
+    cy.get('#modal-action-ok').click();
 
     // Wait for modal to close
     cy.waitForPageIdle();
@@ -360,9 +361,9 @@ describe("Analyst - Custom Report Templates", () => {
       cy.get('.analytics-action-delete').click();
     });
 
-    // Confirm deletion in modal
+    // Confirm deletion in modal using ID
     cy.get('.modal').should('be.visible');
-    cy.get('.modal button').contains('Delete').click();
+    cy.get('#modal-action-ok').click();
 
     // Wait for deletion
     cy.waitForPageIdle();
@@ -372,9 +373,9 @@ describe("Analyst - Custom Report Templates", () => {
       cy.get('.analytics-action-delete').click();
     });
 
-    // Confirm deletion in modal
+    // Confirm deletion in modal using ID
     cy.get('.modal').should('be.visible');
-    cy.get('.modal button').contains('Delete').click();
+    cy.get('#modal-action-ok').click();
 
     // Wait for deletion
     cy.waitForPageIdle();

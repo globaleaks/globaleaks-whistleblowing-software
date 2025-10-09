@@ -1141,7 +1141,7 @@ export class StatisticsComponent implements OnInit {
 
   // Template navigation and saving methods
   navigateBackToTemplates(): void {
-    this.router.navigate(['/analyst/templates']);
+    this.router.navigate(['/analyst/statistics']);
   }
 
   toggleEditMode(): void {
