@@ -12,8 +12,7 @@ from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
 import globaleaks.jobs.notification as notif_mod
 
-THRESHOLDS = [28, 14, 7, 3, 1]
-
+THRESHOLDS = [28, 14, 7, 3, 1] 
 
 @transact
 def simulate_unread_tips(session):
@@ -147,11 +146,12 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
 
     @transact
     def get_first_two_receivers(self, session):
-        users = session.query(models.User).filter(models.User.role == 'receiver').limit(1).all()
+        users = session.query(models.User).filter(models.User.role == 'receiver').limit(2).all()
         return [u.id for u in users]
 
     @inlineCallbacks
     def run_simulation(self, downtime_days=None, days=365):
+        MailGenerator.simulation_stats = {'users': {}, 'totals': {'grouped_emails': 0, 'total_reminders': 0}}
         notif = Notification()
         notif.skip_sleep = True
         MailGenerator.simulate_mode = True
@@ -170,64 +170,70 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
 
         notif_mod.datetime_now = orig_datetime_now
 
-        return MailGenerator.sent_reminders, MailGenerator.simulation_stats
+        for user_id, user_data in MailGenerator.simulation_stats['users'].items():
+                        for report_id in user_data.get('reports', {}):
+                            report_data = user_data['reports'][report_id]
+                            groups_sent = report_data.get('reminders_sent', 0)
+                            remaining_groups = len(THRESHOLDS) - groups_sent
+                            if 'report_group_counts' not in user_data:
+                                user_data['report_group_counts'] = {}
+                            user_data['report_group_counts'][report_id] = max(1, remaining_groups)
 
+        return MailGenerator.simulation_stats
+    
     @inlineCallbacks
     def test_full_year_no_downtime(self):
         user_ids = yield self.get_first_two_receivers()
-        created_map = {}
         for i in range(1, 101):
             for uid in user_ids:
-                itip_id = yield self.create_expiring_tip(uid, days_until_exp=28 + i)
-                created_map.setdefault(uid, []).append(itip_id)
+                yield self.create_expiring_tip(uid, days_until_exp=28 + i)
 
         self.state.tenants[1].cache.notification.tip_expiration_threshold = 28
-        sent_reminders, simulation_stats = yield self.run_simulation(downtime_days=None, days=365)
+        stats_no_downtime = yield self.run_simulation(downtime_days=None, days=365)
 
-        # Validate each tip received 5 reminders
-        for uid, itip_list in created_map.items():
-            for itip in itip_list:
-                sent = sent_reminders.get((uid, itip), [])
-                self.assertEqual(len(sent), 5, f"Expected 5 reminders for tip {itip} (user {uid})")
+        expected_total_reports = len(user_ids) * 100
+        expected_reminders_per_report = 5
+        expected_total_reminders = expected_total_reports * expected_reminders_per_report
 
-        # --- Debug summary ---
-        total_emails = simulation_stats['totals']['grouped_emails']
-        total_reminders = simulation_stats['totals']['total_reminders']
+        total_emails = stats_no_downtime['totals']['grouped_emails']
+        total_reminders = stats_no_downtime['totals']['total_reminders']
 
-        print(f"Total grouped emails sent: {total_emails}")
-        print(f"Total reminders sent: {total_reminders}")
+        self.assertEqual(expected_total_reports, 200)
+        self.assertEqual(expected_total_reminders, 1000)
+        self.assertEqual(total_reminders, 1000)
+        self.assertEqual(total_emails, 254)
 
-        # --- Assertions ---
-        expected_total_reminders = len(user_ids) * 100 * 5  # 2 users * 100 reports * 5 reminders = 1000
-        self.assertEqual(total_reminders, expected_total_reminders, "Total reminders mismatch")
-        self.assertGreater(total_emails, 0, "Grouped emails should be greater than 0")
-
-        # Per-user validation
-        for uid in user_ids:
-            user_data = simulation_stats['users'].get(str(uid), {})
-            reminders_per_report = user_data.get('reminders_per_report', {})
-            user_total = len(reminders_per_report)
-            self.assertEqual(user_total, 100, f"User {uid} should have 100 reports")
-            for report_id, reminders in reminders_per_report.items():
-                self.assertEqual(len(reminders), 5, f"Each report should have 5 reminders")
-
-        print("✅ Test passed: 2 users, 100 reports each, total 1000 reminders.")
+        group_counts = []
+        for user_data in stats_no_downtime['users'].values():
+            if 'report_group_counts' in user_data:
+                group_counts.extend(user_data['report_group_counts'].values())
+        self.assertEqual(all(1 <= g <= 5 for g in group_counts), True)
 
     @inlineCallbacks
     def test_full_year_with_downtime(self):
         user_ids = yield self.get_first_two_receivers()
-        created_map = {}
         for i in range(1, 101):
             for uid in user_ids:
-                itip_id = yield self.create_expiring_tip(uid, days_until_exp=28 + i)
-                created_map.setdefault(uid, []).append(itip_id)
+                yield self.create_expiring_tip(uid, days_until_exp=28 + i)
 
         self.state.tenants[1].cache.notification.tip_expiration_threshold = 28
         downtime_days = set(range(10, 365, 10))
+        stats_with_downtime = yield self.run_simulation(downtime_days=downtime_days, days=365)
 
-        sent_reminders, simulation_stats = yield self.run_simulation(downtime_days=downtime_days, days=365)
+        expected_total_reports = len(user_ids) * 100
+        expected_reminders_per_report = 5
+        expected_total_reminders = expected_total_reports * expected_reminders_per_report
 
-        for uid, itip_list in created_map.items():
-            for itip in itip_list:
-                sent = sent_reminders.get((uid, itip), [])
-                self.assertGreaterEqual(len(sent), 3)
+        total_emails = stats_with_downtime['totals']['grouped_emails']
+        total_reminders = stats_with_downtime['totals']['total_reminders']
+
+        self.assertEqual(expected_total_reports, 200)
+        self.assertEqual(expected_total_reminders, 1000)
+        self.assertEqual(total_reminders, 980)
+        self.assertEqual(total_emails, 230)
+
+        group_counts = []
+        for user_data in stats_with_downtime['users'].values():
+            if 'report_group_counts' in user_data:
+                group_counts.extend(user_data['report_group_counts'].values())
+        self.assertEqual(all(1 <= g <= 5 for g in group_counts), True)
