@@ -89,8 +89,11 @@ describe("Analyst - Custom Report Templates", () => {
     // Select the first predefined metric
     cy.get('.modal .metric-option').first().click();
 
+    // Wait for display types to load
+    cy.wait(200);
+
     // Select "Number" display type using data-cy
-    cy.get('[data-cy="display-type-number"]').click();
+    cy.get('[data-cy="display-type-number"]').should('be.visible').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -134,8 +137,11 @@ describe("Analyst - Custom Report Templates", () => {
     // Use index since metric names are translated
     cy.get('.modal .metric-option').eq(1).click();
 
+    // Wait for display types to load
+    cy.wait(200);
+
     // Select "Pie Chart" display type using data-cy
-    cy.get('[data-cy="display-type-pie"]').click();
+    cy.get('[data-cy="display-type-pie"]').should('be.visible').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -175,21 +181,33 @@ describe("Analyst - Custom Report Templates", () => {
     // Wait for modal
     cy.get('.modal').should('be.visible');
 
-    // Select a metric (use index since metric names are translated)
-    // Try different metrics until we find one compatible with bar charts
-    // First, try the second metric
-    cy.get('.modal .metric-option').eq(1).click();
+    // Try to find a metric compatible with bar charts
+    // We need to try multiple metrics since some may have been added already
+    let foundBarChart = false;
     
-    // Check if bar chart option is available, if not try another metric
-    cy.get('body').then($body => {
-      if ($body.find('[data-cy="display-type-bar"]').length === 0) {
-        // Bar chart not available, try first metric
-        cy.get('.modal .metric-option').eq(0).click();
-      }
+    cy.get('.modal .metric-option').then($options => {
+      const tryMetric = (index) => {
+        if (index >= $options.length) {
+          // No more metrics to try, fail the test
+          throw new Error('No metrics compatible with bar charts found');
+        }
+        
+        cy.get('.modal .metric-option').eq(index).click();
+        cy.wait(300);
+        
+        cy.get('body').then($body => {
+          if ($body.find('[data-cy="display-type-bar"]').length > 0) {
+            // Found a compatible metric, select bar chart
+            cy.get('[data-cy="display-type-bar"]').click();
+          } else {
+            // Try next metric
+            tryMetric(index + 1);
+          }
+        });
+      };
+      
+      tryMetric(0);
     });
-
-    // Select "Bar Chart" display type using data-cy
-    cy.get('[data-cy="display-type-bar"]').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
@@ -232,8 +250,11 @@ describe("Analyst - Custom Report Templates", () => {
     // Select another predefined metric
     cy.get('.modal .metric-option').eq(2).click();
 
+    // Wait for display types to load
+    cy.wait(200);
+
     // Select "Percentage" display type using data-cy
-    cy.get('[data-cy="display-type-percentage"]').click();
+    cy.get('[data-cy="display-type-percentage"]').should('be.visible').click();
 
     // Click Add button using ID
     cy.get('#modal-action-ok').click();
