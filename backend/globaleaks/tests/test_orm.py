@@ -74,3 +74,13 @@ class TestORM(helpers.TestGL):
             # Check that foreign_keys is enabled
             result = conn.execute(text("PRAGMA foreign_keys")).fetchone()
             self.assertEqual(result[0], 1)  # ON = 1
+
+            # Check that PRAGMA settings are applied with correct values
+            result = conn.execute(text("PRAGMA journal_mode")).fetchone()
+            self.assertEqual(result[0].upper(), "WAL")
+
+            result = conn.execute(text("PRAGMA synchronous")).fetchone()
+            self.assertEqual(result[0], 2)  # FULL = 2
+
+            result = conn.execute(text("PRAGMA cache_size")).fetchone()
+            self.assertEqual(result[0], -32000)
