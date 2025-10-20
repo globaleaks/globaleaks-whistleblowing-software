@@ -1171,7 +1171,7 @@ def delete_rfile(session, tid, user_id, file_id):
     :param file_id: The file ID of the rfile to be deleted
     """
     rfile = db_access_rfile(session, tid, user_id, file_id)
-    
+
     # Store filename and content_type for audit log
     # If filename is encrypted (starts with base64), we'll only show content_type on frontend
     log_data = {

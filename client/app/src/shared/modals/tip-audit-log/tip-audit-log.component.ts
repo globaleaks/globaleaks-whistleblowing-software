@@ -307,13 +307,13 @@ export class TipAuditLogComponent implements OnInit {
 
     const details: string[] = [];
     if (log.data.new_temporary_redaction !== undefined && log.data.old_temporary_redaction !== log.data.new_temporary_redaction) {
-      const status = log.data.new_temporary_redaction ? 
+      const status = log.data.new_temporary_redaction ?
         this.translateService.instant('Masked') : this.translateService.instant('Unmasked');
       details.push(this.translateService.instant('Temporary') + ': ' + status);
     }
 
     if (log.data.permanent_redaction !== undefined && log.data.old_permanent_redaction !== log.data.permanent_redaction) {
-      const status = log.data.permanent_redaction ? 
+      const status = log.data.permanent_redaction ?
         this.translateService.instant('Redacted') : this.translateService.instant('Unredacted');
       details.push(this.translateService.instant('Permanent') + ': ' + status);
     }
