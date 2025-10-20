@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
@@ -150,6 +150,42 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         yield self.perform_full_submission_actions()
 
+    def _assert_upload_log(self, upload_log):
+        """Helper method to assert upload log entry"""
+        self.assertIsNotNone(upload_log, "upload_file log entry should exist")
+        self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
+        self.assertIn('filename', upload_log['data'], "filename should be in log data")
+
+    def _assert_comment_log(self, comment_log):
+        """Helper method to assert comment log entry"""
+        self.assertIsNotNone(comment_log, "add_comment log entry should exist")
+        if comment_log.get('data'):
+            self.assertNotIn('content', comment_log['data'], "content should not be in log data")
+
+    @inlineCallbacks
+    def _upload_attachment(self, wbtip_desc):
+        """Helper to upload an attachment"""
+        from globaleaks.handlers.whistleblower import attachment
+        self._handler = attachment.PostSubmissionAttachment
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        yield handler.post()
+
+    @inlineCallbacks
+    def _get_logs(self, wbtip_desc):
+        """Helper to get audit logs"""
+        self._handler = wbtip.ReportAuditLog
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        logs = yield handler.get()
+        returnValue(logs)
+
+    @inlineCallbacks
+    def _post_comment(self, wbtip_desc, content):
+        """Helper to post a comment"""
+        body = {'content': content, 'visibility': "internal"}
+        self._handler = wbtip.WBTipCommentCollection
+        handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+        yield handler.post()
+
     @inlineCallbacks
     def test_get(self):
         wbtips_desc = yield self.get_wbtips()
@@ -161,23 +197,14 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_audit_log_for_file_upload(self):
         """Test that whistleblower file uploads create audit log entries with file_type and filename"""
-        from globaleaks.handlers.whistleblower import attachment
-
         wbtips_desc = yield self.get_wbtips()
         wbtip_desc = wbtips_desc[0]
         
-        self._handler = attachment.PostSubmissionAttachment
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        yield handler.post()
-
-        self._handler = wbtip.ReportAuditLog
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        logs = yield handler.get()
+        yield self._upload_attachment(wbtip_desc)
+        logs = yield self._get_logs(wbtip_desc)
 
         upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
-        self.assertIsNotNone(upload_log, "upload_file log entry should exist")
-        self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
-        self.assertIn('filename', upload_log['data'], "filename should be in log data")
+        self._assert_upload_log(upload_log)
 
     @inlineCallbacks
     def test_audit_log_for_comment(self):
@@ -185,17 +212,8 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         wbtips_desc = yield self.get_wbtips()
         wbtip_desc = wbtips_desc[0]
         
-        self._handler = wbtip.WBTipCommentCollection
-        body = {'content': "This is a whistleblower test comment", 'visibility': "internal"}
-        handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
-        yield handler.post()
-
-        self._handler = wbtip.ReportAuditLog
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        logs = yield handler.get()
+        yield self._post_comment(wbtip_desc, "This is a whistleblower test comment")
+        logs = yield self._get_logs(wbtip_desc)
 
         comment_log = next((log for log in logs if log['type'] == 'add_comment'), None)
-        self.assertIsNotNone(comment_log, "add_comment log entry should exist")
-        
-        if comment_log.get('data'):
-            self.assertNotIn('content', comment_log['data'], "content should not be in log data")
+        self._assert_comment_log(comment_log)

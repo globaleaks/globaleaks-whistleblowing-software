@@ -580,26 +580,75 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         logs = yield handler.get(rtip_desc['id'])
         returnValue(logs)
 
+    def _assert_upload_log(self, upload_log):
+        """Helper method to assert upload log entry"""
+        self.assertIsNotNone(upload_log, "upload_file log entry should exist")
+        self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
+        self.assertIn('filename', upload_log['data'], "filename should be in log data")
+
+    def _assert_delete_log(self, delete_log):
+        """Helper method to assert delete log entry"""
+        self.assertIsNotNone(delete_log, "delete_attachment log entry should exist")
+        self.assertIn('file_type', delete_log['data'], "file_type should be in log data")
+        self.assertIn('filename', delete_log['data'], "filename should be in log data")
+
+    def _assert_comment_log(self, comment_log):
+        """Helper method to assert comment log entry"""
+        self.assertIsNotNone(comment_log, "add_comment log entry should exist")
+        if comment_log.get('data'):
+            self.assertNotIn('content', comment_log['data'], "content should not be in log data")
+
     @inlineCallbacks
-    def test_get(self):
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.get(rtip_desc['id'])
+    def _get_uploaded_file_id(self, rtip_desc):
+        """Helper to get the ID of an uploaded file"""
+        rtip_descs_updated = yield self.get_rtips()
+        rtip_desc_updated = next((r for r in rtip_descs_updated if r['id'] == rtip_desc['id']), None)
+        self.assertIsNotNone(rtip_desc_updated, "Updated rtip should exist")
+        self.assertTrue(rtip_desc_updated['rfiles'], "Uploaded file should exist")
+        returnValue(rtip_desc_updated['rfiles'][0]['id'])
+
+    @inlineCallbacks
+    def _delete_file(self, rfile_id, rtip_desc):
+        """Helper to delete a file"""
+        self._handler = rtip.ReceiverFileDownload
+        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.delete(rfile_id)
+
+    @inlineCallbacks
+    def _update_status(self, rtip_desc, status):
+        """Helper to update report status"""
+        operation = {
+            'operation': 'update_status',
+            'args': {'status': status, 'substatus': '', 'motivation': ''}
+        }
+        self._handler = rtip.RTipInstance
+        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(rtip_desc['id'])
+
+    def _assert_status_log(self, status_log, expected_status):
+        """Helper to assert status log entry"""
+        self.assertIsNotNone(status_log, "update_report_status log entry should exist")
+        self.assertIn('status', status_log['data'], "status should be in log data")
+        self.assertEqual(status_log['data']['status'], expected_status, f"status should be '{expected_status}'")
+
+    @inlineCallbacks
+    def _post_comment(self, rtip_desc, content):
+        """Helper to post a comment"""
+        body = {'content': content, 'visibility': "public"}
+        self._handler = rtip.RTipCommentCollection
+        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.post(rtip_desc['id'])
 
     @inlineCallbacks
     def test_audit_log_for_file_upload(self):
         """Test that file uploads create audit log entries with file_type and filename"""
         rtip_descs = yield self.get_rtips()
         rtip_desc = rtip_descs[0]
-        
         yield self._upload_file(rtip_desc)
         logs = yield self._get_audit_logs(rtip_desc)
 
         upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
-        self.assertIsNotNone(upload_log, "upload_file log entry should exist")
-        self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
-        self.assertIn('filename', upload_log['data'], "filename should be in log data")
+        self._assert_upload_log(upload_log)
 
     @inlineCallbacks
     def test_audit_log_for_file_deletion(self):
@@ -608,22 +657,12 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         rtip_desc = rtip_descs[0]
         
         yield self._upload_file(rtip_desc)
-
-        rtip_descs_updated = yield self.get_rtips()
-        rtip_desc_updated = next((r for r in rtip_descs_updated if r['id'] == rtip_desc['id']), None)
-        self.assertIsNotNone(rtip_desc_updated, "Updated rtip should exist")
-        self.assertTrue(rtip_desc_updated['rfiles'], "Uploaded file should exist")
-        
-        rfile_id = rtip_desc_updated['rfiles'][0]['id']
-        self._handler = rtip.ReceiverFileDownload
-        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-        yield handler.delete(rfile_id)
+        rfile_id = yield self._get_uploaded_file_id(rtip_desc)
+        yield self._delete_file(rfile_id, rtip_desc)
 
         logs = yield self._get_audit_logs(rtip_desc)
         delete_log = next((log for log in logs if log['type'] == 'delete_attachment'), None)
-        self.assertIsNotNone(delete_log, "delete_attachment log entry should exist")
-        self.assertIn('file_type', delete_log['data'], "file_type should be in log data")
-        self.assertIn('filename', delete_log['data'], "filename should be in log data")
+        self._assert_delete_log(delete_log)
 
     @inlineCallbacks
     def test_audit_log_for_comment(self):
@@ -631,17 +670,11 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
         rtip_desc = rtip_descs[0]
         
-        self._handler = rtip.RTipCommentCollection
-        body = {'content': "This is a test comment", 'visibility': "public"}
-        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
-        yield handler.post(rtip_desc['id'])
+        yield self._post_comment(rtip_desc, "This is a test comment")
 
         logs = yield self._get_audit_logs(rtip_desc)
         comment_log = next((log for log in logs if log['type'] == 'add_comment'), None)
-        self.assertIsNotNone(comment_log, "add_comment log entry should exist")
-        
-        if comment_log.get('data'):
-            self.assertNotIn('content', comment_log['data'], "content should not be in log data")
+        self._assert_comment_log(comment_log)
 
     @inlineCallbacks
     def test_audit_log_for_status_change(self):
@@ -649,17 +682,8 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
         rtip_desc = rtip_descs[0]
         
-        operation = {
-            'operation': 'update_status',
-            'args': {'status': 'closed', 'substatus': '', 'motivation': ''}
-        }
-
-        self._handler = rtip.RTipInstance
-        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-        yield handler.put(rtip_desc['id'])
+        yield self._update_status(rtip_desc, 'closed')
 
         logs = yield self._get_audit_logs(rtip_desc)
         status_log = next((log for log in logs if log['type'] == 'update_report_status'), None)
-        self.assertIsNotNone(status_log, "update_report_status log entry should exist")
-        self.assertIn('status', status_log['data'], "status should be in log data")
-        self.assertEqual(status_log['data']['status'], 'closed', "status should be 'closed'")
+        self._assert_status_log(status_log, 'closed')

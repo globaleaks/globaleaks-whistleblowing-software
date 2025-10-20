@@ -12,7 +12,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import serialize_log
+from globaleaks.handlers.admin.auditlog import serialize_log, query_audit_logs_by_tip
 
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
@@ -38,12 +38,7 @@ from globaleaks.utils.json import JSONEncoder
 def get_report_audit_log(session, tid, user_id, itip_id):
     _, _, _ = db_access_rtip(session, tid, user_id, itip_id)
 
-    logs = session.query(models.AuditLog) \
-                  .filter(models.AuditLog.tid == tid,
-                          models.AuditLog.object_id == itip_id) \
-                  .order_by(models.AuditLog.date.desc())
-
-    return [serialize_log(log) for log in logs]
+    return query_audit_logs_by_tip(session, tid, itip_id)
 
 
 def db_notify_grant_access(session, user):
@@ -1178,9 +1173,8 @@ def delete_rfile(session, tid, user_id, file_id):
         'file_type': rfile.content_type,
         'filename': rfile.name
     }
-    
+
     db_log(session, tid=tid, type='delete_attachment', user_id=user_id, object_id=rfile.internaltip_id, data=log_data)
-    
     session.delete(rfile)
 
 

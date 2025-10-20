@@ -306,19 +306,28 @@ export class TipAuditLogComponent implements OnInit {
     if (!log.data) return { action: log.type };
 
     const details: string[] = [];
-    if (log.data.new_temporary_redaction !== undefined && log.data.old_temporary_redaction !== log.data.new_temporary_redaction) {
-      const status = log.data.new_temporary_redaction ?
-        this.translateService.instant('Masked') : this.translateService.instant('Unmasked');
-      details.push(this.translateService.instant('Temporary') + ': ' + status);
-    }
-
-    if (log.data.permanent_redaction !== undefined && log.data.old_permanent_redaction !== log.data.permanent_redaction) {
-      const status = log.data.permanent_redaction ?
-        this.translateService.instant('Redacted') : this.translateService.instant('Unredacted');
-      details.push(this.translateService.instant('Permanent') + ': ' + status);
-    }
+    this.addTemporaryRedactionDetail(log.data, details);
+    this.addPermanentRedactionDetail(log.data, details);
 
     return details.length > 0 ? { action: log.type, detail: details.join(', ') } : { action: log.type };
+  }
+
+  private addTemporaryRedactionDetail(data: any, details: string[]): void {
+    if (data.new_temporary_redaction === undefined) return;
+    if (data.old_temporary_redaction === data.new_temporary_redaction) return;
+
+    const status = data.new_temporary_redaction ?
+      this.translateService.instant('Masked') : this.translateService.instant('Unmasked');
+    details.push(this.translateService.instant('Temporary') + ': ' + status);
+  }
+
+  private addPermanentRedactionDetail(data: any, details: string[]): void {
+    if (data.permanent_redaction === undefined) return;
+    if (data.old_permanent_redaction === data.permanent_redaction) return;
+
+    const status = data.permanent_redaction ?
+      this.translateService.instant('Redacted') : this.translateService.instant('Unredacted');
+    details.push(this.translateService.instant('Permanent') + ': ' + status);
   }
 
   private formatReminderAction(log: auditlogResolverModel): { action: string, detail?: string } {
@@ -338,17 +347,26 @@ export class TipAuditLogComponent implements OnInit {
   private formatFileDeletionAction(log: auditlogResolverModel): { action: string, detail?: string } {
     if (!log.data?.file_type) return { action: log.type };
 
-    const mimeParts = log.data.file_type.split('/');
-    if (mimeParts.length === 2) {
-      let extension = mimeParts[1];
-      if (extension.includes('.')) {
-        extension = extension.split('.').pop() || extension;
-      }
-      if (extension.length < 20 && !extension.includes('=')) {
-        return { action: log.type, detail: extension };
-      }
+    const extension = this.extractFileExtension(log.data.file_type);
+    if (extension && this.isValidExtension(extension)) {
+      return { action: log.type, detail: extension };
     }
     return { action: log.type };
+  }
+
+  private extractFileExtension(fileType: string): string | null {
+    const mimeParts = fileType.split('/');
+    if (mimeParts.length !== 2) return null;
+
+    let extension = mimeParts[1];
+    if (extension.includes('.')) {
+      extension = extension.split('.').pop() || extension;
+    }
+    return extension;
+  }
+
+  private isValidExtension(extension: string): boolean {
+    return extension.length < 20 && !extension.includes('=');
   }
 
   private formatExportAction(log: auditlogResolverModel): { action: string, detail?: string } {
@@ -381,74 +399,67 @@ export class TipAuditLogComponent implements OnInit {
 
   private groupAccessReportEntries(entries: AuditLogEntry[]): GroupedAuditLogEntry[] {
     const grouped: GroupedAuditLogEntry[] = [];
-    
-    // Sort entries by timestamp (oldest first for sequential processing)
     const sortedEntries = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     
     let i = 0;
     while (i < sortedEntries.length) {
       const currentEntry = sortedEntries[i];
       
-      // Check if this is an access_report entry
       if (currentEntry.action === 'access_report') {
-        const currentDayKey = currentEntry.timestamp.toISOString().split('T')[0];
-        const groupEntries: AuditLogEntry[] = [currentEntry];
-        
-        // Look ahead to find consecutive access_report entries from the same user and same day
-        let j = i + 1;
-        while (j < sortedEntries.length) {
-          const nextEntry = sortedEntries[j];
-          const nextDayKey = nextEntry.timestamp.toISOString().split('T')[0];
-          
-          // Check if next entry is access_report, same user, and same day
-          if (nextEntry.action === 'access_report' && 
-              nextEntry.user === currentEntry.user && 
-              nextDayKey === currentDayKey) {
-            groupEntries.push(nextEntry);
-            j++;
-          } else {
-            // Break the sequence if user alternates or different action/day
-            break;
-          }
-        }
-        
-        // Create group or single entry based on count
-        if (groupEntries.length === 1) {
-          // Single entry - no need to group
-          grouped.push({
-            ...groupEntries[0],
-            isGroup: false
-          });
-        } else {
-          // Multiple consecutive entries - create a group
-          const earliestEntry = groupEntries[0]; // Already sorted oldest first
-          const hasNewEntries = groupEntries.some(entry => entry.isNew);
-          
-          grouped.push({
-            ...earliestEntry,
-            id: `group_${currentEntry.user}_${i}`,
-            isGroup: true,
-            isExpanded: false,
-            groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
-            groupCount: groupEntries.length,
-            hasNewEntries: hasNewEntries
-          });
-        }
-        
-        // Move index to next unprocessed entry
-        i = j;
+        const { groupEntries, nextIndex } = this.collectConsecutiveAccessReports(sortedEntries, i);
+        this.addGroupedOrSingleEntry(grouped, groupEntries, currentEntry, i);
+        i = nextIndex;
       } else {
-        // Non-access_report entries are added directly
-        grouped.push({
-          ...currentEntry,
-          isGroup: false
-        });
+        grouped.push({ ...currentEntry, isGroup: false });
         i++;
       }
     }
     
-    // Sort the final array by timestamp (newest first for display)
     return grouped.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  private collectConsecutiveAccessReports(sortedEntries: AuditLogEntry[], startIndex: number) {
+    const currentEntry = sortedEntries[startIndex];
+    const currentDayKey = this.getDayKey(currentEntry.timestamp);
+    const groupEntries: AuditLogEntry[] = [currentEntry];
+    
+    let j = startIndex + 1;
+    while (j < sortedEntries.length && this.shouldGroupWithCurrent(sortedEntries[j], currentEntry, currentDayKey)) {
+      groupEntries.push(sortedEntries[j]);
+      j++;
+    }
+    
+    return { groupEntries, nextIndex: j };
+  }
+
+  private shouldGroupWithCurrent(nextEntry: AuditLogEntry, currentEntry: AuditLogEntry, currentDayKey: string): boolean {
+    const nextDayKey = this.getDayKey(nextEntry.timestamp);
+    return nextEntry.action === 'access_report' && 
+           nextEntry.user === currentEntry.user && 
+           nextDayKey === currentDayKey;
+  }
+
+  private getDayKey(timestamp: Date): string {
+    return timestamp.toISOString().split('T')[0];
+  }
+
+  private addGroupedOrSingleEntry(grouped: GroupedAuditLogEntry[], groupEntries: AuditLogEntry[], currentEntry: AuditLogEntry, index: number): void {
+    if (groupEntries.length === 1) {
+      grouped.push({ ...groupEntries[0], isGroup: false });
+    } else {
+      const earliestEntry = groupEntries[0];
+      const hasNewEntries = groupEntries.some(entry => entry.isNew);
+      
+      grouped.push({
+        ...earliestEntry,
+        id: `group_${currentEntry.user}_${index}`,
+        isGroup: true,
+        isExpanded: false,
+        groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
+        groupCount: groupEntries.length,
+        hasNewEntries: hasNewEntries
+      });
+    }
   }
 
   categorizeAuditLogType(auditLogType: string): string {

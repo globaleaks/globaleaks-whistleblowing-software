@@ -67,28 +67,33 @@ export class TipAuditLogService {
   hasNewEntriesSinceLastView(tipId: string, tipUpdateDate?: string, tipLastAccess?: string): boolean {
     const lastAuditLogView = this.getLastAuditLogView(tipId);
     
-    // If audit log was never viewed, check if there are any updates since last tip access
     if (!lastAuditLogView) {
-      // If tip was never accessed, show indicator
-      if (!tipLastAccess) return true;
-      
-      // If tip was updated after last access, show indicator
-      if (tipUpdateDate && tipLastAccess) {
-        const updateDate = new Date(tipUpdateDate);
-        const lastAccessDate = new Date(tipLastAccess);
-        return updateDate > lastAccessDate;
-      }
-      
-      return false;
+      return this.checkNewEntriesWithoutAuditView(tipUpdateDate, tipLastAccess);
     }
     
-    // If audit log was viewed, check if there are updates since that view
-    if (tipUpdateDate) {
-      const updateDate = new Date(tipUpdateDate);
-      return updateDate > lastAuditLogView;
-    }
+    return this.checkNewEntriesSinceAuditView(tipUpdateDate, lastAuditLogView);
+  }
+
+  /**
+   * Check for new entries when audit log has never been viewed
+   */
+  private checkNewEntriesWithoutAuditView(tipUpdateDate?: string, tipLastAccess?: string): boolean {
+    if (!tipLastAccess) return true;
+    if (!tipUpdateDate) return false;
     
-    return false;
+    const updateDate = new Date(tipUpdateDate);
+    const lastAccessDate = new Date(tipLastAccess);
+    return updateDate > lastAccessDate;
+  }
+
+  /**
+   * Check for new entries since last audit log view
+   */
+  private checkNewEntriesSinceAuditView(tipUpdateDate: string | undefined, lastAuditLogView: Date): boolean {
+    if (!tipUpdateDate) return false;
+    
+    const updateDate = new Date(tipUpdateDate);
+    return updateDate > lastAuditLogView;
   }
 }
 

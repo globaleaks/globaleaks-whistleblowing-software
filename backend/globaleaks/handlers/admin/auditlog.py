@@ -18,6 +18,15 @@ def serialize_log(log):
     }
 
 
+def query_audit_logs_by_tip(session, tid, itip_id):
+    """Helper function to query audit logs for a specific tip"""
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid,
+                          models.AuditLog.object_id == itip_id) \
+                  .order_by(models.AuditLog.date.desc())
+    return [serialize_log(log) for log in logs]
+
+
 @transact
 def get_audit_log(session, tid):
     logs = session.query(models.AuditLog) \
@@ -35,12 +44,7 @@ def get_tip_audit_log(session, tid, itip_id):
         models.InternalTip.tid == tid
     ).one()
 
-    logs = session.query(models.AuditLog) \
-                  .filter(models.AuditLog.tid == tid,
-                          models.AuditLog.object_id == itip_id) \
-                  .order_by(models.AuditLog.date.desc())
-
-    return [serialize_log(log) for log in logs]
+    return query_audit_logs_by_tip(session, tid, itip_id)
 
 
 @transact
@@ -139,7 +143,7 @@ class TipAuditLog(BaseHandler):
     check_roles = 'admin'
 
     def get(self, itip_id):
-        return get_tip_audit_log(self.session.tid, itip_id)
+        return get_tip_audit_log(self.request.tid, itip_id)
 
 class AccessLog(BaseHandler):
     """
