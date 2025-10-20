@@ -139,7 +139,7 @@ class TipAuditLog(BaseHandler):
     check_roles = 'admin'
 
     def get(self, itip_id):
-        return get_tip_audit_log(self.request.tid, itip_id)
+        return get_tip_audit_log(self.session.tid, itip_id)
 
 class AccessLog(BaseHandler):
     """

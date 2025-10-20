@@ -162,7 +162,7 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
     def test_audit_log_for_file_upload(self):
         """Test that whistleblower file uploads create audit log entries with file_type and filename"""
         from globaleaks.handlers.whistleblower import attachment
-        
+
         wbtips_desc = yield self.get_wbtips()
         for wbtip_desc in wbtips_desc:
             # Upload a file

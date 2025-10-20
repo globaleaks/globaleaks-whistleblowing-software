@@ -876,9 +876,9 @@ def delete_wbfile(session, tid, user_id, file_id):
             'file_type': ifile.content_type,
             'filename': ifile.name
         }
-        
+
         db_log(session, tid=tid, type='delete_attachment', user_id=user_id, object_id=ifile.internaltip_id, data=log_data)
-        
+
         session.delete(ifile)
 
 

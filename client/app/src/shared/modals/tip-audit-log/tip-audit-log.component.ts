@@ -250,114 +250,109 @@ export class TipAuditLogComponent implements OnInit {
   private formatActionText(log: auditlogResolverModel): { action: string, detail?: string } {
     const userRole = this.authenticationService.session.role;
     const isAdminOrAuditor = userRole === 'admin' || userRole === 'auditor';
-    
-    // Handle status changes (show for all roles)
-    if (log.type === 'update_report_status' && log.data && log.data.status) {
-      const statusLabel = this.utilsService.getSubmissionStatusText(
-        log.data.status,
-        log.data.substatus || '',
-        this.appDataService.submissionStatuses
-      );
-      
-      if (statusLabel) {
-        return { action: log.type, detail: statusLabel };
-      }
-    }
-    
-    // Handle expiration date changes (show for all roles)
-    if (log.type === 'update_report_expiration' && log.data && log.data.curr_expiration_date) {
-      const expirationDate = this.datePipe.transform(log.data.curr_expiration_date * 1000, 'dd-MM-yyyy');
-      if (expirationDate) {
-        return { action: log.type, detail: expirationDate };
-      }
-    }
-    
+
+    // Check common actions shown to all roles
+    const commonResult = this.formatCommonActions(log);
+    if (commonResult) return commonResult;
+
     // For admin/auditor, only show details for status and expiration changes
-    if (isAdminOrAuditor) {
-      return { action: log.type };
+    if (isAdminOrAuditor) return { action: log.type };
+
+    // Format details for recipients and whistleblowers
+    return this.formatRecipientWhistleblowerActions(log);
+  }
+
+  private formatCommonActions(log: auditlogResolverModel): { action: string, detail?: string } | null {
+    if (log.type === 'update_report_status' && log.data?.status) {
+      const statusLabel = this.utilsService.getSubmissionStatusText(
+        log.data.status, log.data.substatus || '', this.appDataService.submissionStatuses
+      );
+      if (statusLabel) return { action: log.type, detail: statusLabel };
     }
-    
-    // Below: details only shown for recipients and whistleblowers
-    
-    // Handle grant/revoke/transfer access
-    if ((log.type === 'grant_access' || log.type === 'revoke_access' || log.type === 'transfer_access') 
-        && log.data && log.data.recipient_id) {
-      const recipientName = this.getUserName(log.data.recipient_id);
-      return { action: log.type, detail: recipientName };
+
+    if (log.type === 'update_report_expiration' && log.data?.curr_expiration_date) {
+      const expirationDate = this.datePipe.transform(log.data.curr_expiration_date * 1000, 'dd-MM-yyyy');
+      if (expirationDate) return { action: log.type, detail: expirationDate };
     }
-    
-    // Handle redaction/masking updates
-    if (log.type === 'update_redaction' && log.data) {
-      const details: string[] = [];
-      
-      if (log.data.new_temporary_redaction !== undefined && log.data.old_temporary_redaction !== log.data.new_temporary_redaction) {
-        const status = log.data.new_temporary_redaction ? 
-          this.translateService.instant('Masked') : 
-          this.translateService.instant('Unmasked');
-        details.push(this.translateService.instant('Temporary') + ': ' + status);
-      }
-      
-      if (log.data.permanent_redaction !== undefined && log.data.old_permanent_redaction !== log.data.permanent_redaction) {
-        const status = log.data.permanent_redaction ? 
-          this.translateService.instant('Redacted') : 
-          this.translateService.instant('Unredacted');
-        details.push(this.translateService.instant('Permanent') + ': ' + status);
-      }
-      
-      if (details.length > 0) {
-        return { action: log.type, detail: details.join(', ') };
-      }
+
+    return null;
+  }
+
+  private formatRecipientWhistleblowerActions(log: auditlogResolverModel): { action: string, detail?: string } {
+    const handlers: Record<string, () => { action: string, detail?: string }> = {
+      'grant_access': () => this.formatAccessAction(log),
+      'revoke_access': () => this.formatAccessAction(log),
+      'transfer_access': () => this.formatAccessAction(log),
+      'update_redaction': () => this.formatRedactionAction(log),
+      'set_reminder': () => this.formatReminderAction(log),
+      'upload_file': () => this.formatFileUploadAction(log),
+      'delete_attachment': () => this.formatFileDeletionAction(log),
+      'whistleblower_login': () => ({ action: log.type, detail: this.translateService.instant('Whistleblower') }),
+      'whistleblower_access': () => ({ action: log.type, detail: this.translateService.instant('Whistleblower') }),
+      'export_report': () => this.formatExportAction(log)
+    };
+
+    return handlers[log.type]?.() || { action: log.type };
+  }
+
+  private formatAccessAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.recipient_id) {
+      return { action: log.type, detail: this.getUserName(log.data.recipient_id) };
     }
-    
-    // Handle reminder setting
-    if (log.type === 'set_reminder' && log.data && log.data.reminder_date) {
+    return { action: log.type };
+  }
+
+  private formatRedactionAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (!log.data) return { action: log.type };
+
+    const details: string[] = [];
+    if (log.data.new_temporary_redaction !== undefined && log.data.old_temporary_redaction !== log.data.new_temporary_redaction) {
+      const status = log.data.new_temporary_redaction ? 
+        this.translateService.instant('Masked') : this.translateService.instant('Unmasked');
+      details.push(this.translateService.instant('Temporary') + ': ' + status);
+    }
+
+    if (log.data.permanent_redaction !== undefined && log.data.old_permanent_redaction !== log.data.permanent_redaction) {
+      const status = log.data.permanent_redaction ? 
+        this.translateService.instant('Redacted') : this.translateService.instant('Unredacted');
+      details.push(this.translateService.instant('Permanent') + ': ' + status);
+    }
+
+    return details.length > 0 ? { action: log.type, detail: details.join(', ') } : { action: log.type };
+  }
+
+  private formatReminderAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.reminder_date) {
       const reminderDate = this.datePipe.transform(log.data.reminder_date * 1000, 'dd-MM-yyyy');
-      if (reminderDate) {
-        return { action: log.type, detail: reminderDate };
+      if (reminderDate) return { action: log.type, detail: reminderDate };
+    }
+    return { action: log.type };
+  }
+
+  private formatFileUploadAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.filename) return { action: log.type, detail: log.data.filename };
+    if (log.data?.file_type) return { action: log.type, detail: log.data.file_type };
+    return { action: log.type };
+  }
+
+  private formatFileDeletionAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (!log.data?.file_type) return { action: log.type };
+
+    const mimeParts = log.data.file_type.split('/');
+    if (mimeParts.length === 2) {
+      let extension = mimeParts[1];
+      if (extension.includes('.')) {
+        extension = extension.split('.').pop() || extension;
+      }
+      if (extension.length < 20 && !extension.includes('=')) {
+        return { action: log.type, detail: extension };
       }
     }
-    
-    // Handle file uploads - show filename if available, otherwise file_type
-    if (log.type === 'upload_file' && log.data) {
-      if (log.data.filename) {
-        return { action: log.type, detail: log.data.filename };
-      } else if (log.data.file_type) {
-        return { action: log.type, detail: log.data.file_type };
-      }
-    }
-    
-    // Handle file deletions - show file extension only
-    if (log.type === 'delete_attachment' && log.data) {
-      if (log.data.file_type) {
-        // Extract extension from MIME type (e.g., "text/csv" -> "csv", "application/pdf" -> "pdf")
-        const mimeParts = log.data.file_type.split('/');
-        if (mimeParts.length === 2) {
-          // Valid MIME type format
-          let extension = mimeParts[1];
-          // Handle special cases like "vnd.ms-excel" -> "excel"
-          if (extension.includes('.')) {
-            extension = extension.split('.').pop() || extension;
-          }
-          // Only show if it looks like a valid extension (not encrypted data)
-          if (extension.length < 20 && !extension.includes('=')) {
-            return { action: log.type, detail: extension };
-          }
-        }
-      }
-      // For encrypted or invalid data, just show "Delete attachment" without details
-      return { action: log.type };
-    }
-    
-    // Handle whistleblower login
-    if (log.type === 'whistleblower_login' || log.type === 'whistleblower_access') {
-      return { action: log.type, detail: this.translateService.instant('Whistleblower') };
-    }
-    
-    // Handle export report
-    if (log.type === 'export_report' && log.data && log.data.format) {
-      return { action: log.type, detail: log.data.format.toUpperCase() };
-    }
-    
+    return { action: log.type };
+  }
+
+  private formatExportAction(log: auditlogResolverModel): { action: string, detail?: string } {
+    if (log.data?.format) return { action: log.type, detail: log.data.format.toUpperCase() };
     return { action: log.type };
   }
 

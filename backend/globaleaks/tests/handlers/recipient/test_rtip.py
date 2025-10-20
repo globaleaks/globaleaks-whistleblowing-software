@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
@@ -565,6 +565,22 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         yield Delivery().run()
 
     @inlineCallbacks
+    def _upload_file(self, rtip_desc):
+        """Helper method to upload a file to a tip"""
+        self._handler = rtip.ReceiverFileUpload
+        attachment = self.get_dummy_attachment(content=b'test content')
+        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
+        yield handler.post(rtip_desc['id'])
+
+    @inlineCallbacks
+    def _get_audit_logs(self, rtip_desc):
+        """Helper method to get audit logs for a tip"""
+        self._handler = rtip.ReportAuditLog
+        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+        logs = yield handler.get(rtip_desc['id'])
+        returnValue(logs)
+
+    @inlineCallbacks
     def test_get(self):
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -576,18 +592,9 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         """Test that file uploads create audit log entries with file_type and filename"""
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
-            # Upload a file
-            self._handler = rtip.ReceiverFileUpload
-            attachment = self.get_dummy_attachment(content=b'test content')
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
-            yield handler.post(rtip_desc['id'])
-            
-            # Get audit log and verify the upload_file entry exists
-            self._handler = rtip.ReportAuditLog
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            logs = yield handler.get(rtip_desc['id'])
-            
-            # Find the upload_file log entry
+            yield self._upload_file(rtip_desc)
+            logs = yield self._get_audit_logs(rtip_desc)
+
             upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
             self.assertIsNotNone(upload_log, "upload_file log entry should exist")
             self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
@@ -598,29 +605,19 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         """Test that file deletions create audit log entries with file_type and filename"""
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
-            # Upload a file first
-            self._handler = rtip.ReceiverFileUpload
-            attachment = self.get_dummy_attachment(content=b'test content')
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
-            yield handler.post(rtip_desc['id'])
-            
-            # Get the uploaded file ID
+            yield self._upload_file(rtip_desc)
+
             rtip_descs_updated = yield self.get_rtips()
             rtip_desc_updated = next((r for r in rtip_descs_updated if r['id'] == rtip_desc['id']), None)
             if rtip_desc_updated and rtip_desc_updated['rfiles']:
                 rfile_id = rtip_desc_updated['rfiles'][0]['id']
-                
-                # Delete the file
+
                 self._handler = rtip.ReceiverFileDownload
                 handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
                 yield handler.delete(rfile_id)
-                
-                # Get audit log and verify the delete_attachment entry exists
-                self._handler = rtip.ReportAuditLog
-                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-                logs = yield handler.get(rtip_desc['id'])
-                
-                # Find the delete_attachment log entry
+
+                logs = yield self._get_audit_logs(rtip_desc)
+
                 delete_log = next((log for log in logs if log['type'] == 'delete_attachment'), None)
                 self.assertIsNotNone(delete_log, "delete_attachment log entry should exist")
                 self.assertIn('file_type', delete_log['data'], "file_type should be in log data")
@@ -631,24 +628,15 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         """Test that adding comments creates audit log entries without content"""
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
-            # Add a comment
             self._handler = rtip.RTipCommentCollection
-            body = {
-                'content': "This is a test comment",
-                'visibility': "public"
-            }
+            body = {'content': "This is a test comment", 'visibility': "public"}
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
-            
-            # Get audit log and verify the add_comment entry exists
-            self._handler = rtip.ReportAuditLog
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            logs = yield handler.get(rtip_desc['id'])
-            
-            # Find the add_comment log entry
+
+            logs = yield self._get_audit_logs(rtip_desc)
+
             comment_log = next((log for log in logs if log['type'] == 'add_comment'), None)
             self.assertIsNotNone(comment_log, "add_comment log entry should exist")
-            # Verify content is NOT in the log data (privacy)
             if 'data' in comment_log and comment_log['data']:
                 self.assertNotIn('content', comment_log['data'], "content should not be in log data")
 
