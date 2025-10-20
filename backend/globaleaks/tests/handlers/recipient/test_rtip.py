@@ -26,6 +26,34 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         yield Delivery().run()
 
     @inlineCallbacks
+    def _postpone_rtip(self, rtip_desc, value):
+        """Helper to postpone a tip's expiration"""
+        operation = {
+            'operation': 'postpone',
+            'args': {
+                'value': value
+            }
+        }
+        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(rtip_desc['id'])
+        returnValue(handler)
+
+    @inlineCallbacks
+    def _update_rtip_status(self, rtip_desc, status):
+        """Helper to update tip status"""
+        operation = {
+            'operation': 'update_status',
+            'args': {
+                'status': status,
+                'substatus': '',
+                'motivation': ''
+            }
+        }
+        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(rtip_desc['id'])
+        returnValue(handler)
+
+    @inlineCallbacks
     def test_get(self):
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -35,21 +63,11 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_postpone(self):
         expiration = datetime_now()
-
         yield self.set_itips_expiration(expiration)
 
         rtip_descs = yield self.get_rtips()
-
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'postpone',
-              'args': {
-                'value': self.one_year_from_now_timestamp * 1000
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -61,17 +79,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         yield self.set_itips_expiration(datetime_never())
 
         rtip_descs = yield self.get_rtips()
-
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'postpone',
-              'args': {
-                'value': self.one_year_from_now_timestamp * 1000
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -81,21 +90,11 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_postpone_of_reports_with_date_below_minimum_threshold(self):
         expiration = datetime_now()
-
         yield self.set_itips_expiration(expiration)
 
         rtip_descs = yield self.get_rtips()
-
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'postpone',
-              'args': {
-                'value': self.one_year_from_now_timestamp * 1000
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -256,17 +255,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
 
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'update_status',
-              'args': {
-                'status': 'closed',
-                'substatus': '',
-                'motivation': ''
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._update_rtip_status(rtip_desc, 'closed')
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -274,17 +263,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             self.assertEqual(rtip_desc['status'], 'closed')
 
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'update_status',
-              'args': {
-                'status': 'new',
-                'substatus': '',
-                'motivation': ''
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._update_rtip_status(rtip_desc, 'new')
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -294,17 +273,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         yield self.test_postpone()
 
         for rtip_desc in rtip_descs:
-            operation = {
-              'operation': 'update_status',
-              'args': {
-                'status': 'opened',
-                'substatus': '',
-                'motivation': ''
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._update_rtip_status(rtip_desc, 'opened')
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -405,17 +374,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             self.assertNotEqual(rtip_desc['reminder_date'], datetime_never())
 
-            operation = {
-              'operation': 'update_status',
-              'args': {
-                'status': 'closed',
-                'substatus': '',
-                'motivation': ''
-              }
-            }
-
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
+            handler = yield self._update_rtip_status(rtip_desc, 'closed')
             self.assertEqual(handler.request.code, 200)
 
         rtip_descs = yield self.get_rtips()
@@ -571,30 +530,49 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         returnValue(logs)
 
     @inlineCallbacks
-    def test_audit_log_for_file_upload(self):
-        """Test that file uploads create audit log entries with file_type and filename"""
-        rtip_desc = (yield self.get_rtips())[0]
-
+    def _upload_file(self, rtip_desc):
+        """Upload a test file"""
         self._handler = rtip.ReceiverFileUpload
         attachment = self.get_dummy_attachment(content=b'test content')
         handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
         yield handler.post(rtip_desc['id'])
 
+    def _assert_log_entry(self, logs, log_type, expected_fields):
+        """Assert that a log entry exists with expected fields"""
+        log_entry = next((log for log in logs if log['type'] == log_type), None)
+        self.assertIsNotNone(log_entry)
+        for field in expected_fields:
+            self.assertIn(field, log_entry['data'])
+
+    @inlineCallbacks
+    def _update_rtip_status(self, rtip_desc, status):
+        """Helper to update tip status"""
+        operation = {
+            'operation': 'update_status',
+            'args': {
+                'status': status,
+                'substatus': '',
+                'motivation': ''
+            }
+        }
+        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(rtip_desc['id'])
+        returnValue(handler)
+
+    @inlineCallbacks
+    def test_audit_log_for_file_upload(self):
+        """Test that file uploads create audit log entries with file_type and filename"""
+        rtip_desc = (yield self.get_rtips())[0]
+        yield self._upload_file(rtip_desc)
+
         logs = yield self._get_audit_logs(rtip_desc)
-        upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
-        self.assertIsNotNone(upload_log)
-        self.assertIn('file_type', upload_log['data'])
-        self.assertIn('filename', upload_log['data'])
+        self._assert_log_entry(logs, 'upload_file', ['file_type', 'filename'])
 
     @inlineCallbacks
     def test_audit_log_for_file_deletion(self):
         """Test that file deletions create audit log entries with file_type and filename"""
         rtip_desc = (yield self.get_rtips())[0]
-
-        self._handler = rtip.ReceiverFileUpload
-        attachment = self.get_dummy_attachment(content=b'test content')
-        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
-        yield handler.post(rtip_desc['id'])
+        yield self._upload_file(rtip_desc)
 
         rtip_desc_updated = (yield self.get_rtips())[0]
         rfile_id = rtip_desc_updated['rfiles'][0]['id']
@@ -604,10 +582,7 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         yield handler.delete(rfile_id)
 
         logs = yield self._get_audit_logs(rtip_desc)
-        delete_log = next((log for log in logs if log['type'] == 'delete_attachment'), None)
-        self.assertIsNotNone(delete_log)
-        self.assertIn('file_type', delete_log['data'])
-        self.assertIn('filename', delete_log['data'])
+        self._assert_log_entry(logs, 'delete_attachment', ['file_type', 'filename'])
 
     @inlineCallbacks
     def test_audit_log_for_comment(self):
@@ -630,9 +605,7 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         rtip_desc = (yield self.get_rtips())[0]
 
         self._handler = rtip.RTipInstance
-        operation = {'operation': 'update_status', 'args': {'status': 'closed', 'substatus': '', 'motivation': ''}}
-        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-        yield handler.put(rtip_desc['id'])
+        yield self._update_rtip_status(rtip_desc, 'closed')
 
         logs = yield self._get_audit_logs(rtip_desc)
         status_log = next((log for log in logs if log['type'] == 'update_report_status'), None)

@@ -150,6 +150,13 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         yield self.perform_full_submission_actions()
 
+    def _assert_log_entry(self, logs, log_type, expected_fields):
+        """Assert that a log entry exists with expected fields"""
+        log_entry = next((log for log in logs if log['type'] == log_type), None)
+        self.assertIsNotNone(log_entry)
+        for field in expected_fields:
+            self.assertIn(field, log_entry['data'])
+
     @inlineCallbacks
     def test_get(self):
         wbtips_desc = yield self.get_wbtips()
@@ -173,10 +180,7 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
         logs = yield handler.get()
 
-        upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
-        self.assertIsNotNone(upload_log)
-        self.assertIn('file_type', upload_log['data'])
-        self.assertIn('filename', upload_log['data'])
+        self._assert_log_entry(logs, 'upload_file', ['file_type', 'filename'])
 
     @inlineCallbacks
     def test_audit_log_for_comment(self):

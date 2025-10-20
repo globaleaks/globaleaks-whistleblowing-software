@@ -106,7 +106,7 @@ class TipsCollection(BaseHandler):
     check_roles = 'admin'
 
     def get(self):
-        return get_tips(self.request.tid)
+        return get_tips(self.request.tid)  # pylint: disable=no-value-for-parameter
 
 
 class JobsTiming(BaseHandler):
@@ -134,7 +134,7 @@ class AuditLog(BaseHandler):
     check_roles = 'admin'
 
     def get(self):
-        return get_audit_log(self.request.tid)
+        return get_audit_log(self.request.tid)  # pylint: disable=no-value-for-parameter
 
 class TipAuditLog(BaseHandler):
     """
@@ -143,7 +143,7 @@ class TipAuditLog(BaseHandler):
     check_roles = 'admin'
 
     def get(self, itip_id):
-        return get_tip_audit_log(self.request.tid, itip_id)
+        return get_tip_audit_log(self.request.tid, itip_id)  # pylint: disable=no-value-for-parameter
 
 class AccessLog(BaseHandler):
     """
