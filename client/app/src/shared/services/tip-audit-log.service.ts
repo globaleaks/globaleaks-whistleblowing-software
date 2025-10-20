@@ -7,6 +7,7 @@ export interface TipAuditLogModalOptions {
   tipData?: any;
   usersData?: any[];
   keyboard?: boolean;
+  lastAccess?: string;
 }
 
 @Injectable({
@@ -30,8 +31,64 @@ export class TipAuditLogService {
     modalRef.componentInstance.tipId = options.tipId;
     modalRef.componentInstance.tipData = options.tipData;
     modalRef.componentInstance.usersData = options.usersData || [];
+    modalRef.componentInstance.lastAccess = options.lastAccess;
 
     return modalRef;
+  }
+
+  /**
+   * Mark the audit log as viewed for a specific tip
+   * @param tipId The tip ID
+   */
+  markAuditLogAsViewed(tipId: string): void {
+    const storageKey = `auditlog_viewed_${tipId}`;
+    const now = new Date().toISOString();
+    localStorage.setItem(storageKey, now);
+  }
+
+  /**
+   * Get the last time the audit log was viewed for a specific tip
+   * @param tipId The tip ID
+   * @returns Date of last view, or null if never viewed
+   */
+  getLastAuditLogView(tipId: string): Date | null {
+    const storageKey = `auditlog_viewed_${tipId}`;
+    const stored = localStorage.getItem(storageKey);
+    return stored ? new Date(stored) : null;
+  }
+
+  /**
+   * Check if there are new entries since last audit log view
+   * @param tipId The tip ID
+   * @param tipUpdateDate The tip's update_date from backend
+   * @param tipLastAccess The tip's last_access from backend
+   * @returns true if there are potentially new entries
+   */
+  hasNewEntriesSinceLastView(tipId: string, tipUpdateDate?: string, tipLastAccess?: string): boolean {
+    const lastAuditLogView = this.getLastAuditLogView(tipId);
+    
+    // If audit log was never viewed, check if there are any updates since last tip access
+    if (!lastAuditLogView) {
+      // If tip was never accessed, show indicator
+      if (!tipLastAccess) return true;
+      
+      // If tip was updated after last access, show indicator
+      if (tipUpdateDate && tipLastAccess) {
+        const updateDate = new Date(tipUpdateDate);
+        const lastAccessDate = new Date(tipLastAccess);
+        return updateDate > lastAccessDate;
+      }
+      
+      return false;
+    }
+    
+    // If audit log was viewed, check if there are updates since that view
+    if (tipUpdateDate) {
+      const updateDate = new Date(tipUpdateDate);
+      return updateDate > lastAuditLogView;
+    }
+    
+    return false;
   }
 }
 

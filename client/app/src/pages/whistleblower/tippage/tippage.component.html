@@ -4,9 +4,15 @@
       <div class="col-md-12">
         <div class="d-flex justify-content-end align-items-center gap-1">
           <!-- Audit log Button -->
-          <button id="tip-action-logs" class="btn btn-outline-secondary" ngbTooltip="{{'Audit log' | translate}}"
+          <button id="tip-action-logs" class="btn btn-outline-secondary position-relative" ngbTooltip="{{'Audit log' | translate}}"
             (click)="openLogsModal()">
             <i class="fas fa-clipboard-list"></i>
+            @if (hasNewAuditLogEntries()) {
+              <span class="position-absolute top-0 end-0 translate-middle-y badge rounded-pill bg-warning text-dark" style="right: -4px !important;">
+                !
+                <span class="visually-hidden">New entries</span>
+              </span>
+            }
           </button>
 
           <!-- Refresh Button -->

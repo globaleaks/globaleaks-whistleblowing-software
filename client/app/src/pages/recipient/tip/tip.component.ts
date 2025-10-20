@@ -392,13 +392,22 @@ export class TipComponent implements OnInit {
 
   openLogsModal() {
     if (!this.tip_id) return;
-    
     this.tipAuditLogService.openAuditLogModal({
       tipId: this.tip_id,
       tipData: this.tip,
       usersData: this.tip?.receivers || [],
-      keyboard: false
+      keyboard: false,
+      lastAccess: this.tip?.last_access || undefined
     });
+  }
+
+  hasNewAuditLogEntries(): boolean {
+    if (!this.tip?.id) return false;
+    return this.tipAuditLogService.hasNewEntriesSinceLastView(
+      this.tip.id,
+      this.tip.update_date,
+      this.tip.last_access
+    );
   }
 
   toggleRedactMode() {

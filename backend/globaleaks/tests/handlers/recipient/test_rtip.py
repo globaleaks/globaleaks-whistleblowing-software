@@ -570,3 +570,114 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.get(rtip_desc['id'])
+
+    @inlineCallbacks
+    def test_audit_log_for_file_upload(self):
+        """Test that file uploads create audit log entries with file_type and filename"""
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            # Upload a file
+            self._handler = rtip.ReceiverFileUpload
+            attachment = self.get_dummy_attachment(content=b'test content')
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
+            yield handler.post(rtip_desc['id'])
+            
+            # Get audit log and verify the upload_file entry exists
+            self._handler = rtip.ReportAuditLog
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            logs = yield handler.get(rtip_desc['id'])
+            
+            # Find the upload_file log entry
+            upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
+            self.assertIsNotNone(upload_log, "upload_file log entry should exist")
+            self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
+            self.assertIn('filename', upload_log['data'], "filename should be in log data")
+
+    @inlineCallbacks
+    def test_audit_log_for_file_deletion(self):
+        """Test that file deletions create audit log entries with file_type and filename"""
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            # Upload a file first
+            self._handler = rtip.ReceiverFileUpload
+            attachment = self.get_dummy_attachment(content=b'test content')
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'], attachment=attachment)
+            yield handler.post(rtip_desc['id'])
+            
+            # Get the uploaded file ID
+            rtip_descs_updated = yield self.get_rtips()
+            rtip_desc_updated = next((r for r in rtip_descs_updated if r['id'] == rtip_desc['id']), None)
+            if rtip_desc_updated and rtip_desc_updated['rfiles']:
+                rfile_id = rtip_desc_updated['rfiles'][0]['id']
+                
+                # Delete the file
+                self._handler = rtip.ReceiverFileDownload
+                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+                yield handler.delete(rfile_id)
+                
+                # Get audit log and verify the delete_attachment entry exists
+                self._handler = rtip.ReportAuditLog
+                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+                logs = yield handler.get(rtip_desc['id'])
+                
+                # Find the delete_attachment log entry
+                delete_log = next((log for log in logs if log['type'] == 'delete_attachment'), None)
+                self.assertIsNotNone(delete_log, "delete_attachment log entry should exist")
+                self.assertIn('file_type', delete_log['data'], "file_type should be in log data")
+                self.assertIn('filename', delete_log['data'], "filename should be in log data")
+
+    @inlineCallbacks
+    def test_audit_log_for_comment(self):
+        """Test that adding comments creates audit log entries without content"""
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            # Add a comment
+            self._handler = rtip.RTipCommentCollection
+            body = {
+                'content': "This is a test comment",
+                'visibility': "public"
+            }
+            handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.post(rtip_desc['id'])
+            
+            # Get audit log and verify the add_comment entry exists
+            self._handler = rtip.ReportAuditLog
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            logs = yield handler.get(rtip_desc['id'])
+            
+            # Find the add_comment log entry
+            comment_log = next((log for log in logs if log['type'] == 'add_comment'), None)
+            self.assertIsNotNone(comment_log, "add_comment log entry should exist")
+            # Verify content is NOT in the log data (privacy)
+            if 'data' in comment_log and comment_log['data']:
+                self.assertNotIn('content', comment_log['data'], "content should not be in log data")
+
+    @inlineCallbacks
+    def test_audit_log_for_status_change(self):
+        """Test that status changes create audit log entries"""
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            # Change status
+            operation = {
+                'operation': 'update_status',
+                'args': {
+                    'status': 'closed',
+                    'substatus': '',
+                    'motivation': ''
+                }
+            }
+            
+            self._handler = rtip.RTipInstance
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.put(rtip_desc['id'])
+            
+            # Get audit log and verify the update_report_status entry exists
+            self._handler = rtip.ReportAuditLog
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            logs = yield handler.get(rtip_desc['id'])
+            
+            # Find the update_report_status log entry
+            status_log = next((log for log in logs if log['type'] == 'update_report_status'), None)
+            self.assertIsNotNone(status_log, "update_report_status log entry should exist")
+            self.assertIn('status', status_log['data'], "status should be in log data")
+            self.assertEqual(status_log['data']['status'], 'closed', "status should be 'closed'")

@@ -219,7 +219,17 @@ export class TippageComponent implements OnInit {
     this.tipAuditLogService.openAuditLogModal({
       tipId: this.tip?.id || '',
       tipData: this.tip,
-      usersData: this.tip?.receivers || []
+      usersData: this.tip?.receivers || [],
+      lastAccess: this.tip?.last_access || undefined
     });
+  }
+
+  hasNewAuditLogEntries(): boolean {
+    if (!this.tip?.id) return false;
+    return this.tipAuditLogService.hasNewEntriesSinceLastView(
+      this.tip.id,
+      this.tip.update_date,
+      this.tip.last_access
+    );
   }
 }

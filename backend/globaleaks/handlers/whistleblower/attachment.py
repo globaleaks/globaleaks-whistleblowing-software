@@ -5,7 +5,7 @@ from globaleaks.state import State
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.orm import transact
+from globaleaks.orm import transact, db_log
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now
 
@@ -31,6 +31,10 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
     itip.update_date = now
     itip.last_access = now
 
+    # Store file type and name before encryption for audit log
+    file_type_for_log = uploaded_file['type']
+    filename_for_log = uploaded_file['name']
+
     if itip.crypto_tip_pub_key:
         for k in ['name', 'type', 'size']:
             uploaded_file[k] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
@@ -47,6 +51,14 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
         new_file.creation_date = itip.creation_date
 
     session.add(new_file)
+
+    # Log whistleblower file upload
+    log_data = {
+        'file_type': file_type_for_log,
+        'filename': filename_for_log
+    }
+
+    db_log(session, tid=tid, type='upload_file', user_id=itip.operator_id, object_id=itip.id, data=log_data)
 
     return serializers.serialize_ifile(session, new_file)
 

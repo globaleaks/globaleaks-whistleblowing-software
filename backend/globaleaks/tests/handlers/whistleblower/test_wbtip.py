@@ -157,3 +157,52 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
 
             yield handler.get()
+
+    @inlineCallbacks
+    def test_audit_log_for_file_upload(self):
+        """Test that whistleblower file uploads create audit log entries with file_type and filename"""
+        from globaleaks.handlers.whistleblower import attachment
+        
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            # Upload a file
+            self._handler = attachment.PostSubmissionAttachment
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+            yield handler.post()
+            
+            # Get audit log and verify the upload_file entry exists
+            self._handler = wbtip.ReportAuditLog
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+            logs = yield handler.get()
+            
+            # Find the upload_file log entry
+            upload_log = next((log for log in logs if log['type'] == 'upload_file'), None)
+            self.assertIsNotNone(upload_log, "upload_file log entry should exist")
+            self.assertIn('file_type', upload_log['data'], "file_type should be in log data")
+            self.assertIn('filename', upload_log['data'], "filename should be in log data")
+
+    @inlineCallbacks
+    def test_audit_log_for_comment(self):
+        """Test that whistleblower comments create audit log entries without content"""
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            # Add a comment
+            self._handler = wbtip.WBTipCommentCollection
+            body = {
+                'content': "This is a whistleblower test comment",
+                'visibility': "internal"
+            }
+            handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+            yield handler.post()
+            
+            # Get audit log and verify the add_comment entry exists
+            self._handler = wbtip.ReportAuditLog
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+            logs = yield handler.get()
+            
+            # Find the add_comment log entry
+            comment_log = next((log for log in logs if log['type'] == 'add_comment'), None)
+            self.assertIsNotNone(comment_log, "add_comment log entry should exist")
+            # Verify content is NOT in the log data (privacy)
+            if 'data' in comment_log and comment_log['data']:
+                self.assertNotIn('content', comment_log['data'], "content should not be in log data")

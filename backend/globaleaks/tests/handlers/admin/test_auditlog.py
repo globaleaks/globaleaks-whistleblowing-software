@@ -15,7 +15,8 @@ class TestAuditLog(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.get()
 
         self.assertTrue(isinstance(response, list))
-        self.assertEqual(len(response), 2)
+        # With the audit log enhancements, we now log file uploads and comments too
+        self.assertGreaterEqual(len(response), 2)
 
 
 class TestAccessLog(helpers.TestHandlerWithPopulatedDB):

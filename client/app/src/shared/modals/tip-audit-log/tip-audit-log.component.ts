@@ -9,6 +9,8 @@ import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
+import {AppDataService} from "@app/app-data.service";
+import {TipAuditLogService} from "@app/shared/services/tip-audit-log.service";
 
 interface AuditLogEntry {
   id: string;
@@ -17,6 +19,8 @@ interface AuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  detail?: string;
+  isNew?: boolean;
 }
 
 interface GroupedAuditLogEntry {
@@ -26,10 +30,13 @@ interface GroupedAuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  detail?: string;
   isGroup?: boolean;
   isExpanded?: boolean;
   groupedEntries?: AuditLogEntry[];
   groupCount?: number;
+  isNew?: boolean;
+  hasNewEntries?: boolean;
 }
 
 @Component({
@@ -37,9 +44,19 @@ interface GroupedAuditLogEntry {
   templateUrl: "./tip-audit-log.component.html",
   standalone: true,
   imports: [FormsModule, DatePipe, NgClass, TranslateModule, TranslatorPipe, NgMultiSelectDropDownModule, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule],
+  providers: [DatePipe],
   styles: [`
     .table {
       table-layout: fixed;
+    }
+    .table tbody tr.new-entry-highlight {
+      background-color: #fffbf0 !important;
+    }
+    .table tbody tr.new-entry-highlight:hover {
+      background-color: #fff9e6 !important;
+    }
+    .table tbody tr.new-entry-highlight > td {
+      background-color: inherit !important;
     }
   `]
 })
@@ -51,11 +68,15 @@ export class TipAuditLogComponent implements OnInit {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
   private utilsService = inject(UtilsService);
+  private appDataService = inject(AppDataService);
   private cdr = inject(ChangeDetectorRef);
+  private datePipe = inject(DatePipe);
+  private tipAuditLogService = inject(TipAuditLogService);
 
   @Input() tipId: string = '';
   @Input() tipData: any = null; // Will receive the tip data from parent
-  @Input() usersData: any[] = []; // Will receive users data from parent
+  @Input() usersData: any[] = [];
+  @Input() lastAccess?: string; // Last time user accessed the tip (from backend)
 
   // Component state
   searchTerm: string = '';
@@ -85,9 +106,22 @@ export class TipAuditLogComponent implements OnInit {
   // Audit log data
   auditLogEntries: AuditLogEntry[] = [];
   displayedEntries: GroupedAuditLogEntry[] = [];
+  lastAuditLogAccess: Date | null = null;
+  newEntriesCount: number = 0;
 
   ngOnInit() {
     this.initializeTypeFilterData();
+    
+    // Use the more recent of: last audit log view or last tip access
+    const lastAuditLogView = this.tipAuditLogService.getLastAuditLogView(this.tipId);
+    
+    if (lastAuditLogView) {
+      this.lastAuditLogAccess = lastAuditLogView;
+    } else if (this.lastAccess) {
+      // Fallback to tip's last_access if audit log was never viewed
+      this.lastAuditLogAccess = new Date(this.lastAccess);
+    }
+    
     this.loadAuditLogData();
   }
 
@@ -135,6 +169,10 @@ export class TipAuditLogComponent implements OnInit {
         error: (error) => {
           console.error('Error loading recipient audit log:', error);
           this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
         }
       });
     } else if (userRole === 'whistleblower') {
@@ -146,6 +184,10 @@ export class TipAuditLogComponent implements OnInit {
         error: (error) => {
           console.error('Error loading whistleblower audit log:', error);
           this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
         }
       });
     } else if (userRole === 'admin' && this.tipId) {
@@ -157,27 +199,166 @@ export class TipAuditLogComponent implements OnInit {
         error: (error) => {
           console.error('Error loading admin audit log:', error);
           this.auditLogEntries = [];
+          // Mark as viewed even on error
+          if (this.tipId) {
+            this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+          }
         }
       });
     } else {
       // Fallback: no audit log data available
       this.auditLogEntries = [];
+      this.createDisplayedEntries();
+      
+      // Mark as viewed even if no data
+      if (this.tipId) {
+        this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+      }
     }
   }
 
   private processAuditLogData(auditLogData: auditlogResolverModel[]) {
     this.auditLogEntries = auditLogData.map((log, index) => {
+      const actionInfo = this.formatActionText(log);
+      const entryTimestamp = new Date(log.date);
+      const isNew = this.lastAuditLogAccess ? entryTimestamp > this.lastAuditLogAccess : false;
+      
+      if (isNew) {
+        this.newEntriesCount++;
+      }
+      
       return {
         id: `audit_${index}`,
         user: this.getUserName(log.user_id || ''),
-        action: log.type,
+        action: actionInfo.action,
+        detail: actionInfo.detail,
         type: this.categorizeAuditLogType(log.type),
-        timestamp: new Date(log.date),
-        data: log.data
+        timestamp: entryTimestamp,
+        data: log.data,
+        isNew: isNew
       };
     });
 
     this.createDisplayedEntries();
+    
+    // Mark audit log as viewed after data is processed
+    if (this.tipId) {
+      this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
+    }
+  }
+
+  private formatActionText(log: auditlogResolverModel): { action: string, detail?: string } {
+    const userRole = this.authenticationService.session.role;
+    const isAdminOrAuditor = userRole === 'admin' || userRole === 'auditor';
+    
+    // Handle status changes (show for all roles)
+    if (log.type === 'update_report_status' && log.data && log.data.status) {
+      const statusLabel = this.utilsService.getSubmissionStatusText(
+        log.data.status,
+        log.data.substatus || '',
+        this.appDataService.submissionStatuses
+      );
+      
+      if (statusLabel) {
+        return { action: log.type, detail: statusLabel };
+      }
+    }
+    
+    // Handle expiration date changes (show for all roles)
+    if (log.type === 'update_report_expiration' && log.data && log.data.curr_expiration_date) {
+      const expirationDate = this.datePipe.transform(log.data.curr_expiration_date * 1000, 'dd-MM-yyyy');
+      if (expirationDate) {
+        return { action: log.type, detail: expirationDate };
+      }
+    }
+    
+    // For admin/auditor, only show details for status and expiration changes
+    if (isAdminOrAuditor) {
+      return { action: log.type };
+    }
+    
+    // Below: details only shown for recipients and whistleblowers
+    
+    // Handle grant/revoke/transfer access
+    if ((log.type === 'grant_access' || log.type === 'revoke_access' || log.type === 'transfer_access') 
+        && log.data && log.data.recipient_id) {
+      const recipientName = this.getUserName(log.data.recipient_id);
+      return { action: log.type, detail: recipientName };
+    }
+    
+    // Handle redaction/masking updates
+    if (log.type === 'update_redaction' && log.data) {
+      const details: string[] = [];
+      
+      if (log.data.new_temporary_redaction !== undefined && log.data.old_temporary_redaction !== log.data.new_temporary_redaction) {
+        const status = log.data.new_temporary_redaction ? 
+          this.translateService.instant('Masked') : 
+          this.translateService.instant('Unmasked');
+        details.push(this.translateService.instant('Temporary') + ': ' + status);
+      }
+      
+      if (log.data.permanent_redaction !== undefined && log.data.old_permanent_redaction !== log.data.permanent_redaction) {
+        const status = log.data.permanent_redaction ? 
+          this.translateService.instant('Redacted') : 
+          this.translateService.instant('Unredacted');
+        details.push(this.translateService.instant('Permanent') + ': ' + status);
+      }
+      
+      if (details.length > 0) {
+        return { action: log.type, detail: details.join(', ') };
+      }
+    }
+    
+    // Handle reminder setting
+    if (log.type === 'set_reminder' && log.data && log.data.reminder_date) {
+      const reminderDate = this.datePipe.transform(log.data.reminder_date * 1000, 'dd-MM-yyyy');
+      if (reminderDate) {
+        return { action: log.type, detail: reminderDate };
+      }
+    }
+    
+    // Handle file uploads - show filename if available, otherwise file_type
+    if (log.type === 'upload_file' && log.data) {
+      if (log.data.filename) {
+        return { action: log.type, detail: log.data.filename };
+      } else if (log.data.file_type) {
+        return { action: log.type, detail: log.data.file_type };
+      }
+    }
+    
+    // Handle file deletions - show file extension only
+    if (log.type === 'delete_attachment' && log.data) {
+      if (log.data.file_type) {
+        // Extract extension from MIME type (e.g., "text/csv" -> "csv", "application/pdf" -> "pdf")
+        const mimeParts = log.data.file_type.split('/');
+        if (mimeParts.length === 2) {
+          // Valid MIME type format
+          let extension = mimeParts[1];
+          // Handle special cases like "vnd.ms-excel" -> "excel"
+          if (extension.includes('.')) {
+            extension = extension.split('.').pop() || extension;
+          }
+          // Only show if it looks like a valid extension (not encrypted data)
+          if (extension.length < 20 && !extension.includes('=')) {
+            return { action: log.type, detail: extension };
+          }
+        }
+      }
+      // For encrypted or invalid data, just show "Delete attachment" without details
+      return { action: log.type };
+    }
+    
+    // Handle whistleblower login
+    if (log.type === 'whistleblower_login' || log.type === 'whistleblower_access') {
+      return { action: log.type, detail: this.translateService.instant('Whistleblower') };
+    }
+    
+    // Handle export report
+    if (log.type === 'export_report' && log.data && log.data.format) {
+      return { action: log.type, detail: log.data.format.toUpperCase() };
+    }
+    
+    return { action: log.type };
   }
 
   private createDisplayedEntries() {
@@ -246,6 +427,7 @@ export class TipAuditLogComponent implements OnInit {
         } else {
           // Multiple consecutive entries - create a group
           const earliestEntry = groupEntries[0]; // Already sorted oldest first
+          const hasNewEntries = groupEntries.some(entry => entry.isNew);
           
           grouped.push({
             ...earliestEntry,
@@ -253,7 +435,8 @@ export class TipAuditLogComponent implements OnInit {
             isGroup: true,
             isExpanded: false,
             groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
-            groupCount: groupEntries.length
+            groupCount: groupEntries.length,
+            hasNewEntries: hasNewEntries
           });
         }
         
@@ -279,6 +462,7 @@ export class TipAuditLogComponent implements OnInit {
       // Access actions
       case 'access_report':
       case 'whistleblower_access':
+      case 'whistleblower_login':
       case 'export_report':
       case 'scheduled_backup':
         return 'Access';
@@ -286,10 +470,12 @@ export class TipAuditLogComponent implements OnInit {
       // Update/modification actions
       case 'update_report_status':
       case 'update_report_expiration':
+      case 'update_redaction':
       case 'upload_file':
       case 'add_comment':
       case 'set_reminder':
       case 'grant_access':
+      case 'transfer_access':
       case 'mask_information':
       case 'auto_expiration_reminder':
         return 'Update';
@@ -307,10 +493,10 @@ export class TipAuditLogComponent implements OnInit {
           return 'Delete';
         } else if (auditLogType.includes('update') || auditLogType.includes('modify') || auditLogType.includes('change') ||
                    auditLogType.includes('add') || auditLogType.includes('grant') || auditLogType.includes('upload') ||
-                   auditLogType.includes('mask') || auditLogType.includes('set')) {
+                   auditLogType.includes('mask') || auditLogType.includes('set') || auditLogType.includes('transfer')) {
           return 'Update';
         } else if (auditLogType.includes('access') || auditLogType.includes('view') || auditLogType.includes('download') ||
-                   auditLogType.includes('export') || auditLogType.includes('backup')) {
+                   auditLogType.includes('export') || auditLogType.includes('backup') || auditLogType.includes('login')) {
           return 'Access';
         }
         return 'Access'; // Default to Access for unknown types
