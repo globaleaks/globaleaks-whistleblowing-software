@@ -65,42 +65,36 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         expiration = datetime_now()
         yield self.set_itips_expiration(expiration)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
-            self.assertEqual(handler.request.code, 200)
+        rtip_desc = (yield self.get_rtips())[0]
+        handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertTrue(rtip_desc['expiration_date'] == self.one_year_from_now_datetime)
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertTrue(rtip_desc['expiration_date'] == self.one_year_from_now_datetime)
 
     @inlineCallbacks
     def test_postpone_of_reports_with_no_expiration(self):
         yield self.set_itips_expiration(datetime_never())
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
-            self.assertEqual(handler.request.code, 200)
+        rtip_desc = (yield self.get_rtips())[0]
+        handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertTrue(rtip_desc['expiration_date'] == self.one_year_from_now_datetime)
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertTrue(rtip_desc['expiration_date'] == self.one_year_from_now_datetime)
 
     @inlineCallbacks
     def test_postpone_of_reports_with_date_below_minimum_threshold(self):
         expiration = datetime_now()
         yield self.set_itips_expiration(expiration)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
-            self.assertEqual(handler.request.code, 200)
+        rtip_desc = (yield self.get_rtips())[0]
+        handler = yield self._postpone_rtip(rtip_desc, self.one_year_from_now_timestamp * 1000)
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertTrue(rtip_desc['expiration_date'] > expiration)
-            self.assertTrue(rtip_desc['expiration_date'] < self.two_year_from_now_datetime)
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertTrue(rtip_desc['expiration_date'] > expiration)
+        self.assertTrue(rtip_desc['expiration_date'] < self.two_year_from_now_datetime)
 
     @inlineCallbacks
     def test_postpone_of_reports_with_date_over_maximum_threshold(self):
@@ -252,33 +246,27 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_update_status(self):
-        rtip_descs = yield self.get_rtips()
+        rtip_desc = (yield self.get_rtips())[0]
 
-        for rtip_desc in rtip_descs:
-            handler = yield self._update_rtip_status(rtip_desc, 'closed')
-            self.assertEqual(handler.request.code, 200)
+        handler = yield self._update_rtip_status(rtip_desc, 'closed')
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertEqual(rtip_desc['status'], 'closed')
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertEqual(rtip_desc['status'], 'closed')
 
-        for rtip_desc in rtip_descs:
-            handler = yield self._update_rtip_status(rtip_desc, 'new')
-            self.assertEqual(handler.request.code, 200)
+        handler = yield self._update_rtip_status(rtip_desc, 'new')
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertEqual(rtip_desc['status'], 'closed')
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertEqual(rtip_desc['status'], 'closed')
 
         yield self.test_postpone()
 
-        for rtip_desc in rtip_descs:
-            handler = yield self._update_rtip_status(rtip_desc, 'opened')
-            self.assertEqual(handler.request.code, 200)
+        handler = yield self._update_rtip_status(rtip_desc, 'opened')
+        self.assertEqual(handler.request.code, 200)
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertEqual(rtip_desc['status'], 'opened')
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertEqual(rtip_desc['status'], 'opened')
 
     def test_mark_important(self):
         return self.switch_enabler('important')
@@ -352,34 +340,30 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_set_reminder_and_reset_upon_close(self):
-        rtip_descs = yield self.get_rtips()
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertEqual(rtip_desc['reminder_date'], datetime_never())
 
-        for rtip_desc in rtip_descs:
-            self.assertEqual(rtip_desc['reminder_date'], datetime_never())
+        operation = {
+          'operation': 'set_reminder',
+          'args': {
+            'value': datetime_now().timestamp() + 7 * 22 * 3600 * 1000,
+            'substatus': '',
+            'motivation': ''
+          }
+        }
 
-            operation = {
-              'operation': 'set_reminder',
-              'args': {
-                'value': datetime_now().timestamp() + 7 * 22 * 3600 * 1000,
-                'substatus': '',
-                'motivation': ''
-              }
-            }
+        handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(rtip_desc['id'])
+        self.assertEqual(handler.request.code, 200)
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.put(rtip_desc['id'])
-            self.assertEqual(handler.request.code, 200)
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertNotEqual(rtip_desc['reminder_date'], datetime_never())
 
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertNotEqual(rtip_desc['reminder_date'], datetime_never())
+        handler = yield self._update_rtip_status(rtip_desc, 'closed')
+        self.assertEqual(handler.request.code, 200)
 
-            handler = yield self._update_rtip_status(rtip_desc, 'closed')
-            self.assertEqual(handler.request.code, 200)
-
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.assertEqual(rtip_desc['reminder_date'], datetime_never())
+        rtip_desc = (yield self.get_rtips())[0]
+        self.assertEqual(rtip_desc['reminder_date'], datetime_never())
 
 
 class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
