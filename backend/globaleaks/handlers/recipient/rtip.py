@@ -12,7 +12,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import serialize_log, query_audit_logs_by_tip
+from globaleaks.handlers.admin.auditlog import query_audit_logs_by_tip
 
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node

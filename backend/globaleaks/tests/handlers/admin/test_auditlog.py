@@ -68,6 +68,7 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
+        """Test basic retrieval of audit log for a tip"""
         yield self.perform_full_submission_actions()
         tip_id = yield self._get_test_tip_id()
 
@@ -75,6 +76,43 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.get(tip_id)
 
         self.assertTrue(isinstance(response, list))
+        self.assertGreater(len(response), 0)
+
+    @inlineCallbacks
+    def test_get_with_complete_submission(self):
+        """Test that audit log entries have proper structure with data fields"""
+        yield self.perform_full_submission_actions()
+        tip_id = yield self._get_test_tip_id()
+
+        handler = self.request({}, role='admin')
+        logs = yield handler.get(tip_id)
+
+        # Verify we get audit logs
+        self.assertGreater(len(logs), 0)
+
+        # Verify each log has required fields
+        for log in logs:
+            self.assertIn('date', log)
+            self.assertIn('type', log)
+            self.assertIn('data', log)
+
+            # If it's a file-related action, verify it has file metadata
+            if log['type'] in ['upload_file', 'delete_attachment', 'delete_file']:
+                self.assertTrue(isinstance(log['data'], dict))
+                # File operations should have either file_type or other metadata
+                self.assertTrue(len(log['data']) > 0)
+
+    @inlineCallbacks
+    def test_get_invalid_tip_id(self):
+        """Test that accessing audit log with invalid tip ID raises error"""
+        yield self.perform_full_submission_actions()
+
+        handler = self.request({}, role='admin')
+
+        # Try with non-existent UUID
+        fake_uuid = '00000000-0000-0000-0000-000000000000'
+        with self.assertRaises(Exception):
+            yield handler.get(fake_uuid)
 
 
 class TestJobsTiming(helpers.TestHandler):
