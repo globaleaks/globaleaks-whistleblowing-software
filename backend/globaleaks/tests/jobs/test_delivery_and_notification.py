@@ -12,7 +12,8 @@ from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_now, datetime_null
 import globaleaks.jobs.notification as notif_mod
 
-THRESHOLDS = [28, 14, 7, 3, 1] 
+THRESHOLDS = [28, 14, 7, 3, 1]
+
 
 @transact
 def simulate_unread_tips(session):
@@ -149,8 +150,15 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
         users = session.query(models.User).filter(models.User.role == 'receiver').limit(2).all()
         return [u.id for u in users]
 
+    @transact
+    def close_tips_status(self, session, current_date, tips_to_close):
+        for tid in tips_to_close:
+            tip = session.query(models.InternalTip).get(tid)
+            if tip and tip.status != 'closed' and (tip.expiration_date - current_date).days == 7:
+                tip.status = 'closed'
+
     @inlineCallbacks
-    def run_simulation(self, downtime_days=None, days=365):
+    def run_simulation(self, downtime_days=None, days=365, on_day_action=None):
         MailGenerator.simulation_stats = {'users': {}, 'totals': {'grouped_emails': 0, 'total_reminders': 0}}
         notif = Notification()
         notif.skip_sleep = True
@@ -165,22 +173,24 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
 
             fake_now = baseline + timedelta(days=day)
             notif_mod.datetime_now = lambda: fake_now
+            if on_day_action:
+                yield on_day_action(fake_now)
 
             yield notif.generate_emails()
 
         notif_mod.datetime_now = orig_datetime_now
 
         for user_id, user_data in MailGenerator.simulation_stats['users'].items():
-                        for report_id in user_data.get('reports', {}):
-                            report_data = user_data['reports'][report_id]
-                            groups_sent = report_data.get('reminders_sent', 0)
-                            remaining_groups = len(THRESHOLDS) - groups_sent
-                            if 'report_group_counts' not in user_data:
-                                user_data['report_group_counts'] = {}
-                            user_data['report_group_counts'][report_id] = max(1, remaining_groups)
+            for report_id in user_data.get('reports', {}):
+                report_data = user_data['reports'][report_id]
+                groups_sent = report_data.get('reminders_sent', 0)
+                remaining_groups = len(THRESHOLDS) - groups_sent
+                if 'report_group_counts' not in user_data:
+                    user_data['report_group_counts'] = {}
+                user_data['report_group_counts'][report_id] = max(1, remaining_groups)
 
         return MailGenerator.simulation_stats
-    
+
     @inlineCallbacks
     def test_full_year_no_downtime(self):
         user_ids = yield self.get_first_two_receivers()
@@ -237,3 +247,34 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
             if 'report_group_counts' in user_data:
                 group_counts.extend(user_data['report_group_counts'].values())
         self.assertEqual(all(1 <= g <= 5 for g in group_counts), True)
+
+    @inlineCallbacks
+    def test_two_users_half_closed_reports(self):
+        user_ids = yield self.get_first_two_receivers()
+
+        tip_ids_by_user = {}
+        for uid in user_ids:
+            tip_ids = []
+            for i in range(1, 101):
+                tip_id = yield self.create_expiring_tip(uid, days_until_exp=28 + i)
+                tip_ids.append(tip_id)
+            tip_ids_by_user[uid] = tip_ids
+        self.state.tenants[1].cache.notification.tip_expiration_threshold = 28
+
+        tips_to_close = [tip for tips in tip_ids_by_user.values() for i, tip in enumerate(tips) if i % 2 == 0]
+
+        on_day_action = lambda current_date: self.close_tips_status(current_date, tips_to_close)
+        stats = yield self.run_simulation(days=365, on_day_action=on_day_action)
+
+        closed_thresholds, open_thresholds = [t for t in THRESHOLDS if t > 7], THRESHOLDS
+        total_reports = len(user_ids) * 100
+        total_closed = len(tips_to_close)
+        total_open = total_reports - total_closed
+
+        expected_total_reminders = total_closed * len(closed_thresholds) + total_open * len(open_thresholds)
+        total_emails = stats['totals']['grouped_emails']
+        total_reminders = stats['totals']['total_reminders']
+
+        self.assertEqual(total_reminders, expected_total_reminders)
+        self.assertLessEqual(total_emails, total_reminders)
+        self.assertEqual(total_emails, 242)

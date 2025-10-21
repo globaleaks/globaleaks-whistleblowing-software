@@ -192,7 +192,7 @@ class MailGenerator(object):
         rows = session.query(models.User, models.ReceiverTip, models.InternalTip) \
                       .filter(models.User.id == models.ReceiverTip.receiver_id,
                               models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                              models.InternalTip.status == 'opened',
+                              models.InternalTip.status != 'closed',
                               models.InternalTip.expiration_date != None,
                               models.InternalTip.expiration_date > now_dt,
                               models.InternalTip.expiration_date <= now_dt + timedelta(days=max_threshold)) \
