@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} fr
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
-import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
@@ -61,6 +61,9 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     NgTemplateOutlet,
     NgbNavOutlet,
     NgbTooltipModule,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
     TipUploadWbFileComponent_1,
     TipCommentsComponent_1,
     TranslateModule,
@@ -117,7 +120,6 @@ export class TipComponent implements OnInit {
           this.loading = false;
           this.RTipService.initialize(response);
           this.tip = this.RTipService.tip;
-          //this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
           this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
 
           this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {

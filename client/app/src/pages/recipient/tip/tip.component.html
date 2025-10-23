@@ -2,106 +2,128 @@
   <div class="reveal" [ngClass]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]">
     <div id="Toolbar" class="row">
       <div class="col-md-12">
-        <a id="link-tiplist" href="#/recipient/reports" ngbTooltip="{{'Reports' | translate}}"
-          class="btn btn-outline-secondary">
-          <i class="fas fa-arrow-left"></i>
-        </a>
-        <span id="tip-action-star" (click)="tipToggleStar()"
-          ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary">
-          <span [ngClass]="{'text-warning': tip && tip.important}"><i class="fas fa-star"></i></span>
-        </span>
-        <span id="tip-action-reminder" (click)="setReminder()"
-          [ngClass]="{'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"
-          ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-          @if (!utils.isNever(tip.reminder_date)) {
-            <i class="fas fa-bell"></i>
-          }
-          @if (utils.isNever(tip.reminder_date)) {
-            <i class="fas fa-bell-slash"></i>
-          }
-        </span>
-        @if (tip && !tip.enable_notifications) {
-          <span id="tip-action-notify" (click)="tipNotify(true)"
-            ngbTooltip="{{'Turn on email notifications' | translate}}"
-            class="btn btn-outline-secondary active">
-            <i class="fas fa-volume-xmark"></i>
-          </span>
-        }
-        @if (!tip || tip.enable_notifications) {
-          <span id="tip-action-silence" (click)="tipNotify(false)"
-            ngbTooltip="{{'Silence email notifications' | translate}}"
-            class="btn btn-outline-secondary">
-            <i class="fas fa-volume-low"></i>
-          </span>
-        }
-        @if (preferencesService.dataModel.can_grant_access_to_reports) {
-          <span id="tip-action-grant-access"
-            (click)="openGrantTipAccessModal()" ngbTooltip="{{'Grant access' | translate}}"
-            class="btn btn-outline-secondary">
-            <i class="fas fa-user-plus"></i>
-          </span>
-        }
-        @if (preferencesService.dataModel.can_grant_access_to_reports) {
-          <span id="tip-action-revoke-access"
-            (click)="openRevokeTipAccessModal()" ngbTooltip="{{'Revoke access' | translate}}"
-            class="btn btn-outline-secondary">
-            <i class="fas fa-user-minus"></i>
-          </span>
-        }
-        @if (preferencesService.dataModel.can_transfer_access_to_reports) {
-          <span id="tip-action-transfer-access"
-            (click)="openTipTransferModal()" ngbTooltip="{{'Transfer access' | translate}}"
-            class="btn btn-outline-secondary">
-            <i class="fas fa-people-arrows"></i>
-          </span>
-        }
-        @if (!tip || tip.context) {
-          @if (!tip || preferencesService.dataModel.can_postpone_expiration) {
-            <span id="tip-action-postpone"
-              (click)="tipPostpone()" ngbTooltip="{{'Edit the expiration date' | translate}}"
+        <div class="d-flex justify-content-between align-items-center">
+          <!-- Left side - All main actions -->
+          <div class="d-flex align-items-center gap-1">
+            <!-- Navigation and primary actions -->
+            <a id="link-tiplist" href="#/recipient/reports" ngbTooltip="{{'Reports' | translate}}"
               class="btn btn-outline-secondary">
-              <i class="fas fa-clock"></i>
+              <i class="fas fa-arrow-left"></i>
+            </a>
+            <span id="tip-action-star" (click)="tipToggleStar()"
+              ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary">
+              <i class="fas fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
             </span>
-          }
-        }
-        @if (preferencesService.dataModel.can_delete_submission) {
-          <span id="tip-action-delete"
-            (click)="tipDelete()" ngbTooltip="{{'Delete' | translate}}"
-            class="btn btn-outline-secondary">
-            <i class="fas fa-trash"></i>
-          </span>
-        }
-        @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
-          <span id="tip-action-mask"
-            (click)="toggleRedactMode()" ngbTooltip="{{redactOperationTitle | translate}}"
-            class="btn btn-outline-secondary" [ngClass]="{'active': redactMode}">
-            <i class="fas fa-eraser"></i>
-          </span>
-        }
-        @if (tip.status !== 'closed') {
-          <span id="tip-action-change-status" (click)="openModalChangeState()"
-            ngbTooltip="{{'Change status' | translate}}" class="btn btn-outline-secondary">
-            <i class="fas fa-circle-dot"></i>
-          </span>
-        }
-        @if (tip.status === 'closed') {
-          <span id="tip-action-reopen-status" (click)="openModalReopen()"
-            ngbTooltip="{{'Reopen' | translate}}" class="btn btn-outline-secondary">
-            <i class="fas fa-circle-dot"></i>
-          </span>
-        }
-        <span id="tip-action-print" (click)="utils.print()" ngbTooltip="{{'Print' | translate}}"
-          class="btn btn-outline-secondary">
-          <i class="fas fa-print"></i>
-        </span>
-        <span id="tip-action-export" (click)="exportTip(tip.id)"
-          ngbTooltip="{{'Export' | translate}}" class="btn btn-outline-secondary">
-          <i class="fas fa-download"></i>
-        </span>
-        <span id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
-          class="btn btn-outline-secondary">
-          <i class="fas fa-arrows-rotate"></i>
-        </span>
+            <span id="tip-action-reminder" (click)="setReminder()"
+              ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
+              <i class="fas" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
+            </span>
+            @if (tip && !tip.enable_notifications) {
+              <span id="tip-action-notify" (click)="tipNotify(true)"
+                ngbTooltip="{{'Turn on email notifications' | translate}}"
+                class="btn btn-outline-secondary active">
+                <i class="fas fa-volume-mute"></i>
+              </span>
+            }
+            @if (!tip || tip.enable_notifications) {
+              <span id="tip-action-silence" (click)="tipNotify(false)"
+                ngbTooltip="{{'Silence email notifications' | translate}}"
+                class="btn btn-outline-secondary">
+                <i class="fas fa-volume-down"></i>
+              </span>
+            }
+
+            <!-- Access Management Dropdown -->
+            @if (preferencesService.dataModel.can_grant_access_to_reports || preferencesService.dataModel.can_transfer_access_to_reports) {
+              <div class="btn-group" ngbDropdown placement="bottom-left">
+                <button class="btn btn-outline-secondary dropdown-toggle" ngbDropdownToggle
+                  ngbTooltip="{{'Users' | translate}}" id="usersDropdown">
+                  <i class="fas fa-users"></i>
+                </button>
+                <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="usersDropdown">
+                  @if (preferencesService.dataModel.can_grant_access_to_reports) {
+                    <button id="tip-action-grant-access" class="dropdown-item" (click)="openGrantTipAccessModal()">
+                      <i class="fas fa-user-plus me-2"></i>{{'Grant access' | translate}}
+                    </button>
+                    <button id="tip-action-revoke-access" class="dropdown-item" (click)="openRevokeTipAccessModal()">
+                      <i class="fas fa-user-minus me-2"></i>{{'Revoke access' | translate}}
+                    </button>
+                  }
+                  @if (preferencesService.dataModel.can_transfer_access_to_reports) {
+                    <button id="tip-action-transfer-access" class="dropdown-item" (click)="openTipTransferModal()">
+                      <i class="fas fa-people-arrows me-2"></i>{{'Transfer access' | translate}}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Actions Dropdown -->
+            <div class="btn-group" ngbDropdown placement="bottom-left">
+              <button class="btn btn-outline-secondary dropdown-toggle" ngbDropdownToggle
+                ngbTooltip="{{'Options' | translate}}" id="actionsDropdown">
+                <i class="fas fa-cog"></i>
+              </button>
+              <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdown">
+                @if (!tip || tip.context) {
+                  @if (!tip || preferencesService.dataModel.can_postpone_expiration) {
+                    <button id="tip-action-postpone" class="dropdown-item" (click)="tipPostpone()">
+                      <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
+                    </button>
+                  }
+                }
+                @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
+                  <button id="tip-action-mask" class="dropdown-item" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}">
+                    <i class="fas fa-eraser me-2"></i>{{'Mask' | translate}}
+                  </button>
+                }
+                <div class="dropdown-divider"></div>
+                @if (tip.status !== 'closed') {
+                  <button id="tip-action-change-status" class="dropdown-item" (click)="openModalChangeState()">
+                    <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
+                  </button>
+                }
+                @if (tip.status === 'closed') {
+                  <button id="tip-action-reopen" class="dropdown-item" (click)="openModalReopen()">
+                    <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
+                  </button>
+                }
+                @if (preferencesService.dataModel.can_delete_submission) {
+                  <div class="dropdown-divider"></div>
+                  <button class="dropdown-item text-danger" (click)="tipDelete()">
+                    <i class="fas fa-trash me-2"></i>{{'Delete' | translate}}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side - Export, Logs, and Refresh only -->
+          <div class="d-flex align-items-center gap-1">
+
+            <!-- Export Dropdown -->
+            <div class="btn-group" ngbDropdown placement="bottom-right">
+              <button class="btn btn-outline-secondary dropdown-toggle" ngbDropdownToggle
+                ngbTooltip="{{'Export' | translate}}" id="exportDropdown">
+                <i class="fas fa-download"></i>
+              </button>
+              <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="exportDropdown">
+                <button class="dropdown-item" (click)="exportTip(tip.id)">
+                  <i class="fas fa-download me-2"></i>{{'Download' | translate}}
+                </button>
+                <button class="dropdown-item" (click)="utils.print()">
+                  <i class="fas fa-print me-2"></i>{{'Print' | translate}}
+                </button>
+              </div>
+            </div>
+
+            <!-- Refresh Button -->
+            <span id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
+              class="btn btn-outline-secondary">
+              <i class="fas fa-sync"></i>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row mt-2">

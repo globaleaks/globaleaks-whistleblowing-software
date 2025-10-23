@@ -206,6 +206,7 @@ describe("globaleaks process", function () {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
+    cy.get('#actionsDropdown').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
 
