@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbInputDatepicker, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AddOptionHintComponent} from "@app/shared/modals/add-option-hint/add-option-hint.component";
@@ -35,6 +35,7 @@ export class FieldsComponent implements OnInit {
   nodeResolver = inject(NodeResolver);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
+  private cdr = inject(ChangeDetectorRef);
   private fieldTemplates = inject(FieldTemplatesResolver);
   private fieldUtilities = inject(FieldUtilitiesService);
 
@@ -305,5 +306,32 @@ export class FieldsComponent implements OnInit {
 
   isCustomValidation(field: Step | Field): boolean {
     return field?.attrs?.input_validation?.value === 'custom';
+  }
+
+  importOptions(files: FileList | null): void {
+    if (files && files.length > 0) {
+      this.utilsService.readFileAsText(files[0]).subscribe(
+        (txt: string) => {
+          const labels = txt.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+          if (labels.length === 0) {
+            return;
+          }
+
+          let currentOrder = this.utilsService.newItemOrder(this.field.options, "order");
+          labels.forEach((label, i) => {
+            if (i < this.field.options.length) {
+              this.field.options[i].label = label;
+            } else {
+              this.field.options.push({ id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++ });
+            }
+          });
+
+          if (this.field.options.length > labels.length) {
+            this.field.options.splice(labels.length);
+          }
+
+          this.cdr.markForCheck();
+        });
+    }
   }
 }
