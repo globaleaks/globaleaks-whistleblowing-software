@@ -363,4 +363,22 @@ export class FieldsComponent implements OnInit {
   isCustomValidation(field: Step | Field): boolean {
     return field?.attrs?.input_validation?.value === 'custom';
   }
+
+  importOptions(files: FileList | null): void {
+    if (files && files.length > 0) {
+      this.utilsService.readFileAsText(files[0]).subscribe(
+        txt => {
+          const lines = txt.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+          const existingLabels = new Set(this.field.options.map((o: any) => o.label.trim()));
+          let currentOrder = this.utilsService.newItemOrder(this.field.options, "order");
+          for (const label of lines) {
+            if (!existingLabels.has(label)) {
+              this.field.options.push({ id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++ });
+              existingLabels.add(label);
+            }
+          }
+        });
+    }
+  }
+ 
 }

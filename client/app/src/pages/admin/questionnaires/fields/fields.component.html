@@ -462,6 +462,12 @@
                     <i class="fas fa-plus"></i>
                     <span>{{ 'Add' | translate }}</span>
                   </button>
+                  <span class="custom-file">
+                    <input type="file" hidden #uploadInput (change)="importOptions(uploadInput.files)" />
+                    <label (click)="uploadInput.click()" [attr.data-cy]="'import-options'" class="btn btn-sm btn-outline-secondary">
+                      <i class="fas fa-upload"></i>{{'Import' | translate}}
+                    </label>
+                  </span>
                 </label>
                 <div class="col-md-12">
                   @for (option of field.options; track option; let i = $index) {

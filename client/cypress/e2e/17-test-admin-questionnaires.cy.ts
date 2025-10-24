@@ -41,6 +41,22 @@ describe("admin add, configure and delete questionnaires", () => {
         }
       }
 
+      cy.get('[data-cy="import-options"]').should('be.visible').click();
+
+      cy.fixture("questionnaires/options_import.txt").then((fileContent) => {
+        cy.get('input[type="file"]').last().then((input) => {
+          const blob = new Blob([fileContent], { type: "text/plain" });
+          const testFile = new File([blob], "options_import.txt");
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(testFile);
+          const inputElement = input[0] as HTMLInputElement;
+          inputElement.files = dataTransfer.files;
+
+          const changeEvent = new Event("change", { bubbles: true });
+          input[0].dispatchEvent(changeEvent);
+        });
+      });
+
       cy.get('button[name="delOption"]').eq(2).click();
       cy.get('button[name="save_field"]').filter(':visible').first().click();
     }
