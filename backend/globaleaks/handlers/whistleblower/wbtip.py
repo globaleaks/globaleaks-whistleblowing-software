@@ -103,7 +103,7 @@ def create_comment(session, tid, user_id, content):
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     ret['hash_sha256'] = hash_sha256
-    ret['hash_sha512'] = content
+    ret['hash_sha512'] = hash_sha512
 
     return ret
 
