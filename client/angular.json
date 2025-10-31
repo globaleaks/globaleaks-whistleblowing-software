@@ -82,7 +82,6 @@
                 { "bundleName": "styles", "inject": true, "input": "app/css/components/switch.css" },
                 { "bundleName": "styles", "inject": true, "input": "app/css/components/select.css" },
                 { "bundleName": "styles", "inject": true, "input": "app/css/main.css" },
-                { "bundleName": "styles", "inject": true, "input": "app/css/main.css" },
                 { "bundleName": "styles", "inject": true, "input": "app/css/test.css" },
                 { "bundleName": "fonts", "inject": false, "input": "node_modules/@fontsource-variable/noto-sans-arabic/index.css" },
                 { "bundleName": "fonts", "inject": false, "input": "node_modules/@fontsource-variable/noto-sans-armenian/index.css" },
