@@ -70,11 +70,12 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 pass
 
     for x in tip['comments']:
-        if x['content']:
-            x['content'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x['content'].encode())).decode()
+        for k in ['content', 'hash_sha256', 'hash_sha512']:
+            if k in x and x[k]:
+                x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
 
     for x in tip['wbfiles'] + tip['rfiles']:
-        for k in ['name', 'description', 'type', 'size']:
+        for k in ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512']:
             if k in x and x[k]:
                 x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
                 if k == 'size':
@@ -264,7 +265,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     for uploaded_file in user_session.files:
         if crypto_is_available:
-            for k in ['name', 'type', 'size']:
+            for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
                 uploaded_file[k] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
 
         new_file = models.InternalFile()
@@ -276,6 +277,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         new_file.internaltip_id = itip.id
         new_file.reference_id = uploaded_file['reference_id']
         new_file.creation_date = itip.creation_date
+        new_file.hash_sha256 = uploaded_file['hash_sha256']
+        new_file.hash_sha512 = uploaded_file['hash_sha512']
         session.add(new_file)
 
     for user in receivers:

@@ -2,6 +2,7 @@ import json
 import mimetypes
 import os
 import re
+import binascii
 
 from datetime import datetime
 
@@ -24,8 +25,11 @@ from globaleaks.utils.log import log
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.backends import default_backend
 
 mimetypes.add_type('text/javascript', '.js')
+crypto_backend = default_backend()
 
 
 def decodeString(string):
@@ -349,7 +353,24 @@ class BaseHandler(object):
                                'attachment; filename="%s"' % filename)
 
         return serve_file(self.request, fp)
-
+    
+    def compute_file_hashes(self, filepath, chunk_size=8192):
+        sha256_ctx = hashes.Hash(hashes.SHA256(), backend=crypto_backend)
+        sha512_ctx = hashes.Hash(hashes.SHA512(), backend=crypto_backend)
+    
+        with open(filepath, 'rb') as fh:
+            while True:
+                chunk = fh.read(chunk_size)
+                if not chunk:
+                    break
+                sha256_ctx.update(chunk)
+                sha512_ctx.update(chunk)
+    
+        sha256_digest = binascii.b2a_hex(sha256_ctx.finalize()).decode()
+        sha512_digest = binascii.b2a_hex(sha512_ctx.finalize()).decode()
+    
+        return sha256_digest, sha512_digest
+    
     def process_file_upload(self):
         if b'flowFilename' not in self.request.args:
             return
@@ -390,6 +411,7 @@ class BaseHandler(object):
         filename = os.path.basename(self.request.args[b'flowFilename'][0].decode())
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
+        sha256_digest, sha512_digest = self.compute_file_hashes(f.filepath)
 
         # Prepare the uploaded file metadata
         self.uploaded_file = {
@@ -402,7 +424,9 @@ class BaseHandler(object):
             'body': f,
             'description': self.request.args.get(b'description', [''])[0],
             'reference_id': self.request.args.get(b'reference_id', [''])[0],
-            'visibility': self.request.args.get(b'visibility', [''])[0]
+            'visibility': self.request.args.get(b'visibility', [''])[0],
+            'hash_sha256': sha256_digest,
+            'hash_sha512': sha512_digest
         }
 
     def write_upload_plaintext_to_disk(self, destination):

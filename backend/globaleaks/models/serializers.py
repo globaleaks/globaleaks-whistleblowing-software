@@ -101,7 +101,9 @@ def serialize_comment(session, comment):
         'creation_date': comment.creation_date,
         'content': comment.content,
         'author_id': comment.author_id,
-        'visibility': comment.visibility
+        'visibility': comment.visibility,
+        'hash_sha256': comment.hash_sha256,
+        'hash_sha512': comment.hash_sha512
     }
 
 
@@ -141,7 +143,9 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -165,7 +169,9 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -187,7 +193,9 @@ def serialize_rfile(session, rfile):
         'type': rfile.content_type,
         'description': rfile.description,
         'visibility': rfile.visibility,
-        'error': error
+        'error': error,
+        'hash_sha256': rfile.hash_sha256,
+        'hash_sha512': rfile.hash_sha512
     }
 
 def serialize_itip(session, internaltip, language):

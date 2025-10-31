@@ -18,7 +18,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE
+from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -85,17 +85,25 @@ def create_comment(session, tid, user_id, content):
     itip.update_date = itip.last_access = datetime_now()
 
     _content = content
+    hash_sha256 = sha256(content)
+    hash_sha512 = sha512(content)
     if itip.crypto_tip_pub_key:
         _content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _hash_sha256 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha256)).decode()
+        _hash_sha512 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha512)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
     comment.content = _content
+    comment.hash_sha256 = _hash_sha256
+    comment.hash_sha512 = _hash_sha512
     session.add(comment)
     session.flush()
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    ret['hash_sha256'] = hash_sha256
+    ret['hash_sha512'] = content
 
     return ret
 
