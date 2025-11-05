@@ -20,6 +20,7 @@
               @if (wbTipService.tip.enable_whistleblower_download) {
                 <th>{{'Download' | translate}}</th>
               }
+              <th>{{'Info' | translate}}</th>
               <th>{{'Upload date'|translate}}</th>
               <th>{{'Type'|translate}}</th>
               <th>{{'File size'|translate}}</th>
@@ -39,6 +40,11 @@
                     </button>
                   </td>
                 }
+                <td>
+                  <button class="btn btn-sm btn-primary tip-action-file-info" ngbTooltip="{{'File Information' | translate}}" (click)="openFileInfo(file)" [attr.aria-label]="'View file information for ' + file.name">
+                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                  </button>
+                </td>
                 <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                 <td>{{file.type}}</td>
                 <td>{{file.size | byteFmt:2}}</td>

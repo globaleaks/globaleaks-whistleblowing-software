@@ -5,7 +5,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
-import {WbFile} from "@app/models/app/shared-public-model";
+import {WbFile, RFile} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
 import {RedactionData} from "@app/models/component-model/redaction";
@@ -15,6 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {FileInfoComponent} from "@app/shared/modals/file-info/file-info.component";
 
 
 @Component({
@@ -43,6 +44,12 @@ export class TipFilesReceiverComponent implements OnInit {
 
   getSortedWBFiles(data: WbFile[]): WbFile[] {
     return data;
+  }
+
+  openFileInfo(file: WbFile) {
+    const modalRef = this.modalService.open(FileInfoComponent);
+    modalRef.componentInstance.file = file;
+    modalRef.componentInstance.receivers_by_id = this.tipService.tip.receivers_by_id;
   }
 
   redactFileOperation(operation: string, content_type: string, file: any) {

@@ -12,7 +12,8 @@ import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbTooltipModule, NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {FileInfoComponent} from "@app/shared/modals/file-info/file-info.component";
 
 
 @Component({
@@ -25,6 +26,7 @@ export class TipFilesWhistleblowerComponent {
   private appDataService = inject(AppDataService);
   private cryptoService = inject(CryptoService);
   private httpService = inject(HttpService);
+  private modalService = inject(NgbModal);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);
@@ -52,6 +54,12 @@ export class TipFilesWhistleblowerComponent {
 
   getSortedWBFiles(data: WbFile[]): WbFile[] {
     return data;
+  }
+
+  openFileInfo(file: WbFile) {
+    const modalRef = this.modalService.open(FileInfoComponent);
+    modalRef.componentInstance.file = file;
+    modalRef.componentInstance.receivers_by_id = {};
   }
 
   public toggleColLapse() {

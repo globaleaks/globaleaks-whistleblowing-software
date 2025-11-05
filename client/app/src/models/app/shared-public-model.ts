@@ -147,6 +147,8 @@ export interface WbFile {
   type: string;
   reference_id: string;
   error: boolean;
+  hash_sha256: string;
+  hash_sha512: string;
 }
 
 export interface RFile {
@@ -158,8 +160,8 @@ export interface RFile {
   description: string;
   visibility: string;
   error: boolean;
-  author: string;
-  downloads: number;
+  hash_sha256: string;
+  hash_sha512: string;
 }
 
 export interface QuestionWhistleblowerIdentityName {
