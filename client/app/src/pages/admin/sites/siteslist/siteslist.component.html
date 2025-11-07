@@ -29,6 +29,7 @@
         <span class="float-end">
           @if (tenant.active) {
             <button class="btn btn-sm btn-primary" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}} </button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="viewTenant(tenant)"><span>{{ 'View' | translate }}</span></button>
           }
           @if (!tenant.active) {
             <button class="btn btn-sm btn-danger" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}} </button>

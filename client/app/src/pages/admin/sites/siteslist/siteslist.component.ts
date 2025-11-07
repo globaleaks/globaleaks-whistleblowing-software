@@ -85,4 +85,8 @@ export class SiteslistComponent {
       this.editing = !this.editing;
     }
   }
+
+  viewTenant(tenant: tenantResolverModel) {
+    window.open(`/t/${tenant.uuid}/#/`);
+  }
 }
