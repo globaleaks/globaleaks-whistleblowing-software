@@ -1,8 +1,6 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.admin.redirect import RedirectCollection, RedirectInstance
-from globaleaks.models import Redirect
-from globaleaks.orm import tw
 from globaleaks.tests import helpers
 
 class TestRedirectCollection(helpers.TestHandlerWithPopulatedDB):

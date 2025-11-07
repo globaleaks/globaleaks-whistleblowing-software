@@ -31,8 +31,8 @@ export class AuthenticationService {
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
-  loginInProgress: boolean = false;
-  requireAuthCode: boolean = false;
+  loginInProgress = false;
+  requireAuthCode = false;
   loginData: LoginDataRef = new LoginDataRef();
 
   constructor() {

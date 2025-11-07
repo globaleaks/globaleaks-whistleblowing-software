@@ -15,7 +15,7 @@
 # Joan Montané, 2020
 # Joan Montané, 2020
 # Joan Redon, 2022
-# José Luis Ramirez, 2022-2024
+# José Luis Ramirez, 2022-2025
 # Josep Anton Rius <j.rius.cat@gmail.com>, 2016
 # Maddish Falzoni <maddish@xnet-x.net>, 2016
 # Nick Skelsey, 2016
@@ -25,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2018,2020-2022,2024\n"
+"Last-Translator: José Luis Ramirez, 2022-2025\n"
 "Language-Team: Catalan (http://app.transifex.com/otf/globaleaks/language/ca/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -530,7 +530,7 @@ msgstr "Codi postal"
 msgid "Footer"
 msgstr "Peu de pàgina"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Per raons de seguretat el codi s'ha de canviar"
 
 msgid ""
@@ -990,7 +990,7 @@ msgid "Recipients have requested you to fill an additional questionnaire."
 msgstr "Les persones destinatàries han demanat que ompli un qüestionari addicional."
 
 msgid "Recipients only"
-msgstr "Solament receptors"
+msgstr "Persones destinatàries"
 
 msgid "Recipients selected:"
 msgstr "Persones destinatàries seleccionades:"

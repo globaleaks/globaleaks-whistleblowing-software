@@ -1,7 +1,7 @@
 # Handler dealing with submissions file uploads and subsequent submissions attachments
-
 from nacl.encoding import Base64Encoder
 
+from globaleaks.state import State
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
@@ -26,7 +26,7 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
     itip = session.query(models.InternalTip) \
                   .filter(models.InternalTip.id == internaltip_id,
                           models.InternalTip.status != 'closed',
-                          models.InternalTip.tid == tid).one()
+                          models.InternalTip.tid.in_({tid, State.tenants[tid].cache.ptid})).one()
 
     itip.update_date = now
     itip.last_access = now
@@ -40,6 +40,7 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
     new_file.name = uploaded_file['name']
     new_file.content_type = uploaded_file['type']
     new_file.size = uploaded_file['size']
+    new_file.reference_id = uploaded_file['reference_id']
     new_file.internaltip_id = internaltip_id
     new_file.hash_sha256 = uploaded_file['hash_sha256']
     new_file.hash_sha512 = uploaded_file['hash_sha512']

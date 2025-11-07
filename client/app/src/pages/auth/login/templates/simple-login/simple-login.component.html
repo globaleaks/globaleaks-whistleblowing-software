@@ -3,11 +3,11 @@
     @if (appDataService.public.receivers.length === 1) {
       <div>
         <div class="form-group">
-          <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" autofocus required />
+          <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" required />
         </div>
         <div class="form-group">
           <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-            <i class="fa-solid fa-sign-in-alt"></i>
+            <i class="fas fa-right-to-bracket"></i>
             <span>{{'Log in'|translate}}</span>
           </button>
           <span id="forgot-button">
@@ -34,7 +34,7 @@
             </div>
             <div class="form-group">
               <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-                <i class="fa-solid fa-sign-in-alt"></i>
+                <i class="fas fa-right-to-bracket"></i>
                 <span>{{'Log in'|translate}}</span>
               </button>
               <span id="forgot-button">
@@ -54,7 +54,7 @@
       <input class="form-control" name="authentication.loginData.loginAuthCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
     </div>
     <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
-      <i class="fa-solid fa-sign-in-alt"></i>
+      <i class="fas fa-right-to-bracket"></i>
       <span>{{'Log in'|translate}}</span>
     </button>
   </div>

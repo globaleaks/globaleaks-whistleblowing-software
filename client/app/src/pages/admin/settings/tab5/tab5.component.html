@@ -86,7 +86,8 @@
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
         <label>{{ 'Number of days till notifying unread reports to users' | translate }}</label>
-        <input class="form-control" [(ngModel)]="nodeResolver.dataModel.unread_reminder_time" type="number" min="1" />
+        <input class="form-control" [(ngModel)]="nodeResolver.dataModel.unread_reminder_time" type="number" min="0" />
+        <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
       </div>
     }
     <div class="form-group">
@@ -187,17 +188,16 @@
       <div class="form-group">
         <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_developers_exception_notification" type="checkbox">
         <label>{{ 'Notify developers of software problems' | translate }}</label>
-        <div>{{ 'By enabling this feature, you will contribute to the development and security of the platform.' |
-        translate }}</div>
+        <div>{{ 'By enabling this feature, you will contribute to the development and security of the platform.' | translate }}</div>
       </div>
     }
     <div class="form-group">
       <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">
-        <i class="fa-solid fa-check"></i>
+        <i class="fas fa-check"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>
       <button class="btn btn-danger" (click)="resetSubmissions()">
-        <i class="fa-solid fa-trash"></i>
+        <i class="fas fa-trash"></i>
         <span>{{ 'Reset reports' | translate }}</span>
       </button>
     </div>

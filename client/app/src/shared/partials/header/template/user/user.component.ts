@@ -1,4 +1,4 @@
-import {ApplicationRef, Component, inject} from "@angular/core";
+import {ApplicationRef, Component, inject, OnInit} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -14,7 +14,8 @@ import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {RoleSelectionModalComponent} from "@app/shared/modals/role-selection/role-selection-modal.component";
 
 
 @Component({
@@ -33,11 +34,23 @@ export class UserComponent {
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
   private router = inject(Router);
+  private modalService = inject(NgbModal);
 
   private lastLang: string | null = null;
-
+  selectedRole = {value: []};
   constructor(private appRef: ApplicationRef) {
     this.onQueryParameterChangeListener();
+  }
+
+  canSwitchUser() {
+    if (this.preferences.dataModel &&
+	this.preferences.dataModel.profile &&
+        Array.isArray(this.preferences.dataModel.profile.roles) &&
+        this.preferences.dataModel.profile.roles.length > 1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   onQueryParameterChangeListener() {
@@ -73,6 +86,25 @@ export class UserComponent {
     };
 
     this.authentication.logout(promise);
+  }
+
+  openSwitchUserModal(): void {
+    const modalRef = this.modalService.open(RoleSelectionModalComponent, { backdrop: 'static', keyboard: false });
+    const roles = this.preferences.dataModel.profile.roles.map((role: string) => {
+      const capitalizedRole = role === 'receiver' ? 'Recipient' : role.charAt(0).toUpperCase() + role.slice(1);
+      return { value: role, role: capitalizedRole };
+    });
+    modalRef.componentInstance.roles = roles;
+    modalRef.result
+      .then((selectedRole: { value: string; role: string }) => {
+        this.httpService.requestRoleSwitch(selectedRole.value).subscribe({
+          next: (response: { redirect: string }) => {
+            if (response.redirect) {
+              window.open(response.redirect);
+            }
+          },
+        });
+      })
   }
 
   onChangeLanguage() {

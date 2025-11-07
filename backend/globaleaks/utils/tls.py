@@ -200,7 +200,8 @@ def new_tls_server_context():
                     SSL.OP_PRIORITIZE_CHACHA |
                     SSL.OP_SINGLE_ECDH_USE |
                     SSL.OP_NO_COMPRESSION |
-                    SSL.OP_NO_RENEGOTIATION)
+                    SSL.OP_NO_RENEGOTIATION |
+                    SSL.OP_CLEANSE_PLAINTEXT)
 
     ctx.set_mode(SSL.MODE_RELEASE_BUFFERS)
     ctx.set_session_cache_mode(SSL.SESS_CACHE_SERVER)

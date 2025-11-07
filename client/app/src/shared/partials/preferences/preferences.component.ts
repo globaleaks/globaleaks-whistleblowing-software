@@ -15,7 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [NgbNav, NgbNavItem, NgbNavLink, PreferenceTab1Component_1, PreferenceTab2Component_1, TranslateModule, TranslatorPipe]
 })
 export class PreferencesComponent {
-  activeTab: string = "tab1";
+  activeTab = "tab1";
 
   tabs = [
     {

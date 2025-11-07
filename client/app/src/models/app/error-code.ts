@@ -1,7 +1,7 @@
 export class ErrorCodes {
-  message: string = "";
+  message = "";
   arguments = [];
-  code: number = -1;
+  code = -1;
 
   constructor(protected messageParam?: any, protected codeParam?: any, protected argumentParam?: any) {
     this.message = messageParam;

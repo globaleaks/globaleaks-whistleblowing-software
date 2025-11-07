@@ -110,10 +110,20 @@ describe("Acquire screenshots necessary for user documentation - Recipient Secti
     cy.takeScreenshot("recipient/settings");
     cy.visit("/#/recipient/reports");
     cy.get("#tip-0").first().click();
+
+    // Collect masking modal screenshot
+    cy.get('#actionsDropdown').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
-    cy.takeScreenshot("recipient/masking-popup", ".modal");
-    cy.get("#close-redact-modal").should('be.visible').first().click();
+    cy.takeScreenshot("recipient/masking-modal", ".modal-content");
+    cy.get(".btn-close").should('be.visible').first().click();
+
+    // Collect auditlog modal screenshot
+    cy.get('[id="tip-action-logs"]').should('be.visible').click();
+    cy.get('.modal-title').should('contain', 'Audit log');
+    cy.takeScreenshot("recipient/auditlog-modal", ".modal-content");
+    cy.get(".btn-close").should('be.visible').first().click();
+
     cy.logout();
   });
 });

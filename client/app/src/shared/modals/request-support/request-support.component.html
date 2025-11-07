@@ -1,8 +1,6 @@
 <div class="modal-header">
-  <div class="modal-title">{{'Request support'|translate}}</div>
-  <button type="button" class="btn close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close'|translate">
-    <i class="fa-solid fa-times"></i>
-  </button>
+  <h5 class="modal-title">{{'Request support'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
   <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
@@ -44,7 +42,7 @@
     </button>
   }
   <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
-    <i class="fa-solid fa-times"></i>
+    <i class="fas fa-xmark"></i>
     <span>{{'Close'|translate}}</span>
   </a>
 </div>

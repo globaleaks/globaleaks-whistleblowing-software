@@ -47,8 +47,8 @@ export class TipsComponent implements OnInit {
   search: string | undefined;
   selectedTips: string[] = [];
   filteredTips: rtipResolverModel[];
-  currentPage: number = 1;
-  itemsPerPage: number = 20;
+  currentPage = 1;
+  itemsPerPage = 20;
   reportDateFilter: [number, number] | null = null;
   updateDateFilter: [number, number] | null = null;
   expiryDateFilter: [number, number] | null = null;
@@ -61,16 +61,16 @@ export class TipsComponent implements OnInit {
   dropdownContextData: { id: number; label: string; }[] = [];
   dropdownScoreModel: { id: number; label: string; }[] = [];
   dropdownScoreData: { id: number; label: string; }[] = [];
-  sortKey: string = "creation_date";
-  sortReverse: boolean = true;
-  channelDropdownVisible: boolean = false;
-  statusDropdownVisible: boolean = false;
-  scoreDropdownVisible: boolean = false;
+  sortKey = "creation_date";
+  sortReverse = true;
+  channelDropdownVisible = false;
+  statusDropdownVisible = false;
+  scoreDropdownVisible = false;
   index: number;
   date: { year: number; month: number };
-  reportDatePicker: boolean = false;
-  lastUpdatePicker: boolean = false;
-  expirationDatePicker: boolean = false;
+  reportDatePicker = false;
+  lastUpdatePicker = false;
+  expirationDatePicker = false;
   dropdownSettings: IDropdownSettings = {
     idField: "id",
     textField: "label",
@@ -400,7 +400,7 @@ export class TipsComponent implements OnInit {
   }
 
   exportToCsv(): void {
-    this.utils.generateCSV(JSON.stringify(this.getDataCsv()), 'reports',this.getDataCsvHeaders());
+    this.utils.generateCSV('reports', this.getDataCsv());
   }
 
   getDataCsv(): any[] {
@@ -409,7 +409,6 @@ export class TipsComponent implements OnInit {
       id: tip.id,
       progressive: tip.progressive,
       important: tip.important,
-      reportStatus: this.utils.isDatePassed(tip.reminder_date),
       context_name: tip.context_name,
       label: tip.label,
       status: tip.submissionStatusStr,
@@ -419,7 +418,7 @@ export class TipsComponent implements OnInit {
       last_access: formatDate(tip.last_access, 'dd-MM-yyyy HH:mm', 'en-US'),
       comment_count: tip.comment_count,
       file_count: tip.file_count,
-      subscription: tip.subscription === 0 ? 'Non sottoscritta' : tip.subscription === 1 ? 'Sottoscritta' : 'Sottoscritta successivamente',
+      subscription: tip.subscription === 0 ? 'Not subscribed' : tip.subscription === 1 ? 'Subscribed' : 'Sottoscritta successivamente',
       receiver_count: tip.receiver_count
     }));
   }

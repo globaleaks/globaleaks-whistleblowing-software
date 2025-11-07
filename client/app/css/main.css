@@ -18,13 +18,20 @@ a:hover,
 .nav-link-custom,
 a:focus {
   color: #103253;
-  outline: 0;
   font-weight: bold;
   text-decoration: none;
 }
 
 a:hover {
   color: #3679BB;
+}
+
+a:focus,
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 3px solid #1d1f2a;
+  outline-offset: 2px;
 }
 
 .onion-address {
@@ -75,6 +82,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
 .container {
@@ -136,6 +144,10 @@ th .fa-solid,
 
 .multiselect-item-checkbox {
   font-weight: normal;
+}
+
+table {
+  font-size: 0.875rem;
 }
 
 table tr {
@@ -864,6 +876,15 @@ text.axis-worktime {
   opacity: 1;
 }
 
+.non-default-role,
+.disabled-icon {
+  opacity: 0.2;
+}
+
+.non-default-role:hover {
+  opacity: 1;
+}
+
 .tip-action-open {
   cursor: pointer;
 }
@@ -1050,11 +1071,14 @@ i.fa-solid.fa-chevron-right {
   border-color: white;
 }
 
+#Skip {
+  text-align: left;
+}
+
 #Skip a {
   position: absolute;
   margin: 0 auto;
   width: 100%;
-  text-align: center;
   opacity: 0;
   left: -10000px;
   top: auto;
@@ -1155,10 +1179,11 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   background-color: rgba(2, 117, 216, 50%);
 }
 
-.ngb-dp-arrow-prev .fa-chevron-right {
-  transform: scaleX(-1);
-}
-
 .form-select {
   padding: 0.3em !important;
+}
+
+.text-gray {
+  color: #6c757d;
+  opacity: 0.7;
 }

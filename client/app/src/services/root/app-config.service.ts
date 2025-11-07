@@ -26,9 +26,9 @@ export class AppConfigService {
   private appDataService = inject(AppDataService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private ngZone = inject(NgZone);
-  private isRunning: boolean = false;
+  private isRunning = false;
 
-  public sidebar: string = "";
+  public sidebar = "";
 
   constructor() {
     this.init();

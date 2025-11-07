@@ -7,7 +7,7 @@
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # Jiří Podhorecký <jirka.p@volny.cz>, 2019
-# Jiří Skryja, 2022-2024
+# Jiří Skryja, 2022-2025
 # Jiří Podhorecký <jirka.p@volny.cz>, 2019
 # Jiří Podhorecký <jirka.p@volny.cz>, 2018-2019,2021
 # Lenka Ježková <lenka.jezkova@oziveni.cz>, 2019-2020
@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Jiří Skryja, 2022-2024\n"
+"Last-Translator: Jiří Skryja, 2022-2025\n"
 "Language-Team: Czech (http://app.transifex.com/otf/globaleaks/language/cs/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -31,7 +31,7 @@ msgid "0 = auto"
 msgstr "0 = automaticky"
 
 msgid "Accept multiple answers"
-msgstr "Akceptovat více odpovědí"
+msgstr "Přijmout více odpovědí"
 
 msgid "Accept multiple file uploads"
 msgstr "Akceptován příjem více souborů"
@@ -524,7 +524,7 @@ msgstr "Daňový kód"
 msgid "Footer"
 msgstr "Patička"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Z bezpečnostních důvodů je třeba kód změnit."
 
 msgid ""

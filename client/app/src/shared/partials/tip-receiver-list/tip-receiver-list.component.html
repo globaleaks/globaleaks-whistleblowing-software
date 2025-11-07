@@ -3,18 +3,18 @@
     <span>{{'Recipients'|translate}}</span>
     <span class="">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
       }
     </span>
   </div>
   @if (!collapsed) {
     <div class="card-body">
-      @for (receiver of tipService.tip.receivers; track receiver) {
+      @for (receiver of tipService.tip.receivers | filter : 'active' : true; track receiver) {
         <div>
-          <div>{{tipService.tip.receivers_by_id[receiver.id].name}}</div>
+          <div>{{tipService.tip.receivers_by_id[receiver.id].name | translate}}</div>
         </div>
       }
     </div>

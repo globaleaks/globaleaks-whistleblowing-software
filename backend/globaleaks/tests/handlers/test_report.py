@@ -1,5 +1,4 @@
 from globaleaks.handlers import report
-from globaleaks.rest import requests
 from globaleaks.tests import helpers
 
 

@@ -1,4 +1,4 @@
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import __version__
@@ -12,8 +12,7 @@ from globaleaks.rest.cache import Cache
 from globaleaks.utils.agent import get_page
 from globaleaks.utils.log import log
 
-DEB_PACKAGE_URL = b'https://deb.globaleaks.org/bookworm/Packages'
-
+DEB_PACKAGE_URL = b'https://deb.globaleaks.org/trixie/Packages'
 
 import re
 
@@ -21,7 +20,7 @@ def get_latest_version(packages_file):
     # Split the Packages file into individual package entries
     package_entries = packages_file.split('\n\n')
 
-    latest_version = ""
+    latest_version = None
 
     for entry in package_entries:
         # Extract package name and version using regular expressions
@@ -29,21 +28,17 @@ def get_latest_version(packages_file):
         match_version = re.search(r'^Version: (.+)$', entry, re.MULTILINE)
 
         if match_name and match_version:
-            package_name = match_name.group(1)
             package_version = parse_version(match_version.group(1))
 
-            # Update the dictionary with the latest version for each package
-            if not latest_version or package_version > latest_version:
+            # Track the highest version encountered
+            if latest_version is None or package_version > latest_version:
                 latest_version = package_version
 
-    return str(latest_version)
-
-
+    return str(latest_version) if latest_version else ""
 
 @transact
 def evaluate_update_notification(session, state, latest_version):
     priv_fact = ConfigFactory(session, 1)
-
     stored_latest = priv_fact.get_val('latest_version')
 
     # Check if the running version is lower than the latest version

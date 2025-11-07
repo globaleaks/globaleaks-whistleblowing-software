@@ -1,4 +1,3 @@
-import copy
 
 from globaleaks import models
 from globaleaks.handlers import admin

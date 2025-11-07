@@ -28,7 +28,7 @@ export class HttpsComponent implements OnInit {
   state = 0;
   menuState = "setup";
   tlsConfig: TlsConfig;
-  hostName: string="";
+  hostName="";
 
   ngOnInit() {
     this.initFunction();

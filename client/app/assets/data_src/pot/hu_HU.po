@@ -530,7 +530,7 @@ msgstr ""
 msgid "Footer"
 msgstr "Élőláb"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""
@@ -751,7 +751,7 @@ msgid "Mask"
 msgstr ""
 
 msgid "Max"
-msgstr "Max"
+msgstr ""
 
 msgid "Maximum file size is:"
 msgstr "A maximum fájlméret:"
@@ -769,7 +769,7 @@ msgid "Medium"
 msgstr "Közepes"
 
 msgid "Min"
-msgstr "Min"
+msgstr ""
 
 msgid "Minimum number of input characters"
 msgstr "Bemeneti karakterek minimális száma"

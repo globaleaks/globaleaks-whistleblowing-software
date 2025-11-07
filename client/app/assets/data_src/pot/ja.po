@@ -516,7 +516,7 @@ msgstr "財務コード"
 msgid "Footer"
 msgstr "フッター"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

@@ -1,4 +1,5 @@
 import re
+import uuid
 from datetime import datetime
 from twisted.trial import unittest
 
@@ -22,6 +23,10 @@ class TestUtility(unittest.TestCase):
     def test_uuid4(self):
         self.assertIsNotNone(re.match(r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
                                       utility.uuid4()))
+
+    def test_invalid_uuid_validation(self):
+        self.assertTrue(utility.is_uuid4(str(uuid.uuid4())))
+        self.assertFalse(utility.is_uuid4("not-a-uuid"))
 
     def test_datetime_null(self):
         self.assertEqual(utility.datetime_null(), datetime.utcfromtimestamp(0))

@@ -45,26 +45,24 @@ export class SubmissionComponent implements OnInit {
   private appConfigService = inject(AppConfigService);
   private whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
   protected authenticationService = inject(AuthenticationService);
-  private appDataService = inject(AppDataService);
+  protected appDataService = inject(AppDataService);
   private utilsService = inject(UtilsService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private httpService = inject(HttpService);
   private cryptoService = inject(CryptoService);
-  submissionService = inject(SubmissionService);
+  submission = inject(SubmissionService);
 
   @ViewChild("submissionForm") public submissionForm: NgForm;
   @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
 
   _navigation = -1;
   answers: Answers = {};
-  identity_provided = false;
-  context_id = "";
   context: Context | undefined = undefined;
   receiversOrderPredicate: string;
   validate: boolean[] = [];
   score = 0;
   done: boolean;
-  uploads: { [key: string]: any } = {};
+  uploads: Record<string, any> = {};
   questionnaire: Questionnaire;
   contextsOrderPredicate: string = this.appDataService.public.node.show_contexts_in_alphabetical_order ? "name" : "order";
   selectable_contexts: Context[];
@@ -76,7 +74,7 @@ export class SubmissionComponent implements OnInit {
 
   constructor() {
     this.selectable_contexts = [];
-    this.receivedData = this.submissionService.getSharedData();
+    this.receivedData = this.submission.getSharedData();
 
     this.appConfigService.setPage("submissionpage");
     this.whistleblowerLoginResolver.resolve()
@@ -91,7 +89,7 @@ export class SubmissionComponent implements OnInit {
   }
 
   firstStepIndex() {
-    return this.submissionService.context.allow_recipients_selection ? -1 : 0;
+    return this.submission.context.allow_recipients_selection ? -1 : 0;
   };
 
   prepareSubmission(context: any) {
@@ -101,12 +99,12 @@ export class SubmissionComponent implements OnInit {
 
     this.context = context;
     this.questionnaire = context.questionnaire;
-    this.submissionService.create(context.id);
+    this.submission.create(context.id);
     this.fieldUtilitiesService.onAnswersUpdate(this);
     this.utilsService.scrollToTop();
 
     this.show_steps_navigation_bar = this.context?.allow_recipients_selection || this.questionnaire.steps.length > 1;
-    this.receiversOrderPredicate = this.submissionService.context.show_receivers_in_alphabetical_order ? "name" : "";
+    this.receiversOrderPredicate = this.submission.context.show_receivers_in_alphabetical_order ? "name" : "";
 
     if (this.context?.allow_recipients_selection) {
       this.navigation = -1;
@@ -116,10 +114,10 @@ export class SubmissionComponent implements OnInit {
   }
 
   selectable() {
-    if (this.submissionService.context.maximum_selectable_receivers === 0) {
+    if (this.submission.context.maximum_selectable_receivers === 0) {
       return true;
     }
-    return Object.keys(this.submissionService.selected_receivers).length < this.submissionService.context.maximum_selectable_receivers;
+    return Object.keys(this.submission.selected_receivers).length < this.submission.context.maximum_selectable_receivers;
   };
 
   switchSelection(receiver: Receiver) {
@@ -127,10 +125,10 @@ export class SubmissionComponent implements OnInit {
       return;
     }
 
-    if (this.submissionService.selected_receivers[receiver.id]) {
-      delete this.submissionService.selected_receivers[receiver.id];
+    if (this.submission.selected_receivers[receiver.id]) {
+      delete this.submission.selected_receivers[receiver.id];
     } else if (this.selectable()) {
-      this.submissionService.selected_receivers[receiver.id] = true;
+      this.submission.selected_receivers[receiver.id] = true;
     }
   };
 
@@ -189,7 +187,7 @@ export class SubmissionComponent implements OnInit {
   };
 
   areReceiversSelected() {
-    return Object.keys(this.submissionService.selected_receivers).length > 0 || Object.keys(this.submissionService.override_receivers).length > 0;
+    return Object.keys(this.submission.selected_receivers).length > 0 || Object.keys(this.submission.override_receivers).length > 0;
   };
 
   hasNextStep() {
@@ -201,7 +199,7 @@ export class SubmissionComponent implements OnInit {
     if (this.questionnaire) {
 
       for (let i = 0; i < this.questionnaire.steps.length; i++) {
-        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.score)) {
+        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.score, this.submission.submission.identity_provided, false)) {
           last_enabled = i;
         }
       }
@@ -275,9 +273,9 @@ export class SubmissionComponent implements OnInit {
   }
 
   completeSubmission() {
-    this.receivedData = this.submissionService.getSharedData();
+    this.receivedData = this.submission.getSharedData();
     if (this.receivedData !== null && this.receivedData !== undefined && this.receivedData.length > 0) {
-       this.receivedData.forEach((item :Flow)=> {
+       this.receivedData.forEach((item: Flow)=> {
         item.upload();
        });
     }
@@ -289,7 +287,7 @@ export class SubmissionComponent implements OnInit {
       return;
     }
 
-    this.submissionService.submission.answers = this.answers;
+    this.submission.submission.answers = this.answers;
 
     this.utilsService.resumeFileUploads(this.uploads);
     this.done = true;
@@ -316,13 +314,13 @@ export class SubmissionComponent implements OnInit {
 
       if (res.type == 'key') {
         this.appDataService.updateShowLoadingPanel(true);
-        this.submissionService.submission.receipt = await this.cryptoService.hashArgon2(this.authenticationService.session.receipt, res.salt);
+        this.submission.submission.receipt = await this.cryptoService.hashArgon2(this.authenticationService.session.receipt, res.salt);
         this.appDataService.updateShowLoadingPanel(false);
       } else {
-        this.submissionService.submission.receipt = this.authenticationService.session.receipt;
+        this.submission.submission.receipt = this.authenticationService.session.receipt;
       }
 
-      this.submissionService.submit().subscribe({
+      this.submission.submit().subscribe({
         next: (response) => {
           this.router.navigate(["/"]).then();
           this.titleService.setPage("receiptpage");
@@ -335,7 +333,7 @@ export class SubmissionComponent implements OnInit {
     this.validate[this.navigation] = true;
     this.areReceiversSelectedValue = this.areReceiversSelected();
 
-    if (this.submissionService.context.allow_recipients_selection && !this.areReceiversSelectedValue) {
+    if (this.submission.context.allow_recipients_selection && !this.areReceiversSelectedValue) {
       this.navigation = -1;
     }
 

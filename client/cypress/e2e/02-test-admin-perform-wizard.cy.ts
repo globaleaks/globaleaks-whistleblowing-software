@@ -35,14 +35,17 @@ describe("globaLeaks setup wizard", () => {
 
     cy.get(".ButtonNext").click();
 
-    cy.takeScreenshot("wizard/5");
-
     cy.get('.tos-agreement-input').click();
+
+    cy.takeScreenshot("wizard/5");
 
     cy.get(".ButtonNext").click();
 
+    cy.get('button[name="proceed"]').should('be.visible');
+
     cy.takeScreenshot("wizard/6");
-    cy.get('button[name="proceed"]').should('be.visible').click();
+
+    cy.get('button[name="proceed"]').click();
 
     cy.waitForUrl("admin/home")
     cy.logout();

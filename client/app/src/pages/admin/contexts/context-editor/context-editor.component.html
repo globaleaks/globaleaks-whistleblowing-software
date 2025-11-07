@@ -10,12 +10,12 @@
       <span class="float-end">
         @if (index !== 0 && !nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
           <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
-            <i class="fa-solid fa-chevron-up"></i>
+            <i class="fas fa-chevron-up"></i>
           </button>
         }
         @if (index !== contextsData.length - 1 && !nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
           <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
-            <i class="fa-solid fa-chevron-down"></i>
+            <i class="fas fa-chevron-down"></i>
           </button>
         }
         @if (!editing) {
@@ -70,7 +70,7 @@
             <label>
               <span>{{ 'Recipients' | translate }}</span>
               <button class="btn btn-sm btn-primary add-receiver-btn" (click)="toggleSelect()">
-                <i class="fa-solid fa-plus"></i>
+                <i class="fas fa-plus"></i>
                 <span>{{ 'Add' | translate }}</span>
               </button>
             </label>
@@ -93,21 +93,18 @@
                     <span>
                       @if (index !== 0) {
                         <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}">
-                          <i class="fa-solid fa-chevron-up"></i>
+                          <i class="fas fa-chevron-up"></i>
                         </span>
-                      }
-                      @if ((index !== contextResolver.receivers.length - 1) || (index !== 0)) {
-                        <i class="fa-solid fa-none"></i>
                       }
                       @if (index !== contextResolver.receivers.length - 1) {
                         <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}">
-                          <i class="fa-solid fa-chevron-down"></i>
+                          <i class="fas fa-chevron-down"></i>
                         </span>
                       }
                     </span>
                   }
                   <span (click)="contextResolver.receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById[receiver])" ngbTooltip="{{'Remove' | translate}}">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                   </span>
                   <span>{{adminReceiversById[receiver].name}}</span>
                 </li>
@@ -146,10 +143,10 @@
           <div class="col-md-12">
             <button class="btn btn-primary" id="advance_context" (click)="showAdvancedSettings = !showAdvancedSettings">
               @if (!showAdvancedSettings) {
-                <i class="fa-solid fa-plus"></i>
+                <i class="fas fa-plus"></i>
               }
               @if (showAdvancedSettings) {
-                <i class="fa-solid fa-minus"></i>
+                <i class="fas fa-minus"></i>
               }
               <span>{{ 'Advanced' | translate }}</span>
             </button>

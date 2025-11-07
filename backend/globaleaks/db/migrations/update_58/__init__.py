@@ -67,8 +67,6 @@ class ReceiverFile_v_57(Model):
 
 class MigrationScript(MigrationBase):
     def migrate_InternalTip(self):
-        m = self.model_from['Config']
-
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
             new_obj = self.model_to['InternalTip']()
             for key in new_obj.__mapper__.column_attrs.keys():

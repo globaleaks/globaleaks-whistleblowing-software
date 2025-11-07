@@ -21,12 +21,13 @@ import {
 import {NgClass, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NgSelectComponent} from "@ng-select/ng-select";
 
 @Component({
     selector: "src-preference-tab1",
     templateUrl: "./preference-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, DatePipe, TranslateModule, TranslatorPipe]
+    imports: [FormsModule,NgSelectComponent, NgClass, DatePipe, TranslateModule, TranslatorPipe]
 })
 export class PreferenceTab1Component implements OnInit {
   private translationService = inject(TranslationService);
@@ -50,6 +51,8 @@ export class PreferenceTab1Component implements OnInit {
   languageModel = "";
   role = "";
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
+  userRole: string;
+  roleOptions: { value: string, role: string }[] = [];
 
   constructor() {
     this.languageModel = this.preferenceResolver.dataModel.language;
@@ -61,6 +64,9 @@ export class PreferenceTab1Component implements OnInit {
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
     }, 150);
+    const roles = this.preferenceResolver.dataModel.profile.roles || [];
+    this.roleOptions = roles.map(role => ({value: role, role: role === 'receiver' ? 'Recipient' : (role.charAt(0).toUpperCase() + role.slice(1))}));
+    this.userRole = this.preferenceResolver.dataModel.role;
   }
 
   toggleNameEditing() {
@@ -113,6 +119,11 @@ export class PreferenceTab1Component implements OnInit {
 
     event.preventDefault();
     return false;
+  }
+
+  onDefaultRoleChange(role: string) {
+    this.preferenceResolver.dataModel.role = role;
+    this.preferenceResolver.dataModel.profile.role = role;
   }
 
   getEncryptionRecoveryKeyTrigger(result: any, event: Event) {

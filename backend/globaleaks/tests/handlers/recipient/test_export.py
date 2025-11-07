@@ -15,9 +15,6 @@ class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
 
         yield self.perform_full_submission_actions()
 
-        # populates alarms conditions
-        self.pollute_events(10)
-
         # creates the receiver files
         yield Delivery().run()
 

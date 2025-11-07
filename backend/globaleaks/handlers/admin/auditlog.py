@@ -1,4 +1,3 @@
-import operator
 import os
 
 from sqlalchemy.sql.expression import distinct, func

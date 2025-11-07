@@ -31,9 +31,7 @@ export interface rtipResolverModel {
   data: Data;
 }
 
-export interface Answers {
-  [key: string]: {
+export type Answers = Record<string, {
     required_status: boolean;
     value: string;
-  }[];
-}
+  }[]>;

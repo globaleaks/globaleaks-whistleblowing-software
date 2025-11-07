@@ -32,7 +32,7 @@ export class PasswordChangeComponent implements OnInit {
   utilsService = inject(UtilsService);
   cryptoService = inject(CryptoService);
 
-  passwordStrengthScore: number = 0;
+  passwordStrengthScore = 0;
 
   changePasswordArgs = {
     current: "",

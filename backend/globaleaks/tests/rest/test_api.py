@@ -1,5 +1,4 @@
 import copy
-from twisted.internet.address import IPv4Address
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.db import refresh_tenant_cache
@@ -22,7 +21,7 @@ class TestAPI(TestGL):
     def test_resolve_handler(self):
         testcases = [
             ('/api/public', api.public.PublicResource),
-            ('/index.html', api.staticfile.StaticFileHandler),
+            ('/', api.staticfile.StaticFileHandler),
             ('/l10n/en', api.l10n.L10NHandler),
             ('/api/signup/cHa6qFmw89vyzOsY8JZjcKaBzXYWuZNMbiDwlYcCVYmIfLTBi0re_rzttIwcunEt', api.signup.SignupActivation)
         ]
@@ -107,7 +106,6 @@ class TestAPI(TestGL):
                                   'screen-wake-lock=(),'
                                   'serial=(),'
                                   'speaker-selection=(),'
-                                  'storage-access=(),'
                                   'usb=(),'
                                   'web-share=(),'
                                   'xr-spatial-tracking=()',
@@ -118,12 +116,12 @@ class TestAPI(TestGL):
                                        'sandbox;'
                                        'trusted-types;'
                                        'require-trusted-types-for \'script\';'
-                                       'report-uri /api/report;',
+                                       'report-to csp-endpoint',
+            'Reporting-Endpoints': 'csp-endpoint="/api/report"',
             'Referrer-Policy': 'no-referrer',
             'Server': 'GlobaLeaks',
             'X-Content-Type-Options': 'nosniff',
-            'X-Check-Tor': 'False',
-            'X-Frame-Options': 'deny'
+            'X-Check-Tor': 'False'
         }
 
         server_headers = copy.copy(default_server_headers)
@@ -134,27 +132,13 @@ class TestAPI(TestGL):
                                                     'form-action \'none\';' \
                                                     'frame-ancestors \'none\';' \
                                                     'frame-src \'self\';' \
-                                                    'img-src \'self\';' \
+                                                    'img-src \'self\' data:;' \
                                                     'media-src \'self\';' \
                                                     'script-src \'self\';' \
-                                                    'style-src \'self\';' \
+                                                    'style-src \'self\' \'random-nonce\';' \
                                                     'trusted-types angular angular#bundler dompurify default;' \
-                                                    'require-trusted-types-for \'script\';'
-
-        server_headers['Content-Security-Policy-Report-Only'] = 'base-uri \'none\';' \
-                                                                'connect-src \'self\';' \
-                                                                'default-src \'none\';' \
-                                                                'font-src \'self\';' \
-                                                                'form-action \'none\';' \
-                                                                'frame-ancestors \'none\';' \
-                                                                'frame-src \'self\';' \
-                                                                'img-src \'self\';' \
-                                                                'media-src \'self\';' \
-                                                                'script-src \'self\';' \
-                                                                'style-src \'self\' \'unsafe-inline\';' \
-                                                                'trusted-types angular angular#bundler dompurify default;' \
-                                                                'require-trusted-types-for \'script\';' \
-                                                                'report-uri /api/report;'
+                                                    'require-trusted-types-for \'script\';' \
+                                                    'report-to csp-endpoint'
 
         for method, status_code in test_cases:
             request = forge_request(uri=b"https://www.globaleaks.org/", method=method)
@@ -162,6 +146,9 @@ class TestAPI(TestGL):
             self.assertEqual(request.responseCode, status_code)
             for headerName, expectedHeaderValue in server_headers.items():
                 returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
+
+                if headerName == 'Content-Security-Policy':
+                    expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")
                 self.assertEqual(returnedHeaderValue, expectedHeaderValue)
 
         server_headers = copy.copy(default_server_headers)
@@ -173,7 +160,7 @@ class TestAPI(TestGL):
                                                     'sandbox;' \
                                                     'trusted-types;' \
                                                     'require-trusted-types-for \'script\';' \
-                                                    'report-uri /api/report;'
+                                                    'report-to csp-endpoint'
 
         for method, status_code in test_cases:
             request = forge_request(uri=b"https://www.globaleaks.org/workers/crypto.worker.js", method=method)
@@ -205,21 +192,8 @@ class TestAPI(TestGL):
                                                     'style-src \'self\';' \
                                                     'sandbox allow-scripts;' \
                                                     'trusted-types;' \
-                                                    'require-trusted-types-for \'script\';'
-
-        server_headers['Content-Security-Policy-Report-Only'] = 'base-uri \'none\';' \
-                                                                'default-src \'none\';' \
-                                                                'connect-src blob:;' \
-                                                                'form-action \'none\';' \
-                                                                'frame-ancestors \'self\';' \
-                                                                'img-src blob:;' \
-                                                                'media-src blob:;' \
-                                                                'script-src \'self\';' \
-                                                                'style-src \'self\' \'unsafe-inline\';' \
-                                                                'sandbox allow-scripts;' \
-                                                                'trusted-types;' \
-                                                                'require-trusted-types-for \'script\';' \
-                                                                'report-uri /api/report;'
+                                                    'require-trusted-types-for \'script\';' \
+                                                    'report-to csp-endpoint'
 
         server_headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
 
@@ -266,4 +240,4 @@ class TestAPI(TestGL):
         self.api.render(request)
         self.assertFalse(request.client_using_tor)
         self.assertEqual(request.responseCode, 302)
-        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://www.globaleaks.org/')
+        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://www.globaleaks.org/index.html')

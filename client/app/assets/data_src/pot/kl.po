@@ -513,7 +513,7 @@ msgstr "Aningaasartuutissanut inatsit"
 msgid "Footer"
 msgstr "Quppernerup naqqa"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Sillimaniarnerup peqqutaalluni isertaateq taarsertariaqarpoq."
 
 msgid ""

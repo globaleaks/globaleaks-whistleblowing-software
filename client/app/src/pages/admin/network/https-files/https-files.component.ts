@@ -27,7 +27,7 @@ export class HttpsFilesComponent implements OnInit {
 
   @Output() dataToParent = new EventEmitter<string>();
   @Input() tlsConfig: TlsConfig;
-  @Input() state: number = 0;
+  @Input() state = 0;
   @ViewChild('pkInput') pkInput: ElementRef<HTMLInputElement>;
   @ViewChild('certificateInput') certificateInput: ElementRef<HTMLInputElement>;
   @ViewChild('iCertificateInput') iCertificateInput: ElementRef<HTMLInputElement>;
@@ -96,7 +96,7 @@ export class HttpsFilesComponent implements OnInit {
       this.iCertificateInput.nativeElement.value = "";
     }
   }
-  
+
   downloadCSR() {
     this.httpService.downloadCSRFile().subscribe(
       (response: Blob) => {

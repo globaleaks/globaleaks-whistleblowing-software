@@ -1,8 +1,0 @@
-The number of activities recently detected appears to be higher than usual.
-
-This could be a sign of an attack (for example, someone flooding your server with bogus information) or just a usage spike due to an increased visibility of your project.
-
-Examine the issue to determine whether it is legitimate or not.
-
-The activities with unusual stats are:
-{ActivityDump}

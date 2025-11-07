@@ -16,7 +16,7 @@
     }
 
     @if (appDataService.public.node) {
-      <div [dir]="utilsService.getDirection(translate.currentLang)" class="reveal flex-shrink-0" [ngClass]="{'public': utilsService.isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
+      <div class="reveal flex-shrink-0" [ngClass]="{'public': utilsService.isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
         @if (authenticationService.session?.properties?.operator_session) {
           <div>
             <src-operation></src-operation>
@@ -33,17 +33,25 @@
           </div>
         }
         <views-header></views-header>
+
         <messageconsole id="MessagesConsoleBox"></messageconsole>
+
+        @if (appConfig.sidebar && showSidebar) {
+          <button class="btn btn-link d-lg-none ms-2 my-2"
+              type="button"
+              (click)="isNavCollapsed = !isNavCollapsed"
+              aria-controls="Sidebar"
+              aria-expanded="!isNavCollapsed"
+              aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+          </button>
+        }
+
         <div id="ContentBox">
           <div class="row">
             @if (appConfig.sidebar && showSidebar) {
               <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12" role="navigation">
                 <nav class="navbar navbar-expand-md p-0" role="navigation">
-                  <div class="navbar-header">
-                    <button type="button" class="navbar-toggler" (click)="isNavCollapsed = !isNavCollapsed">
-                      <i class="fa-solid fa-bars"></i>
-                    </button>
-                  </div>
                   <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
                     <div class="navbar-nav">
                       @if (appConfig.sidebar==='recipient-sidebar') {

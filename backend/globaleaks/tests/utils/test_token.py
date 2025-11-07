@@ -1,6 +1,5 @@
 from twisted.internet.defer import inlineCallbacks
 
-from globaleaks.jobs import anomalies
 from globaleaks.tests import helpers
 
 
@@ -10,10 +9,6 @@ class TestToken(helpers.TestGL):
         yield helpers.TestGL.setUp(self)
 
         self.state.tokens.clear()
-
-        self.pollute_events()
-
-        yield anomalies.Anomalies().run()
 
     def test_tokens_garbage_collected(self):
         self.assertTrue(len(self.state.tokens) == 0)

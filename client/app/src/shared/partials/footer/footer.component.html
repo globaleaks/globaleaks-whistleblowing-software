@@ -1,7 +1,7 @@
 <footer id="FooterBox">
   @if (appDataService.public.node) {
     @if (appDataService.public.node.footer) {
-      <markdown id="CustomFooter" class="vcenter preformatted mb-1" [data]="appDataService.public.node.footer | stripHtml"></markdown>
+      <span id="CustomFooter" class="vcenter preformatted mb-1"><markdown [data]="appDataService.public.node.footer | stripHtml"></markdown></span>
     }
     @if (appDataService.public.node.footer_whistleblowing_policy || appDataService.public.node.footer_privacy_policy) {
       <div id="Policies" class="vcenter mb-1">

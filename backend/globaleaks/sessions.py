@@ -3,12 +3,23 @@ from nacl.utils import random as nacl_random
 from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, GCE
+from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.tempdict import TempDict
-from globaleaks.utils.utility import datetime_now, uuid4
+from globaleaks.utils.utility import uuid4
+
+user_permissions = [
+    'can_edit_general_settings',
+    'can_delete_submission',
+    'can_postpone_expiration',
+    'can_grant_access_to_reports',
+    'can_redact_information',
+    'can_mask_information',
+    'can_transfer_access_to_reports'
+]
 
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek=''):
+    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek='', roles=None, permissions=None):
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
@@ -22,13 +33,14 @@ class Session(dict):
             'user_tid': user_tid,
             'username': '',
             'role': user_role,
-            'ratelimit_time': datetime_now(),
-            'ratelimit_count': 0,
             'files': [],
             'token': State.tokens.new(tid),
             'properties': {},
-            'permissions': {}
+            'permissions': ObjectDict()
         }
+
+        if permissions:
+            self.attrs['permissions'] = permissions
 
     def __getattr__(self, name):
         if name in self or name == 'attrs':
@@ -93,9 +105,9 @@ class SessionsFactory(TempDict):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_role, cc='', ek=''):
+    def new(self, tid, user_id, user_tid, user_role, cc='', ek='', roles=None, permissions=None):
         self.revoke(tid, user_id)
-        session = Session(tid, user_id, user_tid, user_role, cc, ek)
+        session = Session(tid, user_id, user_tid, user_role, cc, ek, roles, permissions)
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session

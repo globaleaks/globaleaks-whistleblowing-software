@@ -551,7 +551,7 @@ msgstr "Número de contribuinte"
 msgid "Footer"
 msgstr "Rodapé"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Por motivos de segurança, o código precisa ser alterado."
 
 msgid ""

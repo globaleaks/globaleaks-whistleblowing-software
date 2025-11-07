@@ -1,6 +1,5 @@
 # Validates the token for email changes
 
-from datetime import datetime, timedelta
 
 from twisted.internet.defer import inlineCallbacks
 

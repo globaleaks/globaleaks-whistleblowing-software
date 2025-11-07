@@ -1,6 +1,5 @@
 from twisted.internet.defer import inlineCallbacks
 from globaleaks.handlers import health
-from globaleaks.rest import requests
 from globaleaks.tests import helpers
 
 

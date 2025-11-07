@@ -1,13 +1,17 @@
 # -*- coding: UTF-8
+import json
 from nacl.encoding import Base64Encoder
+from twisted.internet.defer import inlineCallbacks
 
-from globaleaks import models
+from globaleaks import LANGUAGES_SUPPORTED_CODES, models
 from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.handlers.admin.context import db_create_context
 from globaleaks.handlers.admin.node import db_update_enabled_languages
+from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, import_questionnaires
 from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models import config, profiles, serializers
+from globaleaks.handlers.user import user_permissions
+from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, \
     db_get_config_variable, db_set_config_variable
 from globaleaks.orm import db_del, db_get, transact, tw
@@ -16,6 +20,9 @@ from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import isIPAddress
 from globaleaks.utils.tls import gen_selfsigned_certificate
+from globaleaks.utils.utility import uuid4
+
+DEFAULT_PROFILE_ID = 1000001
 
 
 def db_initialize_tenant_submission_statuses(session, tid):
@@ -31,9 +38,25 @@ def db_initialize_tenant_submission_statuses(session, tid):
         session.add(models.SubmissionStatus(s))
 
 
-def db_create(session, desc):
-    t = models.Tenant()
+def get_tenant_id(session, isTenant, is_profile):
+    id_key = 'counter_tenants' if isTenant and not is_profile else 'counter_profiles'
+    tid = db_get_config_variable(session, 1, id_key)
+    return id_key, tid
 
+
+def calculate_tenant_id(tid, is_profile):
+    return tid + 1
+
+
+def db_create(session, desc, isTenant = True, **kwargs):
+    is_profile = kwargs.get('is_profile', False)
+
+    id_key, tid = get_tenant_id(session, isTenant, is_profile)
+
+    tenant_id = calculate_tenant_id(tid, is_profile)
+
+    t = models.Tenant()
+    t.id = tenant_id
     t.active = desc['active']
 
     session.add(t)
@@ -41,27 +64,37 @@ def db_create(session, desc):
     # required to generate the tenant id
     session.flush()
 
-    appdata = load_appdata()
+    language = db_get_config_variable(session, 1, 'default_language')
 
-    if t.id == 1:
-        language = 'en'
-        db_load_defaults(session)
+    if t.id < DEFAULT_PROFILE_ID: # ignore profiles
+        session.add(EnabledLanguage({'tid': t.id, 'name': language}))
+
+        models.config.initialize_config(session, t.id, desc)
+
+        if t.id == 1:
+            db_set_config_variable(session, 1, id_key, t.id)
+            db_load_defaults(session)
+            key, cert = gen_selfsigned_certificate()
+            db_set_config_variable(session, 1, 'https_selfsigned_key', key)
+            db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
+
+        for var in ['mode', 'profile', 'subdomain']:
+            db_set_config_variable(session, t.id, var, desc[var])
+
+    elif t.id == DEFAULT_PROFILE_ID:
+        appdata = load_appdata()
+        for language in LANGUAGES_SUPPORTED_CODES:
+            session.add(EnabledLanguage({'tid': t.id, 'name': language}))
+
+        models.config.load_defaults(session, appdata)
+
     else:
-        language = db_get_config_variable(session, 1, 'default_language')
-
-    models.config.initialize_config(session, t.id, desc['mode'])
-
-    if t.id == 1:
-        key, cert = gen_selfsigned_certificate()
-        db_set_config_variable(session, 1, 'https_selfsigned_key', key)
-        db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
-
-    for var in ['mode', 'name', 'subdomain']:
-        db_set_config_variable(session, t.id, var, desc[var])
-
-    models.config.add_new_lang(session, t.id, language, appdata)
+        db_set_config_variable(session, t.id, 'uuid', uuid4())
 
     db_initialize_tenant_submission_statuses(session, t.id)
+
+    db_set_config_variable(session, 1, id_key, t.id)
+    db_set_config_variable(session, t.id, 'name', desc['name'])
 
     return t
 
@@ -72,6 +105,13 @@ def create(session, desc, *args, **kwargs):
 
     return serializers.serialize_tenant(session, t)
 
+
+@transact
+def is_profile_mapped(session, tid):
+    if int(tid) > 1000001:
+        return session.query(Config).filter_by(value=tid, var_name='profile').first() is not None
+    else:
+        return False
 
 @transact
 def create_and_initialize(session, desc, *args, **kwargs):
@@ -93,10 +133,9 @@ def create_and_initialize(session, desc, *args, **kwargs):
 
 def db_get_tenant_list(session):
     ret = []
-
     configs = db_get_configs(session, 'tenant')
 
-    for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True):
+    for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != DEFAULT_PROFILE_ID):
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
         if s:
             tenant_dict['signup'] = serializers.serialize_signup(s)
@@ -112,8 +151,23 @@ def get_tenant_list(session):
 
 
 @transact
-def get(session, tid):
-    return serializers.serialize_tenant(session, db_get(session, models.Tenant, models.Tenant.id == tid))
+def get(session, self, tid):
+    tenant = db_get(session, models.Tenant, models.Tenant.id == tid)
+    configs = session.query(models.Config).filter(models.Config.tid == tid).all()
+    config_langs = session.query(models.ConfigL10N).filter(models.ConfigL10N.tid == tid).all()
+    user_profiles = session.query(models.UserProfile).filter(models.UserProfile.tid == tid).all()
+    questionnaires = db_get_questionnaires(session, tid, self.request.language)
+    editable_questionnaires = [q for q in questionnaires if q.get('editable', True)]
+
+    return {
+        "tenant": serializers.serialize_tenant(session, tenant),
+        "config_vars": {
+            "configs": [{col.name: getattr(config, col.name) for col in config.__table__.columns} for config in configs],
+            "config_langs": [{col.name: getattr(config_lang, col.name) for col in config_lang.__table__.columns} for config_lang in config_langs],
+        },
+        "user_profiles": [{col.name: getattr(profile, col.name) for col in profile.__table__.columns} for profile in user_profiles],
+        "questionnaires": editable_questionnaires
+    }
 
 
 def db_wizard(session, tid, hostname, request):
@@ -125,8 +179,6 @@ def db_wizard(session, tid, hostname, request):
     :param hostname: The hostname to be configured
     :param request: A user request
     """
-    admin_password = receiver_password = ''
-
     language = request['node_language']
 
     root_tenant_node = config.ConfigFactory(session, 1)
@@ -156,7 +208,10 @@ def db_wizard(session, tid, hostname, request):
     if tid == 1 and not isIPAddress(hostname):
        node.set_val('hostname', hostname)
 
-    profiles.load_profile(session, tid, request['profile'])
+    crypto_stat_prv_key = ""
+    if encryption:
+        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
 
     if encryption and escrow:
         crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
@@ -175,12 +230,15 @@ def db_wizard(session, tid, hostname, request):
         admin_desc['language'] = language
         admin_desc['role'] = 'admin'
         admin_desc['pgp_key_remove'] = False
+        admin_desc = admin_desc | user_permissions
+
         admin_user = db_create_user(session, tid, None, admin_desc, language)
         admin_user.password_change_needed = (tid != 1)
 
         if encryption and escrow:
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
             admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
+            admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)
@@ -191,6 +249,8 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['language'] = language
         receiver_desc['role'] = 'receiver'
         receiver_desc['pgp_key_remove'] = False
+        receiver_desc = receiver_desc | user_permissions
+
         receiver_user = db_create_user(session, tid, None, receiver_desc, language)
         receiver_user.password_change_needed = (tid != 1)
 
@@ -216,9 +276,6 @@ def db_wizard(session, tid, hostname, request):
 
     mode = node.get_val('mode')
 
-    if mode != 'default':
-        node.set_val('tor', False)
-
     if mode in ['wbpa']:
         node.set_val('simplified_login', True)
 
@@ -233,10 +290,9 @@ def db_wizard(session, tid, hostname, request):
         context.tip_timetolive = 365
 
         if not request['skip_recipient_account_creation']:
-            receiver_user.can_edit_general_settings = True
-
             # Set the recipient name equal to the node name
             receiver_user.name = receiver_user.public_name = request['node_name']
+
 
 @transact
 def wizard(session, tid, hostname, request):
@@ -260,6 +316,29 @@ def update(session, tid, request):
     return serializers.serialize_tenant(session, t)
 
 
+@transact
+def add_user_profiles(session, model, data):
+    session.bulk_insert_mappings(model, data)
+    session.commit()
+
+
+@transact
+def add_or_update_configs(session, model, data):
+    for config_data in data:
+        filters = {'tid': config_data['tid'], 'var_name': config_data['var_name']}
+        if model == models.ConfigL10N:
+            filters['lang'] = config_data['lang']
+
+        existing_record = session.query(model).filter_by(**filters).first()
+
+        if existing_record:
+            existing_record.set_v(config_data['value'])
+        else:
+            session.add(model(values=config_data))
+
+    session.commit()
+
+
 class TenantCollection(BaseHandler):
     check_roles = 'admin'
     root_tenant_only = True
@@ -271,15 +350,58 @@ class TenantCollection(BaseHandler):
         """
         return get_tenant_list()
 
+    @inlineCallbacks
     def post(self):
         """
         Create a new tenant
         """
-        request = self.validate_request(self.request.content.read(),
-                                        requests.AdminTenantDesc)
+        raw_content = self.request.content.read()
+        content = json.loads(raw_content)
+        tenant_profile = content.get('tenant')
 
-        return create_and_initialize(request)
+        if tenant_profile:
+            is_profile = True
+            request = self.validate_request(tenant_profile, requests.AdminTenantDesc)
+            t = yield create_and_initialize(request, is_profile=is_profile)
 
+            if t:
+                config_vars = content.get('config_vars', {})
+                user_profiles = content.get('user_profiles', [])
+                configs = config_vars.get('configs', [])
+                config_langs = config_vars.get('config_langs', [])
+                questionnaires = content.get('questionnaires', [])
+
+                config_data = [
+                    {"tid": t["id"], "var_name": config["var_name"], "value": config["value"]}
+                    for config in configs if config["var_name"] != "uuid"
+                ]
+
+                config_lang_data = [{'tid': t['id'],'lang': lang.get("lang"),'var_name': lang.get("var_name"),'value': lang.get("value")}
+                     for lang in config_langs]
+
+                user_profiles_data = [{**{k: v for k, v in user_profile.items() if k not in ["id", "tid"]}, "tid": t["id"]}
+                    for user_profile in user_profiles
+                ]
+
+                if config_data:
+                    yield add_or_update_configs(models.Config, config_data)
+
+                if config_lang_data:
+                    yield add_or_update_configs(models.ConfigL10N, config_lang_data)
+
+                if user_profiles_data:
+                    yield add_user_profiles(models.UserProfile, user_profiles_data)
+
+                if questionnaires:
+                    # Duplicate each questionnaire for the new tenant
+                    for q in questionnaires:
+                        yield import_questionnaires(t['id'], q)
+
+        else:
+            request = self.validate_request(raw_content, requests.AdminTenantDesc)
+            is_profile = content.get('is_profile', False)
+            t = yield create_and_initialize(request, is_profile=is_profile)
+            return t
 
 class TenantInstance(BaseHandler):
     check_roles = 'admin'
@@ -287,7 +409,7 @@ class TenantInstance(BaseHandler):
     invalidate_cache = True
 
     def get(self, tid):
-        return get(int(tid))
+        return get(self, int(tid))
 
     def put(self, tid):
         """
@@ -298,8 +420,15 @@ class TenantInstance(BaseHandler):
 
         return update(int(tid), request)
 
+    @inlineCallbacks
     def delete(self, tid):
         """
         Delete the specified tenant.
         """
-        return tw(db_del, models.Tenant, models.Tenant.id == int(tid))
+
+        profile_mapped_status = yield is_profile_mapped(tid)
+        if profile_mapped_status:
+            raise errors.ForbiddenOperation
+
+        tid = int(tid)
+        tw(db_del, models.Tenant, models.Tenant.id == tid)

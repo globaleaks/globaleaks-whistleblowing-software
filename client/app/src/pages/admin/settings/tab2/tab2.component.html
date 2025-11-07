@@ -20,7 +20,7 @@
             <span class="custom-file">
               <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
               <label class="btn btn-sm btn-primary" for="customFile">
-                <i class="fa-solid fa-upload"></i>
+                <i class="fas fa-upload"></i>
                 <span>{{ 'Upload' | translate }}</span>
               </label>
             </span>
@@ -35,11 +35,11 @@
                   <td id="file_name">{{file.name}}</td>
                   <td>
                     <a class="btn btn-sm btn-primary" [href]="'s/' + file.name" [download]="file.name">
-                      <i class="fa-solid fa-download"></i>
+                      <i class="fas fa-download"></i>
                       <span>{{ 'Download' | translate }}</span>
                     </a>
                     <button class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + file.id)">
-                      <i class="fa-solid fa-trash"></i>
+                      <i class="fas fa-trash"></i>
                       <span>{{ 'Delete' | translate }}</span>
                     </button>
                   </td>

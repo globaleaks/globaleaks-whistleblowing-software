@@ -10,8 +10,8 @@ import {TranslatorPipe} from '@app/shared/pipes/translate';
     imports: [FormsModule, TranslateModule, TranslatorPipe]
 })
 export class SwitchComponent {
-  @Input() label: string = 'Switch';
-  @Input() isChecked: boolean = false;
+  @Input() label = 'Switch';
+  @Input() isChecked = false;
   @Input() can_upload_files:boolean
   @Output() switchChange = new EventEmitter<boolean>();
 

@@ -1,28 +1,26 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Are you sure?' | translate}}</div>
-    <button type="button" class="close btn" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <h5 class="modal-title">{{'Are you sure?' | translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-    <span>{{'By confirming, you will set a reminder on date:' | translate}}</span>
-    <div class="input-group">
-        <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" (click)="d.toggle()" [(ngModel)]="args.reminder_date" ngbDatepicker #d="ngbDatepicker" />
-        <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button">
-            <i class="fas fa-calendar"></i>
-        </button>
-    </div>
+  <span>{{'By confirming, you will set a reminder on date:' | translate}}</span>
+  <div class="input-group">
+    <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" (click)="d.toggle()" [(ngModel)]="args.reminder_date" ngbDatepicker #d="ngbDatepicker" />
+    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button">
+      <i class="fas fa-calendar"></i>
+    </button>
+  </div>
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-        <i class="fa-solid fa-check"></i>
-        <span>{{'Confirm' | translate}}</span>
-    </button>
-    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{'Cancel' | translate}}</span>
-    </button>
-    <button id="modal-action-disable" class="btn btn-danger" (click)="disableReminder()">
-        <span>{{'Disable' | translate}}</span>
-    </button>
+  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
+    <i class="fas fa-check"></i>
+    <span>{{'Confirm' | translate}}</span>
+  </button>
+  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fas fa-xmark"></i>
+    <span>{{'Cancel' | translate}}</span>
+  </button>
+  <button id="modal-action-disable" class="btn btn-danger" (click)="disableReminder()">
+    <span>{{'Disable' | translate}}</span>
+  </button>
 </div>

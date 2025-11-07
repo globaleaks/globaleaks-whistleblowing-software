@@ -1,5 +1,6 @@
 <div class="modal-header">
-  <div class="modal-title">{{ 'Change status' | translate }}</div>
+  <h5 class="modal-title">{{ 'Change status' | translate }}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
   <div>{{ 'Status:' | translate }}</div>
@@ -13,11 +14,11 @@
 </div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg.status)">
-    <i class="fa-solid fa-check"></i>
+    <i class="fas fa-check"></i>
     <span>{{ 'Confirm' | translate }}</span>
   </button>
   <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fa-solid fa-times"></i>
+    <i class="fas fa-xmark"></i>
     <span>{{ 'Cancel' | translate }}</span>
   </span>
 </div>

@@ -28,8 +28,8 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
 
 
   @Input() fileUploadUrl: string;
-  @Input() formUploader: boolean = true;
-  @Input() uploads: { [key: string]: any };
+  @Input() formUploader = true;
+  @Input() uploads: Record<string, any>;
   @Input() field: Field | undefined = undefined;
   @Input() file_id: string;
   @Input() entry: any;
@@ -38,7 +38,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
 
   autoUploadSubscription: Subscription;
   fileInput: string;
-  showError: boolean = false;
+  showError = false;
   errorFile: Transfer;
   confirmButton = false;
   flowConfig: FlowOptions;
@@ -50,9 +50,9 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
     this.flowConfig = this.utilsService.getFlowOptions();
     this.flowConfig.target = this.fileUploadUrl;
     this.flowConfig.singleFile = (this.field !== undefined && !this.field.multi_entry);
-    this.flowConfig.query = {reference_id: this.field ? this.field.id:""};
+    this.flowConfig.query = {reference_id: this.field && this.entry.index !== undefined  ? `${this.field.id}-${this.entry.index}`  : this.field ? this.field.id : ""};
 
-    this.fileInput = this.field ? this.field.id : "status_page";
+    this.fileInput = this.file_id;
   }
 
   ngAfterViewInit() {
@@ -76,6 +76,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
       });
 
       if (this.uploads) {
+        (this.flow as any).field = this.field;
         this.uploads[this.fileInput] = this.flow;
         this.notifyFileUpload.emit(this.uploads);
       }

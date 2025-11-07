@@ -18,7 +18,7 @@ export class TorComponent implements OnInit {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  torOnionResetInProgress: boolean = false;
+  torOnionResetInProgress = false;
   networkData: networkResolverModel;
 
   ngOnInit(): void {

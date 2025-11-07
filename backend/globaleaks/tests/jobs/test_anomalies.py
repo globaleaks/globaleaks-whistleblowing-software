@@ -1,42 +1,42 @@
-from globaleaks import anomaly
-from globaleaks.jobs import anomalies
-from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks import models
+from globaleaks.jobs import anomalies
+from globaleaks.tests import helpers
+from globaleaks.state import State
 
-class TestAnomalies(helpers.TestGL):
+class TestAnomalies(helpers.TestGLWithPopulatedDB):
+    def simulate_disk_space(self, free_bytes, total_bytes):
+        # Patch get_disk_space to return fixed values
+        anomalies.get_disk_space = lambda path: (free_bytes, total_bytes)
+
     @inlineCallbacks
-    def test_anomalies(self):
-        self.n = 0
+    def test_accept_submissions_threshold_logic(self):
+        state = State.tenants[1]
 
-        full_ammo = 1000000
+        # Set thresholds
+        state.cache.threshold_free_disk_megabytes_high = 1000  # 1 GB
+        state.cache.threshold_free_disk_percentage_high = 20
+        state.cache.threshold_free_disk_megabytes_low = 2000   # 2 GB
+        state.cache.threshold_free_disk_percentage_low = 40
 
-        original_get_disk_anomaly_conditions = anomaly.get_disk_anomaly_conditions
+        job = anomalies.Anomalies()
+        job.state = state  # Ensure job uses tenant[1]'s state
 
-        conditions_count = len(original_get_disk_anomaly_conditions(full_ammo, full_ammo))
+        # Case 1: sufficient disk space (should do no-op)
+        self.simulate_disk_space(free_bytes=5 * 1024 * 1024 * 1024, total_bytes=10 * 1024 * 1024 * 1024)  # 5GB free, 10GB total
+        yield job.operation()
+        self.assertTrue(State.accept_submissions)
+        yield self.test_model_count(models.Mail, 0)
 
-        def mock_get_disk_anomaly_conditions(*args, **kwargs):
-            conditions = original_get_disk_anomaly_conditions(*args, **kwargs)
-            # activate one condition at once
-            for condition in enumerate(conditions):
-                conditions[condition[0]]['condition'] = (condition[0] == self.n)
+        # Case 2: critically low disk space (should disable submissions)
+        self.simulate_disk_space(free_bytes=500 * 1024 * 1024, total_bytes=10 * 1024 * 1024 * 1024)  # 500MB free, 10GB total
+        yield job.operation()
+        self.assertFalse(State.accept_submissions)
+        yield self.test_model_count(models.Mail, 1)
 
-            return conditions
-
-        anomaly.get_disk_anomaly_conditions = mock_get_disk_anomaly_conditions
-
-        # testing the scheduler with all the conditions unmet
-        self.n = -1
-        yield anomalies.Anomalies().run()
-
-        # testing the scheduler enabling all conditions one at once
-        for j in range(conditions_count):
-            self.n = j
-            yield anomalies.Anomalies().run()
-
-        yield anomalies.Anomalies().run()
-
-        # testing the scheduler with all the conditions unmet
-        # a second time in order test the accept_submissions value
-        self.n = -1
-        yield anomalies.Anomalies().run()
+        # Case 3: sufficient disk space (should re-enable submissions)
+        self.simulate_disk_space(free_bytes=5 * 1024 * 1024 * 1024, total_bytes=10 * 1024 * 1024 * 1024)  # 5GB free, 10GB total
+        yield job.operation()
+        self.assertTrue(State.accept_submissions)
+        yield self.test_model_count(models.Mail, 2)

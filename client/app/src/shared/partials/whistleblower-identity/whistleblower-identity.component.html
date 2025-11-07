@@ -22,10 +22,10 @@
         </span>
         <span class="float-end">
           @if (!collapsed) {
-            <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+            <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
           }
           @if (collapsed) {
-            <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+            <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
           }
         </span>
       </span>
@@ -45,14 +45,12 @@
       @if (wbTipService.tip.status !== 'closed' && !wbTipService.tip.data.whistleblower_identity) {
         <div>
           <form #wbform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-            @if (identity_provided) {
-              <src-whistleblower-identity-field [step]="step" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [identity_provided]="identity_provided" [answers]="answers" [field]="field" [index]="0"></src-whistleblower-identity-field>
-            }
+            <src-whistleblower-identity-field [step]="step" [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [answers]="answers" [field]="field" [index]="0" [submission]=submission [uploads]="uploads"></src-whistleblower-identity-field>
             <src-rfiles-upload-status [progress]="uploadProgress" [estimatedTime]="uploadEstimateTime" [uploading]="isUploading"></src-rfiles-upload-status>
             <div id="SubmitBox">
               @if (identity_provided) {
                 <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers })" [disabled]="wbform.invalid" type="submit">
-                  <i id="SubmitIconOK" class="fa-solid fa-check"></i>
+                  <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
                   <span>{{'Submit'|translate}}</span>
                 </button>
               }

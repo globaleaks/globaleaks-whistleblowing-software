@@ -8,7 +8,7 @@
       <span class="input-group-append">
         <button class="btn btn-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
           (click)="resetOnionPrivateKey()">
-          <i class="fa-solid fa-sync"></i>
+          <i class="fas fa-arrows-rotate"></i>
           <span>{{ 'Regenerate' | translate }}</span>
         </button>
       </span>
@@ -87,7 +87,7 @@
           <div class="col-md-6">
             <button class="btn btn-primary" [disabled]="adminNetForm.invalid"
               (click)="updateTor(networkData)" type="submit">
-              <i class="fa-solid fa-check"></i>
+              <i class="fas fa-check"></i>
               <span>{{ 'Save' | translate }}</span>
             </button>
           </div>

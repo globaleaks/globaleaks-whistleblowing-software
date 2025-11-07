@@ -14,8 +14,8 @@ import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmatio
 import {ClipboardService} from "ngx-clipboard";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import {NewUser} from "@app/models/admin/new-user";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
+import {User,UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
@@ -48,6 +48,48 @@ export class UtilsService {
   private router = inject(Router);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
+
+  actionLists = {
+    Low: [
+      'access_report',
+      'login',
+      'logout',
+      'whistleblower_login',
+      'whistleblower_logout',
+    ],
+    Medium: [
+      'change_password',
+      'create_user',
+      'enable_2fa',
+      'grant_access',
+      'send_password_reset_email',
+      'transfer_access',
+      'version_update',
+      'update_report_expiration',
+      'update_report_status',
+      'whistleblower_new_report',
+    ],
+    High: [
+      'delete_report',
+      'delete_user',
+      'disable_2fa',
+      'login_failure',
+      'reset_reports',
+      'revoke_access',
+      'update_redaction',
+      'whistleblower_login_failure',
+    ],
+  };
+
+  auditLogCategories: Record<string, Record<string, boolean>> = {
+    Low: this.listToDict(this.actionLists['Low']),
+    Medium: this.listToDict(this.actionLists['Medium']),
+    High: this.listToDict(this.actionLists['High']),
+  }
+
+  listToDict(list: string[]) {
+      return Object.fromEntries(list.map(item => [item, true]));
+  }
 
   updateNode(nodeResolverModel:nodeResolverModel) {
     this.httpService.updateNodeResource(nodeResolverModel).subscribe();
@@ -108,6 +150,16 @@ export class UtilsService {
   getDirection(language: string): string {
     const rtlLanguages = ["ar", "dv", "fa", "fa_AF", "he", "ps", "ug", "ur"];
     return rtlLanguages.includes(language) ? "rtl" : "ltr";
+  }
+
+  getAuditLogCategory(type: string): string {
+    for (const category in this.auditLogCategories) {
+      if (this.auditLogCategories[category][type]) {
+        return category;
+      }
+    }
+
+    return 'Update'; // default
   }
 
   view(authenticationService: AuthenticationService, url: string, _: string, callback: (blob: Blob) => void): void {
@@ -324,7 +376,7 @@ export class UtilsService {
     return date.getTime() >= 32503680000000;
   }
 
-  deleteFromList(list:  { [key: string]: Field}[], elem: { [key: string]: Field}) {
+  deleteFromList(list:  Record<string, Field>[], elem: Record<string, Field>) {
     const idx = list.indexOf(elem);
     if (idx !== -1) {
       list.splice(idx, 1);
@@ -442,7 +494,7 @@ export class UtilsService {
 
   getMinPostponeDate(currentExpirationDate: string) {
     const currDate = new Date(currentExpirationDate);
-    var minDate = new Date();
+    const minDate = new Date();
     minDate.setDate(minDate.getDate() + 91);
     return currDate > minDate ? minDate : currDate;
   }
@@ -462,7 +514,7 @@ export class UtilsService {
     return this.httpService.requestAdminL10NResource(lang);
   }
 
-  updateAdminL10NResource(data: {[key: string]: string}, lang: string) {
+  updateAdminL10NResource(data: Record<string, string>, lang: string) {
     return this.httpService.requestUpdateAdminL10NResource(data, lang);
   }
 
@@ -581,6 +633,10 @@ export class UtilsService {
     return this.httpService.requestDeleteAdminUser(user_id);
   }
 
+  deleteAdminUserProfile(user_profile_id: string) {
+    return this.httpService.requestDeleteAdminUserProfile(user_profile_id);
+  }
+
   deleteAdminContext(user_id: string) {
     return this.httpService.requestDeleteAdminContext(user_id);
   }
@@ -597,8 +653,16 @@ export class UtilsService {
     return this.httpService.requestAddAdminUser(user);
   }
 
-  updateAdminUser(id: string, user: userResolverModel) {
+  updateAdminUser(id: string, user: User) {
     return this.httpService.requestUpdateAdminUser(id, user);
+  }
+
+  addAdminUserProfile(user_profile: NewUserProfile) {
+    return this.httpService.requestAddAdminUserProfile(user_profile);
+  }
+
+  updateAdminUserProfile(id: string, user_profile: UserProfile) {
+    return this.httpService.requestUpdateAdminUserProfile(id, user_profile);
   }
 
   addAdminContext(context: NewContext) {
@@ -696,17 +760,35 @@ export class UtilsService {
       };
     });
   }
-  generateCSV(dataString: string, fileName: string, headerx: string[]): void {
-    const data = JSON.parse(dataString);
 
+  generateCSV(fileName: string, data: Record<string, any>[], headerx?: string[]): void {
     if (!Array.isArray(data)) {
       console.error('Invalid data format');
       return;
     }
 
-    const headers = Object.keys(data[0] || {});
-    const newHeader = headerx.join(',');
-    const csvContent = `${newHeader ? `${newHeader}\n` : ""}${data.map(row => headers.map(header => row[header]).join(',')).join('\n')}`;
+    const headers = headerx ?? Object.keys(data[0] || {});
+    const headerLine = headers.join(',');
+
+    const csvRows = data.map(row =>
+      headers.map(header => {
+        let cell = row[header];
+
+        // If it's an object or array, stringify it
+        if (typeof cell === 'object' && cell !== null) {
+          cell = JSON.stringify(cell);
+        }
+
+        // Escape commas, quotes, and newlines
+        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+          return `"${cell.replace(/"/g, '""')}"`;
+        }
+
+        return cell ?? ''; // Fallback to empty string
+      }).join(',')
+    );
+
+    const csvContent = `${headerLine}\n${csvRows.join('\n')}`;
 
     if (!csvContent.trim()) {
       console.warn('No data to export');
@@ -768,5 +850,11 @@ export class UtilsService {
 
   public getFlowInstance(): Flow {
     return new Flow(this.getFlowOptions());
+  }
+
+  getRoleDisplayName(role: any): any {
+    if (!role) return [];
+    if (role === 'receiver') return 'Recipient';
+    return role.charAt(0).toUpperCase() + role.slice(1);
   }
 }

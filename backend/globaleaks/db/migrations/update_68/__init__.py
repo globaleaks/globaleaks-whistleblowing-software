@@ -1,8 +1,9 @@
 # -*- coding: UTF-8
+from globaleaks.models.enums import EnumUserRole
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.models.properties import *
-from globaleaks.utils.utility import datetime_now
+from globaleaks.utils.utility import datetime_now, datetime_null
 
 class Subscriber_v_67(Model):
     __tablename__ = 'subscriber'

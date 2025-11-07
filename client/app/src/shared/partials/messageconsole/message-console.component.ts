@@ -15,7 +15,7 @@ export class MessageConsoleComponent implements AfterViewChecked {
   appDataService = inject(AppDataService);
 
   private timeoutId: any;
-  private timeoutRunning: boolean = false;
+  private timeoutRunning = false;
 
   dismissError() {
     clearTimeout(this.timeoutId);

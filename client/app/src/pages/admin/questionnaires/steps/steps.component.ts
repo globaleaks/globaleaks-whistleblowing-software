@@ -24,9 +24,9 @@ export class StepsComponent implements OnInit {
   private httpService = inject(HttpService);
 
   @Input() questionnaire: questionnaireResolverModel;
-  showAddStep: boolean = false;
+  showAddStep = false;
   step: Step;
-  editing: boolean = false;
+  editing = false;
   new_step: { label: string } = {label: ""};
 
   ngOnInit(): void {

@@ -4,6 +4,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {NgClass} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 
 @Component({
     selector: "src-receipt-sidebar",
@@ -14,6 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 export class ReceiptSidebarComponent {
   private router = inject(Router);
   protected preferenceResolver = inject(PreferenceResolver);
+  protected nodeResolver = inject(NodeResolver);
 
   message: string;
 

@@ -2,7 +2,7 @@
   <div id="UserWarnings" role="alert">
     @if (authentication.session.role === 'admin' && nodeResolver.dataModel.update_available) {
       <div class="alert alert-secondary">
-        <i class="fa-solid fa-exclamation-circle"></i>
+        <i class="fas fa-circle-exclamation"></i>
         <span>{{'An update is available:' | translate}}</span>
         <span>
           <a href="https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG" target="_blank">{{nodeResolver.dataModel.latest_version}} (<span>{{'Changelog' | translate}}</span>)</a>
@@ -11,7 +11,7 @@
     }
     @if (preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key) {
       <div class="alert alert-secondary">
-        <i class="fa-solid fa-exclamation-circle"></i>
+        <i class="fas fa-circle-exclamation"></i>
         <span>
           {{'We recommend that you access the “Preferences” section in order to retrieve your “Account Recovery Key” and store it safely. This key will be necessary to recover your access to the platform and to your data in case you forget your password.' | translate}}
         </span>

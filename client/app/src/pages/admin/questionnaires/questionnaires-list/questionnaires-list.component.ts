@@ -32,7 +32,7 @@ export class QuestionnairesListComponent {
   @Input() questionnaire: questionnaireResolverModel;
   @Input() questionnaires: questionnaireResolverModel[];
   @Input() editQuestionnaire: NgForm;
-  editing: boolean = false;
+  editing = false;
 
   toggleEditing(questionnaire: questionnaireResolverModel) {
     this.editing = questionnaire.editable && !this.editing;

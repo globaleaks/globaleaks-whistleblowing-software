@@ -27,7 +27,7 @@ export class WhistleblowerSubmissionService {
     }
 
     for (let i = scope.navigation - 1; i >= scope.firstStepIndex(); i--) {
-      if (i === -1 || scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score)) {
+      if (i === -1 || scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score, scope.identity_provided, false)) {
         scope.navigation = i;
         scope.utilsService.scrollToTop();
         return;
@@ -48,7 +48,7 @@ export class WhistleblowerSubmissionService {
     }
 
     for (let i = scope.navigation + 1; i <= scope.lastStepIndex(); i++) {
-      if (scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score)) {
+      if (scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score, scope.submission.identity_provided, false)) {
         scope.navigation = i;
         scope.utilsService.scrollToTop();
         return;

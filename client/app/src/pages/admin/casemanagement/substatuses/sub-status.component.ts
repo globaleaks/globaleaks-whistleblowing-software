@@ -25,7 +25,7 @@ export class SubStatusComponent implements OnInit {
   @Input() submissionsStatus: Status;
   subStatusEditing: boolean[] = [];
   newSubStatus: { label: string; } = {label: ""};
-  showAddSubStatus: boolean = false;
+  showAddSubStatus = false;
 
   toggleAddSubStatus(): void {
     this.showAddSubStatus = !this.showAddSubStatus;

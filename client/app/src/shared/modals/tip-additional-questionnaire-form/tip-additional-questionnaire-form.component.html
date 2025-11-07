@@ -1,8 +1,6 @@
 <div class="modal-header">
-  <div class="modal-title">{{'Additional questionnaire'|translate}}</div>
-  <button type="submit" class="close btn" [attr.aria-hidden]="true" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
-    <i class="fa-solid fa-times"></i>
-  </button>
+  <h5 class="modal-title">{{'Additional questionnaire'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
   <form #submissionForm="ngForm" id="SubmissionForm" autocomplete="off" novalidate>
@@ -30,7 +28,7 @@
                     @if (step.description) {
                       <div class="description">{{step.description}}</div>
                     }
-                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [identity_provided]="wbTipService.tip.data.whistleblower_identity" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
+                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
                   </div>
                 </div>
               </span>
@@ -46,24 +44,23 @@
 </div>
 <div class="modal-footer">
   <div id="SubmissionButtons">
-    <br>
-      @if (hasPreviousStep()) {
-        <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
-          <i class="fa-solid fa-arrow-circle-left"></i>
-          <span>{{'Previous'|translate}}</span>
-        </button>
-      }
-      @if (hasNextStep()) {
-        <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
-          <span>{{'Next'|translate}}</span>
-          <i class="fa-solid fa-arrow-circle-right"></i>
-        </button>
-      }
-      @if (!hasNextStep()) {
-        <button id="SubmitButton" class="btn btn-primary" [disabled]="done" (click)="completeSubmission()" type="submit">
-          <i id="SubmitIconOK" class="fa-solid fa-check"></i>
-          <span>{{'Submit'|translate}}</span>
-        </button>
-      }
-    </div>
+    @if (hasPreviousStep()) {
+      <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
+        <i class="fas fa-circle-arrow-left"></i>
+        <span>{{'Previous'|translate}}</span>
+      </button>
+    }
+    @if (hasNextStep()) {
+      <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
+        <span>{{'Next'|translate}}</span>
+        <i class="fas fa-circle-arrow-right"></i>
+      </button>
+    }
+    @if (!hasNextStep()) {
+      <button id="SubmitButton" class="btn btn-primary" [disabled]="done" (click)="completeSubmission()" type="submit">
+        <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
+        <span>{{'Submit'|translate}}</span>
+      </button>
+    }
   </div>
+</div>

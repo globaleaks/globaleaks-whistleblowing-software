@@ -55,3 +55,13 @@ def check_ip(client_ip, ip_filter):
         return False
 
     return False
+
+
+def get_ip_identity(client_ip):
+    ip = ipaddress.ip_address(client_ip)
+    if ip.version == 4:
+        return str(ip)  # full IPv4
+    else:
+        # For IPv6, use /64 subnet
+        network = ipaddress.ip_network(client_ip + '/64', strict=False)
+        return str(network.network_address) + '/64'

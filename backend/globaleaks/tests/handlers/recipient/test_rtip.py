@@ -7,7 +7,7 @@ from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.tests import helpers
-from globaleaks.utils.utility import datetime_never, datetime_now, get_expiration
+from globaleaks.utils.utility import datetime_never, datetime_now
 
 
 class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
@@ -36,7 +36,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     def test_postpone(self):
         expiration = datetime_now()
 
-        yield self.set_itip_expiration(expiration)
+        yield self.set_itips_expiration(expiration)
 
         rtip_descs = yield self.get_rtips()
 
@@ -58,7 +58,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_postpone_of_reports_with_no_expiration(self):
-        yield self.set_itip_expiration(datetime_never())
+        yield self.set_itips_expiration(datetime_never())
 
         rtip_descs = yield self.get_rtips()
 
@@ -82,12 +82,11 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     def test_postpone_of_reports_with_date_below_minimum_threshold(self):
         expiration = datetime_now()
 
-        yield self.set_itip_expiration(expiration)
+        yield self.set_itips_expiration(expiration)
 
         rtip_descs = yield self.get_rtips()
 
         for rtip_desc in rtip_descs:
-            expiration_date = rtip_desc
             operation = {
               'operation': 'postpone',
               'args': {
@@ -108,12 +107,11 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     def test_postpone_of_reports_with_date_over_maximum_threshold(self):
         expiration = datetime_now()
 
-        yield self.set_itip_expiration(expiration)
+        yield self.set_itips_expiration(expiration)
 
         rtip_descs = yield self.get_rtips()
 
         for rtip_desc in rtip_descs:
-            expiration_date = rtip_desc
             operation = {
               'operation': 'postpone',
               'args': {
@@ -148,7 +146,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
@@ -167,7 +165,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
@@ -184,7 +182,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
 
@@ -199,7 +197,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_transfer_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
             yield self.test_model_count(models.ReceiverTip, count)
@@ -360,8 +358,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(rtip_descs) * 2, self.population_of_submissions * self.population_of_recipients)
 
         # we delete the first and then we verify that the second does not exist anymore
-        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'])
-        yield handler.delete(rtip_descs[0]['id'])
+        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'], permissions={'can_delete_submission': True})
+        yield handler.delete(rtip_descs[0]['id'],)
 
         rtip_descs = yield self.get_rtips()
 
@@ -553,3 +551,20 @@ class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
+
+
+class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
+    _handler = rtip.ReportAuditLog
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+    @inlineCallbacks
+    def test_get(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.get(rtip_desc['id'])

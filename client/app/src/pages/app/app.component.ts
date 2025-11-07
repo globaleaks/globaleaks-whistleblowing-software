@@ -6,7 +6,6 @@ import {TrustedTypesService} from "@app/services/helper/trusted-types.service";
 import {LangChangeEvent, TranslateService, TranslateModule} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
-import {animate, state, style, transition, trigger} from "@angular/animations";
 import {DOCUMENT, NgClass} from "@angular/common";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
@@ -24,7 +23,6 @@ import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
 import {HttpClient} from "@angular/common/http";
 import {registerLocales} from "@app/services/helper/locale-provider";
 import {mockEngine} from "@app/services/helper/mocks";
-import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {DEFAULT_INTERRUPTSOURCES, Idle} from "@ng-idle/core";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -33,10 +31,6 @@ import {Keepalive} from "@ng-idle/keepalive";
 import DOMPurify from 'dompurify';
 
 registerLocales();
-
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, "l10n/", "");
-}
 
 declare global {
   interface Window {
@@ -54,14 +48,6 @@ window.GL = {
 @Component({
     selector: "app-root",
     templateUrl: "./app.component.html",
-    animations: [
-        trigger('fadeInOut', [
-            state('void', style({
-                opacity: 0
-            })),
-            transition(':enter, :leave', animate(150)),
-        ])
-    ],
     standalone: true,
     imports: [NgClass, HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
 })
@@ -83,38 +69,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
 
-  showSidebar: boolean = true;
-  isNavCollapsed: boolean = true;
-  showLoadingPanel = false;
+  showSidebar = true;
+  isNavCollapsed = true;
+  showLoadingPanel = true;
   supportedBrowser = true;
   loading = false;
 
   constructor() {
-    let elem;
-    elem = document.createElement("link");
-    elem.rel = "stylesheet";
-    elem.href = "css/fonts.css";
-    document.head.appendChild(elem);
-
-    elem = document.createElement("link");
-    elem.rel = "stylesheet";
-    elem.href = "s/css";
-    document.head.appendChild(elem);
-
-    elem = document.createElement("script");
-    elem.type = "module";
-    let scriptURL = "/s/script";
-    if ((window as any).trustedTypes?.defaultPolicy) {
-        const safeURL = (window as any).trustedTypes.defaultPolicy.createScriptURL(scriptURL);
-        if (typeof safeURL === "string") {
-            scriptURL = safeURL;
-        }
-    }
-    elem.src = scriptURL;
-    document.body.appendChild(elem);
-
-    this.initIdleState();
-    this.watchLanguage();
     (window as any).scope = this.appDataService;
   }
 
@@ -138,13 +99,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
 
   ngOnInit() {
     DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-      const href = node.getAttribute('href') || '';
-      const url = new URL(href, window.location.origin);
-
-      // Ensure only external links are modified
-      if (url.origin !== window.location.origin) {
-        node.setAttribute('target', '_blank');
-      }
+      // ensure any link always contain target _blank and rel noopener
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener');
     });
 
     this.appConfig.routeChangeListener();
@@ -152,10 +109,38 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   }
 
   public ngAfterViewInit(): void {
+    this.initIdleState();
+    this.watchLanguage();
+
     this.appDataService.showLoadingPanel$.subscribe((value:any) => {
       this.showLoadingPanel = value;
       this.supportedBrowser = this.browserCheckService.checkBrowserSupport();
       this.changeDetectorRef.detectChanges();
+    });
+
+    requestIdleCallback(() => {
+      let elem;
+      elem = document.createElement("link");
+      elem.rel = "stylesheet";
+      elem.href = "css/fonts.css";
+      document.head.appendChild(elem);
+
+      elem = document.createElement("link");
+      elem.rel = "stylesheet";
+      elem.href = "s/css";
+      document.head.appendChild(elem);
+
+      elem = document.createElement("script");
+      elem.type = "module";
+      let scriptURL = "/s/script";
+      if ((window as any).trustedTypes?.defaultPolicy) {
+          const safeURL = (window as any).trustedTypes.defaultPolicy.createScriptURL(scriptURL);
+          if (typeof safeURL === "string") {
+              scriptURL = safeURL;
+          }
+      }
+      elem.src = scriptURL;
+      document.body.appendChild(elem);
     });
   }
 

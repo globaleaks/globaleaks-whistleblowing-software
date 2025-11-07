@@ -3,7 +3,6 @@ from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
-from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.operation import OperationHandler
@@ -180,7 +179,7 @@ def reset_smtp_settings(session, tid):
 
 @transact
 def reset_templates(session, tid):
-    ConfigL10NFactory(session, tid).reset('notification', load_appdata())
+    ConfigL10NFactory(session, tid).reset('notification')
 
 
 def db_set_user_password(session, tid, user_session, user_id, key):

@@ -11,7 +11,7 @@ from globaleaks.utils.fs import directory_traversal_check
 
 appfiles = {
     'favicon': ('favicon.ico', ['image/x-icon'], 'images/favicon.ico'),
-    'logo': ('logo.png', ['image/gif', 'image/jpeg', 'image/png'], 'images/logo.png'),
+    'logo': ('logo.webp', ['image/gif', 'image/jpeg', 'image/png', 'image/webp'], 'images/logo.webp'),
     'css': ('custom.css', ['text/css'], 'data/empty.txt'),
     'script': ('script.js', ['text/javascript'], 'data/empty.txt')
 }
@@ -30,6 +30,7 @@ class FileHandler(BaseHandler):
         'image/gif',
         'image/jpeg',
         'image/png',
+        'image/webp',
         'image/x-icon',
         'text/css',
         'video/mp4'

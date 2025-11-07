@@ -23,8 +23,8 @@ export class MarkdownRendererService {
       const match = text.match(/!\[(.*?)\]\((.*?)\)/);
 
       return match
-        ? `<a target="_blank" rel="noopener noreferrer" href="${href}"><img src="${match[2]}" alt="${match[1]}" /></a>`
-        : `<a target="_blank" rel="noopener noreferrer" href="${href}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+        ? `<a href="${href}"><img src="${match[2]}" alt="${match[1]}" /></a>`
+        : `<a href="${href}"${title ? ` title="${title}"` : ''}>${text}</a>`;
     };
 
     return customRenderer;

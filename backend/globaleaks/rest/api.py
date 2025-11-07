@@ -2,9 +2,11 @@
 #   ***
 #
 #   This file defines the URI mapping for the GlobaLeaks API and its factory
+import base64
 import inspect
 import json
 import re
+import secrets
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -29,7 +31,6 @@ from globaleaks.handlers import admin, \
                                 security, \
                                 signup, \
                                 sitemap, \
-                                support, \
                                 staticfile, \
                                 support, \
                                 user, \
@@ -42,6 +43,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.sock import isIPAddress
 
 tid_regexp = r'([0-9]+)'
+role_regexp = r'(admin|analyst|custodian|receiver)'
 uuid_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 uuid_regexp_or_closed = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|closed)'
 key_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|[a-z_]{0,100})'
@@ -61,6 +63,7 @@ api_spec = [
     ('/api/auth/receiptauth', auth.ReceiptAuthHandler),
     ('/api/auth/session', auth.SessionHandler),
     ('/api/auth/tenantauthswitch/', auth.TenantAuthSwitchHandler, r'/api/auth/tenantauthswitch/' + tid_regexp),
+    ('/api/auth/roleauthswitch/', auth.RoleAuthSwitchHandler, r'/api/auth/roleauthswitch/' + role_regexp),
     ('/api/auth/operatorauthswitch', auth.OperatorAuthSwitchHandler),
 
     # User Preferences Handler
@@ -74,6 +77,7 @@ api_spec = [
     ('/api/recipient/operations', recipient.Operations),
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
+    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp  + r'/auditlog'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
@@ -88,6 +92,7 @@ api_spec = [
     ('/api/whistleblower/submission', whistleblower.submission.SubmissionInstance),
     ('/api/whistleblower/submission/attachment', whistleblower.attachment.SubmissionAttachment),
     ('/api/whistleblower/wbtip', whistleblower.wbtip.WBTipInstance),
+    ('/api/whistleblower/wbtip/auditlog', whistleblower.wbtip.ReportAuditLog),
     ('/api/whistleblower/wbtip/comments', whistleblower.wbtip.WBTipCommentCollection),
     ('/api/whistleblower/wbtip/rfiles', whistleblower.wbtip.ReceiverFileDownload, r'/api/whistleblower/wbtip/rfiles/' + uuid_regexp),
     ('/api/whistleblower/wbtip/wbfiles',  whistleblower.attachment.PostSubmissionAttachment),
@@ -107,6 +112,8 @@ api_spec = [
     ('/api/admin/network', admin.network.NetworkInstance),
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
+    ('/api/admin/users/profiles', admin.user_profile.UserProfilesCollection),
+    ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
     ('/api/admin/contexts', admin.context.ContextsCollection),
     ('/api/admin/contexts', admin.context.ContextInstance, r'/api/admin/contexts/' + uuid_regexp),
     ('/api/admin/questionnaires', admin.questionnaire.QuestionnairesCollection),
@@ -198,7 +205,6 @@ class Trie:
         """
         Search for a matching handler based on the path.
         """
-        match = None
         node = self.root
         parts = path.strip('/').split('/')
 
@@ -341,6 +347,7 @@ class APIResourceWrapper(Resource):
         request.language = 'en'
         request.multilang = False
         request.finished = False
+        request.nonce = base64.b64encode(secrets.token_bytes(16))
 
         request.client_ip = request.getClientIP()
         if isinstance(request.client_ip, bytes):
@@ -379,6 +386,9 @@ class APIResourceWrapper(Resource):
                     request.tid, request.path = tid, groups[1]
             except:
                 pass
+
+        if request.path == b'/':
+            request.path = b'/index.html'
 
         if request.tid is None:
             # Tentative domain correction in relation to presence / absence of 'www.' prefix
@@ -540,10 +550,10 @@ class APIResourceWrapper(Resource):
                           b"sandbox;"
                           b"trusted-types;"
                           b"require-trusted-types-for 'script';"
-                          b"report-uri /api/report;")
+                          b"report-to csp-endpoint")
 
         # CSP Policy on the entry point
-        if request.path == b'/' or request.path == b'/index.html':
+        if request.path == b'/index.html':
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
                               b"connect-src 'self';"
@@ -552,29 +562,13 @@ class APIResourceWrapper(Resource):
                               b"form-action 'none';"
                               b"frame-ancestors 'none';"
                               b"frame-src 'self';"
-                              b"img-src 'self';"
+                              b"img-src 'self' data:;"
                               b"media-src 'self';"
                               b"script-src 'self';"
-                              b"style-src 'self';"
-                              b"trusted-types angular angular#bundler dompurify default;"
-                              b"require-trusted-types-for 'script';")
-
-            # Duplicate the above rule to get reports about any violations except for inline styles
-            request.setHeader(b'Content-Security-Policy-Report-Only',
-                              b"base-uri 'none';"
-                              b"connect-src 'self';"
-                              b"default-src 'none';"
-                              b"font-src 'self';"
-                              b"form-action 'none';"
-                              b"frame-ancestors 'none';"
-                              b"frame-src 'self';"
-                              b"img-src 'self';"
-                              b"media-src 'self';"
-                              b"script-src 'self';"
-                              b"style-src 'self' 'unsafe-inline';"
+                              b"style-src 'self' 'nonce-" + request.nonce + b"';"
                               b"trusted-types angular angular#bundler dompurify default;"
                               b"require-trusted-types-for 'script';"
-                              b"report-uri /api/report;")
+                              b"report-to csp-endpoint")
 
         # CSP Policy for the crypto worker with reporting of any violation
         elif request.path == b'/workers/crypto.worker.js':
@@ -587,7 +581,7 @@ class APIResourceWrapper(Resource):
                               b"sandbox;"
                               b"trusted-types;"
                               b"require-trusted-types-for 'script';"
-                              b"report-uri /api/report;")
+                              b"report-to csp-endpoint")
 
         # CSP Policy for the file viewer
         elif request.path.startswith(b'/viewer'):
@@ -604,27 +598,14 @@ class APIResourceWrapper(Resource):
                                   b"style-src 'self';"
                                   b"sandbox allow-scripts;"
                                   b"trusted-types;"
-                                  b"require-trusted-types-for 'script';")
-
-                # Duplicate the above rule to get reporting of violations except for inline styles
-                request.setHeader(b'Content-Security-Policy-Report-Only',
-                                  b"base-uri 'none';"
-                                  b"default-src 'none';"
-                                  b"connect-src blob:;"
-                                  b"form-action 'none';"
-                                  b"frame-ancestors 'self';"
-                                  b"img-src blob:;"
-                                  b"media-src blob:;"
-                                  b"script-src 'self';"
-                                  b"style-src 'self' 'unsafe-inline';"
-                                  b"sandbox allow-scripts;"
-                                  b"trusted-types;"
                                   b"require-trusted-types-for 'script';"
-                                  b"report-uri /api/report;")
+                                  b"report-to csp-endpoint")
 
                 request.setHeader(b"Cross-Origin-Resource-Policy", "cross-origin")
             else:
                 request.setHeader(b'Access-Control-Allow-Origin', "null")
+
+        request.setHeader(b'Reporting-Endpoints', "csp-endpoint=\"/api/report\"")
 
         # Disable features that could be used to deanonymize the user
         microphone = False
@@ -655,13 +636,9 @@ class APIResourceWrapper(Resource):
                                                  b"screen-wake-lock=(),"
                                                  b"serial=(),"
                                                  b"speaker-selection=(),"
-                                                 b"storage-access=(),"
                                                  b"usb=(),"
                                                  b"web-share=(),"
                                                  b"xr-spatial-tracking=()")
-
-        # Prevent old browsers not supporting CSP frame-ancestors directive to includes the platform within an iframe
-        request.setHeader(b'X-Frame-Options', b'deny')
 
         # Prevent the browsers to implement automatic mime type detection and execution.
         request.setHeader(b'X-Content-Type-Options', b'nosniff')

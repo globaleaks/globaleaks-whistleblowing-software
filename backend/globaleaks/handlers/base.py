@@ -12,7 +12,7 @@ from nacl.encoding import Base64Encoder
 from twisted.internet import abstract
 from twisted.protocols.basic import FileSender
 
-from globaleaks.event import track_handler
+from globaleaks.utils.ip import get_ip_identity
 from globaleaks.orm import transact_sync
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
@@ -304,7 +304,6 @@ class BaseHandler(object):
             raise errors.ResourceNotFound
 
     def check_confirmation(self):
-        tid = self.request.tid
         user_id = self.session.user_id
 
         secret = decodeString(self.request.headers.get(b'x-confirmation', b''))
@@ -380,14 +379,13 @@ class BaseHandler(object):
 
         if file_id not in self.state.TempUploadFiles:
             if self.session and self.session.role == 'whistleblower':
-                rate_limit_path = self.request.path
                 user_id = self.session.user_id.encode()
-                client_ip = self.request.client_ip.encode()
 
-                State.RateLimitingTable.check(rate_limit_path + b'#' + user_id,
-                                              State.tenants[1].cache.threshold_attachments_per_hour_per_report)
-                State.RateLimitingTable.check(rate_limit_path + b'#' + client_ip,
-                                              State.tenants[1].cache.threshold_attachments_per_hour_per_ip)
+                block = State.RateLimit.check(b"attachments_per_hour_per_report:" + user_id,
+                                              State.tenants[1].cache.threshold_attachments_per_hour_per_report,
+                                              3600)
+                if block:
+                    raise errors.ForbiddenOperation()
 
             self.state.TempUploadFiles[file_id] = SecureTemporaryFile(Settings.tmp_path)
 
@@ -459,5 +457,3 @@ class BaseHandler(object):
             err_tup = ("Handler [%s] exceeded execution threshold (of %d secs) with an execution time of %.2f seconds",
                        self.name, self.handler_exec_time_threshold, self.request.execution_time.seconds)
             log.err(tid=self.request.tid, *err_tup)
-
-        track_handler(self)

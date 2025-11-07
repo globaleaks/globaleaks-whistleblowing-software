@@ -9,11 +9,7 @@ interface Mock {
   random?: string;
 }
 
-interface Mocks {
-  [path: string]: {
-    [selector: string]: Mock[];
-  };
-}
+type Mocks = Record<string, Record<string, Mock[]>>;
 
 class MockEngine {
   private mocks: Mocks = {};

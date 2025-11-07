@@ -64,3 +64,28 @@ class TestIPUtils(unittest.TestCase):
     def test_parse_csv_ip_ranges_empty(self):
         """Test parsing an empty input."""
         self.assertEqual(ip.parse_csv_ip_ranges_to_ip_networks(""), [])
+
+    def test_get_ip_identity(self):
+        test = '192.168.1.42'
+        expected = '192.168.1.42'
+        result = ip.get_ip_identity(test)
+        self.assertEqual(result, expected)
+
+        test = '2001:0db8:85a3:0000:0000:8a2e:0370:7334'
+        expected = '2001:db8:85a3::/64'  # normalized and /64 suffix
+        result = ip.get_ip_identity(test)
+        self.assertEqual(result, expected)
+
+        test = '2001:db8:85a3::8a2e:370:7334'
+        expected = '2001:db8:85a3::/64'
+        result = ip.get_ip_identity(test)
+        self.assertEqual(result, expected)
+
+        test = '2001:db8:85a3::1'
+        result = ip.get_ip_identity(test)
+        self.assertEqual(result, '2001:db8:85a3::/64')
+        self.assertEqual(result, ip.get_ip_identity('2001:db8:85a3::abcd'))
+
+        invalid_ip = '300.300.300.300'
+        with self.assertRaises(ValueError):
+            ip.get_ip_identity(invalid_ip)

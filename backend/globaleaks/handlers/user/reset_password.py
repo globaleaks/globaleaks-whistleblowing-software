@@ -9,7 +9,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import user_serialize_user
+from globaleaks.handlers.user import serialize_user
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
 from globaleaks.sessions import Sessions
@@ -32,7 +32,7 @@ def db_generate_password_reset_token(session, user):
     else:
         template = 'account_activation'
 
-    user_desc = user_serialize_user(session, user, user.language)
+    user_desc = serialize_user(session, user, user.language)
 
     try:
         with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "wb") as f:

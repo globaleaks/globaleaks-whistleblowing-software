@@ -25,7 +25,7 @@ export class RecipientSettingsComponent implements AfterViewInit {
   active: string;
 
   constructor() {
-    if (!this.preferenceResolver.dataModel.can_edit_general_settings) {
+    if (!this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
       this.router.navigate(['recipient/home']).then();
     }
   }

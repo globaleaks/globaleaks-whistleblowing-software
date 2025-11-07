@@ -4,10 +4,10 @@
       <span>{{ 'Attachments' | translate }}</span>
       <span class="float-end">
         @if (!collapsed) {
-          <i class="fa-solid fa-chevron-up" [ngbTooltip]="'Collapse' | translate"></i>
+          <span [ngbTooltip]="'Collapse' | translate"><i class="fas fa-chevron-up"></i></span>
         }
         @if (collapsed) {
-          <i class="fa-solid fa-chevron-down" [ngbTooltip]="'Expand' | translate"></i>
+          <span [ngbTooltip]="'Expand' | translate"><i class="fas fa-chevron-down"></i></span>
         }
       </span>
     </div>
@@ -33,43 +33,43 @@
                     <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
                       <td>{{ file.name }}</td>
                       <td>
-                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
+                        <button class="btn btn-sm btn-primary tip-action-views-file" [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
                           [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)">
-                          <i class="fa-solid fa-eye"></i>
+                          <i class="fas fa-eye"></i>
                         </button>
                       </td>
                       <td>
                         <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)">
-                          <i class="fa-solid fa-download"></i>
+                          <i class="fas fa-download"></i>
                         </button>
                         @if (redactMode) {
                           <span>
-                            @if (preferenceResolver.dataModel.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
+                            @if (preferenceResolver.dataModel.profile.permissions.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
                               <span>
                                 <button class="btn btn-sm btn-outline-secondary"
  [ngbTooltip]="'Mask' | translate"
                                   (click)="redactFileOperation('full-mask', 'file', file)">
-                                  <i class="fa-solid fa-eraser"></i>
+                                  <i class="fas fa-eraser"></i>
                                 </button>
                               </span>
                             }
                             @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
                               <span>
-                                @if (preferenceResolver.dataModel.can_mask_information) {
-                                  <button class="btn btn-sm btn-outline-secondary"
+                                @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
+                                  <button class="btn btn-sm btn-outline-secondary tip-action-mask-file"
                                     [ngClass]="{ 'active': redactMode }"
  [ngbTooltip]="'Mask' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
                                     (click)="redactFileOperation('full-unmask', 'file', file)">
-                                    <i class="fa-solid fa-eraser"></i>
+                                    <i class="fas fa-eraser"></i>
                                   </button>
                                 }
-                                @if (preferenceResolver.dataModel.can_redact_information) {
+                                @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
                                   <button class="btn btn-sm btn-danger tip-action-delete-file"
  [ngbTooltip]="'Redact' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
                                     (click)="redactFileOperation('redact', 'file', file)">
-                                    <i class="fa-solid fa-trash"></i>
+                                    <i class="fas fa-trash"></i>
                                   </button>
                                 }
                               </span>
@@ -79,7 +79,7 @@
                       </td>
                       <td>
                         <button class="btn btn-sm btn-primary tip-action-file-info" [ngbTooltip]="'File Information' | translate" (click)="openFileInfo(file)" [attr.aria-label]="'View file information for ' + file.name">
-                          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                          <i class="fas fa-circle-info" aria-hidden="true"></i>
                         </button>
                       </td>
                       <td>{{ file.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>

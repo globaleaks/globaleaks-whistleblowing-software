@@ -8,23 +8,25 @@
           }
           <span class="filename px-1">{{wbFile.name}}</span>
         </span>
-      <span class="float-end">
-        <span>
-          <span class="btn btn-sm btn-info" (click)="openFileInfo(wbFile)">
-            <i class="fa-solid fa-info"></i>
+        <span class="float-end">
+          <span>
+            <span class="download-button btn btn-sm btn-primary tip-action-dowload-file" (click)="downloadWBFile(wbFile)">
+              <i class="fas fa-download"></i>
+            </span>
+            @if (authenticationService.session?.role === 'receiver') {
+              <button class="btn btn-sm btn-danger tip-action-delete-file" (click)="deleteWBFile(wbFile)">
+                <i class="fas fa-trash"></i>
+              </button>
+            }
           </span>
-          <span class="download-button btn btn-sm btn-primary" (click)="downloadWBFile(wbFile)">
-            <i class="fa-solid fa-download"></i>
-          </span>
-          @if (authenticationService.session?.role === 'receiver') {
-            <button class="btn btn-sm btn-danger" (click)="deleteWBFile(wbFile)">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          }
         </span>
-      </span>
       </div>
       <div class="file-info-row">
+        @if (receivers_by_id[wbFile.author]) {
+          <span>
+            <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
+          </span>
+        }
         <span class="px-1">
           <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
         </span>
@@ -32,8 +34,13 @@
           <span>{{'Size:'|translate}}</span>
           <span>{{wbFile.size | byteFmt:2}}</span>
         </span>
+        @if (ctx === 'rtip') {
+          <span class="px-1">
+            <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
+          </span>
+        }
       </div>
-      @if (isRFile() && wbFile.description) {
+      @if (wbFile.description) {
         <div>
           <span>
             <span class="px-1">{{'Description'|translate}}</span>: </span>

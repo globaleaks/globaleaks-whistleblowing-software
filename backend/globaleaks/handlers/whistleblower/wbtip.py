@@ -7,13 +7,15 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
+from globaleaks.handlers.admin.auditlog import serialize_log
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_set_internaltip_answers, db_get_questionnaire, \
-    db_archive_questionnaire_schema, db_set_internaltip_data
-from globaleaks.handlers.user import user_serialize_user
+    db_archive_questionnaire_schema, db_set_internaltip_data, \
+    extract_statistical_data
+from globaleaks.handlers.user import serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
@@ -25,6 +27,18 @@ from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
+@transact
+def get_report_audit_log(session, tid, user_id):
+    _ = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
+
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid,
+                          models.AuditLog.object_id == user_id) \
+                  .order_by(models.AuditLog.date.desc())
+
+    return [serialize_log(log) for log in logs]
+
+
 def db_notify_report_update(session, user, rtip, itip):
     """
     :param session: An ORM session
@@ -34,7 +48,7 @@ def db_notify_report_update(session, user, rtip, itip):
     """
     data = {
       'type': 'tip_update',
-      'user': user_serialize_user(session, user, user.language),
+      'user': serialize_user(session, user, user.language),
       'node': db_admin_serialize_node(session, user.tid, user.language),
       'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
     }
@@ -53,11 +67,12 @@ def db_notify_report_update(session, user, rtip, itip):
         'tid': user.tid
     }))
 
+
 def db_notify_recipients_of_tip_update(session, itip_id):
     for user, rtip, itip in session.query(models.User, models.ReceiverTip, models.InternalTip) \
                                    .filter(models.User.id == models.ReceiverTip.receiver_id,
                                            models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                           models.ReceiverTip.last_notification < models.ReceiverTip.last_access,
+                                           models.ReceiverTip.last_access > models.ReceiverTip.last_notification,
                                            models.InternalTip.id == itip_id):
         db_notify_report_update(session, user, rtip, itip)
 
@@ -80,7 +95,7 @@ def create_comment(session, tid, user_id, content):
     itip = db_get(session,
                   models.InternalTip,
                   (models.InternalTip.id == user_id,
-                   models.InternalTip.tid == tid))
+                   models.InternalTip.tid.in_({tid, State.tenants[tid].cache.ptid})))
 
     itip.update_date = itip.last_access = datetime_now()
 
@@ -138,14 +153,27 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
 
     if not context.additional_questionnaire_id:
         return
+    
+    for _, field_items in answers.items():
+            for item in field_items:
+                if 'value' in item and item['value']:
+                    val_str = str(item['value'])
+                    item['hash_sha256'] = sha256(val_str).decode()
+                    item['hash_sha512'] = sha512(val_str).decode()
 
     steps = db_get_questionnaire(session, tid, context.additional_questionnaire_id, None)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
+    stat_data = extract_statistical_data(session, tid, answers)
+
     if itip.crypto_tip_pub_key:
+        if stat_data:
+            crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
+            stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
+
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers)
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data)
 
     db_notify_recipients_of_tip_update(session, itip.id)
 
@@ -320,3 +348,12 @@ class WBTipAdditionalQuestionnaire(BaseHandler):
                                                       self.session.user_id,
                                                       request['answers'],
                                                       self.request.language)
+
+class ReportAuditLog(BaseHandler):
+    """
+    Handler that provide access to the report audit log
+    """
+    check_roles = 'whistleblower'
+
+    def get(self, tip_id):
+        return get_report_audit_log(self.session.tid, self.session.user_id)

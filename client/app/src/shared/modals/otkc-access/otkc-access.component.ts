@@ -21,7 +21,7 @@ export class OtkcAccessComponent {
   protected utils = inject(UtilsService);
 
   @Input() arg: { receipt: any, formatted_receipt: any };
- 
+
   confirmFunction: () => void;
 
   confirm() {

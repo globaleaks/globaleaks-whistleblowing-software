@@ -1,19 +1,23 @@
+import copy
+import json
 from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
+from globaleaks.handlers.admin.user_profile import db_create_user_profile, db_update_user_profile
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import parse_pgp_options, \
-                                     user_serialize_user
+                                     serialize_user, \
+                                     user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.models import fill_localized_keys
+from globaleaks.models import config, Config, UserProfile, fill_localized_keys
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
-from globaleaks.utils.utility import datetime_now, datetime_null, uuid4
+from globaleaks.utils.utility import datetime_null, uuid4
 
 
 def db_create_user(session, tid, user_session, request, language):
@@ -27,29 +31,38 @@ def db_create_user(session, tid, user_session, request, language):
     :param language: The language of the request
     :return: The serialized descriptor of the created object
     """
-    config = models.config.ConfigFactory(session, tid)
+    existing_user = session.query(models.User).filter(models.User.tid == tid, models.User.username == request['username']).first()
+    if existing_user:
+        raise errors.DuplicateUserError
 
+    config = models.config.ConfigFactory(session, tid)
     encryption = config.get_val('encryption')
 
-    request['tid'] = tid
-
     fill_localized_keys(request, models.User.localized_keys, language)
+
+    request['tid'] = tid
+    request['id'] = uuid4()
+
+    if not request['username']:
+        request['username'] = request['id']
+
+    if not request['profile_id'] or request['profile_id'] == 'none':
+        request['profile_id'] = request['id']
+
+        profile = {
+          'id': request['id'],
+          'role': request['role'],
+          'roles':  [request['role']],
+          'permissions':  copy.deepcopy(user_permissions)
+        }
+
+        db_create_user_profile(session, tid, profile)
 
     if not request['public_name']:
         request['public_name'] = request['name']
 
     user = models.User(request)
-
-    if not request['username']:
-        user.username = user.id = uuid4()
-
-    existing_user = session.query(models.User).filter(models.User.tid == user.tid, models.User.username == user.username).first()
-    if existing_user:
-        raise errors.DuplicateUserError
-
-    salt = config.get_val('receipt_salt')
-    user.salt = GCE.generate_salt(salt + ":" + user.username)
-
+    user.salt = GCE.generate_salt(config.get_val('receipt_salt') + ":" + user.username)
     user.language = request['language']
 
     # The various options related in manage PGP keys are used here.
@@ -76,7 +89,8 @@ def db_create_user(session, tid, user_session, request, language):
 
     if request.get('send_activation_link', False):
         token = db_generate_password_reset_token(session, user)
-        db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
+        if user_session:
+            db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
     else:
         token = None
 
@@ -88,8 +102,16 @@ def db_create_user(session, tid, user_session, request, language):
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
 
-        if user_session and token:
-            set_tmp_key(user_session, user, token, cc)
+        if user_session:
+            if token:
+                set_tmp_key(user_session, user, token, cc)
+
+            if any(role in user.profile.roles_list for role in ('admin', 'analyst')):
+                current_user = db_get(session, models.User, models.User.id == user_session.user_id)
+                if current_user.crypto_global_stat_prv_key:
+                    crypto_global_stat_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(current_user.crypto_global_stat_prv_key))
+                    user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_global_stat_prv_key))
+
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:
         return user
@@ -104,17 +126,23 @@ def db_create_user(session, tid, user_session, request, language):
 
 
 def db_delete_user(session, tid, user_session, user_id):
-    current_user = db_get(session, models.User, models.User.id == user_session.user_id)
-    user_to_be_deleted = db_get(session, models.User, models.User.id == user_id)
+    db_get(session, models.User, models.User.id == user_session.user_id)
+
+    user = db_get(session, models.User, models.User.id == user_id)
 
     if user_session.user_id == user_id:
         # Prevent users to delete themeselves
         raise errors.ForbiddenOperation
-    elif user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
+    elif user.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
+
+    if user.id == user.profile_id:
+        # in this condition we should delete the profile since it will become unused
+        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
+
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
 
 
@@ -130,10 +158,10 @@ def create_user(session, tid, user_session, request, language):
     :return: The serialized descriptor of the created object
     """
     user = db_create_user(session, tid, user_session, request, language)
-    return user_serialize_user(session, user, language)
+    return serialize_user(session, user, language)
 
 
-def db_admin_update_user(session, tid, user_session, user_id, request, language):
+def db_update_user(session, tid, user_session, user_id, request, language):
     """
     Transaction for updating an existing user
 
@@ -148,8 +176,26 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     fill_localized_keys(request, models.User.localized_keys, language)
 
     user = db_get_user(session, tid, user_id)
-    user.can_redact_information = request['can_redact_information']
-    user.can_mask_information = request['can_mask_information']
+
+    if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
+        # Delete profiles when:
+        # - the user configuration passes from using a standard role to a custom profile
+        # - the user uses a standard role but the role changes
+        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
+
+    if ((user.id != user.profile_id and request['profile_id'] == user.id) or (user.role != request['role'])):
+        # Recreate the profile when:
+        # - the user configuration passes from using a custom profile to using a standard role
+        # - the user user changes from a standard role to one other
+        profile = {
+          'id': user.id,
+          'role': request['role'],
+          'roles':  [request['role']],
+          'permissions':  copy.deepcopy(user_permissions)
+        }
+
+        db_create_user_profile(session, tid, profile)
+
     if request['mail_address'] != user.mail_address:
         user.change_email_token = None
         user.change_email_address = ''
@@ -164,7 +210,7 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
 
     user.update(request)
 
-    return user_serialize_user(session, user, language)
+    return serialize_user(session, user, language)
 
 
 def db_get_users(session, tid, role=None, language=None):
@@ -185,7 +231,18 @@ def db_get_users(session, tid, role=None, language=None):
 
     language = language or State.tenants[tid].cache.default_language
 
-    return [user_serialize_user(session, user, language) for user in users]
+    return [serialize_user(session, user, language) for user in users]
+
+
+def get_user(session, tid, id):
+    """
+    Return specific user.
+    """
+    user = session.query(models.User).filter(models.User.id == id, models.User.tid == tid).first()
+    if user:
+        return serialize_user(session, user, State.tenants[tid].cache.default_language)
+
+    raise errors.ResourceNotFound
 
 
 class UsersCollection(BaseHandler):
@@ -201,13 +258,12 @@ class UsersCollection(BaseHandler):
     @inlineCallbacks
     def post(self):
         """
-        Create a new user
+        Create a new user.
         """
-        request = self.validate_request(self.request.content.read(),
-                                        requests.AdminUserDesc)
+        request = json.loads(self.request.content.read())
 
+        request = yield self.validate_request(json.dumps(request), requests.AdminUserDesc)
         user = yield create_user(self.request.tid, self.session, request, self.request.language)
-
         return user
 
 
@@ -215,18 +271,19 @@ class UserInstance(BaseHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
+    def get(self, user_id):
+        """
+        Retrieve the specified user.
+        """
+        return tw(get_user, self.request.tid, user_id)
+
     def put(self, user_id):
         """
         Update the specified user.
         """
-        request = self.validate_request(self.request.content.read(), requests.AdminUserDesc)
-
-        return tw(db_admin_update_user,
-                  self.request.tid,
-                  self.session,
-                  user_id,
-                  request,
-                  self.request.language)
+        request = json.loads(self.request.content.read())
+        request = self.validate_request(request, requests.AdminUserDesc)
+        return tw(db_update_user, self.request.tid, self.session, user_id, request, self.request.language)
 
     def delete(self, user_id):
         """

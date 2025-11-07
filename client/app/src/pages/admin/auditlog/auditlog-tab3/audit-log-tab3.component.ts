@@ -42,6 +42,6 @@ export class AuditLogTab3Component implements OnInit {
   }
 
   exportAuditLog() {
-    this.utilsService.generateCSV(JSON.stringify(this.tips), "reports", ["id", "progressive", "creation_date", "last_update", "expiration_date", "context_id", "status", "substatus", "tor", "comments", "files", "receiver_count", "last_access"]);
+    this.utilsService.generateCSV('reports', this.tips);
   }
 }

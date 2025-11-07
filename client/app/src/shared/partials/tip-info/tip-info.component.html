@@ -8,7 +8,7 @@
               <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="tipService.tip.label" />
               <span class="input-group-append" ngbTooltip="{{'Label the report' | translate}} ">
                 <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(tipService.tip.label)">
-                  <i class="fa-solid fa-tag"></i>
+                  <i class="fas fa-tag"></i>
                 </button>
               </span>
             </span>
@@ -27,51 +27,51 @@
         <tr>
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoID">
-              <i class="fa-solid fa-hashtag"></i>
+              <i class="fas fa-hashtag"></i>
             </th>
           }
           @if (appDataService.public.contexts.length > 1) {
             <th class="TipInfoContext">
-              <i class="fa-solid fa-inbox"></i>
+              <i class="fas fa-inbox"></i>
               <span>{{'Channel'|translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionDate">
-            <i class="fa-solid fa-clock"></i>
+            <i class="fas fa-clock"></i>
             <span>{{'Date'|translate}}</span>
           </th>
           <th class="TipInfoLastUpdate">
-            <i class="fa-solid fa-clock"></i>
+            <i class="fas fa-clock"></i>
             <span>{{'Last update'|translate}}</span>
           </th>
           <th class="TipInfoExpirationDate">
-            <i class="fa-solid fa-hourglass"></i>
+            <i class="fas fa-hourglass"></i>
             <span>{{'Expiration date'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoReminderDate">
-              <i class="fa-solid fa-bell"></i>
+              <i class="fas fa-bell"></i>
               <span>{{'Reminder date'|translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoReadReceipt">
-              <i class="fa-solid fa-envelope-circle-check"></i>
+              <i class="fas fa-envelope-circle-check"></i>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoConnection">
-              <i class="fa-solid fa-network-wired"></i>
+              <i class="fas fa-network-wired"></i>
               <span>{{'Tor'|translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionStatus">
-            <i class="fa-solid fa-dot-circle"></i>
+            <i class="fas fa-circle-dot"></i>
             <span>{{'Status'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
             <th class="TipInfoScore">
-              <i class="fa-solid fa-flash"></i>
+              <i class="fas fa-ranking-star"></i>
               <span>{{'Score'|translate}}</span>
             </th>
           }
@@ -111,22 +111,22 @@
                   <span>
                     <span>{{tipService.tip.reminder_date | date:'dd-MM-yyyy'}}</span>
                     @if (markReportStatus(tipService.tip.reminder_date)) {
-                      <i class="reminder fa-solid fa-bell"></i>
+                      <i class="reminder fas fa-bell"></i>
                     }
                   </span>
                 }
                 @if (utilsService.isNever(tipService.tip.reminder_date)) {
-                  <i class="fa-solid fa-minus"></i>
+                  <i class="fas fa-minus"></i>
                 }
               </td>
             }
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoLastAccess">
                 @if (tipService.tip.last_access >= tipService.tip.update_date) {
-                  <i class="fa-solid fa-check" ngbTooltip="{{'The whistleblower has already read the last update' | translate}} ({{tipService.tip.last_access | date:'dd-MM-yyyy HH:mm'}})"></i>
+                  <span ngbTooltip="{{'The whistleblower has already read the last update' | translate}} ({{tipService.tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
                 }
                 @if (tipService.tip.last_access < tipService.tip.update_date) {
-                  <i class="fa-solid fa-times" ngbTooltip="{{'The whistleblower has not read the last update yet' | translate}}">
+                  <i class="fas fa-xmark" ngbTooltip="{{'The whistleblower has not read the last update yet' | translate}}">
                   </i>
                 }
               </td>
@@ -134,10 +134,10 @@
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoConnection">
                 @if (tipService.tip.tor) {
-                  <i class="fa-solid fa-check"></i>
+                  <i class="fas fa-check"></i>
                 }
                 @if (!tipService.tip.tor) {
-                  <i class="fa-solid fa-times"></i>
+                  <i class="fas fa-xmark"></i>
                 }
               </td>
             }

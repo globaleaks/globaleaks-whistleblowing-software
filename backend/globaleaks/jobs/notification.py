@@ -3,12 +3,13 @@ import itertools
 
 from datetime import datetime, timedelta
 from sqlalchemy import not_
+from sqlalchemy.sql.expression import func
 from twisted.internet import defer
 
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
-from globaleaks.handlers.user import user_serialize_user
+from globaleaks.handlers.user import serialize_user
 from globaleaks.jobs.job import LoopingJob
 from globaleaks.models import serializers
 from globaleaks.models.config import ConfigFactory
@@ -66,6 +67,77 @@ class MailGenerator(object):
             'tid': tid,
         }))
 
+    def db_generate_emails_for_expiring_reports(self, session, tid):
+        tip_expiration_threshold = self.state.tenants[tid].cache.notification.tip_expiration_threshold
+        if tip_expiration_threshold <= 0:
+            return
+
+        threshold = datetime_now() + timedelta(hours=tip_expiration_threshold)
+
+        result = session.query(models.User, func.count(models.InternalTip.id), func.min(models.InternalTip.expiration_date)) \
+                        .filter(models.InternalTip.tid == tid,
+                                models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                                models.InternalTip.expiration_date < threshold,
+                                models.User.id == models.ReceiverTip.receiver_id) \
+                        .group_by(models.User.id) \
+                        .having(func.count(models.InternalTip.id) > 0) \
+                        .all()
+
+        for x in result:
+            user = x[0]
+            expiring_submission_count = x[1]
+            earliest_expiration_date = x[2]
+
+            user_desc = serialize_user(session, user, user.language)
+
+            data = {
+                'type': 'tip_expiration_summary',
+                'node': db_admin_serialize_node(session, tid, user.language),
+                'user': user_desc,
+                'expiring_submission_count': expiring_submission_count,
+                'earliest_expiration_date': earliest_expiration_date
+            }
+
+            # Do not generate emails if the receiver has disabled notifications
+            if not data['user']['notification']:
+                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
+                 return
+
+            if data['node']['mode'] == 'default':
+                data['notification'] = db_get_notification(session, tid, user.language)
+            else:
+                data['notification'] = db_get_notification(session, 1, user.language)
+
+            subject, body = Templating().get_mail_subject_and_body(data)
+
+            session.add(models.Mail({
+                'tid': tid,
+                'address': user_desc['mail_address'],
+                'subject': subject,
+                'body': body
+            }))
+
+
+    def db_generate_email_for_unread_reports(self, session, now, silent_tids):
+        reminder_time = self.state.tenants[1].cache.unread_reminder_time
+        if reminder_time <= 0:
+            return
+
+        for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
+                                                      not_(models.User.id.in_(silent_tids)),
+                                                      models.User.reminder_date < now - timedelta(reminder_time),
+                                                      models.ReceiverTip.last_access < models.InternalTip.update_date,
+                                                      models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                                                      models.InternalTip.update_date < now - timedelta(reminder_time)).distinct():
+            user.reminder_date = now
+            data = {'type': 'unread_tips'}
+
+            try:
+                data['user'] = serialize_user(session, user, user.language)
+                self.process_mail_creation(session, user.tid, data)
+            except:
+                pass
+
     @transact
     def generate(self, session):
         now = datetime_now()
@@ -75,8 +147,6 @@ class MailGenerator(object):
 
         rtips_ids = {}
         silent_tids = []
-
-        reminder_time = self.state.tenants[1].cache.unread_reminder_time if 1 in self.state.tenants else 7
 
         for tid in self.state.tenants:
             cache = self.state.tenants[tid].cache
@@ -127,7 +197,7 @@ class MailGenerator(object):
                 else:
                     data = {'type': 'tip_update'}
 
-                data['user'] = user_serialize_user(session, user, user.language)
+                data['user'] = serialize_user(session, user, user.language)
                 data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
 
                 self.process_mail_creation(session, tid, data)
@@ -139,20 +209,10 @@ class MailGenerator(object):
 
         config.set_val('timestamp_daily_notifications', now)
 
-        for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
-                                                      not_(models.User.id.in_(silent_tids)),
-                                                      models.User.reminder_date < now - timedelta(reminder_time),
-                                                      models.ReceiverTip.last_access < models.InternalTip.update_date,
-                                                      models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                                      models.InternalTip.update_date < now - timedelta(reminder_time)).distinct():
-            user.reminder_date = now
-            data = {'type': 'unread_tips'}
+        for tid in self.state.tenants:
+            self.db_generate_emails_for_expiring_reports(session, tid)
 
-            try:
-                data['user'] = user_serialize_user(session, user, user.language)
-                self.process_mail_creation(session, user.tid, data)
-            except:
-                pass
+        self.db_generate_email_for_unread_reports(session, now, silent_tids)
 
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
                                                       not_(models.User.id.in_(silent_tids)),
@@ -162,7 +222,7 @@ class MailGenerator(object):
             data = {'type': 'tip_reminder'}
 
             try:
-                data['user'] = user_serialize_user(session, user, user.language)
+                data['user'] = serialize_user(session, user, user.language)
                 self.process_mail_creation(session, user.tid, data)
             except:
                 pass

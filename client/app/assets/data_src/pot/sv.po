@@ -534,7 +534,7 @@ msgstr "Skattenummer"
 msgid "Footer"
 msgstr "Sidfot"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Av säkerhetsskäl behöver koden ändras."
 
 msgid ""

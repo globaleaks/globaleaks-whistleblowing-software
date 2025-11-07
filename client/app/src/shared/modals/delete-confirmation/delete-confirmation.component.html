@@ -1,15 +1,13 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Are you sure?' | translate}}</div>
-    <button type="button" class="close btn" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <h5 class="modal-title">{{'Are you sure?' | translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()"></button>
 </div>
 <div class="modal-body">{{'Please note that all the associated data will be permanently deleted.' | translate}}</div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-        <i class="fa-solid fa-check"></i> <span>{{'Yes' | translate}}</span>
-    </button>
-    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i> <span>{{'No' | translate}}</span>
-    </button>
+  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
+    <i class="fas fa-check"></i><span>{{'Yes' | translate}}</span>
+  </button>
+  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fas fa-xmark"></i><span>{{'No' | translate}}</span>
+  </button>
 </div>

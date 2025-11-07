@@ -25,11 +25,11 @@ export class Tab4Component implements OnInit {
     text_to_customize: "",
     custom_text: ""
   };
-  custom_texts: { [key: string]: string } = {}
+  custom_texts: Record<string, string> = {}
   custom_texts_keys: string[] = [];
-  default_texts: { [key: string]: string } = {}
+  default_texts: Record<string, string> = {}
   custom_texts_selector: { key: string; value: string; }[] = [];
-  customTextsExist: boolean = false;
+  customTextsExist = false;
   languageUtils: LanguageUtils
 
   ngOnInit(): void {
@@ -75,13 +75,13 @@ export class Tab4Component implements OnInit {
     this.custom_texts_keys = Object.keys(this.custom_texts);
   }
 
-  updateCustomText(data: { [key: string]: string }, lang: string) {
+  updateCustomText(data: Record<string, string>, lang: string) {
     this.utilsService.updateAdminL10NResource(data, lang).subscribe(_ => {
       this.utilsService.reloadComponent();
     });
   }
 
-  deleteCustomText(dict: { [key: string]: string; }, key: string): void {
+  deleteCustomText(dict: Record<string, string>, key: string): void {
     delete dict[key];
   }
 

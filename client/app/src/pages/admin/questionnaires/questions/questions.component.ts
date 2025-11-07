@@ -30,7 +30,7 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   private fieldTemplates = inject(FieldTemplatesResolver);
   private questionnairesResolver = inject(QuestionnairesResolver);
 
-  showAddQuestion: boolean = false;
+  showAddQuestion = false;
   fields: fieldtemplatesResolverModel[];
   questionnairesData: questionnaireResolverModel[] = [];
   step: Step;

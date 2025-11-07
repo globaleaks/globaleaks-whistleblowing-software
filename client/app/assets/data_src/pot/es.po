@@ -25,7 +25,7 @@
 # Ines Branco Lopez <ibranco@fibgar.org>, 2019-2020
 # Iván López Pérez <ioloo00@eresmas.com>, 2013
 # Iván López Pérez <ioloo00@eresmas.com>, 2013
-# José Javier Alamá Izquierdo, 2023-2024
+# José Javier Alamá Izquierdo, 2023-2025
 # Lucrezia <luz.gatti@gmail.com>, 2013
 # Lucrezia <luz.gatti@gmail.com>, 2013
 # Manuel D. Serrat <manuel.serrat@antifraucv.es>, 2018-2019
@@ -46,7 +46,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: José Javier Alamá Izquierdo, 2023-2024\n"
+"Last-Translator: José Javier Alamá Izquierdo, 2023-2025\n"
 "Language-Team: Spanish (http://app.transifex.com/otf/globaleaks/language/es/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -551,7 +551,7 @@ msgstr "Código fiscal"
 msgid "Footer"
 msgstr "Pie de página"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Por razones de seguridad es necesario cambiar el código."
 
 msgid ""
@@ -577,7 +577,7 @@ msgid "From"
 msgstr "De"
 
 msgid "From:"
-msgstr "Desde"
+msgstr "Desde:"
 
 msgid "Generate"
 msgstr "Generar"
@@ -1360,7 +1360,7 @@ msgid ""
 msgstr "El siguiente procedimiento le guiará paso por paso a través de la creación de su plataforma para la recepción de denuncias."
 
 msgid "The link will expire in 7 days."
-msgstr "El enlace expirará en 7 días"
+msgstr "El enlace expirará en 7 días."
 
 msgid ""
 "The manual configuration wizard will guide you through the setup of HTTPS "
@@ -1974,7 +1974,7 @@ msgstr "El denunciante ha proporcionado su identidad"
 msgid ""
 "You're receiving this email because a password reset has been requested for "
 "the account: {Username}"
-msgstr "Recibe este correo porque se ha solicitado un restablecimiento de la contraseña para la cuenta {Username}"
+msgstr "Recibe este correo porque se ha solicitado un restablecimiento de la contraseña para la cuenta: {Username}"
 
 msgid ""
 "If you didn't make this request, you may safely ignore and delete this "

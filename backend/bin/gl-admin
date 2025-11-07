@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import signal
 import sqlite3
 import subprocess as sp
@@ -94,13 +95,13 @@ def backup(args):
 
     must_stop = is_gl_running()
 
-    if must_stop: sp.check_call("service globaleaks stop", shell=True)
+    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
     print("Creating an archive backup of the globaleaks setup. . .")
     p_head, p_tail = os.path.split(args.workdir)
 
     sp.check_call(["tar", "-zcf", args.backuppath, "--exclude='backups'", "-C", args.workdir, '.'])
 
-    if must_stop: sp.check_call("service globaleaks start", shell=True)
+    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
     print("Success: The archived backup was created at:", args.backuppath)
 
 
@@ -118,18 +119,17 @@ def restore(args):
     print("-"*72)
 
     must_stop = is_gl_running()
-    if must_stop: sp.check_call("service globaleaks stop", shell=True)
+    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
     print("Deleting {} . . .".format(args.workdir))
 
     p_head, p_tail = os.path.split(args.workdir)
 
-    # TODO remove workdir str fmt
-    sp.check_call("find %s -type f -exec shred -vzn 3 {} \;" % args.workdir, shell=True)
+    shutil.rmtree(args.workdir)
 
     print("Extracting the archive {}".format(args.backuppath))
     sp.check_call(["tar", "-xf", args.backuppath, "-C", args.workdir])
 
-    if must_stop: sp.check_call("service globaleaks start", shell=True)
+    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
 
     print("Success! globaleaks has been restored from a backup")
 

@@ -538,7 +538,7 @@ msgstr "Sicil numarası"
 msgid "Footer"
 msgstr "Alt bilgi"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Güvenlik nedeniyle kodun değiştirilmesi gerekiyor."
 
 msgid ""

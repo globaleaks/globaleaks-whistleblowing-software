@@ -7,12 +7,12 @@ import {FieldUtilitiesService} from "@app/shared/services/field-utilities.servic
 export class TipService {
   private fieldUtilities = inject(FieldUtilitiesService);
 
-
-  filterNotTriggeredField(tip: any, parent: any, field: any, answers: any): void {
+  filterNotTriggeredField(tip: any, parent: any, field: any, answers: any, partOfIdentityQuestion: boolean): void {
     let i;
-    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, tip.score)) {
+    partOfIdentityQuestion = partOfIdentityQuestion || (parent && parent.template_id === 'whistleblower_identity');
+    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, tip.score, tip.identity_provided, partOfIdentityQuestion)) {
       for (i = 0; i < field.children.length; i++) {
-        this.filterNotTriggeredField(tip, field, field.children[i], answers);
+        this.filterNotTriggeredField(tip, field, field.children[i], answers, partOfIdentityQuestion);
       }
     }
   }
@@ -26,9 +26,9 @@ export class TipService {
 
       for (i = 0; i < questionnaire.steps.length; i++) {
         step = questionnaire.steps[i];
-        if (this.fieldUtilities.isFieldTriggered(null, step, questionnaire.answers, tip.score)) {
+        if (this.fieldUtilities.isFieldTriggered(null, step, questionnaire.answers, tip.score, tip.identity_provided, false)) {
           for (j = 0; j < step.children.length; j++) {
-            this.filterNotTriggeredField(tip, step, step.children[j], questionnaire.answers);
+            this.filterNotTriggeredField(tip, step, step.children[j], questionnaire.answers, false);
           }
         }
       }
@@ -50,7 +50,7 @@ export class TipService {
             this.fieldUtilities.onAnswersUpdate(this);
 
             for (k = 0; k < tip.whistleblower_identity_field.children.length; k++) {
-              this.filterNotTriggeredField(tip, tip.whistleblower_identity_field, tip.whistleblower_identity_field.children[k], tip.data.whistleblower_identity);
+              this.filterNotTriggeredField(tip, tip.whistleblower_identity_field, tip.whistleblower_identity_field.children[k], tip.data.whistleblower_identity, true);
             }
           }
         }

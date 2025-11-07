@@ -1,31 +1,25 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Transfer access'|translate}}</div>
-    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <h5 class="modal-title">{{'Transfer access'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-    <div id="ReceiverContextAdder" class="form-group">
-        <div class="input-group">
-            <ng-select class="w-50 rounded-end-0" [attr.data-cy]="'receiver_selection'" [(ngModel)]="receiverId" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true">
-                <ng-template ng-label-tmp let-item="item">
-                    <span>{{ item.name }}</span>
-                </ng-template>
-            </ng-select>
-            <div class="input-group-append">
-                <span class="input-group-text h-100">
-                    <i class="fa-solid fa-search"></i>
-                </span>
-            </div>
-        </div>
+  <div id="ReceiverContextAdder" class="form-group">
+    <div class="input-group">
+      <ng-select class="w-50 rounded-end-0" [attr.data-cy]="'receiver_selection'" [(ngModel)]="receiverId" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true">
+        <ng-template ng-label-tmp let-item="item">{{ item.name }}</ng-template>
+      </ng-select>
+      <div class="input-group-append">
+        <span class="input-group-text h-100"><i class="fas fa-magnifying-glass"></i></span>
+      </div>
     </div>
+  </div>
 </div>
 <div class="modal-footer">
-    <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(receiverId)">
-        <span>{{'Confirm'|translate}}</span>
-    </button>
-    <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-        <i class="fa-solid fa-times"></i>
-        <span>{{'Close'|translate}}</span>
-    </a>
+  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(receiverId)">
+    <span>{{'Confirm'|translate}}</span>
+  </button>
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fas fa-xmark"></i>
+    <span>{{'Close'|translate}}</span>
+  </a>
 </div>

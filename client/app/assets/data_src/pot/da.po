@@ -521,7 +521,7 @@ msgstr "Finanskode"
 msgid "Footer"
 msgstr "Sidefod"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Af sikkerhedshensyn, er det nødvendigt at ændre koden."
 
 msgid ""

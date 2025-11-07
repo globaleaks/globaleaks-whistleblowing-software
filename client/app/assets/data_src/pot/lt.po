@@ -512,7 +512,7 @@ msgstr "Fiskalinis kodas"
 msgid "Footer"
 msgstr "Poraštė"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Saugumo sumetimais kodą reikia pakeisti."
 
 msgid ""

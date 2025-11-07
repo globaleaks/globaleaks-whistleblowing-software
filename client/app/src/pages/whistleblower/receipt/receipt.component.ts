@@ -21,7 +21,7 @@ export class ReceiptComponent implements OnInit {
   protected appDataService = inject(AppDataService);
 
   receipt: string;
-  receiptId: string = "";
+  receiptId = "";
 
   public ngOnInit(): void {
     if (this.authenticationService.session.receipt) {

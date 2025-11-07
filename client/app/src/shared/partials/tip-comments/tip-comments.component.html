@@ -3,10 +3,10 @@
     <span>{{'Comments'|translate}}</span>
     <span class="">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
       }
     </span>
   </div>
@@ -19,7 +19,7 @@
         </div>
         <div class="col-md-12 clearfix">
           <button id="comment-action-send" class="btn btn-primary" (click)="newComment()" [disabled]="!newCommentContent">
-            <i class="fa-solid fa-comment"></i>
+            <i class="fas fa-comment"></i>
             <span>{{'Send'|translate}}</span>
           </button>
         </div>
@@ -36,9 +36,9 @@
                       <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
                     <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
-                    @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+                    @if (redactMode && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
                       <span class="float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{redactOperationTitle | translate}}">
-                        <i class="fa-solid fa-eraser"></i>
+                        <i class="fas fa-eraser"></i>
                       </span>
                     }
                     <br/>
@@ -47,7 +47,7 @@
                 @if (tipService.tip.receivers_by_id[comment.author_id]) {
                   <div class="message">
                     <div class="row">
-                      <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name}}</div>
+                      <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name | translate}}</div>
                       <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                     </div>
                     @if (!comment.type) {
@@ -69,10 +69,10 @@
       @if (tipService.tip.comments && ((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length > itemsPerPage) {
         <div class="mt-2 text-center">
           <ngb-pagination class="pagination-sm" [collectionSize]="((comments | orderBy:'creation_date': true) | filter : 'visibility' : key ).length" [(page)]="currentCommentsPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [ellipses]="true" [boundaryLinks]="true">
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" [ngbTooltip]="'First' | translate"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward" [ngbTooltip]="'Previous' | translate"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward" [ngbTooltip]="'Next' | translate"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" [ngbTooltip]="'Last' | translate"></i></ng-template>
+            <ng-template ngbPaginationFirst><span [ngbTooltip]="'First' | translate"><i class="fas fa-backward-fast"></i></span></ng-template>
+            <ng-template ngbPaginationPrevious><span [ngbTooltip]="'Previous' | translate"><i class="fas fa-backward"></i></span></ng-template>
+            <ng-template ngbPaginationNext><span [ngbTooltip]="'Next' | translate"><i class="fas fa-forward"></i></span></ng-template>
+            <ng-template ngbPaginationLast><span [ngbTooltip]="'Last' | translate"><i class="fas fa-forward-fast"></i></span></ng-template>
           </ngb-pagination>
         </div>
       }

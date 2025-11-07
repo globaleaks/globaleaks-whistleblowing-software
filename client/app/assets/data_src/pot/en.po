@@ -510,8 +510,8 @@ msgstr "Fiscal code"
 msgid "Footer"
 msgstr "Footer"
 
-msgid "For security reasons the code needs to be changed."
-msgstr "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
+msgstr "For security reasons, the code needs to be changed."
 
 msgid "For security reasons, password changes are required at regular intervals."
 msgstr "For security reasons, password changes are required at regular intervals."

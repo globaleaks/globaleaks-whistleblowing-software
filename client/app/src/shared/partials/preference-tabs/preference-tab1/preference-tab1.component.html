@@ -10,10 +10,27 @@
       <label>
         <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
       </div>
-      <div id="Role">
-        <label>
-          <span>{{'Role'|translate}}</span>: </label>
-          <span>{{role}}</span>
+        <div id="Role">
+          <label>
+            <span>{{'Default Role'|translate}}</span>:
+          </label>
+          @if (preferenceResolver.dataModel.profile.roles && preferenceResolver.dataModel.profile.roles.length > 1) {
+           <ng-select
+             [items]="roleOptions"
+             bindLabel="role"
+             bindValue="value"
+             [(ngModel)]="userRole"
+             [placeholder]="'Change default role' | translate"
+             (ngModelChange)="onDefaultRoleChange($event)">
+           </ng-select>
+          }
+          @else {
+            <span>
+              {{ preferenceResolver.dataModel.role === 'receiver'
+                ? 'Recipient'
+                : (preferenceResolver.dataModel.role.charAt(0).toUpperCase() + preferenceResolver.dataModel.role.slice(1)) }}
+            </span>
+          }
         </div>
         <div id="Name">
           <label>
@@ -139,7 +156,7 @@
                         <div>
                           <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="loadPublicKeyFile(uploader.files)" />
                           <label class="btn btn-sm btn-outline-secondary" for="customFile">
-                            <i class="fa-solid fa-upload"></i>
+                            <i class="fas fa-upload"></i>
                             <span>{{ 'Upload' | translate }}</span>
                           </label>
                         </div>
@@ -148,7 +165,7 @@
                   }
                   <br />
                   <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid || pgpkeyForm.invalid">
-                    <i class="fa-solid fa-check"></i>
+                    <i class="fas fa-check"></i>
                     <span>{{'Save'|translate}}</span>
                   </button>
                   @if (preferenceResolver.dataModel.encryption) {
@@ -158,7 +175,7 @@
               }
               @if (!appDataService.public.node.pgp) {
                 <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid">
-                  <i class="fa-solid fa-check"></i>
+                  <i class="fas fa-check"></i>
                   <span>{{'Save'|translate}}</span>
                 </button>
               }

@@ -1,10 +1,6 @@
 <div class="modal-header">
-  <div class="modal-title">
-    <h2>{{args.file.name}}</h2>
-  </div>
-  <button type="button" class="close btn" (click)="cancel()">
-    <i class="fa-solid fa-times"></i>
-  </button>
+  <h5 class="modal-title">{{args.file.name}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
   @if (!args.loaded) {
@@ -15,7 +11,5 @@
   }
 </div>
 <div class="modal-footer">
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <span>{{'Close'|translate}}</span>
-  </a>
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">{{'Close'|translate}}</a>
 </div>

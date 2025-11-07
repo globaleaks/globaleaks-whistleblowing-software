@@ -18,18 +18,16 @@
               <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" name="formatted_receipt" size="19" [(ngModel)]="receiptId" [readOnly]="appDataService.page !== 'tippage'">
               <span class="input-group-append">
                 <button id="ReceiptButton" (click)="utilsService.copyToClipboard(receipt)" class="btn btn-primary m-0 rounded-start-0" type="button" [attr.aria-label]="'Copy to clipboard' | translate">
-                  <i class="fa-solid fa-copy"></i>
+                  <i class="fas fa-copy"></i>
                 </button>
               </span>
             </div>
           </div>
         </span>
         <div class="mt-md-1 text-center">{{'Use the 16 digit receipt to log in. It will allow you to view any messages we sent you, and also to add extra info.' | translate}}</div>
-        @if (appDataService.page === 'receiptpage') {
-          <div class="mt-md-3 clearfix">
-            <button id="ReceiptButton" class="btn btn-primary float-end " (click)="viewReport()">{{'View your report' | translate}}</button>
-          </div>
-        }
+        <div class="mt-md-3 clearfix">
+          <button id="ViewReportButton" class="btn btn-primary float-end " (click)="viewReport()">{{'View your report' | translate}}</button>
+        </div>
       </div>
     </div>
   </div>

@@ -13,14 +13,14 @@
           }
           @if (!tlsConfig.files.key.set) {
             <button id="pkGen" class="btn btn-sm btn-primary" (click)="genKey()">
-              <i class="fa-solid fa-cog"></i>
+              <i class="fas fa-gear"></i>
               <span>{{ 'Generate' | translate }}</span>
             </button>
           }
           @if (tlsConfig.files.key.set) {
             <span>
               <button id="deleteKey" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.key)">
-                <i class="fa-solid fa-times"></i>
+                <i class="fas fa-xmark"></i>
                 <span>{{ 'Delete' | translate }}</span>
               </button>
             </span>
@@ -38,7 +38,7 @@
               <span class="float-end">
                 @if (!csr_state.open) {
                   <button id="csrGen" class="btn btn-sm btn-primary" (click)="csr_state.open = true">
-                    <i class="fa-solid fa-cog"></i>
+                    <i class="fas fa-gear"></i>
                     <span>{{ 'Generate' | translate }}</span>
                   </button>
                 }
@@ -60,11 +60,11 @@
                 <span class="clearfix">
                   <span class="float-end">
                     <button id="downloadCsr" class="btn btn-sm btn-primary" (click)="downloadCSR()">
-                      <i class="fa-solid fa-file-export"></i>
+                      <i class="fas fa-file-export"></i>
                       <span>{{ 'Download' | translate }}</span>
                     </button>
                     <button id="deleteCsr" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.csr)">
-                      <i class="fa-solid fa-times"></i>
+                      <i class="fas fa-xmark"></i>
                       <span>{{ 'Delete' | translate }}</span>
                     </button>
                   </span>
@@ -95,7 +95,7 @@
               @if (tlsConfig.files.cert.set) {
                 <span>
                   <button id="deleteCert" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.cert)">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                     <span>{{ 'Delete' | translate }}</span>
                   </button>
                 </span>
@@ -125,7 +125,7 @@
               @if (tlsConfig.files.chain.set) {
                 <span>
                   <button id="deleteChain" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.chain)">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                     <span>{{ 'Delete' | translate }}</span>
                   </button>
                 </span>

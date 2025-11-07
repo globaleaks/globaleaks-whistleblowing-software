@@ -38,7 +38,7 @@ export class TipCommentsComponent implements OnInit {
 
   collapsed = false;
   newCommentContent = "";
-  currentCommentsPage: number = 1;
+  currentCommentsPage = 1;
   itemsPerPage = 5;
   comments: Comment[] = [];
   newComments: Comment;

@@ -18,5 +18,5 @@ export class ContextSelectionComponent {
 
   @Input() selectable_contexts: Context[];
   @Input() contextsOrderPredicate: string;
-  @Output() selectContext: EventEmitter<any> = new EventEmitter();
+  @Output() selectContext = new EventEmitter<any>();
 }

@@ -531,7 +531,7 @@ msgstr "Kod fiskalny"
 msgid "Footer"
 msgstr "Stopka"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Ze względów bezpieczeństwa kod musi zostać zmieniony."
 
 msgid ""

@@ -152,7 +152,6 @@ class TestConfigHandler(helpers.TestHandler):
         yield handler.post()
         response = yield handler.get()
         self.assertTrue(response['enabled'])
-        return
 
         # Disable HTTPS
         yield handler.put()

@@ -1,5 +1,5 @@
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.rest import errors, requests
+from globaleaks.rest import requests
 
 
 class OperationHandler(BaseHandler):

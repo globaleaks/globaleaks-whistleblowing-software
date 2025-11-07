@@ -70,9 +70,7 @@ export class Tab2Component implements OnInit {
     this.authenticationData.permissions = {
       can_upload_files: false
     };
-    this.preferenceData.permissions = {
-      can_upload_files: false
-    };
+    this.preferenceData.profile.permissions.can_upload_files = false;
     this.updateFiles();
     this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
   }
@@ -87,7 +85,7 @@ export class Tab2Component implements OnInit {
       flowJsInstance.opts.singleFile = true;
       flowJsInstance.opts.query = {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024};
       flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
-      
+
       flowJsInstance.on("fileSuccess", (_) => {
         this.appConfigService.reinit(false);
         this.updateFiles();

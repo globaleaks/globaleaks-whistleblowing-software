@@ -8,8 +8,8 @@ import * as sodium from 'libsodium-wrappers-sumo';
 })
 export class CryptoService {
   private worker: Worker;
-  private pendingRequests: Map<string, { resolve: (result: any) => void, reject: (error: any) => void }> = new Map();
-  private messageId: number = 0;
+  private pendingRequests = new Map<string, { resolve: (result: any) => void, reject: (error: any) => void }>();
+  private messageId = 0;
 
   initializeWorker() {
     if (this.worker) {
@@ -59,7 +59,7 @@ export class CryptoService {
     return btoa(binary);
   }
 
-  async generateSalt(seed: string = ''): Promise<string> {
+  async generateSalt(seed = ''): Promise<string> {
     // Generate 16 random bytes
     const randomBytes = new Uint8Array(16);
     window.crypto.getRandomValues(randomBytes);
@@ -80,7 +80,7 @@ export class CryptoService {
     return this.arrayToBase64(combinedBytes);
   }
 
-  async hashArgon2(text: string, salt: string, iterations: number = 16, memory: number = 1 << 27): Promise<string> {
+  async hashArgon2(text: string, salt: string, iterations = 16, memory: number = 1 << 27): Promise<string> {
     this.initializeWorker();
 
     const id = (this.messageId++).toString();

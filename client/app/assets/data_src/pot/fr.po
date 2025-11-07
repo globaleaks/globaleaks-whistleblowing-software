@@ -1,7 +1,7 @@
 # 
 # Translators:
 # Alexandre Girard <transifex@alexgirard.com>, 2013-2014
-# AO <ao@localizationlab.org>, 2015-2016,2018-2024
+# AO <ao@localizationlab.org>, 2015-2016,2018-2025
 # AO <ao@localizationlab.org>, 2015-2016,2021
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013,2016
 # marco calamari <marcoc@marcoc.it>, 2013
@@ -44,7 +44,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: AO <ao@localizationlab.org>, 2015-2016,2018-2024\n"
+"Last-Translator: AO <ao@localizationlab.org>, 2015-2016,2018-2025\n"
 "Language-Team: French (http://app.transifex.com/otf/globaleaks/language/fr/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -549,7 +549,7 @@ msgstr "Code fiscal"
 msgid "Footer"
 msgstr "Bas de page"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Pour des raisons de sécurité, le code doit être changé."
 
 msgid ""
@@ -1288,7 +1288,7 @@ msgid "Substatuses"
 msgstr "Sous-états"
 
 msgid "Success!"
-msgstr "Vous avez réussi."
+msgstr "L’opération a été effectuée avec succès"
 
 msgid "Sufficient"
 msgstr "Suffisante"

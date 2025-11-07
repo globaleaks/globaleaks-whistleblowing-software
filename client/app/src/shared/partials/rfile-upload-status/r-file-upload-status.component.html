@@ -7,7 +7,7 @@
             @if (appDataService.page === 'submissionpage' || !file.complete) {
               <div class="removeFileButton text-danger">
                 <div class="btn btn-sm btn-danger" (click)="file.flowFile.cancel();dataToParent.emit(null)">
-                  <i class="fa-solid fa-times" aria-label="{'Remove' | translate}"></i>
+                  <span aria-label="{'Remove' | translate}"><i class="fas fa-xmark"></i></span>
                 </div>
               </div>
             }
@@ -17,17 +17,17 @@
           <div>
             @if (file.error) {
               <div class="file-upload-icon">
-                <i class="fa-solid fa-ban-circle"></i>
+                <i class="fas fa-ban"></i>
               </div>
             }
             @if (!file.error && !file.complete) {
               <div class="file-upload-icon">
-                <i class="fa-solid fa-file"></i>
+                <i class="fas fa-file"></i>
               </div>
             }
             @if (!file.error && file.complete) {
               <div class="file-upload-icon">
-                <i class="fa-solid fa-check"></i>
+                <i class="fas fa-check"></i>
               </div>
             }
           </div>

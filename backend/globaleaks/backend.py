@@ -71,7 +71,6 @@ class Service(service.Service):
 
         return defer.DeferredList(deferred_list)
 
-    @defer.inlineCallbacks
     def deferred_start(self):
         try:
             ret = update_db()

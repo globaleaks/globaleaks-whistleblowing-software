@@ -5,7 +5,6 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.admin import questionnaire
 from globaleaks.models import Questionnaire
-from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.utils.fs import read_json_file

@@ -6,29 +6,29 @@ from datetime import datetime
 from nacl.encoding import Base64Encoder
 from sqlalchemy.sql.expression import distinct, func, and_, or_
 
+import globaleaks.handlers.recipient.export
+
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access
-from globaleaks.models import serializers
-from globaleaks.orm import db_get, db_del, db_log, transact
+from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
 
-import globaleaks.handlers.recipient.export
-
 
 @transact
-def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
+def get_receivertips(session, tid, user_session, language, args={}):
     """
     Return list of submissions received by the specified receiver
 
     :param session: An ORM session
     :param tid: The tenant ID
-    :param receiver_id: The receiver ID
-    :param user_key: The user key to be used for decrypting data
+    :param user_session: The user session
     :param language: The language to be used during data serialization
     :return: A list of submissions descriptors
     """
+    user_id = user_session.user_id
+    user_key = user_session.cc
 
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
@@ -40,7 +40,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
     # Fetch comments count
     for itip_id, count in session.query(models.InternalTip.id,
                                         func.count(distinct(models.Comment.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == receiver_id,
+                                 .filter(models.ReceiverTip.receiver_id == user_id,
                                          models.ReceiverTip.internaltip_id == models.InternalTip.id,
                                          models.Comment.internaltip_id == models.InternalTip.id,
                                          models.Comment.visibility == 0) \
@@ -50,7 +50,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
     # Fetch files count
     for itip_id, count in session.query(models.InternalTip.id,
                                         func.count(distinct(models.InternalFile.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == receiver_id,
+                                 .filter(models.ReceiverTip.receiver_id == user_id,
                                          models.ReceiverTip.internaltip_id == models.InternalTip.id,
                                          models.InternalFile.internaltip_id == models.InternalTip.id) \
                                  .group_by(models.InternalTip.id):
@@ -69,7 +69,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                                .join(models.ReceiverContext,
                                                      models.Context.id == models.ReceiverContext.context_id)
                                                .filter(models.Context.allow_recipients_selection == False,
-                                                       models.ReceiverContext.receiver_id == receiver_id
+                                                       models.ReceiverContext.receiver_id == user_id
                                                       ).all()
     ]
 
@@ -84,7 +84,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                                        models.InternalTipData.key == 'whistleblower_identity'),
                                                   isouter=True) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
-                                                        models.ReceiverTip.receiver_id == receiver_id),
+                                                        models.ReceiverTip.receiver_id == user_id),
                                                     models.InternalTip.update_date >= updated_after,
                                                     models.InternalTip.update_date <= updated_before,
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
@@ -92,7 +92,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                             .group_by(models.ReceiverTip.id):
         answers = answers.answers
         label = itip.label
-        accessible = rtip.receiver_id == receiver_id
+        accessible = rtip.receiver_id == user_id
         if itip.crypto_tip_pub_key and accessible:
             tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
 
@@ -142,7 +142,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
 
 
 @transact
-def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
+def perform_tips_operation(session, tid, user_session, user_cc, operation, args):
     """
     Transaction for performing operation on submissions (grant/revoke)
 
@@ -153,17 +153,17 @@ def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
     :param operation: An operation command (grant/revoke)
     :param args: The operation arguments
     """
-    receiver = db_get(session, models.User, models.User.id == user_id)
+    user_id = user_session.user_id
 
     result = session.query(models.InternalTip, models.ReceiverTip) \
                                  .filter(models.ReceiverTip.receiver_id == user_id,
                                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                          models.InternalTip.id.in_(args['rtips']))
 
-    if operation == 'grant' and receiver.can_grant_access_to_reports:
+    if operation == 'grant' and user_session.permissions.can_grant_access_to_reports:
         notify = False
         for itip, rtip in result:
-            new_receiver, _ = db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, args['receiver'])
+            new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, args['receiver'])
             if new_receiver:
                 notify = True
                 db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id)
@@ -171,7 +171,7 @@ def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
         if notify:
             db_notify_grant_access(session, new_receiver)
 
-    elif operation == 'revoke' and receiver.can_grant_access_to_reports:
+    elif operation == 'revoke' and user_session.permissions.can_grant_access_to_reports:
         for itip, _ in result:
             if db_revoke_tip_access(session, tid, user_id, itip, args['receiver']):
                 db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id)
@@ -189,8 +189,7 @@ class TipsCollection(BaseHandler):
 
     def get(self):
         return get_receivertips(self.request.tid,
-                                self.session.user_id,
-                                self.session.cc,
+                                self.session,
                                 self.request.language,
                                 self.request.args)
 
@@ -205,7 +204,7 @@ class Operations(BaseHandler):
         request = self.validate_request(self.request.content.read(), requests.OpsDesc)
 
         return perform_tips_operation(self.request.tid,
-                                      self.session.user_id,
+                                      self.session,
                                       self.session.cc,
                                       request['operation'],
                                       request['args'])

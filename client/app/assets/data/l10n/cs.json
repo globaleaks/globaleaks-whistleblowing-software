@@ -1,6 +1,6 @@
 {
   "0 = auto": "0 = automaticky",
-  "Accept multiple answers": "Akceptovat více odpovědí",
+  "Accept multiple answers": "Přijmout více odpovědí",
   "Accept multiple file uploads": "Akceptován příjem více souborů",
   "Acceptable": "Akceptovatelný",
   "Access control": "Řízení přístupu",
@@ -162,7 +162,7 @@
   "First": "První",
   "Fiscal code": "Daňový kód",
   "Footer": "Patička",
-  "For security reasons the code needs to be changed.": "Z bezpečnostních důvodů je třeba kód změnit.",
+  "For security reasons, the code needs to be changed.": "Z bezpečnostních důvodů je třeba kód změnit.",
   "For security reasons, password changes are required at regular intervals.": "Z bezpečnostních důvodů jsou v pravidelných intervalech vyžadovány změny hesla.",
   "For the user documentation, visit:": "Pro uživatelskou dokumentaci navštivte:",
   "Forbidden operation": "Provedení nepovoleno",

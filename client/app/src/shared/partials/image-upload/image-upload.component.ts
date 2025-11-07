@@ -26,7 +26,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   flow: FlowDirective;
   @ViewChild("uploader") uploaderElementRef!: ElementRef<HTMLInputElement>;
 
-  @Input() imageUploadModel: { [key: string]: any };
+  @Input() imageUploadModel: Record<string, any>;
   @Input() imageUploadModelAttr: string;
   @Input() imageUploadId: string;
   imageUploadObj: { files: [] } = {files: []};

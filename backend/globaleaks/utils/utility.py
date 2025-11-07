@@ -31,6 +31,17 @@ def uuid4():
     return str(uuid.uuid4())
 
 
+def is_uuid4(s: str) -> bool:
+    """
+    This function returns true if the argument is a uuid4
+    """
+    try:
+        val = uuid.UUID(s, version=4)
+    except ValueError:
+        return False
+    return str(val) == s and val.version == 4
+
+
 def deferred_sleep(timeout):
     d = Deferred()
 

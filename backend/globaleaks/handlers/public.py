@@ -10,6 +10,7 @@ from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
 
+
 default_questionnaires = ['default']
 default_questions = ['whistleblower_identity']
 
@@ -257,7 +258,6 @@ def db_serialize_node(session, tid, language):
     """
     languages = db_get_languages(session, tid)
     ret = ConfigFactory(session, tid).serialize('public_node')
-    ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
@@ -284,6 +284,8 @@ def db_serialize_node(session, tid, language):
             ret['whistleblowing_question'] = root_tenant_l10n.get_val('whistleblowing_question', language)
             ret['whistleblowing_button'] = root_tenant_l10n.get_val('whistleblowing_button', language)
             ret['disclaimer_text'] = root_tenant_l10n.get_val('disclaimer_text', language)
+
+    ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 
     return ret
 
@@ -393,6 +395,13 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         for attr in data['attrs'].get(field.template_id, {}):
             attrs[attr.name] = serialize_field_attr(attr, language)
 
+    if field.template_id and field.template_id in ['whistleblower_identity']:
+        # correct attributes for questions using default templates
+        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(field.template_id, {}).items()}
+    else:
+        # correct the attributes based on the actual descriptor
+        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(f_to_serialize.type, {}).items()}
+
     children = []
     if field.instance != 'reference' or serialize_templates:
         children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates) for f in data['fields'].get(f_to_serialize.id, [])]
@@ -413,6 +422,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'fieldgroup_id': field.fieldgroup_id if field.fieldgroup_id else '',
         'multi_entry': field.multi_entry,
         'required': field.required,
+        'statistical': field.statistical,
         'attrs': attrs,
         'x': field.x,
         'y': field.y,
@@ -521,7 +531,7 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
         State.tenants[tid].microphone = False
 
     questionnaires = session.query(models.Questionnaire) \
-                            .filter(models.Questionnaire.tid.in_({1, tid}),
+                            .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,
                                         models.Context.additional_questionnaire_id == models.Questionnaire.id),
                                     models.Context.tid == tid)
@@ -556,6 +566,7 @@ def db_get_receivers(session, tid, language):
     """
     receivers = session.query(models.User).filter(models.User.role == models.EnumUserRole.receiver.value,
                                                   models.User.tid == tid)
+
     data = db_prepare_receivers_serialization(session, receivers)
 
     return [serialize_receiver(session, receiver, language, data) for receiver in receivers]

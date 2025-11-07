@@ -533,7 +533,7 @@ msgstr "Codice fiscale"
 msgid "Footer"
 msgstr "Piè di pagina"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Per ragioni di sicurezza il codice deve essere cambiato."
 
 msgid ""

@@ -23,14 +23,14 @@
               @if (twoFactorAuthData.totp.edit) {
                 <span class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" ngbTooltip="{{'Save' | translate}}">
                   <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="OTPSecretForm.invalid">
-                    <i class="fa-solid fa-save"></i>
+                    <i class="fas fa-floppy-disk"></i>
                   </button>
                 </span>
               }
               @if (!twoFactorAuthData.totp.edit) {
                 <span class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" ngbTooltip="{{'Edit' | translate}}">
                   <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="twoFactorAuthData.totp.secret.length !== 32">
-                    <i class="fa-solid fa-edit"></i>
+                    <i class="fas fa-pen-to-square"></i>
                   </button>
                 </span>
               }

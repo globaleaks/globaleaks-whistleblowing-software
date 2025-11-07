@@ -7,6 +7,7 @@ from globaleaks.settings import Settings
 from globaleaks.tests import helpers
 from globaleaks.utils.crypto import GCE, sha256
 
+CHUNK_SIZE = 4096
 password = b'password'
 message = b'message'
 salt = 'wHMeI9jZ1/hVAfpJliXC3Q=='
@@ -60,31 +61,35 @@ class TestCryptoUtils(helpers.TestGL):
 
     def test_encrypt_and_decrypt_file(self):
         prv_key, pub_key = GCE.generate_keypair()
-        a = __file__
-        b = os.path.join(Settings.tmp_path, 'b')
-        c = os.path.join(Settings.tmp_path, 'c')
 
+        # Create a 10MB random file in Settings.tmp_path
+        a = os.path.join(Settings.tmp_path, 'test_input_10mb.bin')
+        with open(a, 'wb') as f:
+            f.write(os.urandom(10 * 1024 * 1024))  # 10MB of random data
+
+        b = os.path.join(Settings.tmp_path, 'encrypted_output')
+        c = os.path.join(Settings.tmp_path, 'decrypted_output')
+
+        # Encrypt the file
         with open(a, 'rb') as input_fd, GCE.streaming_encryption_open('ENCRYPT', pub_key, b) as seo:
-            chunk = input_fd.read(1)
+            chunk = input_fd.read(CHUNK_SIZE)
             while True:
-                x = input_fd.read(1)
+                x = input_fd.read(CHUNK_SIZE)
                 if not x:
                     seo.encrypt_chunk(chunk, 1)
                     break
-
                 seo.encrypt_chunk(chunk, 0)
-
                 chunk = x
 
-        with open(c, 'wb') as output_fd,\
-             GCE.streaming_encryption_open('DECRYPT', prv_key, b) as seo:
-
+        # Decrypt the file
+        with open(c, 'wb') as output_fd, GCE.streaming_encryption_open('DECRYPT', prv_key, b) as seo:
             while True:
                 last, data = seo.decrypt_chunk()
                 output_fd.write(data)
                 if last:
                     break
 
+        # Check that encryption changed the file and decryption restored it
         self.assertFalse(filecmp.cmp(a, b, False))
         self.assertTrue(filecmp.cmp(a, c, False))
 

@@ -7,12 +7,12 @@
           <span class="float-end">
             @if (!first) {
               <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
-                <i class="fa-solid fa-chevron-up"></i>
+                <i class="fas fa-chevron-up"></i>
               </button>
             }
             @if (!last) {
               <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
-                <i class="fa-solid fa-chevron-down"></i>
+                <i class="fas fa-chevron-down"></i>
               </button>
             }
             @if (isEditable(submissionsStatus) && !editing) {

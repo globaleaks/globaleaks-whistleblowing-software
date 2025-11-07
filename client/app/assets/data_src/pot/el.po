@@ -524,7 +524,7 @@ msgstr "Φορολογικός κωδικός / Fiscal code"
 msgid "Footer"
 msgstr "Υποσέλιδο"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

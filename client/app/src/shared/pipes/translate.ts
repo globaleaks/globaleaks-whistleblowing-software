@@ -11,7 +11,7 @@ export class TranslatorPipe implements PipeTransform {
 
 
   transform(key: string): string {
-    
+
     if (!key) {
       return key;
     }

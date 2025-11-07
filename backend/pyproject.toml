@@ -17,9 +17,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[tool.pybuild]
-interpreter = "python3"
-
 # Metadata dynamically loaded from the globaleaks package
 [tool.setuptools.dynamic]
 version = { attr = "globaleaks.__version__" }

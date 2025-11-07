@@ -5,7 +5,7 @@
     <div class="form-group">
       <label>{{ 'Languages' | translate }}</label>
       <button class="btn btn-sm btn-primary add-language-btn" (click)="toggleLangSelect()">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <div>
@@ -29,21 +29,21 @@
               <span class="action-btns">
                 @if (lang_code === nodeResolver.dataModel.default_language) {
                   <span class="default-language">
-                    <i class="fa-solid fa-check"></i>
+                    <i class="fas fa-check"></i>
                   </span>
                 }
                 @if (lang_code !== nodeResolver.dataModel.default_language) {
                   <span class="non-default-language" ngbTooltip="{{'Use as default' | translate}}" (click)="nodeResolver.dataModel.default_language = lang_code">
-                    <i class="fa-solid fa-check"></i>
+                    <i class="fas fa-check"></i>
                   </span>
                 }
                 @if (lang_code !== nodeResolver.dataModel.default_language) {
                   <span (click)="removeLang(index, lang_code)" ngbTooltip="{{'Remove' | translate}}" class="remove-lang-btn">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                   </span>
                 }
                 @if (lang_code === nodeResolver.dataModel.default_language) {
-                  <i class="fa-solid fa-times disabled-icon"></i>
+                  <i class="fas fa-xmark disabled-icon"></i>
                 }
               </span>
               <label>{{ this.languageUtils.languages_supported[lang_code].name }} [{{ lang_code }}]</label>
@@ -54,7 +54,7 @@
     </div>
     <div class="form-group">
       <button class="btn btn-primary" id="save_language" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">
-        <i class="fa-solid fa-check"></i>
+        <i class="fas fa-check"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>
     </div>

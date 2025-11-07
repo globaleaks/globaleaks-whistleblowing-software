@@ -17,8 +17,8 @@ sys.path.insert(0, root)
 
 from globaleaks.utils.utility import get_distribution_codename
 
-if get_distribution_codename() not in ['bookworm', 'noble'] :
-    print("WARNING: The recommended up-to-date platforms are Debian 12 (Bookworm) and Ubuntu 24.04 (Noble)")
+if get_distribution_codename() not in ['trixie', 'noble'] :
+    print("WARNING: The recommended up-to-date platforms are Debian 13 (Trixie) and Ubuntu 24.04 (Noble)")
     print("WARNING: Use one of these platforms to ensure best stability and security")
     print("WARNING: To upgrade your system consult: https://docs.globaleaks.org/en/stable/user/admin/UpgradeGuide.html")
 

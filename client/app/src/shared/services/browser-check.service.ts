@@ -8,7 +8,7 @@ export class BrowserCheckService {
   }
 
   checkBrowserSupport(): boolean {
-    var crawlers = [
+    const crawlers = [
       "Googlebot",
       "Bingbot",
       "Slurp",
@@ -20,7 +20,7 @@ export class BrowserCheckService {
       "ia_archiver"
     ];
 
-    for (var i=0; i < crawlers.length; i++) {
+    for (let i=0; i < crawlers.length; i++) {
       if (navigator.userAgent.indexOf(crawlers[i]) !== -1) {
         return true;
       }

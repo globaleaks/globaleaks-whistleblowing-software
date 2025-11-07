@@ -15,7 +15,7 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
     this.translationService.currentLocale$.subscribe(locale => {
       if (locale === 'crh') {
         this.locale = 'tk';
-      } else if (locale === 'dv') {
+      } else if (locale === 'ba' || locale === 'dv' || locale.startsWith('ug')) {
         this.locale = 'en';
       } else {
         this.locale = locale;
@@ -30,7 +30,11 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
 
   // Use Angular's formatDate for weekday abbreviations
   getWeekdayShortName(weekday: number): string {
-    return formatDate(new Date(2023, 0, weekday), 'EEEEEE', this.locale); // 'EEEEEE' returns first letter
+    const baseDate = new Date(1945, 3, 25); // April 25, 1945! A day of reference, it was a Wednesday!
+                                            // Ora e sempre resistenza!
+    const targetDate = new Date(baseDate);
+    targetDate.setDate(baseDate.getDate() + (weekday - 3));
+    return formatDate(targetDate, 'EEEEEE', this.locale);
   }
 
   // Full month name using Angular's formatDate

@@ -11,8 +11,8 @@ import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {NewUser} from "@app/models/admin/new-user";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
+import {User, UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {NewStep} from "@app/models/admin/new-step";
 import {NewField} from "@app/models/admin/new-field";
@@ -92,20 +92,20 @@ export class HttpService {
     return this.httpClient.delete<RFile>("api/recipient/rfiles/" + id);
   }
 
-  requestOperations(data: { operation: string, args: { [key: string]: string } }, header?: HttpHeaders): Observable<{
+  requestOperations(data: { operation: string, args: Record<string, string> }, header?: HttpHeaders): Observable<{
     operation: string,
-    args: { [key: string]: string }
+    args: Record<string, string>
   }> {
     const options = {headers: header};
     return this.httpClient.put<{
       operation: string,
-      args: { [key: string]: string }
+      args: Record<string, string>
     }>("api/user/operations", data, options);
   }
 
   requestOperationsRecovery(data: {
     operation: string,
-    args: { [key: string]: string }
+    args: Record<string, string>
   }, confirmation: string): Observable<any> {
     const headers = {"X-Confirmation": confirmation};
     return this.httpClient.put<any>("api/user/operations", data, {headers});
@@ -167,8 +167,12 @@ export class HttpService {
     return this.httpClient.put<nodeResolverModel>("api/admin/node", data);
   }
 
-  requestUsersResource(): Observable<userResolverModel[]> {
-    return this.httpClient.get<userResolverModel[]>("api/admin/users");
+  requestUsersResource(): Observable<User[]> {
+    return this.httpClient.get<User[]>("api/admin/users");
+  }
+
+  requestUserProfilesResource(): Observable<UserProfile[]> {
+    return this.httpClient.get<UserProfile[]>("api/admin/users/profiles");
   }
 
   requestContextsResource(): Observable<contextResolverModel> {
@@ -281,20 +285,28 @@ export class HttpService {
     return this.httpClient.put<nodeResolverModel>("api/admin/node", data);
   }
 
-  requestAdminL10NResource(lang: string): Observable<{ [key: string]: string }> {
-    return this.httpClient.get<{ [key: string]: string }>("api/admin/l10n/" + lang);
+  requestAdminL10NResource(lang: string): Observable<Record<string, string>> {
+    return this.httpClient.get<Record<string, string>>("api/admin/l10n/" + lang);
   }
 
-  requestUpdateAdminL10NResource(data: { [key: string]: string }, lang: string): Observable<{ [key: string]: string }> {
-    return this.httpClient.put<{ [key: string]: string }>("api/admin/l10n/" + lang, data);
+  requestUpdateAdminL10NResource(data: Record<string, string>, lang: string): Observable<Record<string, string>> {
+    return this.httpClient.put<Record<string, string>>("api/admin/l10n/" + lang, data);
   }
 
-  requestDefaultL10NResource(lang: string): Observable<{ [key: string]: string }> {
-    return this.httpClient.get<{ [key: string]: string }>("/data/l10n/" + lang + ".json");
+  requestDefaultL10NResource(lang: string): Observable<Record<string, string>> {
+    return this.httpClient.get<Record<string, string>>("/data/l10n/" + lang + ".json");
   }
 
   requestAdminAuditLogResource(): Observable<auditlogResolverModel> {
     return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog");
+  }
+
+  requestRecipientTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>(`api/recipient/rtips/${tipId}/auditlog`);
+  }
+
+  requestWhistleblowerTipAuditLogResource(): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>("api/whistleblower/wbtip/auditlog");
   }
 
   addQuestionnaire(param: NewQuestionare): Observable<questionnaireResolverModel> {
@@ -358,16 +370,28 @@ export class HttpService {
     return this.httpClient.post<void>(`api/recipient/rtips/${id}/iars`, {"request_motivation": ""});
   }
 
-  requestAddAdminUser(param: NewUser): Observable<userResolverModel> {
-    return this.httpClient.post<userResolverModel>("api/admin/users", param);
+  requestAddAdminUser(param: NewUser): Observable<User> {
+    return this.httpClient.post<User>("api/admin/users", param);
   }
 
-  requestUpdateAdminUser(id: string, param: userResolverModel): Observable<userResolverModel> {
-    return this.httpClient.put<userResolverModel>("api/admin/users/" + id, param);
+  requestUpdateAdminUser(id: string, param: User): Observable<User> {
+    return this.httpClient.put<User>("api/admin/users/" + id, param);
   }
 
-  requestDeleteAdminUser(id: string): Observable<userResolverModel> {
-    return this.httpClient.delete<userResolverModel>("api/admin/users/" + id);
+  requestDeleteAdminUser(id: string): Observable<User> {
+    return this.httpClient.delete<User>("api/admin/users/" + id);
+  }
+
+  requestAddAdminUserProfile(param: NewUserProfile): Observable<UserProfile> {
+    return this.httpClient.post<UserProfile>("api/admin/users/profiles", param);
+  }
+
+  requestUpdateAdminUserProfile(id: string, param: UserProfile): Observable<UserProfile> {
+    return this.httpClient.put<UserProfile>("api/admin/users/profiles/" + id, param);
+  }
+
+  requestDeleteAdminUserProfile(id: string): Observable<UserProfile> {
+    return this.httpClient.delete<UserProfile>("api/admin/users/profiles/" + id);
   }
 
   requestAddAdminContext(param: NewContext): Observable<contextResolverModel> {
@@ -429,6 +453,10 @@ export class HttpService {
 
   requestUpdateRedaction(data:RedactionData): Observable<RedactionData> {
     return this.httpClient.put<RedactionData>("api/recipient/redactions/"+ data.id, data);
+  }
+
+  requestRoleSwitch(role: string): Observable<{ redirect: string }> {
+    return this.httpClient.get<{ redirect: string }>(`api/auth/roleauthswitch/${role}`);
   }
 
   runOperation(url: string, operation: string, args: any, refresh: boolean) {

@@ -512,7 +512,7 @@ msgstr ""
 msgid "Footer"
 msgstr "각주"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

@@ -24,7 +24,7 @@ export class ReopenSubmissionComponent {
       this.confirmFunction();
       return this.activeModal.close();
     }
-  
+
     cancel() {
       this.modalService.dismissAll();
     }

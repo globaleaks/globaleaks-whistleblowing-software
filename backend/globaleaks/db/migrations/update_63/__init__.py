@@ -30,18 +30,6 @@ class Subscriber_v_62(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Config(self):
-        for old_obj in self.session_old.query(self.model_from['Config']):
-            new_obj = self.model_to['Config']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
-
-            if old_obj.var_name == 'mode':
-                if old_obj.value == 'whistleblowing.it':
-                    new_obj.value = 'wbpa'
-
-            self.session_new.add(new_obj)
-
     def migrate_Subscriber(self):
         for old_obj in self.session_old.query(self.model_from['Subscriber']):
             new_obj = self.model_to['Subscriber']()

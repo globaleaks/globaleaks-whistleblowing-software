@@ -1,4 +1,3 @@
-from twisted.internet.address import IPv4Address
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers import auth
@@ -6,7 +5,6 @@ from globaleaks.handlers.user import UserInstance
 from globaleaks.handlers.whistleblower.wbtip import WBTipInstance
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
-from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.tests import helpers
 
@@ -107,6 +105,41 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         response = yield auth_switch_handler.get(2)
         self.assertTrue('redirect' in response)
 
+    #@inlineCallbacks
+    #def test_successful_role_switch(self):
+    #    handler = self.request({
+    #        'tid': 1,
+    #        'username': 'admin',
+    #        'password': helpers.VALID_KEY,
+    #        'authcode': ''
+    #    })
+    #
+    #    response = yield handler.post()
+    #
+    #    role_switch_handler = self.request({},
+    #                                       headers={'x-session': response['id']},
+    #                                       handler_cls=auth.RoleAuthSwitchHandler)
+    #
+    #    response = yield role_switch_handler.get('custodian')
+    #    self.assertTrue('redirect' in response)
+
+    @inlineCallbacks
+    def test_unsuccessful_role_switch(self):
+        handler = self.request({
+            'tid': 1,
+            'username': 'admin',
+            'password': helpers.VALID_KEY,
+            'authcode': ''
+        })
+
+        response = yield handler.post()
+
+        role_switch_handler = self.request({},
+                                           headers={'x-session': response['id']},
+                                           handler_cls=auth.RoleAuthSwitchHandler)
+
+        yield self.assertFailure(role_switch_handler.get('receiver'), errors.InvalidAuthentication)
+
     @inlineCallbacks
     def test_accept_login_in_https(self):
         handler = self.request({
@@ -140,21 +173,6 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         })
 
         yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
-
-    @inlineCallbacks
-    def test_failed_login_counter(self):
-        failed_login = 5
-        for _ in range(0, failed_login):
-            handler = self.request({
-                'tid': 1,
-                'username': 'admin',
-                'password': 'INVALIDPASSWORD',
-                'authcode': '',
-            })
-
-            yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
-
-        self.assertEqual(Settings.failed_login_attempts[1], failed_login)
 
     @inlineCallbacks
     def test_single_session_per_user(self):
@@ -380,6 +398,9 @@ class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
         handler = self.request({}, headers={'x-session': session_id})
         yield handler.delete()
 
+        self.assertEqual(handler.request.responseHeaders.hasHeader("Clear-Site-Data"), True)
+        self.assertEqual(handler.request.responseHeaders.getRawHeaders("Clear-Site-Data")[0], '"*"')
+
     @inlineCallbacks
     def test_successful_whistleblower_logout(self):
         self._handler = auth.ReceiptAuthHandler
@@ -401,6 +422,9 @@ class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
         # Logout
         handler = self.request({}, headers={'x-session': response['id']})
         yield handler.delete()
+
+        self.assertEqual(handler.request.responseHeaders.hasHeader("Clear-Site-Data"), True)
+        self.assertEqual(handler.request.responseHeaders.getRawHeaders("Clear-Site-Data")[0], '"*"')
 
 
 class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):

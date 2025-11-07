@@ -21,9 +21,9 @@ export class ChangeSubmissionStatusComponent {
   private activeModal = inject(NgbActiveModal);
 
   @Input() arg: {tip:RecieverTipData, submission_statuses:SubmissionStatus[],status:any};
-  
+
   confirmFunction: (status:SubmissionStatus) => void;
-  
+
     confirm(status: SubmissionStatus) {
       if(status){
         this.confirmFunction(status);
@@ -32,7 +32,7 @@ export class ChangeSubmissionStatusComponent {
         this.cancel()
       }
     }
-  
+
     cancel() {
       this.modalService.dismissAll();
     }

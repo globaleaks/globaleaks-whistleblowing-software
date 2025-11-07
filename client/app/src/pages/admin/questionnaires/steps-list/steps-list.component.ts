@@ -34,8 +34,8 @@ export class StepsListComponent implements OnInit {
   @Input() steps: Step[];
   @Input() questionnaire: questionnaireResolverModel;
   @Input() index: number;
-  editing: boolean = false;
-  showAddTrigger: boolean = false;
+  editing = false;
+  showAddTrigger = false;
   parsedFields: ParsedFields;
   new_trigger: { field: string; option: string; sufficient: boolean } = {
     field: "",

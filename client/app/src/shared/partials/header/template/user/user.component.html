@@ -17,7 +17,7 @@
         @if (authentication.session.role !== 'whistleblower') {
           <span>
             <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}">
-              <i class="fa-solid fa-fw fa-home"></i>
+              <i class="fas fa-house"></i>
             </a>
             <span class="text-separator">|</span>
           </span>
@@ -26,7 +26,15 @@
       @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
         <span id="PreferencesLinkBox">
           <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}">
-            <i class="fa-solid fa-fw fa-user"></i>
+            <i class="fas fa-user"></i>
+          </a>
+          <span class="text-separator">|</span>
+        </span>
+      }
+      @if (preferences.dataModel.profile && preferences.dataModel.profile.roles.length > 1) {
+        <span id="SwitchRoleBox">
+          <a id="SwitchRoleLink" [href]="'#'+authentication.session.homepage" (click)="openSwitchUserModal()" ngbTooltip="{{'Switch role' | translate}}">
+            <i class="fa-solid fa-fw fa-users"></i>
           </a>
           <span class="text-separator">|</span>
         </span>
@@ -34,7 +42,7 @@
       @if (authentication.session && authentication.session.role !== 'whistleblower') {
         <span id="SupportLinkBox">
           <a id="SupportLink" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}">
-            <i class="fa-solid fa-fw fa-life-ring"></i>
+            <i class="fas fa-life-ring"></i>
           </a>
           <span class="text-separator">|</span>
         </span>
@@ -44,7 +52,7 @@
       </span>
       <span id="LogoutLinkBox">
         <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}">
-          <i class="pointer fa-solid fa-fw fa-sign-out-alt"></i>
+          <i class="pointer fas fa-right-from-bracket"></i>
           @if (authentication.session.role === 'whistleblower') {
             <span>
               <span></span>

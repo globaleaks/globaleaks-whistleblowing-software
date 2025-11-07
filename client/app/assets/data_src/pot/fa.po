@@ -28,7 +28,7 @@
 # b0b47d46632b78a09a40de799fda9a65, 2019
 # Vox <voxp@protonmail.com>, 2020-2022
 # Xashyar, 2021
-# Mahshid, 2021
+# Xceeder, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
@@ -538,7 +538,7 @@ msgstr "کد مالی"
 msgid "Footer"
 msgstr "پانویس"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

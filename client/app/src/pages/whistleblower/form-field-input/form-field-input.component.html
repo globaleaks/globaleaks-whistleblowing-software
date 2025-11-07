@@ -3,7 +3,7 @@
     @switch (field.template_id) {
       @case ('whistleblower_identity') {
         <div>
-          <src-whistleblower-identity-field (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [identity_provided]="identity_provided" [index]="index" [step]="rows" [entry]="entry" [fields]="fields" [answers]="answers" [displayErrors]="displayErrors" [submission]="submission" [field]="field"></src-whistleblower-identity-field>
+          <src-whistleblower-identity-field (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl]="fileUploadUrl" [uploads]="uploads" [index]="index" [step]="rows" [entry]="entry" [fields]="fields" [answers]="answers" [displayErrors]="displayErrors" [submission]="submission" [field]="field"></src-whistleblower-identity-field>
         </div>
       }
       @default {
@@ -51,7 +51,7 @@
                     </ng-select>
                     @if (entry['value']) {
                       <span class="input-append" (click)="entry['value']='';" disabled="!entry['value']">
-                        <i class="input-group-text cross-padding fa-solid fa-times-circle"></i>
+                        <i class="input-group-text cross-padding fas fa-circle-xmark"></i>
                       </span>
                     }
                   </div>
@@ -83,7 +83,7 @@
                 <div class="input-group">
                   <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry" [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field.label" [(ngModel)]="input_date" [required]="entry.required_status" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" (ngModelChange)="onDateSelection()" />
                   <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
-                    <i class="fa-solid fa-calendar"></i>
+                    <i class="fas fa-calendar"></i>
                   </span>
                 </div>
               </div>
@@ -97,7 +97,7 @@
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry+'-startDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readOnly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_start_date" [required]="entry.required_status" ngbDatepicker #datepickerstart="ngbDatepicker" (click)="datepickerstart.toggle()" (ngModelChange)="onStartDateSelection(input_start_date)" />
                     <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
-                      <i class="fa-solid fa-calendar"></i>
+                      <i class="fas fa-calendar"></i>
                     </span>
                   </div>
                 </span>
@@ -108,14 +108,14 @@
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry}}" class="form-control" [name]="fieldEntry+'-endDate'" [minDate]="input_start_date" [maxDate]="dateOptions2" type="text" [readonly]="true" [attr.aria-label]="field.label" [(ngModel)]="input_end_date" [required]="entry.required_status" ngbDatepicker #datepickerend="ngbDatepicker" (click)="datepickerend.toggle()" (ngModelChange)="onEndDateSelection(input_end_date)" [disabled]="!input_start_date" />
                     <span class="input-group-append btn btn-light border border-1" (click)="input_start_date && datepickerend.toggle()">
-                      <i class="fa-solid fa-calendar"></i>
+                      <i class="fas fa-calendar"></i>
                     </span>
                   </div>
                 </span>
                 @if (input_start_date) {
                   <span class="form-group ms-2">
                     <button type="button" class="btn btn-outline-secondary" (click)="clearDateRange()">
-                      <i class="fa-solid fa-times-circle"></i>
+                      <i class="fas fa-circle-xmark"></i>
                     </button>
                   </span>
                 }
@@ -168,7 +168,7 @@
                       </div>
                     }
                   }
-                <src-form (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]="identity_provided" [fileUploadUrl] = fileUploadUrl [fieldEntry]="fieldEntry" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="rows" [submission]="submission" [index]="index" [uploads]="uploads"></src-form>
+                <src-form (notifyFileUpload)="notifyFileUpload.emit()" [fileUploadUrl] = fileUploadUrl [fieldEntry]="fieldEntry" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="rows" [submission]="submission" [index]="index" [uploads]="uploads"></src-form>
               </div>
             }
             @default {
@@ -226,7 +226,7 @@
         <div>
           @if (option.set && option.hint1) {
             <div>
-              <i class="fa-solid fa-info-circle"></i> <markdown [data]="option.hint1 | stripHtml"></markdown>
+              <i class="fas fa-circle-info"></i><markdown [data]="option.hint1 | stripHtml"></markdown>
             </div>
           }
         </div>
@@ -237,7 +237,7 @@
     <div>
       @if (option.set && option.hint2) {
         <div [ngClass]="{'text-danger': option.block_submission}">
-          <i class="fa-solid fa-info-circle"></i> <markdown [data]="option.hint2 | stripHtml"></markdown>
+          <i class="fas fa-circle-info"></i><markdown [data]="option.hint2 | stripHtml"></markdown>
         </div>
       }
     </div>

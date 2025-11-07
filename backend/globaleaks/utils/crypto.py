@@ -1,5 +1,4 @@
 import binascii
-import os
 import pyotp
 import random
 import secrets

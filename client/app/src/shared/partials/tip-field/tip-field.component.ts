@@ -15,7 +15,7 @@ export class TipFieldComponent {
   @Input() fields: any;
   @Input() index: number;
   @Input() fieldAnswers: any;
-  @Input() preview: boolean = false;
+  @Input() preview = false;
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
 

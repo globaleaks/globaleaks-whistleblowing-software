@@ -25,7 +25,7 @@ export class AcceptAgreementComponent implements OnInit {
 
   confirmFunction: () => void;
   preferenceData: preferenceResolverModel;
-  accept: boolean = false;
+  accept = false;
 
   ngOnInit(): void {
     if (this.preference.dataModel) {

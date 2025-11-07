@@ -21,6 +21,7 @@ export class WhistleblowerIdentityComponent {
   protected wbTipService = inject(WbtipService);
   protected utilsService = inject(UtilsService);
 
+  @Input() submission: any;
   @Input() field: any;
   @Input() step: any;
   @Input() answers: Answers;
@@ -31,10 +32,13 @@ export class WhistleblowerIdentityComponent {
   @Output() provideIdentityInformation = new EventEmitter<{ param1: string, param2: Answers }>();
   @Output() onFormUpdate = new EventEmitter<void>();
   @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+  @Input() uploads: Record<string, any>;
+
+  fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
 
   collapsed = false;
   protected readonly JSON = JSON;
-  identity_provided: boolean = true;
+  identity_provided = false;
 
   constructor() {
     this.collapsed = this.wbTipService.tip.data.whistleblower_identity_provided;
@@ -50,5 +54,6 @@ export class WhistleblowerIdentityComponent {
 
   stateChanged(status: boolean) {
     this.identity_provided = status;
+    this.submission.submission.identity_provided = status;
   }
 }

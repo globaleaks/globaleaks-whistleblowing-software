@@ -3,7 +3,6 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
-from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 
@@ -141,3 +140,20 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
 
 class TestOperationChangeReceiptServersideHashing(TestOperationChangeReceipt):
     clientside_hashing = False
+
+
+class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
+    _handler = wbtip.ReportAuditLog
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def test_get(self):
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+
+            yield handler.get(wbtip_desc['id'])

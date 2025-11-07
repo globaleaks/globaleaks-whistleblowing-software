@@ -4,15 +4,13 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.jobs.notification import Notification
-from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import transact
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import transact, tw
 from globaleaks.tests import helpers
-from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 
 @transact
 def simulate_unread_tips(session):
-    ConfigFactory(session, 1).set_val('timestamp_daily_notifications', 0)
-
     # Simulate that 8 days has passed recipients have not accessed reports
     for user in session.query(models.User):
         user.reminder_date = datetime_null()
@@ -25,11 +23,14 @@ def simulate_unread_tips(session):
 
 
 @transact
-def simulate_reminders(session):
-    ConfigFactory(session, 1).set_val('timestamp_daily_notifications', 0)
-
+def enable_reminders(session):
     for itip in session.query(models.InternalTip):
         itip.reminder_date = datetime_now() - timedelta(1)
+
+@transact
+def disable_reminders(session):
+    for itip in session.query(models.InternalTip):
+        itip.reminder_date = datetime_never()
 
 
 class TestNotification(helpers.TestGLWithPopulatedDB):
@@ -77,23 +78,46 @@ class TestNotification(helpers.TestGLWithPopulatedDB):
 
         yield simulate_unread_tips()
 
+        # Disable the unread reminder and ensure no unread reminders are sent
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        save_var = self.state.tenants[1].cache.unread_reminder_time
+        self.state.tenants[1].cache.unread_reminder_time = 0
         yield notification.generate_emails()
-
-        yield self.test_model_count(models.Mail, 2)
-
-        yield notification.spool_emails()
-
-        yield simulate_reminders()
-
-        yield notification.generate_emails()
-
-        yield self.test_model_count(models.Mail, 2)
-
-        yield notification.spool_emails()
-
-        yield notification.generate_emails()
-
         yield self.test_model_count(models.Mail, 0)
+
+        # Re-enable the unread reminder and ensure unread reminders are sent
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        self.state.tenants[1].cache.unread_reminder_time = save_var
+        yield notification.generate_emails()
+        yield self.test_model_count(models.Mail, 2)
+
+        yield notification.spool_emails()
+
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        yield enable_reminders()
+        yield notification.generate_emails()
+        yield self.test_model_count(models.Mail, 2)
+        yield notification.spool_emails()
+        yield disable_reminders()
+
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        yield notification.generate_emails()
+        yield self.test_model_count(models.Mail, 0)
+
+        yield self.set_itips_expiration_as_near_to_expire()
+
+        # Disable the expiration reminders and ensure expiration reminders are not sent
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        save_var = self.state.tenants[1].cache.notification.tip_expiration_threshold
+        self.state.tenants[1].cache.notification.tip_expiration_threshold = 0
+        yield notification.generate_emails()
+        yield self.test_model_count(models.Mail, 0)
+
+        # Re-enable the expiration reminders and ensure expiration reminders are sent
+        tw(db_set_config_variable, 1, 'timestamp_daily_notifications', 0)
+        self.state.tenants[1].cache.notification.tip_expiration_threshold = save_var
+        yield notification.generate_emails()
+        yield self.test_model_count(models.Mail, 2)
 
         yield notification.spool_emails()
 

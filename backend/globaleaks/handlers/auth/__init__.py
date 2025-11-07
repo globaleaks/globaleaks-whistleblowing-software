@@ -1,16 +1,15 @@
 # Handlers dealing with platform authentication
 import json
 from datetime import timedelta
-from random import SystemRandom
 from sqlalchemy import exists, func, or_, and_
-
+from sqlalchemy.orm import joinedload
 from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 import globaleaks.handlers.auth.token
-
 from globaleaks.handlers.base import connection_check, BaseHandler
-from globaleaks.models import InternalTip, User
+from globaleaks.handlers.user import user_permissions
+from globaleaks.models import InternalTip, User, UserProfile
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
@@ -18,43 +17,14 @@ from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256
-from globaleaks.utils.utility import datetime_now, deferred_sleep, uuid4
+from globaleaks.utils.objectdict import ObjectDict
+from globaleaks.utils.utility import datetime_now, uuid4
 
 
 def db_login_failure(session, tid, whistleblower=False):
     Settings.failed_login_attempts[tid] = Settings.failed_login_attempts.get(tid, 0) + 1
 
     db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure')
-
-    raise errors.InvalidAuthentication
-
-
-def login_delay(tid):
-    """
-    The function in case of failed_login_attempts introduces
-    an exponential increasing delay between 0 and 42 seconds
-
-    the function implements the following table:
-     ----------------------------------
-    | failed_attempts |      delay     |
-    | x < 5           | 0              |
-    | 5               | random(5, 25)  |
-    | 6               | random(6, 36)  |
-    | 7               | random(7, 42)  |
-    | 8 <= x <= 42    | random(x, 42)  |
-    | x > 42          | 42             |
-     ----------------------------------
-    """
-    failed_attempts = Settings.failed_login_attempts.get(tid, 0)
-
-    if failed_attempts < 5:
-        return
-
-    n = failed_attempts * failed_attempts
-    min_sleep = failed_attempts if failed_attempts < 42 else 42
-    max_sleep = n if n < 42 else 42
-
-    return deferred_sleep(SystemRandom().randint(min_sleep, max_sleep))
 
 
 @transact
@@ -75,14 +45,14 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
             salt = ConfigFactory(session, tid).get_val('receipt_salt')
             key, hash = GCE.calculate_key_and_hash(receipt, salt)
     except:
-        db_login_failure(session, tid, 0)
+        raise errors.InvalidAuthentication
 
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
                           InternalTip.receipt_hash == hash).one_or_none()
 
     if itip is None:
-        db_login_failure(session, tid, 1)
+        raise errors.InvalidAuthentication
 
     itip.wb_last_access = datetime_now()
     itip.tor = itip.tor and client_using_tor
@@ -121,17 +91,20 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :return: Returns a user session in case of success
     """
     if tid in State.tenants and State.tenants[tid].cache.simplified_login:
-        user = session.query(User).filter(or_(User.id == username,
-                                              User.username == username),
-                                          User.enabled.is_(True),
-                                          User.tid == tid).one_or_none()
+        user = session.query(User) \
+                      .options(joinedload(User.profile).joinedload(UserProfile.permissions),
+                               joinedload(User.profile).joinedload(UserProfile.roles)) \
+                      .filter(or_(User.id == username, User.username == username),
+                                  User.enabled.is_(True), User.tid == tid).one_or_none()
     else:
-        user = session.query(User).filter(User.username == username,
-                                          User.enabled.is_(True),
-                                          User.tid == tid).one_or_none()
+        user = session.query(User) \
+                      .options(joinedload(User.profile).joinedload(UserProfile.permissions),
+                               joinedload(User.profile).joinedload(UserProfile.roles)) \
+                      .filter(or_(User.username == username),
+                                  User.enabled.is_(True), User.tid == tid).one_or_none()
 
-    if not user:
-        db_login_failure(session, tid, 0)
+    if user is None:
+        raise errors.InvalidAuthentication
 
     try:
         if len(user.hash) == 64:
@@ -140,10 +113,10 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
         else:
             key, hash = GCE.calculate_key_and_hash(password, user.salt)
     except:
-        db_login_failure(session, tid, 0)
+        raise errors.InvalidAuthentication
 
     if not password or not GCE.check_equality(hash, user.hash):
-        db_login_failure(session, tid, 0)
+        raise errors.InvalidAuthentication
 
     connection_check(tid, user.role, client_ip, client_using_tor)
 
@@ -176,12 +149,11 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 
-    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key)
+    permissions = ObjectDict()
+    for r in user_permissions:
+        permissions[r] = r in user.profile.permissions_list
 
-    if user.role == 'receiver' and user.can_edit_general_settings:
-        session.permissions['can_edit_general_settings'] = True
-
-    return session
+    return Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions)
 
 
 @transact
@@ -204,6 +176,11 @@ def get_auth_type(session, tid, username):
             return {'type': 'key', 'salt': salt}
 
     return {'type': 'password'}
+
+
+@transact
+def get_user_roles(session, tid, user_id):
+    return session.query(User).filter(User.tid == tid, User.id == user_id).one().profile.roles_list
 
 
 class AuthTypeHandler(BaseHandler):
@@ -231,14 +208,16 @@ class AuthenticationHandler(BaseHandler):
         if tid == 0:
             tid = self.request.tid
 
-        yield login_delay(tid)
-
-        session = yield login(tid,
-                              request['username'],
-                              request['password'],
-                              request['authcode'],
-                              self.request.client_using_tor,
-                              self.request.client_ip)
+        try:
+            session = yield login(tid,
+                                  request['username'],
+                                  request['password'],
+                                  request['authcode'],
+                                  self.request.client_using_tor,
+                                  self.request.client_ip)
+        except:
+            yield tw(db_login_failure, self.request.tid, 0)
+            raise
 
         if tid != self.request.tid:
             returnValue({
@@ -258,11 +237,10 @@ class TokenAuthHandler(BaseHandler):
     def post(self):
         request = self.validate_request(self.request.content.read(), requests.TokenAuthDesc)
 
-        yield login_delay(self.request.tid)
-
         session = Sessions.get(request['authtoken'])
         if session is None:
             yield tw(db_login_failure, self.request.tid, 0)
+            raise errors.InvalidAuthentication
 
         connection_check(self.request.tid, session.role,
                          self.request.client_ip, self.request.client_using_tor)
@@ -282,8 +260,6 @@ class ReceiptAuthHandler(BaseHandler):
     def post(self):
         request = self.validate_request(self.request.content.read(), requests.ReceiptAuthDesc)
 
-        yield login_delay(self.request.tid)
-
         connection_check(self.request.tid, 'whistleblower',
                          self.request.client_ip, self.request.client_using_tor)
 
@@ -293,8 +269,12 @@ class ReceiptAuthHandler(BaseHandler):
             operator_id = self.session.properties.get('operator_session')
 
         if request['receipt']:
-            session = yield login_whistleblower(self.request.tid, request['receipt'],
-                                                self.request.client_using_tor, operator_id)
+            try:
+                session = yield login_whistleblower(self.request.tid, request['receipt'],
+                                                    self.request.client_using_tor, operator_id)
+            except:
+                yield tw(db_login_failure, self.request.tid, 1)
+                raise
         else:
             if not self.state.accept_submissions or self.state.tenants[self.request.tid].cache['disable_submissions']:
                 raise errors.SubmissionDisabled
@@ -341,6 +321,8 @@ class SessionHandler(BaseHandler):
         else:
             yield tw(db_log, tid=self.session.tid,  type='logout', user_id=self.session.user_id)
 
+        self.request.setHeader(b'Clear-Site-Data', b'"*"')
+
         del Sessions[self.session.id]
 
 
@@ -360,11 +342,36 @@ class TenantAuthSwitchHandler(BaseHandler):
                                self.session.user_tid,
                                self.session.role,
                                self.session.cc,
-                               self.session.ek)
+                               self.session.ek,
+                               self.session.permissions)
 
         session.properties['management_session'] = True
 
         return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
+
+
+class RoleAuthSwitchHandler(BaseHandler):
+    """
+    Login handler for switching tenant
+    """
+    check_roles = 'any'
+
+    @inlineCallbacks
+    def get(self, role):
+        roles = yield get_user_roles(self.request.tid, self.session.user_id)
+
+        if role not in roles:
+            raise errors.InvalidAuthentication
+
+        session = Sessions.new(self.session.tid,
+                               self.session.user_id,
+                               self.session.user_tid,
+                               role,
+                               self.session.cc,
+                               self.session.ek,
+                               self.session.permissions)
+
+        returnValue({'redirect': '/#/login?token=%s' % (session.id)})
 
 
 class OperatorAuthSwitchHandler(BaseHandler):
@@ -379,7 +386,8 @@ class OperatorAuthSwitchHandler(BaseHandler):
                                self.session.user_tid,
                                "whistleblower",
                                self.session.cc,
-                               self.session.ek)
+                               self.session.ek,
+                               self.session.permissions)
 
         session.properties['operator_session'] = self.session.user_id
 

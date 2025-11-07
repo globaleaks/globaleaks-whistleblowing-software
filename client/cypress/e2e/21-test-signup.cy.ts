@@ -10,7 +10,7 @@ describe("Admin Enable Signup", function() {
     cy.get('input[name="signup_tos1_title"]').type("Terms and Conditions");
     cy.get('input[name="signup_tos1_checkbox_label"]').type("I've ready and I accept the [Terms and Conditions](https://www.globaleaks.org)");
     cy.takeScreenshot("admin/signup_configuration");
-    cy.get('i.fa-solid.fa-check').click();
+    cy.get("#save").click();
 
     cy.logout();
   });
@@ -40,7 +40,7 @@ describe("Admin Disable Signup", function() {
     cy.visit("/#/admin/sites");
     cy.get('[data-cy="options"]').click();
     cy.get('input[name="enable_signup"]').click();
-    cy.get('i.fa-solid.fa-check').click();
+    cy.get("#save").click();
 
     cy.logout();
     cy.waitForUrl("/#/login")

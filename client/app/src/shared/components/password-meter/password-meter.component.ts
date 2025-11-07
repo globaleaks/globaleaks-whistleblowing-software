@@ -10,8 +10,8 @@ import {NgClass} from "@angular/common";
 export class PasswordMeterComponent implements OnChanges {
 
   @Input() passwordStrengthScore = 0;
-  strengthType: string = "";
-  strengthText: string = "";
+  strengthType = "";
+  strengthText = "";
 
   ngOnChanges(_: SimpleChanges): void {
     if (this.passwordStrengthScore < 2) {

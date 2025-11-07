@@ -17,20 +17,12 @@
   font-size: 18px;
 }
 
-#pdf-viewer canvas {
-  width: 100%;
-}
-
 #media-viewer {
   display: none;
 }
 
-#media-viewer video {
-  height: 100%;
+#media-viewer img,
+#media-viewer video,
+#pdf-viewer canvas {
   width: 100%;
-}
-
-#media-viewer img {
-  object-fit: contain;
-  height: 100%;
 }

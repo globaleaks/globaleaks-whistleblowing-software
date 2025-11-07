@@ -1,0 +1,82 @@
+<div class="row">
+  <div class="col-md-12">
+    <div>
+      <span>{{'Profiles'|translate}}</span>
+      <button class="btn btn-sm btn-primary show-add-profile-btn" (click)="toggleAddTenant()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{'Add'|translate}}</span>
+      </button>
+      <span class="custom-file">
+        <input type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput.files)" />
+        <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+        </label>
+      </span>
+    </div>
+
+    @if (showAddTenant) {
+      <div class="row">
+        <div class="col-md-6">
+          <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
+            <div class="form-group">
+              <label>
+                <span>{{'Name'|translate}}</span>
+                <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              </label>
+              <div>
+                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120"
+                  type="text" required />
+              </div>
+            </div>
+            <div class="form-group clearfix">
+              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid"
+                (click)="addTenant();toggleAddTenant()" type="button">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+    <div class="row mb-3">
+      <div class="col d-flex justify-content-end">
+        <div class="input-group input-group-sm w-auto">
+          <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="search">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      @if (tenants) {
+        <div class="col-md-12">
+          @for (tenant of tenants | orderBy:'id' | filter:'name':search | slice: (currentPage - 1) * itemsPerPage : currentPage * itemsPerPage; track tenant; let index = $index) {
+            <div
+              >
+              <form id="tenant-{{index}}" #editTenant="ngForm" novalidate>
+                <src-profilelist [editTenant]="editTenant" [index]="(currentPage - 1) * itemsPerPage + index"
+                [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)"></src-profilelist>
+              </form>
+            </div>
+          }
+          @if ((tenants | filter:'name':search).length > 10) {
+            <div class="text-center">
+              <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="itemsPerPage" [collectionSize]="(tenants | filter:'name':search).length">
+                <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+              </ngb-pagination>
+            </div>
+          }
+        </div>
+      }
+    </div>

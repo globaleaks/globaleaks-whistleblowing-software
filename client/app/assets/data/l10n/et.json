@@ -162,7 +162,7 @@
   "First": "Esimene",
   "Fiscal code": "Itaalia maksukood",
   "Footer": "Jalus",
-  "For security reasons the code needs to be changed.": "For security reasons the code needs to be changed.",
+  "For security reasons, the code needs to be changed.": "For security reasons, the code needs to be changed.",
   "For security reasons, password changes are required at regular intervals.": "Turvakaalutlustel nõutakse regulaarsete ajavahemike järel parooli vahetamist.",
   "For the user documentation, visit:": "Kasutaja dokumendid leiate aadressilt:",
   "Forbidden operation": "Keelatud toiming",

@@ -3,13 +3,13 @@
     <div>
       <span>{{ 'Question templates' | translate }}</span>
       <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
         <input type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
         <label (click)="uploadInput.click()" class="btn btn-sm btn-outline-secondary">
-          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+          <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>
     </div>

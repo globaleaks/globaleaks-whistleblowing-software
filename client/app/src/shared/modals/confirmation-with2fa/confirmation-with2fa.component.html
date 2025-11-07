@@ -1,15 +1,16 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Confirm'|translate}}</div>
+  <h5 class="modal-title">{{'Confirm'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="dismiss()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-    <div class="form-group">
-        <div>
-            <span>{{'Enter the two factor authentication code'|translate}}</span>
-        </div>
-        <input class="form-control" name="secret" [(ngModel)]="secret" type="text" size="6" maxlength="6" />
+  <div class="form-group">
+    <div>
+      <span>{{'Enter the two factor authentication code'|translate}}</span>
     </div>
+    <input class="form-control" name="secret" [(ngModel)]="secret" type="text" size="6" maxlength="6" />
+  </div>
 </div>
 <div class="modal-footer">
-    <button (click)="confirm()" id="confirm" [disabled]="!secret || secret.length !== 6" class="btn btn-primary">{{'Confirm'|translate}}</button>
-    <button (click)="dismiss()" id="close" class="btn btn-light">{{'Close'|translate}}</button>
+  <button (click)="confirm()" id="confirm" [disabled]="!secret || secret.length !== 6" class="btn btn-primary">{{'Confirm'|translate}}</button>
+  <button (click)="dismiss()" id="close" class="btn btn-light">{{'Close'|translate}}</button>
 </div>

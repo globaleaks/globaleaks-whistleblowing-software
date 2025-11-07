@@ -2,40 +2,42 @@ import os
 import shutil
 
 from tempfile import mkdtemp
-
 from twisted.trial import unittest
 
 from globaleaks.utils.securetempfile import SecureTemporaryFile
-
-TEST_DATA = b"Hello, world! This is a test data for writing, seeking and reading operations."
 
 class TestSecureTemporaryFiles(unittest.TestCase):
     def setUp(self):
         self.storage_dir = mkdtemp()
         self.ephemeral_file = SecureTemporaryFile(self.storage_dir)
+        self.chunk_size = 4096  # Define chunk size (4KB)
+        self.total_size = 1024 * 1024  # 1MB
+        self.test_data = os.urandom(self.total_size)
 
     def tearDown(self):
         shutil.rmtree(self.storage_dir)
 
     def test_encryption_and_decryption(self):
-        with self.ephemeral_file.open('w') as file:
-            file.write(TEST_DATA)
+        # Write 1MB of data in 4KB chunks
+        for i in range(0, self.total_size, self.chunk_size):
+            with self.ephemeral_file.open('w') as file:
+                chunk = self.test_data[i:i + self.chunk_size]
+                file.write(chunk)
 
-        # Define test cases: each case is a tuple (seek_position, read_size, expected_data)
+        # Define test cases with various seek/read ranges
         seek_tests = [
-            (0, 1, TEST_DATA[:1]),  # Seek at the start read 1 byte
-            (5, 5, TEST_DATA[5:10]),  # Seek forward, read 5 bytes
-            (10, 2, TEST_DATA[10:12]),  # Seek forward, read 2 bytes
-            (0, 3, TEST_DATA[:3]),  # Seek backward, read 3 bytes
+            (0, 1024, self.test_data[:1024]),  # Seek at the start read 1024 byte
+            (1024, 1024, self.test_data[1024:2048]),  # Seek forward, read 1024 bytes
+            (4096, 1024, self.test_data[4096:5120]),  # Seek forward, read 1024 bytes
+            (3072, 1024, self.test_data[3072:4096]),  # Seek backward, read 1024 bytes
         ]
 
-        # Test forward and backward seeking with different offsets
         for seek_pos, read_size, expected in seek_tests:
             with self.ephemeral_file.open('r') as file:
-                file.seek(seek_pos)  # Seek to the given position
-                self.assertEqual(file.tell(), seek_pos)  # Check position after seeking forward
-                read_data = file.read(read_size)  # Read the specified number of bytes
-                self.assertEqual(read_data, expected)  # Verify the data matches the expected value
+                file.seek(seek_pos)
+                self.assertEqual(file.tell(), seek_pos)
+                read_data = file.read(read_size)
+                self.assertEqual(read_data, expected)
 
     def test_file_cleanup(self):
         path_copy = self.ephemeral_file.filepath

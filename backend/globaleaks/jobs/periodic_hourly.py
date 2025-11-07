@@ -9,5 +9,4 @@ class PeriodicHourly(HourlyJob):
     Hourly
     """
     def operation(self):
-        # Hourly Resets
-        self.state.reset_hourly()
+        pass

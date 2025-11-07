@@ -11,7 +11,7 @@
         <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div class="input-group">
-        <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" subdomainvalidators required>
+        <input name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" type="text" maxlength="40" subdomainvalidators required>
         <span class="input-group-append">
           <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
         </span>
@@ -60,7 +60,7 @@
   <div class="row">
     <div class="col-md-12">
       <button class="ButtonNext btn btn-primary" type="submit" (click)="(validated = true) && !signupform.invalid && complete.emit()">
-        <i class="fa-solid fa-check"></i>
+        <i class="fas fa-check"></i>
         <span>{{'Proceed'|translate}}</span>
       </button>
     </div>

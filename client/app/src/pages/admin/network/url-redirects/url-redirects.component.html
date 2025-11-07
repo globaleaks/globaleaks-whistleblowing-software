@@ -18,7 +18,7 @@
         </span>
       </div>
       <button type="submit" id="add_redirect" class="btn btn-primary ms-2 mb-1" [disabled]="redirectAddForm.invalid" (click)="addRedirect()">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
     </form>
@@ -42,7 +42,7 @@
             <td>{{redirectPath(redirect, 2)}}</td>
             <td>
               <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
-                <i class="fa-solid fa-trash"></i>
+                <i class="fas fa-trash"></i>
                 <span>{{ 'Delete' | translate }}</span>
               </button>
             </td>

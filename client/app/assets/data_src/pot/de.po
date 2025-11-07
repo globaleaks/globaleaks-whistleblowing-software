@@ -560,7 +560,7 @@ msgstr "Steuernummer"
 msgid "Footer"
 msgstr "Fußzeile"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Aus Sicherheitsgründen muss der Code geändert werden."
 
 msgid ""

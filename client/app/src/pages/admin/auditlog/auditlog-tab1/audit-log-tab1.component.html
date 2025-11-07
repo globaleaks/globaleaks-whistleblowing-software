@@ -1,35 +1,94 @@
 @if (this.auditLog.slice()) {
+  <div class="row mb-3">
+    <div class="col d-flex justify-content-end">
+      <div class="input-group input-group-sm w-auto">
+        <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="search" (input)="onSearchChange()">
+        <span class="input-group-text">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+
   <table id="userList" class="table table-condensed table-striped">
     <thead>
       <tr>
-        <th>{{'Date'|translate}}</th>
-        <th>{{'Type'|translate}}</th>
-        <th>{{'User'|translate}}</th>
-        <th>{{'Object'|translate}}</th>
+        <th>
+          <span class="sortable" (click)="toggleSort('date')">
+            {{'Date'|translate}}
+            @if (sortField === 'date') {
+              @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+            } @else {
+              <span class="text-muted"><i class="fas fa-sort"></i></span>
+            }
+            <span class="ngb-datepicker-container ms-1" (click)="$event.stopPropagation()">
+              <i class="fas fa-calendar" [ngClass]="{'calendar-active': dateFilter}" (click)="datePicker=!datePicker;typeDropdownVisible=false;$event.stopPropagation();"></i>
+              <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
+                <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)"></ngbd-datepicker-range>
+              </div>
+            </span>
+          </span>
+        </th>
+        <th>
+          <span class="sortable" (click)="toggleSort('type')">
+            {{'Type'|translate}}
+            @if (sortField === 'type') {
+              @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+            } @else {
+              <span class="text-muted"><i class="fas fa-sort"></i></span>
+            }
+            <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
+              <i class="fas fa-filter" [ngClass]="{ filterSelected: checkTypeFilter(dropdownTypeModel) }" (click)="toggleTypeDropdown();$event.stopPropagation();"></i>
+              <span [class.d-none]="!typeDropdownVisible" (click)="$event.stopPropagation()">
+                <ng-multiselect-dropdown [class.dropdown-visible]="typeDropdownVisible" [settings]="dropdownSettings" [data]="dropdownTypeData" [(ngModel)]="dropdownTypeModel" (ngModelChange)="onTypeFilterChange($event)"></ng-multiselect-dropdown>
+              </span>
+            </span>
+          </span>
+        </th>
+        <th class="sortable" (click)="toggleSort('user_id')">
+          {{'User'|translate}}
+          @if (sortField === 'user_id') {
+            @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+          } @else {
+            <span class="text-muted"><i class="fas fa-sort"></i></span>
+          }
+        </th>
+        <th class="sortable" (click)="toggleSort('object_id')">
+          {{'Object'|translate}}
+          @if (sortField === 'object_id') {
+            @if (sortDirection === 'asc') { <i class="fas fa-caret-up"></i> } @else { <i class="fas fa-caret-down"></i> }
+          } @else {
+            <span class="text-muted"><i class="fas fa-sort"></i></span>
+          }
+        </th>
       </tr>
     </thead>
     <tbody>
       @for (data of getPaginatedData(); track data) {
         <tr>
           <td>{{ data.date | date:'dd-MM-yyyy HH:mm' }}</td>
-          <td>{{ data.type }}</td>
-          <td>{{ data.user_id }}</td>
+          <td>
+            <span class="badge bg-light text-dark">
+              <span [class]="getTypeDotColor(data.type)">●</span> {{ data.type }}
+            </span>
+          </td>
+          <td>{{ getUserName(data.type, data.user_id || '') }}</td>
           <td>{{ data.object_id }}</td>
         </tr>
       }
     </tbody>
   </table>
-  @if (auditLog.length > pageSize) {
+  @if (getFilteredData().length > pageSize) {
     <div>
-       <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="auditLog.length">
-          <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
-          <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
-          <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
-          <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+       <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="getFilteredData().length">
+          <ng-template ngbPaginationFirst><span ngbTooltip="{{'First' | translate}}"><i class="fas fa-backward-fast"></i></span></ng-template>
+          <ng-template ngbPaginationPrevious><span ngbTooltip="{{'Previous' | translate}}"><i class="fas fa-backward-step"></i></span></ng-template>
+          <ng-template ngbPaginationNext><span ngbTooltip="{{'Next' | translate}}"><i class="fas fa-forward-step"></i></span></ng-template>
+          <ng-template ngbPaginationLast><span ngbTooltip="{{'Last' | translate}}"><i class="fas fa-forward-fast"></i></span></ng-template>
        </ngb-pagination>
     </div>
   }
-  <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span> </button> @if (nodeResolver.dataModel.root_tenant) {
-    <span><a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'globaleaks.log', '/api/admin/auditlog/debug')"> <i class="fa-solid fa-download"></i> globaleaks.log </a> <a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'access.log', '/api/admin/auditlog/access')"> <i class="fa-solid fa-download"></i> access.log</a></span>
+  <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button> @if (nodeResolver.dataModel.root_tenant) {
+    <span><a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'globaleaks.log', '/api/admin/auditlog/debug')"><i class="fas fa-download"></i> globaleaks.log </a><a class="btn btn-sm btn-link" type="button" (click)="utilsService.saveAs(authenticationService, 'access.log', '/api/admin/auditlog/access')"><i class="fas fa-download"></i> access.log</a></span>
   }</div>
 }

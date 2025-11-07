@@ -40,22 +40,24 @@ export class TippageComponent implements OnInit {
 
   fileUploadUrl: string;
   answers = {};
-  uploads: { [key: string]: any } = {};
+  uploads: Record<string, any> = {};
   score = 0;
   ctx: string;
   rows: Children[];
   questionnaire: any;
   questionnaires: Questionnaire[];
-  identity_provided = false;
 
-  private submission: { _submission: WbTipData[] } = {_submission: []};
   protected tip: WbTipData;
+
+  submission: any;
 
   ngOnInit() {
     const wpTip = this.wbTipResolver.dataModel;
     if (wpTip) {
       this.wbTipService.initialize(wpTip);
       this.tip = this.wbTipService.tip;
+      this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
+      this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
 
       this.activatedRoute.queryParams.subscribe(params => {
         this.tip.tip_id = params["tip_id"];
@@ -70,8 +72,6 @@ export class TippageComponent implements OnInit {
       this.preprocessTipAnswers(this.tip);
 
       this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-      this.submission._submission = [];
-      this.submission._submission = [this.tip];
       if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
         this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0].key;
       }
@@ -80,11 +80,12 @@ export class TippageComponent implements OnInit {
     }
   }
 
-  filterNotTriggeredField(parent: any, field: any, answers: Answers | WhistleblowerIdentity) {
+  filterNotTriggeredField(parent: any, field: any, answers: Answers | WhistleblowerIdentity, partOfIdentityQuestion: boolean) {
     let i;
-    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.score)) {
+    partOfIdentityQuestion = partOfIdentityQuestion || (parent && parent.template_id === 'whistleblower_identity');
+    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.score, this.submission.submission.identity_provided, partOfIdentityQuestion)) {
       for (i = 0; i < field.children.length; i++) {
-        this.filterNotTriggeredField(field, field.children[i], answers);
+        this.filterNotTriggeredField(field, field.children[i], answers, partOfIdentityQuestion);
       }
     }
   };
@@ -98,9 +99,9 @@ export class TippageComponent implements OnInit {
 
       for (i = 0; i < this.questionnaire.steps.length; i++) {
         step = this.questionnaire.steps[i];
-        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.tip.score)) {
+        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.tip.score, this.submission.submission.identity_provided, false)) {
           for (j = 0; j < step.children.length; j++) {
-            this.filterNotTriggeredField(step, step.children[j], this.questionnaire.answers);
+            this.filterNotTriggeredField(step, step.children[j], this.questionnaire.answers, false);
           }
         }
       }
@@ -123,7 +124,7 @@ export class TippageComponent implements OnInit {
             this.fieldUtilities.onAnswersUpdate(this);
 
             for (k = 0; k < this.tip.whistleblower_identity_field.children.length; k++) {
-              this.filterNotTriggeredField(this.tip.whistleblower_identity_field, this.tip.whistleblower_identity_field.children[k], this.tip.data.whistleblower_identity);
+              this.filterNotTriggeredField(this.tip.whistleblower_identity_field, this.tip.whistleblower_identity_field.children[k], this.submission.submission.identity_provided, true);
             }
           }
         }
@@ -162,6 +163,8 @@ export class TippageComponent implements OnInit {
   }
 
   provideIdentityInformation(_: { param1: string, param2: Answers }) {
+    this.utilsService.resumeFileUploads(this.uploads);
+
     const intervalId = setInterval(() => {
       if (this.uploads) {
         for (const key in this.uploads) {
@@ -202,11 +205,11 @@ export class TippageComponent implements OnInit {
   onFormChange() {
     this.fieldUtilitiesService.onAnswersUpdate(this);
   }
-  
+
   shouldShowAdditionalQuestionnaire(): boolean {
     const tip = this.wbTipService.tip;
-    return tip?.status !== 'closed' && 
-           !!tip?.context?.additional_questionnaire_id && 
+    return tip?.status !== 'closed' &&
+           !!tip?.context?.additional_questionnaire_id &&
            tip?.questionnaires?.length === 1;
   }
 }

@@ -28,6 +28,10 @@ export class ReceiverCardComponent {
   }
 
   switchSelection(receiver: Receiver): void {
+    if (receiver.forcefully_selected) {
+      return;
+    }
+
     if (!this.submission.selected_receivers[receiver.id]) {
       delete this.submission.selected_receivers[receiver.id];
     } else if (this.selectable()) {

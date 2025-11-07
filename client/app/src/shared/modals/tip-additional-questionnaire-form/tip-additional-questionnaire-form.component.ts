@@ -35,14 +35,14 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   @ViewChild("submissionForm") public submissionForm: NgForm;
   @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
 
-  _navigation: number = 0;
+  _navigation = 0;
   validate: boolean[] = [];
-  score: number = 0;
+  score = 0;
   questionnaire: Questionnaire;
   answers: Answers = {};
-  done: boolean = false;
-  uploads: { [key: string]: any };
-  file_upload_url: string = "api/whistleblower/wbtip/wbfiles";
+  done = false;
+  uploads: Record<string, any>;
+  file_upload_url = "api/whistleblower/wbtip/wbfiles";
   hasPreviousStepValue: boolean;
   hasNextStepValue: boolean;
 

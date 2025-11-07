@@ -30,7 +30,7 @@ export class ContextsComponent implements OnInit {
   protected contexts = inject(ContextsResolver);
   protected utilsService = inject(UtilsService);
 
-  showAddContext: boolean = false;
+  showAddContext = false;
   new_context: { name: string; } = {name: ""};
   contextsData: contextResolverModel[] = [];
 

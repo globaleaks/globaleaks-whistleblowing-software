@@ -27,7 +27,7 @@
         }
         <div class="form-group clearfix">
           <button id="addCustomTextButton" class="float-start btn btn-primary" [disabled]="!vars.text_to_customize" type="submit" (click)="custom_texts[vars.text_to_customize] = vars.custom_text; updateCustomText(custom_texts,vars.language_to_customize)">
-            <i class="fa-solid fa-plus"></i>
+            <i class="fas fa-plus"></i>
             <span>{{'Add' | translate}}</span>
           </button>
         </div>
@@ -56,7 +56,7 @@
                   <td class="clearfix">
                     <span class="preformatted">{{ custom_texts[item] }}</span>
                     <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
-                      <i class="fa fa-times"></i>
+                      <i class="fas fa-xmark"></i>
                     </button>
                   </td>
                 </tr>

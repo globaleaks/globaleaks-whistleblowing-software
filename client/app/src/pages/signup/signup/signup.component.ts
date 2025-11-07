@@ -46,7 +46,7 @@ export class SignupComponent implements OnInit {
   updateSubdomain() {
     this.signup.subdomain = "";
     if (this.signup.organization_name) {
-      this.signup.subdomain = this.signup.organization_name.replace(/[^\w]/gi, "").toLowerCase();
+      this.signup.subdomain = this.signup.organization_name.replace(/[^\w]/gi, "").toLowerCase().slice(0, 40);
     }
   }
 

@@ -513,7 +513,7 @@ msgstr "税控码"
 msgid "Footer"
 msgstr "頁尾文字"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

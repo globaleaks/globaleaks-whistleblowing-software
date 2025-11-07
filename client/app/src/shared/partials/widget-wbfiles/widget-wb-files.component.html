@@ -3,10 +3,10 @@
     <span>{{'Files attached by recipients'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
       }
     </span>
   </div>

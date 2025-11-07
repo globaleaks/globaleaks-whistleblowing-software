@@ -34,7 +34,7 @@ export class MainComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   questionnairesData: questionnaireResolverModel[] = [];
   new_questionnaire: { name: string } = {name: ""};
-  showAddQuestionnaire: boolean = false;
+  showAddQuestionnaire = false;
   @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
 
   ngOnInit(): void {

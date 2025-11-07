@@ -6,6 +6,7 @@ import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {SubmissionService} from "@app/services/helper/submission.service";
 
 import {FormComponent} from "../../form/form.component";
+import {FormsModule} from '@angular/forms';
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -14,7 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     templateUrl: "./whistleblower-identity-field.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [forwardRef(() => FormComponent), TranslateModule, TranslatorPipe]
+    imports: [forwardRef(() => FormComponent), FormsModule, TranslateModule, TranslatorPipe]
 })
 export class WhistleblowerIdentityFieldComponent implements OnInit {
   @Input() submission: SubmissionService;
@@ -30,12 +31,12 @@ export class WhistleblowerIdentityFieldComponent implements OnInit {
   @Input() entry: string;
   @Input() fields: Field;
   @Input() displayErrors: boolean;
-  @Input() identity_provided: boolean = false;
-  @Input() uploads: { [key: string]: any };
+  @Input() uploads: Record<string, any>;
   @Input() fileUploadUrl: string;
-  
+
+  identity_provided = true;
+
   ngOnInit(): void {
-    this.identity_provided = true;
     this.stateChanged.emit(true);
     if (this.submission) {
       this.submission.submission.identity_provided = true;

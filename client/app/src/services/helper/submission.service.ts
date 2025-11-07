@@ -16,10 +16,10 @@ export class SubmissionService {
   receivers: string[] = [];
   mandatory_receivers = 0;
   optional_receivers = 0;
-  selected_receivers: { [key: string]: boolean } = {};
+  selected_receivers: Record<string, boolean> = {};
   override_receivers: string[] = [];
   blocked = false;
-  uploads: { [key: string]: any };
+  uploads: Record<string, any>;
   private sharedData: Flow[] = [];
 
   setContextReceivers(context_id: number) {

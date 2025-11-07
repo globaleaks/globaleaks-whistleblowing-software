@@ -3,10 +3,10 @@
     <span>{{'Files attached by recipients'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" [ngbTooltip]="'Collapse' | translate"></i>
+        <span [ngbTooltip]="'Collapse' | translate"><i class="fas fa-chevron-up"></i></span>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" [ngbTooltip]="'Expand' | translate"></i>
+        <span [ngbTooltip]="'Expand' | translate"><i class="fas fa-chevron-down"></i></span>
       }
     </span>
   </div>
@@ -29,8 +29,8 @@
             <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
             <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description}">
               <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
-              <label [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">
-                <i class="fa-solid fa-upload "></i>
+              <label id="tip-action-upload" [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">
+                <i class="fas fa-upload "></i>
                 <span>{{'Upload'|translate}}</span>
               </label>
             </span>

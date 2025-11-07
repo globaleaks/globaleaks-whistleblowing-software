@@ -4,7 +4,7 @@ from twisted.trial import unittest
 from twisted.web import iweb, resource, server
 from zope.interface.verify import verifyObject
 from twisted.web.static import Data
-from twisted.web.test.requesthelper import DummyChannel, DummyRequest
+from twisted.web.test.requesthelper import DummyChannel
 
 from globaleaks.utils.brotli import BrotliEncoderFactory
 

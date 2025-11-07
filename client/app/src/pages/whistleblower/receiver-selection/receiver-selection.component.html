@@ -8,7 +8,7 @@
       @if (submission.context.maximum_selectable_receivers !== 0 && !submission.context.select_all_receivers) {
         <div id="MaxSelectableReceiverBox">
           <div>
-            <span>{{'Recipients selected:'|translate}}</span> {{submission.countSelectedReceivers()}} /{{submission.context.maximum_selectable_receivers}}
+            <span>{{'Recipients selected:'|translate}}</span> {{submission.countSelectedReceivers()}}/{{submission.context.maximum_selectable_receivers}}
           </div>
           @if (submission.countSelectedReceivers() === submission.context.maximum_selectable_receivers) {
             <div class="text-danger">{{'You have reached the maximum number of selectable recipients.'|translate}}</div>

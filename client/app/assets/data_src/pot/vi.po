@@ -526,7 +526,7 @@ msgstr "Mã số tài khóa"
 msgid "Footer"
 msgstr "Ghi chú cuối trang"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

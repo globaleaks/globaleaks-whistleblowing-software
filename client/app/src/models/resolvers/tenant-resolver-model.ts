@@ -1,5 +1,6 @@
 export class tenantResolverModel {
   id: number;
+  uuid: string;
   creation_date: string;
   active: boolean;
   hostname: string;
@@ -9,4 +10,5 @@ export class tenantResolverModel {
   rootdomain: string;
   subdomain: string;
   signup: any;
+  profile: string;
 }

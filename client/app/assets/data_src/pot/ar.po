@@ -560,7 +560,7 @@ msgstr "الكود الضريبي"
 msgid "Footer"
 msgstr "ذيل الصفحة "
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "لأغراض أمنية يجب تغيير الرمز."
 
 msgid ""

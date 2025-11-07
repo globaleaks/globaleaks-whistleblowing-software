@@ -23,6 +23,7 @@ export interface Children {
   questionnaire_id: string;
   multi_entry: boolean;
   required: boolean;
+  statistical: boolean,
   preview: boolean;
   attrs: Attrs;
   x: number;
@@ -160,6 +161,8 @@ export interface RFile {
   description: string;
   visibility: string;
   error: boolean;
+  author: string;
+  downloads: number;
   hash_sha256: string;
   hash_sha512: string;
 }

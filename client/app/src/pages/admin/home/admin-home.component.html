@@ -11,7 +11,7 @@
     <li [ngbNavItem]="1">
       <button ngbNavLink [attr.data-cy]="'changelog'">
         @if (nodeResolver.dataModel.update_available) {
-          <i class="fa-solid fa-exclamation-sign text-danger"></i>
+          <i class="fas fa-circle-exclamation text-danger"></i>
         }
         <span>{{ 'Changelog' | translate }}</span>
       </button>

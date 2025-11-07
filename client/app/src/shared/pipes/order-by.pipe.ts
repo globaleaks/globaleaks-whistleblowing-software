@@ -5,7 +5,7 @@ import {Pipe, PipeTransform} from '@angular/core';
     standalone: true
 })
 export class OrderByPipe implements PipeTransform {
-  transform(value: any[], propertyName: string | string[], reverse: boolean = false): any[] {
+  transform(value: any[], propertyName: string | string[], reverse = false): any[] {
     if (!Array.isArray(value) || !propertyName) {
       return value;
     }

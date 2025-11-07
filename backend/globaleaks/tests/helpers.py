@@ -1,9 +1,12 @@
 """
 Utilities and basic TestCases.
 """
+import base64
+import copy
 import json
 import mimetypes
 import os
+import secrets
 import shutil
 
 from datetime import timedelta
@@ -12,7 +15,6 @@ from nacl.encoding import Base32Encoder, Base64Encoder
 
 from urllib.parse import urlsplit  # pylint: disable=import-error
 
-from sqlalchemy import exists, func
 
 from twisted.internet.address import IPv4Address
 from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
@@ -23,7 +25,7 @@ from twisted.web.test.requesthelper import DummyRequest
 
 from . import TEST_DIR
 
-from globaleaks import db, models, orm, event, jobs, __version__, DATABASE_VERSION
+from globaleaks import db, models, orm, jobs, __version__, DATABASE_VERSION
 from globaleaks.db.appdata import load_appdata
 from globaleaks.orm import transact, tw
 from globaleaks.handlers.base import BaseHandler
@@ -33,6 +35,7 @@ from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.admin.tenant import create as create_tenant, db_wizard
 from globaleaks.handlers.admin.user import create_user
+from globaleaks.handlers.admin.user_profile import user_permissions
 from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.handlers.whistleblower.submission import create_submission
@@ -43,10 +46,10 @@ from globaleaks.rest.api import JSONEncoder
 from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
-from globaleaks.utils import tempdict, token
-from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
+from globaleaks.utils import tempdict
+from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
 from globaleaks.utils.securetempfile import SecureTemporaryFile
-from globaleaks.utils.utility import datetime_now, datetime_never, uuid4
+from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
 
 GCE.options['OPSLIMIT'] = 1
@@ -61,6 +64,7 @@ VALID_BASE64_IMG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2Ng
 INVALID_PASSWORD = 'antani'
 
 ESCROW_PRV_KEY, ESCROW_PUB_KEY = GCE.generate_keypair()
+STAT_PRV_KEY, STAT_PUB_KEY = GCE.generate_keypair()
 
 KEY = GCE.generate_key()
 USER_KEY = Base64Encoder.decode(GCE.derive_key(VALID_PASSWORD, VALID_SALT).encode())
@@ -78,7 +82,6 @@ GCE_orig_generate_keypair = GCE.generate_keypair
 TOKEN = b"61af2d7fb2796730c9fb9e357ed4c0f9c87d8c6f6976c4ca3731238db43e87b0"
 TOKEN_SALT = b"eed1d4c5a8e97f4f953d4bddd62957ac5f9e94af6a025c6b95300d72ba41b57e"
 TOKEN_ANSWER = b"61af2d7fb2796730c9fb9e357ed4c0f9c87d8c6f6976c4ca3731238db43e87b0:142"
-
 
 def mock_nullfunction(*args, **kwargs):
     return
@@ -153,6 +156,8 @@ def init_state():
     orm.set_thread_pool(FakeThreadPool())
 
     State.settings.enable_api_cache = False
+    State.settings.enable_rate_limiting = False
+
     State.tenants[1] = TenantState()
     State.tenants[1].cache.hostname = 'www.globaleaks.org'
     State.tenants[1].cache.encryption = True
@@ -199,6 +204,7 @@ def get_dummy_field(type='checkbox'):
         'hint': 'field hint',
         'multi_entry': False,
         'required': False,
+        'statistical': False,
         'attrs': {},
         'options': get_dummy_fieldoption_list(),
         'children': [],
@@ -257,14 +263,15 @@ class MockDict:
             'description': 'King MockDummy',
             'last_login': '1970-01-01 00:00:00.000000',
             'language': 'en',
+            'notification': True,
             'password_change_needed': False,
             'password_change_date': '1970-01-01 00:00:00.000000',
             'pgp_key_fingerprint': '',
             'pgp_key_public': '',
             'pgp_key_expiration': '1970-01-01 00:00:00.000000',
             'pgp_key_remove': False,
-            'notification': True,
-            'forcefully_selected': True,
+            'profile_id': 'none',
+            'contexts': [],
             'send_activation_link': False,
             'can_edit_general_settings': False,
             'can_grant_access_to_reports': True,
@@ -272,8 +279,7 @@ class MockDict:
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,
-            'can_redact_information': True,
-            'contexts': []
+            'can_redact_information': True
         }
 
         self.dummyQuestionnaire = {
@@ -327,7 +333,6 @@ class MockDict:
             'allow_indexing': False,
             'disable_submissions': False,
             'disable_privacy_badge': False,
-            'timezone': 0,
             'default_language': 'en',
             'default_questionnaire': 'default',
             'admin_language': 'en',
@@ -452,7 +457,9 @@ def get_dummy_attachment(name=None, content=None):
         'type': content_type,
         'submission': False,
         "reference_id": '',
-        "visibility": b'public'
+        "visibility": b'public',
+        "hash_sha256": sha256(content),
+        "hash_sha512": sha512(content)
     }
 
 
@@ -490,12 +497,13 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
     request.uri = uri
     request.path = path
     request.args = args
+    request.nonce = base64.b64encode(secrets.token_bytes(16))
     request._serverName = host
 
     request.code = 200
     request.hostname = b''
     request.headers = None
-    request.client_ip = client_addr
+    request.client_ip = client_addr.decode()
     request.client_ua = b''
     request.client_using_mobile = False
     request.client_using_tor = False
@@ -575,12 +583,9 @@ class TestGL(unittest.TestCase):
             yield db.create_db()
             yield db.initialize_db()
 
-        yield self.set_hostnames(0)
+        yield self.set_hostnames(1)
 
         yield db.refresh_tenant_cache()
-
-        self.state.reset_minutely()
-        self.state.reset_hourly()
 
         self.internationalized_text = load_appdata()['node']['whistleblowing_button']
 
@@ -628,7 +633,14 @@ class TestGL(unittest.TestCase):
 
     def get_dummy_user(self, role, username):
         new_u = dict(MockDict().dummyUser)
+        new_u['id'] = username
         new_u['role'] = role
+
+        if role == 'admin':
+            new_u['roles'] = [role, 'custodian']
+        else:
+            new_u['roles'] = [role]
+
         new_u['username'] = username
         new_u['name'] = new_u['public_name'] = new_u['mail_address'] = "%s@%s.xxx" % (username, username)
         new_u['description'] = ''
@@ -728,14 +740,6 @@ class TestGL(unittest.TestCase):
         for _ in range(n):
             session.files.append(self.get_dummy_attachment())
 
-    def pollute_events(self, number_of_times=10):
-        for _ in range(number_of_times):
-            for event_obj in event.events_monitored:
-                for x in range(2):
-                    e = event.Event(event_obj, timedelta(seconds=1.0 * x))
-                    self.state.tenants[1].RecentEventQ.append(e)
-                    self.state.tenants[1].EventQ.append(e)
-
     @transact
     def get_rtips(self, session):
         ret = []
@@ -803,12 +807,14 @@ class TestGLWithPopulatedDB(TestGL):
         OLD_USER_KEY, OLD_USER_KEY_HASH = GCE.calculate_key_and_hash(VALID_PASSWORD, VALID_SALT)
         OLD_USER_PRV_KEY_ENC = Base64Encoder.encode(GCE.symmetric_encrypt(OLD_USER_KEY, USER_PRV_KEY))
 
-        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'receipt_salt').one().value = VALID_SALT
-        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'crypto_escrow_pub_key').one().value = ESCROW_PUB_KEY
+        db_set_config_variable(session, 1, 'receipt_salt', VALID_SALT)
+        db_set_config_variable(session, 1, 'crypto_escrow_pub_key', ESCROW_PUB_KEY)
+        db_set_config_variable(session, 1, 'crypto_stat_pub_key', STAT_PUB_KEY)
 
         for user in session.query(models.User):
             if user.id == self.dummyAdmin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
+                user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
 
             if self.clientside_hashing:
                 user.salt = VALID_SALT
@@ -830,7 +836,7 @@ class TestGLWithPopulatedDB(TestGL):
         # fill_data/create_admin
         self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
 
-        # fill_data/create_custodian
+        # fill_data/create_analyst
         self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en')
 
         # fill_data/create_custodian
@@ -861,7 +867,7 @@ class TestGLWithPopulatedDB(TestGL):
         for t in models.field_types:
             field = get_dummy_field(t)
             field['fieldgroup_id'] = fieldgroup_id
-            field = yield create_field(1, field, 'en')
+            yield create_field(1, field, 'en')
 
         # create a second step including the whistleblower identity question
         step = get_dummy_step()
@@ -876,7 +882,7 @@ class TestGLWithPopulatedDB(TestGL):
         # fill_data create_tenant
         for i in range(1, self.population_of_tenants):
             name = 'tenant-' + str(i+1)
-            t = yield create_tenant({'mode': 'default', 'name': name, 'active': True, 'subdomain': name})
+            t = yield create_tenant({'mode': 'default', 'name': name, 'active': True, 'subdomain': name, 'profile': '1000001'})
             yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
             yield self.set_hostnames(i)
 
@@ -912,7 +918,7 @@ class TestGLWithPopulatedDB(TestGL):
         self.dummySubmission['score'] = 0
         self.dummySubmission['receipt'] = receipt
 
-        itip_id = yield create_submission(1, self.dummySubmission, session, True, False)
+        yield create_submission(1, self.dummySubmission, session, True, False)
 
     @inlineCallbacks
     def perform_post_submission_actions(self):
@@ -948,12 +954,17 @@ class TestGLWithPopulatedDB(TestGL):
         yield self.perform_post_submission_actions()
 
     @transact
-    def set_itip_expiration(self, session, date):
+    def set_itips_expiration(self, session, date):
         session.query(models.InternalTip).update({'expiration_date': date})
 
     @transact
-    def set_itips_near_to_expire(self, session):
+    def set_itips_expiration_as_near_to_expire(self, session):
         date = datetime_now() + timedelta(hours=self.state.tenants[1].cache.notification.tip_expiration_threshold - 1)
+        session.query(models.InternalTip).update({'expiration_date': date})
+
+    @transact
+    def set_itips_expiration_as_expired(self, session):
+        date = datetime_now()
         session.query(models.InternalTip).update({'expiration_date': date})
 
 
@@ -994,8 +1005,6 @@ class TestHandler(TestGLWithPopulatedDB):
         if kwargs is None:
             kwargs = {}
 
-        session = None
-
         if user_id is None and role is not None:
             if role == 'admin':
                 user_id = self.dummyAdmin['id']
@@ -1007,13 +1016,20 @@ class TestHandler(TestGLWithPopulatedDB):
                 user_id = self.dummyCustodian['id']
 
         if role is not None:
-            if role == 'whistlebower':
+            if role == 'whistleblower' and user_id == None:
                 session = initialize_submission_session(1)
             else:
-                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '')
+                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions)
 
             if permissions:
-                session.permissions = permissions
+                for p in user_permissions:
+                    if p not in permissions:
+                        permissions[p] = user_permissions[p]
+
+            session.permissions = copy.deepcopy(user_permissions)
+            if permissions:
+                for p in permissions:
+                    session.permissions[p] = permissions[p]
 
             if properties:
                 session.properties.update(properties)
@@ -1053,7 +1069,19 @@ class TestHandler(TestGLWithPopulatedDB):
         return handler
 
     def get_dummy_request(self):
-        return self._test_desc['model']().dict(u'en')
+        request = self._test_desc['model']().dict(u'en')
+        if isinstance(self._test_desc['model'](), models.User):
+            request['roles'] = [request['role']]
+            request['profile'] = {}
+        elif isinstance(self._test_desc['model'](), models.UserProfile):
+            request['role'] = 'admin'
+            request['roles'] = ['admin', 'recipient']
+            request['permissions'] = {}
+            for p in user_permissions:
+                request['permissions'][p] = False
+
+
+        return request
 
 
 class TestCollectionHandler(TestHandler):
@@ -1070,6 +1098,9 @@ class TestCollectionHandler(TestHandler):
     @inlineCallbacks
     def test_get(self):
         data = self.get_dummy_request()
+
+        for k, v in self._test_desc['data'].items():
+            data[k] = v
 
         yield self._test_desc['create'](1, self.session, data, 'en')
 
@@ -1109,6 +1140,9 @@ class TestInstanceHandler(TestHandler):
     @inlineCallbacks
     def test_get(self):
         data = self.get_dummy_request()
+
+        for k, v in self._test_desc['data'].items():
+            data[k] = v
 
         data = yield self._test_desc['create'](1, self.session, data, 'en')
 

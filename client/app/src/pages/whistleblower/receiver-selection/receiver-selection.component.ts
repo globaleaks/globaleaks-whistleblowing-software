@@ -20,5 +20,5 @@ export class ReceiverSelectionComponent {
   @Input() show_steps_navigation_bar: boolean;
   @Input() submission: SubmissionService;
   @Input() receiversOrderPredicate: string;
-  @Output() switchSelection: EventEmitter<any> = new EventEmitter();
+  @Output() switchSelection = new EventEmitter<any>();
 }

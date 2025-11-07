@@ -541,7 +541,7 @@ msgstr ""
 msgid "Footer"
 msgstr "Нижний колонтитул"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

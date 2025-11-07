@@ -1,5 +1,6 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Account recovery key'|translate}}</div>
+  <h5 class="modal-title">{{'Account recovery key'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="dismiss()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
     <div class="text-center font-weight-bold" ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utilsService.copyToClipboard(erk)">
@@ -8,5 +9,5 @@
     <div>{{'Make a copy and store it in a safe place. It will be necessary if you lose your password to recover the access to your account without data loss.'|translate}}</div>
 </div>
 <div class="modal-footer">
-    <button (click)="dismiss()" id="close" class="btn btn-outline-secondary">{{'Close'|translate}}</button>
+  <button (click)="dismiss()" id="close" class="btn btn-outline-secondary">{{'Close'|translate}}</button>
 </div>

@@ -1,6 +1,4 @@
 {
-  "compileOnSave": false,
-  "typescript": "5.2",
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
@@ -12,12 +10,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
-    "inlineSources": true,
+    "inlineSources": false,
     "inlineSourceMap": false,
     "declaration": false,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
     "allowSyntheticDefaultImports": true,
@@ -36,7 +33,6 @@
     "strictInputAccessModifiers": true,
     "preserveWhitespaces": true,
     "strictTemplates": true,
-    "enableIvy": false,
     "generateCodeForLibraries": true
   }
 }

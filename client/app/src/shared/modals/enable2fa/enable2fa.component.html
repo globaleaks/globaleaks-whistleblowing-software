@@ -1,10 +1,11 @@
 <div class="modal-header">
-    <div class="modal-title">{{'Enable two factor authentication'|translate}}</div>
+  <h5 class="modal-title">{{'Enable two factor authentication'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="dismiss()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-    <src-enable-2fa></src-enable-2fa>
+  <src-enable-2fa></src-enable-2fa>
 </div>
 <div class="modal-footer">
-    <button (click)="confirm()" [disabled]="twoFactorAuthData.totp.secret.length !== 32 || twoFactorAuthData.totp.token.length !== 6" class="btn btn-primary">{{'Enable'|translate}}</button>
-    <button (click)="dismiss()" id="close" class="btn btn-light">{{'Close'|translate}}</button>
+  <button (click)="confirm()" [disabled]="twoFactorAuthData.totp.secret.length !== 32 || twoFactorAuthData.totp.token.length !== 6" class="btn btn-primary">{{'Enable'|translate}}</button>
+  <button (click)="dismiss()" id="close" class="btn btn-light">{{'Close'|translate}}</button>
 </div>

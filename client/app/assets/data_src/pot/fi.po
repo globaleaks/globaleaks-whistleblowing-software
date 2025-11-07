@@ -522,7 +522,7 @@ msgstr "Verotunnus"
 msgid "Footer"
 msgstr "Alatunniste"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Turvallisuussyistä koodi on vaihdettava."
 
 msgid ""

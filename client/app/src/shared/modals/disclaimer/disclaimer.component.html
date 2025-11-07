@@ -1,12 +1,10 @@
 <div class="modal-header justify-content-end">
-    <button type="button" class="close btn" (click)="cancel()" [attr.aria-label]="'Close' | translate">
-        <i class="fa-solid fa-times"></i>
-    </button>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-    <markdown class="disclaimer-text" [data]="appDataService.public.node.disclaimer_text | stripHtml"></markdown>
+  <markdown class="disclaimer-text" [data]="appDataService.public.node.disclaimer_text | stripHtml"></markdown>
 </div>
 <div class="modal-footer">
-    <button (click)="confirm()" id="modal-action-ok" class="btn btn-primary" type="submit">{{ 'Proceed' | translate }}</button>
-    <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">{{ 'Close' | translate }}</button>
+  <button (click)="confirm()" id="modal-action-ok" class="btn btn-primary" type="submit">{{ 'Proceed' | translate }}</button>
+  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">{{ 'Close' | translate }}</button>
 </div>

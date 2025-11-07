@@ -1,3 +1,4 @@
+import copy
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
@@ -6,8 +7,7 @@ from globaleaks.handlers.public import serialize_field, trigger_map
 from globaleaks.models import fill_localized_keys
 from globaleaks.orm import db_add, db_get, db_del, transact, tw
 from globaleaks.rest import errors, requests
-from globaleaks.settings import Settings
-from globaleaks.utils.fs import read_json_file
+from globaleaks.state import State
 
 
 def fieldtree_ancestors(session, field_id):
@@ -211,14 +211,12 @@ def db_create_field(session, tid, request, language):
 
     check_field_association(session, tid, request)
 
-    field_attrs = read_json_file(Settings.field_attrs_file)
-
     if not request.get('template_id'):
         field = db_add(session, models.Field, request)
 
         attrs = request.get('attrs')
         if not attrs:
-            attrs = field_attrs.get(field.type, {})
+            attrs = copy.deepcopy(State.field_attrs.get(field.type, {}))
 
         options = request.get('options')
 
@@ -255,7 +253,7 @@ def db_create_field(session, tid, request, language):
 
         attrs = request.get('attrs')
         if not attrs:
-            attrs = field_attrs.get(field.template_id, {})
+            attrs = copy.deepcopy(State.field_attrs.get(field.template_id, {}))
 
         db_update_fieldattrs(session, field.id, attrs, None)
 

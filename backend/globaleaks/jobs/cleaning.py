@@ -3,20 +3,15 @@ import os
 from datetime import datetime, timedelta
 
 from sqlalchemy import not_
-from sqlalchemy.sql.expression import func
 
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.db import compact_db, db_get_tracked_attachments, db_get_tracked_files, db_refresh_tenant_cache
-from globaleaks.handlers.admin.node import db_admin_serialize_node
-from globaleaks.handlers.admin.notification import db_get_notification
-from globaleaks.handlers.user import user_serialize_user
+from globaleaks.handlers.user import serialize_user
 from globaleaks.jobs.job import DailyJob
 from globaleaks.orm import db_del, db_log, transact, tw
 from globaleaks.utils.fs import srm
-from globaleaks.utils.log import log
-from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_never, datetime_now, is_expired
 
 
@@ -42,52 +37,6 @@ class Cleaning(DailyJob):
 
         for result in results:
             db_log(session, tid=result[1], type='delete_report', user_id='system', object_id=result[0])
-
-    def db_check_for_expiring_submissions(self, session, tid):
-        threshold = datetime_now() + timedelta(hours=self.state.tenants[tid].cache.notification.tip_expiration_threshold)
-
-        result = session.query(models.User, func.count(models.InternalTip.id), func.min(models.InternalTip.expiration_date)) \
-                        .filter(models.InternalTip.tid == tid,
-                                models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                models.InternalTip.expiration_date < threshold,
-                                models.User.id == models.ReceiverTip.receiver_id) \
-                        .group_by(models.User.id) \
-                        .having(func.count(models.InternalTip.id) > 0) \
-                        .all()
-
-        for x in result:
-            user = x[0]
-            expiring_submission_count = x[1]
-            earliest_expiration_date = x[2]
-
-            user_desc = user_serialize_user(session, user, user.language)
-
-            data = {
-                'type': 'tip_expiration_summary',
-                'node': db_admin_serialize_node(session, tid, user.language),
-                'user': user_desc,
-                'expiring_submission_count': expiring_submission_count,
-                'earliest_expiration_date': earliest_expiration_date
-            }
-
-            # Do not generate emails if the receiver has disabled notifications
-            if not data['user']['notification']:
-                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
-                 return
-
-            if data['node']['mode'] == 'default':
-                data['notification'] = db_get_notification(session, tid, user.language)
-            else:
-                data['notification'] = db_get_notification(session, 1, user.language)
-
-            subject, body = Templating().get_mail_subject_and_body(data)
-
-            session.add(models.Mail({
-                'tid': tid,
-                'address': user_desc['mail_address'],
-                'subject': subject,
-                'body': body
-            }))
 
     @transact
     def clean(self, session):
@@ -166,9 +115,6 @@ class Cleaning(DailyJob):
             yield self.delete_expired_demo_platforms()
 
         yield self.clean()
-
-        for tid in self.state.tenants:
-            yield tw(self.db_check_for_expiring_submissions, tid)
 
         valid_files = yield tw(db_get_tracked_files)
         self.perform_secure_deletion_of_files(self.state.settings.files_path, valid_files)

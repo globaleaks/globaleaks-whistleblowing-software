@@ -11,7 +11,6 @@ export class Root {
 export class Node {
   viewer: boolean;
   acme: boolean;
-  timezone: number;
   allow_indexing: boolean;
   adminonly: boolean;
   pgp: boolean;
@@ -23,12 +22,12 @@ export class Node {
   default_questionnaire: string;
   description: string;
   disable_privacy_badge: boolean;
-  disable_submissions: boolean = false;
+  disable_submissions = false;
   enable_custom_privacy_badge: boolean;
   enable_scoring_system: boolean;
   enable_signup: boolean;
   hostname: string;
-  https_whistleblower: boolean = false;
+  https_whistleblower = false;
   maximum_filesize: number;
   mode: string;
   name: string;

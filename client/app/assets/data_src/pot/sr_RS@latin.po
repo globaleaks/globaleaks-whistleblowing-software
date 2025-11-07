@@ -517,7 +517,7 @@ msgstr ""
 msgid "Footer"
 msgstr "Pоdnоžје"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""

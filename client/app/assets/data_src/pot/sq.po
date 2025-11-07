@@ -520,7 +520,7 @@ msgstr "Kod fiskal"
 msgid "Footer"
 msgstr "Fundfaqe"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Për arsye sigurie, kodi duhet ndryshuar."
 
 msgid ""

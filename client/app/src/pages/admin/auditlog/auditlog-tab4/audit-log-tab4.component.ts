@@ -39,6 +39,6 @@ export class AuditLogTab4Component implements OnInit{
   }
 
   exportAuditLog() {
-    this.utilsService.generateCSV(JSON.stringify(this.jobs), 'jobs', []);
+    this.utilsService.generateCSV('jobs', this.jobs);
   }
 }

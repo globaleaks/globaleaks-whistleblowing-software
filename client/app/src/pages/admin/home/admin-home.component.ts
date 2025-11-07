@@ -20,7 +20,7 @@ export class adminHomeComponent implements OnInit {
   private preference = inject(PreferenceResolver);
   protected nodeResolver = inject(NodeResolver);
 
-  active: number = 0;
+  active = 0;
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
 

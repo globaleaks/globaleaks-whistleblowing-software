@@ -517,7 +517,7 @@ msgstr "Matična številka"
 msgid "Footer"
 msgstr "Noga"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Iz varnostnih razlogov je treba kodo spremeniti."
 
 msgid ""

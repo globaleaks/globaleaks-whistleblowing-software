@@ -33,9 +33,7 @@ class MigrationScript(MigrationBase):
     def epilogue(self):
         m = self.model_to['Config']
 
-        tids = self.session_new.query(m.tid).filter(m.var_name == 'mode', m.value == 'default')
-
-        for c in self.session_new.query(m).filter(m.tid.in_(tids), m.var_name == 'onionservice'):
+        for c in self.session_new.query(m).filter(m.var_name == 'onionservice'):
             if len(c.value) == 62:
                 continue
 

@@ -69,9 +69,6 @@ user_pgp_alert_keywords = [
 
 admin_anomaly_keywords = [
     '{AnomalyDetailDisk}',
-    '{AnomalyDetailActivities}',
-    '{ActivityAlarmLevel}',
-    '{ActivityDump}',
     '{FreeMemory}',
     '{TotalMemory}'
 ]
@@ -420,33 +417,13 @@ class AnomalyKeyword(UserNodeKeyword):
 
     def AnomalyDetailDisk(self):
         # This happens all the time anomalies are present but disk is ok
-        if self.data['alert']['alarm_levels']['disk_space'] == 0:
+        if self.data['alert']['alarm_level_disk'] == 0:
             return ''
 
-        if self.data['alert']['alarm_levels']['disk_space'] == 1:
+        if self.data['alert']['alarm_level_disk'] == 1:
             return self.data['notification']['admin_anomaly_disk_low']
         else:
             return self.data['notification']['admin_anomaly_disk_high']
-
-    def AnomalyDetailActivities(self):
-        # This happens all the time there is not anomalous traffic
-        if self.data['alert']['alarm_levels']['activity'] == 0:
-            return ''
-
-        return self.data['notification']['admin_anomaly_activities']
-
-    def ActivityAlarmLevel(self):
-        return '%s' % self.data['alert']['alarm_levels']['activity']
-
-    def ActivityDump(self):
-        retstr = ''
-
-        for event, count in self.data['alert']['event_matrix'].items():
-            if not count:
-                continue
-            retstr = '%s%s%d\n%s' % (event, (25 - len(event)) * ' ', count, retstr)
-
-        return retstr
 
     def FreeMemory(self):
         return '%s' % bytes_to_pretty_str(self.data['alert']['measured_freespace'])

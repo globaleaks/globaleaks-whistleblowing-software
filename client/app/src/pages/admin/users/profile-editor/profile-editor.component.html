@@ -1,0 +1,141 @@
+<div class="config-item">
+  <div class="editorHeader row">
+    <span class="col-md-7" (click)="toggleEditing();">
+      <span>{{ profile.name }}</span>
+    </span>
+    <span class="col-md-5 clearfix">
+      <span class="float-end">
+        @if (editing && nodeData.tid === profile.tid) {
+          <button class="btn btn-sm btn-primary" id="save_profile" [disabled]="editProfile.invalid" (click)="saveProfile(profile);toggleEditing();">
+            <span>{{ 'Save' | translate }}</span>
+          </button>
+        }
+        <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportProfile(profile)">
+          <i class="fa-solid fa-file-export"></i>
+          <span>{{ 'Export' | translate }}</span>
+        </button>
+        @if (getUserID() !== profile.id && nodeData.tid === profile.tid) {
+          <button class="btn btn-sm btn-danger" id="delete_profile" (click)="deleteProfile(profile)">
+            <span>{{ 'Delete' | translate }}</span>
+          </button>
+        }
+        <button class="btn btn-sm btn-outline-secondary" name="edit_profile" (click)="toggleEditing()">
+          <i class="fa" [ngClass]="{'fa-chevron-down': !editing, 'fa-chevron-up': editing}"></i>
+        </button>
+      </span>
+    </span>
+  </div>
+  @if (editing) {
+    <div class="editor">
+      <hr />
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Name' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input class="form-control" name="name" [(ngModel)]="profile.name" type="text" [disabled]="nodeData.tid !== profile.tid" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>{{ 'Role' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <div id="RoleAdder" class="row">
+                <div class="col-md-12">
+                  <ng-select
+                    [(ngModel)]="profile.role"
+                    [items]="roles"
+                    bindLabel="role"
+                    bindValue="value"
+                    [searchable]="true"
+                    [placeholder]="'Search' | translate"
+                    (ngModelChange)="assignRole($event)">
+                    <ng-template ng-option-tmp let-item="item">
+                      <span>{{ item.role }}</span>
+                    </ng-template>
+                  </ng-select>
+                 </div>
+              </div>
+              <br />
+              <ul class="selection-list">
+              @for (role of profile.roles.sort(); track role; let index = $index;) {
+                <li>
+                  <span class="action-btns">
+                    @if (role === profile.role) {
+                      <span class="default-role">
+                        <i class="fa-solid fa-check"></i>
+                      </span>
+                    }
+                    @if (role !== profile.role) {
+                      <span class="non-default-role" ngbTooltip="{{'Set as default' | translate}}" (click)="setDefaultRole(role)">
+                        <i class="fa-solid fa-check"></i>
+                      </span>
+                      <span (click)="removeRole(index, role)" ngbTooltip="{{'Remove' | translate}}" class="remove-role-btn">
+                        <i class="fa-solid fa-times"></i>
+                      </span>
+                    }
+                    @if (role === profile.role) {
+                      <i class="fa-solid fa-times disabled-icon"></i>
+                    }
+                  </span>
+                  <label>{{ utilsService.getRoleDisplayName(role) }}</label>
+                </li>
+              }
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      @if (profile.roles.includes('receiver')) {
+        <div class="row">
+          <div class="col-md-12">
+              <label class="mb-2">
+                <span class="fw-bold">Recipient</span>
+              </label>
+              <div class="form-group">
+              <input class="form-check-input" name="can_mask_information" [(ngModel)]="profile.permissions.can_mask_information" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to mask information' | translate }}</span>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_redact_information" [(ngModel)]="profile.permissions.can_redact_information" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to permanently redact masked information' | translate }}</span>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_delete_submission" [(ngModel)]="profile.permissions.can_delete_submission" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Allow the recipient to delete reports' | translate }}</label>
+            </div>
+            <div class="form-group">
+                <input class="form-check-input" name="can_postpone_expiration" [(ngModel)]="profile.permissions.can_postpone_expiration" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ "Allow the recipient to edit the reports' expiration date" | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_grant_access_to_reports" [(ngModel)]="profile.permissions.can_grant_access_to_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to grant profile access to reports' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_transfer_access_to_reports" [(ngModel)]="profile.permissions.can_transfer_access_to_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to transfer reports to other profiles' | translate }}</label>
+            </div>
+          </div>
+        </div>
+      }
+      @if(userIsNotAdmin(profile)) {
+        <div class="row">
+          <div class="col-md-12">
+            <label class="mb-2">
+              <span class="fw-bold" translate>Other</span>
+            </label>
+            <label>{{ 'Give the profile administrative access to the following features:' | translate }}</label>
+            <div class="form-group">
+              <input class="form-check-input" name="can_edit_general_settings" [(ngModel)]="profile.permissions.can_edit_general_settings" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Settings' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -26,8 +26,8 @@ export class StepComponent implements OnInit {
 
   @Input() step: Step;
   @Input() parsedFields: ParsedFields;
-  showAddQuestion: boolean = false;
-  showAddQuestionFromTemplate: boolean = false;
+  showAddQuestion = false;
+  showAddQuestionFromTemplate = false;
   fieldTemplatesData: fieldtemplatesResolverModel[] = [];
 
   ngOnInit(): void {

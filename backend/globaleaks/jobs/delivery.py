@@ -9,7 +9,6 @@ from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
-from globaleaks.utils.pgp import PGPContext
 
 
 __all__ = ['Delivery']
@@ -33,7 +32,6 @@ def file_delivery(session):
                              .all()
 
     # Extract InternalFile IDs for batch query
-    ifile_ids = [ifile.id for ifile, _ in ifile_tip_pairs]
     itip_ids = {ifile.id: ifile.internaltip_id for ifile, _ in ifile_tip_pairs}
 
     # Fetch all ReceiverTips and Users in one query

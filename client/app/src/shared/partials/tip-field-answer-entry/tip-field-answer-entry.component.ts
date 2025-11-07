@@ -46,11 +46,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
 
   format = "dd/MM/yyyy";
   locale = "en-US";
-  audioFiles: { [reference_id: string]: Blob } = {};
+  audioFiles: Record<string, Blob> = {};
   iframeUrl: SafeResourceUrl;
   @ViewChild("viewer") viewerFrame: ElementRef;
   tipService:WbtipService|ReceiverTipService;
-  filteredWbFiles: WbFile[];
   wbfile:WbFile;
 
   ngOnInit(): void {
@@ -61,7 +60,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       this.tipService = this.rTipService;
     }
     if(this.tipService.tip){
-      this.filteredWbFiles = this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles);
+      this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry['index']);
     }
     if(this.field.type === "voice"){
       this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");
@@ -139,10 +138,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
    return this.maskService.maskingContent(id,index,value,this.tipService.tip)
   }
 
-  filterWbFilesByReferenceId(wbfiles: WbFile[]): WbFile[] {
-    return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === this.field.id);
+  filterWbFilesByReferenceId(wbfiles: WbFile[], index:any): WbFile[] {
+   return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === `${this.field.id}-${index}`);
   }
-  
+
   selectedFile(file: WbFile) {
     this.wbfile = file;
   }

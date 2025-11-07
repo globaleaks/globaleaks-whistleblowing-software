@@ -1,18 +1,18 @@
-@if (submissionService) {
-  @if (selectable_contexts.length && !submissionService.context) {
+@if (submission) {
+  @if (selectable_contexts.length && !submission.context) {
     <div>
       <src-context-selection (selectContext)="selectContext($event)" [selectable_contexts]=selectable_contexts [contextsOrderPredicate]=contextsOrderPredicate></src-context-selection>
     </div>
   }
-  @if (submissionService.context) {
+  @if (submission.context) {
     <div>
-      @if (selectable_contexts.length > 1 || context_id) {
+      @if (appDataService.context_id || selectable_contexts.length) {
         <div>
-          <div class="title">{{submissionService.context.name}}</div>
+          <div class="title">{{submission.context.name}}</div>
           <div class="row">
-            @if (submissionService.context.picture) {
+            @if (submission.context.picture) {
               <div class="col-md-2">
-                <img class="context-image" alt="context picture" src="/s/{{submissionService.context.id}}" />
+                <img class="context-image" alt="context picture" src="/s/{{submission.context.id}}" />
               </div>
             }
           </div>
@@ -20,9 +20,9 @@
       }
       <form #submissionForm="ngForm" id="SubmissionForm" [ngClass]="{'was-validated': displaySubmissionErrors()}" autocomplete="off" novalidate>
         <div class="tabbable tabs-below mb-3">
-          @if (submissionService.context.show_steps_navigation_interface && questionnaire.steps.length > 1) {
+          @if (submission.context.show_steps_navigation_interface && questionnaire.steps.length > 1) {
             <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" role="tablist">
-              @if (submissionService.context.allow_recipients_selection) {
+              @if (submission.context.allow_recipients_selection) {
                 <li id="step-recipient-selection-tab" class="nav-item" role="presentation">
                   <button id="receiver-selection-link" [ngClass]="{active: navigation === -1}" class="nav-link nav-link-custom" (click)="goToStep(-1)" [attr.aria-selected]="navigation === -1" [attr.aria-current]="navigation === -1 ? 'step' : 'false'" aria-controls="step-recipient-selection" role="tab">
                     <span class="step-index" [ngClass]="{'step-index-selected': navigation === -1}">1</span>
@@ -34,7 +34,7 @@
                 <li id="context-{{index}}" class="nav-item" role="presentation">
                   @if (step?.enabled) {
                     <button id="step-{{index}}-link" [ngClass]="{active: navigation === index}" class="nav-link nav-link-custom" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-current]="navigation === index ? 'step' : 'false'" [attr.aria-controls]="'step-' + index" role="tab">
-                      <span class="step-index" [ngClass]="{'step-index-selected': navigation === index}">{{index + (submissionService.context.allow_recipients_selection ? 2 : 1)}}</span>
+                      <span class="step-index" [ngClass]="{'step-index-selected': navigation === index}">{{index + (submission.context.allow_recipients_selection ? 2 : 1)}}</span>
                       <span class="step-label">{{step.label}}</span>
                     </button>
                   }
@@ -50,9 +50,9 @@
                 </div>
               </div>
             }
-            @if (submissionService.context.allow_recipients_selection && navigation === -1) {
+            @if (submission.context.allow_recipients_selection && navigation === -1) {
               <div id="step-receiver-selection" role="tabpanel">
-                <src-receiver-selection (switchSelection)="switchSelection($event)" [receiversOrderPredicate]="receiversOrderPredicate" [submission]="submissionService" [show_steps_navigation_bar]="show_steps_navigation_bar"></src-receiver-selection>
+                <src-receiver-selection (switchSelection)="switchSelection($event)" [receiversOrderPredicate]="receiversOrderPredicate" [submission]="submission" [show_steps_navigation_bar]="show_steps_navigation_bar"></src-receiver-selection>
               </div>
             }
             @if (navigation !== -1) {
@@ -65,7 +65,7 @@
                           @if (step.description) {
                             <markdown class="description" [data]="step.description | stripHtml"></markdown>
                           }
-                          <src-form (notifyFileUpload)="notifyFileUpload($event)" [fileUploadUrl]="'api/whistleblower/submission/attachment'" [identity_provided]=identity_provided [uploads]="uploads" [displayErrors]="displayErrors()" [answers]="answers" [submission]="submissionService" [step]="step" [index]="index"></src-form>
+                          <src-form (notifyFileUpload)="notifyFileUpload($event)" [fileUploadUrl]="'api/whistleblower/submission/attachment'" [uploads]="uploads" [displayErrors]="displayErrors()" [answers]="answers" [submission]="submission" [step]="step" [index]="index"></src-form>
                         </div>
                       </div>
                     }
@@ -78,21 +78,21 @@
         <div id="SubmissionButtons">
           @if (hasPreviousStep()) {
             <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
-              <i class="fa-solid fa-arrow-circle-left"></i>
+              <i class="fas fa-circle-arrow-left"></i>
               <span>{{'Previous'|translate}}</span>
             </button>
           }
           @if (hasNextStep()) {
-            <button id="NextStepButton" class="btn btn-outline-secondary" [disabled]="submissionService.blocked" (click)="whistleblowerSubmissionService.incrementStep(this)">
+            <button id="NextStepButton" class="btn btn-outline-secondary" [disabled]="submission.blocked" (click)="whistleblowerSubmissionService.incrementStep(this)">
               <span>{{'Next'|translate}}</span>
-              <i class="fa-solid fa-arrow-circle-right"></i>
+              <i class="fas fa-circle-arrow-right"></i>
             </button>
           }
           @if (!hasNextStep() && uploading()) {
             <src-rfiles-upload-status [progress]="calculateProgress()" [estimatedTime]="calculateEstimatedTime()" [uploading]="uploading()"></src-rfiles-upload-status>
           }
           @if (!hasNextStep()) {
-            <button id="SubmitButton" class="btn btn-primary" (click)="completeSubmission()" [disabled]="!authenticationService.session || submissionService.blocked || done" type="submit">{{'Submit'|translate}}</button>
+            <button id="SubmitButton" class="btn btn-primary" (click)="completeSubmission()" [disabled]="!authenticationService.session || submission.blocked || done" type="submit">{{'Submit'|translate}}</button>
           }
         </div>
       </form>

@@ -3,9 +3,6 @@ Dear {RecipientName},
 GlobaLeaks technology includes a server status checking component which will alert you in case something requires your attention.
 
 {AnomalyDetailDisk}
-{AnomalyDetailActivities}
-
-For more information, log in to the Administration interface and look at the "System Stats" and "Anomalies" sections.
 
 Kind regards,
 {NodeName}

@@ -1,5 +1,4 @@
 # Handlers implementing platform signup
-from sqlalchemy import not_
 from twisted.internet.threads import deferToThread
 from globaleaks import models
 from globaleaks.db import sync_refresh_tenant_cache
@@ -52,7 +51,8 @@ def signup(session, request, language):
     tenant = db_create_tenant(session, {'active': False,
                                         'name': request['subdomain'],
                                         'subdomain': request['subdomain'],
-                                        'mode': config.get_val('mode')})
+                                        'mode': config.get_val('mode'),
+                                        'profile': 'default'})
 
     signup = models.Subscriber(request)
 

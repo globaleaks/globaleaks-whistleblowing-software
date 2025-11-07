@@ -1,16 +1,14 @@
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
-from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, tw
 from globaleaks.rest import errors, requests
-from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import read_file
 from globaleaks.utils.log import log
-
+from globaleaks.models import EnabledLanguage
 
 def db_update_enabled_languages(session, tid, languages, default_language):
     """
@@ -29,19 +27,23 @@ def db_update_enabled_languages(session, tid, languages, default_language):
     # get sure that the default language is included in the enabled languages
     languages = set(languages + [default_language])
 
-    appdata = None
-    for lang_code in languages:
-        if lang_code not in LANGUAGES_SUPPORTED_CODES:
-            raise errors.InputValidationError("Invalid lang code: %s" % lang_code)
+    for lang in languages:
+        if lang not in LANGUAGES_SUPPORTED_CODES:
+            raise errors.InputValidationError("Invalid lang code: %s" % lang)
 
-        if lang_code not in cur_enabled_langs:
-            if appdata is None:
-                appdata = load_appdata()
-            models.config.add_new_lang(session, tid, lang_code, appdata)
+        if lang not in cur_enabled_langs:
+            session.add(EnabledLanguage({'tid': tid, 'name': lang}))
 
     to_remove = list(set(cur_enabled_langs) - set(languages))
     if to_remove:
-        session.query(models.User).filter(models.User.tid == tid, models.User.language.in_(to_remove)).update({'language': default_language}, synchronize_session=False)
+        user_ids = session.query(models.User.id).filter(models.User.tid == tid, models.User.language.in_(to_remove)).all()
+        user_ids = [pid[0] for pid in user_ids]
+
+        if user_ids:
+            session.query(models.User) \
+                .filter(models.User.id.in_(user_ids)) \
+                .update({'language': default_language}, synchronize_session=False)
+
         db_del(session, models.EnabledLanguage, (models.EnabledLanguage.tid == tid, models.EnabledLanguage.name.in_(to_remove)))
 
 
@@ -71,7 +73,8 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
-        'logo': True if logo else False
+        'logo': True if logo else False,
+        'tid': tid
     })
 
     if 'version' in ret:
@@ -139,7 +142,7 @@ class NodeInstance(BaseHandler):
                        self.request.tid,
                        self.request.language,
                        config_desc=config[0])
-
+        ret["is_profile"] = True if self.request.tid > 1000001 else False
         returnValue(ret)
 
     @inlineCallbacks

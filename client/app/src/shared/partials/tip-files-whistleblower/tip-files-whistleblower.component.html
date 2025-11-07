@@ -3,10 +3,10 @@
     <span>{{'Attachments'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
-        <i class="fa-solid fa-chevron-up" ngbTooltip="{{'Collapse' | translate}}"></i>
+        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
       }
       @if (collapsed) {
-        <i class="fa-solid fa-chevron-down" ngbTooltip="{{'Expand' | translate}}"></i>
+        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
       }
     </span>
   </div>
@@ -36,13 +36,13 @@
                       [disabled]="file.error"
                       ngbTooltip="{{'Download' | translate}}"
                       (click)="downloadWBFile(file)">
-                      <i class="fa-solid fa-download"></i>
+                      <i class="fas fa-download"></i>
                     </button>
                   </td>
                 }
                 <td>
                   <button class="btn btn-sm btn-primary tip-action-file-info" ngbTooltip="{{'File Information' | translate}}" (click)="openFileInfo(file)" [attr.aria-label]="'View file information for ' + file.name">
-                    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>
                   </button>
                 </td>
                 <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>

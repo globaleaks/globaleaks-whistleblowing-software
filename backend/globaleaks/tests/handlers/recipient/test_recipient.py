@@ -33,7 +33,7 @@ class TestOperations(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_invalid_operation(self):
-        rtips = yield recipient.get_receivertips(1, self.dummyReceiver_1['id'], helpers.USER_PRV_KEY, 'en')
+        rtips = yield self.get_rtips()
         rtips_ids = [rtip['id'] for rtip in rtips]
 
         data_request = {
@@ -49,7 +49,7 @@ class TestOperations(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_put_revoke_and_grant(self):
-        rtips = yield recipient.get_receivertips(1, self.dummyReceiver_1['id'], helpers.USER_PRV_KEY, 'en')
+        rtips = yield self.get_rtips()
         rtips_ids = [rtip['id'] for rtip in rtips]
 
         yield self.test_model_count(models.ReceiverTip, 4)
@@ -62,7 +62,7 @@ class TestOperations(helpers.TestHandlerWithPopulatedDB):
             }
         }
 
-        handler = self.request(data_request, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(data_request, user_id=self.dummyReceiver_1['id'], role='receiver', permissions={'can_grant_access_to_reports': True})
         yield handler.put()
 
         yield self.test_model_count(models.ReceiverTip, 2)
@@ -75,7 +75,7 @@ class TestOperations(helpers.TestHandlerWithPopulatedDB):
             }
         }
 
-        handler = self.request(data_request, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(data_request, user_id=self.dummyReceiver_1['id'], role='receiver', permissions={'can_grant_access_to_reports': True})
         yield handler.put()
 
         yield self.test_model_count(models.ReceiverTip, 4)

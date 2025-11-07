@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} fr
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
-import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
@@ -39,6 +39,7 @@ import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
 
 
 @Component({
@@ -61,6 +62,9 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     NgTemplateOutlet,
     NgbNavOutlet,
     NgbTooltipModule,
+    NgbDropdown,
+    NgbDropdownToggle,
+    NgbDropdownMenu,
     TipUploadWbFileComponent_1,
     TipCommentsComponent_1,
     TranslateModule,
@@ -98,6 +102,7 @@ export class TipComponent implements OnInit {
   redactMode:boolean = false;
   redactOperationTitle: string;
   tabs: Tab[];
+  submission: any;
 
   ngOnInit() {
     this.loadTipDate();
@@ -116,7 +121,9 @@ export class TipComponent implements OnInit {
           this.loading = false;
           this.RTipService.initialize(response);
           this.tip = this.RTipService.tip;
-          this.activatedRoute.queryParams.subscribe((params: { [x: string]: string; }) => {
+          this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
+
+          this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {
             this.tip.tip_id = params["tip_id"];
           });
 
@@ -379,20 +386,19 @@ export class TipComponent implements OnInit {
   }
 
   exportTip(tipId: string) {
-    const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
-        next: async token => {
-          this.cryptoService.proofOfWork(token).subscribe(
-            (result: number) => {
-              window.open("api/recipient/rtips/" + tipId + "/export" + "?token=" + token.id + ":" + result);
-              this.appDataService.updateShowLoadingPanel(false);
-            }
-          );
-        }
-      }
-    );
+    this.utils.saveAs(this.authenticationService, "tip.zip", `/api/recipient/tips/${tipId}/export`);
+  }
+
+  openLogsModal() {
+    const modalRef = this.modalService.open(TipAuditLogComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.tipId = this.tip_id;
+    modalRef.componentInstance.tipData = this.tip; // Pass the tip data containing comments with audit logs
+    modalRef.componentInstance.usersData = this.tip?.receivers || []; // Pass receivers as users data
   }
 
   toggleRedactMode() {

@@ -18,7 +18,10 @@
           <td>{{data.username}}</td>
           <td>{{data.role}}</td>
           <td>{{data.name}}</td>
-          <td> <i class="fa" [ngClass]="{'fa-check': data.two_factor, 'fa-times': !data.two_factor}"></i> </td>
+          <td>
+            @if (data.two_factor) {<i class="fas fa-xmark"></i>}
+            @if (!data.two_factor) {<i class="fas fa-check"></i>}
+	  </td>
           <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
           <td>{{data.last_login | date:'dd-MM-yyyy HH:mm'}}</td>
         </tr>
@@ -28,16 +31,16 @@
   @if (users.length > pageSize) {
     <div>
         <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="users.length">
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
-            <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+            <ng-template ngbPaginationFirst><span ngbTooltip="{{'First' | translate}}"><i class="fas fa-backward-fast"></i></span></ng-template>
+            <ng-template ngbPaginationPrevious><span ngbTooltip="{{'Previous' | translate}}"><i class="fas fa-backward-step"></i></span></ng-template>
+            <ng-template ngbPaginationNext><span ngbTooltip="{{'Next' | translate}}"><i class="fas fa-forward-step"></i></span></ng-template>
+            <ng-template ngbPaginationLast><span ngbTooltip="{{'Last' | translate}}"><i class="fas fa-forward-fast"></i></span></ng-template>
+            <ng-template ngbPaginationFirst><span ngbTooltip="{{'First' | translate}}"><i class="fas fa-backward-fast"></i></span></ng-template>
+            <ng-template ngbPaginationPrevious><span ngbTooltip="{{'Previous' | translate}}"><i class="fas fa-backward-step"></i></span></ng-template>
+            <ng-template ngbPaginationNext><span ngbTooltip="{{'Next' | translate}}"><i class="fas fa-forward-step"></i></span></ng-template>
+            <ng-template ngbPaginationLast><span ngbTooltip="{{'Last' | translate}}"><i class="fas fa-forward-fast"></i></span></ng-template>
          </ngb-pagination>
     </div>
     }
-    <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"> <i class="fa-solid fa-download"></i> <span>{{ 'Export' | translate }}</span></button></div>
+    <div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>
   }

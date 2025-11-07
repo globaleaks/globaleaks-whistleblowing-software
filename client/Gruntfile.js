@@ -41,13 +41,6 @@ module.exports = function(grunt) {
             flatten: true,
             expand: true
           },
-          {
-            dest: 'build/fonts',
-            cwd: 'node_modules/',
-            src: ['@fortawesome/fontawesome-free/webfonts/*solid*'],
-            flatten: true,
-            expand: true
-          },
           {dest: "build/images", cwd: "app/images", src: ["**"], expand: true},
           {dest: "build/js", cwd: "tmp/js", src: ["**"], expand: true},
           {dest: "build/js/", cwd: "tmp/", src: ["chunk-*.js*"], expand: true},
@@ -81,10 +74,20 @@ module.exports = function(grunt) {
 
     "string-replace": {
       pass1: {
-        src: "./tmp/css/fonts.css",
-        dest: "./tmp/css/",
+        files: {
+          "tmp/index.html": "tmp/index.html"
+        },
+
         options: {
           replacements: [
+            {
+              pattern: /<script src="/g,
+              replacement: "<script src=\"js/"
+            },
+            {
+              pattern: /<link rel="stylesheet" href="/g,
+              replacement: "<link rel=\"stylesheet\" href=\"css/"
+            },
             {
               pattern: /.\/media\//gi,
               replacement: function () {
@@ -94,36 +97,19 @@ module.exports = function(grunt) {
           ]
         }
       },
-
       pass2: {
-        src: "./tmp/js/main.js",
-        dest: "./tmp/js/",
-        options: {
-          replacements: [
-            {
-              pattern: /"ngb-dp-navigation-chevron"/ig,
-              replacement: function () {
-                return "\"fa-solid fa-chevron-right\"";
-              }
-            },
-          ]
-        }
-      },
-
-      pass3: {
         files: {
-          "tmp/index.html": "tmp/index.html"
+          "tmp/css/styles.css": "tmp/css/styles.css",
+          "tmp/css/fonts.css": "tmp/css/fonts.css"
         },
 
         options: {
           replacements: [
             {
-              pattern: /<script src="(\w+)\.js" type="module"><\/script>/g,
-              replacement: "<script src=\"js/$1.js\" type=\"module\"></script>"
-            },
-            {
-              pattern: /<link rel="stylesheet" href="/g,
-              replacement: "<link rel=\"stylesheet\" href=\"css/"
+              pattern: /.\/media\//gi,
+              replacement: function () {
+                return "../fonts/";
+              }
             }
           ]
         }
@@ -192,14 +178,17 @@ module.exports = function(grunt) {
     },
 
     shell: {
-      npx_build: {
+      build: {
         command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=production"
       },
-      npx_build_for_testing: {
-        command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=testing && nyc instrument dist --in-place"
+      build_for_testing: {
+        command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=testing"
+      },
+      instrument: {
+        command: "nyc instrument dist --in-place"
       },
       brotli_compress: {
-        command: 'find . -type f -not -path \'./data/*\' -not -path \'./fonts/*\' -exec brotli -q 11 {} --output={}.br \\;',
+        command: 'find . -type f -not -name \'index.html\' -not -path \'./data/*\' -not -path \'./fonts/*\' -exec brotli -q 11 {} --output={}.br \\;',
         options: {
           execOptions: {
             cwd: './build'
@@ -821,8 +810,10 @@ module.exports = function(grunt) {
 
   grunt.registerTask("package", ["copy:build", "webpack", "string-replace", "postcss", "copy:package"]);
 
-  grunt.registerTask("build", ["clean", "shell:npx_build", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build", ["clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
+
+  grunt.registerTask("build_for_testing", ["clean", "shell:build_for_testing", "package", "shell:brotli_compress", "clean:tmp"]);
  
-  grunt.registerTask("build_for_testing", ["clean", "shell:npx_build_for_testing", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build_for_testing_and_instrument", ["clean", "shell:build_for_testing", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
 };
 

@@ -1,12 +1,12 @@
 <div id="HomePageBox">
   @if (appDataService.public.node.presentation) {
-    <markdown id="Presentation" class="mb-4" [data]="appDataService.public.node.presentation | stripHtml"></markdown>
+    <span id="Presentation" class="mb-4"><markdown [data]="appDataService.public.node.presentation | stripHtml"></markdown></span>
   }
   <div id="WhistleblowerBox" class="d-block mx-auto">
     @if (appDataService.public.node.disable_submissions || (!appDataService.public.node.https_whistleblower && !appDataService.connection.tor)) {
       <div id="WhistleblowerSubmitBoxButtonDisabled" class="mt-4">
         <button class="btn btn-danger disabled">
-          <i class="fa-solid fa-ban-circle"></i>
+          <i class="fas fa-ban"></i>
           <span id="submissions_disabled">{{'Submissions disabled'|translate}}</span>
         </button>
       </div>
@@ -19,9 +19,10 @@
     @if (!appDataService.public.node.disable_submissions && (appDataService.public.node.https_whistleblower || appDataService.connection.tor)) {
       <div id="WhistleblowerSubmitBox" class="mt-4">
         @if (appDataService.public.node.whistleblowing_question) {
-          <markdown id="WhistleblowingQuestion" [data]="appDataService.public.node.whistleblowing_question | stripHtml"></markdown>
+          <span id="WhistleblowingQuestion"><markdown [data]="appDataService.public.node.whistleblowing_question | stripHtml"></markdown></span>
         }
-        <button id="WhistleblowingButton" (click)="openSubmission()" class="btn btn-primary">@if (appDataService.public.node.whistleblowing_button) {
+        <button id="WhistleblowingButton" (click)="openSubmission()" class="btn btn-primary">
+        @if (appDataService.public.node.whistleblowing_button) {
           <span>{{appDataService.public.node.whistleblowing_button|translate}}</span>
         }</button>
       </div>
@@ -34,3 +35,4 @@
       }
     </div>
   </div>
+</div>

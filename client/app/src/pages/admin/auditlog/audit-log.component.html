@@ -1,7 +1,7 @@
 <div id="SectionContent" name="contentForm" novalidate class="reveal">
   <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
     @for (tab of tabs; track tab) {
-      <li [ngbNavItem]="tab.title"> <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
+      <li [ngbNavItem]="tab.title"><button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
       <ng-template ngbNavContent>
         <ng-container *ngTemplateOutlet="tab.component"></ng-container>
       </ng-template>

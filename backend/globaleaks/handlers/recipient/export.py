@@ -13,7 +13,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.recipient.rtip import db_update_submission_status, redact_report
 from globaleaks.handlers.whistleblower.submission import decrypt_tip
-from globaleaks.handlers.user import user_serialize_user
+from globaleaks.handlers.user import serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import transact
 from globaleaks.rest import errors
@@ -77,7 +77,6 @@ try:
 
 except ImportError:
     REPORTPDF = None
-    pass
 
 
 def serialize_rtip_export(session, user, itip, rtip, context, language):
@@ -90,7 +89,7 @@ def serialize_rtip_export(session, user, itip, rtip, context, language):
         'tip': rtip_dict,
         'crypto_tip_prv_key': Base64Encoder.decode(rtip.crypto_tip_prv_key),
         'deprecated_crypto_files_prv_key': Base64Encoder.decode(rtip.deprecated_crypto_files_prv_key),
-        'user': user_serialize_user(session, user, language),
+        'user': serialize_user(session, user, language),
         'context': admin_serialize_context(session, context, language),
         'submission_statuses': db_get_submission_statuses(session, user.tid, language)
     }
@@ -152,7 +151,7 @@ def prepare_tip_export(user_session, tip_export):
     if tip_export['crypto_tip_prv_key']:
         tip_export['tip'] = yield deferToThread(decrypt_tip, user_session.cc, tip_export['crypto_tip_prv_key'], tip_export['tip'])
 
-        tip_export['tip'] = yield redact_report(user_session.user_id, tip_export['tip'], True)
+        tip_export['tip'] = yield redact_report(user_session, tip_export['tip'], True)
 
         for file_dict in tip_export['tip']['wbfiles']:
             if tip_export['deprecated_crypto_files_prv_key']:

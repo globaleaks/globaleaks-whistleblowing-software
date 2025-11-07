@@ -14,6 +14,7 @@
 # erinm, 2021
 # tyfjoh, 2014
 # Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2023
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -50,7 +51,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
 "PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2013-2023\n"
+"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025\n"
 "Language-Team: Dutch (http://app.transifex.com/otf/globaleaks/language/nl/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -555,7 +556,7 @@ msgstr ""
 msgid "Footer"
 msgstr "Voettekst"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr ""
 
 msgid ""
@@ -611,7 +612,7 @@ msgid "Group of questions"
 msgstr "Vragengroep"
 
 msgid "Have you already filed a report? Enter your receipt."
-msgstr "Hebt u al een inzending ingediend? Voer uw 16 cijferige code in."
+msgstr "Heeft u al een tip ingediend? Voer uw 16-cijferige code in."
 
 msgid "Hidden"
 msgstr "Verborgen"
@@ -1663,62 +1664,62 @@ msgid "Select a reporting channel:"
 msgstr ""
 
 msgid "Please summarize your report in a few words."
-msgstr "Beschrijf je inzending in een paar woorden."
+msgstr "Omschrijf uw tip in enkele woorden."
 
 msgid "Describe your report in detail."
 msgstr "Geef een gedetailleerde beschrijving van je inzending."
 
 msgid "Where did the facts happen?"
-msgstr "Waar is zijn de feiten gebeurd?"
+msgstr "Op welke locatie(s) hebben de gebeurtenissen plaatsgevonden?"
 
 msgid "When did the facts happen?"
-msgstr "Wanneer zijn de feiten gebeurd?"
+msgstr "Wanneer (jaar, maand, dag) hebben de\ngebeurtenissen plaatsgevonden?"
 
 msgid "I'm a victim"
 msgstr "Ik ben een slachtoffer"
 
 msgid "I'm involved in the facts"
-msgstr "Ik ben betrokken bij de feiten"
+msgstr "Ik ben betrokken bij de gebeurtenissen"
 
 msgid "I witnessed the facts in person"
-msgstr "Ik was persoonlijk getuige van de feiten"
+msgstr "Ik was getuige van de gebeurtenissen"
 
 msgid "I was personally told by a direct witness"
-msgstr "Het werd mij persoonlijk verteld door een getuige"
+msgstr "Ik hoorde het van een directe getuige"
 
 msgid "It is a rumor I heard"
-msgstr "Het was een gerucht dat ik hoorde"
+msgstr "Het is een gerucht dat ik gehoord heb"
 
 msgid "How are you involved in the reported facts?"
-msgstr "Hoe ben je betrokken bij de ingezonden feiten?"
+msgstr "Wat is uw betrokkenheid bij de gebeurtenissen?"
 
 msgid "Do you have evidence to support your report?"
-msgstr "Heb je bewijzen die jouw inzending ondersteunen?"
+msgstr "Heeft u bewijzen ter ondersteuning van uw tip/inzending?"
 
 msgid "Please attach the evidence to support your report."
-msgstr "Voeg alsjeblieft bewijsmateriaal toe aan je inzending."
+msgstr "Voeg alstublieft bewijsmateriaal toe ter ondersteuning"
 
 msgid "Please describe the evidence in detail."
-msgstr "Beschrijf alsjeblieft het bewijsmateriaal in detail."
+msgstr "Beschrijf het bewijs in detail."
 
 msgid ""
 "A thorough description of the submitted evidence enhances our ability to "
 "evaluate claims and investigate. Please take care to reference significant "
 "portions of any videos, images or documents submitted."
-msgstr "Een gedetailleerde beschrijving van het ingediende bewijsmateriaal verbetert ons vermogen om claims te evalueren en te onderzoeken. Zorg ervoor dat je verwijst naar belangrijke delen van de ingediende video's, afbeeldingen of documenten."
+msgstr "Een gedetailleerde beschrijving helpt ons bij het beoordelen en onderzoeken van het bewijsmateriaal. Refereer, waar mogelijk, naar relevante onderdelen van de ingediende video’s, foto’s of documenten."
 
 msgid "Have you reported the facts to other organizations and/or individuals?"
-msgstr "Heb je de feiten ook bij andere organisaties en/of individuen gerapporteerd?"
+msgstr "Heeft u de gebeurtenissen ook bij andere organisaties en/of personen gemeld?"
 
 msgid ""
 "Please list the organizations and/or individuals you have informed about "
 "these facts."
-msgstr "Vermeld alsjeblieft de organisaties en/of individuen die je over deze feiten hebt geïnformeerd. "
+msgstr "Vermeld alstublieft bij welke organisaties en/of personen u de gebeurtenissen heeft gemeld."
 
 msgid ""
 "Have these organizations investigated your claims? If so, what was the "
 "outcome?"
-msgstr "Hebben deze organisaties jouw claims onderzocht? Zoja, wat het het resultaat?"
+msgstr "Welk resultaat hoopt u te bereiken met onze steun?"
 
 msgid "What is the outcome you want to achieve with our support?"
 msgstr "Wat is het resultaat dat je hoopt te bereiken met onze ondersteuning?"

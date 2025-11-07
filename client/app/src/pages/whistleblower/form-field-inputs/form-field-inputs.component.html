@@ -5,7 +5,7 @@
         <span class="title">{{field.label|translate}}</span>
       }
       @if (field.hint) {
-        <i [ngbTooltip]="field.hint" class="fa-solid fa-question-circle"></i>
+        <span [ngbTooltip]="field.hint"><i class="fas fa-circle-question"></i></span>
       }
       @if (field.required) {
         <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
@@ -27,18 +27,18 @@
                 </span>
                 <span class="float-end">
                   <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                   </span>
                 </span>
               </div>
             }
-            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]=identity_provided [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
+            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
           </div>
         }
         @if (field.multi_entry && field.type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
-              <i class="fa-solid fa-plus"></i>
+              <i class="fas fa-plus"></i>
             </button>
           </div>
         }
@@ -52,7 +52,7 @@
       <legend class="title">{{field.label|translate}}</legend>
     }
     @if (field.hint) {
-      <i class="fa-solid fa-question-circle"></i>
+      <span [ngbTooltip]="field.hint"><i class="fas fa-circle-question"></i></span>
     }
     @if (field.required) {
       <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
@@ -73,18 +73,18 @@
                 </span>
                 <span class="float-end">
                   <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
-                    <i class="fa-solid fa-times"></i>
+                    <i class="fas fa-xmark"></i>
                   </span>
                 </span>
               </div>
             }
-            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [identity_provided]=identity_provided [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
+            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
           </div>
         }
         @if (field.multi_entry && field.type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
-              <i class="fa-solid fa-plus"></i>
+              <i class="fas fa-plus"></i>
             </button>
           </div>
         }

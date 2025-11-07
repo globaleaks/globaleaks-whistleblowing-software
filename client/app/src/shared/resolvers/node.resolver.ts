@@ -22,7 +22,7 @@ export class NodeResolver {
     if (
         this.authenticationService.session.role === "admin" ||
         (this.authenticationService.session.role === "receiver" &&
-            this.preferenceResolver.dataModel.can_edit_general_settings)
+            this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings)
     ) {
       return this.httpService.requestNodeResource().pipe(
           map((response: nodeResolverModel) => {

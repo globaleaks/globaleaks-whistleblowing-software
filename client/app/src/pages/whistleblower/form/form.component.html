@@ -3,7 +3,7 @@
     @for (field of row | orderBy:'x'; let fieldCol = $index; track $index) {
       @if (field?.enabled) {
         <div [ngClass]="fieldUtilitiesService.getClass(field, row.length)">
-          <src-form-field-inputs [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [fieldEntry] = fieldEntry [identity_provided]=identity_provided [uploads]="uploads" [entry]="entry" [fields]="fields" [step]="step" [displayErrors]="displayErrors" [index]="index" [submission]="submission" [answers]="answers" [stepId]="stepId" [fieldCol]="fieldCol" [fieldRow]="fieldRow" [field]="field"></src-form-field-inputs>
+          <src-form-field-inputs [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [fieldEntry] = fieldEntry [uploads]="uploads" [entry]="entry" [fields]="fields" [step]="step" [displayErrors]="displayErrors" [index]="index" [submission]="submission" [answers]="answers" [stepId]="stepId" [fieldCol]="fieldCol" [fieldRow]="fieldRow" [field]="field"></src-form-field-inputs>
         </div>
       }
     }

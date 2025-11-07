@@ -3,7 +3,7 @@ from twisted.internet.protocol import Factory, Protocol
 from twisted.test.proto_helpers import StringTransportWithDisconnection
 from twisted.trial import unittest
 
-from globaleaks.utils.socks import SOCKS5ClientProtocol, SOCKS5ClientFactory
+from globaleaks.utils.socks import SOCKS5ClientProtocol
 
 class DummyFactory(Factory):
     def __init__(self):
@@ -17,7 +17,7 @@ class DummyFactory(Factory):
 class DummyProtocol(Protocol):
     def __init__(self):
         self.data = b""
-    
+
     def dataReceived(self, data):
         self.data += data
 
@@ -41,7 +41,7 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
         """Test that the protocol correctly handles a SOCKS5 response."""
         self.protocol.dataReceived(b"\x05\x00")
         self.assertEqual(self.protocol.state, 2)
-        
+
         self.protocol.dataReceived(b"\x05\x00")
         self.assertEqual(self.protocol.state, 3)
 

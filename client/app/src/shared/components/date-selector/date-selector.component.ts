@@ -10,7 +10,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class DateRangeSelectorComponent {
   hoveredDate: NgbDate | null = null;
-  @Output() emitDateSelection: EventEmitter<{ fromDate: string | null; toDate: string | null }> = new EventEmitter();
+  @Output() emitDateSelection = new EventEmitter<{ fromDate: string | null; toDate: string | null }>();
   @Input() currentDates: { fromDate: NgbDate | null, toDate: NgbDate | null } | null;
   fromDate: NgbDate | null = null;
   toDate: NgbDate | null = null;

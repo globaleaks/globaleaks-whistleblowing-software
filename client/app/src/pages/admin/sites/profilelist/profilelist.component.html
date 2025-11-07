@@ -1,0 +1,73 @@
+<div class="config-item reveal">
+  <div class="editorHeader row">
+    <div class="col-md-6" (click)="toggleEditing($event)">
+      <div>
+        <span class="badge bg-secondary">{{indexNumber}}</span>
+        <span>{{tenant.name}}</span>
+      </div>
+      @if (tenant.active && tenant.id > 1000001 && (tenant.onionservice || tenant.hostname || (tenant.subdomain || nodeResolver.dataModel.rootdomain))) {
+        <div class="tenant-badge"
+          >
+          @if (tenant.onionservice) {
+            <a class="badge bg-primary" [href]="'https://' + tenant.onionservice"
+            rel="noreferrer" target="_blank">{{tenant.onionservice}}</a>
+          }
+          @if (tenant.subdomain) {
+            <span>
+              @if (nodeResolver.dataModel.onionservice && tenant.subdomain) {
+                <a class="badge bg-primary"
+                  [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice"
+                  rel="noreferrer" target="_blank">{{ tenant.subdomain }}
+                .{{ nodeResolver.dataModel.onionservice }}</a>
+              }
+            </span>
+          }
+          @if (tenant.hostname) {
+            <a class="badge bg-primary" [href]="'https://' + tenant.hostname"
+            rel="noreferrer" target="_blank"> {{ tenant.hostname }} </a>
+          }
+        </div>
+      }
+    </div>
+    @if (tenant.id !== 1) {
+      <div class="col-md-6 clearfix" (click)="toggleEditing($event)">
+        <span class="float-end">
+          @if (tenant.active) {
+            <button class="btn btn-sm btn-primary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
+          }
+          <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportTenant(tenant)">
+            <i class="fa-solid fa-file-export"></i>
+            <span>{{ 'Export' | translate }}</span>
+          </button>
+          @if (editing) {
+            <button class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
+          }
+          @if (isRemovableTenant()) {
+            <button class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
+          }
+          <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">
+            <i class="fa" [ngClass]="{'fa-chevron-down': !editing, 'fa-chevron-up': editing}"></i>
+          </button>
+        </span>
+      </div>
+    }
+  </div>
+  @if (editing) {
+    <div>
+      <hr />
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>{{'Name'|translate}}</label>
+            <input name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
+          </div>
+          <div class="form-group">
+            <label>
+              <span>{{'Creation date:'|translate}}</span> {{tenant.creation_date | date:'dd-MM-yyyy'}}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

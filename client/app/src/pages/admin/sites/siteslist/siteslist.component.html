@@ -2,10 +2,10 @@
   <div class="editorHeader row">
     <div class="col-md-6" (click)="toggleEditing($event)">
       <div>
-        <span class="badge bg-secondary">{{tenant.id}}</span>
+        <span class="badge bg-secondary">{{indexNumber}}</span>
         <span>{{tenant.name}}</span>
       </div>
-      @if (tenant.active && (tenant.onionservice || tenant.hostname || (tenant.subdomain || nodeResolver.dataModel.rootdomain))) {
+      @if (tenant.active && (tenant.onionservice || tenant.hostname || tenant.subdomain)) {
         <div class="tenant-badge">
           @if (tenant.hostname) {
             <a class="badge bg-primary" [href]="'https://' + tenant.hostname" target="_blank">{{tenant.hostname}}</a>
@@ -14,8 +14,8 @@
             <a class="badge bg-primary" [href]="'http://' + tenant.onionservice" target="_blank">{{tenant.onionservice}}</a>
           }
           @if (tenant.subdomain) {
-            @if (nodeResolver.dataModel.onionservice) {
-              <a class="badge bg-primary" [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
+            @if (nodeResolver.dataModel.rootdomain) {
+              <a class="badge bg-primary" [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.rootdomain}}</a>
             }
             @if (nodeResolver.dataModel.onionservice) {
               <a class="badge bg-primary" [href]="'http://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
@@ -36,15 +36,15 @@
           @if (tenant.active) {
             <button class="btn btn-sm btn-primary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
           }
-          @if (!editing) {
-            <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">{{'Edit'|translate}}</button>
-          }
           @if (editing) {
             <button class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
           }
           @if (isRemovableTenant()) {
             <button class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
           }
+          <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">
+            <i class="fa" [ngClass]="{'fa-chevron-down': !editing, 'fa-chevron-up': editing}"></i>
+          </button>
         </span>
       </div>
     }
@@ -60,7 +60,7 @@
           </div>
           <div class="form-group">
             <label>{{'Subdomain'|translate}}</label>
-            <input name="subdomain" class="form-control" [(ngModel)]="tenant.subdomain" type="text" required>
+            <input name="subdomain" class="form-control" [(ngModel)]="tenant.subdomain" type="text" maxlength="40" required>
           </div>
           <div class="form-group">
             <label>{{'Mode:'|translate}}</label>

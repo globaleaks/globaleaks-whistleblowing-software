@@ -1,0 +1,137 @@
+<div class="modal-header">
+  <div class="modal-title">{{'Audit log' | translate}}</div>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
+</div>
+<div class="modal-body">
+  <!-- Search Bar -->
+  <div class="row mb-3">
+    <div class="col-md-8"></div>
+    <div class="col-md-4">
+      <div class="input-group input-group-sm">
+        <input type="text" class="form-control" placeholder="{{'Search' | translate}}"
+               [(ngModel)]="searchTerm" (input)="onSearchChange()">
+        <span class="input-group-text"><i class="fas fa-search"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Log Table -->
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="toggleSort('user')">
+            {{'User' | translate}}
+            @if (sortField === 'user') {
+              <i class="fas" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            } @else {
+              <i class="fas fa-sort text-muted"></i>
+            }
+          </th>
+          <th>
+            <span class="sortable" (click)="toggleSort('action')">
+              {{'Type'|translate}}
+              @if (sortField === 'action') {
+                <i class="fas" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+              } @else {
+                <i class="fas fa-sort text-muted"></i>
+              }
+              <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
+                <span id="auditlog-action-filter-type" [ngClass]="{ filterSelected: checkTypeFilter(dropdownTypeModel) }" (click)="toggleTypeDropdown();$event.stopPropagation();"><i class="fas fa-filter"></i></span>
+                <span [class.d-none]="!typeDropdownVisible" (click)="$event.stopPropagation()">
+                  <ng-multiselect-dropdown [class.dropdown-visible]="typeDropdownVisible" [settings]="dropdownSettings" [data]="dropdownTypeData" [(ngModel)]="dropdownTypeModel" (ngModelChange)="onTypeFilterChange($event)"></ng-multiselect-dropdown>
+                </span>
+              </span>
+            </span>
+          </th>
+          <th class="sortable" (click)="toggleSort('timestamp')">
+            {{'Date' | translate}}
+            @if (sortField === 'timestamp') {
+              <i class="fas" [class]="sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down'"></i>
+            } @else {
+              <i class="fas fa-sort text-muted"></i>
+            }
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of getPaginatedData(); track entry.id) {
+          <!-- Main entry row -->
+          <tr [class]="entry.isGroup ? 'audit-group-row' : ''"
+              [style.cursor]="entry.isGroup ? 'pointer' : 'default'"
+              (click)="entry.isGroup ? toggleGroupExpansion(entry) : null">
+            <td>{{entry.user}}</td>
+            <td>
+              <span class="badge bg-light text-dark">
+                <span [class]="getTypeDotColor(entry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{entry.action}}</span>
+              </span>
+            </td>
+            <td>
+              <div class="d-flex justify-content-between align-items-center">
+                <span>{{entry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</span>
+                @if (entry.isGroup) {
+                  <button class="btn btn-sm btn-link p-0 ms-2 chevron-btn"
+                          (click)="$event.stopPropagation()"
+                          [attr.aria-label]="entry.isExpanded ? ('Collapse' | translate) : ('Expand' | translate)">
+                    @if (entry.isExpanded) {
+                      <i class="fas fa-chevron-down"></i>
+                    } @else {
+                      <i class="fas fa-chevron-right"></i>
+                    }
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+
+          <!-- Expanded content -->
+          @if (entry.isGroup && entry.isExpanded && entry.groupedEntries) {
+            @for (childEntry of entry.groupedEntries; track childEntry.id) {
+              <tr>
+                <td>{{childEntry.user}}</td>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    <span [class]="getTypeDotColor(childEntry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{childEntry.action}}</span>
+                  </span>
+                </td>
+                <td>{{childEntry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</td>
+              </tr>
+            }
+          }
+        }
+        @if (getPaginatedData().length === 0) {
+          <tr>
+            <td colspan="3" class="text-center text-muted py-3">
+              {{'No results' | translate}}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (getFilteredData().length > pageSize) {
+    <div>
+      <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="getFilteredData().length">
+        <ng-template ngbPaginationFirst><i class="fas fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationPrevious><i class="fas fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationNext><i class="fas fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+        <ng-template ngbPaginationLast><i class="fas fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+      </ngb-pagination>
+    </div>
+  }
+
+  <!-- Export Button -->
+  <div class="d-flex justify-content-end mt-2">
+    <button class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
+      <i class="fas fa-download"></i>
+      <span>{{ 'Export' | translate }}</span>
+    </button>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fas fa-times"></i>
+    <span>{{'Close' | translate}}</span>
+  </button>
+</div>

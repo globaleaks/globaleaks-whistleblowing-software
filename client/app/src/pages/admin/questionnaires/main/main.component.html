@@ -3,13 +3,13 @@
     <div>
       <span>{{ 'Questionnaires' | translate }}</span>
       <button class="btn btn-sm btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
         <input type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
         <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
-          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+          <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>
     </div>
@@ -27,7 +27,7 @@
           </div>
           <div class="form-group">
             <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
-              <i class="fa-solid fa-plus"></i>
+              <i class="fas fa-plus"></i>
               <span>{{ 'Add' | translate }}</span>
             </button>
           </div>

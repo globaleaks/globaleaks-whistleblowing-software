@@ -525,7 +525,7 @@ msgstr "Codi postal"
 msgid "Footer"
 msgstr "Peu de pàgina"
 
-msgid "For security reasons the code needs to be changed."
+msgid "For security reasons, the code needs to be changed."
 msgstr "Per raons de seguretat el codi s'ha de canviar"
 
 msgid ""
@@ -1445,7 +1445,7 @@ msgid "Trigger question"
 msgstr "Pregunta d'activació"
 
 msgid "Triggered by score:"
-msgstr "Activat per puntuació"
+msgstr "Activat per puntuació:"
 
 msgid "Turn on email notifications"
 msgstr "Activa les notificacions per correu electrònic"
@@ -1977,7 +1977,7 @@ msgid ""
 msgstr "Sense una clau PGP vàlida, el sistema no podrà encriptar les dades que se li han proporcionat."
 
 msgid "Click the link to activate the platform:"
-msgstr "Seleccione l'enllaç per activar la plataforma"
+msgstr "Seleccione l'enllaç per activar la plataforma:"
 
 msgid "Activation"
 msgstr "Activació"
