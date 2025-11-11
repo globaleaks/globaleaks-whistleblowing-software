@@ -57,6 +57,9 @@ export class RecieverTipData {
 export type Answers = Record<string, {
     required_status: boolean;
     value: string;
+    hash_sha256?: string;
+    hash_sha512?: string;
+    index?: string;
   }[]>;
 
 export interface Receiver {

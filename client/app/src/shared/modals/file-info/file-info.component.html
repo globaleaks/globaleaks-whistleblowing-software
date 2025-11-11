@@ -1,0 +1,56 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{'View Details'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
+</div>
+<div class="modal-body">
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped" role="table" [attr.aria-label]="'File properties' | translate">
+      <tbody role="rowgroup">
+        <tr role="row">
+          <th scope="row" class="bg-light fw-bold w-25">{{'Filename'|translate}}</th>
+          <td class="text-break">{{file.name}}</td>
+        </tr>
+        <tr role="row">
+          <th scope="row" class="bg-light fw-bold w-25">{{'File type'|translate}}</th>
+          <td>{{file.type}}</td>
+        </tr>
+        <tr role="row">
+          <th scope="row" class="bg-light fw-bold w-25">{{'Size'|translate}}</th>
+          <td>{{file.size | byteFmt:2}}</td>
+        </tr>
+        <tr role="row">
+          <th scope="row" class="bg-light fw-bold w-25">{{'Date'|translate}}</th>
+          <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm:ss'}}</td>
+        </tr>
+        @if (isRFile && getDescription()) {
+          <tr role="row">
+            <th scope="row" class="bg-light fw-bold w-25">{{'Description'|translate}}</th>
+            <td class="text-break">{{getDescription()}}</td>
+          </tr>
+        }
+        @if (getHashSHA256()) {
+          <tr role="row">
+            <th scope="row" class="bg-light fw-bold w-25">{{'Hash (SHA-256)'|translate}}</th>
+            <td role="cell">
+              <code class="d-block bg-light p-2 rounded text-break small user-select-all" [attr.aria-label]="'SHA-256 hash: ' + getHashSHA256()">{{getHashSHA256()}}</code>
+            </td>
+          </tr>
+        }
+        @if (getHashSHA512()) {
+          <tr role="row">
+            <th scope="row" class="bg-light fw-bold w-25">{{'Hash (SHA-512)'|translate}}</th>
+            <td role="cell">
+              <code class="d-block bg-light p-2 rounded text-break small user-select-all" [attr.aria-label]="'SHA-512 hash: ' + getHashSHA512()">{{getHashSHA512()}}</code>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="cancel()">
+    <span>{{'Close'|translate}}</span>
+  </button>
+</div>
+

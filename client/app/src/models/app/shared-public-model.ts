@@ -137,6 +137,8 @@ export interface Comment {
   visibility: string;
   type: string;
   data: any;
+  hash_sha256: string;
+  hash_sha512: string;
 }
 
 export interface WbFile {

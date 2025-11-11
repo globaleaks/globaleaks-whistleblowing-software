@@ -33,7 +33,14 @@
                   <div class="message-whistleblower">
                     <div class="row">
                       <div class="col-md-6">{{'Whistleblower'|translate}}</div>
-                      <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
+                      <div class="col-md-6 text-end">
+                        {{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}
+                        @if (comment.hash_sha256 || comment.hash_sha512) {
+                          <button class="btn btn-sm btn-primary ms-2" (click)="openCommentInfo(comment)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                          </button>
+                        }
+                      </div>
                     </div>
                     <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
                     @if (redactMode && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
@@ -48,7 +55,14 @@
                   <div class="message">
                     <div class="row">
                       <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name | translate}}</div>
-                      <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
+                      <div class="col-md-6 text-end">
+                        {{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}
+                        @if ((comment.hash_sha256 || comment.hash_sha512) && !comment.type) {
+                          <button class="btn btn-sm btn-primary ms-2" (click)="openCommentInfo(comment)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                          </button>
+                        }
+                      </div>
                     </div>
                     @if (!comment.type) {
                       <div class="preformatted">{{comment.content}}</div>

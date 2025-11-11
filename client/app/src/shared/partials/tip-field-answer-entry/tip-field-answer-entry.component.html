@@ -38,6 +38,11 @@
             }
           </div>
         }
+        @if (entry['hash_sha256'] || entry['hash_sha512']) {
+          <button class="btn btn-sm btn-primary ms-1 float-end" (click)="openAnswerInfo(entry, field.label)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          </button>
+        }
       </div>
     }
     @case ('multichoice') {
@@ -49,6 +54,11 @@
             }
           </div>
         }
+        @if (entry['hash_sha256'] || entry['hash_sha512']) {
+          <button class="btn btn-sm btn-primary ms-1 float-end" (click)="openAnswerInfo(entry, field.label)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          </button>
+        }
       </div>
     }
     @case ('date') {
@@ -56,6 +66,11 @@
         @if (entry['value']) {
           <div>
             {{entry['value'] | date:'dd-MM-yyyy'}}
+            @if (entry['hash_sha256'] || entry['hash_sha512']) {
+              <button class="btn btn-sm btn-primary ms-1 float-end" (click)="openAnswerInfo(entry, field.label)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              </button>
+            }
           </div>
         }
       </span>
@@ -66,6 +81,11 @@
           <span>
             <span>{{'From:'|translate}}</span> {{entry['value'] | split: [":", 0] | date:'dd-MM-yyyy'}}
             <span>{{'To:'|translate}}</span> {{entry['value'] | split: [":", 1] |  date:'dd-MM-yyyy'}}
+            @if (entry['hash_sha256'] || entry['hash_sha512']) {
+              <button class="btn btn-sm btn-primary ms-1 float-end" (click)="openAnswerInfo(entry, field.label)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+              </button>
+            }
           </span>
         }
       </span>
@@ -111,11 +131,18 @@
         @if (entry['value']) {
           <span>
             <span class="preformatted">{{maskContent(field.id, entry['index'], entry['value'])}}</span>
-            @if (redactMode && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
-              <span class="float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" ngbTooltip="{{redactOperationTitle | translate}}">
-                <i class="fas fa-eraser"></i>
-              </span>
-            }
+            <span class="float-end">
+              @if (entry['hash_sha256'] || entry['hash_sha512']) {
+                <button class="btn btn-sm btn-primary ms-1" (click)="openAnswerInfo(entry, field.label)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+                  <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                </button>
+              }
+              @if (redactMode && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
+                <span class="edit ms-1" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" ngbTooltip="{{redactOperationTitle | translate}}">
+                  <i class="fas fa-eraser"></i>
+                </span>
+              }
+            </span>
           </span>
         }
       </span>

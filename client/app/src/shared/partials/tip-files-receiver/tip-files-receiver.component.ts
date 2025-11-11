@@ -15,7 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-// import {FileInfoComponent} from "@app/shared/modals/file-info/file-info.component";
+import {FileInfoComponent} from "@app/shared/modals/file-info/file-info.component";
 
 
 @Component({
@@ -47,9 +47,9 @@ export class TipFilesReceiverComponent implements OnInit {
   }
 
   openFileInfo(file: WbFile) {
-    // const modalRef = this.modalService.open(FileInfoComponent);
-    // modalRef.componentInstance.file = file;
-    // modalRef.componentInstance.receivers_by_id = this.tipService.tip.receivers_by_id;
+    const modalRef = this.modalService.open(FileInfoComponent);
+    modalRef.componentInstance.file = file;
+    modalRef.componentInstance.receivers_by_id = this.tipService.tip.receivers_by_id;
   }
 
   redactFileOperation(operation: string, content_type: string, file: any) {
