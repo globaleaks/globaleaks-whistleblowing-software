@@ -18,7 +18,6 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {SplitPipe} from "@app/shared/pipes/split.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {FileInfoComponent} from "@app/shared/modals/file-info/file-info.component";
 
 @Component({
     selector: "src-tip-field-answer-entry",
@@ -145,22 +144,5 @@ export class TipFieldAnswerEntryComponent implements OnInit {
 
   selectedFile(file: WbFile) {
     this.wbfile = file;
-  }
-
-  openAnswerInfo(entry: any, fieldLabel: string) {
-    if (entry && (entry.hash_sha256 || entry.hash_sha512)) {
-      const modalRef = this.modalService.open(FileInfoComponent);
-      // Create a file-like object from the answer for the modal
-      modalRef.componentInstance.file = {
-        name: fieldLabel || 'Answer',
-        type: 'text/plain',
-        size: entry.value ? entry.value.length : 0,
-        creation_date: new Date().toISOString(),
-        hash_sha256: entry.hash_sha256,
-        hash_sha512: entry.hash_sha512,
-        description: ''
-      };
-      modalRef.componentInstance.receivers_by_id = this.tipService.tip.receivers_by_id;
-    }
   }
 }

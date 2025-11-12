@@ -1,13 +1,20 @@
 <div id="TipQuestionnaireAnswersBox" class="card card-default" [attr.aria-expanded]="collapsed">
-  <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
-    <span>{{'Questionnaire answers'|translate}}</span>
-    <span class="">
-      @if (!collapsed) {
-        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-      }
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span (click)="toggleCollapse(); utilsService.stopPropagation($event)" style="cursor: pointer; flex-grow: 1;">
+      {{'Questionnaire answers'|translate}}
+    </span>
+    <span class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-primary" (click)="openAnswersInfo(); utilsService.stopPropagation($event)" [ngbTooltip]="'View Details' | translate" [attr.aria-label]="'View Details'">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      </button>
+      <span (click)="toggleCollapse(); utilsService.stopPropagation($event)" style="cursor: pointer;">
+        @if (!collapsed) {
+          <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
+        }
+        @if (collapsed) {
+          <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
+        }
+      </span>
     </span>
   </div>
   @if (!collapsed) {

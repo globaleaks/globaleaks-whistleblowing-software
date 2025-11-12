@@ -1,0 +1,58 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{'View Details'|translate}}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
+</div>
+<div class="modal-body">
+  @if (answerHashes && answerHashes.length > 0) {
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" role="table" [attr.aria-label]="'Questionnaire answer hashes' | translate">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th scope="col" class="bg-light fw-bold">{{'Question'|translate}}</th>
+            <th scope="col" class="bg-light fw-bold">{{'Hash (SHA-256)'|translate}}</th>
+            <th scope="col" class="bg-light fw-bold">{{'Hash (SHA-512)'|translate}}</th>
+          </tr>
+        </thead>
+        <tbody role="rowgroup">
+          @for (answer of answerHashes; track answer; let i = $index) {
+            <tr role="row" [ngClass]="{'table-secondary': i % 2 === 0}">
+              <td class="fw-semibold" style="min-width: 200px;">
+                {{answer.fieldLabel}}
+                @if (answer.entryIndex !== null && answer.entryIndex !== undefined) {
+                  <span class="text-muted small"> (#{{answer.entryIndex + 1}})</span>
+                }
+              </td>
+              <td role="cell">
+                @if (answer.hash_sha256) {
+                  <code class="d-block bg-light p-2 rounded text-break small user-select-all" [attr.aria-label]="'SHA-256 hash: ' + answer.hash_sha256">{{answer.hash_sha256}}</code>
+                }
+                @if (!answer.hash_sha256) {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td role="cell">
+                @if (answer.hash_sha512) {
+                  <code class="d-block bg-light p-2 rounded text-break small user-select-all" [attr.aria-label]="'SHA-512 hash: ' + answer.hash_sha512">{{answer.hash_sha512}}</code>
+                }
+                @if (!answer.hash_sha512) {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (!answerHashes || answerHashes.length === 0) {
+    <div class="alert alert-info" role="alert">
+      {{'No answer hashes available'|translate}}
+    </div>
+  }
+</div>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="cancel()">
+    <span>{{'Close'|translate}}</span>
+  </button>
+</div>
+
