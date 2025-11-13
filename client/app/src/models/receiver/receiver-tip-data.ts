@@ -13,6 +13,8 @@ import {RedactionData} from "@app/models/component-model/redaction";
 export interface Questionnaire {
   steps: Step[];
   answers: Answers;
+  hash_sha256?: string;
+  hash_sha512?: string;
 }
 
 export class RecieverTipData {

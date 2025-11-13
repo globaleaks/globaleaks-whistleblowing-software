@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 
 
@@ -9,6 +10,7 @@ from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
+from globaleaks.utils.crypto import sha256, sha512
 
 
 def get_identity_files(data):
@@ -211,9 +213,18 @@ def serialize_itip(session, internaltip, language):
 
     questionnaires = []
     for ita, aqs in x:
+        # Compute hash for the entire questionnaire (structure + answers)
+        questionnaire_data = {
+            'questionnaire_hash': ita.questionnaire_hash,
+            'answers': ita.answers
+        }
+        questionnaire_json = json.dumps(questionnaire_data, sort_keys=True)
+
         questionnaires.append({
             'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
-            'answers': ita.answers
+            'answers': ita.answers,
+            'hash_sha256': sha256(questionnaire_json).decode(),
+            'hash_sha512': sha512(questionnaire_json).decode()
         })
 
     ret = {
