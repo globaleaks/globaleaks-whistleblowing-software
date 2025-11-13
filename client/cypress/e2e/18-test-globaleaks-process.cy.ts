@@ -53,10 +53,40 @@ describe("globaleaks process", function () {
       cy.waitForTipImageUpload();
       cy.get('#fileListBody').find('tr').should('have.length', 2);
 
+      // Test file info modal
+      cy.get('.tip-action-file-info').first().should('be.visible').click();
+      cy.get('.modal-title').should('be.visible');
+      cy.get('.modal-body').should('contain', 'SHA-256');
+      cy.get('.modal-body').should('contain', 'SHA-512');
+      cy.get('.modal-body code').should('have.length.at.least', 2); // At least 2 hash codes
+      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('.modal-title').should('not.exist');
+
+      // Test questionnaire answers info button
+      cy.get('#TipQuestionnaireAnswersBox').should('be.visible');
+      cy.get('#TipQuestionnaireAnswersBox .btn-primary').first().click();
+      cy.get('.modal-title').should('be.visible');
+      cy.get('.modal-body').should('contain', 'SHA-256');
+      cy.get('.modal-body').should('contain', 'SHA-512');
+      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('.modal-title').should('not.exist');
+
       const comment = "comment";
       cy.get("[name='newCommentContent']").type(comment);
       cy.get("#comment-action-send").click();
       cy.get('#comment-0').should('contain', comment);
+
+      // Test comment info button (if hash is present)
+      cy.get('#comment-0').then(($comment) => {
+        if ($comment.find('.btn-primary').length > 0) {
+          cy.get('#comment-0 .btn-primary').first().click();
+          cy.get('.modal-title').should('be.visible');
+          cy.get('.modal-body').should('contain', 'SHA-256');
+          cy.get('.modal-body').should('contain', 'SHA-512');
+          cy.get('.modal-footer button').contains('Close').click();
+          cy.get('.modal-title').should('not.exist');
+        }
+      });
 
       // Test audit log functionality
       cy.get('[id="tip-action-logs"]').should('be.visible').click();
@@ -129,6 +159,27 @@ describe("globaleaks process", function () {
       cy.login_whistleblower(receipts[0]);
 
       cy.get("#comment-0").should("contain", comment);
+
+      // Test questionnaire answers info button for whistleblower
+      cy.get('#TipQuestionnaireAnswersBox').should('be.visible');
+      cy.get('#TipQuestionnaireAnswersBox .btn-primary').first().click();
+      cy.get('.modal-title').should('be.visible');
+      cy.get('.modal-body').should('contain', 'SHA-256');
+      cy.get('.modal-body').should('contain', 'SHA-512');
+      cy.get('.modal-footer button').contains('Close').click();
+      cy.get('.modal-title').should('not.exist');
+
+      // Test file info modal for whistleblower
+      cy.get('.tip-action-file-info').first().then(($btn) => {
+        if ($btn.is(':visible')) {
+          cy.get('.tip-action-file-info').first().click();
+          cy.get('.modal-title').should('be.visible');
+          cy.get('.modal-body').should('contain', 'SHA-256');
+          cy.get('.modal-body').should('contain', 'SHA-512');
+          cy.get('.modal-footer button').contains('Close').click();
+          cy.get('.modal-title').should('not.exist');
+        }
+      });
 
       cy.get("[name='newCommentContent']").type(comment_reply);
       cy.get("#comment-action-send").click();

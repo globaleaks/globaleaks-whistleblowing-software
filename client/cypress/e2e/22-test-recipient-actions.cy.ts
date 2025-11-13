@@ -102,6 +102,17 @@ describe("recipient admin tip actions", () => {
       });
     });
 
+    // Wait for file to appear in the attachments table
+    cy.get('#fileListBody tr', { timeout: 10000 }).should('exist');
+    
+    // Test file info modal after upload
+    cy.get('.tip-action-file-info').should('be.visible').first().click();
+    cy.get('.modal-title').should('be.visible');
+    cy.get('.modal-body').should('contain', 'SHA-256');
+    cy.get('.modal-body').should('contain', 'SHA-512');
+    cy.get('.modal-footer button').contains('Close').click();
+    cy.get('.modal-title').should('not.exist');
+
     cy.get('.download-button').should('be.visible');
     cy.get('.download-button').first().click();
     cy.get('.tip-action-delete-file').first().click();

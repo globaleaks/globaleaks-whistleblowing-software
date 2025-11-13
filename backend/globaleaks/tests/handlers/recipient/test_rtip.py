@@ -33,6 +33,13 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             yield handler.get(rtip_desc['id'])
 
     @inlineCallbacks
+    def test_questionnaire_hashes(self):
+        """Test that questionnaire hashes are properly generated and included in serialization"""
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.verify_questionnaire_hashes(rtip_desc)
+
+    @inlineCallbacks
     def test_postpone(self):
         expiration = datetime_now()
 

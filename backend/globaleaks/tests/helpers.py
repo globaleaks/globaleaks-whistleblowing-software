@@ -789,6 +789,21 @@ class TestGL(unittest.TestCase):
     def get_model_count(self, session, model):
         return session.query(model).count()
 
+    def verify_questionnaire_hashes(self, tip_desc):
+        """Helper method to verify questionnaire hashes in tip responses"""
+        self.assertTrue('questionnaires' in tip_desc)
+        self.assertTrue(len(tip_desc['questionnaires']) > 0)
+
+        for questionnaire in tip_desc['questionnaires']:
+            self.assertTrue('hash_sha256' in questionnaire)
+            self.assertTrue('hash_sha512' in questionnaire)
+            self.assertIsInstance(questionnaire['hash_sha256'], str)
+            self.assertIsInstance(questionnaire['hash_sha512'], str)
+            self.assertTrue(len(questionnaire['hash_sha256']) > 0)
+            self.assertTrue(len(questionnaire['hash_sha512']) > 0)
+            self.assertEqual(len(questionnaire['hash_sha256']), 64)
+            self.assertEqual(len(questionnaire['hash_sha512']), 128)
+
 
 class TestGLWithPopulatedDB(TestGL):
     population_of_recipients = 2

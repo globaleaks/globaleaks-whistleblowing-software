@@ -22,6 +22,13 @@ class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             yield handler.get()
 
+    @inlineCallbacks
+    def test_questionnaire_hashes(self):
+        """Test that questionnaire hashes are properly generated and included in serialization"""
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.verify_questionnaire_hashes(wbtip_desc)
+
 
 class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = wbtip.WBTipCommentCollection
