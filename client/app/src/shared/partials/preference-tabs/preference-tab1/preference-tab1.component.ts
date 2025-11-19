@@ -85,10 +85,10 @@ export class PreferenceTab1Component implements OnInit {
       this.twoFactorAuthData.totp.qrcode_string = "";
       this.twoFactorAuthData.totp.edit = false;
 
-      this.modalService.open(Enable2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'enable-2fa-modal-title'});
+      this.modalService.open(Enable2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
 
     } else {
-      const modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'confirmation-2fa-modal-title'});
+      const modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.confirmFunction = (secret: string) => {
         if (secret) {
           const data = {
@@ -129,7 +129,7 @@ export class PreferenceTab1Component implements OnInit {
           const modalRef = this.modalService.open(EncryptionRecoveryKeyComponent, {
             backdrop: 'static',
             keyboard: false,
-            ariaLabelledBy: 'encryption-recovery-key-modal-title'
+            ariaLabelledBy: 'modal-title'
           });
           modalRef.componentInstance.erk = erk;
         },
@@ -142,7 +142,7 @@ export class PreferenceTab1Component implements OnInit {
             const modalRef = this.modalService.open(EncryptionRecoveryKeyComponent, {
               backdrop: 'static',
               keyboard: false,
-              ariaLabelledBy: 'encryption-recovery-key-modal-title'
+              ariaLabelledBy: 'modal-title'
             });
             modalRef.componentInstance.erk = erk;
           }
@@ -154,9 +154,9 @@ export class PreferenceTab1Component implements OnInit {
   getEncryptionRecoveryKey(event: Event) {
     let modalRef: NgbModalRef;
       if (this.preferenceResolver.dataModel.two_factor) {
-      modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'confirmation-2fa-modal-title'});
+      modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     } else {
-      modalRef = this.modalService.open(ConfirmationWithPasswordComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'confirmation-password-modal-title'});
+      modalRef = this.modalService.open(ConfirmationWithPasswordComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     }
 
     modalRef.componentInstance.confirmFunction = (secret: string) => {

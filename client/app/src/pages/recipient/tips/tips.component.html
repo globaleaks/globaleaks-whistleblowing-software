@@ -116,21 +116,12 @@
                   <span class="dropdown-multi-select-container">
                     <span id="tip-action-filter-channel" [ngClass]="{ filterSelected: checkFilter(dropdownContextModel) }" (click)="toggleChannelDropdown()"><i class="fas fa-filter"></i></span>
                     <span [class.d-none]="!channelDropdownVisible">
-                      <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Filter by channel' | translate"></ng-multiselect-dropdown>
+                      <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Channel' | translate"></ng-multiselect-dropdown>
                     </span>
                   </span>
                 } @else {
                   <span class="text-muted"><i class="fas fa-sort"></i></span>
                 }
-              </span>
-              @if (RTips.dataModel.length > 0) {
-                <span class="dropdown-multi-select-container">
-                  <span id="tip-action-filter-channel" [ngClass]="{ filterSelected: checkFilter(dropdownContextModel) }" (click)="toggleChannelDropdown()"><i class="fas fa-filter"></i></span>
-                  <span [class.d-none]="!channelDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')"></ng-multiselect-dropdown>
-                  </span>
-                </span>
-              }
             </th>
             }
             <th class="TipInfoLabel">
@@ -172,7 +163,7 @@
                 <span class="dropdown-multi-select-container">
                   <span [ngClass]="{ filterSelected: checkFilter(dropdownStatusModel) }" (click)="toggleStatusDropdown()"><i class="fas fa-filter"></i></span>
                   <span [class.d-none]="!statusDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')" [attr.aria-label]="'Filter by status' | translate"></ng-multiselect-dropdown>
+                    <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')" [attr.aria-label]="'Status' | translate"></ng-multiselect-dropdown>
                   </span>
                 </span>
               }
@@ -302,12 +293,12 @@
                   }
                 </span>
                 @if (RTips.dataModel.length > 0) {
-                <span class="dropdown-multi-select-container">
-                  <span [ngClass]="{ filterSelected: checkFilter(dropdownScoreModel) }" (click)="toggleScoreDropdown()"><i class="fas fa-filter"></i></span>
-                  <span [class.d-none]="!scoreDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')" [attr.aria-label]="'Filter by score' | translate"></ng-multiselect-dropdown>
+                  <span class="dropdown-multi-select-container">
+                    <span [ngClass]="{ filterSelected: checkFilter(dropdownScoreModel) }" (click)="toggleScoreDropdown()"><i class="fas fa-filter"></i></span>
+                    <span [class.d-none]="!scoreDropdownVisible">
+                      <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')" [attr.aria-label]="'Score' | translate"></ng-multiselect-dropdown>
+                    </span>
                   </span>
-                </span>
                 }
               </th>
             }
