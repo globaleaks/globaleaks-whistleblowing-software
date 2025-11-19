@@ -1,5 +1,5 @@
-<div id="TipQuestionnaireAnswersBox" class="card card-default" [attr.aria-expanded]="collapsed">
-  <div class="card-header d-flex justify-content-between" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+<div id="TipQuestionnaireAnswersBox" class="card card-default">
+  <div class="card-header d-flex justify-content-between" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="toggleCollapse(); utilsService.stopPropagation($event)" (keypress)="toggleCollapse(); utilsService.stopPropagation($event)">
     <span>{{'Questionnaire answers'|translate}}</span>
     <span class="">
       @if (!collapsed) {

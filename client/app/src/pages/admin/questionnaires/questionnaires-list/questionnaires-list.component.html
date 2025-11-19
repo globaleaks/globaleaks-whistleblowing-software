@@ -39,8 +39,8 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label>{{ 'Name' | translate }}</label>
-          <input name="name" class="form-control" [(ngModel)]="questionnaire.name" type="text" required>
+          <label for="questionnaire-name-{{questionnaire.id}}">{{ 'Name' | translate }}</label>
+          <input id="questionnaire-name-{{questionnaire.id}}" name="name" class="form-control" [(ngModel)]="questionnaire.name" type="text" required>
           @if (editQuestionnaire.form.get('name')?.errors?.['required']) {
             <div class="text-danger">
               <span>{{ 'This field is mandatory' | translate }}</span>

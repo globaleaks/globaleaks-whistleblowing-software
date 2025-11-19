@@ -16,7 +16,7 @@
           <span>{{role}}</span>
         </div>
         <div id="Name">
-          <label>
+          <label for="pref-name-input">
             <span>{{'Name'|translate}}</span>: </label>
             @if (!editingName) {
               <span>
@@ -29,11 +29,11 @@
               </span>
             }
             @if (editingName) {
-              <input class="form-control" name="name" [(ngModel)]="preferenceResolver.dataModel.name" type="text" required />
+              <input id="pref-name-input" class="form-control" name="name" [(ngModel)]="preferenceResolver.dataModel.name" type="text" required />
             }
           </div>
           <div id="PublicName">
-            <label>
+            <label for="pref-public-name-input">
               <span>{{'Public name'|translate}}</span>: </label>
               @if (!editingPublicName) {
                 <span>
@@ -46,11 +46,11 @@
                 </span>
               }
               @if (editingPublicName) {
-                <input class="form-control" name="public_name" [(ngModel)]="preferenceResolver.dataModel.public_name" type="text" required />
+                <input id="pref-public-name-input" class="form-control" name="public_name" [(ngModel)]="preferenceResolver.dataModel.public_name" type="text" required />
               }
             </div>
             <div id="EmailAddress">
-              <label>
+              <label for="pref-email-input">
                 <span>{{'Email address'|translate}}</span>: </label>
                 <div>
                   @if (!editingEmailAddress) {
@@ -65,7 +65,7 @@
               </div>
               @if (editingEmailAddress) {
                 <div>
-                  <input class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
+                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
                 </div>
               }
               @if (!editingEmailAddress && preferenceResolver.dataModel.change_email_address) {
@@ -84,17 +84,17 @@
                   <label>
                     <span>{{'Channels'|translate}}</span>
                   </label>
-                  @for (context_id of preferenceResolver.dataModel.contexts; track context_id) {
-                    <ul>
+                  <ul>
+                    @for (context_id of preferenceResolver.dataModel.contexts; track context_id) {
                       <li>{{appDataService.contexts_by_id[context_id].name}}</li>
-                    </ul>
-                  }
+                    }
+                  </ul>
                 </div>
               }
               @if (appDataService.languages_enabled_selector.length > 1) {
                 <div id="Language" class="form-group">
-                  <label>{{'Language'|translate}}</label>
-                  <select class="form-select-custom" name="languageModel" [(ngModel)]="languageModel" (ngModelChange)="onlanguagechange()">
+                  <label for="pref-language-select">{{'Language'|translate}}</label>
+                  <select id="pref-language-select" class="form-select-custom" name="languageModel" [(ngModel)]="languageModel" (ngModelChange)="onlanguagechange()">
                     @for (item of appDataService.languages_enabled_selector; track item) {
                       <option [value]="item.code">{{ item.native }}</option>
                     }
@@ -103,8 +103,8 @@
               }
               @if ((authenticationService.session.role === 'admin' && !appDataService.public.node.disable_admin_notification) || (authenticationService.session.role === 'receiver' && !appDataService.public.node.disable_receiver_notification) || (authenticationService.session.role === 'custodian' && !appDataService.public.node.disable_custodian_notification)) {
                 <div id="EnableNotifications" class="form-group">
-                  <input class="form-check-input" name="notification" [(ngModel)]="preferenceResolver.dataModel.notification" type="checkbox">
-                  <label>{{'Enable email notifications'|translate}}</label>
+                  <input id="pref-notification-checkbox" class="form-check-input" name="notification" [(ngModel)]="preferenceResolver.dataModel.notification" type="checkbox">
+                  <label for="pref-notification-checkbox">{{'Enable email notifications'|translate}}</label>
                 </div>
               }
               <div class="form-group">
@@ -127,8 +127,8 @@
                         </div>
                       </div>
                       <div class="form-group">
-                        <input class="form-check-input" name="pgp" [(ngModel)]="preferenceResolver.dataModel.pgp_key_remove" type="checkbox">
-                        <label>{{'Remove'|translate}}</label>
+                        <input id="pref-pgp-remove-checkbox" class="form-check-input" name="pgp" [(ngModel)]="preferenceResolver.dataModel.pgp_key_remove" type="checkbox">
+                        <label for="pref-pgp-remove-checkbox">{{'Remove'|translate}}</label>
                       </div>
                     </div>
                   }

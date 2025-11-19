@@ -7,22 +7,22 @@
       </label>
     </div>
     <div class="form-group">
-      <label>{{'Mode:'|translate}}</label>
-      <select name="mode" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.mode" required>
+      <label for="sites-mode-select">{{'Mode:'|translate}}</label>
+      <select id="sites-mode-select" name="mode" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.mode" required>
         <option value="default" [selected]="nodeResolver.dataModel.mode === 'default'">DEFAULT</option>
         <option value="demo">DEMO</option>
         <option value="wbpa">WHISTLEBLOWINGPA</option>
       </select>
     </div>
     <div class="form-group">
-      <label>{{'Root domain used for secondary sites'|translate}}</label>
+      <label for="rootdomain-input">{{'Root domain used for secondary sites'|translate}}</label>
       <div>
-        <input name="rootdomain" class="form-control" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
+        <input id="rootdomain-input" name="rootdomain" class="form-control" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
       </div>
     </div>
     <div class="form-group">
-      <label>{{'Questionnaire'|translate}}</label>
-      <select name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
+      <label for="default-questionnaire-select">{{'Questionnaire'|translate}}</label>
+      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
         @for (item of questionnairesResolver.dataModel; track item) {
           <option [ngValue]="item.id">{{item.name}}</option>
         }
@@ -47,18 +47,18 @@
               @if (nodeResolver.dataModel.signup_tos1_enable) {
                 <div class="nested">
                   <div class="form-group">
-                    <label>{{'Title'|translate}}</label>
-                    <input name="signup_tos1_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_title" type="text" />
+                    <label for="signup-tos1-title">{{'Title'|translate}}</label>
+                    <input id="signup-tos1-title" name="signup_tos1_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_title" type="text" />
                   </div>
                   <div class="form-group">
-                    <label>{{'Text'|translate}}</label>
+                    <label for="signup-tos1-text">{{'Text'|translate}}</label>
                     <div>
-                      <textarea name="signup_tos1_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_text" rows="4"></textarea>
+                      <textarea id="signup-tos1-text" name="signup_tos1_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_text" rows="4"></textarea>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>{{'Checkbox label'|translate}}</label>
-                    <input name="signup_tos1_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_checkbox_label" type="text" />
+                    <label for="signup-tos1-checkbox-label">{{'Checkbox label'|translate}}</label>
+                    <input id="signup-tos1-checkbox-label" name="signup_tos1_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_checkbox_label" type="text" />
                   </div>
                 </div>
               }
@@ -72,18 +72,18 @@
               @if (nodeResolver.dataModel.signup_tos2_enable) {
                 <div class="nested">
                   <div class="form-group">
-                    <label>{{'Title'|translate}}</label>
-                    <input name="signup_tos2_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_title" type="text" />
+                    <label for="signup-tos2-title">{{'Title'|translate}}</label>
+                    <input id="signup-tos2-title" name="signup_tos2_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_title" type="text" />
                   </div>
                   <div class="form-group">
-                    <label>{{'Text'|translate}}</label>
+                    <label for="signup-tos2-text">{{'Text'|translate}}</label>
                     <div>
-                      <textarea name="signup_tos2_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_text" rows="4"></textarea>
+                      <textarea id="signup-tos2-text" name="signup_tos2_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_text" rows="4"></textarea>
                     </div>
                   </div>
                   <div class="form-group">
-                    <label>{{'Checkbox label'|translate}}</label>
-                    <input name="signup_tos2_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_checkbox_label" type="text" />
+                    <label for="signup-tos2-checkbox-label">{{'Checkbox label'|translate}}</label>
+                    <input id="signup-tos2-checkbox-label" name="signup_tos2_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_checkbox_label" type="text" />
                   </div>
                 </div>
               }

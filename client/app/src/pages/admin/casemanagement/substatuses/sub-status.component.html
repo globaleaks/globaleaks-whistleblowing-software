@@ -15,8 +15,8 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label>{{'Label'|translate}}</label>
-                <input name="label" class="form-control" [(ngModel)]="newSubStatus.label" type="text" required>
+                <label for="new-substatus-label">{{'Label'|translate}}</label>
+                <input id="new-substatus-label" name="label" class="form-control" [(ngModel)]="newSubStatus.label" type="text" required>
                 @if (newSubStatusList.form.get('label')?.errors?.['required']) {
                   <div class="text-danger">
                     <span>{{'This field is mandatory'|translate}}</span>
@@ -86,8 +86,8 @@
               <div class="row">
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label>{{'Label'|translate}}</label>
-                    <input class="form-control" name="substatus.label" [(ngModel)]="substatus.label" type="text" required />
+                    <label for="substatus-label-{{substatus.id}}">{{'Label'|translate}}</label>
+                    <input id="substatus-label-{{substatus.id}}" class="form-control" name="substatus.label" [(ngModel)]="substatus.label" type="text" required />
                   </div>
                 </div>
                 <div class="col-md-3">
@@ -101,9 +101,9 @@
                 </div>
                 <div class="col-md-1">
                   <div class="form-group">
-                    <label></label>
+                    <label for="substatus-timetolive-{{substatus.id}}" class="visually-hidden">{{'Expiration date' | translate}}</label>
                     @if (isCustomOptionSelected(substatus.tip_timetolive_option)) {
-                      <input class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" required/>
+                      <input id="substatus-timetolive-{{substatus.id}}" class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" required/>
                     }
                   </div>
                 </div>

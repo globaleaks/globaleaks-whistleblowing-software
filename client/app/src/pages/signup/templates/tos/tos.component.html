@@ -2,10 +2,10 @@
   @if (appDataService.public.node.signup_tos1_enable) {
     <div id="SignupTos1" class="col-md-12 form-group">
       <label>{{appDataService.public.node.signup_tos1_title}}</label>
-      <div class="tos-text"><markdown [data]="appDataService.public.node.signup_tos1_text | stripHtml"></markdown></div>
+      <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="appDataService.public.node.signup_tos1_title"><markdown [data]="appDataService.public.node.signup_tos1_text | stripHtml"></markdown></div>
       <div class="">
-        <input name="tos1" class="form-check-input" type="checkbox" [(ngModel)]="signup.tos1" required />
-        <label class="form-check-label"><markdown [data]="appDataService.public.node.signup_tos1_checkbox_label | stripHtml"></markdown></label>
+        <input id="tos1-checkbox" name="tos1" class="form-check-input" type="checkbox" [(ngModel)]="signup.tos1" required />
+        <label for="tos1-checkbox" class="form-check-label"><markdown [data]="appDataService.public.node.signup_tos1_checkbox_label | stripHtml"></markdown></label>
       </div>
     </div>
   }
@@ -14,10 +14,10 @@
   @if (appDataService.public.node.signup_tos2_enable) {
     <div id="SignupTos2" class="col-md-12 form-group">
       <label>{{appDataService.public.node.signup_tos2_title}}</label>
-      <div class="tos-text"><markdown [data]="appDataService.public.node.signup_tos2_text | stripHtml"></markdown></div>
+      <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="appDataService.public.node.signup_tos2_title"><markdown [data]="appDataService.public.node.signup_tos2_text | stripHtml"></markdown></div>
       <div class="">
-        <input name="tos2" class="form-check-input" type="checkbox" [(ngModel)]="signup.tos2" required />
-        <label class="form-check-label"><markdown [data]="appDataService.public.node.signup_tos2_checkbox_label | stripHtml"></markdown></label>
+        <input id="tos2-checkbox" name="tos2" class="form-check-input" type="checkbox" [(ngModel)]="signup.tos2" required />
+        <label for="tos2-checkbox" class="form-check-label"><markdown [data]="appDataService.public.node.signup_tos2_checkbox_label | stripHtml"></markdown></label>
       </div>
     </div>
   }

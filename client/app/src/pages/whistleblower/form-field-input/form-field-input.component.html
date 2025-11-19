@@ -35,7 +35,7 @@
             @case ('selectbox') {
               <div>
                 @if (field.options.length < 10) {
-                  <select id="{{fieldEntry}}" [name]="fieldEntry" class="form-control" [(ngModel)]="entry['value']" [required]="entry.required_status">
+                  <select id="{{fieldEntry}}" [name]="fieldEntry" class="form-control" [(ngModel)]="entry['value']" [required]="entry.required_status" [attr.aria-label]="field.label | translate">
                     <option class="d-none" value="">Select an option</option>
                     @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
                       <option id="{{fieldEntry}}-option-{{index}}" [value]="option.id">{{option.label}}</option>
@@ -44,7 +44,7 @@
                 }
                 @if (field.options.length >= 10) {
                   <div class="input-group" [ngClass]="{'d-block': !entry['value']}">
-                    <ng-select class="w-75" [clearable]="false" [name]="fieldEntry" [(ngModel)]="entry['value']" >
+                    <ng-select [attr.id]="fieldEntry" class="w-75" [clearable]="false" [name]="fieldEntry" [(ngModel)]="entry['value']" [ariaLabel]="field.label | translate">
                       @for (option of field.options | orderBy:field.attrs.display_alphabetically.value ? 'label' : 'order'; track option) {
                         <ng-option [value]="option.id">{{option.label}}</ng-option>
                       }
@@ -122,7 +122,7 @@
               </div>
             }
             @case ('tos') {
-              <div>
+              <div tabindex="0" role="region" [attr.aria-label]="field.label | translate">
                 <markdown class="form-group tos-text" [data]="field.attrs.text.value | stripHtml"></markdown>
                 @if (field.attrs.attachment.value) {
                   <div>

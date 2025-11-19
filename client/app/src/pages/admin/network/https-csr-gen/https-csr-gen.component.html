@@ -1,14 +1,14 @@
 <form name="certSigRequestForm" #certSigRequestForm="ngForm" class="form-horizontal was-validated clearfix">
   <div class="form-group">
-    <label class="col-md-4 control-label">{{ 'Organization' | translate }}</label>
+    <label for="csr-company" class="col-md-4 control-label">{{ 'Organization' | translate }}</label>
     <div class="col-md-8">
-      <input class="form-control" [(ngModel)]="csr_cfg.company" name="company" [ngClass]="{'is-invalid': certSigRequestForm.form.get('company')?.invalid && csr_cfg.email.length !== 0}" />
+      <input id="csr-company" class="form-control" [(ngModel)]="csr_cfg.company" name="company" [ngClass]="{'is-invalid': certSigRequestForm.form.get('company')?.invalid && csr_cfg.email.length !== 0}" />
     </div>
   </div>
   <div class="form-group">
-    <label class="col-md-4 control-label">{{ 'Email' | translate }}</label>
+    <label for="csr-email" class="col-md-4 control-label">{{ 'Email' | translate }}</label>
     <div class="col-md-8">
-      <input class="form-control" [(ngModel)]="csr_cfg.email" name="email" type="text" [pattern]="Constants.emailRegexp" [ngClass]="{'is-invalid': certSigRequestForm.form.get('email')?.invalid && csr_cfg.email.length !== 0}" />
+      <input id="csr-email" class="form-control" [(ngModel)]="csr_cfg.email" name="email" type="text" [pattern]="Constants.emailRegexp" [ngClass]="{'is-invalid': certSigRequestForm.form.get('email')?.invalid && csr_cfg.email.length !== 0}" />
       @if (certSigRequestForm.form.get('email')?.errors?.['pattern']) {
         <div class="text-danger">
           {{ 'Invalid email address' | translate }}
@@ -17,21 +17,21 @@
     </div>
   </div>
   <div class="form-group">
-    <label class="col-md-4 control-label">{{ 'City' | translate }}</label>
+    <label for="csr-city" class="col-md-4 control-label">{{ 'City' | translate }}</label>
     <div class="col-md-8">
-      <input class="form-control" [(ngModel)]="csr_cfg.city" name="city" type="text" [ngClass]="{'is-invalid': certSigRequestForm.form.get('city')?.invalid && csr_cfg.city.length !== 0}" />
+      <input id="csr-city" class="form-control" [(ngModel)]="csr_cfg.city" name="city" type="text" [ngClass]="{'is-invalid': certSigRequestForm.form.get('city')?.invalid && csr_cfg.city.length !== 0}" />
     </div>
   </div>
   <div class="form-group">
-    <label class="col-md-4 control-label">{{ 'Country' | translate }}</label>
+    <label for="csr-province" class="col-md-4 control-label">{{ 'Country' | translate }}</label>
     <div class="col-md-8">
-      <input class="form-control" [(ngModel)]="csr_cfg.province" name="province" type="text" [ngClass]="{'is-invalid': certSigRequestForm.form.get('province')?.invalid && csr_cfg.province.length !== 0}" />
+      <input id="csr-province" class="form-control" [(ngModel)]="csr_cfg.province" name="province" type="text" [ngClass]="{'is-invalid': certSigRequestForm.form.get('province')?.invalid && csr_cfg.province.length !== 0}" />
     </div>
   </div>
   <div class="form-group">
-    <label class="col-md-4 control-label">{{ 'Country code' | translate }}</label>
+    <label for="csr-country" class="col-md-4 control-label">{{ 'Country code' | translate }}</label>
     <div class="col-md-8">
-      <input class="form-control" [(ngModel)]="csr_cfg.country" name="country" type="text" minlength="2" maxlength="2" [pattern]="Constants.countryCodeRegexpOrEmpty" [ngClass]="{'is-invalid': certSigRequestForm.form.get('country')?.errors?.['pattern'] && csr_cfg.country.length !== 0}" />
+      <input id="csr-country" class="form-control" [(ngModel)]="csr_cfg.country" name="country" type="text" minlength="2" maxlength="2" [pattern]="Constants.countryCodeRegexpOrEmpty" [ngClass]="{'is-invalid': certSigRequestForm.form.get('country')?.errors?.['pattern'] && csr_cfg.country.length !== 0}" />
     </div>
   </div>
   <button id="csrSubmit" class="btn btn-primary float-end" (click)="submitCSR()" [disabled]="certSigRequestForm.invalid">

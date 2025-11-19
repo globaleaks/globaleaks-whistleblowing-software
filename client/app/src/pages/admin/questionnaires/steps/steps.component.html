@@ -15,8 +15,8 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label>{{ 'Label' | translate }}</label>
-                <input name="new_step.label" class="form-control" [(ngModel)]="new_step.label" type="text" required>
+                <label for="new-step-label">{{ 'Label' | translate }}</label>
+                <input id="new-step-label" name="new_step.label" class="form-control" [(ngModel)]="new_step.label" type="text" required>
                 @if (newStepForm.form.get('label')?.errors?.['required']) {
                   <div class="text-danger">
                     <span>{{ 'This field is mandatory' | translate }}</span>

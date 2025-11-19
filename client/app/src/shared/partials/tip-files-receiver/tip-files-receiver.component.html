@@ -1,6 +1,6 @@
 @if (tipService.tip) {
-  <div id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
-    <div class="card-header clearfix" (click)="collapsed = !collapsed; $event.stopPropagation();">
+  <div id="TipPageFilesInfoBox" class="card card-default">
+    <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="collapsed = !collapsed; $event.stopPropagation();" (keypress)="collapsed = !collapsed; $event.stopPropagation();">
       <span>{{ 'Attachments' | translate }}</span>
       <span class="float-end">
         @if (!collapsed) {
@@ -33,12 +33,12 @@
                       <td>{{ file.name }}</td>
                       <td>
                         <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                          [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)">
+                          [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
                           <i class="fas fa-eye"></i>
                         </button>
                       </td>
                       <td>
-                        <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)">
+                        <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)" type="button" [attr.aria-label]="'Download' | translate">
                           <i class="fas fa-download"></i>
                         </button>
                         @if (redactMode) {
@@ -47,7 +47,7 @@
                               <span>
                                 <button class="btn btn-sm btn-outline-secondary"
  [ngbTooltip]="'Mask' | translate"
-                                  (click)="redactFileOperation('full-mask', 'file', file)">
+                                  (click)="redactFileOperation('full-mask', 'file', file)" type="button" [attr.aria-label]="'Mask' | translate">
                                   <i class="fas fa-eraser"></i>
                                 </button>
                               </span>
@@ -59,7 +59,7 @@
                                     [ngClass]="{ 'active': redactMode }"
  [ngbTooltip]="'Mask' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
-                                    (click)="redactFileOperation('full-unmask', 'file', file)">
+                                    (click)="redactFileOperation('full-unmask', 'file', file)" type="button" [attr.aria-label]="'Mask' | translate">
                                     <i class="fas fa-eraser"></i>
                                   </button>
                                 }
@@ -67,7 +67,7 @@
                                   <button class="btn btn-sm btn-danger tip-action-delete-file"
  [ngbTooltip]="'Redact' | translate"
                                     [attr.disabled]="!redactMode ? true : null"
-                                    (click)="redactFileOperation('redact', 'file', file)">
+                                    (click)="redactFileOperation('redact', 'file', file)" type="button" [attr.aria-label]="'Redact' | translate">
                                     <i class="fas fa-trash"></i>
                                   </button>
                                 }

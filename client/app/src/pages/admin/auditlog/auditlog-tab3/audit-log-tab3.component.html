@@ -1,7 +1,7 @@
 <app-paginated-interface [mode]="'table'" [items]="this.tips">
   <ng-template  #header>
     <tr>
-      <th><i class="fas fa-hashtag"></i></th>
+      <th><i class="fas fa-hashtag" aria-hidden="true"></i><span class="visually-hidden">{{'ID' | translate}}</span></th>
       <th>{{'Date'|translate}}</th>
       <th>{{'Last update'|translate}}</th>
       <th>{{'Expiration date'|translate}}</th>

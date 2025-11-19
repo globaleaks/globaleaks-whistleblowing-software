@@ -50,8 +50,8 @@
         <div id="ContentBox">
           <div class="row">
             @if (appConfig.sidebar && showSidebar) {
-              <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12" role="navigation">
-                <nav class="navbar navbar-expand-md p-0" role="navigation">
+              <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12">
+                <nav class="navbar navbar-expand-md p-0" role="navigation" aria-label="Main navigation">
                   <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
                     <div class="navbar-nav">
                       @if (appConfig.sidebar==='recipient-sidebar') {

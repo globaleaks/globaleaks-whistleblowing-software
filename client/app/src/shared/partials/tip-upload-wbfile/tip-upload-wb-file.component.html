@@ -1,5 +1,5 @@
-<div id="TipPageRFileUpload" class="card card-default" [attr.aria-expanded]="collapsed">
-  <div class="card-header clearfix" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);">
+<div id="TipPageRFileUpload" class="card card-default">
+  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keypress)="collapsed = !collapsed; utilsService.stopPropagation($event);">
     <span>{{'Files attached by recipients'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
@@ -23,10 +23,11 @@
         <div>{{'Upload a file:'|translate}}</div>
         <div class="form">
           <div class="input-group">
+            <label for="upload_description" class="visually-hidden">{{'Description' | translate}}</label>
             <span class="input-group-prepend">
               <span class="input-group-text rounded-end-0">{{'Description'|translate}}</span>
             </span>
-            <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" />
+            <input type="text" class="form-control" id="upload_description" [(ngModel)]="file_upload_description" [attr.aria-label]="'Description' | translate" />
             <span class="input-group-append" [ngClass]="{'disabled': !file_upload_description}">
               <input #uploader [attr.id]="fileInput" id="customFile" type="file" flowButton [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
               <label id="tip-action-upload" [attr.for]="fileInput" for="customFile" class="btn btn-primary rounded-start-0 m-0">

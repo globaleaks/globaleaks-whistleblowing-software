@@ -156,7 +156,7 @@ export class MaskService {
   }
 
   redactInfo(type:string, id:string, entry:string, content:string,tip:RecieverTipData | WbTipData){
-    const modalRef = this.modalService.open(RedactInformationComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(RedactInformationComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'redact-information-modal-title'});
     modalRef.componentInstance.arg={
       tip: tip,
       redaction: this.getRedaction(id, entry,tip),

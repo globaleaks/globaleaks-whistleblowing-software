@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
   <div>
-    <div class="tos-text">{{appDataService.public.node.user_privacy_policy_text}}</div>
+    <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'Privacy Policy' | translate">{{appDataService.public.node.user_privacy_policy_text}}</div>
     @if (appDataService.public.node.user_privacy_policy_url) {
       <a href="{{appDataService.public.node.user_privacy_policy_url}}" target="_blank">{{ 'Download copy of the Privacy Policy' | translate }}</a>
     }

@@ -1,8 +1,8 @@
 <div [hidden]="preferences.dataModel && (preferences.dataModel.password_change_needed || preferences.dataModel.require_two_factor)" class="d-flex justify-content-end">
   @if (appDataService.public.node.languages_enabled.length > 1) {
     <div id="LanguagePickerBox" class="order-2" [ngClass]="appDataService.public.node.wizard_done ? 'language-box' : 'language-box-extended'">
-      <label for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
-      <ng-select labelForId="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language">
+      <label id="language-picker-label" for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
+      <ng-select id="language-picker-select" [clearable]="false" (change)="onChangeLanguage();" [(ngModel)]="translationService.language" [ariaLabel]="'Select your language' | translate">
         @for (lang of appDataService.languages_enabled_selector | orderBy: 'native'; track lang) {
           <ng-option [value]="lang.code">
             <span [attr.data-cy]="lang.code">{{lang.native}}</span>
@@ -16,7 +16,7 @@
       <span id="HomeLinkBox">
         @if (authentication.session.role !== 'whistleblower') {
           <span>
-            <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}">
+            <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}" [attr.aria-label]="'Home' | translate">
               <i class="fas fa-house"></i>
             </a>
             <span class="text-separator">|</span>
@@ -25,7 +25,7 @@
       </span>
       @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
         <span id="PreferencesLinkBox">
-          <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}">
+          <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}" [attr.aria-label]="'Preferences' | translate">
             <i class="fas fa-user"></i>
           </a>
           <span class="text-separator">|</span>
@@ -33,17 +33,14 @@
       }
       @if (authentication.session && authentication.session.role !== 'whistleblower') {
         <span id="SupportLinkBox">
-          <a id="SupportLink" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}">
+          <a id="SupportLink" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
             <i class="fas fa-life-ring"></i>
           </a>
           <span class="text-separator">|</span>
         </span>
       }
       <span id="LogoutLinkBox">
-        <i class="glyphicon glyphicon-user"></i>
-      </span>
-      <span id="LogoutLinkBox">
-        <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}">
+        <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate">
           <i class="pointer fas fa-right-from-bracket"></i>
           @if (authentication.session.role === 'whistleblower') {
             <span>

@@ -7,8 +7,8 @@
         <span class="float-end">
           @if (!tlsConfig.files.key.set) {
             <span>
-              <input type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
-              <label id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+              <input id="upload-private-key-file" type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
+              <label for="upload-private-key-file" id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
             </span>
           }
           @if (!tlsConfig.files.key.set) {
@@ -88,8 +88,8 @@
             <span class="float-end">
               @if (!tlsConfig.files.cert.set) {
                 <span>
-                  <input type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
-                  <label id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+                  <input id="upload-certificate-file" type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
+                  <label for="upload-certificate-file" id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
                 </span>
               }
               @if (tlsConfig.files.cert.set) {
@@ -118,8 +118,8 @@
             <div class="float-end">
               @if (!tlsConfig.files.chain.set) {
                 <span>
-                  <input type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
-                  <label id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+                  <input id="upload-chain-file" type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
+                  <label for="upload-chain-file" id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
                 </span>
               }
               @if (tlsConfig.files.chain.set) {

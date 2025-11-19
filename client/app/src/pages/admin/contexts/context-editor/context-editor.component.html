@@ -48,19 +48,19 @@
             <div appImageUpload [imageUploadModel]="contextResolver" [imageUploadModelAttr]="'picture'" [imageUploadId]="contextResolver.id"></div>
           </div>
           <div class="form-group">
-            <label>{{ 'Name' | translate }}</label>
-            <input name="name" class="form-control" [(ngModel)]="contextResolver.name" type="text" required>
+            <label for="context-name-input">{{ 'Name' | translate }}</label>
+            <input id="context-name-input" name="name" class="form-control" [(ngModel)]="contextResolver.name" type="text" required>
             @if (editContext.form.get('name')?.errors?.['required']) {
               <div class="text-danger">{{ 'This field is mandatory' | translate }}</div>
             }
           </div>
           <div class="form-group">
-            <label>{{ 'Description' | translate }}</label>
-            <textarea name="description" class="form-control" [(ngModel)]="contextResolver.description"></textarea>
+            <label for="context-description">{{ 'Description' | translate }}</label>
+            <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver.description"></textarea>
           </div>
           <div class="form-group">
-            <label>{{ 'Questionnaire' | translate }}</label>
-            <select class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver.questionnaire_id">
+            <label for="context-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
+            <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver.questionnaire_id">
               @for (item of questionnairesData; track item) {
                 <option [value]="item.id">{{ item.name }}</option>
               }
@@ -77,7 +77,8 @@
             <div id="ReceiverContextAdder" class="row">
               @if (showSelect) {
                 <div class="col-md-12">
-                  <ng-select [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="usersData | filter:  'role': 'receiver'" [searchable]="true" [placeholder]="'Search' | translate" (change)="moveReceiver($event)">
+                  <label for="context-receiver-select" class="visually-hidden">{{'Select' | translate}}</label>
+                  <ng-select id="context-receiver-select" [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="usersData | filter:  'role': 'receiver'" [searchable]="true" [placeholder]="'Search' | translate" (change)="moveReceiver($event)" [ariaLabel]="'Select' | translate">
                     <ng-template ng-option-tmp let-item="item">
                       {{ item.name }}
                     </ng-template>
@@ -119,7 +120,8 @@
                 </div>
               </div>
               <div class="input-group">
-                <input class="form-control" name="reminder" [(ngModel)]="contextResolver.tip_reminder" type="number" min="0" />
+                <label for="context-tip-reminder" class="visually-hidden">{{ 'Reminder' | translate }}</label>
+                <input id="context-tip-reminder" class="form-control" name="reminder" [(ngModel)]="contextResolver.tip_reminder" type="number" min="0" />
               </div>
             </div>
             <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
@@ -128,13 +130,13 @@
             <label>
               <span>{{ 'Expiration date' | translate }}</span> ({{ 'days' | translate }}) </label>
               <div [ngClass]="{'is-invalid': editContext.form.get('timetolive')?.errors?.['invalid']}">
-                <input class="form-control" name="timetolive" [(ngModel)]="contextResolver.tip_timetolive" type="number" min="0" max="3650" />
+                <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver.tip_timetolive" type="number" min="0" max="3650" />
               </div>
               <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
             </div>
             <div class="form-group">
-              <input class="form-check-input" [(ngModel)]="contextResolver.hidden" name="contextResolver.hidden" type="checkbox" />
-              <label>{{ 'Hidden' | translate }}</label>
+              <input id="context-hidden" class="form-check-input" [(ngModel)]="contextResolver.hidden" name="contextResolver.hidden" type="checkbox" />
+              <label for="context-hidden">{{ 'Hidden' | translate }}</label>
             </div>
           </div>
         </div>
@@ -175,9 +177,9 @@
                           </label>
                         </div>
                         <div class="form-group">
-                          <label class="inline-checkbox">
+                          <label for="context-max-receivers" class="inline-checkbox">
                             <span>{{ 'Maximum number of selectable recipients:' | translate }}</span>
-                            <input class="form-control" type="number" name="contextResolver.maximum_selectable_receivers" [(ngModel)]="contextResolver.maximum_selectable_receivers" min="0" [disabled]="contextResolver.select_all_receivers" />
+                            <input id="context-max-receivers" class="form-control" type="number" name="contextResolver.maximum_selectable_receivers" [(ngModel)]="contextResolver.maximum_selectable_receivers" min="0" [disabled]="contextResolver.select_all_receivers" />
                           </label>
                           <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
                         </div>
@@ -190,8 +192,8 @@
                       </div>
                     }
                     <div class="form-group">
-                      <label>{{ 'Additional questionnaire' | translate }}</label>
-                      <select class="form-select-custom" [(ngModel)]="contextResolver.additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
+                      <label for="context-additional-questionnaire-select">{{ 'Additional questionnaire' | translate }}</label>
+                      <select id="context-additional-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver.additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
                         @if (contextResolver.additional_questionnaire_id) {
                           <option [value]="null"></option>
                         }
@@ -217,13 +219,15 @@
                               <tr>
                                 <td>{{ 'Medium' | translate }}</td>
                                 <td>
-                                  <input class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_medium" name="contextResolver.score_threshold_medium" />
+                                  <label for="score-threshold-medium" class="visually-hidden">{{ 'Medium' | translate }}</label>
+                                  <input id="score-threshold-medium" class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_medium" name="contextResolver.score_threshold_medium" />
                                 </td>
                               </tr>
                               <tr>
                                 <td>{{ 'High' | translate }}</td>
                                 <td>
-                                  <input class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_high" name="contextResolver.score_threshold_high" />
+                                  <label for="score-threshold-high" class="visually-hidden">{{ 'High' | translate }}</label>
+                                  <input id="score-threshold-high" class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_high" name="contextResolver.score_threshold_high" />
                                 </td>
                               </tr>
                             </tbody>

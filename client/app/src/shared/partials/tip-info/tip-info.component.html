@@ -7,8 +7,8 @@
             <span class="input-group ms-1">
               <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="tipService.tip.label" />
               <span class="input-group-append" ngbTooltip="{{'Label the report' | translate}} ">
-                <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(tipService.tip.label)">
-                  <i class="fas fa-tag"></i>
+                <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(tipService.tip.label)" [attr.aria-label]="'Label the report' | translate">
+                  <i class="fas fa-tag" aria-hidden="true"></i>
                 </button>
               </span>
             </span>
@@ -27,7 +27,8 @@
         <tr>
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoID">
-              <i class="fas fa-hashtag"></i>
+              <i class="fas fa-hashtag" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'ID' | translate}}</span>
             </th>
           }
           @if (appDataService.public.contexts.length > 1) {
@@ -56,7 +57,8 @@
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoReadReceipt">
-              <i class="fas fa-envelope-circle-check"></i>
+              <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {

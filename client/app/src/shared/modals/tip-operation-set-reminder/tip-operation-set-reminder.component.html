@@ -5,9 +5,10 @@
 <div class="modal-body">
   <span>{{'By confirming, you will set a reminder on date:' | translate}}</span>
   <div class="input-group">
-    <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" (click)="d.toggle()" [(ngModel)]="args.reminder_date" ngbDatepicker #d="ngbDatepicker" />
-    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open calendar' | translate">
-      <i class="fas fa-calendar" aria-hidden="true"></i>
+    <label for="tip-reminder-date" class="visually-hidden">{{ 'Reminder date' | translate }}</label>
+    <input id="tip-reminder-date" class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" (click)="d.toggle()" [(ngModel)]="args.reminder_date" ngbDatepicker #d="ngbDatepicker" />
+    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open' | translate">
+      <i class="fas fa-calendar"></i>
     </button>
   </div>
 </div>

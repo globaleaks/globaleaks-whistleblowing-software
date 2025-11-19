@@ -257,7 +257,7 @@
         <div class="col-md-12">
           <div class="form-group">
             <div class="title">{{'License'|translate}}</div>
-            <div class="tos-text">{{license|translate}}</div>
+            <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'License' | translate">{{license|translate}}</div>
             <div class="form-check">
               <input id="tos_agreement_checkbox" name="tos_agreement_checkbox" class="tos-agreement-input form-check-input" type="checkbox" [(ngModel)]="tosAccept" required>
               <label class="tos-agreement-label form-check-label" [ngClass]="{'text-danger': validation.step6 && wizardFormStep6.invalid}" for="tos_agreement_checkbox">{{'I have read and agree to the terms of the license.'|translate}}</label>
@@ -265,7 +265,7 @@
             @if (appDataService.public.node.root_tenant) {
               <div class="form-check">
                 <input id="enable_developers_exception_notification_checkbox" class="form-check-input" name="wizard.enable_developers_exception_notification_checkbox" [(ngModel)]="wizard.enable_developers_exception_notification" type="checkbox">
-                <label for="enable_developers_exception_notification_checkbox">{{'Notify developers of software problems'|translate}}</label>
+                <label class="form-check-label" for="enable_developers_exception_notification_checkbox">{{'Notify developers of software problems'|translate}}</label>
                 <div>{{'By enabling this feature, you will contribute to the development and security of the platform.'|translate}}</div>
               </div>
              }

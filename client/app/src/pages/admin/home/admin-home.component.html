@@ -20,7 +20,7 @@
           <label>
             <span>{{ 'Software version:' | translate }}</span> {{ nodeResolver.dataModel.version }}
           </label>
-          <div class="tos-text">{{ nodeResolver.dataModel.changelog }}</div>
+          <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'Changelog' | translate">{{ nodeResolver.dataModel.changelog }}</div>
         </div>
       </ng-template>
     </li>
@@ -28,7 +28,7 @@
       <button ngbNavLink [attr.data-cy]="'license'">{{ 'License' | translate }}</button>
       <ng-template ngbNavContent>
         <div class="tab-content">
-          <div class="tos-text">{{ nodeResolver.dataModel.license }}</div>
+          <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'License' | translate">{{ nodeResolver.dataModel.license }}</div>
         </div>
       </ng-template>
     </li>

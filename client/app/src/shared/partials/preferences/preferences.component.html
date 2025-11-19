@@ -1,21 +1,23 @@
 <div class="reveal">
-  <ul ngbNav class="nav-tabs">
-    <li ngbNavItem>
-      <a id="tab1" ngbNavLink (click)="activeTab = 'tab1'">{{ 'Preferences' | translate }}</a>
+  <ul class="nav nav-tabs" role="tablist">
+    <li id="tab1" class="nav-item" role="presentation">
+      <button class="nav-link" [class.active]="activeTab === 'tab1'" (click)="activeTab = 'tab1'" type="button" role="tab" [attr.aria-selected]="activeTab === 'tab1'" aria-controls="preferences-panel">{{ 'Preferences' | translate }}</button>
     </li>
-    <li ngbNavItem>
-      <a id="tab2" ngbNavLink class="password" (click)="activeTab = 'tab2'">{{ 'Password' | translate }}</a>
+    <li id="tab2" class="nav-item" role="presentation">
+      <button class="nav-link password" [class.active]="activeTab === 'tab2'" (click)="activeTab = 'tab2'" type="button" role="tab" [attr.aria-selected]="activeTab === 'tab2'" aria-controls="password-panel">{{ 'Password' | translate }}</button>
     </li>
   </ul>
   <br>
     <div>
-      @switch (activeTab) {
-        @case ('tab1') {
+      <div id="preferences-panel" role="tabpanel" [class.d-none]="activeTab !== 'tab1'" aria-labelledby="preferences-tab">
+        @if (activeTab === 'tab1') {
           <src-preference-tab1></src-preference-tab1>
         }
-        @case ('tab2') {
+      </div>
+      <div id="password-panel" role="tabpanel" [class.d-none]="activeTab !== 'tab2'" aria-labelledby="password-tab">
+        @if (activeTab === 'tab2') {
           <src-preference-tab2></src-preference-tab2>
         }
-      }
+      </div>
     </div>
   </div>

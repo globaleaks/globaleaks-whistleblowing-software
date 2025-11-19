@@ -2,7 +2,9 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
-  <markdown class="disclaimer-text" [data]="appDataService.public.node.disclaimer_text | stripHtml"></markdown>
+  <div tabindex="0" role="region" [attr.aria-label]="'Disclaimer' | translate">
+    <markdown class="disclaimer-text" [data]="appDataService.public.node.disclaimer_text | stripHtml"></markdown>
+  </div>
 </div>
 <div class="modal-footer">
   <button (click)="confirm()" id="modal-action-ok" class="btn btn-primary" type="submit">{{ 'Proceed' | translate }}</button>

@@ -7,8 +7,8 @@
     @if (!sent) {
       <div>
         <div class="form-group">
-          <label>{{'Email address'|translate}}</label>
-          <input class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
+          <label for="support-request-email">{{'Email address'|translate}}</label>
+          <input id="support-request-email" class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
           @if (SupportRequest.form.get('email')?.errors?.['required']) {
             <div class="text-danger">{{'This field is mandatory'|translate}}</div>
           }
@@ -17,9 +17,9 @@
           }
         </div>
         <div class="form-group">
-          <label>{{'Text'|translate}}</label>
+          <label for="support-request-message">{{'Text'|translate}}</label>
           <div>
-            <textarea class="form-control" name="message" [(ngModel)]="arg.text" required></textarea>
+            <textarea id="support-request-message" class="form-control" name="message" [(ngModel)]="arg.text" required></textarea>
           </div>
           @if (SupportRequest.form.get('message')?.errors?.['required']) {
             <div class="text-danger">{{'This field is mandatory'|translate}}</div>

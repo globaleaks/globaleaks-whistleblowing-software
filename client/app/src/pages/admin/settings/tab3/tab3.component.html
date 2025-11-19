@@ -13,7 +13,8 @@
         @if (showLangSelect) {
           <div id="LanguageAdder" class="row">
             <div class="col-md-12">
-              <ng-select [(ngModel)]="selected.value" [items]="languagesNotEnabled | filter:'name':selected.value" bindLabel="name" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="enableLanguage($event)">
+              <label for="language-adder-select" class="visually-hidden">{{'Select language' | translate}}</label>
+              <ng-select id="language-adder-select" [(ngModel)]="selected.value" [items]="languagesNotEnabled | filter:'name':selected.value" bindLabel="name" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="enableLanguage($event)" [ariaLabel]="'Select a language' | translate">
                 <ng-template ng-option-tmp let-item="item">
                   <span>{{item.name}}</span>
                   <span>[{{ item.code }}]</span>

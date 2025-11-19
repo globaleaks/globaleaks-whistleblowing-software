@@ -259,7 +259,7 @@ export class UtilsService {
     if (this.appDataService.public.node.custom_support_url) {
       window.open(this.appDataService.public.node.custom_support_url, "_blank");
     } else {
-      this.modalService.open(RequestSupportComponent,{backdrop: "static",keyboard: false});
+      this.modalService.open(RequestSupportComponent,{backdrop: "static", keyboard: false});
     }
   }
 
@@ -534,9 +534,9 @@ export class UtilsService {
       let modalRef;
 
       if (this.preferenceResolver.dataModel.two_factor) {
-        modalRef = this.modalService.open(ConfirmationWith2faComponent,{backdrop: "static",keyboard: false});
+        modalRef = this.modalService.open(ConfirmationWith2faComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'confirmation-2fa-modal-title'});
       } else {
-        modalRef = this.modalService.open(ConfirmationWithPasswordComponent,{backdrop: "static",keyboard: false});
+        modalRef = this.modalService.open(ConfirmationWithPasswordComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'confirmation-password-modal-title'});
       }
 
       modalRef.componentInstance.confirmFunction = (secret: string) => {
@@ -549,7 +549,7 @@ export class UtilsService {
   openConfirmableModalDialogReport(arg: string, scope: any): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(DeleteConfirmationComponent,{backdrop: "static",keyboard: false});
+      const modalRef = this.modalService.open(DeleteConfirmationComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'delete-confirmation-modal-title'});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
@@ -739,7 +739,7 @@ export class UtilsService {
   }
 
   public viewRFile(file: WbFile) {
-    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(FileViewComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'file-view-modal-title'});
     modalRef.componentInstance.args = {
       file: file,
       loaded: false,

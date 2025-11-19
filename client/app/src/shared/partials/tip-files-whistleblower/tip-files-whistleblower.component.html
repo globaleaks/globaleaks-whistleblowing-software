@@ -1,5 +1,5 @@
-<div id="TipPageFilesInfoBox" class="card card-default" [attr.aria-expanded]="collapsed">
-  <div class="card-header clearfix" (click)="toggleColLapse()">
+<div id="TipPageFilesInfoBox" class="card card-default">
+  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="toggleColLapse()" (keypress)="toggleColLapse()">
     <span>{{'Attachments'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
@@ -34,7 +34,9 @@
                     <button class="btn btn-sm btn-primary tip-action-download-file"
                       [disabled]="file.error"
                       ngbTooltip="{{'Download' | translate}}"
-                      (click)="downloadWBFile(file)">
+                      [attr.aria-label]="'Download' | translate"
+                      (click)="downloadWBFile(file)"
+                      type="button">
                       <i class="fas fa-download"></i>
                     </button>
                   </td>

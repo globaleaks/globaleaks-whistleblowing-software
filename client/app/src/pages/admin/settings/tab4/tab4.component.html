@@ -1,16 +1,16 @@
 <div class="row">
   <div class="col-md-12">
     <div class="form-group">
-      <label>{{'Language' | translate}}:</label>
-      <select class="form-select-custom" name="vars.language_to_customize" [(ngModel)]="vars.language_to_customize" (ngModelChange)="getl10n(vars.language_to_customize)">
+      <label for="custom-text-language-select">{{'Language' | translate}}:</label>
+      <select id="custom-text-language-select" class="form-select-custom" name="vars.language_to_customize" [(ngModel)]="vars.language_to_customize" (ngModelChange)="getl10n(vars.language_to_customize)">
         @for (item of languageUtils.languages_enabled_selector; track item) {
           <option [value]="item.code">{{item.name}}</option>
         }
       </select>
     </div>
     <div class="form-group">
-      <label>{{'Add custom text' | translate}}</label>
-      <select class="form-select-custom" name="vars.text_to_customize" [(ngModel)]="vars.text_to_customize" (ngModelChange)="vars.custom_text = custom_texts[vars.text_to_customize] ? custom_texts[vars.text_to_customize] : default_texts[vars.text_to_customize]">
+      <label for="custom-text-selector">{{'Add custom text' | translate}}</label>
+      <select id="custom-text-selector" class="form-select-custom" name="vars.text_to_customize" [(ngModel)]="vars.text_to_customize" (ngModelChange)="vars.custom_text = custom_texts[vars.text_to_customize] ? custom_texts[vars.text_to_customize] : default_texts[vars.text_to_customize]">
         @for (item of custom_texts_selector; track item) {
           <option [value]="item.key">{{item.value}}</option>
         }
@@ -18,9 +18,9 @@
       <br><br>
       @if (vars.text_to_customize) {
         <div>
-          <label>{{'Custom text' | translate}}</label>
+          <label for="custom-text-content">{{'Custom text' | translate}}</label>
           <div>
-            <textarea class="form-control" name="vars.custom_text" [(ngModel)]="vars.custom_text"></textarea>
+            <textarea id="custom-text-content" class="form-control" name="vars.custom_text" [(ngModel)]="vars.custom_text"></textarea>
           </div>
           <br>
           </div>

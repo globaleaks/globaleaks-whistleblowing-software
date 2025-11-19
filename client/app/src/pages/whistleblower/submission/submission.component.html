@@ -51,7 +51,7 @@
               </div>
             }
             @if (submission.context.allow_recipients_selection && navigation === -1) {
-              <div id="step-receiver-selection" role="tabpanel">
+              <div id="step-receiver-selection" role="tabpanel" aria-labelledby="receiver-selection-link">
                 <src-receiver-selection (switchSelection)="switchSelection($event)" [receiversOrderPredicate]="receiversOrderPredicate" [submission]="submission" [show_steps_navigation_bar]="show_steps_navigation_bar"></src-receiver-selection>
               </div>
             }
@@ -60,7 +60,7 @@
                 @for (step of questionnaire.steps | orderBy:'order'; let index = $index; track $index) {
                   <div>
                     @if (step?.enabled) {
-                      <div id="step-{{index}}"  [class.d-none]="navigation !== index" role="tabpanel">
+                      <div id="step-{{index}}"  [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'step-' + index + '-link'">
                         <div ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
                           @if (step.description) {
                             <markdown class="description" [data]="step.description | stripHtml"></markdown>

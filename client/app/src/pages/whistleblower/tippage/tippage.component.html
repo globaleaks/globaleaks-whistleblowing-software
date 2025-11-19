@@ -4,9 +4,9 @@
       <div class="col-md-12">
         <div class="d-flex justify-content-end">
           <div class="d-flex align-items-center">
-            <span id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
+            <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Refresh' | translate">
               <i class="fas fa-arrows-rotate"></i>
-            </span>
+            </button>
           </div>
         </div>
       </div>

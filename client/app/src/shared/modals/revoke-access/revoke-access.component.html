@@ -4,8 +4,9 @@
 </div>
 <div class="modal-body">
   <div id="ReceiverContextAdder" class="form-group">
+    <label for="revoke-access-receiver-select">{{'Select' | translate}}</label>
     <div class="input-group">
-      <ng-select class="w-25 rounded-end-0" [attr.data-cy]="'receiver_selection'" [(ngModel)]="receiver_id" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true">
+      <ng-select id="revoke-access-receiver-select" class="w-25 rounded-end-0" [attr.data-cy]="'receiver_selection'" [(ngModel)]="receiver_id" [items]="selectableRecipients" bindLabel="name" placeholder="{{ 'Search' | translate }}" [searchable]="true" [ariaLabel]="'Select' | translate">
         <ng-template ng-label-tmp let-item="item">{{ item.name }}</ng-template>
       </ng-select>
       <div class="input-group-append">

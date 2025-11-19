@@ -42,23 +42,23 @@
       <hr />
       <div class="row">
         <div class="form-group col-md-6">
-          <label>{{ 'Label' | translate }}</label>
-          <input name="step.label" class="form-control" [(ngModel)]="step.label" type="text" required />
+          <label for="step-label-{{step.id}}">{{ 'Label' | translate }}</label>
+          <input id="step-label-{{step.id}}" name="step.label" class="form-control" [(ngModel)]="step.label" type="text" required />
         </div>
       </div>
       <div class="row">
         <div class="form-group col-md-6">
-          <label>{{ 'Description' | translate }}</label>
+          <label for="step-description-{{step.id}}">{{ 'Description' | translate }}</label>
           <div>
-            <textarea name="step.description" class="form-control" [(ngModel)]="step.description"></textarea>
+            <textarea id="step-description-{{step.id}}" name="step.description" class="form-control" [(ngModel)]="step.description"></textarea>
           </div>
         </div>
       </div>
       <div class="row">
         @if (nodeResolver.dataModel.enable_scoring_system) {
           <div class="form-group col-md-12">
-            <label>{{ 'Triggered by score:' | translate }}</label>
-            <select name="step.triggered_by_score" class="form-select-custom" [(ngModel)]="step.triggered_by_score">
+            <label for="step-trigger-score-{{step.id}}">{{ 'Triggered by score:' | translate }}</label>
+            <select id="step-trigger-score-{{step.id}}" name="step.triggered_by_score" class="form-select-custom" [(ngModel)]="step.triggered_by_score">
               <option value="0">{{ 'Low' | translate }}</option>
               <option value="1">{{ 'Medium' | translate }}</option>
               <option value="2">{{ 'High' | translate }}</option>
@@ -76,7 +76,8 @@
           @if (showAddTrigger) {
             <div class="col-md-12">
               <div class="form-group">
-                <select name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
+                <label for="step-trigger-field-{{step.id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
+                <select id="step-trigger-field-{{step.id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
                   @for (field of parsedFields.fields; track field) {
                     <option [value]="field.id">{{ field.label }}
                     </option>
@@ -85,7 +86,8 @@
               </div>
               @if (new_trigger.field) {
                 <div class="form-group">
-                  <select name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
+                  <label for="step-trigger-option-{{step.id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
+                  <select id="step-trigger-option-{{step.id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
                     @for (option of parsedFields.fields_by_id[new_trigger.field].options; track option) {
                       <option [value]="option.id">{{ option.label }}</option>
                     }
@@ -94,8 +96,8 @@
               }
               @if (new_trigger.field) {
                 <div class="form-group">
-                  <input class="form-check-input" name="new_trigger.sufficient" [(ngModel)]="new_trigger.sufficient" type="checkbox">
-                  <label>{{ 'Sufficient' | translate }}</label>
+                  <input id="new-trigger-sufficient" class="form-check-input" name="new_trigger.sufficient" [(ngModel)]="new_trigger.sufficient" type="checkbox">
+                  <label for="new-trigger-sufficient">{{ 'Sufficient' | translate }}</label>
                 </div>
               }
               <div class="form-group">

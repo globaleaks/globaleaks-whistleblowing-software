@@ -4,7 +4,8 @@
             <span class="input-group-prepend">
                 <span class="input-group-text rounded-end-0">{{ 'Hostname' | translate }}</span>
             </span>
-            <input name="hostname" class="form-control" type="text" [(ngModel)]="hostName" #hostname="ngModel" [pattern]="Constants.hostnameRegexp" [ngClass]="{'is-invalid': hostname.errors?.['pattern']}" />
+            <label for="https-hostname" class="visually-hidden">{{ 'Hostname' | translate }}</label>
+            <input id="https-hostname" name="hostname" class="form-control" type="text" [(ngModel)]="hostName" #hostname="ngModel" [pattern]="Constants.hostnameRegexp" [ngClass]="{'is-invalid': hostname.errors?.['pattern']}" />
             <span class="input-group-append">
                 <button class="btn btn-primary rounded-start-0 m-0" id="save_hostname" (click)="updateHostname(hostName)" [disabled]="hostname.errors?.['pattern'] || adminNetForm.pristine">{{ 'Save' | translate }}</button>
             </span>

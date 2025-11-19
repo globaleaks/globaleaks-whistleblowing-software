@@ -18,44 +18,52 @@
               <tr>
                 <td>{{ 'Admin' | translate }}</td>
                 <td>
-                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_admin_enable" type="checkbox" name="ip_filter_admin_enable" />
+                  <label for="ip-filter-admin-enable" class="visually-hidden">{{ 'Enable' | translate }}</label>
+                  <input id="ip-filter-admin-enable" class="form-check-input" [(ngModel)]="networkData.ip_filter_admin_enable" type="checkbox" name="ip_filter_admin_enable" />
                 </td>
                 <td>
                   @if (networkData.ip_filter_admin_enable) {
-                    <input class="form-control" name="ip_filter_admin" [(ngModel)]="networkData.ip_filter_admin" type="text" autocomplete="off" />
+                    <label for="ip-filter-admin" class="visually-hidden">{{ 'Allowed IP addresses' | translate }}</label>
+                    <input id="ip-filter-admin" class="form-control" name="ip_filter_admin" [(ngModel)]="networkData.ip_filter_admin" type="text" autocomplete="off" />
                   }
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Analyst' | translate }}</td>
                 <td>
-                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_analyst_enable" type="checkbox" name="ip_filter_list" />
+                  <label for="ip-filter-analyst-enable" class="visually-hidden">{{ 'Enable' | translate }}</label>
+                  <input id="ip-filter-analyst-enable" class="form-check-input" [(ngModel)]="networkData.ip_filter_analyst_enable" type="checkbox" name="ip_filter_list" />
                 </td>
                 <td>
                   @if (networkData.ip_filter_analyst_enable) {
-                    <input class="form-control" name="ip_filter_list" [(ngModel)]="networkData.ip_filter_analyst" type="text" autocomplete="off" />
+                    <label for="ip-filter-analyst" class="visually-hidden">{{ 'Allowed IP addresses' | translate }}</label>
+                    <input id="ip-filter-analyst" class="form-control" name="ip_filter_list" [(ngModel)]="networkData.ip_filter_analyst" type="text" autocomplete="off" />
                   }
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Custodian' | translate }}</td>
                 <td>
-                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_custodian_enable" type="checkbox" name="ip_filter_custodian_enable" />
+                  <label for="ip-filter-custodian-enable" class="visually-hidden">{{ 'Enable' | translate }}</label>
+                  <input id="ip-filter-custodian-enable" class="form-check-input" [(ngModel)]="networkData.ip_filter_custodian_enable" type="checkbox" name="ip_filter_custodian_enable" />
                 </td>
                 <td>
                   @if (networkData.ip_filter_custodian_enable) {
-                    <input class="form-control" name="ip_filter_custodian" [(ngModel)]="networkData.ip_filter_custodian" type="text" autocomplete="off" />
+                    <label for="ip-filter-custodian" class="visually-hidden">{{ 'Allowed IP addresses' | translate }}</label>
+                    <input id="ip-filter-custodian" class="form-control" name="ip_filter_custodian" [(ngModel)]="networkData.ip_filter_custodian" type="text" autocomplete="off" />
                   }
                 </td>
               </tr>
               <tr>
                 <td>{{ 'Recipient' | translate }}</td>
                 <td>
-                  <input class="form-check-input" [(ngModel)]="networkData.ip_filter_receiver_enable" type="checkbox" name="ip_filter_receiver_enable" />
+                  <label for="ip-filter-receiver-enable" class="visually-hidden">{{ 'Enable' | translate }}</label>
+                  <input id="ip-filter-receiver-enable" class="form-check-input" [(ngModel)]="networkData.ip_filter_receiver_enable" type="checkbox" name="ip_filter_receiver_enable" />
                 </td>
                 <td>
                   @if (networkData.ip_filter_receiver_enable) {
-                    <input class="form-control" name="ip_filter_receiver" [(ngModel)]="networkData.ip_filter_receiver" type="text" autocomplete="off" />
+                    <label for="ip-filter-receiver" class="visually-hidden">{{ 'Allowed IP address' | translate }}</label>
+                    <input id="ip-filter-receiver" class="form-control" name="ip_filter_receiver" [(ngModel)]="networkData.ip_filter_receiver" type="text" autocomplete="off" />
                   }
                 </td>
               </tr>

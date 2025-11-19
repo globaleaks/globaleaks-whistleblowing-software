@@ -1,51 +1,74 @@
 <div class="whistleblower-file card card-default">
   <div class="card-body">
+
     <div class="top-row clearfix">
       <span class="float-start">
+
         @if (ctx === 'download') {
           <span class="text-muted">
-            <span>{{'Filename'|translate}}</span>: </span>
-          }
-          <span class="filename px-1">{{wbFile.name}}</span>
-        </span>
-        <span class="float-end">
-          <span>
-            <span class="download-button btn btn-sm btn-primary tip-action-download-file" (click)="downloadWBFile(wbFile)">
-              <i class="fas fa-download"></i>
-            </span>
-            @if (authenticationService.session?.role === 'receiver') {
-              <button class="btn btn-sm btn-danger tip-action-delete-file" (click)="deleteWBFile(wbFile)">
-                <i class="fas fa-trash"></i>
-              </button>
-            }
-          </span>
-        </span>
-      </div>
-      <div class="file-info-row">
-        @if (receivers_by_id[wbFile.author]) {
-          <span>
-            <span>{{'From'|translate}}</span>: <span>{{receivers_by_id[wbFile.author].name}}</span>
+            <span>{{ 'Filename' | translate }}</span>:
           </span>
         }
-        <span class="px-1">
-          <span>{{'Date'|translate}}</span>: <span>{{wbFile.creation_date | date:'dd-MM-yyyy HH:MM'}}</span>
-        </span>
-        <span class="px-1">
-          <span>{{'Size:'|translate}}</span>
-          <span>{{wbFile.size | byteFmt:2}}</span>
-        </span>
-        @if (ctx === 'rtip') {
-          <span class="px-1">
-            <span>{{'Number of downloads'|translate}}</span>: <span>{{wbFile.downloads}}</span>
-          </span>
+
+        <span class="filename px-1">{{ wbFile.name }}</span>
+      </span>
+
+      <span class="float-end">
+        <button
+          type="button"
+          class="tip-action-download-file download-button btn btn-sm btn-primary"
+          (click)="downloadWBFile(wbFile)"
+          [attr.aria-label]="'Download' | translate">
+          <i class="fas fa-download"></i>
+        </button>
+
+        @if (authenticationService.session?.role === 'receiver') {
+          <button
+            type="button"
+            class="tip-action-delete-file btn btn-sm btn-danger"
+            (click)="deleteWBFile(wbFile)"
+            [attr.aria-label]="'Delete' | translate">
+            <i class="fas fa-trash"></i>
+          </button>
         }
-      </div>
-      @if (wbFile.description) {
-        <div>
-          <span>
-            <span class="px-1">{{'Description'|translate}}</span>: </span>
-            <span> {{wbFile.description}} </span>
-          </div>
-        }
-      </div>
+      </span>
     </div>
+
+    <div class="file-info-row">
+      @if (receivers_by_id[wbFile.author]) {
+        <span>
+          <span>{{ 'From' | translate }}</span>:
+          <span>{{ receivers_by_id[wbFile.author].name }}</span>
+        </span>
+      }
+
+      <span class="px-1">
+        <span>{{ 'Date' | translate }}</span>:
+        <span>{{ wbFile.creation_date | date:'dd-MM-yyyy HH:MM' }}</span>
+      </span>
+
+      <span class="px-1">
+        <span>{{ 'Size:' | translate }}</span>
+        <span>{{ wbFile.size | byteFmt:2 }}</span>
+      </span>
+
+      @if (ctx === 'rtip') {
+        <span class="px-1">
+          <span>{{ 'Number of downloads' | translate }}</span>:
+          <span>{{ wbFile.downloads }}</span>
+        </span>
+      }
+    </div>
+
+    @if (wbFile.description) {
+      <div>
+        <span class="px-1">
+          {{ 'Description' | translate }}:
+        </span>
+        <span>{{ wbFile.description }}</span>
+      </div>
+    }
+
+  </div>
+</div>
+

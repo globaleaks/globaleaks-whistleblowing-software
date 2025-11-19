@@ -3,7 +3,8 @@
     @if (appDataService.public.receivers.length === 1) {
       <div>
         <div class="form-group">
-          <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" required />
+          <label for="simple-login-password" class="visually-hidden">{{'Password' | translate}}</label>
+          <input id="simple-login-password" class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" required />
         </div>
         <div class="form-group">
           <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
@@ -19,8 +20,8 @@
     @if (appDataService.public.receivers.length !== 1) {
       <div>
         <div class="form-group">
-          <label>{{'Please select your account:'|translate}}</label>
-          <ng-select name="authentication.loginData.loginUsername" [clearable]="false" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginUsername">
+          <label for="simple-login-select">{{'Please select your account:'|translate}}</label>
+          <ng-select id="simple-login-select" name="authentication.loginData.loginUsername" [clearable]="false" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginUsername" [ariaLabel]="'Account' | translate">
             @for (item of appDataService.public.receivers; track item) {
               <ng-option [value]="item.id">{{item.name}}</ng-option>
             }
@@ -29,8 +30,8 @@
         @if (authentication.loginData.loginUsername) {
           <div>
             <div class="form-group">
-              <label>{{'Now type your password, then click \'Log in\':'|translate}}</label>
-              <input class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
+              <label for="simple-login-password-selected">{{'Now type your password, then click \'Log in\':'|translate}}</label>
+              <input id="simple-login-password-selected" class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
             </div>
             <div class="form-group">
               <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
@@ -50,8 +51,8 @@
 @if (authentication.requireAuthCode) {
   <div>
     <div class="form-group">
-      <label>{{'Enter the two factor authentication code'|translate}}</label>
-      <input class="form-control" name="authentication.loginData.loginAuthCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
+      <label for="simple-login-2fa-code">{{'Enter the two factor authentication code'|translate}}</label>
+      <input id="simple-login-2fa-code" class="form-control" name="authCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
     </div>
     <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
       <i class="fas fa-right-to-bracket"></i>

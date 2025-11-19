@@ -7,8 +7,8 @@
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
-        <input type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
-        <label (click)="uploadInput.click()" class="btn btn-sm btn-outline-secondary">
+        <input id="import-question-file" type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
+        <label for="import-question-file" (click)="uploadInput.click()" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>

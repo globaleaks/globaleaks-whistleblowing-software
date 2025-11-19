@@ -3,16 +3,16 @@
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-1">
-          <a id="link-tiplist" href="#/custodian/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary">
+          <a id="link-tiplist" href="#/custodian/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Home' | translate">
             <i class="fas fa-arrow-left"></i>
           </a>
         </div>
 
         <div class="d-flex align-items-center gap-1">
-          <span id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary">
+          <button id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary" type="button" [attr.aria-label]="'Refresh' | translate">
             <i class="fas fa-arrows-rotate"></i>
-          </span>
-        </div>>
+          </button>
+        </div>
       </div>
     </div>
   </div>

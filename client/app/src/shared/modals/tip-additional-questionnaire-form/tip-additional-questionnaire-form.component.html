@@ -6,11 +6,11 @@
   <form #submissionForm="ngForm" id="SubmissionForm" autocomplete="off" novalidate>
     <div class="tabbable tabs-below">
       @if (wbTipService.tip.additional_questionnaire.steps.length > 1) {
-        <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs">
+        <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" role="tablist">
           @for (step of wbTipService.tip.additional_questionnaire.steps | orderBy:'order' ; track step; let index = $index) {
-            <li class="nav-item">
+            <li class="nav-item" role="presentation">
               @if (step.enabled) {
-                <a id="step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)">
+                <a id="step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'step-' + index" role="tab">
                   <span>{{index + 1}} - {{step.label}}</span>
                 </a>
               }
@@ -22,16 +22,14 @@
         @for (step of this.questionnaire.steps | orderBy:'order'; track step; let index = $index) {
           <div>
             @if (step && step.enabled) {
-              <span>
-                <div [class.d-none]="navigation !== index">
-                  <div id="step-{{index}}" ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-                    @if (step.description) {
-                      <div class="description">{{step.description}}</div>
-                    }
-                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
-                  </div>
+              <div [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'step-' + index + '-link'">
+                <div id="step-{{index}}" ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                  @if (step.description) {
+                    <div class="description">{{step.description}}</div>
+                  }
+                  <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
                 </div>
-              </span>
+              </div>
             }
           </div>
         }

@@ -5,9 +5,10 @@
 <div class="modal-body">
   <span>{{'By confirming, you will edit the expiration date to:'|translate}}</span>
   <div class="input-group">
-    <input type="text" readonly class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" [minDate]="minDate" [maxDate]="maxDate" [(ngModel)]="args.expiration_date" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
-    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open calendar' | translate">
-      <i class="fas fa-calendar" aria-hidden="true"></i>
+    <label for="tip-postpone-date" class="visually-hidden">{{ 'Expiration date' | translate }}</label>
+    <input id="tip-postpone-date" type="text" readonly class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" [minDate]="minDate" [maxDate]="maxDate" [(ngModel)]="args.expiration_date" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
+    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open' | translate">
+      <i class="fas fa-calendar"></i>
     </button>
   </div>
 </div>

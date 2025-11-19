@@ -7,8 +7,8 @@
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
-        <input type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
-        <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
+        <input id="import-questionnaire-file" type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
+        <label for="import-questionnaire-file" id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
           <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>
@@ -22,7 +22,7 @@
               <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             </label>
             <div>
-              <input name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [ngClass]="{'is-invalid': newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']}" required />
+              <input id="new-questionnaire-name" name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [ngClass]="{'is-invalid': newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']}" required />
             </div>
           </div>
           <div class="form-group">

@@ -6,12 +6,12 @@
         <span class="col-md-5 clearfix">
           <span class="float-end">
             @if (!first) {
-              <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
+              <button type="button" class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [attr.aria-label]="'Move up' | translate">
                 <i class="fas fa-chevron-up"></i>
               </button>
             }
             @if (!last) {
-              <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
+              <button type="button" class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [attr.aria-label]="'Move down' | translate">
                 <i class="fas fa-chevron-down"></i>
               </button>
             }
@@ -45,8 +45,8 @@
             @if (!isSystemDefined(submissionsStatus)) {
               <div class="col-md-6">
                 <div class="form-group">
-                  <label>{{'Label'|translate}}</label>
-                  <input name="name" class="form-control" [(ngModel)]="submissionsStatus.label" [disabled]="submissionsStatus.system_defined" type="text" required>
+                  <label for="submission-status-label-{{submissionsStatus.id}}">{{'Label'|translate}}</label>
+                  <input id="submission-status-label-{{submissionsStatus.id}}" name="name" class="form-control" [(ngModel)]="submissionsStatus.label" [disabled]="submissionsStatus.system_defined" type="text" required>
                   @if (editsubmissionStatus?.errors?.['required']) {
                     <div class="text-danger">{{'This field is mandatory'|translate}}</div>
                   }

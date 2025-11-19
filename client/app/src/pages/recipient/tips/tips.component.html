@@ -3,27 +3,27 @@
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-1">
-          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary">
+          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Home' | translate">
             <i class="fas fa-arrow-left"></i>
           </a>
 
-          <span id="tip-action-act-as-whistleblower" (click)="actAsWhistleblower()" ngbTooltip="{{'Act on behalf of a whistleblower' | translate}}"
+          <button id="tip-action-act-as-whistleblower" type="button" (click)="actAsWhistleblower()" ngbTooltip="{{'Act on behalf of a whistleblower' | translate}}" [attr.aria-label]="'Act on behalf of the whistleblower' | translate"
             class="btn btn-outline-secondary">
             <i class="fas fa-handshake-angle"></i>
-          </span>
+          </button>
         </div>
 
         <div class="d-flex align-items-center gap-1">
           @if (selectedTips.length) {
-            <span id="tip-action-export" (click)="exportTips()" ngbTooltip="{{'Export' | translate}}" class="btn btn-outline-secondary">
+            <button id="tip-action-export" type="button" (click)="exportTips()" ngbTooltip="{{'Export' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Export' | translate">
               <i class="fas fa-download"></i>
-            </span>
+            </button>
           }
 
-          <span id="link-reload" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
+          <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
             class="btn btn-outline-secondary">
             <i class="fas fa-arrows-rotate"></i>
-          </span>
+          </button>
         </div>
       </div>
     </div>
@@ -45,64 +45,79 @@
                 </span>
              }
             </th>
+            <th><span class="visually-hidden">{{'Select' | translate}}</span></th>
             <th (click)="sortKey = 'important'; sortReverse = !sortReverse">
-              <i class="fas fa-star"></i>
+              <i class="fas fa-star" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Important' | translate}}</span>
               @if (sortKey === 'important') {
                 <span>
                   @if (!sortReverse) {
-                    <i class="fas fa-sort-down"></i>
+                    <i class="fas fa-sort-down" aria-hidden="true"></i>
                   }
                   @if (sortReverse) {
-                    <i class="fas fa-sort-up"></i>
+                    <i class="fas fa-sort-up" aria-hidden="true"></i>
                   }
                 </span>
               } @else {
-                <span class="text-muted"><i class="fas fa-sort"></i></span>
+                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
             <th (click)="sortKey = 'reminder_date'; sortReverse = !sortReverse">
-              <i class="fas fa-bell"></i>
+              <i class="fas fa-bell" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Reminder date' | translate}}</span>
               @if (sortKey === 'reminder_date') {
                 <span>
                   @if (!sortReverse) {
-                    <i class="fas fa-sort-down"></i>
+                    <i class="fas fa-sort-down" aria-hidden="true"></i>
                   }
                   @if (sortReverse) {
-                    <i class="fas fa-sort-up"></i>
+                    <i class="fas fa-sort-up" aria-hidden="true"></i>
                   }
                 </span>
               } @else {
-                <span class="text-muted"><i class="fas fa-sort"></i></span>
+                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
             <th class="TipInfoID" (click)="sortKey = 'progressive'; sortReverse = !sortReverse">
-              <i class="fas fa-hashtag"></i>
+              <i class="fas fa-hashtag" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'ID' | translate}}</span>
               @if (sortKey === 'progressive') {
                 <span>
                   @if (!sortReverse) {
-                    <i class="fas fa-sort-down"></i>
+                    <i class="fas fa-sort-down" aria-hidden="true"></i>
                   }
                   @if (sortReverse) {
-                    <i class="fas fa-sort-up"></i>
+                    <i class="fas fa-sort-up" aria-hidden="true"></i>
                   }
                 </span>
               } @else {
-                <span class="text-muted"><i class="fas fa-sort"></i></span>
+                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
             @if (appDataService.public.contexts.length > 1) {
-            <th class="TipInfoContext">
-              <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse">
-                <i class="fas fa-inbox"></i>
-                <span>{{'Channel' | translate}}</span>
-                @if (sortKey === 'context_name') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
+              <th class="TipInfoContext">
+                <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse">
+                  <i class="fas fa-inbox"></i>
+                  <span>{{'Channel' | translate}}</span>
+                  @if (sortKey === 'context_name') {
+                    <span>
+                      @if (!sortReverse) {
+                        <i class="fas fa-sort-down"></i>
+                      }
+                      @if (sortReverse) {
+                        <i class="fas fa-sort-up"></i>
+                      }
+                    </span>
+                  } @else {
+                    <span class="text-muted"><i class="fas fa-sort"></i></span>
+                  }
+                </span>
+                @if (RTips.dataModel.length > 0) {
+                  <span class="dropdown-multi-select-container">
+                    <span id="tip-action-filter-channel" [ngClass]="{ filterSelected: checkFilter(dropdownContextModel) }" (click)="toggleChannelDropdown()"><i class="fas fa-filter"></i></span>
+                    <span [class.d-none]="!channelDropdownVisible">
+                      <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Filter by channel' | translate"></ng-multiselect-dropdown>
+                    </span>
                   </span>
                 } @else {
                   <span class="text-muted"><i class="fas fa-sort"></i></span>
@@ -157,7 +172,7 @@
                 <span class="dropdown-multi-select-container">
                   <span [ngClass]="{ filterSelected: checkFilter(dropdownStatusModel) }" (click)="toggleStatusDropdown()"><i class="fas fa-filter"></i></span>
                   <span [class.d-none]="!statusDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')"></ng-multiselect-dropdown>
+                    <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')" [attr.aria-label]="'Filter by status' | translate"></ng-multiselect-dropdown>
                   </span>
                 </span>
               }
@@ -235,20 +250,25 @@
               </span>
             </th>
             <th class="TipInfoReadReceipt">
-              <i class="fas fa-envelope-circle-check"></i>
+              <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
             <th class="TipInfoComments">
-              <i class="fas fa-comment"></i>
+              <i class="fas fa-comment" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Comments' | translate}}</span>
             </th>
             <th class="TipInfoFiles">
-              <i class="fas fa-file"></i>
+              <i class="fas fa-file" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Files' | translate}}</span>
             </th>
             <th class="TipInfoIdentity">
-              <i class="fas fa-user"></i>
+              <i class="fas fa-user" aria-hidden="true"></i>
+              <span class="visually-hidden">{{'Identity' | translate}}</span>
             </th>
             <th class="TipInfoRecipientCount">
               <span (click)="sortKey = 'receiver_count'; sortReverse = !sortReverse">
-                <i class="fas fa-users"></i>
+                <i class="fas fa-users" aria-hidden="true"></i>
+                <span class="visually-hidden">{{'Recipients' | translate}}</span>
                 @if (sortKey === 'receiver_count') {
                   <span>
                     @if (!sortReverse) {
@@ -264,33 +284,33 @@
               </span>
             </th>
             @if (appDataService.public.node.enable_scoring_system) {
-            <th class="TipInfoScore">
-              <span (click)="sortKey = 'score'; sortReverse = !sortReverse">
-                <i class="fas fa-ranking-star"></i>
-                <span>{{'Score' | translate}}</span>
-                @if (sortKey === 'score') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-              @if (RTips.dataModel.length > 0) {
+              <th class="TipInfoScore">
+                <span (click)="sortKey = 'score'; sortReverse = !sortReverse">
+                  <i class="fas fa-ranking-star"></i>
+                  <span>{{'Score' | translate}}</span>
+                  @if (sortKey === 'score') {
+                    <span>
+                      @if (!sortReverse) {
+                        <i class="fas fa-sort-down"></i>
+                      }
+                      @if (sortReverse) {
+                        <i class="fas fa-sort-up"></i>
+                      }
+                    </span>
+                  } @else {
+                    <span class="text-muted"><i class="fas fa-sort"></i></span>
+                  }
+                </span>
+                @if (RTips.dataModel.length > 0) {
                 <span class="dropdown-multi-select-container">
                   <span [ngClass]="{ filterSelected: checkFilter(dropdownScoreModel) }" (click)="toggleScoreDropdown()"><i class="fas fa-filter"></i></span>
                   <span [class.d-none]="!scoreDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')"></ng-multiselect-dropdown>
+                    <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')" [attr.aria-label]="'Filter by score' | translate"></ng-multiselect-dropdown>
                   </span>
                 </span>
-              }
-            </th>
-          }
+                }
+              </th>
+            }
           </tr>
         </ng-template>
         <ng-template #content let-tip="item" let-index="index">
