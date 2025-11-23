@@ -54,7 +54,7 @@ export class ReceiverTipService {
       })
     ).subscribe();;
   }
-  
+
   updateRedaction(content: RedactionData, tip_id?: string) {
     return this.httpService.requestUpdateRedaction(content).pipe(
       switchMap(() => {
