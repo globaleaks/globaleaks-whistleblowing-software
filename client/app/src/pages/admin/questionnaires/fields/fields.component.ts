@@ -367,9 +367,9 @@ export class FieldsComponent implements OnInit {
   importOptions(files: FileList | null): void {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0]).subscribe(
-        txt => {
+        (txt: string) => {
           const lines = txt.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-          const existingLabels = new Set(this.field.options.map((o: any) => o.label.trim()));
+          const existingLabels = new Set(this.field.options.map((option: Option) => option.label.trim()));
           let currentOrder = this.utilsService.newItemOrder(this.field.options, "order");
           for (const label of lines) {
             if (!existingLabels.has(label)) {
@@ -380,5 +380,4 @@ export class FieldsComponent implements OnInit {
         });
     }
   }
- 
 }
