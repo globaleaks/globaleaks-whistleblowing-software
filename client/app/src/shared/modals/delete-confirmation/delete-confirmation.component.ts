@@ -7,6 +7,7 @@ import {Router} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {User} from "@app/models/resolvers/user-resolver-model";
+import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 
 
 @Component({
@@ -26,15 +27,20 @@ export class DeleteConfirmationComponent implements OnInit {
   @Input() selected_tips: string[];
   @Input() operation: string;
   @Input() user: User;
+  @Input() tenant: tenantResolverModel;
   @Input() statsChanged = false;
   confirmFunction: () => void;
 
   userStats: {total_reports: number; exclusive_reports: number} | null = null;
+  tenantStats: {open_reports: number; total_reports: number} | null = null;
   loadingStats = false;
 
   ngOnInit() {
     if (this.user) {
       this.loadUserStats();
+    }
+    if (this.tenant) {
+      this.loadTenantStats();
     }
   }
 
@@ -43,6 +49,19 @@ export class DeleteConfirmationComponent implements OnInit {
     this.httpService.requestAdminUserStats(this.user.id).subscribe({
       next: (stats) => {
         this.userStats = stats;
+        this.loadingStats = false;
+      },
+      error: () => {
+        this.loadingStats = false;
+      }
+    });
+  }
+
+  loadTenantStats() {
+    this.loadingStats = true;
+    this.httpService.requestAdminTenantStats(this.tenant.id).subscribe({
+      next: (stats) => {
+        this.tenantStats = stats;
         this.loadingStats = false;
       },
       error: () => {
@@ -65,19 +84,38 @@ export class DeleteConfirmationComponent implements OnInit {
           this.loadingStats = false;
           if (freshStats.total_reports !== this.userStats!.total_reports ||
               freshStats.exclusive_reports !== this.userStats!.exclusive_reports) {
-            // Stats changed - update display, warn user, and prevent deletion
-            // User must review updated stats before proceeding
             this.userStats = freshStats;
             this.statsChanged = true;
           } else {
-            // Stats unchanged (or match after review) - clear warning and proceed
             this.statsChanged = false;
             this.proceedWithDeletion();
           }
         },
         error: () => {
           this.loadingStats = false;
-          // On error, proceed anyway (user has ultimate choice)
+          this.proceedWithDeletion();
+        }
+      });
+      return;
+    }
+
+    // For tenant deletion, verify stats haven't changed
+    if (this.tenant && this.tenantStats) {
+      this.loadingStats = true;
+      this.httpService.requestAdminTenantStats(this.tenant.id).subscribe({
+        next: (freshStats) => {
+          this.loadingStats = false;
+          if (freshStats.open_reports !== this.tenantStats!.open_reports ||
+              freshStats.total_reports !== this.tenantStats!.total_reports) {
+            this.tenantStats = freshStats;
+            this.statsChanged = true;
+          } else {
+            this.statsChanged = false;
+            this.proceedWithDeletion();
+          }
+        },
+        error: () => {
+          this.loadingStats = false;
           this.proceedWithDeletion();
         }
       });

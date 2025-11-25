@@ -3,6 +3,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks.handlers.admin import tenant
 from globaleaks.models import config
 from globaleaks.orm import tw
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 
@@ -54,13 +55,60 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         t = yield tenant.create(get_dummy_tenant_desc())
         t['profile'] = 'default'
+        self.tenant_id = t['id']
         self.handler = self.request(t, role='admin')
 
     def test_get(self):
-        return self.handler.get(4)
+        return self.handler.get(self.tenant_id)
 
     def test_put(self):
-        return self.handler.put(4)
+        return self.handler.put(self.tenant_id)
 
+    @inlineCallbacks
     def test_delete(self):
-        return self.handler.delete(4)
+        yield self.handler.delete(self.tenant_id)
+
+    @inlineCallbacks
+    def test_delete_with_valid_stats(self):
+        """Test deletion succeeds when expected stats match current stats"""
+        # Get current stats
+        stats = yield tenant.get_tenant_stats(self.tenant_id)
+
+        # Create handler with expected stats as query params
+        handler = self.request({}, role='admin')
+        handler.request.args[b'expected_open'] = [str(stats['open_reports']).encode()]
+        handler.request.args[b'expected_total'] = [str(stats['total_reports']).encode()]
+
+        yield handler.delete(self.tenant_id)
+
+    @inlineCallbacks
+    def test_delete_with_mismatched_stats(self):
+        """Test deletion fails when expected stats don't match current stats"""
+        # Create handler with wrong expected stats
+        handler = self.request({}, role='admin')
+        handler.request.args[b'expected_open'] = [b'999']
+        handler.request.args[b'expected_total'] = [b'999']
+
+        yield self.assertFailure(handler.delete(self.tenant_id), errors.TenantStatsChanged)
+
+
+class TestTenantStats(helpers.TestHandlerWithPopulatedDB):
+    _handler = tenant.TenantStats
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        t = yield tenant.create(get_dummy_tenant_desc())
+        self.tenant_id = t['id']
+
+    @inlineCallbacks
+    def test_get(self):
+        """Test retrieving tenant stats"""
+        handler = self.request(role='admin')
+        response = yield handler.get(self.tenant_id)
+
+        self.assertIn('open_reports', response)
+        self.assertIn('total_reports', response)
+        self.assertIsInstance(response['open_reports'], int)
+        self.assertIsInstance(response['total_reports'], int)
+        self.assertGreaterEqual(response['total_reports'], response['open_reports'])

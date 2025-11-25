@@ -44,9 +44,9 @@ export class ProfilelistComponent {
     this.httpService.requestUpdateTenant(url, this.tenant).subscribe((_) => {});
   }
 
-  deleteTenant(event: Event, tenant: tenantResolverModel) {
+  deleteTenant(event: Event, tenant: tenantResolverModel, statsChanged = false) {
     event.stopPropagation();
-    this.openConfirmableModalDialog(tenant, "").subscribe((_) => {});
+    this.openConfirmableModalDialog(tenant, statsChanged).subscribe();
   }
 
   exportTenant(tenant:tenantResolverModel){
@@ -63,23 +63,28 @@ export class ProfilelistComponent {
       });
   }
 
-  openConfirmableModalDialog(
-    arg: tenantResolverModel,
-    scope: any
-  ): Observable<string> {
-    scope = !scope ? this : scope;
+  openConfirmableModalDialog(arg: tenantResolverModel, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {
         backdrop: "static",
         keyboard: false,
       });
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.tenant = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
+
       modalRef.componentInstance.confirmFunction = () => {
+        const stats = modalRef.componentInstance.tenantStats;
         observer.complete();
         const url = "api/admin/tenants/" + arg.id;
-        return this.httpService.requestDeleteTenant(url).subscribe((_) => {
-          this.utilsService.deleteResource(this.tenants, arg);
+        return this.httpService.requestDeleteTenant(url, stats || undefined).subscribe({
+          next: () => {
+            this.utilsService.deleteResource(this.tenants, arg);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              this.deleteTenant(new Event('click'), arg, true);
+            }
+          }
         });
       };
     });

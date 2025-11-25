@@ -195,3 +195,13 @@ class UserStatsChanged(GLException):
     reason = "User stats have changed"
     error_code = 18
     status_code = 409
+
+
+class TenantStatsChanged(GLException):
+    """
+    Error signaling that tenant stats have changed since the deletion was initiated.
+    This prevents accidental deletion when reports have been added.
+    """
+    reason = "Tenant stats have changed"
+    error_code = 19
+    status_code = 409

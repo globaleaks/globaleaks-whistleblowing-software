@@ -73,8 +73,15 @@ export class HttpService {
     return this.httpClient.delete<Session>("api/auth/session");
   }
 
-  requestDeleteTenant(url: string): Observable<tenantResolverModel> {
+  requestDeleteTenant(url: string, expectedStats?: {open_reports: number; total_reports: number}): Observable<tenantResolverModel> {
+    if (expectedStats) {
+      url += `?expected_open=${expectedStats.open_reports}&expected_total=${expectedStats.total_reports}`;
+    }
     return this.httpClient.delete<tenantResolverModel>(url);
+  }
+
+  requestAdminTenantStats(tenantId: number): Observable<{open_reports: number; total_reports: number}> {
+    return this.httpClient.get<{open_reports: number; total_reports: number}>(`api/admin/tenants/${tenantId}/stats`);
   }
 
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {

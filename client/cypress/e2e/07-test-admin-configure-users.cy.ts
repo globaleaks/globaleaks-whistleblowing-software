@@ -153,13 +153,12 @@ describe("admin add, configure, and delete users", () => {
     // Click delete button
     cy.get('button[name="delete_user"]').click();
 
-    // Verify the modal shows stats
-    cy.get('.modal-title').should('contain', 'Are you sure?');
-    cy.get('.modal-body').should('contain', 'Reports');
-    cy.get('.modal-body').should('contain', 'Reports with exclusive access');
+    // Verify the modal shows user stats
+    cy.get('[data-cy="user-total-reports"]').should('be.visible');
+    cy.get('[data-cy="user-exclusive-reports"]').should('be.visible');
 
     // Verify audit log button exists
-    cy.get('.modal-body button').contains('Audit log').should('be.visible');
+    cy.get('[data-cy="user-audit-log"]').should('be.visible');
 
     // Cancel the deletion
     cy.get('#modal-action-cancel').click();

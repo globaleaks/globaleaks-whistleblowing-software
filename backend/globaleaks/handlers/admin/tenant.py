@@ -14,7 +14,7 @@ from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, \
     db_get_config_variable, db_set_config_variable
-from globaleaks.orm import db_del, db_get, transact, tw
+from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
@@ -112,6 +112,32 @@ def is_profile_mapped(session, tid):
         return session.query(Config).filter_by(value=tid, var_name='profile').first() is not None
     else:
         return False
+
+
+def db_get_tenant_stats(session, tid):
+    """
+    Get statistics about a tenant's reports.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: Dictionary with open_reports and total_reports counts
+    """
+    total_reports = session.query(models.InternalTip).filter(
+        models.InternalTip.tid == tid
+    ).count()
+
+    open_reports = session.query(models.InternalTip).filter(
+        models.InternalTip.tid == tid,
+        models.InternalTip.status != 'closed'
+    ).count()
+
+    return {'open_reports': open_reports, 'total_reports': total_reports}
+
+
+@transact
+def get_tenant_stats(session, tid):
+    return db_get_tenant_stats(session, tid)
+
 
 @transact
 def create_and_initialize(session, desc, *args, **kwargs):
@@ -424,11 +450,58 @@ class TenantInstance(BaseHandler):
     def delete(self, tid):
         """
         Delete the specified tenant.
+        Query params:
+          - expected_open: Expected open reports count (optional, for race condition prevention)
+          - expected_total: Expected total reports count (optional, for race condition prevention)
         """
-
         profile_mapped_status = yield is_profile_mapped(tid)
         if profile_mapped_status:
             raise errors.ForbiddenOperation
 
         tid = int(tid)
-        tw(db_del, models.Tenant, models.Tenant.id == tid)
+
+        expected_open = self.request.args.get(b'expected_open', [None])[0]
+        expected_total = self.request.args.get(b'expected_total', [None])[0]
+
+        if expected_open is not None:
+            expected_open = int(expected_open)
+        if expected_total is not None:
+            expected_total = int(expected_total)
+
+        yield tw(db_delete_tenant, self.request.tid, self.session, tid, expected_open, expected_total)
+
+
+@transact
+def db_delete_tenant(session, request_tid, user_session, tid, expected_open=None, expected_total=None):
+    """
+    Delete a tenant after validating stats.
+
+    :param session: An ORM session
+    :param request_tid: The requesting tenant ID
+    :param user_session: The user session
+    :param tid: The tenant ID to delete
+    :param expected_open: Expected open reports count
+    :param expected_total: Expected total reports count
+    """
+    # Get tenant stats before deletion for audit log
+    stats = db_get_tenant_stats(session, tid)
+
+    # If expected stats were provided, validate they match current stats
+    if expected_open is not None and expected_total is not None:
+        if stats['open_reports'] != expected_open or stats['total_reports'] != expected_total:
+            raise errors.TenantStatsChanged
+
+    db_del(session, models.Tenant, models.Tenant.id == tid)
+
+    db_log(session, tid=request_tid, type='delete_tenant', user_id=user_session.user_id, object_id=str(tid), data=stats)
+
+
+class TenantStats(BaseHandler):
+    check_roles = 'admin'
+    root_tenant_only = True
+
+    def get(self, tid):
+        """
+        Retrieve statistics about a tenant's reports.
+        """
+        return get_tenant_stats(int(tid))

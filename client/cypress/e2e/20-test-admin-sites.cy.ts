@@ -32,7 +32,16 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     cy.takeScreenshot("admin/sites_management_sites");
 
+    // Test tenant deletion modal shows report stats
     cy.get("button[name='delete_tenant']").last().click();
+
+    // Verify tenant stats are displayed
+    cy.get('[data-cy="tenant-open-reports"]').should('be.visible');
+
+    // Verify audit log reminder is displayed
+    cy.get('[data-cy="tenant-audit-reminder"]').should('be.visible');
+
+    // Confirm deletion
     cy.get("#modal-action-ok").click();
 
     cy.get("button[name='configure_tenant']").last().click();
