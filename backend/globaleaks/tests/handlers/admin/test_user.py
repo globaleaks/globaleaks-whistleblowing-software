@@ -1,6 +1,23 @@
+from twisted.internet.defer import inlineCallbacks
+
 from globaleaks import models
 from globaleaks.handlers.admin import user
 from globaleaks.tests import helpers
+
+
+class TestUserStats(helpers.TestHandlerWithPopulatedDB):
+    _handler = user.UserStats
+
+    @inlineCallbacks
+    def test_get(self):
+        """Test getting user stats returns report counts"""
+        handler = self.request(role='admin')
+        response = yield handler.get(self.dummyReceiver_1['id'])
+
+        self.assertIn('total_reports', response)
+        self.assertIn('exclusive_reports', response)
+        self.assertIsInstance(response['total_reports'], int)
+        self.assertIsInstance(response['exclusive_reports'], int)
 
 
 class TestAdminCollection(helpers.TestCollectionHandler):

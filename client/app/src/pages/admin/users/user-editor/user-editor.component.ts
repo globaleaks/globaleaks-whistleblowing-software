@@ -126,21 +126,29 @@ export class UserEditorComponent implements OnInit {
     this.dataToParent.emit();
   }
 
-  deleteUser(user: User) {
-    this.openConfirmableModalDialog(user, "").subscribe();
+  deleteUser(user: User, statsChanged = false) {
+    this.openConfirmableModalDialog(user, statsChanged).subscribe();
   }
 
-  openConfirmableModalDialog(arg: User, scope: any): Observable<string> {
-    scope = !scope ? this : scope;
+  openConfirmableModalDialog(arg: User, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.user = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
 
       modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
-        return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
-          this.utilsService.deleteResource(this.users, arg);
+        const stats = modalRef.componentInstance.userStats;
+        observer.complete();
+        return this.utilsService.deleteAdminUser(arg.id, stats || undefined).subscribe({
+          next: () => {
+            this.utilsService.deleteResource(this.users, arg);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              // Stats changed - re-open modal with warning
+              this.deleteUser(arg, true);
+            }
+          }
         });
       };
     });

@@ -125,7 +125,44 @@ def db_create_user(session, tid, user_session, request, language):
     return user
 
 
-def db_delete_user(session, tid, user_session, user_id):
+def db_get_user_stats(session, tid, user_id):
+    """
+    Get statistics about a user's report access
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The ID of the user
+    :return: A dictionary with report access statistics
+    """
+    from sqlalchemy import func
+
+    # Count total reports the user has access to
+    total_reports = session.query(func.count(models.ReceiverTip.id)).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar() or 0
+
+    # Count exclusive reports (reports where this user is the only recipient)
+    # First, get all internaltip_ids this user has access to
+    user_tips = session.query(models.ReceiverTip.internaltip_id).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).subquery()
+
+    # For each internaltip, count how many recipients have access
+    exclusive_reports = 0
+    for (internaltip_id,) in session.query(user_tips.c.internaltip_id):
+        recipient_count = session.query(func.count(models.ReceiverTip.id)).filter(
+            models.ReceiverTip.internaltip_id == internaltip_id
+        ).scalar() or 0
+        if recipient_count == 1:
+            exclusive_reports += 1
+
+    return {
+        'total_reports': total_reports,
+        'exclusive_reports': exclusive_reports
+    }
+
+
+def db_delete_user(session, tid, user_session, user_id, expected_total=None, expected_exclusive=None):
     db_get(session, models.User, models.User.id == user_session.user_id)
 
     user = db_get(session, models.User, models.User.id == user_id)
@@ -137,13 +174,22 @@ def db_delete_user(session, tid, user_session, user_id):
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
 
+    # Get user stats before deletion for audit log
+    stats = db_get_user_stats(session, tid, user_id)
+
+    # If expected stats were provided, validate they match current stats
+    # This prevents race conditions where reports are added between viewing stats and confirming deletion
+    if expected_total is not None and expected_exclusive is not None:
+        if stats['total_reports'] != expected_total or stats['exclusive_reports'] != expected_exclusive:
+            raise errors.UserStatsChanged
+
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
 
     if user.id == user.profile_id:
         # in this condition we should delete the profile since it will become unused
         db_del(session, models.UserProfile, models.UserProfile.id == user.id)
 
-    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
+    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id, data=stats)
 
 
 @transact
@@ -288,5 +334,26 @@ class UserInstance(BaseHandler):
     def delete(self, user_id):
         """
         Delete the specified user.
+        Query params:
+          - expected_total: Expected total reports count (optional, for race condition prevention)
+          - expected_exclusive: Expected exclusive reports count (optional, for race condition prevention)
         """
-        return tw(db_delete_user, self.request.tid, self.session, user_id)
+        expected_total = self.request.args.get(b'expected_total', [None])[0]
+        expected_exclusive = self.request.args.get(b'expected_exclusive', [None])[0]
+
+        if expected_total is not None:
+            expected_total = int(expected_total)
+        if expected_exclusive is not None:
+            expected_exclusive = int(expected_exclusive)
+
+        return tw(db_delete_user, self.request.tid, self.session, user_id, expected_total, expected_exclusive)
+
+
+class UserStats(BaseHandler):
+    check_roles = 'admin'
+
+    def get(self, user_id):
+        """
+        Retrieve statistics about a user's report access.
+        """
+        return tw(db_get_user_stats, self.request.tid, user_id)

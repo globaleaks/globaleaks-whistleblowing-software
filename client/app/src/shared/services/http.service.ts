@@ -378,8 +378,16 @@ export class HttpService {
     return this.httpClient.put<User>("api/admin/users/" + id, param);
   }
 
-  requestDeleteAdminUser(id: string): Observable<User> {
-    return this.httpClient.delete<User>("api/admin/users/" + id);
+  requestDeleteAdminUser(id: string, expectedStats?: {total_reports: number; exclusive_reports: number}): Observable<User> {
+    let url = "api/admin/users/" + id;
+    if (expectedStats) {
+      url += `?expected_total=${expectedStats.total_reports}&expected_exclusive=${expectedStats.exclusive_reports}`;
+    }
+    return this.httpClient.delete<User>(url);
+  }
+
+  requestAdminUserStats(id: string): Observable<{total_reports: number; exclusive_reports: number}> {
+    return this.httpClient.get<{total_reports: number; exclusive_reports: number}>("api/admin/users/" + id + "/stats");
   }
 
   requestAddAdminUserProfile(param: NewUserProfile): Observable<UserProfile> {

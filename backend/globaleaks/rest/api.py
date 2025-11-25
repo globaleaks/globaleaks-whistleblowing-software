@@ -112,6 +112,7 @@ api_spec = [
     ('/api/admin/network', admin.network.NetworkInstance),
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
+    ('/api/admin/users', admin.user.UserStats, r'/api/admin/users/' + uuid_regexp + '/stats'),
     ('/api/admin/users/profiles', admin.user_profile.UserProfilesCollection),
     ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
     ('/api/admin/contexts', admin.context.ContextsCollection),

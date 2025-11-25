@@ -141,6 +141,33 @@ describe("admin add, configure, and delete users", () => {
     cy.logout();
   });
 
+  it("should show user stats in delete confirmation modal", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/users");
+
+    // Click on the last user to edit
+    cy.get(".userList").last().within(() => {
+      cy.get('button[name="edit_user"]').click();
+    });
+
+    // Click delete button
+    cy.get('button[name="delete_user"]').click();
+
+    // Verify the modal shows stats
+    cy.get('.modal-title').should('contain', 'Are you sure?');
+    cy.get('.modal-body').should('contain', 'Reports');
+    cy.get('.modal-body').should('contain', 'Reports with exclusive access');
+
+    // Verify audit log button exists
+    cy.get('.modal-body button').contains('Audit log').should('be.visible');
+
+    // Cancel the deletion
+    cy.get('#modal-action-cancel').click();
+    cy.get('.modal-title').should('not.exist');
+
+    cy.logout();
+  });
+
 });
 
 describe("Multiple role profile", () => {

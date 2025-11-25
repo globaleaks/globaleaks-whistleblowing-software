@@ -185,3 +185,13 @@ class DuplicateUserError(GLException):
     reason = "A user with this username already exists"
     error_code = 17
     status_code = 422
+
+
+class UserStatsChanged(GLException):
+    """
+    Error signaling that user stats have changed since the deletion was initiated.
+    This prevents accidental deletion when reports have been added.
+    """
+    reason = "User stats have changed"
+    error_code = 18
+    status_code = 409

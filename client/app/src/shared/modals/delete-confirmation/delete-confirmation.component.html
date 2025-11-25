@@ -1,13 +1,41 @@
 <div class="modal-header">
   <h5 class="modal-title">{{'Are you sure?' | translate}}</h5>
-  <button type="button" class="btn-close" (click)="cancel()"></button>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
-<div class="modal-body">{{'Please note that all the associated data will be permanently deleted.' | translate}}</div>
+<div class="modal-body">
+  <p>{{'Please note that all the associated data will be permanently deleted.' | translate}}</p>
+  @if (user) {
+    @if (statsChanged) {
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-circle-exclamation me-1" aria-hidden="true"></i>
+        {{'The number of reports has changed. Please review before proceeding.' | translate}}
+      </div>
+    }
+    @if (loadingStats) {
+      <div class="text-center py-2">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+      </div>
+    } @else if (userStats) {
+      <div class="mb-2">
+        <strong>{{'Reports' | translate}}:</strong> {{userStats.total_reports}}
+      </div>
+      <div class="mb-2">
+        <strong>{{'Reports with exclusive access' | translate}}:</strong> {{userStats.exclusive_reports}}
+      </div>
+      <div class="mt-3">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openAuditLog()">
+          <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+          <span>{{'Audit log' | translate}}</span>
+        </button>
+      </div>
+    }
+  }
+</div>
 <div class="modal-footer">
-  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-    <i class="fas fa-check"></i><span>{{'Yes' | translate}}</span>
+  <button id="modal-action-ok" class="btn btn-danger" (click)="confirm()" [disabled]="loadingStats">
+    <i class="fas fa-check"></i><span>{{'Delete' | translate}}</span>
   </button>
   <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fas fa-xmark"></i><span>{{'No' | translate}}</span>
+    <i class="fas fa-xmark"></i><span>{{'Cancel' | translate}}</span>
   </button>
 </div>
