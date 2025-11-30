@@ -240,10 +240,10 @@ module.exports = function(grunt) {
 
     shell: {
       build: {
-        command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=production"
+        command: "npx ng build --configuration=production"
       },
       build_for_testing: {
-        command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=testing"
+        command: "npx ng build --configuration=testing"
       },
       instrument: {
         command: "nyc instrument dist --in-place"
