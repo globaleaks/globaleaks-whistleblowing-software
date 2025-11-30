@@ -1,6 +1,6 @@
 name: GlobaLeaks
 releaseDate: '2025-10-12'
-publiccodeYmlVersion: '0.4.0'
+publiccodeYmlVersion: '0.5.0'
 url: 'https://github.com/globaleaks/globaleaks-whistleblowing-software'
 landingURL: 'https://www.globaleaks.org/'
 roadmap: "https://docs.globaleaks.org/en/stable/technical/roadmap.html"
@@ -28,7 +28,9 @@ legal:
   license: AGPL-3.0
   mainCopyrightOwner: >-
     GlobaLeaks
-  repoOwner: GlobaLeaks
+organisation:
+  name: GlobaLeaks
+  url: https://www.globaleaks.org
 intendedAudience:
   scope:
     - agriculture
@@ -130,12 +132,9 @@ localisation:
     - zh_CN
     - zh_HK
     - zh_TW
-it:
-  conforme:
-    gdpr: true
-    lineeGuidaDesign: true
-    misureMinimeSicurezza: true
-    modelloInteroperabilita: true
+IT:
+  piattaforme:
+    spid: true
 description:
   en:
     shortDescription: >-
