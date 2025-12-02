@@ -141,7 +141,7 @@ export class UserEditorComponent implements OnInit {
         observer.complete();
         return this.utilsService.deleteAdminUser(arg.id, stats || undefined).subscribe({
           next: () => {
-            this.utilsService.deleteResource(this.users, arg);
+          this.utilsService.deleteResource(this.users, arg);
           },
           error: (err) => {
             if (err.status === 409) {

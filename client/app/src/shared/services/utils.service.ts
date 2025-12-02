@@ -629,7 +629,7 @@ export class UtilsService {
     return this.http.delete<void>(url);
   }
 
-  deleteAdminUser(user_id: string, expectedStats?: {total_reports: number; exclusive_reports: number}) {
+  deleteAdminUser(user_id: string, expectedStats?: {total_reports: number; exclusive_reports: number; last_update: string | null}) {
     return this.httpService.requestDeleteAdminUser(user_id, expectedStats);
   }
 

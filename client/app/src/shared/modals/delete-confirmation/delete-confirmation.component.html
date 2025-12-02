@@ -42,12 +42,15 @@
         <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
       </div>
     } @else if (tenantStats) {
-      <div class="mb-2" data-cy="tenant-open-reports">
-        <strong>{{'Number of open reports' | translate}}:</strong> {{tenantStats.open_reports}}/{{tenantStats.total_reports}}
-      </div>
-      <div class="alert alert-info mt-3" role="alert" data-cy="tenant-audit-reminder">
+      <div class="alert alert-info mb-3" role="alert" data-cy="tenant-audit-reminder">
         <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
         {{'Before proceeding ensure to check the audit log.' | translate}}
+      </div>
+      <div class="mb-2" data-cy="tenant-open-reports">
+        <strong>{{'Open reports' | translate}}:</strong> {{tenantStats.open_reports}}
+      </div>
+      <div class="mb-2" data-cy="tenant-total-reports">
+        <strong>{{'Total reports' | translate}}:</strong> {{tenantStats.total_reports}}
       </div>
     }
   }

@@ -156,13 +156,23 @@ def db_get_user_stats(session, tid, user_id):
         if recipient_count == 1:
             exclusive_reports += 1
 
+    # Get the latest update timestamp from reports the user has access to
+    # This helps detect changes even if the count stays the same (e.g., one deleted, one added)
+    last_update = session.query(func.max(models.InternalTip.update_date)).join(
+        models.ReceiverTip,
+        models.InternalTip.id == models.ReceiverTip.internaltip_id
+    ).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar()
+
     return {
         'total_reports': total_reports,
-        'exclusive_reports': exclusive_reports
+        'exclusive_reports': exclusive_reports,
+        'last_update': last_update.isoformat() if last_update else None
     }
 
 
-def db_delete_user(session, tid, user_session, user_id, expected_total=None, expected_exclusive=None):
+def db_delete_user(session, tid, user_session, user_id, expected_total=None, expected_exclusive=None, expected_last_update=None):
     db_get(session, models.User, models.User.id == user_session.user_id)
 
     user = db_get(session, models.User, models.User.id == user_id)
@@ -178,9 +188,14 @@ def db_delete_user(session, tid, user_session, user_id, expected_total=None, exp
     stats = db_get_user_stats(session, tid, user_id)
 
     # If expected stats were provided, validate they match current stats
-    # This prevents race conditions where reports are added between viewing stats and confirming deletion
+    # This prevents race conditions where reports change between viewing stats and confirming deletion
     if expected_total is not None and expected_exclusive is not None:
-        if stats['total_reports'] != expected_total or stats['exclusive_reports'] != expected_exclusive:
+        stats_changed = (
+            stats['total_reports'] != expected_total or
+            stats['exclusive_reports'] != expected_exclusive or
+            stats['last_update'] != expected_last_update
+        )
+        if stats_changed:
             raise errors.UserStatsChanged
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
@@ -340,13 +355,16 @@ class UserInstance(BaseHandler):
         """
         expected_total = self.request.args.get(b'expected_total', [None])[0]
         expected_exclusive = self.request.args.get(b'expected_exclusive', [None])[0]
+        expected_last_update = self.request.args.get(b'expected_last_update', [None])[0]
 
         if expected_total is not None:
             expected_total = int(expected_total)
         if expected_exclusive is not None:
             expected_exclusive = int(expected_exclusive)
+        if expected_last_update is not None:
+            expected_last_update = expected_last_update.decode('utf-8') if isinstance(expected_last_update, bytes) else expected_last_update
 
-        return tw(db_delete_user, self.request.tid, self.session, user_id, expected_total, expected_exclusive)
+        return tw(db_delete_user, self.request.tid, self.session, user_id, expected_total, expected_exclusive, expected_last_update)
 
 
 class UserStats(BaseHandler):

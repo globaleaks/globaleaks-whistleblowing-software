@@ -78,7 +78,7 @@ export class ProfilelistComponent {
         const url = "api/admin/tenants/" + arg.id;
         return this.httpService.requestDeleteTenant(url, stats || undefined).subscribe({
           next: () => {
-            this.utilsService.deleteResource(this.tenants, arg);
+          this.utilsService.deleteResource(this.tenants, arg);
           },
           error: (err) => {
             if (err.status === 409) {

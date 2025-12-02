@@ -31,8 +31,8 @@ export class DeleteConfirmationComponent implements OnInit {
   @Input() statsChanged = false;
   confirmFunction: () => void;
 
-  userStats: {total_reports: number; exclusive_reports: number} | null = null;
-  tenantStats: {open_reports: number; total_reports: number} | null = null;
+  userStats: {total_reports: number; exclusive_reports: number; last_update: string | null} | null = null;
+  tenantStats: {open_reports: number; total_reports: number; last_update: string | null} | null = null;
   loadingStats = false;
 
   ngOnInit() {
@@ -82,8 +82,12 @@ export class DeleteConfirmationComponent implements OnInit {
       this.httpService.requestAdminUserStats(this.user.id).subscribe({
         next: (freshStats) => {
           this.loadingStats = false;
-          if (freshStats.total_reports !== this.userStats!.total_reports ||
-              freshStats.exclusive_reports !== this.userStats!.exclusive_reports) {
+          const statsChanged = (
+            freshStats.total_reports !== this.userStats!.total_reports ||
+            freshStats.exclusive_reports !== this.userStats!.exclusive_reports ||
+            freshStats.last_update !== this.userStats!.last_update
+          );
+          if (statsChanged) {
             this.userStats = freshStats;
             this.statsChanged = true;
           } else {
@@ -105,8 +109,12 @@ export class DeleteConfirmationComponent implements OnInit {
       this.httpService.requestAdminTenantStats(this.tenant.id).subscribe({
         next: (freshStats) => {
           this.loadingStats = false;
-          if (freshStats.open_reports !== this.tenantStats!.open_reports ||
-              freshStats.total_reports !== this.tenantStats!.total_reports) {
+          const statsChanged = (
+            freshStats.open_reports !== this.tenantStats!.open_reports ||
+            freshStats.total_reports !== this.tenantStats!.total_reports ||
+            freshStats.last_update !== this.tenantStats!.last_update
+          );
+          if (statsChanged) {
             this.tenantStats = freshStats;
             this.statsChanged = true;
           } else {

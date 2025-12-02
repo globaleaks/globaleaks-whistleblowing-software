@@ -120,8 +120,10 @@ def db_get_tenant_stats(session, tid):
 
     :param session: An ORM session
     :param tid: A tenant ID
-    :return: Dictionary with open_reports and total_reports counts
+    :return: Dictionary with open_reports, total_reports counts, and last_update timestamp
     """
+    from sqlalchemy import func
+
     total_reports = session.query(models.InternalTip).filter(
         models.InternalTip.tid == tid
     ).count()
@@ -131,7 +133,17 @@ def db_get_tenant_stats(session, tid):
         models.InternalTip.status != 'closed'
     ).count()
 
-    return {'open_reports': open_reports, 'total_reports': total_reports}
+    # Get the latest update timestamp from reports in this tenant
+    # This helps detect changes even if the count stays the same (e.g., one deleted, one added)
+    last_update = session.query(func.max(models.InternalTip.update_date)).filter(
+        models.InternalTip.tid == tid
+    ).scalar()
+
+    return {
+        'open_reports': open_reports,
+        'total_reports': total_reports,
+        'last_update': last_update.isoformat() if last_update else None
+    }
 
 
 @transact
@@ -462,17 +474,20 @@ class TenantInstance(BaseHandler):
 
         expected_open = self.request.args.get(b'expected_open', [None])[0]
         expected_total = self.request.args.get(b'expected_total', [None])[0]
+        expected_last_update = self.request.args.get(b'expected_last_update', [None])[0]
 
         if expected_open is not None:
             expected_open = int(expected_open)
         if expected_total is not None:
             expected_total = int(expected_total)
+        if expected_last_update is not None:
+            expected_last_update = expected_last_update.decode('utf-8') if isinstance(expected_last_update, bytes) else expected_last_update
 
-        yield tw(db_delete_tenant, self.request.tid, self.session, tid, expected_open, expected_total)
+        yield tw(db_delete_tenant, self.request.tid, self.session, tid, expected_open, expected_total, expected_last_update)
 
 
 @transact
-def db_delete_tenant(session, request_tid, user_session, tid, expected_open=None, expected_total=None):
+def db_delete_tenant(session, request_tid, user_session, tid, expected_open=None, expected_total=None, expected_last_update=None):
     """
     Delete a tenant after validating stats.
 
@@ -482,13 +497,20 @@ def db_delete_tenant(session, request_tid, user_session, tid, expected_open=None
     :param tid: The tenant ID to delete
     :param expected_open: Expected open reports count
     :param expected_total: Expected total reports count
+    :param expected_last_update: Expected last update timestamp
     """
     # Get tenant stats before deletion for audit log
     stats = db_get_tenant_stats(session, tid)
 
     # If expected stats were provided, validate they match current stats
+    # This prevents race conditions where reports change between viewing stats and confirming deletion
     if expected_open is not None and expected_total is not None:
-        if stats['open_reports'] != expected_open or stats['total_reports'] != expected_total:
+        stats_changed = (
+            stats['open_reports'] != expected_open or
+            stats['total_reports'] != expected_total or
+            stats['last_update'] != expected_last_update
+        )
+        if stats_changed:
             raise errors.TenantStatsChanged
 
     db_del(session, models.Tenant, models.Tenant.id == tid)
