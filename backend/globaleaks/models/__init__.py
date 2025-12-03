@@ -399,6 +399,7 @@ class _Context(Model):
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
     additional_questionnaire_id = Column(UnicodeText(36), index=True)
     hidden = Column(Boolean, default=False, nullable=False)
+    deleted = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
 
     unicode_keys = [
@@ -422,6 +423,7 @@ class _Context(Model):
 
     bool_keys = [
         'hidden',
+        'deleted',
         'select_all_receivers',
         'show_context',
         'show_receivers_in_alphabetical_order',

@@ -71,8 +71,7 @@ export class SiteslistComponent {
       modalRef.componentInstance.tenant = arg;
       modalRef.componentInstance.statsChanged = statsChanged;
 
-      modalRef.componentInstance.confirmFunction = () => {
-        const stats = modalRef.componentInstance.tenantStats;
+      modalRef.componentInstance.confirmFunction = (stats: any) => {
         observer.complete();
         const url = "api/admin/tenants/" + arg.id;
         return this.httpService.requestDeleteTenant(url, stats || undefined).subscribe({

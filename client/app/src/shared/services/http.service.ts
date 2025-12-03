@@ -453,8 +453,20 @@ export class HttpService {
     return this.httpClient.put<contextResolverModel>("api/admin/contexts/" + id, param);
   }
 
-  requestDeleteAdminContext(id: string): Observable<contextResolverModel> {
-    return this.httpClient.delete<contextResolverModel>("api/admin/contexts/" + id);
+  requestDeleteAdminContext(id: string, expectedStats?: {open_reports: number; total_reports: number; last_update: string | null}): Observable<contextResolverModel> {
+    let url = "api/admin/contexts/" + id;
+    if (expectedStats) {
+      let params = `?expected_open=${expectedStats.open_reports}&expected_total=${expectedStats.total_reports}`;
+      if (expectedStats.last_update) {
+        params += `&expected_last_update=${encodeURIComponent(expectedStats.last_update)}`;
+      }
+      url += params;
+    }
+    return this.httpClient.delete<contextResolverModel>(url);
+  }
+
+  requestAdminContextStats(contextId: string): Observable<{open_reports: number; total_reports: number; last_update: string | null}> {
+    return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string | null}>("api/admin/contexts/" + contextId + "/stats");
   }
 
   requestDeleteStatus(url: string): Observable<Status> {

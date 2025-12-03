@@ -8,6 +8,7 @@ import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
+import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 
 
 @Component({
@@ -28,11 +29,13 @@ export class DeleteConfirmationComponent implements OnInit {
   @Input() operation: string;
   @Input() user: User;
   @Input() tenant: tenantResolverModel;
+  @Input() context: contextResolverModel;
   @Input() statsChanged = false;
-  confirmFunction: () => void;
+  confirmFunction: (stats?: any) => void;
 
   userStats: {total_reports: number; exclusive_reports: number; last_update: string | null} | null = null;
   tenantStats: {open_reports: number; total_reports: number; last_update: string | null} | null = null;
+  contextStats: {open_reports: number; total_reports: number; last_update: string | null} | null = null;
   loadingStats = false;
 
   ngOnInit() {
@@ -41,6 +44,9 @@ export class DeleteConfirmationComponent implements OnInit {
     }
     if (this.tenant) {
       this.loadTenantStats();
+    }
+    if (this.context) {
+      this.loadContextStats();
     }
   }
 
@@ -62,6 +68,19 @@ export class DeleteConfirmationComponent implements OnInit {
     this.httpService.requestAdminTenantStats(this.tenant.id).subscribe({
       next: (stats) => {
         this.tenantStats = stats;
+        this.loadingStats = false;
+      },
+      error: () => {
+        this.loadingStats = false;
+      }
+    });
+  }
+
+  loadContextStats() {
+    this.loadingStats = true;
+    this.httpService.requestAdminContextStats(this.context.id).subscribe({
+      next: (stats) => {
+        this.contextStats = stats;
         this.loadingStats = false;
       },
       error: () => {
@@ -130,12 +149,41 @@ export class DeleteConfirmationComponent implements OnInit {
       return;
     }
 
+    // For context/channel deletion, verify stats haven't changed
+    if (this.context && this.contextStats) {
+      this.loadingStats = true;
+      this.httpService.requestAdminContextStats(this.context.id).subscribe({
+        next: (freshStats) => {
+          this.loadingStats = false;
+          const statsChanged = (
+            freshStats.open_reports !== this.contextStats!.open_reports ||
+            freshStats.total_reports !== this.contextStats!.total_reports ||
+            freshStats.last_update !== this.contextStats!.last_update
+          );
+          if (statsChanged) {
+            this.contextStats = freshStats;
+            this.statsChanged = true;
+          } else {
+            this.statsChanged = false;
+            this.proceedWithDeletion();
+          }
+        },
+        error: () => {
+          this.loadingStats = false;
+          this.proceedWithDeletion();
+        }
+      });
+      return;
+    }
+
     this.proceedWithDeletion();
   }
 
   private proceedWithDeletion() {
+    // Capture stats BEFORE closing the modal (which destroys the component)
+    const stats = this.userStats || this.tenantStats || this.contextStats;
     this.cancel();
-    this.confirmFunction();
+    this.confirmFunction(stats);
     if (this.args) {
       if (this.args.operation === "delete") {
         return this.http.delete("api/recipient/rtips/" + this.args.tip.id)

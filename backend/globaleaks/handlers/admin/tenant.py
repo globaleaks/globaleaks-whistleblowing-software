@@ -486,7 +486,6 @@ class TenantInstance(BaseHandler):
         yield tw(db_delete_tenant, self.request.tid, self.session, tid, expected_open, expected_total, expected_last_update)
 
 
-@transact
 def db_delete_tenant(session, request_tid, user_session, tid, expected_open=None, expected_total=None, expected_last_update=None):
     """
     Delete a tenant after validating stats.
