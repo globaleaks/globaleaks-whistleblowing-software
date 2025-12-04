@@ -1,4 +1,5 @@
 import copy
+from globaleaks.utils.etag import check_etag, update_etag
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
@@ -299,6 +300,8 @@ def db_update_field(session, tid, field_id, request, language):
 
     check_field_association(session, tid, request)
 
+    check_etag(session, tid, request, "questionnaire")
+
     fill_localized_keys(request, models.Field.localized_keys, language)
 
     if field.instance != 'reference' or field.template_id == 'whistleblower_identity':
@@ -308,6 +311,8 @@ def db_update_field(session, tid, field_id, request, language):
 
     for trigger in request.get('triggered_by_options', []):
         db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
+
+    update_etag(session, tid, "questionnaire")
 
     if field.instance != 'reference':
         db_update_fieldoptions(session, field.id, request['options'], language)

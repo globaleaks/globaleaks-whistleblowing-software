@@ -4,7 +4,7 @@ export class auditlogResolverModel {
   severity: number;
   user_id?: string;
   object_id?: string;
-  data?: Data;
+  data?: any;
 }
 
 export class Data {

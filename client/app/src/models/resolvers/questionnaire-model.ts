@@ -45,5 +45,6 @@ export class questionnaireResolverModel {
   editable: boolean;
   name: string;
   key: string;
+  etag_questionnaire: string;
   steps: Step[];
 }

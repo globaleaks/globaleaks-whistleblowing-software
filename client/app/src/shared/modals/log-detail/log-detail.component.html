@@ -1,0 +1,72 @@
+<div class="modal-header">
+  <h5 class="modal-title">{{ 'Details' | translate }}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
+</div>
+<div class="modal-body">
+  <div class="mb-3">
+    <span class="badge bg-secondary">{{ data.type }}</span>
+  </div>
+  <div class="log-content">
+    @for (key of getKeys(data.data); track key) {
+    <div class="mb-3 p-2 border-start border-3 border-primary">
+      <div class="fw-semibold text-dark mb-1">{{ formatKey(key) }}</div>
+
+      @if (isSimpleValue(data.data[key])) {
+      <div class="text-muted small">{{ formatValue(data.data[key]) }}</div>
+      }
+      @else if (isOldNewObject(data.data[key])) {
+      <div class="d-flex gap-3">
+        @if (data.data[key].old !== undefined) {
+        <div class="flex-fill">
+          <small class="text-muted d-block">From</small>
+          <div class="bg-light p-1 rounded">{{ formatValue(data.data[key].old) }}</div>
+        </div>
+        }
+        @if (data.data[key].new !== undefined) {
+        <div class="flex-fill">
+          <small class="text-muted d-block">To</small>
+          <div class="bg-success bg-opacity-10 p-1 rounded">{{ formatValue(data.data[key].new) }}</div>
+        </div>
+        }
+      </div>
+      }
+      @else if (isRedactionField(key)) {
+      <div class="text-muted small">{{ formatRedactionRanges(data.data[key]) }}</div>
+      }
+      @else if (key === 'l10n') {
+      <div class="mt-2">
+        @for (lang of getKeys(data.data[key]); track lang) {
+        <div class="mb-2">
+          <div class="fw-medium text-info">{{ lang.toUpperCase() }}</div>
+          @for (subkey of getKeys(data.data[key][lang]); track subkey) {
+          <div class="ms-3 mb-2 p-2 bg-light rounded">
+            <div class="fw-medium small">{{ formatKey(subkey) }}</div>
+            <div class="d-flex gap-2 mt-1">
+              @if (data.data[key][lang][subkey].old !== undefined) {
+              <div class="flex-fill">
+                <small class="text-muted">From</small>
+                <div class="small">{{ formatValue(data.data[key][lang][subkey].old) }}</div>
+              </div>
+              }
+              @if (data.data[key][lang][subkey].new !== undefined) {
+              <div class="flex-fill">
+                <small class="text-muted">To</small>
+                <div class="small text-success">{{ formatValue(data.data[key][lang][subkey].new) }}</div>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+    {{ 'Close' | translate }}
+  </button>
+</div>

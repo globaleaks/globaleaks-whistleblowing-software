@@ -28,6 +28,13 @@ class Int(Item):
 class Bool(Item):
     _type = bool
 
+class Dict(Item):
+    _type = dict
+
+    def __init__(self, *args, **kwargs):
+        if 'default' not in kwargs:
+            kwargs['default'] = {}
+        Item.__init__(self, *args, **kwargs)
 
 ConfigDescriptor = {
     'acme': Bool(default=False),
@@ -148,7 +155,8 @@ ConfigDescriptor = {
     'forwarding_enabled': Bool(default=False),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='2:00'),
-    'backup_path': Unicode(default='/var/backup/')
+    'backup_path': Unicode(default='/var/backup/'),
+    'etags': Dict(default={"node": str(uuid4()),"questionnaire": str(uuid4()),"user": str(uuid4())})
 }
 
 
@@ -241,7 +249,8 @@ ConfigFilters = {
         'backup_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
-        'forwarding_enabled'
+        'forwarding_enabled',
+        'etag_node'
     ],
     'admin_node': [
         'acme',
@@ -309,7 +318,8 @@ ConfigFilters = {
         'backup_time',
         'antivirus_enabled',
         'antivirus_clamd_ip',
-        'antivirus_clamd_port'
+        'antivirus_clamd_port',
+        'etag_node'
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
@@ -402,7 +412,8 @@ ConfigFilters = {
         'antivirus_enabled',
         'backup_enabled',
         'antivirus_clamd_ip',
-        'antivirus_clamd_port'
+        'antivirus_clamd_port',
+        'etag_node'
     ],
     'tenant': [
         'uuid',

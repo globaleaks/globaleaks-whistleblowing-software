@@ -77,4 +77,5 @@ export class nodeResolverModel {
   profile:boolean;
   is_profile:boolean;
   tid: number;
+  etag_node: string;
 }

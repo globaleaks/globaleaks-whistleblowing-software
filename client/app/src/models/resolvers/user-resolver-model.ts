@@ -14,6 +14,7 @@ export class UserProfile {
     can_redact_information: boolean;
   };
   custom: boolean;
+  etag_user: string;
 }
 
 export class User {
@@ -48,4 +49,5 @@ export class User {
   newpassword: boolean;
   profile_id: string;
   profile: UserProfile;
+  etag_user: string;
 }

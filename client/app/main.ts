@@ -38,7 +38,7 @@ import { MarkdownRendererService } from '@app/services/helper/markdown.service';
 import { TranslatorPipe } from "@app/shared/pipes/translate";
 import { TranslateService, TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient, HttpClient } from "@angular/common/http";
-import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor } from "@app/services/root/app-interceptor.service";
+import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor, EtagInterceptor } from "@app/services/root/app-interceptor.service";
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { FlowInjectionToken, NgxFlowModule } from "@flowjs/ngx-flow";
 import { NgbDatepickerI18n, NgbModule, NgbPaginationConfig, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -84,6 +84,7 @@ bootstrapApplication(AppComponent, {
         { provide: HTTP_INTERCEPTORS, useClass: appInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorCatchingInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: CompletedInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: EtagInterceptor, multi: true },
         { provide: FlowInjectionToken, useValue: Flow },
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },

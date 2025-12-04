@@ -35,7 +35,13 @@
         }
         @case (8) {
           <div>
-            <span>{{'Forbidden operation'|translate}}</span>
+            @if (appDataService.errorCodes.message?.includes('CONCURRENT_UPDATE')) {
+              <span>
+                {{ 'Changes were made by another admin. Please refresh.' | translate }}
+              </span>
+            } @else {
+              <span>{{ 'Forbidden operation' | translate }}</span>
+            }
           </div>
         }
         @case (12) {

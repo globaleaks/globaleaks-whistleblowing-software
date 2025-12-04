@@ -6,5 +6,6 @@ export class NewStep {
   children = [];
   questionnaire_id = "";
   triggered_by_score = 0;
-  triggered_by_options = [];
+  triggered_by_options = [];;
+  etag_questionnaire = "";
 }

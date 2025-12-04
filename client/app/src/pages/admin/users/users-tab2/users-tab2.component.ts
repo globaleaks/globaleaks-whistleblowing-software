@@ -121,4 +121,8 @@ export class UsersTab2Component implements OnInit {
   toggleAddProfile(): void {
     this.showAddProfile = !this.showAddProfile;
   }
+
+  receiveData() {
+    this.getResolver();
+  }
 }

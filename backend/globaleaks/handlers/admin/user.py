@@ -1,6 +1,7 @@
 import copy
 import json
 from nacl.encoding import Base64Encoder
+from globaleaks.utils.etag import check_etag, update_etag
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -177,6 +178,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     fill_localized_keys(request, models.User.localized_keys, language)
 
     user = db_get_user(session, tid, user_id)
+    check_etag(session, tid, request, "user")
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
         # Delete profiles when:
@@ -210,6 +212,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     parse_pgp_options(user, request)
 
     user.update(request)
+    update_etag(session, tid, "user")
 
     return serialize_user(session, user, language)
 

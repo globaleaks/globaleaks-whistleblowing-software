@@ -31,6 +31,8 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
+import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 @Injectable({
   providedIn: "root"
 })
@@ -46,6 +48,8 @@ export class UtilsService {
   private modalService = inject(NgbModal);
   private preferenceResolver = inject(PreferenceResolver);
   private router = inject(Router);
+  private nodeResolver = inject(NodeResolver);
+  private questionnairesResolver = inject(QuestionnairesResolver);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
@@ -856,4 +860,41 @@ export class UtilsService {
     if (role === 'receiver') return 'Recipient';
     return role.charAt(0).toUpperCase() + role.slice(1);
   }
+
+  getEtag(name: string): { key: string, value: string } | null {
+    if (name === "node") {
+      const value = this.nodeResolver?.dataModel?.etag_node;
+      return value ? { key: "etag_node", value } : null;
+    }
+  
+    if (["questionnaires", "fields", "steps", "fieldtemplates"].includes(name)) {
+      const questionnaires = this.questionnairesResolver?.dataModel;
+      if (Array.isArray(questionnaires)) {
+        const item = questionnaires.find(q => q?.etag_questionnaire);
+        return item?.etag_questionnaire
+          ? { key: "etag_questionnaire", value: item.etag_questionnaire }
+          : null;
+      }
+    }
+  
+    return null;
+  }
+
+
+  setEtag(name: string, etag: string): void {
+    if (!etag) return;
+  
+    if (name === "node" && this.nodeResolver?.dataModel) {
+      this.nodeResolver.dataModel.etag_node = etag;
+      return;
+    }
+  
+    if (["questionnaires", "fields", "steps", "fieldtemplates"].includes(name) && Array.isArray(this.questionnairesResolver?.dataModel)) {
+      this.questionnairesResolver.dataModel.forEach(q => {
+        if (q) q.etag_questionnaire = etag;
+      });
+      return;
+    }
+  }
+
 }

@@ -1,4 +1,5 @@
 # Handlers dealing with user preferences
+from globaleaks.models.config import ConfigFactory
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
@@ -31,13 +32,15 @@ def serialize_user_profile(session, profile):
     :param user: The user profile object to serialize.
     :return: A dictionary containing user profile data.
     """
+    config = ConfigFactory(session, profile.tid)
     user_profile = {
         'id': profile.id,
         'tid': profile.tid,
         'name': profile.name,
         'role': profile.role,
         'roles': sorted(profile.roles_list),
-        'permissions': {}
+        'permissions': {},
+        'etag_user': config.get_val("etags")["user"],
     }
 
     for r in user_permissions:
@@ -62,6 +65,7 @@ def serialize_user(session, user, language):
                                      .filter(models.ReceiverContext.receiver_id == user.id)]
 
     profile = session.query(models.UserProfile).filter(models.UserProfile.id == user.profile_id).first()
+    config = ConfigFactory(session, user.tid)
 
     ret = {
         'id': user.id,
@@ -95,7 +99,8 @@ def serialize_user(session, user, language):
         'send_activation_link': False,
         'forcefully_selected': False,
         'profile_id': user.profile_id,
-        'profile': serialize_user_profile(session, profile)
+        'profile': serialize_user_profile(session, profile),
+        'etag_user': config.get_val("etags")["user"],
     }
 
     if State.tenants[user.tid].cache.two_factor and \

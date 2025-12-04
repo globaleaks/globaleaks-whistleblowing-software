@@ -49,7 +49,7 @@
     @if (!profile.custom) {
       <div class="profileList">
         <form id="profile-{{index}}" name="editProfile" #editProfile="ngForm" novalidate>
-          <src-profile-editor [profile]="profile" [editProfile]="editProfile" [index]="index" [profiles]="profilesData"></src-profile-editor>
+          <src-profile-editor (dataToParent)="receiveData()" [profile]="profile" [editProfile]="editProfile" [index]="index" [profiles]="profilesData"></src-profile-editor>
         </form>
       </div>
     }

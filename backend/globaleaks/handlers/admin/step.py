@@ -1,3 +1,4 @@
+from globaleaks.utils.etag import check_etag, update_etag
 from globaleaks import models
 from globaleaks.handlers.admin.field import db_create_field, db_update_field, db_create_option_trigger, db_reset_option_triggers
 from globaleaks.handlers.base import BaseHandler
@@ -51,6 +52,7 @@ def db_update_step(session, tid, step_id, request, language):
                           models.Questionnaire.tid == tid))
 
     fill_localized_keys(request, models.Step.localized_keys, language)
+    check_etag(session, tid, request, "questionnaire")
 
     step.update(request)
 
@@ -62,6 +64,7 @@ def db_update_step(session, tid, step_id, request, language):
     for trigger in request.get('triggered_by_options', []):
         db_create_option_trigger(session, trigger['option'], 'step', step.id, trigger.get('sufficient', True))
 
+    update_etag(session, tid, "questionnaire")
     return serialize_step(session, tid, step, language)
 
 

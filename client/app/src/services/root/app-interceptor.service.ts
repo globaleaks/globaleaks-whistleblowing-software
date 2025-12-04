@@ -7,7 +7,7 @@ import {
   HttpClient,
   HttpErrorResponse,
 } from "@angular/common/http";
-import {catchError, finalize, from, Observable, switchMap, throwError} from "rxjs";
+import {catchError, finalize, from, Observable, switchMap, tap, throwError} from "rxjs";
 import {TokenResponse} from "@app/models/authentication/token-response";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -15,6 +15,7 @@ import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 import {of} from 'rxjs';
 import {timer} from 'rxjs';
+import {UtilsService} from "@app/shared/services/utils.service";
 
 const protectedUrls = [
   "api/wizard",
@@ -81,6 +82,40 @@ export class appInterceptor implements HttpInterceptor {
     } else {
       return next.handle(authRequest);
     }
+  }
+}
+
+@Injectable()
+export class EtagInterceptor implements HttpInterceptor {
+  private utilsService = inject(UtilsService);
+
+  private relevantApis = ['questionnaires', 'node', 'fields', 'steps', 'fieldtemplates'];
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    let finalReq = req;
+    const matchedApi = this.relevantApis.find(api => req.url.includes(api));
+    const isMutation = matchedApi && ['PUT'].includes(req.method);
+    if (isMutation) {
+      const etag = this.utilsService.getEtag(matchedApi);
+      if (etag) {
+        finalReq = req.clone({ body: {...req.body, [etag.key]: etag.value} });
+      }
+    }
+    return next.handle(finalReq).pipe(
+      tap(event => {
+        if (event.type === 4 && isMutation) {
+          const responseBody = event.body;
+          if (responseBody && typeof responseBody === 'object') {
+            const possibleKeys = ['etag_node', 'etag_questionnaire'];
+            const newKey = possibleKeys.find(k => k in responseBody);
+            if (newKey) {
+              const newValue = responseBody[newKey];
+              this.utilsService.setEtag(matchedApi, newValue);
+            }
+          }
+        }
+      })
+    );
   }
 }
 

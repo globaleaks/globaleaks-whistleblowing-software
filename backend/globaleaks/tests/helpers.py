@@ -185,7 +185,8 @@ def get_dummy_step():
         'triggered_by_score': 0,
         'triggered_by_options': [],
         'questionnaire_id': '',
-        'children': []
+        'children': [],
+        'etag_questionnaire': ''
     }
 
 
@@ -212,7 +213,8 @@ def get_dummy_field(type='checkbox'):
         'x': 1,
         'width': 0,
         'triggered_by_score': 0,
-        'triggered_by_options': []
+        'triggered_by_options': [],
+        'etag_questionnaire': ''
     }
 
 
@@ -279,12 +281,14 @@ class MockDict:
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,
-            'can_redact_information': True
+            'can_redact_information': True,
+            'etag_user': ''
         }
 
         self.dummyQuestionnaire = {
             'id': 'test',
-            'name': 'test'
+            'name': 'test',
+            'etag_questionnaire': ''
         }
 
         self.dummyContext = {
@@ -374,7 +378,8 @@ class MockDict:
             'custom_support_url': '',
             'pgp': False,
             'user_privacy_policy_text': '',
-            'user_privacy_policy_url': ''
+            'user_privacy_policy_url': '',
+            'etag_node': ''
         }
 
         self.dummyNetwork = {
@@ -1071,13 +1076,16 @@ class TestHandler(TestGLWithPopulatedDB):
         if isinstance(self._test_desc['model'](), models.User):
             request['roles'] = [request['role']]
             request['profile'] = {}
+            request['etag_user'] = ''
         elif isinstance(self._test_desc['model'](), models.UserProfile):
             request['role'] = 'admin'
             request['roles'] = ['admin', 'recipient']
             request['permissions'] = {}
+            request['etag_user'] = ''
             for p in user_permissions:
                 request['permissions'][p] = False
-
+        elif isinstance(self._test_desc['model'](), models.Questionnaire):
+            request['etag_questionnaire'] = ''
 
         return request
 

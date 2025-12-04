@@ -14,6 +14,7 @@ export class NewUserProfile {
   role = "";
   roles: string[] = [];
   permissions = new NewUserPermissions();
+  etag_user = "";
 }
 
 export class NewUser {
@@ -36,4 +37,5 @@ export class NewUser {
   profile_id = "";
   profile = new NewUserProfile();
   send_activation_link = true;
+  etag_user = "";
 }
