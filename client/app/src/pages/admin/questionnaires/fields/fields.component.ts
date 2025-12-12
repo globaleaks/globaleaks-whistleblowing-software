@@ -86,7 +86,10 @@ export class FieldsComponent implements OnInit {
 
   saveField(field: Step | Field,editing?:boolean) {
     this.utilsService.assignUniqueOrderIndex(field.options);
-    return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe(_ => {
+    return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe(res => {
+      if(res){
+        this.field.etag = res.etag;
+      }
       if(!editing){
         this.dataToParent.emit()
       }

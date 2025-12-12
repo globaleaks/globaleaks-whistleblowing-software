@@ -130,7 +130,7 @@ AdminUserProfileDesc = {
     'role': user_role_regexp,
     'roles': [user_role_regexp],
     'permissions': [str],
-    'etag_user': str
+    'etag': str
 }
 
 AdminUserDesc = {
@@ -152,7 +152,7 @@ AdminUserDesc = {
     'profile_id': str,
     'profile': dict,
     'send_activation_link': bool,
-    'etag_user': str
+    'etag': str
 }
 
 UserUserDesc = {
@@ -170,7 +170,7 @@ UserUserDesc = {
     'language': str,
     'profile': dict,
     'notification': bool,
-    'etag_user': str
+    'etag': str
 }
 
 CommentDesc = {
@@ -251,7 +251,7 @@ AdminNodeDesc = {
     'pgp': bool,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str,
-    'etag_node': str
+    'etag': str
 }
 
 AdminNetworkDesc = {
@@ -335,7 +335,7 @@ AdminFieldDesc = {
     'children': list,
     'triggered_by_score': int,
     'triggered_by_options': list,
-    'etag_questionnaire':str
+    'etag':str
 }
 
 AdminFieldDescRaw = get_multilang_request_format(AdminFieldDesc, models.Field.localized_keys)
@@ -352,7 +352,7 @@ AdminStepDesc = {
     'order': int,
     'triggered_by_score': int,
     'triggered_by_options': list,
-    'etag_questionnaire':str
+    'etag':str
 }
 
 AdminStepDescRaw = get_multilang_request_format(AdminStepDesc, models.Step.localized_keys)
@@ -362,7 +362,7 @@ AdminQuestionnaireDesc = {
     'id': key_regexp_or_empty,
     'name': str,
     'steps': list,
-    'etag_questionnaire':str
+    'etag':str
 }
 
 AdminQuestionnaireDescRaw = get_multilang_request_format(AdminQuestionnaireDesc, models.Questionnaire.localized_keys)

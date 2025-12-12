@@ -89,7 +89,7 @@ export class appInterceptor implements HttpInterceptor {
 export class EtagInterceptor implements HttpInterceptor {
   private utilsService = inject(UtilsService);
 
-  private relevantApis = ['questionnaires', 'node', 'fields', 'steps', 'fieldtemplates'];
+  private relevantApis = ['node'];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let finalReq = req;
@@ -106,7 +106,7 @@ export class EtagInterceptor implements HttpInterceptor {
         if (event.type === 4 && isMutation) {
           const responseBody = event.body;
           if (responseBody && typeof responseBody === 'object') {
-            const possibleKeys = ['etag_node', 'etag_questionnaire'];
+            const possibleKeys = ['etag'];
             const newKey = possibleKeys.find(k => k in responseBody);
             if (newKey) {
               const newValue = responseBody[newKey];

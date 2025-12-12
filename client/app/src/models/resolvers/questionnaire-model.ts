@@ -38,6 +38,7 @@ export interface Step {
   description: string;
   hint: string;
   placeholder: string;
+  etag: string;
 }
 
 export class questionnaireResolverModel {
@@ -45,6 +46,6 @@ export class questionnaireResolverModel {
   editable: boolean;
   name: string;
   key: string;
-  etag_questionnaire: string;
+  etag: string;
   steps: Step[];
 }

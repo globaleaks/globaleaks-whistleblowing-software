@@ -186,7 +186,7 @@ def get_dummy_step():
         'triggered_by_options': [],
         'questionnaire_id': '',
         'children': [],
-        'etag_questionnaire': ''
+        'etag': ''
     }
 
 
@@ -214,7 +214,7 @@ def get_dummy_field(type='checkbox'):
         'width': 0,
         'triggered_by_score': 0,
         'triggered_by_options': [],
-        'etag_questionnaire': ''
+        'etag': ''
     }
 
 
@@ -282,13 +282,13 @@ class MockDict:
             'can_postpone_expiration': True,
             'can_mask_information': True,
             'can_redact_information': True,
-            'etag_user': ''
+            'etag': ''
         }
 
         self.dummyQuestionnaire = {
             'id': 'test',
             'name': 'test',
-            'etag_questionnaire': ''
+            'etag': ''
         }
 
         self.dummyContext = {
@@ -379,7 +379,7 @@ class MockDict:
             'pgp': False,
             'user_privacy_policy_text': '',
             'user_privacy_policy_url': '',
-            'etag_node': ''
+            'etag': ''
         }
 
         self.dummyNetwork = {
@@ -1076,16 +1076,16 @@ class TestHandler(TestGLWithPopulatedDB):
         if isinstance(self._test_desc['model'](), models.User):
             request['roles'] = [request['role']]
             request['profile'] = {}
-            request['etag_user'] = ''
+            request['etag'] = ''
         elif isinstance(self._test_desc['model'](), models.UserProfile):
             request['role'] = 'admin'
             request['roles'] = ['admin', 'recipient']
             request['permissions'] = {}
-            request['etag_user'] = ''
+            request['etag'] = ''
             for p in user_permissions:
                 request['permissions'][p] = False
         elif isinstance(self._test_desc['model'](), models.Questionnaire):
-            request['etag_questionnaire'] = ''
+            request['etag'] = ''
 
         return request
 

@@ -156,7 +156,7 @@ ConfigDescriptor = {
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='2:00'),
     'backup_path': Unicode(default='/var/backup/'),
-    'etags': Dict(default={"node": str(uuid4()),"questionnaire": str(uuid4()),"user": str(uuid4())})
+    'etag': Unicode(default=uuid4)
 }
 
 
@@ -250,7 +250,7 @@ ConfigFilters = {
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
         'forwarding_enabled',
-        'etag_node'
+        'etag'
     ],
     'admin_node': [
         'acme',
@@ -319,7 +319,7 @@ ConfigFilters = {
         'antivirus_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
-        'etag_node'
+        'etag'
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
@@ -413,7 +413,7 @@ ConfigFilters = {
         'backup_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
-        'etag_node'
+        'etag'
     ],
     'tenant': [
         'uuid',

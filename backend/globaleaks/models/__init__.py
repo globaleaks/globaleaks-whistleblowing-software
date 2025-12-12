@@ -496,6 +496,7 @@ class _Field(Model):
     template_id = Column(UnicodeText(36), index=True)
     template_override_id = Column(UnicodeText(36), index=True)
     statistical = Column(Boolean, default=False, nullable=False)
+    etag = Column(UnicodeText(36), default=uuid4)
 
     unicode_keys = ['type', 'instance', 'key']
     int_keys = ['x', 'y', 'width', 'triggered_by_score']
@@ -867,6 +868,7 @@ class _Questionnaire(Model):
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
     name = Column(UnicodeText, default='', nullable=False)
+    etag = Column(UnicodeText(36), default=uuid4)
 
     unicode_keys = ['name']
     list_keys = ['steps']
@@ -1004,6 +1006,7 @@ class _Step(Model):
     description = Column(JSON, default=dict, nullable=False)
     triggered_by_score = Column(Integer, default=0, nullable=False)
     order = Column(Integer, default=0, nullable=False)
+    etag = Column(UnicodeText(36), default=uuid4)
 
     unicode_keys = ['questionnaire_id']
     int_keys = ['order', 'triggered_by_score']
@@ -1181,6 +1184,8 @@ class _User(Model):
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
     last_expiration_reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+    etag = Column(UnicodeText(36), default=uuid4)
+
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 
@@ -1240,6 +1245,7 @@ class _UserProfile(Model):
     tid = Column(Integer, default=1, nullable=False)
     name = Column(UnicodeText, default='', nullable=False)
     role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
+    etag = Column(UnicodeText(36), default=uuid4)
 
     unicode_keys = ['name', 'role']
 

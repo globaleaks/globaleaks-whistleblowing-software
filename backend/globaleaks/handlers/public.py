@@ -411,8 +411,6 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
     if tid in State.tenants and f_to_serialize.type == 'voice':
         State.tenants[tid].microphone = True
 
-    config = ConfigFactory(session, tid)
-
     ret = {
         'id': field.id,
         'instance': field.instance,
@@ -433,7 +431,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'triggered_by_options': db_get_triggers_by_type(session, 'field', field.id),
         'options': [serialize_field_option(o, language) for o in data['options'].get(f_to_serialize.id, [])],
         'children': children,
-        'etag_questionnaire': config.get_val("etags")["questionnaire"],
+        'etag': field.etag,
     }
 
     return get_localized_values(ret, f_to_serialize, f_to_serialize.localized_keys, language)
@@ -456,7 +454,6 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
 
     children = [serialize_field(session, tid, f, language, data, serialize_templates) for f in children]
     children.sort(key=lambda f: (f['y'], f['x']))
-    config = ConfigFactory(session, tid)
 
     ret = {
         'id': step.id,
@@ -465,7 +462,7 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
         'triggered_by_score': step.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'step', step.id),
         'children': children,
-        'etag_questionnaire': config.get_val("etags")["questionnaire"],
+        'etag': step.etag,
     }
 
     return get_localized_values(ret, step, step.localized_keys, language)
@@ -485,14 +482,13 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
     steps = session.query(models.Step).filter(models.Step.questionnaire_id == models.Questionnaire.id,
                                               models.Questionnaire.id == questionnaire.id) \
                                       .order_by(models.Step.order)
-    config = ConfigFactory(session, tid)
 
     ret = {
         'id': questionnaire.id,
         'editable': questionnaire.id not in default_questionnaires and questionnaire.tid == tid,
         'name': questionnaire.name,
         'steps': [serialize_step(session, tid, s, language, serialize_templates=serialize_templates) for s in steps],
-        'etag_questionnaire': config.get_val("etags")["questionnaire"],
+        'etag': questionnaire.etag,
     }
 
     return get_localized_values(ret, questionnaire, questionnaire.localized_keys, language)

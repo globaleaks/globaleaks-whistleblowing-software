@@ -32,7 +32,6 @@ def serialize_user_profile(session, profile):
     :param user: The user profile object to serialize.
     :return: A dictionary containing user profile data.
     """
-    config = ConfigFactory(session, profile.tid)
     user_profile = {
         'id': profile.id,
         'tid': profile.tid,
@@ -40,7 +39,7 @@ def serialize_user_profile(session, profile):
         'role': profile.role,
         'roles': sorted(profile.roles_list),
         'permissions': {},
-        'etag_user': config.get_val("etags")["user"],
+        'etag': profile.etag,
     }
 
     for r in user_permissions:
@@ -65,7 +64,6 @@ def serialize_user(session, user, language):
                                      .filter(models.ReceiverContext.receiver_id == user.id)]
 
     profile = session.query(models.UserProfile).filter(models.UserProfile.id == user.profile_id).first()
-    config = ConfigFactory(session, user.tid)
 
     ret = {
         'id': user.id,
@@ -100,7 +98,7 @@ def serialize_user(session, user, language):
         'forcefully_selected': False,
         'profile_id': user.profile_id,
         'profile': serialize_user_profile(session, profile),
-        'etag_user': config.get_val("etags")["user"],
+        'etag': user.etag,
     }
 
     if State.tenants[user.tid].cache.two_factor and \

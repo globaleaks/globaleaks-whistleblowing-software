@@ -12,11 +12,11 @@ from globaleaks.utils.onion import generate_onion_service_v3
 # they have on the root tenant
 inherit_from_root_tenant = ['default_questionnaire']
 
-root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etags"]
+root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etag"]
 
-secondary_tenant_keys = ["profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etags"]
+secondary_tenant_keys = ["profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etag"]
 
-protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etags"]
+protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants", "etag"]
 
 
 DEFAULT_PROFILE_ID = 1000001

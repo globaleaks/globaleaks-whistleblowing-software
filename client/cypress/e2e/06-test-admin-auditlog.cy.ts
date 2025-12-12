@@ -10,7 +10,7 @@ describe("Audit Log - View Details Modal", () => {
 
     cy.get("table tbody tr").should("have.length.greaterThan", 0);
 
-    cy.get(".fa-eye").first().click();
+    cy.get(".view-detail").first().click();
 
     cy.takeScreenshot("admin/audit_log_view_details_modal");
 

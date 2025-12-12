@@ -1,5 +1,5 @@
 import json
-from globaleaks.utils.etag import check_etag, update_etag
+from globaleaks.utils.etag import check_etag
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -68,6 +68,7 @@ def db_create_user_profile(session, tid, request):
     request['tid'] = tid
     profile = models.UserProfile(request)
     profile.role = request['role']
+    profile.etag = request['etag']
 
     sync_roles(session, profile, request)
     sync_permissions(session, profile, request)
@@ -117,12 +118,13 @@ def db_update_user_profile(session, tid, profile_id, request):
                      models.UserProfile,
                      (models.UserProfile.tid == tid,
                       models.UserProfile.id == profile_id))
-    check_etag(session, tid, request, "user")
+    check_etag(str(request['etag']), str(profile.etag))
+    profile.etag = str(uuid4())
+
     profile.update(request)
 
     sync_roles(session, profile, request)
     sync_permissions(session, profile, request)
-    update_etag(session, tid, "user")
 
     return serialize_user_profile(session, profile)
 

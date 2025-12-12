@@ -1,7 +1,7 @@
 import copy
 import json
 from nacl.encoding import Base64Encoder
-from globaleaks.utils.etag import check_etag, update_etag
+from globaleaks.utils.etag import check_etag
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -55,7 +55,8 @@ def db_create_user(session, tid, user_session, request, language):
           'id': request['id'],
           'role': request['role'],
           'roles':  [request['role']],
-          'permissions':  copy.deepcopy(user_permissions)
+          'permissions':  copy.deepcopy(user_permissions),
+          'etag': uuid4()
         }
 
         db_create_user_profile(session, tid, profile)
@@ -178,7 +179,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     fill_localized_keys(request, models.User.localized_keys, language)
 
     user = db_get_user(session, tid, user_id)
-    check_etag(session, tid, request, "user")
+    check_etag(str(request['etag']), str(user.etag))
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
         # Delete profiles when:
@@ -210,9 +211,9 @@ def db_update_user(session, tid, user_session, user_id, request, language):
 
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
+    user.etag = str(uuid4())
 
     user.update(request)
-    update_etag(session, tid, "user")
 
     return serialize_user(session, user, language)
 

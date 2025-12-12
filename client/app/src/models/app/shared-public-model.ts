@@ -9,6 +9,7 @@ export interface Step {
   children: Children[];
   label: string;
   description: string;
+  etag: string;
 }
 
 export interface Children {
@@ -38,6 +39,7 @@ export interface Children {
   hint: string;
   placeholder: string;
   enabled: boolean;
+  etag: string;
 }
 
 export interface Attrs {

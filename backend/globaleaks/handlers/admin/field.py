@@ -1,6 +1,7 @@
 import copy
-from globaleaks.utils.etag import check_etag, update_etag
+from globaleaks.utils.etag import check_etag
 from sqlalchemy.sql.expression import not_
+from globaleaks.utils.utility import uuid4
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -282,7 +283,7 @@ def create_field(session, tid, request, language):
     return serialize_field(session, tid, field, language)
 
 
-def db_update_field(session, tid, field_id, request, language):
+def db_update_field(session, tid, field_id, request, language, check=True):
     """
     Transaction for updating a field
 
@@ -300,7 +301,8 @@ def db_update_field(session, tid, field_id, request, language):
 
     check_field_association(session, tid, request)
 
-    check_etag(session, tid, request, "questionnaire")
+    if check:
+      check_etag(str(request['etag']), str(field.etag))
 
     fill_localized_keys(request, models.Field.localized_keys, language)
 
@@ -312,7 +314,8 @@ def db_update_field(session, tid, field_id, request, language):
     for trigger in request.get('triggered_by_options', []):
         db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
 
-    update_etag(session, tid, "questionnaire")
+    if check:
+      field.etag = str(uuid4())
 
     if field.instance != 'reference':
         db_update_fieldoptions(session, field.id, request['options'], language)

@@ -2,11 +2,10 @@
 from globaleaks import models
 from globaleaks.handlers import admin
 from globaleaks.handlers.admin.field import create_field, delete_field
-from globaleaks.orm import transact, tw
+from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
-from globaleaks.models import config
 
 @transact
 def get_id_of_first_step_of_questionnaire(session, questionnaire_id):
@@ -66,8 +65,7 @@ class TestFieldInstance(helpers.TestHandler):
         field = yield create_field(1, values, 'en')
 
         updated_sample_field = helpers.get_dummy_field()
-        etags = yield tw(config.db_get_config_variable, 1, 'etags')
-        updated_sample_field['etag_questionnaire'] = etags['questionnaire']
+        updated_sample_field['etag'] = field['etag']
         updated_sample_field['instance'] = 'instance'
         updated_sample_field['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
         updated_sample_field.update(type=u'inputbox', options=[], x=3, y=3)
@@ -131,8 +129,7 @@ class TestFieldTemplateInstance(helpers.TestHandlerWithPopulatedDB):
         updated_sample_field['options'] = []
         updated_sample_field['x'] = 3
         updated_sample_field['y'] = 3
-        etags = yield tw(config.db_get_config_variable, 1, 'etags')
-        updated_sample_field['etag_questionnaire'] = etags['questionnaire']
+        updated_sample_field['etag'] = field['etag']
         
         handler = self.request(updated_sample_field, role='admin')
         response = yield handler.put(field['id'])

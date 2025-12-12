@@ -863,18 +863,8 @@ export class UtilsService {
 
   getEtag(name: string): { key: string, value: string } | null {
     if (name === "node") {
-      const value = this.nodeResolver?.dataModel?.etag_node;
-      return value ? { key: "etag_node", value } : null;
-    }
-  
-    if (["questionnaires", "fields", "steps", "fieldtemplates"].includes(name)) {
-      const questionnaires = this.questionnairesResolver?.dataModel;
-      if (Array.isArray(questionnaires)) {
-        const item = questionnaires.find(q => q?.etag_questionnaire);
-        return item?.etag_questionnaire
-          ? { key: "etag_questionnaire", value: item.etag_questionnaire }
-          : null;
-      }
+      const value = this.nodeResolver?.dataModel?.etag;
+      return value ? { key: "etag", value } : null;
     }
   
     return null;
@@ -885,14 +875,7 @@ export class UtilsService {
     if (!etag) return;
   
     if (name === "node" && this.nodeResolver?.dataModel) {
-      this.nodeResolver.dataModel.etag_node = etag;
-      return;
-    }
-  
-    if (["questionnaires", "fields", "steps", "fieldtemplates"].includes(name) && Array.isArray(this.questionnairesResolver?.dataModel)) {
-      this.questionnairesResolver.dataModel.forEach(q => {
-        if (q) q.etag_questionnaire = etag;
-      });
+      this.nodeResolver.dataModel.etag = etag;
       return;
     }
   }

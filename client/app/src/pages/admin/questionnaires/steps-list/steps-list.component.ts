@@ -72,7 +72,10 @@ export class StepsListComponent implements OnInit {
   }
 
   saveStep(step: Step) {
-    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(_ => {
+    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(res => {
+      if(res){
+        this.step.etag = res.etag;
+      }
       this.toggleEditing();
     });
   }

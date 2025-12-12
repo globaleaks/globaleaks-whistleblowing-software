@@ -1,5 +1,4 @@
-from globaleaks.utils.etag import check_etag, update_etag
-from globaleaks.models.config import ConfigFactory
+from globaleaks.utils.etag import check_etag
 from globaleaks import models
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.base import BaseHandler
@@ -88,16 +87,16 @@ def db_update_questionnaire(session, tid, questionnaire_id, request, language):
     :param language: The language of the request
     :return: A serialized descriptor of the questionnaire
     """
-    check_etag(session, tid, request, "questionnaire")
     questionnaire = db_get(session,
                            models.Questionnaire,
                            (models.Questionnaire.tid == tid,
                             models.Questionnaire.id == questionnaire_id))
+    check_etag(str(request['etag']), str(questionnaire.etag))
 
     fill_localized_keys(request, models.Questionnaire.localized_keys, language)
+    questionnaire.etag = str(uuid4())
 
     questionnaire.update(request)
-    update_etag(session, tid, "questionnaire")
 
     return serialize_questionnaire(session, tid, questionnaire, language)
 

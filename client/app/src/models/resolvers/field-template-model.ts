@@ -27,6 +27,7 @@ export interface Field {
   hint: string;
   placeholder: string;
   enabled: boolean;
+  etag: string;
 }
 
 export class fieldtemplatesResolverModel {
@@ -55,4 +56,5 @@ export class fieldtemplatesResolverModel {
   description: string;
   hint: string;
   placeholder: string;
+  etag: string;
 }

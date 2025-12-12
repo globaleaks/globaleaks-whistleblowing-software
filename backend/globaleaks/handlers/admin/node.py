@@ -1,4 +1,4 @@
-from globaleaks.utils.etag import check_etag, update_etag
+from globaleaks.utils.etag import check_etag
 from globaleaks.utils.utility import uuid4
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -84,7 +84,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         ret['update_available'] = ret['version'] != ret['latest_version']
 
     ret.update(ConfigL10NFactory(session, tid).serialize(config_desc, language))
-    ret['etag_node'] = config.get_val("etags")["node"]
+    ret['etag'] = config.get_val("etag")
     return ret
 
 
@@ -102,7 +102,7 @@ def db_update_node(session, tid, user_session, request, language):
     root_config = ConfigFactory(session, 1)
 
     config = ConfigFactory(session, tid)
-    check_etag(session, tid, request, "node", config)
+    check_etag(str(request['etag']), str(config.get_val("etag")))
     
     old_config = config.serialize('node')
     old_config_l10n = ConfigL10NFactory(session, tid).serialize('node', language)
@@ -144,8 +144,7 @@ def db_update_node(session, tid, user_session, request, language):
     if changed_data:
         db_log(session, tid=tid, type='update_config', user_id=user_session.user_id, object_id=f'node:{tid}', data=changed_data)
 
-    update_etag(session, tid, "node", config)
-
+    config.set_val("etag", str(uuid4()))
     return db_admin_serialize_node(session, tid, language)
 
 

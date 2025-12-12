@@ -41,15 +41,20 @@ class MigrationScript(MigrationBase):
             for p in user_permissions:
                 if getattr(old_obj, p):
                     user_desc['permissions'][p] = True
-
-            new_profile = user.db_create_user_profile(self.session_new, user_desc.get("tid"), user_desc)
-
+            
+            profile = self.model_to['UserProfile']()
+            profile.id = str(uuid4())
+            profile.tid = user_desc.get("tid")
+            profile.name = user_desc.get("name")
+            profile.role = user_desc.get("role")
+            self.session_new.add(profile)
+            
             new_obj = self.model_to['User']()
             for key in new_obj.__mapper__.column_attrs.keys():
                 if hasattr(old_obj, key):
                     setattr(new_obj, key, getattr(old_obj, key))
-
-            new_obj.profile_id = new_profile['id']
+               
+            new_obj.profile_id = profile.id
             self.session_new.add(new_obj)
 
     def migrate_Tenant(self):
