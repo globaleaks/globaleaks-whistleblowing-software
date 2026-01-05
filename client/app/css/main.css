@@ -1201,3 +1201,7 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
     linear-gradient(-45deg, transparent 50%, #1d1f2a 50%) right 0.4em center / 8px 8px no-repeat;
   background-color: white;
 }
+
+.receiver-tooltip {
+  white-space: pre-line;
+}

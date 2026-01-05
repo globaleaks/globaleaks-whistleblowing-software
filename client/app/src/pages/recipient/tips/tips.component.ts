@@ -175,6 +175,8 @@ export class TipsComponent implements OnInit {
         uniqueKeys.push(scoreLabel);
         this.dropdownScoreData.push({id: this.dropdownScoreData.length + 1, label: scoreLabel});
       }
+      const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
+      tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
   }
 

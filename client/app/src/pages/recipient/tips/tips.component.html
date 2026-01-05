@@ -370,7 +370,9 @@
                   }
                 }
               </td>
-              <td class="TipInfoRecipientCount">{{tip.receiver_count}}</td>
+              <td class="TipInfoRecipientCount">
+                <span [ngbTooltip]="tip.receiver_names" tooltipClass="receiver-tooltip">{{tip.receiver_count}}</span>
+              </td>
               @if (appDataService.public.node.enable_scoring_system) {
               <td class="TipInfoScore">
                 @switch (tip.score) {

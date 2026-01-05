@@ -35,7 +35,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
 
     comments_by_itip = {}
     files_by_itip = {}
-    receiver_count_by_itip = {}
+    receiver_ids_by_itip = {}
 
     # Fetch comments count
     for itip_id, count in session.query(models.InternalTip.id,
@@ -56,11 +56,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                  .group_by(models.InternalTip.id):
         files_by_itip[itip_id] = count
 
-    # Fetch number of receivers who have access to each report
-    for itip_id, count in session.query(models.ReceiverTip.internaltip_id,
-                                        func.count(models.ReceiverTip.id)) \
-                                 .group_by(models.ReceiverTip.internaltip_id):
-        receiver_count_by_itip[itip_id] = count
+    # Fetch number of receivers ids who have access to each report
+    for itip_id, receiver_id in session.query(models.ReceiverTip.internaltip_id, models.ReceiverTip.receiver_id):
+        receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
 
     # Retrieve all channels that include this recipient, but only if
     # the recipients of those channels are not selectable.
@@ -133,7 +131,8 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'substatus': itip.substatus,
                 'file_count': files_by_itip.get(itip.id, 0),
                 'comment_count': comments_by_itip.get(itip.id, 0),
-                'receiver_count': receiver_count_by_itip.get(itip.id, 0),
+                'receiver_count': len(receiver_ids_by_itip.get(itip.id, [])),
+                'receiver_ids': receiver_ids_by_itip.get(itip.id, []),
                 'subscription': subscription,
                 'accessible': accessible
             }
