@@ -12,6 +12,7 @@
       <th>{{'Files'|translate}}</th>
       <th>{{'Receivers'|translate}}</th>
       <th>{{'Whistleblower\'s last access'|translate}}</th>
+      <th>{{'Audit log'|translate}}</th>
     </tr>
   </ng-template>
   <ng-template #content let-data="item" let-index="index">
@@ -34,6 +35,11 @@
       <td>{{data.files}}</td>
       <td>{{data.receiver_count}}</td>
       <td>{{data.last_access | date:'dd-MM-yyyy HH:mm'}}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary tip-action-logs" ngbTooltip="{{'Audit log' | translate}}" (click)="openTipAuditLogModal(data)">
+          <i class="fas fa-clipboard-list"></i>
+        </button>
+      </td>
     </tr>
   </ng-template>
 </app-paginated-interface>
