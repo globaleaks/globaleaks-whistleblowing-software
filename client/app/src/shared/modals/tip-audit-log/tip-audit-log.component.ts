@@ -111,17 +111,17 @@ export class TipAuditLogComponent implements OnInit {
 
   ngOnInit() {
     this.initializeTypeFilterData();
-    
+
     // Use the more recent of: last audit log view or last tip access
     const lastAuditLogView = this.tipAuditLogService.getLastAuditLogView(this.tipId);
-    
+
     if (lastAuditLogView) {
       this.lastAuditLogAccess = lastAuditLogView;
     } else if (this.lastAccess) {
       // Fallback to tip's last_access if audit log was never viewed
       this.lastAuditLogAccess = new Date(this.lastAccess);
     }
-    
+
     this.loadAuditLogData();
   }
 
@@ -209,7 +209,7 @@ export class TipAuditLogComponent implements OnInit {
       // Fallback: no audit log data available
       this.auditLogEntries = [];
       this.createDisplayedEntries();
-      
+
       // Mark as viewed even if no data
       if (this.tipId) {
         this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
@@ -222,11 +222,11 @@ export class TipAuditLogComponent implements OnInit {
       const actionInfo = this.formatActionText(log);
       const entryTimestamp = new Date(log.date);
       const isNew = this.lastAuditLogAccess ? entryTimestamp > this.lastAuditLogAccess : false;
-      
+
       if (isNew) {
         this.newEntriesCount++;
       }
-      
+
       return {
         id: `audit_${index}`,
         user: this.getUserName(log.user_id || ''),
@@ -240,7 +240,7 @@ export class TipAuditLogComponent implements OnInit {
     });
 
     this.createDisplayedEntries();
-    
+
     // Mark audit log as viewed after data is processed
     if (this.tipId) {
       this.tipAuditLogService.markAuditLogAsViewed(this.tipId);
@@ -400,11 +400,11 @@ export class TipAuditLogComponent implements OnInit {
   private groupAccessReportEntries(entries: AuditLogEntry[]): GroupedAuditLogEntry[] {
     const grouped: GroupedAuditLogEntry[] = [];
     const sortedEntries = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-    
+
     let i = 0;
     while (i < sortedEntries.length) {
       const currentEntry = sortedEntries[i];
-      
+
       if (currentEntry.action === 'access_report') {
         const { groupEntries, nextIndex } = this.collectConsecutiveAccessReports(sortedEntries, i);
         this.addGroupedOrSingleEntry(grouped, groupEntries, currentEntry, i);
@@ -414,7 +414,7 @@ export class TipAuditLogComponent implements OnInit {
         i++;
       }
     }
-    
+
     return grouped.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
 
@@ -422,20 +422,20 @@ export class TipAuditLogComponent implements OnInit {
     const currentEntry = sortedEntries[startIndex];
     const currentDayKey = this.getDayKey(currentEntry.timestamp);
     const groupEntries: AuditLogEntry[] = [currentEntry];
-    
+
     let j = startIndex + 1;
     while (j < sortedEntries.length && this.shouldGroupWithCurrent(sortedEntries[j], currentEntry, currentDayKey)) {
       groupEntries.push(sortedEntries[j]);
       j++;
     }
-    
+
     return { groupEntries, nextIndex: j };
   }
 
   private shouldGroupWithCurrent(nextEntry: AuditLogEntry, currentEntry: AuditLogEntry, currentDayKey: string): boolean {
     const nextDayKey = this.getDayKey(nextEntry.timestamp);
-    return nextEntry.action === 'access_report' && 
-           nextEntry.user === currentEntry.user && 
+    return nextEntry.action === 'access_report' &&
+           nextEntry.user === currentEntry.user &&
            nextDayKey === currentDayKey;
   }
 
@@ -449,7 +449,7 @@ export class TipAuditLogComponent implements OnInit {
     } else {
       const earliestEntry = groupEntries[0];
       const hasNewEntries = groupEntries.some(entry => entry.isNew);
-      
+
       grouped.push({
         ...earliestEntry,
         id: `group_${currentEntry.user}_${index}`,

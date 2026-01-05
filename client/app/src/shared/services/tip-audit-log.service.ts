@@ -66,11 +66,11 @@ export class TipAuditLogService {
    */
   hasNewEntriesSinceLastView(tipId: string, tipUpdateDate?: string, tipLastAccess?: string): boolean {
     const lastAuditLogView = this.getLastAuditLogView(tipId);
-    
+
     if (!lastAuditLogView) {
       return this.checkNewEntriesWithoutAuditView(tipUpdateDate, tipLastAccess);
     }
-    
+
     return this.checkNewEntriesSinceAuditView(tipUpdateDate, lastAuditLogView);
   }
 
@@ -80,7 +80,7 @@ export class TipAuditLogService {
   private checkNewEntriesWithoutAuditView(tipUpdateDate?: string, tipLastAccess?: string): boolean {
     if (!tipLastAccess) return true;
     if (!tipUpdateDate) return false;
-    
+
     const updateDate = new Date(tipUpdateDate);
     const lastAccessDate = new Date(tipLastAccess);
     return updateDate > lastAccessDate;
@@ -91,7 +91,7 @@ export class TipAuditLogService {
    */
   private checkNewEntriesSinceAuditView(tipUpdateDate: string | undefined, lastAuditLogView: Date): boolean {
     if (!tipUpdateDate) return false;
-    
+
     const updateDate = new Date(tipUpdateDate);
     return updateDate > lastAuditLogView;
   }
