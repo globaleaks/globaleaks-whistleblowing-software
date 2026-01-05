@@ -29,6 +29,8 @@ export interface rtipResolverModel {
   comment_count: number;
   accessible: boolean;
   data: Data;
+  receiver_ids: string[];
+  receiver_names?: string;
 }
 
 export type Answers = Record<string, {
