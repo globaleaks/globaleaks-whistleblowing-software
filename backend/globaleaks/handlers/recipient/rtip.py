@@ -12,7 +12,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import query_audit_logs_by_tip
+from globaleaks.handlers.admin.auditlog import get_audit_log
 
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
@@ -38,7 +38,7 @@ from globaleaks.utils.json import JSONEncoder
 def get_report_audit_log(session, tid, user_id, itip_id):
     _, _, _ = db_access_rtip(session, tid, user_id, itip_id)
 
-    return query_audit_logs_by_tip(session, tid, itip_id)
+    return get_audit_log(session, tid, itip_id)
 
 
 def db_notify_grant_access(session, user):

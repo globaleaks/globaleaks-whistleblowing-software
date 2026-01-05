@@ -192,7 +192,7 @@ export class TipAuditLogComponent implements OnInit {
       });
     } else if (userRole === 'admin' && this.tipId) {
       // Use admin audit log API
-      this.httpService.requestAdminTipAuditLogResource(this.tipId).subscribe({
+      this.httpService.requestAdminAuditLogByObjectResource(this.tipId).subscribe({
         next: (auditLogData: auditlogResolverModel[]) => {
           this.processAuditLogData(auditLogData);
         },

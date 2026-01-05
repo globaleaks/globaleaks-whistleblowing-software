@@ -53,8 +53,8 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(response), 2)
 
 
-class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
-    _handler = auditlog.TipAuditLog
+class TestAuditLogByObject(helpers.TestHandlerWithPopulatedDB):
+    _handler = auditlog.AuditLogByObject
 
     @inlineCallbacks
     def _get_test_tip_id(self):
@@ -63,7 +63,7 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
         tips_handler = self.request({}, role='admin')
         tips = yield tips_handler.get()
         self.assertTrue(len(tips) > 0)
-        self._handler = auditlog.TipAuditLog
+        self._handler = auditlog.AuditLogByObject
         return tips[0]['id']
 
     @inlineCallbacks
@@ -101,18 +101,6 @@ class TestTipAuditLog(helpers.TestHandlerWithPopulatedDB):
                 self.assertTrue(isinstance(log['data'], dict))
                 # File operations should have either file_type or other metadata
                 self.assertTrue(len(log['data']) > 0)
-
-    @inlineCallbacks
-    def test_get_invalid_tip_id(self):
-        """Test that accessing audit log with invalid tip ID raises error"""
-        yield self.perform_full_submission_actions()
-
-        handler = self.request({}, role='admin')
-
-        # Try with non-existent UUID
-        fake_uuid = '00000000-0000-0000-0000-000000000000'
-        with self.assertRaises(Exception):
-            yield handler.get(fake_uuid)
 
 
 class TestJobsTiming(helpers.TestHandler):

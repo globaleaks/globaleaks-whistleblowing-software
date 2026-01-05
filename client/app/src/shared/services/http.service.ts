@@ -309,8 +309,8 @@ export class HttpService {
     return this.httpClient.get<auditlogResolverModel[]>("api/whistleblower/wbtip/auditlog");
   }
 
-  requestAdminTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {
-    return this.httpClient.get<auditlogResolverModel[]>(`api/admin/auditlog/tips/${tipId}`);
+  requestAdminAuditLogbyObjectResource(tipId: string): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>(`api/admin/auditlog/object/${tipId}`);
   }
 
   addQuestionnaire(param: NewQuestionare): Observable<questionnaireResolverModel> {
