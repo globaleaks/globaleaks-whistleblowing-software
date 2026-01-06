@@ -44,20 +44,38 @@ export default defineConfig({
       });
 
       on("after:screenshot", (details) => {
-        if (details.path.includes("failed")) return;
+         if (details.path.includes("failed")) return;
 
-        const language = config.env.language;
-        const destPath = path.resolve(
-          __dirname,
-          "../documentation/images",
-          details.path.replace(".png", "").split("/").slice(-2).join("/") +
-            "." +
-            language +
-            ".png"
-        );
-        const destDir = path.dirname(destPath);
-        if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-        fs.copyFileSync(details.path, destPath);
+         const language = config.env.language;
+
+         // Get path relative to Cypress screenshots folder
+         const relativePath = path.relative(config.screenshotsFolder, details.path);
+
+         // Split path into segments
+         const parts = relativePath.split(path.sep);
+
+         // Remove the first segment (spec folder)
+         const strippedParts = parts.slice(1); // removes "02-test-admin-perform-wizard.cy.ts"
+
+         // Get folder and base name
+         const folder = path.dirname(strippedParts.join(path.sep));   // e.g., "wizard" or "mobile/wizard"
+         const baseName = path.basename(strippedParts.join(path.sep), ".png"); // e.g., "1"
+
+         // Build destination path
+         const destPath = path.resolve(
+           __dirname,
+           "../documentation/images",
+           folder,
+           `${baseName}.${language}.png`
+         );
+
+         // Ensure folder exists
+         const destDir = path.dirname(destPath);
+         if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+
+         // Copy the file
+         fs.copyFileSync(details.path, destPath);
+
         return { path: destPath };
       });
 
