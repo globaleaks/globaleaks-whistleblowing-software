@@ -398,13 +398,13 @@ class _Context(Model):
     score_threshold_medium = Column(Integer, default=0, nullable=False)
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
     additional_questionnaire_id = Column(UnicodeText(36), index=True)
-    hidden = Column(Boolean, default=False, nullable=False)
-    deleted = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
+    status = Column(Enum(EnumChannelStatus), default='enabled', nullable=False)
 
     unicode_keys = [
         'questionnaire_id',
-        'additional_questionnaire_id'
+        'additional_questionnaire_id',
+        'status'
     ]
 
     localized_keys = [
@@ -422,10 +422,7 @@ class _Context(Model):
     ]
 
     bool_keys = [
-        'hidden',
-        'deleted',
         'select_all_receivers',
-        'show_context',
         'show_receivers_in_alphabetical_order',
         'show_steps_navigation_interface',
         'allow_recipients_selection'
@@ -1155,7 +1152,6 @@ class _User(Model):
     description = Column(JSON, default=dict, nullable=False)
     public_name = Column(UnicodeText, default='', nullable=False)
     role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
-    enabled = Column(Boolean, default=True, nullable=False)
     last_login = Column(DateTime, default=datetime_null, nullable=False)
     mail_address = Column(UnicodeText, default='', nullable=False)
     language = Column(UnicodeText(12), nullable=False)
@@ -1177,7 +1173,7 @@ class _User(Model):
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     profile_id = Column(Integer, default='', nullable=False)
-    status = Column(Enum(EnumUserStatus), default='active', nullable=False)
+    status = Column(Enum(EnumUserStatus), default='enabled', nullable=False)
     idp_id = Column(UnicodeText(18), default='', nullable=False)
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
@@ -1195,8 +1191,7 @@ class _User(Model):
 
     localized_keys = ['description']
 
-    bool_keys = ['enabled',
-                 'password_change_needed',
+    bool_keys = ['password_change_needed',
                  'notification',
                  'can_delete_submission',
                  'can_postpone_expiration',

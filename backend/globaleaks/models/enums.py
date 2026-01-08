@@ -16,8 +16,16 @@ class EnumUserRole(_Enum):
 
 
 class EnumUserStatus(_Enum):
-    active = 0
-    suspend = 1
+    disabled = 0
+    enabled = 1
+    deleted = -1
+
+
+class EnumChannelStatus(_Enum):
+    disabled = 0
+    enabled = 1
+    hidden = 2
+    deleted = -1
 
 
 class EnumFieldInstance(_Enum):
