@@ -3,7 +3,11 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"></button>
 </div>
 <div class="modal-body">
-  <p>{{'Please note that all the associated data will be permanently deleted.' | translate}}</p>
+  @if (context) {
+    <p data-cy="context-delete-message">{{'The channel will be deleted while preserving existing reports.' | translate}}</p>
+  } @else {
+    <p data-cy="default-delete-message">{{'Please note that all the associated data will be permanently deleted.' | translate}}</p>
+  }
   @if (user) {
     @if (statsChanged) {
       <div class="alert alert-warning" role="alert" data-cy="user-stats-changed">
@@ -51,30 +55,6 @@
       </div>
       <div class="mb-2" data-cy="tenant-total-reports">
         <strong>{{'Total reports' | translate}}:</strong> {{tenantStats.total_reports}}
-      </div>
-    }
-  }
-  @if (context) {
-    @if (statsChanged) {
-      <div class="alert alert-warning" role="alert" data-cy="context-stats-changed">
-        <i class="fas fa-circle-exclamation me-1" aria-hidden="true"></i>
-        {{'The number of reports has changed. Please review before proceeding.' | translate}}
-      </div>
-    }
-    @if (loadingStats) {
-      <div class="text-center py-2">
-        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-      </div>
-    } @else if (contextStats) {
-      <div class="alert alert-info mb-3" role="alert" data-cy="context-audit-reminder">
-        <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
-        {{'Reports will be preserved. Recipients will be disassociated from this channel.' | translate}}
-      </div>
-      <div class="mb-2" data-cy="context-open-reports">
-        <strong>{{'Open reports' | translate}}:</strong> {{contextStats.open_reports}}
-      </div>
-      <div class="mb-2" data-cy="context-total-reports">
-        <strong>{{'Total reports' | translate}}:</strong> {{contextStats.total_reports}}
       </div>
     }
   }

@@ -139,7 +139,7 @@ export class SubmissionComponent implements OnInit {
   initializeSubmission() {
     let context = null;
 
-    this.selectable_contexts = this.appDataService.public.contexts.filter(context => !context.hidden);
+    this.selectable_contexts = this.appDataService.public.contexts.filter(context => context.status === 'enabled');
 
     if (this.appDataService.context_id) {
       context = this.appDataService.public.contexts.find(context => context.id === this.appDataService.context_id);

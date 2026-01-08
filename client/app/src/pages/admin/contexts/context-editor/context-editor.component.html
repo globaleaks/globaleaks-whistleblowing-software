@@ -2,8 +2,11 @@
   <div class="editorHeader row">
     <span class="col-md-7" (click)="toggleEditing()">
       <span>{{ contextResolver.name }}</span>
-      @if (contextResolver.hidden) {
+      @if (contextResolver.status === 'hidden') {
         <span class="badge bg-secondary">{{ 'Hidden' | translate }}</span>
+      }
+      @if (contextResolver.status === 'disabled') {
+        <span class="badge text-black bg-warning">{{ 'Disabled' | translate }}</span>
       }
     </span>
     <span class="col-md-5 clearfix">
@@ -133,8 +136,12 @@
               <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
             </div>
             <div class="form-group">
-              <input class="form-check-input" [(ngModel)]="contextResolver.hidden" name="contextResolver.hidden" type="checkbox" />
-              <label>{{ 'Hidden' | translate }}</label>
+              <label>{{ 'Status' | translate }}</label>
+              <select class="form-select" [(ngModel)]="contextResolver.status" name="contextResolver.status">
+                <option value="enabled">{{ 'Enabled' | translate }}</option>
+                <option value="disabled">{{ 'Disabled' | translate }}</option>
+                <option value="hidden">{{ 'Hidden' | translate }}</option>
+              </select>
             </div>
           </div>
         </div>

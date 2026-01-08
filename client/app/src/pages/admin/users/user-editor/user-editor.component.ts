@@ -136,7 +136,8 @@ export class UserEditorComponent implements OnInit {
       modalRef.componentInstance.user = arg;
       modalRef.componentInstance.statsChanged = statsChanged;
 
-      modalRef.componentInstance.confirmFunction = (stats: any) => {
+      modalRef.componentInstance.confirmFunction = () => {
+        const stats = modalRef.componentInstance.userStats;
         observer.complete();
         return this.utilsService.deleteAdminUser(arg.id, stats || undefined).subscribe({
           next: () => {

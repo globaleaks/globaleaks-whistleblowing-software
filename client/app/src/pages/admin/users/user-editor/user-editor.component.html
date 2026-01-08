@@ -3,7 +3,7 @@
     <span class="col-md-7" (click)="toggleEditing();">
       <span>{{ user.name }}</span>
       <span class="badge bg-primary">{{ getUserRoleOrProfileLabel(user) }}</span>
-      @if (!user.enabled) {
+      @if (user.status === 'disabled') {
         <span class="badge bg-secondary">{{ 'Disabled' | translate }}</span>
       }
       @if (nodeData.encryption && !user.encryption) {
@@ -119,9 +119,12 @@
            </div>
           }
           <div class="form-group">
-            <input class="form-check-input" [(ngModel)]="user.enabled" type="checkbox" />
-            <label>{{ 'Enabled' | translate }}</label>
-         </div>
+            <label>{{ 'Status' | translate }}</label>
+            <select class="form-select" [(ngModel)]="user.status" name="user.status">
+              <option value="enabled">{{ 'Enabled' | translate }}</option>
+              <option value="disabled">{{ 'Disabled' | translate }}</option>
+            </select>
+          </div>
           <div class="form-group">
             <input class="form-check-input" [(ngModel)]="user.password_change_needed" type="checkbox" />
             <label [ngClass]="{'text-gray': user.password_change_needed}">{{ 'Force password change' | translate }}</label>
