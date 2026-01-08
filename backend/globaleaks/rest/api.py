@@ -117,7 +117,6 @@ api_spec = [
     ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
     ('/api/admin/contexts', admin.context.ContextsCollection),
     ('/api/admin/contexts', admin.context.ContextInstance, r'/api/admin/contexts/' + uuid_regexp),
-    ('/api/admin/contexts', admin.context.ContextStats, r'/api/admin/contexts/' + uuid_regexp + '/stats'),
     ('/api/admin/questionnaires', admin.questionnaire.QuestionnairesCollection),
     ('/api/admin/questionnaires', admin.questionnaire.QuestionnaireInstance, r'/api/admin/questionnaires/' + key_regexp),
     ('/api/admin/questionnaires/duplicate', admin.questionnaire.QuestionnareDuplication),

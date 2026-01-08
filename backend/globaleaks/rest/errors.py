@@ -205,13 +205,3 @@ class TenantStatsChanged(GLException):
     reason = "Tenant stats have changed"
     error_code = 19
     status_code = 409
-
-
-class ContextStatsChanged(GLException):
-    """
-    Error signaling that context stats have changed since the deletion was initiated.
-    This prevents accidental deletion when reports have been added.
-    """
-    reason = "Context stats have changed"
-    error_code = 20
-    status_code = 409

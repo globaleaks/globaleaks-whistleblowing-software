@@ -139,7 +139,7 @@ AdminUserDesc = {
     'public_name': str,
     'role': user_role_regexp,
     'password_change_needed': bool,
-    'enabled': bool,
+    'status': str,
     'mail_address': email_regexp,
     'pgp_key_remove': bool,
     'pgp_key_fingerprint': str,
@@ -364,7 +364,7 @@ AdminQuestionnaireDescRaw['steps'] = list
 AdminContextDesc = {
     'id': uuid_regexp_or_empty,
     'name': str,
-    'hidden': bool,
+    'status': str,
     'description': str,
     'maximum_selectable_receivers': int,
     'tip_timetolive': int,
@@ -463,7 +463,7 @@ ReceiverDesc = {
 ContextDesc = {
     'id': uuid_regexp,
     'name': str,
-    'hidden': bool,
+    'status': str,
     'description': str,
     'order': int,
     'receivers': [uuid_regexp],
