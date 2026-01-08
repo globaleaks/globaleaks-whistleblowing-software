@@ -78,16 +78,24 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request({}, role='admin')
         handler.request.args[b'expected_open'] = [str(stats['open_reports']).encode()]
         handler.request.args[b'expected_total'] = [str(stats['total_reports']).encode()]
+        if stats['last_update']:
+            handler.request.args[b'expected_last_update'] = [stats['last_update'].encode()]
 
         yield handler.delete(self.tenant_id)
 
     @inlineCallbacks
     def test_delete_with_mismatched_stats(self):
         """Test deletion fails when expected stats don't match current stats"""
-        # Create handler with wrong expected stats
+        # Get current stats to get the actual last_update (so it doesn't fail on that)
+        stats = yield tenant.get_tenant_stats(self.tenant_id)
+
+        # Create handler with wrong expected stats for counts
         handler = self.request({}, role='admin')
         handler.request.args[b'expected_open'] = [b'999']
         handler.request.args[b'expected_total'] = [b'999']
+        # Pass the correct last_update so it fails on count mismatch, not timestamp
+        if stats['last_update']:
+            handler.request.args[b'expected_last_update'] = [stats['last_update'].encode()]
 
         yield self.assertFailure(handler.delete(self.tenant_id), errors.TenantStatsChanged)
 
@@ -109,6 +117,9 @@ class TestTenantStats(helpers.TestHandlerWithPopulatedDB):
 
         self.assertIn('open_reports', response)
         self.assertIn('total_reports', response)
+        self.assertIn('last_update', response)
         self.assertIsInstance(response['open_reports'], int)
         self.assertIsInstance(response['total_reports'], int)
+        # last_update can be None or a string
+        self.assertTrue(response['last_update'] is None or isinstance(response['last_update'], str))
         self.assertGreaterEqual(response['total_reports'], response['open_reports'])

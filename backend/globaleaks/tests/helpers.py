@@ -258,7 +258,7 @@ class MockDict:
             'old_password': '',
             'salt': VALID_SALT,
             'role': 'receiver',
-            'enabled': True,
+            'status': 'enabled',
             'name': 'Generic User',
             'description': 'King MockDummy',
             'last_login': '1970-01-01 00:00:00.000000',
@@ -291,6 +291,7 @@ class MockDict:
             'id': '',
             'name': 'Already localized name',
             'description': 'Already localized desc',
+            'status': 'enabled',
             'order': 0,
             'receivers': [],
             'questionnaire_id': 'test',
@@ -458,6 +459,30 @@ def get_dummy_attachment(name=None, content=None):
         'submission': False,
         "reference_id": '',
         "visibility": b'public'
+    }
+
+
+def get_dummy_context():
+    """Return a dummy context for testing"""
+    return {
+        'id': '',
+        'name': 'Test Context',
+        'description': 'Test Description',
+        'status': 'enabled',
+        'order': 0,
+        'receivers': [],
+        'questionnaire_id': 'default',
+        'additional_questionnaire_id': '',
+        'select_all_receivers': True,
+        'tip_timetolive': 20,
+        'tip_reminder': 0,
+        'maximum_selectable_receivers': 0,
+        'show_context': True,
+        'allow_recipients_selection': False,
+        'show_receivers_in_alphabetical_order': False,
+        'show_steps_navigation_interface': True,
+        'score_threshold_medium': 0,
+        'score_threshold_high': 0,
     }
 
 
@@ -643,7 +668,7 @@ class TestGL(unittest.TestCase):
         new_u['name'] = new_u['public_name'] = new_u['mail_address'] = "%s@%s.xxx" % (username, username)
         new_u['description'] = ''
         new_u['password'] = VALID_KEY
-        new_u['enabled'] = True
+        new_u['status'] = 'enabled'
         new_u['salt'] = VALID_SALT
 
         return new_u
