@@ -46,6 +46,10 @@ describe("admin configure, add, and delete channels", () => {
 
     cy.visit("#/admin/channels");
     cy.get("[name='delete_context']").last().click();
+
+    // Verify the delete confirmation modal shows the context-specific message
+    cy.get('[data-cy="context-delete-message"]').should('be.visible');
+
     cy.get("#modal-action-ok").click();
 
     cy.logout();
