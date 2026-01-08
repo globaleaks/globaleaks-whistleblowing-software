@@ -637,8 +637,8 @@ export class UtilsService {
     return this.httpService.requestDeleteAdminUserProfile(user_profile_id);
   }
 
-  deleteAdminContext(context_id: string, expectedStats?: {open_reports: number; total_reports: number; last_update: string | null}) {
-    return this.httpService.requestDeleteAdminContext(context_id, expectedStats);
+  deleteAdminContext(user_id: string) {
+    return this.httpService.requestDeleteAdminContext(user_id);
   }
 
   deleteStatus(url: string) {

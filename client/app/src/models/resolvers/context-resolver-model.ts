@@ -1,6 +1,6 @@
 export class contextResolverModel {
   id: string;
-  hidden: boolean;
+  status: string;
   tip_timetolive: number;
   tip_reminder: number;
   select_all_receivers: boolean;

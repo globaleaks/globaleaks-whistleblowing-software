@@ -91,6 +91,7 @@ export interface Status {
 export interface Context {
   id: string;
   hidden: boolean;
+  status: string;
   order: number;
   tip_timetolive: number;
   select_all_receivers: boolean;

@@ -1,6 +1,6 @@
 export class NewContext {
   id = "";
-  hidden = true;
+  status = "enabled";
   name = "";
   description = "";
   order = 0;

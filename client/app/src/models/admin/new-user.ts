@@ -20,7 +20,7 @@ export class NewUser {
   id = "";
   username = "";
   role = "receiver";
-  enabled = true;
+  status = "enabled";
   password_change_needed = true;
   name = "";
   description = "";

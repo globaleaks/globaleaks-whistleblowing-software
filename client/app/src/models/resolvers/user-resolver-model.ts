@@ -22,6 +22,7 @@ export class User {
   username: string;
   salt: string;
   role: string;
+  status: string;
   enabled: boolean;
   last_login: string;
   name: string;
