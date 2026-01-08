@@ -95,13 +95,13 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
                       .options(joinedload(User.profile).joinedload(UserProfile.permissions),
                                joinedload(User.profile).joinedload(UserProfile.roles)) \
                       .filter(or_(User.id == username, User.username == username),
-                                  User.enabled.is_(True), User.tid == tid).one_or_none()
+                                  User.status == 'enabled', User.tid == tid).one_or_none()
     else:
         user = session.query(User) \
                       .options(joinedload(User.profile).joinedload(UserProfile.permissions),
                                joinedload(User.profile).joinedload(UserProfile.roles)) \
                       .filter(or_(User.username == username),
-                                  User.enabled.is_(True), User.tid == tid).one_or_none()
+                                  User.status == 'enabled', User.tid == tid).one_or_none()
 
     if user is None:
         raise errors.InvalidAuthentication

@@ -573,7 +573,8 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
                        .filter(models.User.id == models.ReceiverTip.receiver_id,
                                models.ReceiverTip.internaltip_id == itip.id,
                                models.ReceiverTip.receiver_id != user_id,
-                               models.ReceiverTip.last_notification < models.ReceiverTip.last_access):
+                               models.ReceiverTip.last_notification < models.ReceiverTip.last_access,
+                               models.User.status != 'deleted'):
         db_notify_report_update(session, user, rtip, itip)
 
     db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id)
@@ -949,7 +950,8 @@ def db_create_identityaccessrequest_notifications(session, itip, rtip, iar):
     """
     for user in session.query(models.User).filter(models.User.role == 'custodian',
                                                   models.User.tid == itip.tid,
-                                                  models.User.notification.is_(True)):
+                                                  models.User.notification.is_(True),
+                                                  models.User.status != 'deleted'):
         context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
 
         data = {
@@ -1003,7 +1005,7 @@ def create_identityaccessrequest(session, tid, user_session, itip_id, request):
     session.flush()
 
     custodians = 0
-    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.enabled == True):
+    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.status == 'enabled'):
         iarc = models.IdentityAccessRequestCustodian()
         iarc.identityaccessrequest_id = iar.id
         iarc.custodian_id = custodian.id

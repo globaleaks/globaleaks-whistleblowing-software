@@ -69,6 +69,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                                .join(models.ReceiverContext,
                                                      models.Context.id == models.ReceiverContext.context_id)
                                                .filter(models.Context.allow_recipients_selection == False,
+                                                       models.Context.status != 'deleted',
                                                        models.ReceiverContext.receiver_id == user_id
                                                       ).all()
     ]

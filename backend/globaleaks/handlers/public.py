@@ -301,7 +301,8 @@ def serialize_context(session, context, language, data=None):
     """
     ret = {
         'id': context.id,
-        'hidden': context.hidden,
+        'hidden': context.status == 'hidden',
+        'status': context.status if context.status else 'enabled',
         'order': context.order,
         'tip_timetolive': context.tip_timetolive,
         'tip_reminder': context.tip_reminder,
@@ -548,7 +549,10 @@ def db_get_contexts(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of contexts descriptors
     """
-    contexts = session.query(models.Context).filter(models.Context.tid == tid)
+    contexts = session.query(models.Context).filter(
+        models.Context.tid == tid,
+        models.Context.status != 'deleted'
+    )
 
     data = db_prepare_contexts_serialization(session, contexts)
 
@@ -565,7 +569,8 @@ def db_get_receivers(session, tid, language):
     :return: A list of receivers descriptors
     """
     receivers = session.query(models.User).filter(models.User.role == models.EnumUserRole.receiver.value,
-                                                  models.User.tid == tid)
+                                                  models.User.tid == tid,
+                                                  models.User.status != 'deleted')
 
     data = db_prepare_receivers_serialization(session, receivers)
 

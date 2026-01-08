@@ -198,11 +198,11 @@ def db_delete_user(session, tid, user_session, user_id, expected_total=None, exp
         if stats_changed:
             raise errors.UserStatsChanged
 
-    db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
+    # Soft delete: mark user as deleted instead of removing from database
+    user.status = 'deleted'
 
-    if user.id == user.profile_id:
-        # in this condition we should delete the profile since it will become unused
-        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
+    # Remove receiver associations from contexts
+    db_del(session, models.ReceiverContext, models.ReceiverContext.receiver_id == user_id)
 
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id, data=stats)
 
@@ -285,10 +285,16 @@ def db_get_users(session, tid, role=None, language=None):
     :return: A list of serialized descriptors of the users defined on the specified tenant
     """
     if role is None:
-        users = session.query(models.User).filter(models.User.tid == tid)
+        users = session.query(models.User).filter(
+            models.User.tid == tid,
+            models.User.status != 'deleted'
+        )
     else:
-        users = session.query(models.User).filter(models.User.tid == tid,
-                                                  models.User.role == role)
+        users = session.query(models.User).filter(
+            models.User.tid == tid,
+            models.User.role == role,
+            models.User.status != 'deleted'
+        )
 
     language = language or State.tenants[tid].cache.default_language
 
@@ -299,7 +305,11 @@ def get_user(session, tid, id):
     """
     Return specific user.
     """
-    user = session.query(models.User).filter(models.User.id == id, models.User.tid == tid).first()
+    user = session.query(models.User).filter(
+        models.User.id == id,
+        models.User.tid == tid,
+        models.User.status != 'deleted'
+    ).first()
     if user:
         return serialize_user(session, user, State.tenants[tid].cache.default_language)
 
