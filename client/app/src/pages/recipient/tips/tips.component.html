@@ -21,7 +21,7 @@
           }
 
           <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
-            class="btn btn-outline-secondary">
+            class="btn btn-outline-secondary" [attr.aria-label]="'Refresh' | translate">
             <i class="fas fa-arrows-rotate"></i>
           </button>
         </div>
@@ -34,14 +34,15 @@
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>
+              <span class="visually-hidden">{{'Select' | translate}}</span>
               @if (selectedTips.length !== RTips.dataModel.length ) {
-                <span id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}">
-                  <i class="fas fa-square"></i>
+                <span id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}" role="button" tabindex="0" [attr.aria-label]="'Select all' | translate">
+                  <i class="fas fa-square" aria-hidden="true"></i>
                 </span>
               }
               @if (selectedTips.length === RTips.dataModel.length) {
-                <span id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}">
-                  <i class="fas fa-square-check"></i>
+                <span id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}" role="button" tabindex="0" [attr.aria-label]="'Deselect all' | translate">
+                  <i class="fas fa-square-check" aria-hidden="true"></i>
                 </span>
              }
             </th>
