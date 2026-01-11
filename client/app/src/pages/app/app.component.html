@@ -17,33 +17,37 @@
 
     @if (appDataService.public.node) {
       <div class="reveal flex-shrink-0" [ngClass]="{'public': utilsService.isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
-        @if (authenticationService.session?.properties?.operator_session) {
-          <div>
-            <src-operation></src-operation>
-          </div>
-        }
-        @if (!appDataService.public.node.root_tenant && appDataService.public.node.mode === 'demo') {
-          <div>
-            <src-demo></src-demo>
-          </div>
-        }
-        @if (!appDataService.public.node.disable_privacy_badge && utilsService.isWhistleblowerPage()) {
-          <div>
-            <src-privacybadge></src-privacybadge>
-          </div>
-        }
+        <section [attr.aria-label]="'Status' | translate" class="status-section">
+          @if (authenticationService.session?.properties?.operator_session) {
+            <div>
+              <src-operation></src-operation>
+            </div>
+          }
+          @if (!appDataService.public.node.root_tenant && appDataService.public.node.mode === 'demo') {
+            <div>
+              <src-demo></src-demo>
+            </div>
+          }
+          @if (!appDataService.public.node.disable_privacy_badge && utilsService.isWhistleblowerPage()) {
+            <div>
+              <src-privacybadge></src-privacybadge>
+            </div>
+          }
+        </section>
         <views-header></views-header>
 
-        <messageconsole id="MessagesConsoleBox"></messageconsole>
+        <section [attr.aria-label]="'Messages' | translate" class="notifications-section">
+          <messageconsole id="MessagesConsoleBox"></messageconsole>
+        </section>
 
         @if (appConfig.sidebar && showSidebar) {
           <button class="btn btn-link d-lg-none ms-2 my-2"
               type="button"
               (click)="isNavCollapsed = !isNavCollapsed"
               aria-controls="Sidebar"
-              aria-expanded="!isNavCollapsed"
-              aria-label="Toggle navigation">
-            <i class="fas fa-bars"></i>
+              [attr.aria-expanded]="!isNavCollapsed"
+              [attr.aria-label]="(isNavCollapsed ? 'Expand' : 'Collapse') | translate">
+            <i class="fas fa-bars" aria-hidden="true"></i>
           </button>
         }
 
