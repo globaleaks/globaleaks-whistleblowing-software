@@ -5,19 +5,22 @@
         <img class="img-fluid pointer" [alt]="appDataService.projectTitle" src="s/logo" />
       </div>
       <div id="TitleBox">
-        @if (appDataService.projectTitle || appDataService.pageTitle) {
-          <h1>
-            @if (appDataService.projectTitle) {
-              <span id="ProjectTitle" (click)="appConfig.setHomepage()">
-                <a href="">{{appDataService.projectTitle}}</a>
-              </span>
-            }
-            @if (appDataService.projectTitle && appDataService.pageTitle) {
-              <span class="TitleSeparator"> - </span>
-            }
-            <span id="PageTitle">{{appDataService.pageTitle ? appDataService.pageTitle : '' | translate}}</span>
-          </h1>
-        }
+        <h1>
+          @if (appDataService.projectTitle) {
+            <span id="ProjectTitle" (click)="appConfig.setHomepage()">
+              <a href="">{{appDataService.projectTitle}}</a>
+            </span>
+          }
+          @if (appDataService.projectTitle && appDataService.pageTitle) {
+            <span class="TitleSeparator"> - </span>
+          }
+          @if (appDataService.pageTitle) {
+            <span id="PageTitle">{{appDataService.pageTitle | translate}}</span>
+          }
+          @if (!appDataService.projectTitle && !appDataService.pageTitle) {
+            <span class="visually-hidden">GlobaLeaks</span>
+          }
+        </h1>
       </div>
     </div>
     <div id="HeaderBox2">
