@@ -49,6 +49,7 @@ export class StatisticsComponent implements OnInit {
       title: this.translateService.instant(title),
       labels: labels,
       datasets: [{'labels': labels, 'data': values, 'backgroundColor': colors}],
+      total: total,
     };
   }
 

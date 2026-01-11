@@ -3,7 +3,7 @@
     <div class="card">
       <div class="card-header">{{ 'Reports' | translate }}</div>
       <div class="card-body text-center">
-        <h2>{{ charts[0].total }}</h2>
+        <h2>{{ charts[0]?.total ?? 0 }}</h2>
       </div>
     </div>
   </div>
