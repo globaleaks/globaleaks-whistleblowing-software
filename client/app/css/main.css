@@ -34,6 +34,11 @@ textarea:focus {
   outline-offset: 2px;
 }
 
+/* Override Bootstrap text-warning for WCAG AA color contrast compliance */
+.text-warning {
+  color: #a86300 !important; /* Darker amber - meets 4.5:1 contrast ratio on white */
+}
+
 .onion-address {
   color: #5797d5;
   font-weight: bold;
