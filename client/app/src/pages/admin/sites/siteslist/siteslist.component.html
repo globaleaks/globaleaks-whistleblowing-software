@@ -43,7 +43,7 @@
           @if (isRemovableTenant()) {
             <button id="action-tenant-delete" class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
           }
-          <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">
+          <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)" [attr.aria-label]="(editing ? 'Collapse' : 'Expand') | translate">
             <i id="action-tenant-edit" class="fa" [ngClass]="{'fa-chevron-down': !editing, 'fa-chevron-up': editing}"></i>
           </button>
         </span>

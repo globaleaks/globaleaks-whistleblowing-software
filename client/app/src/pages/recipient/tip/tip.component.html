@@ -15,7 +15,7 @@
               <i class="fas fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
             </button>
             <button id="tip-action-reminder" type="button" (click)="setReminder()"
-              ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
+              ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Set a reminder' | translate">
               <i class="fas" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
             </button>
             @if (tip && !tip.enable_notifications) {
@@ -37,7 +37,7 @@
             @if (preferencesService.dataModel.profile.permissions.can_grant_access_to_reports || preferencesService.dataModel.profile.permissions.can_transfer_access_to_reports) {
               <div id="usersDropdown" class="btn-group" ngbDropdown placement="bottom-left">
                 <button id="usersDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
-                  ngbTooltip="{{'Users' | translate}}">
+                  ngbTooltip="{{'Users' | translate}}" [attr.aria-label]="'Users' | translate">
                   <i class="fas fa-users"></i>
                 </button>
                 <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="usersDropdownButton">
@@ -60,7 +60,7 @@
 
             <div id="actionsDropdown" class="btn-group" ngbDropdown placement="bottom-left">
               <button id="actionsDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
-                ngbTooltip="{{'Options' | translate}}">
+                ngbTooltip="{{'Options' | translate}}" [attr.aria-label]="'Options' | translate">
                 <i class="fas fa-gear"></i>
               </button>
               <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdownButton">
@@ -114,7 +114,7 @@
             </div>
 
             <!-- Logs Button -->
-            <button id="tip-action-access-audit-log" class="btn btn-outline-secondary" ngbTooltip="{{'Logs' | translate}}" (click)="openLogsModal()">
+            <button id="tip-action-access-audit-log" class="btn btn-outline-secondary" ngbTooltip="{{'Logs' | translate}}" [attr.aria-label]="'Logs' | translate" (click)="openLogsModal()">
               <i class="fas fa-clipboard-list"></i>
             </button>
 
