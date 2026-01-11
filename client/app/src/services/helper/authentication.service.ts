@@ -142,7 +142,7 @@ export class AuthenticationService {
               const receipt = response.properties.new_receipt;
               const formattedReceipt = this.formatReceipt(receipt);
 
-              const modalRef = this.modalService.open(OtkcAccessComponent,{backdrop: 'static', keyboard: false});
+              const modalRef = this.modalService.open(OtkcAccessComponent,{backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
               modalRef.componentInstance.arg = {
                 receipt: receipt,
                 formatted_receipt: formattedReceipt

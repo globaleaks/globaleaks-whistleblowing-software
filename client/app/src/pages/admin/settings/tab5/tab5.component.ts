@@ -61,7 +61,7 @@ export class Tab5Component implements OnInit, OnDestroy {
   enableEncryption() {
     const node = this.nodeResolver.dataModel;
     node.encryption = false;
-    const modalRef = this.modalService.open(EnableEncryptionComponent, { backdrop: 'static', keyboard: false });
+    const modalRef = this.modalService.open(EnableEncryptionComponent, { backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title' });
     modalRef.result.then(() => {
       this.utilsService.runAdminOperation("enable_encryption", {}, false).subscribe(() => {
         this.authenticationService.logout();

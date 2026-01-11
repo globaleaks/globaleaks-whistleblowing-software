@@ -157,7 +157,7 @@ export class FieldsComponent implements OnInit {
 
   openConfirmableModalDialog(arg: Step | Field, scope: any): Observable<string> {
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
@@ -283,7 +283,7 @@ export class FieldsComponent implements OnInit {
 
   openOptionHintDialog(arg: Option): Observable<string> {
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(AddOptionHintComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(AddOptionHintComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.arg = arg;
 
       modalRef.componentInstance.confirmFunction = () => {
@@ -318,7 +318,7 @@ export class FieldsComponent implements OnInit {
 
   openTriggerReceiverDialog(arg: Option): Observable<string> {
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(TriggerReceiverComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(TriggerReceiverComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.arg = arg;
 
       modalRef.componentInstance.confirmFunction = () => {
@@ -333,7 +333,7 @@ export class FieldsComponent implements OnInit {
 
   openAssignScorePointsDialog(arg: Option): Observable<string> {
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(AssignScorePointsComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(AssignScorePointsComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.arg = arg;
 
       modalRef.componentInstance.confirmFunction = () => {

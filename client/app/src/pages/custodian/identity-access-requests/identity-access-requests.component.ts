@@ -43,7 +43,8 @@ export class IdentityAccessRequestsComponent {
   fileDeniedIdentityAccessReply(iar_id: string) {
     const modalRef = this.modalService.open(TipOperationFileIdentityAccessReplyComponent, {
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
     });
     modalRef.componentInstance.iar_id = iar_id;
     modalRef.componentInstance.confirmFunction = () => {

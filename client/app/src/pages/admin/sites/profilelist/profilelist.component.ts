@@ -72,6 +72,7 @@ export class ProfilelistComponent {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {
         backdrop: "static",
         keyboard: false,
+        ariaLabelledBy: 'modal-title'
       });
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;

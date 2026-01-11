@@ -36,7 +36,8 @@ export class WhistleBlowerIdentityReceiverComponent {
   fileIdentityAccessRequest() {
     const modalRef = this.modalService.open(TipOperationFileIdentityAccessRequestComponent, {
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
     });
     modalRef.componentInstance.tip = this.tipService.tip;
   }

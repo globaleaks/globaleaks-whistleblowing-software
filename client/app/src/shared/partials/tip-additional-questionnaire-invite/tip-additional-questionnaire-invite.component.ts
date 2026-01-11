@@ -28,7 +28,8 @@ export class TipAdditionalQuestionnaireInviteComponent {
     this.modalService.open(TipAdditionalQuestionnaireFormComponent, {
       windowClass: "custom-modal-width",
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
     });
   }
 }

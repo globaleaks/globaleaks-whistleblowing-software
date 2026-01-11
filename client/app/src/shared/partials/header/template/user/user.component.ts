@@ -101,7 +101,7 @@ export class UserComponent {
   }
 
   openSwitchUserModal(): void {
-    const modalRef = this.modalService.open(RoleSelectionModalComponent, { backdrop: 'static', keyboard: false });
+    const modalRef = this.modalService.open(RoleSelectionModalComponent, { backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title' });
     const roles = this.preferences.dataModel.profile.roles.map((role: string) => {
       const capitalizedRole = role === 'receiver' ? 'Recipient' : role.charAt(0).toUpperCase() + role.slice(1);
       return { value: role, role: capitalizedRole };

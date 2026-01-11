@@ -103,7 +103,7 @@ export class ProfileEditorComponent implements OnInit {
   openConfirmableModalDialog(arg: UserProfile, scope: any): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
-      const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
+      const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 

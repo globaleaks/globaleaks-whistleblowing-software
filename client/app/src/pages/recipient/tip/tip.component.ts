@@ -179,7 +179,7 @@ export class TipComponent implements OnInit {
             selectableRecipients.push(receiver);
           }
         });
-        const modalRef = this.modalService.open(GrantAccessComponent, {backdrop: 'static', keyboard: false});
+        const modalRef = this.modalService.open(GrantAccessComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
         modalRef.componentInstance.selectableRecipients = selectableRecipients;
         modalRef.componentInstance.confirmFun = (receiver_id: Receiver) => {
           const req = {
@@ -210,7 +210,7 @@ export class TipComponent implements OnInit {
               selectableRecipients.push(receiver);
             }
           });
-          const modalRef = this.modalService.open(RevokeAccessComponent, {backdrop: 'static', keyboard: false});
+          const modalRef = this.modalService.open(RevokeAccessComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
           modalRef.componentInstance.selectableRecipients = selectableRecipients;
           modalRef.componentInstance.confirmFun = (receiver_id: Receiver) => {
             const req = {
@@ -242,7 +242,7 @@ export class TipComponent implements OnInit {
               selectableRecipients.push(receiver);
             }
           });
-          const modalRef = this.modalService.open(TransferAccessComponent, {backdrop: 'static', keyboard: false});
+          const modalRef = this.modalService.open(TransferAccessComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
           modalRef.componentInstance.selectableRecipients = selectableRecipients;
           modalRef.result.then(
             (receiverId) => {
@@ -269,7 +269,7 @@ export class TipComponent implements OnInit {
   }
 
   openModalChangeState(){
-    const modalRef = this.modalService.open(ChangeSubmissionStatusComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(ChangeSubmissionStatusComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     modalRef.componentInstance.arg={
       tip:this.tip,
       submission_statuses:this.prepareSubmissionStatuses(),
@@ -284,7 +284,7 @@ export class TipComponent implements OnInit {
   }
 
   openModalReopen(){
-    const modalRef = this.modalService.open(ReopenSubmissionComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(ReopenSubmissionComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     modalRef.componentInstance.confirmFunction = () => {
       this.tip.status = "opened";
       this.tip.substatus = "";
@@ -353,7 +353,7 @@ export class TipComponent implements OnInit {
   }
 
   tipDelete() {
-    const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     modalRef.componentInstance.confirmFunction = () => {
     };
     modalRef.componentInstance.args = {
@@ -363,7 +363,7 @@ export class TipComponent implements OnInit {
   }
 
   setReminder() {
-    const modalRef = this.modalService.open(TipOperationSetReminderComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(TipOperationSetReminderComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "set_reminder",
@@ -377,7 +377,7 @@ export class TipComponent implements OnInit {
   }
 
   tipPostpone() {
-    const modalRef = this.modalService.open(TipOperationPostponeComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(TipOperationPostponeComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "postpone",
@@ -400,7 +400,8 @@ export class TipComponent implements OnInit {
     const modalRef = this.modalService.open(TipAuditLogComponent, {
       size: 'xl',
       backdrop: 'static',
-      keyboard: false
+      keyboard: false,
+      ariaLabelledBy: 'auditLogModalTitle'
     });
 
     modalRef.componentInstance.tipId = this.tip_id;
