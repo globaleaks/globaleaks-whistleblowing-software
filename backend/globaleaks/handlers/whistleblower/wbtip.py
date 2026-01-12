@@ -336,7 +336,7 @@ class ReceiverFileDownload(BaseHandler):
                 'DECRYPT', tip_prv_key, filelocation)
             aux_file = GCE.streaming_encryption_open(
                 'DECRYPT', tip_prv_key, aux_path)
-        status, run_download = yield is_download(aux_file, name, state, dl_infected)
+        status, run_download = yield is_download(aux_file, name, state, dl_infected, rfile_id)
         if not run_download:
             if status == EnumStateFile.infected:
                 raise errors.FileInfectedDownloadPermissionDenied
