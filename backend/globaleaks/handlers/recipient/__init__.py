@@ -89,20 +89,22 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
 
     dict_ret = dict()
     # Fetch rtip, internaltip and associated questionnaire schema
-    for rtip, itip, answers, data in session.query(models.ReceiverTip,
+    for rtip, itip, answers, data, forwardings in session.query(models.ReceiverTip,
                                                    models.InternalTip,
                                                    models.InternalTipAnswers,
-                                                   models.InternalTipData) \
+                                                   models.InternalTipData,
+                                                   models.InternalTipForwarding) \
                                             .join(models.InternalTipData,
                                                   and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                                       models.InternalTipData.key == 'whistleblower_identity'),
+                                                       models.InternalTipData.key == 'whistleblower_identity',
+                                                       models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                                       models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id,
+                                                       models.InternalTipForwarding.internaltip_id == models.InternalTip.id),
                                                   isouter=True) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
                                                     models.ReceiverTip.receiver_id == receiver_id),
                                                     models.InternalTip.update_date >= updated_after,
-                                                    models.InternalTip.update_date <= updated_before,
-                                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                                    models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
+                                                    models.InternalTip.update_date <= updated_before) \
                                             .group_by(models.ReceiverTip.id):
         answers = answers.answers
         label = itip.label
@@ -126,7 +128,15 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
         else:
             subscription = 2
 
-        forwardings_count, tenants = get_internaltip_forwarding(session, itip.id)
+        # forwardings_count, tenants = get_internaltip_forwarding(session, itip.id)
+
+        tids = set(f.tid for f in forwardings)
+        tenants = []
+        for t in tids:
+            el['tid'] = t
+            el['name'] = db_get(session, models.Config, (models.Config.tid == t, models.Config.var_name == 'name')).value
+            tenants.append(el)
+            
 
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
@@ -152,7 +162,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                 'receiver_count': receiver_count_by_itip.get(itip.id, 0),
                 'subscription': subscription,
                 'accessible': accessible,
-                'total_forwardings_eo': forwardings_count,
+                'total_forwardings_eo': len(forwardings),
                 'forwardings': tenants
             }
 
