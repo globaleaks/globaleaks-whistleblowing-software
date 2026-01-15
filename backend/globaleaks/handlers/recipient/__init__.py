@@ -96,15 +96,15 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                                    models.InternalTipForwarding) \
                                             .join(models.InternalTipData,
                                                   and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                                       models.InternalTipData.key == 'whistleblower_identity',
-                                                       models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                                       models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id,
-                                                       models.InternalTipForwarding.internaltip_id == models.InternalTip.id),
+                                                       models.InternalTipData.key == 'whistleblower_identity'),
                                                   isouter=True) \
+                                            .join(models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == models.InternalTip.id) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
                                                     models.ReceiverTip.receiver_id == receiver_id),
                                                     models.InternalTip.update_date >= updated_after,
-                                                    models.InternalTip.update_date <= updated_before) \
+                                                    models.InternalTip.update_date <= updated_before,
+                                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                                    models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
                                             .group_by(models.ReceiverTip.id):
         answers = answers.answers
         label = itip.label
@@ -135,7 +135,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
         for t in tids:
             el['tid'] = t
             el['name'] = db_get(session, models.Config, (models.Config.tid == t, models.Config.var_name == 'name')).value
-            tenants.append(el)
+            tenants.append
             
 
         if accessible or itip.id not in dict_ret:
