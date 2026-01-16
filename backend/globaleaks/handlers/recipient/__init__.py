@@ -89,16 +89,14 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
 
     dict_ret = dict()
     # Fetch rtip, internaltip and associated questionnaire schema
-    for rtip, itip, answers, data, forwardings in session.query(models.ReceiverTip,
+    for rtip, itip, answers, data in session.query(models.ReceiverTip,
                                                    models.InternalTip,
                                                    models.InternalTipAnswers,
-                                                   models.InternalTipData,
-                                                   models.InternalTipForwarding) \
+                                                   models.InternalTipData) \
                                             .join(models.InternalTipData,
                                                   and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
                                                        models.InternalTipData.key == 'whistleblower_identity'),
                                                   isouter=True) \
-                                            .join(models.InternalTipForwarding, models.InternalTipForwarding.internaltip_id == models.InternalTip.id) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
                                                     models.ReceiverTip.receiver_id == receiver_id),
                                                     models.InternalTip.update_date >= updated_after,
@@ -129,14 +127,8 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
             subscription = 2
 
         # forwardings_count, tenants = get_internaltip_forwarding(session, itip.id)
-
-        tids = set(f.tid for f in forwardings)
+        forwardings_count = 0
         tenants = []
-        for t in tids:
-            el['tid'] = t
-            el['name'] = db_get(session, models.Config, (models.Config.tid == t, models.Config.var_name == 'name')).value
-            tenants.append
-            
 
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
@@ -162,7 +154,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                 'receiver_count': receiver_count_by_itip.get(itip.id, 0),
                 'subscription': subscription,
                 'accessible': accessible,
-                'total_forwardings_eo': len(forwardings),
+                'total_forwardings_eo': forwardings_count,
                 'forwardings': tenants
             }
 
