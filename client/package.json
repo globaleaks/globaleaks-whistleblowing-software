@@ -59,8 +59,7 @@
     "ngx-markdown": "20.1.0",
     "pdfjs-dist": "5.4.449",
     "requestidlecallback-polyfill": "1.0.2",
-    "rxjs": "7.8.2",
-    "zone.js": "0.15.1"
+    "rxjs": "7.8.2"
   },
   "devDependencies": {
     "@angular-devkit/architect": "0.2101.0",
