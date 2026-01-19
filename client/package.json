@@ -72,7 +72,6 @@
     "@cypress/schematic": "4.3.0",
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@lodder/grunt-postcss": "3.1.1",
-    "@types/angular": "1.8.9",
     "@types/dompurify": "3.2.0",
     "@types/flowjs__flow.js": "2.13.3",
     "@types/qrcode": "1.5.6",
