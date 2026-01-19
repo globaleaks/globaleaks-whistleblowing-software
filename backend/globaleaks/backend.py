@@ -20,6 +20,7 @@ from globaleaks.state import State
 from globaleaks.utils.brotli import BrotliEncoderFactory
 from globaleaks.utils.log import log, openLogFile, logFormatter, LogObserver
 from globaleaks.utils.sock import listen_tcp_on_sock, listen_tls_on_sock
+from globaleaks.utils.websocket_server import start_ws_server
 
 
 def fail_startup(excep):
@@ -96,6 +97,7 @@ class Service(service.Service):
             sync_refresh_tenant_cache()
             sync_initialize_snimap()
             self.state.orm_tp.start()
+            start_ws_server()
             self.start_jobs()
             self.state.print_listening_interfaces()
 

@@ -556,7 +556,7 @@ class APIResourceWrapper(Resource):
         if request.path == b'/index.html':
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
-                              b"connect-src 'self';"
+                              b"connect-src 'self' ws://localhost:9000 wss://localhost:9000;"
                               b"default-src 'none';"
                               b"font-src 'self';"
                               b"form-action 'none';"

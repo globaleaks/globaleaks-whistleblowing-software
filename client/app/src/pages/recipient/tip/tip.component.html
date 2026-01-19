@@ -120,7 +120,7 @@
 
             <!-- Refresh Button -->
             <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
-              class="btn btn-outline-secondary" [attr.aria-label]="'Refresh' | translate">
+              class="btn" [ngClass]="updateAvailable ? 'btn-outline-warning' : 'btn-outline-secondary'" [attr.aria-label]="'Refresh' | translate">
               <i class="fas fa-arrows-rotate"></i>
             </button>
           </div>

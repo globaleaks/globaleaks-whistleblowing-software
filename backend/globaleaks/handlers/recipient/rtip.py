@@ -32,7 +32,14 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
+from globaleaks.utils.websocket_server import notify_users
 
+
+def get_tip_recipient_ids(session, itip_id):
+    return [
+        r.receiver_id for r in session.query(models.ReceiverTip.receiver_id)
+        .filter(models.ReceiverTip.internaltip_id == itip_id)
+    ]
 
 @transact
 def get_report_audit_log(session, tid, user_id, itip_id):
@@ -164,6 +171,12 @@ def grant_tip_access(session, tid, user_session, itip_id, receiver_id):
 
     new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, receiver_id)
     if new_receiver:
+        recipient_ids = get_tip_recipient_ids(session, itip.id)
+        notify_users({
+            "type": "access_changed",
+            "tip_id": itip.id,
+            "action": "granted"
+        }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
         db_notify_grant_access(session, new_receiver)
         db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id, data=log_data)
 
@@ -182,6 +195,12 @@ def revoke_tip_access(session, tid, user_session, itip_id, receiver_id):
         raise errors.ForbiddenOperation
 
     if db_revoke_tip_access(session, tid, user, itip, receiver_id):
+        recipient_ids = get_tip_recipient_ids(session, itip.id)
+        notify_users({
+            "type": "access_changed",
+            "tip_id": itip.id,
+            "action": "revoked"
+        }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
         db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
 
 
@@ -199,6 +218,11 @@ def transfer_tip_access(session, tid, user_session, itip_id, receiver_id):
 
     new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, receiver_id)
     if new_receiver:
+        recipient_ids = get_tip_recipient_ids(session, itip.id)
+        notify_users({
+            "type": "tip_transferred",
+            "tip_id": itip.id
+        }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
         db_revoke_tip_access(session, tid, user, itip, user_id)
         db_notify_grant_access(session, new_receiver)
         db_log(session, tid=tid, type='transfer_access', user_id=user_id, object_id=itip.id, data=log_data)
@@ -265,6 +289,14 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
       'status': itip.status,
       'substatus': itip.substatus
     }
+
+    recipient_ids = get_tip_recipient_ids(session, itip.id)
+    notify_users({
+        "type": "status_update",
+        "tip_id": itip.id,
+        "status": itip.status,
+        "substatus": itip.substatus
+    }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
 
     db_log(session, tid=tid, type='update_report_status', user_id=user_id, object_id=itip.id, data=log_data)
 
@@ -657,6 +689,12 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     new_file.visibility = uploaded_file['visibility']
 
     session.add(new_file)
+    recipient_ids = get_tip_recipient_ids(session, itip.id)
+    notify_users({
+        "type": "file_uploaded",
+        "tip_id": itip.id,
+        "file": new_file.name
+    }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
 
     return serializers.serialize_rfile(session, new_file)
 
@@ -1051,6 +1089,12 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     comment.visibility = visibility
     session.add(comment)
     session.flush()
+    recipient_ids = get_tip_recipient_ids(session, itip.id)
+    notify_users({
+        "type": "new_comment",
+        "tip_id": itip.id,
+        "comment_id": comment.id
+    }, tip_id=itip.id, user_ids=recipient_ids, exclude_user=user_id)
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content

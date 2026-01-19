@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -41,7 +41,9 @@ import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../s
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
-
+import {PushService} from "@app/shared/services/websocket";
+import {Subscription} from "rxjs";
+import {UpdateAvailableComponent} from "@app/shared/modals/update-available/update-available.component";
 
 @Component({
     selector: "src-tip",
@@ -73,7 +75,7 @@ import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-l
       TranslatorPipe
     ]
 })
-export class TipComponent implements OnInit {
+export class TipComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private tipService = inject(TipService);
   private appConfigServices = inject(AppConfigService);
@@ -89,6 +91,8 @@ export class TipComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   protected RTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
+  private wsSub!: Subscription;
+  protected pushService = inject(PushService);
 
   @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
@@ -105,10 +109,24 @@ export class TipComponent implements OnInit {
   redactOperationTitle: string;
   tabs: Tab[];
   submission: any;
+  updateAvailable = false;
 
   ngOnInit() {
     this.loadTipData();
     this.cdr.detectChanges();
+    this.pushService.connect(this.authenticationService.session.id, [this.tip_id!]);
+    this.wsSub = this.pushService.socket$.subscribe(msg => {
+      if (msg.tip_id !== this.tip_id) return;
+        this.updateAvailable = true;
+        this.openUpdateModal();
+    });
+  }
+
+  openUpdateModal() {
+    const modalRef = this.modalService.open(UpdateAvailableComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.confirmFunction = () => {
+      this.reload();
+    };
   }
 
   loadTipData() {
@@ -328,6 +346,7 @@ export class TipComponent implements OnInit {
   }
 
   reload(): void {
+    this.updateAvailable = false;
     this.utils.reloadComponent();
   }
 
@@ -416,5 +435,10 @@ export class TipComponent implements OnInit {
     this.loadTipData();
   }
 
+  ngOnDestroy() {
+    if (this.wsSub) {
+      this.wsSub.unsubscribe();
+    }
+  }
   protected readonly JSON = JSON;
 }

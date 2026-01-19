@@ -126,7 +126,7 @@ class TestAPI(TestGL):
 
         server_headers = copy.copy(default_server_headers)
         server_headers['Content-Security-Policy'] = 'base-uri \'none\';' \
-                                                    'connect-src \'self\';' \
+                                                    'connect-src \'self\' ws://localhost:9000 wss://localhost:9000;' \
                                                     'default-src \'none\';' \
                                                     'font-src \'self\';' \
                                                     'form-action \'none\';' \
