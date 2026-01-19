@@ -49,7 +49,7 @@ jobs:
         # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
     steps:
     - name: Checkout repository
-      uses: actions/checkout@c2d88d3ecc89a9ef08eebf45d9637801dcee7eb5 # v6.0.0
+      uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.1
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
