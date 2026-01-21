@@ -23,11 +23,11 @@
       </div>
     }
     @case ('voice') {
-      <div>
+      @if (iframeUrl) {
         <div class="audio-player-wrapper">
           <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
         </div>
-      </div>
+      }
     }
     @case ('selectbox') {
       <div>
@@ -95,13 +95,17 @@
     }
     @case ('fileupload') {
       <div>
-        @for (wbFile of filterWbFilesByReferenceId(tipService.tip.wbfiles,entry['index']); track wbFile) {
+        @for (wbfile of filterWbFilesByReferenceId(tipService.tip.wbfiles,entry['index']); track wbfile) {
           <div class="mb-2">
-            <span>{{wbFile.name}}</span>
-            @if (utilsService.supportedViewTypes.includes(wbFile.type)) {
-              <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbFile)" type="button" [attr.aria-label]="'View' | translate"><i class="fas fa-eye"></i></button>
+            <span>{{wbfile.name}}</span>
+            @if (!maskService.isMasked(wbfile.ifile_id, tipService.tip)) {
+              @if (utilsService.supportedViewTypes.includes(wbfile.type)) {
+                <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbfile)" type="button" [attr.aria-label]="'View' | translate"><i class="fas fa-eye"></i></button>
+              }
+              <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fas fa-download"></i></button>
+            } @else {
+              <span class="ml-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
             }
-            <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbFile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fas fa-download"></i></button>
           </div>
         }
       </div>

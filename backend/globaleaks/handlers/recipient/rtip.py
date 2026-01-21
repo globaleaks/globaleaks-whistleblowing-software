@@ -720,8 +720,6 @@ def redact_report(session, user_id, report, enforce=False):
         if comment['id'] in redactions_by_reference_id:
             comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
 
-    report['wbfiles'] = [x for x in report['wbfiles'] if x['ifile_id'] not in redactions_by_reference_id]
-
     return report
 
 
