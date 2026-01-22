@@ -315,8 +315,11 @@ export class UtilsService {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         const value = obj[key];
+        const value_str = String(value)
 
         if (typeof value === 'string' && value.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return true;
+        } else if (typeof value === 'number' && value_str.includes(searchTerm.toLowerCase())) {
           return true;
         } else if (typeof value === 'object') {
           if (this.searchInObject(value, searchTerm)) {
