@@ -4,12 +4,12 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: "src-update-available",
-    templateUrl: "./update-available.component.html",
+    selector: "src-reload-required",
+    templateUrl: "./reload-required.component.html",
     standalone: true,
     imports: [TranslatorPipe, TranslateModule],
 })
-export class UpdateAvailableComponent {
+export class ReloadRequiredComponent {
   private activeModal = inject(NgbActiveModal);
 
   confirmFunction: () => void;

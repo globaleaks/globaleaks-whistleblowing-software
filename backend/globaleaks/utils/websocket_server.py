@@ -14,6 +14,9 @@ class GLWebSocketProtocol(WebSocketServerProtocol):
 
     def onClose(self, wasClean, code, reason):
         CLIENTS.discard(self)
+        self.user_id = None
+        self.tip_ids = set()
+        self.session = None
 
     def onMessage(self, payload, isBinary):
         try:

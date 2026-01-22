@@ -218,28 +218,40 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
 });
 
 Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
-  if (!Cypress.env("takeScreenshots")) {
-    return;
+  if (!Cypress.env("takeScreenshots")) return;
+
+  const DESKTOP_VIEWPORT = { width: 1920, height: 1080 };
+
+  if (locator === ".modal") {
+    cy.get(".modal").invoke("attr", "style", "height: auto; position: absolute;");
   }
 
   return cy.document().then((doc) => {
-    cy.injectAxe()
+    const viewports = [
+      { width: DESKTOP_VIEWPORT.width, height: doc.body.scrollHeight },
+      { width: 375, height: 667, prefix: "mobile/" }
+    ];
+
+    cy.injectAxe();
     cy.checkA11y(null, null, terminalLog, true);
 
-    if (locator) {
-      cy.viewport(1280, 1024);
+    return cy.wrap(viewports).each(({ width, height, prefix }) => {
+      cy.viewport(width, height);
       cy.wait(500);
       cy.waitForPageIdle();
-      return cy.get(locator).screenshot("../" + filename, {overwrite: true});
-    }
 
-    cy.wait(500);
-    cy.waitForPageIdle();
+      const screenshotPath = prefix ? `${prefix}${filename}` : filename;
 
-    // Ensure the screenshot does not include signs of mouse position/clicks
-    cy.get('body').click(0, 0);
-
-    return cy.screenshot("../" + filename, {overwrite: true, scale: true });
+      if (locator && locator !== ".modal") {
+        return cy.get(locator).screenshot(screenshotPath, { overwrite: true, scale: true });
+      } else {
+        cy.get("#FooterBox").scrollIntoView();
+        return cy.screenshot(screenshotPath, { capture: "fullPage", overwrite: true, scale: true });
+      }
+    }).then(() => {
+      // Restore desktop viewport
+      cy.viewport(DESKTOP_VIEWPORT.width, DESKTOP_VIEWPORT.height);
+    });
   });
 });
 

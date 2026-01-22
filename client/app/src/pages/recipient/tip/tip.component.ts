@@ -41,9 +41,9 @@ import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../s
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
-import {PushService} from "@app/shared/services/websocket";
+import {PushService} from "@app/shared/services/websocket.service";
 import {Subscription} from "rxjs";
-import {UpdateAvailableComponent} from "@app/shared/modals/update-available/update-available.component";
+import {ReloadRequiredComponent} from "@app/shared/modals/reload-required/reload-required.component";
 
 @Component({
     selector: "src-tip",
@@ -116,14 +116,17 @@ export class TipComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
     this.pushService.connect(this.authenticationService.session.id, [this.tip_id!]);
     this.wsSub = this.pushService.socket$.subscribe(msg => {
+      const validTypes = ['access_changed', 'tip_transferred', 'status_update', 'file_uploaded', 'new_comment'];
       if (msg.tip_id !== this.tip_id) return;
+      if (validTypes.includes(msg?.type)) {
         this.updateAvailable = true;
         this.openUpdateModal();
+      }
     });
   }
 
   openUpdateModal() {
-    const modalRef = this.modalService.open(UpdateAvailableComponent, {backdrop: 'static', keyboard: false});
+    const modalRef = this.modalService.open(ReloadRequiredComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
       this.reload();
     };
@@ -439,6 +442,7 @@ export class TipComponent implements OnInit, OnDestroy {
     if (this.wsSub) {
       this.wsSub.unsubscribe();
     }
+    this.pushService.disconnect();
   }
   protected readonly JSON = JSON;
 }

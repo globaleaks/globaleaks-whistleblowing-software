@@ -15,6 +15,7 @@ from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null
+from globaleaks.utils.websocket_server import notify_users
 
 
 def index_answers(answers, parent_index=''):
@@ -304,6 +305,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         db_create_receivertip(session, user, itip, _tip_key)
 
+    notify_users({"type": "new_report", "tip_id": itip.id}, user_ids=[u.id for u in receivers])
     operator_id = user_session.properties.get('operator_session', '')
     if operator_id:
         # this is actually an operator which is operating on behalf of a whistleblower

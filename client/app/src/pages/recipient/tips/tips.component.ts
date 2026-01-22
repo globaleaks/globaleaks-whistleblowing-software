@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, inject} from "@angular/core";
+import {Component, HostListener, OnDestroy, OnInit, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -16,13 +16,14 @@ import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {Receiver} from "@app/models/receiver/receiver-tip-data";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {concatMap, delay, from, tap} from "rxjs";
+import {concatMap, delay, from, Subscription, tap} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {formatDate, NgClass, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {PushService} from "@app/shared/services/websocket.service";
 
 @Component({
     selector: "src-tips",
@@ -30,7 +31,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe]
 })
-export class TipsComponent implements OnInit {
+export class TipsComponent implements OnInit , OnDestroy {
   private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
   protected httpService = inject(HttpService);
@@ -43,6 +44,8 @@ export class TipsComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   private translateService = inject(TranslateService);
   private tokenResourceService = inject(TokenResource);
+  protected pushService = inject(PushService);
+  private wsSub!: Subscription;
 
   selectedTips: string[] = [];
   filteredTips: rtipResolverModel[];
@@ -77,6 +80,7 @@ export class TipsComponent implements OnInit {
     unSelectAllText: this.translateService.instant("Deselect all"),
     searchPlaceholderText: this.translateService.instant("Search")
   };
+  updateAvailable = false;
 
   ngOnInit() {
     if (!this.RTips.dataModel) {
@@ -85,6 +89,14 @@ export class TipsComponent implements OnInit {
       this.filteredTips = this.RTips.dataModel;
       this.processTips();
     }
+    const tipIds = this.RTips.dataModel?.filter(t => t.accessible).map(t => t.id) || [];
+    this.pushService.connect(this.authenticationService.session.id, tipIds);
+    this.wsSub = this.pushService.socket$.subscribe(msg => {
+      const validTypes = ['new_report', 'access_changed', 'tip_transferred', 'status_update', 'file_uploaded', 'new_comment'];
+      if (validTypes.includes(msg?.type)) {
+        this.updateAvailable = true;
+      }
+    });
   }
 
   selectAll() {
@@ -129,6 +141,7 @@ export class TipsComponent implements OnInit {
   }
 
   reload() {
+    this.updateAvailable = false;
     this.RTips.reload();
   }
 
@@ -357,5 +370,12 @@ export class TipsComponent implements OnInit {
       'Subscription',
       'Number of Recipients'
     ].map(header => header ? this.translateService.instant(header) : '');
+  }
+
+  ngOnDestroy() {
+    if (this.wsSub) {
+      this.wsSub.unsubscribe();
+    }
+    this.pushService.disconnect();
   }
 }
