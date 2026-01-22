@@ -6,17 +6,21 @@ export class PushService {
   socket$!: WebSocketSubject<any>;
 
   connect(session_id: string, tipIds: string[]) {
-    this.socket$ = webSocket('ws://localhost:9000');
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host; // includes hostname + port
+
+    const wsUrl = `${protocol}//${host}/ws`;
+
+    this.socket$ = webSocket(wsUrl);
+
     this.socket$.next({
       type: 'auth',
-      session_id: session_id,
+      session_id,
       tip_ids: tipIds
     });
   }
 
   disconnect() {
-    if (this.socket$) {
-      this.socket$.complete();
-    }
+    this.socket$?.complete();
   }
 }

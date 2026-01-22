@@ -3,6 +3,9 @@
 import sys
 import traceback
 
+from autobahn.twisted.resource import WebSocketResource
+from autobahn.twisted.websocket import WebSocketServerFactory
+
 from twisted.application import service
 from twisted.internet import reactor, defer
 from twisted.python.log import ILogObserver
@@ -20,7 +23,7 @@ from globaleaks.state import State
 from globaleaks.utils.brotli import BrotliEncoderFactory
 from globaleaks.utils.log import log, openLogFile, logFormatter, LogObserver
 from globaleaks.utils.sock import listen_tcp_on_sock, listen_tls_on_sock
-from globaleaks.utils.websocket_server import start_ws_server
+from globaleaks.utils.websocket import WebSocketServerProtocol
 
 
 def fail_startup(excep):
@@ -42,14 +45,35 @@ class Site(server.Site):
         return openLogFile(path, Settings.log_file_size, Settings.num_log_files)
 
 
+class RootResource(resource.Resource):
+    isLeaf = False
+
+    def __init__(self, api_resource, ws_resource):
+        super().__init__()
+        self.api_resource = api_resource
+
+        self.putChild(b"ws", ws_resource)
+
+    def getChild(self, path, request):
+        return self.api_resource
+
+
 class Service(service.Service):
     _shutdown = False
 
     def __init__(self):
         self.state = State
-        self.arw = resource.EncodingResourceWrapper(APIResourceWrapper(), [BrotliEncoderFactory()])
-        self.api_factory = Site(self.arw, logPath=Settings.accesslogfile, logFormatter=logFormatter)
-        self.api_factory.displayTracebacks = False
+
+        self.api_resource = resource.EncodingResourceWrapper(APIResourceWrapper(), [BrotliEncoderFactory()])
+
+        self.ws_factory = WebSocketServerFactory()
+        self.ws_factory.protocol = WebSocketServerProtocol
+        self.ws_resource = WebSocketResource(self.ws_factory)
+
+        self.root = RootResource(self.api_resource, self.ws_resource)
+
+        self.site = Site(self.root)#, logPath=Settings.accesslogfile, logFormatter=logFormatter)
+        self.site.displayTracebacks = False
 
     def start_jobs(self):
         for j in jobs_list:
@@ -86,18 +110,17 @@ class Service(service.Service):
                 initialize_db()
 
             for sock in self.state.http_socks:
-                listen_tcp_on_sock(reactor, sock.fileno(), self.api_factory)
+                listen_tcp_on_sock(reactor, sock.fileno(), self.site)
 
             for sock in self.state.https_socks:
                 listen_tls_on_sock(reactor,
                                    fd=sock.fileno(),
                                    contextFactory=self.state.snimap,
-                                   factory=self.api_factory)
+                                   factory=self.site)
 
             sync_refresh_tenant_cache()
             sync_initialize_snimap()
             self.state.orm_tp.start()
-            start_ws_server()
             self.start_jobs()
             self.state.print_listening_interfaces()
 

@@ -15,7 +15,7 @@ from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null
-from globaleaks.utils.websocket_server import notify_users
+from globaleaks.utils.websocket import notify_users
 
 
 def index_answers(answers, parent_index=''):

@@ -32,7 +32,7 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
-from globaleaks.utils.websocket_server import notify_users
+from globaleaks.utils.websocket import notify_users
 
 
 def get_tip_recipient_ids(session, itip_id):

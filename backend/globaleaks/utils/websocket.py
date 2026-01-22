@@ -1,11 +1,14 @@
 import json
-from autobahn.twisted.websocket import WebSocketServerProtocol, WebSocketServerFactory
+from autobahn.twisted.websocket import WebSocketServerProtocol
 from twisted.internet import reactor
 from globaleaks.sessions import Sessions
 
 CLIENTS = set()
 
-class GLWebSocketProtocol(WebSocketServerProtocol):
+class WebSocketServerProtocol(WebSocketServerProtocol):
+    def connectionMade(self):
+        self._connectionMade()
+
     def onOpen(self):
         self.user_id = None
         self.tip_ids = set()
@@ -47,14 +50,6 @@ class GLWebSocketProtocol(WebSocketServerProtocol):
 
     def send_update(self, payload):
         self.sendMessage(json.dumps(payload).encode("utf-8"))
-
-
-factory = WebSocketServerFactory("ws://127.0.0.1:9000")
-factory.protocol = GLWebSocketProtocol
-
-def start_ws_server():
-    reactor.listenTCP(9000, factory)
-    print("WebSocket running on ws://127.0.0.1:9000")
 
 
 def notify_users(payload, tip_id=None, user_ids=None, exclude_user=None):
