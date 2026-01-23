@@ -194,20 +194,18 @@ export class TipsComponent implements OnInit {
 
   onChanged(model: { id: number; label: string; }[], type: string) {
     this.processTips();
-    if (model.length > 0 && type === "Score") {
+    if (model.length > 0) {
       this.dropdownContextModel = [];
       this.dropdownStatusModel = [];
-      this.dropdownScoreModel = model;
-    }
-    if (model.length > 0 && type === "Status") {
-      this.dropdownContextModel = [];
       this.dropdownScoreModel = [];
-      this.dropdownStatusModel = model;
-    }
-    if (model.length > 0 && type === "Context") {
-      this.dropdownStatusModel = [];
-      this.dropdownScoreModel = [];
-      this.dropdownContextModel = model;
+
+      if (type === "Score") {
+        this.dropdownScoreModel = model;
+      } else if (type === "Status") {
+        this.dropdownStatusModel = model;
+      } else if (type === "Context") {
+        this.dropdownContextModel = model;
+      }
     }
     this.applyFilter();
   }
@@ -216,31 +214,28 @@ export class TipsComponent implements OnInit {
     return filter.length > 0;
   };
 
-  toggleChannelDropdown() {
-    this.channelDropdownVisible = !this.channelDropdownVisible;
+  resetFiltersStatus() {
+    this.channelDropdownVisible = false;
     this.statusDropdownVisible = false;
     this.scoreDropdownVisible = false;
     this.reportDatePicker = false;
     this.lastUpdatePicker = false;
     this.expirationDatePicker = false;
+  }
+
+  toggleChannelDropdown() {
+    this.resetFiltersStatus();
+    this.channelDropdownVisible = !this.channelDropdownVisible;
   }
 
   toggleStatusDropdown() {
+    this.resetFiltersStatus();
     this.statusDropdownVisible = !this.statusDropdownVisible;
-    this.channelDropdownVisible = false;
-    this.scoreDropdownVisible = false;
-    this.reportDatePicker = false;
-    this.lastUpdatePicker = false;
-    this.expirationDatePicker = false;
   }
 
   toggleScoreDropdown() {
+    this.resetFiltersStatus();
     this.scoreDropdownVisible = !this.scoreDropdownVisible;
-    this.channelDropdownVisible = false;
-    this.statusDropdownVisible = false;
-    this.reportDatePicker = false;
-    this.lastUpdatePicker = false;
-    this.expirationDatePicker = false;
   }
 
   orderbyCast(data: rtipResolverModel[]): rtipResolverModel[] {
