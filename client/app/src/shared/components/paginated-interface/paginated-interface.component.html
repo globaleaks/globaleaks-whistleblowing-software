@@ -3,7 +3,7 @@
   <div class="col d-flex justify-content-end">
     <app-search-input
       [(value)]="searchText"
-      (valueChange)="onSearchChange()">
+      (valueChange)="update()">
     </app-search-input>
   </div>
 </div>
@@ -36,5 +36,5 @@
   [items]="filteredItems"
   [(currentPage)]="currentPage"
   [itemsPerPage]="itemsPerPage"
-  (currentPageChange)="onPaginationChange()">
+  (currentPageChange)="update()">
 </app-pagination>

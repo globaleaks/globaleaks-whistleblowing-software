@@ -49,33 +49,24 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, O
   constructor(private iterableDiffers: IterableDiffers) {}
 
   ngAfterViewInit(): void {
-    this.updatePaginatedItems();
+    this.update();
   }
 
   ngDoCheck(): void {
     const changes = this.differ.diff(this.items);
     if (changes) {
-      this.updatePaginatedItems();
+      this.update();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
-      this.currentPage = 1;
-      this.updatePaginatedItems();
+      this.update();
     }
   }
 
-  onSearchChange(): void {
-    this.currentPage = 1; // reset page on search change
-    this.updatePaginatedItems();
-  }
-
-  onPaginationChange(): void {
-    this.updatePaginatedItems();
-  }
-
-  private updatePaginatedItems(): void {
+  update(): void {
+    this.currentPage = 1;
     this.filteredItems = [...this.items];
 
     // Apply optional filter object
