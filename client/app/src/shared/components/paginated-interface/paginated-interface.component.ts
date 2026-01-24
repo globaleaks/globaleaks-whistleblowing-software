@@ -11,6 +11,7 @@ import {
   TemplateRef
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {UtilsService} from "@app/shared/services/utils.service";
 import {SearchInputComponent} from '@app/shared/components/search/search.component';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
@@ -18,7 +19,7 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 @Component({
   selector: 'app-paginated-interface',
   templateUrl: './paginated-interface.component.html',
-  imports: [CommonModule, PaginationComponent, SearchInputComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, SearchInputComponent],
 })
 export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, OnChanges {
   @Input() mode: 'table' | 'simple' = 'simple';
@@ -28,6 +29,11 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, O
 
   /** Optional: filter by key-value pairs */
   @Input() filter?: { [key: string]: any };
+
+  /** Optional boolean filter (toggle) */
+  @Input() filterOptLabel?: string;
+  @Input() filterOptEnabled? = false;
+  @Input() filterOptFn?: (item: T) => boolean;
 
   /** Optional: order items by field and direction */
   @Input() orderBy?: keyof T;
@@ -75,6 +81,13 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, O
         Object.entries(this.filter!).every(
           ([key, value]) => (item as any)[key] === value
         )
+      );
+    }
+
+    // Apply optional boolean filter (toggle)
+    if (this.filterOptFn && this.filterOptEnabled) {
+      this.filteredItems = this.filteredItems.filter(item =>
+        this.filterOptFn!(item)
       );
     }
 

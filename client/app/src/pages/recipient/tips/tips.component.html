@@ -30,7 +30,7 @@
   </div>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="filteredTips" orderBy="creation_date" [orderDesc]="true">
+      <app-paginated-interface [mode]="'table'" [items]="filteredTips" orderBy="creation_date" [orderDesc]="true" [filterOptLabel]="'Uread items' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>

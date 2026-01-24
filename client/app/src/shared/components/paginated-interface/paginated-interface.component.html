@@ -1,10 +1,22 @@
-<!-- Search bar -->
+-<!-- Filtering bar -->
 <div class="row mb-3">
-  <div class="col d-flex justify-content-end">
+  <div class="col d-flex align-items-center gap-3 justify-content-start">
     <app-search-input
+      class="flex-shrink-0"
       [(value)]="searchText"
       (valueChange)="update()">
     </app-search-input>
+
+    <div class="form-check m-0 d-flex align-items-center" *ngIf="filterOptFn">
+      <input
+        class="form-check-input mt-0"
+        type="checkbox"
+        id="filterOpt"
+        [(ngModel)]="filterOptEnabled"
+        (ngModelChange)="update()"
+      >
+      <label class="form-check-label ms-2 mb-0" for="filterOpt">{{filterOptLabel}}</label>
+    </div>
   </div>
 </div>
 

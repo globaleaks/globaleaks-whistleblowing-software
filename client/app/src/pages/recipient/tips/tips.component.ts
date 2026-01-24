@@ -100,6 +100,8 @@ export class TipsComponent implements OnInit {
     this.selectedTips = [];
   }
 
+  filterNewOrUpdated = (obj: { updated?: boolean }) => !!obj.updated;
+
   exportTips() {
     const selectedTips = [...this.selectedTips];
     this.appDataService.updateShowLoadingPanel(true);
