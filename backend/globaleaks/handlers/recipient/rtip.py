@@ -45,6 +45,23 @@ def get_report_audit_log(session, tid, user_id, itip_id):
 
     return [serialize_log(log) for log in logs]
 
+@transact
+def get_all_report_audit_logs(session, tid, receiver_id):
+
+    logs = (session.query(models.AuditLog).join(models.ReceiverTip, models.ReceiverTip.internaltip_id == models.AuditLog.object_id)
+        .filter(models.ReceiverTip.receiver_id == receiver_id, models.AuditLog.tid == tid)
+        .order_by(models.AuditLog.object_id, models.AuditLog.date.desc()))
+
+    result = {}
+
+    for log in logs:
+        tip_id = log.object_id
+        if tip_id not in result:
+            result[tip_id] = []
+
+        result[tip_id].append(serialize_log(log))
+
+    return result
 
 def db_notify_grant_access(session, user):
     """
@@ -1397,3 +1414,13 @@ class ReportAuditLog(BaseHandler):
 
     def get(self, tip_id):
         return get_report_audit_log(self.session.tid, self.session.user_id, tip_id)
+
+
+class ReportAuditLogCollection(BaseHandler):
+    """
+    Audit log for all tips of a receiver
+    """
+    check_roles = 'receiver'
+
+    def get(self):
+        return get_all_report_audit_logs(self.session.tid, self.session.user_id)

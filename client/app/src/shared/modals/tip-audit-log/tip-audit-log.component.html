@@ -3,7 +3,6 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
-  <!-- Search Bar -->
   <div class="row mb-3">
     <div class="col-md-8"></div>
     <div class="col-md-4">
@@ -14,12 +13,24 @@
       </div>
     </div>
   </div>
-
-  <!-- Audit Log Table -->
   <div class="table-responsive">
     <table class="table table-hover">
       <thead>
         <tr>
+          @if (showTipColumn) {
+            <th class="tip-id-column">
+              <span class="sortable" (click)="toggleSort('tip')">
+                {{'Tip' | translate}}
+                <i class="fas fa-sort text-muted"></i>
+                <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
+                  <span id="auditlog-tip-filter-type" [ngClass]="{ filterSelected: checkTipFilter(dropdownTipModel) }" (click)="toggleTipDropdown();$event.stopPropagation();"><i class="fas fa-filter"></i></span>
+                  <span [class.d-none]="!tipDropdownVisible" (click)="$event.stopPropagation()">
+                    <ng-multiselect-dropdown [class.dropdown-visible]="tipDropdownVisible" [settings]="dropdownSettings" [data]="dropdownTipData" [(ngModel)]="dropdownTipModel" (ngModelChange)="onTipFilterChange($event)"></ng-multiselect-dropdown>
+                  </span>
+                </span>
+              </span>
+            </th>
+          }
           <th class="sortable" (click)="toggleSort('user')">
             {{'User' | translate}}
             @if (sortField === 'user') {
@@ -56,10 +67,16 @@
       </thead>
       <tbody>
         @for (entry of getPaginatedData(); track entry.id) {
-          <!-- Main entry row -->
           <tr [class]="entry.isGroup ? 'audit-group-row' : ''"
               [style.cursor]="entry.isGroup ? 'pointer' : 'default'"
               (click)="entry.isGroup ? toggleGroupExpansion(entry) : null">
+            @if (showTipColumn) {
+              <td>
+                <span>
+                  {{entry.tipId}}
+                </span>
+              </td>
+            }
             <td>{{entry.user}}</td>
             <td>
               <span class="badge bg-light text-dark">
@@ -83,11 +100,16 @@
               </div>
             </td>
           </tr>
-
-          <!-- Expanded content -->
           @if (entry.isGroup && entry.isExpanded && entry.groupedEntries) {
             @for (childEntry of entry.groupedEntries; track childEntry.id) {
               <tr>
+                @if (showTipColumn) {
+                  <td>
+                    <span>
+                      {{childEntry.tipId}}
+                    </span>
+                  </td>
+                }
                 <td>{{childEntry.user}}</td>
                 <td>
                   <span class="badge bg-light text-dark">
@@ -101,7 +123,7 @@
         }
         @if (getPaginatedData().length === 0) {
           <tr>
-            <td colspan="3" class="text-center text-muted py-3">
+            <td [attr.colspan]="showTipColumn ? 4 : 3" class="text-center text-muted py-3">
               {{'No results' | translate}}
             </td>
           </tr>
@@ -109,7 +131,6 @@
       </tbody>
     </table>
   </div>
-
   @if (getFilteredData().length > pageSize) {
     <div>
       <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="pageSize" [collectionSize]="getFilteredData().length">
@@ -120,8 +141,6 @@
       </ngb-pagination>
     </div>
   }
-
-  <!-- Export Button -->
   <div class="d-flex justify-content-end mt-2">
     <button class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
       <i class="fas fa-download"></i>

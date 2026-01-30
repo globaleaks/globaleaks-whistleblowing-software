@@ -305,6 +305,10 @@ export class HttpService {
     return this.httpClient.get<auditlogResolverModel[]>(`api/recipient/rtips/${tipId}/auditlog`);
   }
 
+  requestRecipientTipsAuditLogResource(): Observable<auditlogResolverModel> {
+    return this.httpClient.get<auditlogResolverModel>(`api/recipient/rtips/auditlog`);
+  }
+
   requestWhistleblowerTipAuditLogResource(): Observable<auditlogResolverModel[]> {
     return this.httpClient.get<auditlogResolverModel[]>("api/whistleblower/wbtip/auditlog");
   }
