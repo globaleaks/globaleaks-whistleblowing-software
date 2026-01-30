@@ -77,6 +77,13 @@
                           name="https_whistleblower" type="checkbox">
                       </td>
                     </tr>
+                    <tr>
+                      <td><label for="https-auditor">{{ 'Auditor' | translate }}</label></td>
+                      <td>
+                        <input id="https-auditor" class="form-check-input" [(ngModel)]="networkData.https_auditor"
+                          name="https_auditor" type="checkbox">
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

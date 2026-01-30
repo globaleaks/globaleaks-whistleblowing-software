@@ -83,7 +83,7 @@ class TipsCollection(BaseHandler):
     """
     This Handler returns the list of the tips
     """
-    check_roles = 'admin'
+    check_roles = {'admin', 'auditor'}
 
     def get(self):
         return get_tips(self.request.tid)
@@ -93,7 +93,7 @@ class JobsTiming(BaseHandler):
     """
     This handler return the timing for the latest scheduler execution
     """
-    check_roles = 'admin'
+    check_roles = {'admin', 'auditor'}
 
     def get(self):
         response = []
@@ -111,7 +111,7 @@ class AuditLog(BaseHandler):
     """
     Handler that provide access to the access.log file
     """
-    check_roles = 'admin'
+    check_roles = {'admin','auditor'}
 
     def get(self):
         return get_audit_log(self.request.tid)
@@ -133,7 +133,7 @@ class DebugLog(BaseHandler):
     """
     Handler that provide access to the access.log file
     """
-    check_roles = 'admin'
+    check_roles = {'admin', 'auditor'}
     root_tenant_only = True
 
     def get(self):

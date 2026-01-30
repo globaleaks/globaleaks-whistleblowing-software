@@ -123,7 +123,7 @@ class NodeInstance(BaseHandler):
     invalidate_cache = True
 
     def determine_allow_config_filter(self):
-        if self.session.role == 'admin':
+        if self.session.role == 'admin' or self.session.role == 'auditor':
             node = ('admin_node', requests.AdminNodeDesc)
         elif self.session.has_permission('can_edit_general_settings'):
             node = ('general_settings', requests.SiteSettingsDesc)

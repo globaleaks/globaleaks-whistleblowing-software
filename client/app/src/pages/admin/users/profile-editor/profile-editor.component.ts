@@ -44,7 +44,8 @@ export class ProfileEditorComponent implements OnInit {
        { value: 'admin', role: 'Admin' },
        { value: 'analyst', role: 'Analyst' },
        { value: 'custodian', role: 'Custodian' },
-       { value: 'receiver', role: 'Recipient' }
+       { value: 'receiver', role: 'Recipient' },
+       { value: 'auditor', role: 'Auditor' }
      ];
 
   protected readonly Constants = Constants;
@@ -129,7 +130,7 @@ export class ProfileEditorComponent implements OnInit {
   }
 
   hasSpecificRole(profile: any): boolean {
-    return profile.roles && profile.roles.some((role: string) => ['analyst', 'custodian', 'receiver'].includes(role));
+    return profile.roles && profile.roles.some((role: string) => ['analyst', 'custodian', 'receiver', 'auditor'].includes(role));
   }
 
   assignRole(role: string) {

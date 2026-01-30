@@ -1,0 +1,28 @@
+<app-paginated-interface [mode]="'table'" [items]="this.users">
+  <ng-template #header>
+    <tr>
+      <th>{{'ID'|translate}}</th>
+      <th>{{'Username'|translate}}</th>
+      <th>{{'Role'|translate}}</th>
+      <th>{{'Name'|translate}}</th>
+      <th>2FA</th>
+      <th>{{'Creation date'|translate}}</th>
+      <th>{{'Last access'|translate}}</th>
+    </tr>
+  </ng-template>
+  <ng-template #content let-data="item" let-index="index">
+    <tr>
+      <td>{{data.id}}</td>
+      <td>{{data.username}}</td>
+      <td>{{data.role}}</td>
+      <td>{{data.name}}</td>
+      <td>
+        @if (data.two_factor) {<i class="fas fa-xmark"></i>}
+        @if (!data.two_factor) {<i class="fas fa-check"></i>}
+      </td>
+      <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+      <td>{{data.last_login | date:'dd-MM-yyyy HH:mm'}}</td>
+    </tr>
+  </ng-template>
+</app-paginated-interface>
+<div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>

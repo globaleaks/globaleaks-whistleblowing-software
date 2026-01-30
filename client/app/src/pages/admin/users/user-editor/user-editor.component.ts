@@ -175,7 +175,8 @@ export class UserEditorComponent implements OnInit {
       'admin': 'Admin',
       'analyst': 'Analyst',
       'custodian': 'Custodian',
-      'receiver': 'Recipient'
+      'receiver': 'Recipient',
+      'auditor': 'Auditor'
     };
 
     if (user.id == user.profile_id) {
@@ -201,6 +202,9 @@ export class UserEditorComponent implements OnInit {
         break;
       case 'analyst':
         roleDisplay = 'Analyst';
+        break;
+      case 'auditor':
+        roleDisplay = 'Auditor';
         break;
       default:
         roleDisplay = '';

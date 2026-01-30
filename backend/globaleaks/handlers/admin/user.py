@@ -247,7 +247,7 @@ def get_user(session, tid, id):
 
 
 class UsersCollection(BaseHandler):
-    check_roles = 'admin'
+    check_roles = {'admin', 'auditor'}
     invalidate_cache = True
 
     def get(self):

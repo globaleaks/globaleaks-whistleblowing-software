@@ -82,6 +82,7 @@ export class UsersTab2Component implements OnInit {
         {value:'analyst', role: 'Analyst'},
         {value:'custodian', role: 'Custodian'},
         {value:'receiver', role: 'Recipient'},
+        {value:'auditor', role: 'Auditor'}
       ]
     });
   }

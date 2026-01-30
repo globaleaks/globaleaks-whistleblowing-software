@@ -18,6 +18,7 @@ import {MessageConsoleComponent} from "@app/shared/partials/messageconsole/messa
 import {OperationComponent} from "@app/shared/partials/operation/operation.component";
 import {AdminSidebarComponent} from "../admin/sidebar/sidebar.component";
 import {AnalystSidebarComponent} from "../analyst/sidebar/sidebar.component";
+import {AuditorSidebarComponent} from "../auditor/sidebar/sidebar.component";
 import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component";
 import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
 import {HttpClient} from "@angular/common/http";
@@ -49,7 +50,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [NgClass, HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
+    imports: [NgClass, HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AuditorSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   private document = inject<Document>(DOCUMENT);

@@ -15,7 +15,7 @@ export class TipsResolver {
   dataModel: tipsResolverModel = new tipsResolverModel();
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
+    if (this.authenticationService.session.role === "admin" || this.authenticationService.session.role === "auditor") {
       return this.httpService.requestTipResource().pipe(
         map((response: tipsResolverModel) => {
           this.dataModel = response;

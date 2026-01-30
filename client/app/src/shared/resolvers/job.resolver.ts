@@ -15,7 +15,7 @@ export class JobResolver {
   dataModel: jobResolverModel = new jobResolverModel();
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
+    if (this.authenticationService.session.role === "admin" || this.authenticationService.session.role === "auditor") {
       return this.httpService.requestJobResource().pipe(
         map((response: jobResolverModel) => {
           this.dataModel = response;

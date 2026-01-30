@@ -201,7 +201,7 @@ class TipsCollection(BaseHandler):
 
     Handler dealing with submissions fetch
     """
-    check_roles = 'receiver'
+    check_roles = {'receiver', 'auditor'}
 
     def get(self):
         return get_receivertips(self.request.tid,

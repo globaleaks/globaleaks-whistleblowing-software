@@ -21,6 +21,7 @@ export class NodeResolver {
   resolve(): Observable<boolean> {
     if (
         this.authenticationService.session.role === "admin" ||
+        this.authenticationService.session.role === "auditor" ||
         (this.authenticationService.session.role === "receiver" &&
             this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings)
     ) {

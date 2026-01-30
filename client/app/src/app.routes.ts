@@ -12,6 +12,7 @@ import {TitleResolver} from "@app/shared/resolvers/title-resolver.resolver";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
+import {AuditorGuard} from "@app/shared/guards/auditor.guard";
 
 export const appRoutes: Routes = [
   {
@@ -83,6 +84,15 @@ export const appRoutes: Routes = [
     loadChildren: () => import("./pages/analyst/analyst.routes").then(m => m.analystRoutes),
     data: {
       sidebar: "analyst-sidebar",
+      pageTitle: "Home",
+    },
+  },
+  {
+    path: "auditor",
+    canActivate: [AuditorGuard],
+    loadChildren: () => import("./pages/auditor/auditor.routes").then(m => m.auditorRoutes),
+    data: {
+      sidebar: "auditor-sidebar",
       pageTitle: "Home",
     },
   },

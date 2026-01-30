@@ -310,7 +310,7 @@ export class UtilsService {
     if (this.appDataService.public.node.custom_support_url) {
       window.open(this.appDataService.public.node.custom_support_url, "_blank");
     } else {
-      this.modalService.open(RequestSupportComponent,{backdrop: "static", keyboard: false});
+      this.modalService.open(RequestSupportComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
     }
   }
 

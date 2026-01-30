@@ -11,7 +11,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import deferred_sleep
 
 
-USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver'}
+USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver', 'auditor'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
 
 def has_session_or_token(self):

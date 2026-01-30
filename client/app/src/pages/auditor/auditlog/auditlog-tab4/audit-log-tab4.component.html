@@ -1,0 +1,27 @@
+<app-paginated-interface [mode]="'table'" [items]="this.jobs">
+  <ng-template #header>
+     <tr>
+        <th><span class="visually-hidden">{{ 'Name' | translate }}</span></th>
+        @for (t of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track t) {
+          <th>#{{ t }}</th>
+        }
+      </tr>
+  </ng-template>
+  <ng-template #content let-data="item" let-index="index">
+    <tr>
+      <td>{{data.name}}</td>
+      @for (t of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; track t) {
+        <td>
+          @if (data.timings[t]) {
+            <div>
+              <div>{{ (data.timings[t][1] - data.timings[t][0]) / 1000 }}s</div>
+              <div>{{ data.timings[t][0] | date:'HH:mm:ss' }}</div>
+              <div>{{ data.timings[t][0] | date:'dd-MM-yyyy' }}</div>
+            </div>
+          }
+        </td>
+      }
+    </tr>
+  </ng-template>
+</app-paginated-interface>
+<div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>
