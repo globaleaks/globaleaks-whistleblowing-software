@@ -43,7 +43,7 @@ export class AuditLogComponent implements AfterViewInit {
           component: this.tab1
         },
       ];
-      if (this.authenticationService.session.role === "admin") {
+      if (this.authenticationService.session.role === "admin" || this.authenticationService.session.role === "auditor") {
         this.tabs = this.tabs.concat([
           {
             id:"users",

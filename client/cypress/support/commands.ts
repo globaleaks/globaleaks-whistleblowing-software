@@ -4,6 +4,7 @@ declare global {
       // @ts-ignore
       login_admin: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
+      login_auditor: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_receiver: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_custodian: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_whistleblower: (receipt: string) => void;
@@ -67,6 +68,33 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
       });
     });
   }
+});
+
+Cypress.Commands.add("login_auditor", (username, password, url, firstlogin) => {
+   username = username === undefined ? "Auditor" : username;
+  password = password === undefined ? Cypress.env("user_password") : password;
+  url = url === undefined ? "#/login" : url;
+
+  let finalURL = "/actions/forcedpasswordchange";
+
+  cy.visit(url);
+  cy.get("[name=\"username\"]").type(username);
+
+  // @ts-ignore
+  cy.get("[name=\"password\"]").type(password);
+  cy.get("#login-button").click();
+
+  if (!firstlogin) {
+    cy.url().should("include", "#/login").then(() => {
+      cy.url().should("not.include", "#/login").then((currentURL) => {
+        const hashPart = currentURL.split("#")[1];
+        finalURL = hashPart === "login" ? "/auditor/home" : hashPart;
+        cy.waitForUrl(finalURL);
+      });
+    });
+  }
+
+  cy.waitForPageIdle();
 });
 
 Cypress.Commands.add("login_analyst", (username, password, url, firstlogin) => {

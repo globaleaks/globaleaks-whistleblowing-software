@@ -35,6 +35,11 @@ describe("admin add, configure, and delete users", () => {
       value:"Profile7 (Multi Role)",
       address: "globaleaks-multi-role-user@mailinator.com",
     },
+    {
+      name: "Auditor",
+      value:"Profile8",
+      address: "globaleaks-auditor1@mailinator.com",
+    },
   ];
 
   const new_profiles = [
@@ -65,6 +70,10 @@ describe("admin add, configure, and delete users", () => {
     {
       name: "Profile7 (Multi Role)",
       value:"admin",
+    },
+    {
+      name: "Profile8",
+      value:"auditor",
     },
   ];
 
@@ -125,7 +134,7 @@ describe("admin add, configure, and delete users", () => {
     cy.visit("/#/admin/users");
 
     cy.get(".userList").its("length").then(userListLength => {
-      const numberOfUsers = Math.min(userListLength, 7);
+      const numberOfUsers = Math.min(userListLength, 8);
       for (let i = 1; i < numberOfUsers; i++) {
         cy.get(".userList").eq(i).within(() => {
           if (Cypress.$('button[name="edit_user"]').length > 0) {

@@ -101,3 +101,13 @@ describe("Analyst first login", () => {
   });
 });
 
+describe("Auditor first login", () => {
+  it("should require password change upon successful authentication", () => {
+    cy.login_auditor("Auditor", Cypress.env("init_password"), "#/login", true);
+    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
+    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('button[name="submit"]').click();
+    cy.url().should("include", "/auditor/home");
+    cy.logout();
+  });
+});

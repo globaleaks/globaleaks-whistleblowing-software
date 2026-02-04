@@ -24,7 +24,7 @@ export const auditorRoutes: Routes = [
   },
   {
     path: "auditlog",
-    loadComponent: () => import('@app/pages/auditor/auditlog/audit-log.component').then(m => m.AuditLogComponent),
+    loadComponent: () => import('@app/pages/admin/auditlog/audit-log.component').then(m => m.AuditLogComponent),
     resolve: {
       NodeResolver, PreferenceResolver, UsersResolver, AuditLogResolver, JobResolver, TipsResolver
     },

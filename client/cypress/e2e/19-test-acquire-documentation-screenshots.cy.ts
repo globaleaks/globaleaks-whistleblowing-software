@@ -99,6 +99,27 @@ describe("Acquire screenshots necessary for user documentation - Analyst Section
   });
 });
 
+describe("Acquire screenshots necessary for user documentation - Auditor Section", () => {
+  it("should capture screenshots of the auditor section", function () {
+    cy.login_auditor();
+    cy.takeScreenshot("auditor/home");
+    
+    cy.get("#auditor_audit_log").first().click();
+    cy.takeScreenshot("auditor/audit_log");
+
+    cy.get('[data-cy="users"]').click();
+    cy.takeScreenshot("auditor/audit_log_users");
+
+    cy.get('[data-cy="reports"]').first().click();
+    cy.takeScreenshot("auditor/audit_log_reports");
+
+    cy.get('[data-cy="scheduled_jobs"]').first().click();
+    cy.takeScreenshot("auditor/audit_log_scheduled_jobs");
+
+    cy.logout();
+  });
+});
+
 describe("Acquire screenshots necessary for user documentation - Custodian Section", () => {
   it("should capture screenshots of the custodian section", function () {
     cy.login_custodian();
