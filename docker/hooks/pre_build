@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "$DHI_TOKEN" | docker login dhi.io -u "$DHI_USERNAME" --password-stdin
