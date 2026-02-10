@@ -125,11 +125,12 @@ def restore(args):
     p_head, p_tail = os.path.split(args.workdir)
 
     shutil.rmtree(args.workdir)
+    os.makedirs(args.workdir)
 
     print("Extracting the archive {}".format(args.backuppath))
     sp.check_call(["tar", "-xf", args.backuppath, "-C", args.workdir])
 
-    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
+    if must_stop: sp.check_call(["service", "globaleaks", "start"])
 
     print("Success! globaleaks has been restored from a backup")
 
