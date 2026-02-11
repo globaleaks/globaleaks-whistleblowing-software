@@ -1,11 +1,48 @@
 name: Feature request
 description: Suggest a new feature.
-title: "Suggest a new feature"
+title: "Add/Improve [Specific Feature or Capability]"
+
 body:
+  - type: markdown
+    attributes:
+      value: |
+        **Guidance**
+
+        Please use the following template to clearly describe your feature request. A well-structured proposal increases the likelihood of it being discussed by the community and possibly included in the development roadmap.
+
+  - type: checkboxes
+    attributes:
+      label: Prerequisites
+      description: Help us resolve issues faster by completing the following.
+      options:
+        - label: I have read the [contributing guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
+          required: true
+        - label: I have [searched existing issues](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?utf8=%E2%9C%93&q=is%3Aissue) for duplicates or prior discussions
+          required: true
+
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem/Need
+      description: |
+        What problem or user need are you trying to address? In what context does this need arise (e.g., legal, usability, security, user feedback)?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-situation
+    attributes:
+      label: Current situation
+      description: |
+        What are the limitations or pain points with the current implementation?
+    validations:
+      required: true
+
   - type: textarea
     id: proposal
     attributes:
       label: Proposal
-      description: Provide detailed information about your feature ideas including references to related work.
+      description: |
+        Please describe your proposed solution in as much detail as possible and include any relevant workflows, UI suggestions, configurations, or technical ideas.
     validations:
       required: true
