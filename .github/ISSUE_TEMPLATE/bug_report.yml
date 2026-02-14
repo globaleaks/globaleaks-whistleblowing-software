@@ -1,18 +1,20 @@
 name: Report a bug
-description: Tell us about a bug or issue you may have identified.
-title: "Provide a general summary of the issue"
+description: Tell us about a bug or issue you have identified.
+title: "Bug: [Short summary of the issue]"
+
 body:
-  - type: checkboxes
+  - type: markdown
     attributes:
-      label: Prerequisites
-      description: Help us resolve issues faster by completing the following.
-      options:
-        - label: I have read the [contributing guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
-          required: true
-        - label: I have [searched existing issues](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?utf8=%E2%9C%93&q=is%3Aissue) for duplicates or prior discussions
-          required: true
-        - label: I have attempted to [reproduce the issue](https://try.globaleaks.org) on [try.globaleaks.org](https://try.globaleaks.org)
-          required: true
+      value: |
+        ## Guidance
+
+        Please use this template to clearly describe the reported bug. Well-structured reports help us identify and fix issues efficiently.
+
+        Before proceeding, please ensure you:
+        - Review the [Contributing Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
+        - Follow the project [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md)
+        - Search [existing bug reports](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?q=is%3Aissue) to avoid duplicates
+        - Attempt to reproduce the issue on [https://try.globaleaks.org](https://try.globaleaks.org)
 
   - type: textarea
     id: software-version
@@ -22,57 +24,17 @@ body:
       required: true
 
   - type: textarea
-    id: os-distribution
-    attributes:
-      label: On which distribution/version is GlobaLeaks installed?
-      description: For example, Debian 12, Ubuntu 24.04, etc.
-    validations:
-      required: false
-
-  - type: dropdown
-    id: browser
-    attributes:
-      label: What browser(s) are you seeing the problem on?
-      multiple: true
-      options:
-        - Tor Browser
-        - Chrome
-        - Firefox
-        - Microsoft Edge
-        - Safari
-        - All
-        - Other
-        - N/A
-
-  - type: dropdown
-    id: os
-    attributes:
-      label: What operating system(s) are you seeing the problem on?
-      multiple: true
-      options:
-        - Windows
-        - macOS
-        - Android
-        - iOS
-        - Linux
-        - All
-        - Other
-        - N/A
-    validations:
-      required: true
-
-  - type: textarea
     id: what-happened
     attributes:
       label: Describe the issue
-      description: Provide a clear and concise description of the issue, including what you expected to happen. Please include steps to reproduce the bug.
+      description: Provide a clear description of the issue, including what you expected to happen, what actually happened, and the steps required to reproduce the bug.
     validations:
       required: true
 
   - type: textarea
     id: proposed-solution
     attributes:
-      label: Proposed solution
+      label: Proposed solution (optional)
       description: If you have an idea how to fix the issue, please describe it here.
     validations:
       required: false
