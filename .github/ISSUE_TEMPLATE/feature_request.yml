@@ -13,7 +13,7 @@ body:
         Before proceeding, please ensure you:
         - Review the [Contributing Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
         - Follow the project [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md)
-        - Search [existing proposals](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?q=is%3Aissue) to avoid duplicates
+        - Search [existing proposals](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?q=is%3Aissue%20type%3AFeature) to avoid duplicates
 
   - type: textarea
     id: need
