@@ -10,6 +10,8 @@ body:
 
         Please use this template to clearly describe the reported bug. Well-structured reports help us identify and fix issues efficiently.
 
+        If you believe the issue may impact security, anonymity, or user privacy, please avoid posting details publicly and instead use the dedicated [security vulnerability reporting](https://github.com/globaleaks/globaleaks-whistleblowing-software/security/advisories/new) form.
+
         Before proceeding, please ensure you:
         - Review the [Contributing Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
         - Follow the project [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md)
