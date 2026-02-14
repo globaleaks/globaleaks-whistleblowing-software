@@ -6,19 +6,14 @@ body:
   - type: markdown
     attributes:
       value: |
-        **Guidance**
+        ## Guidance
 
-        Please use the following template to clearly describe your feature request. A well-structured proposal increases the likelihood of it being discussed by the community and possibly included in the development roadmap.
+        Please use this template to clearly describe your feature request. Well-structured proposals are more likely to be reviewed and considered for the development roadmap.
 
-  - type: checkboxes
-    attributes:
-      label: Prerequisites
-      description: Help us resolve issues faster by completing the following.
-      options:
-        - label: I have read the [contributing guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
-          required: true
-        - label: I have [searched existing issues](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?utf8=%E2%9C%93&q=is%3Aissue) for duplicates or prior discussions
-          required: true
+        Before proceeding, please ensure you:
+        - Review the [Contributing Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/main/.github/CONTRIBUTING.md)
+        - Follow the project [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md)
+        - Search [existing proposals](https://github.com/globaleaks/globaleaks-whistleblowing-software/issues?q=is%3Aissue) to avoid duplicates
 
   - type: textarea
     id: need
