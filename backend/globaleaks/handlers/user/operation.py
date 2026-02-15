@@ -10,7 +10,7 @@ from globaleaks.rest import errors
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, sha256
-from globaleaks.utils.fs import srm
+from globaleaks.utils.fs import directory_traversal_check, srm
 from globaleaks.utils.utility import datetime_now
 
 
@@ -53,7 +53,9 @@ def change_password(session, tid, user_session, password):
 
     reset_token = user_session.properties.get('reset_token')
     if reset_token:
-        srm(os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token)))
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        directory_traversal_check(State.settings.ramdisk_path, filepath)
+        srm(filepath)
         del user_session.properties['reset_token']
 
     db_log(session, tid=tid, type='change_password', user_id=user.id, object_id=user.id)
