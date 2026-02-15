@@ -27,6 +27,7 @@ subdomain_regexp_or_empty = r'^[0-9a-z\-]+$|^$'
 url_regexp = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$'
 url_regexp_or_empty = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$|^$'
 tip_operation_regexp = r'^(postpone|set)$'
+token_regexp = r'^[a-f0-9]{64}$'
 short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
@@ -535,7 +536,7 @@ PasswordReset1Desc = {
 }
 
 PasswordReset2Desc = {
-    'reset_token': str,
+    'reset_token': token_regexp,
     'recovery_key': str,
     'auth_code': str
 }

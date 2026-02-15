@@ -15,6 +15,7 @@ from globaleaks.rest import requests
 from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.utils.crypto import generateRandomKey, GCE
+from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.utility import datetime_null
 
 
@@ -108,7 +109,9 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
     prv_key = ''
 
     try:
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token)), "r") as f:
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        directory_traversal_check(State.settings.ramdisk_path, filepath)
+        with open(filepath, "r") as f:
             token = f.read()
             user_id = token.split(":")[0]
     except:
