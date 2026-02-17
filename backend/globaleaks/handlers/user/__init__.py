@@ -1,4 +1,6 @@
 # Handlers dealing with user preferences
+from nacl.encoding import Base64Encoder
+
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
@@ -6,10 +8,54 @@ from globaleaks.orm import db_get, transact
 from globaleaks.rest import requests
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
-from globaleaks.utils.crypto import generateRandomKey
+from globaleaks.utils.crypto import GCE, generateRandomKey
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.utility import datetime_now, datetime_null
+
+
+# Roles that are always granted access to the statistical key
+STATISTICAL_KEY_ROLES = ('admin', 'analyst')
+
+
+def db_grant_statistical_key(session, tid, stat_prv_key):
+    """
+    Distribute the (already decrypted) statistical private key to every
+    admin/analyst of the tenant that already owns an encryption keypair but
+    does not hold the statistical key yet.
+
+    The statistical key is a push-only shared secret: it can only be granted
+    by someone who already holds it, encrypting it to the recipient's public
+    key. It is intentionally kept separate from the escrow key so that holding
+    it grants access to aggregated statistical data only, never to reports.
+    """
+    users = session.query(models.User) \
+                   .filter(models.User.tid == tid,
+                           models.User.crypto_pub_key != '',
+                           models.User.crypto_global_stat_prv_key == '')
+
+    for user in users:
+        if any(role in user.profile.roles_list for role in STATISTICAL_KEY_ROLES):
+            user.crypto_global_stat_prv_key = Base64Encoder.encode(
+                GCE.asymmetric_encrypt(user.crypto_pub_key, stat_prv_key))
+
+
+def db_reconcile_statistical_key(session, tid, user, cc):
+    """
+    If the given user holds the statistical key, distribute it to any
+    admin/analyst still missing it. Invoked on login of a key holder so that
+    users provisioned via activation link (whose keypair is created only at
+    first login) and legacy accounts get the key automatically.
+    """
+    if not cc or not user.crypto_global_stat_prv_key:
+        return
+
+    try:
+        stat_prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
+    except Exception:
+        return
+
+    db_grant_statistical_key(session, tid, stat_prv_key)
 
 import globaleaks.handlers.user.validate_email
 

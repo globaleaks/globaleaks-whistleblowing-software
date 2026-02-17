@@ -1,0 +1,102 @@
+<div class="config-section reveal">
+  <div>
+    <span>{{ 'Statistical Reports' | translate }}</span>
+    <button class="btn btn-sm btn-primary show-add-report-btn" (click)="toggleAddReport()">
+      <i class="fas fa-plus"></i>
+      <span>{{ 'Create' | translate }}</span>
+    </button>
+  </div>
+  @if (showAddReport) {
+    <div class="row">
+      <div ngForm="newReport" #newReport="ngForm" class="addReport col-md-6">
+        <div class="form-group">
+          <label>
+            <span>{{ 'Label' | translate }}</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+          </label>
+          <div [ngClass]="{'is-invalid': newReport.form.get('new_report.label')?.errors?.['required']}">
+            <input id="new-report-label" name="new_report.label" class="form-control" [(ngModel)]="new_report.label" type="text" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <span>{{ 'Template' | translate }}</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+          </label>
+          <div [ngClass]="{'is-invalid': newReport.form.get('new_report.template_id')?.errors?.['required']}">
+            <select id="new-report-template-id" name="new_report.template_id" class="form-control" [(ngModel)]="new_report.template_id" required>
+              @for (template of templatesData; track template.id) {
+                <option [value]="template.id">{{ template.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="new-report-realtime" name="new_report.realtime" [(ngModel)]="realtime" />
+            <label class="form-check-label" for="new-report-realtime">{{ 'Realtime' | translate }}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <div id="ReportObservationFilter" class="statistics-filter-bar d-flex flex-wrap align-items-center gap-2">
+            <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
+              <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
+                [ngClass]="{'filter-active': dateFilter}" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
+                ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date range' | translate) }}">
+                <i class="fas fa-calendar me-1"></i>
+                @if (dateFilter) {
+                  <span>{{ dateFilter.fromDate | date:'dd-MM-yyyy' }} - {{ dateFilter.toDate | date:'dd-MM-yyyy' }}</span>
+                } @else {
+                  <span>{{ 'Date range' | translate }}</span>
+                }
+              </button>
+              <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
+                <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
+                </ngbd-datepicker-range>
+              </div>
+            </span>
+
+            <span class="dropdown-multi-select-container" (click)="$event.stopPropagation()">
+              <button type="button" class="btn btn-sm btn-outline-secondary" [ngClass]="{'filter-active': channelFilterActive}"
+                (click)="toggleChannelFilter(); closeOtherDropdowns('channel')" ngbTooltip="{{ getFilterTooltip() }}">
+                <i class="fas fa-filter me-1"></i>
+                <span>{{ getFilterDisplayText() }}</span>
+                @if (channelDropdownModel.length > 0) {
+                  <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
+                }
+              </button>
+              <span [class.d-none]="!channelDropdownVisible" (click)="$event.stopPropagation()">
+                <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="channelDropdownSettings" [data]="channelDropdownData" [(ngModel)]="channelDropdownModel" [ngModelOptions]="{standalone: true}" (onSelect)="onChannelFilterChange()" (onDeSelect)="onChannelFilterChange()">
+                </ng-multiselect-dropdown>
+              </span>
+            </span>
+
+            @if (hasActiveFilters()) {
+              <button data-cy="filter_clear_button" type="button" class="btn btn-sm btn-outline-danger" (click)="clearObservationFilters()">
+                <i class="fas fa-times me-1"></i>
+                {{ 'Clear' | translate }}
+              </button>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <button id="add-btn" class="btn btn-primary" [disabled]="newReport.invalid" (click)="addReport(); toggleAddReport()" type="submit">
+            <i class="fas fa-plus"></i>
+            <span>{{ 'Add' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+  @if (filterOptions) {
+    <app-paginated-interface [items]="reportsData" [filterField]="'label'">
+      <ng-template #content let-item="item" let-index="index">
+        <div class="reportList">
+          <form id="report-{{index}}" name="editReport" #editReport="ngForm" novalidate>
+            <src-statistical-report-editor [reportData]="item" [reportsData]="reportsData" [editReport]="editReport" [filterOptions]="filterOptions" [index]="index" (dataToParent)="onReportRemoved($event)"></src-statistical-report-editor>
+          </form>
+        </div>
+      </ng-template>
+    </app-paginated-interface>
+  }
+</div>

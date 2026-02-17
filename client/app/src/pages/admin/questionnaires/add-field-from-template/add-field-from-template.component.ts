@@ -52,6 +52,13 @@ export class AddFieldFromTemplateComponent implements OnInit {
     field.instance = "reference";
     field.y = this.utilsService.newItemOrder(ySource, "y");
 
+    this.fieldTemplatesData.forEach(fieldTemplate => {
+      if (fieldTemplate.id === templateId) {
+        field.type = fieldTemplate.type;
+        field.statistical = fieldTemplate.statistical;
+      }
+    });
+
     if (isStep) {
       field.step_id = parentId;
     } else {

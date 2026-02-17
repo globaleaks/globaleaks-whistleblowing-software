@@ -627,3 +627,14 @@ SubmissionSubStatusDesc = {
 SessionUpdateDesc = {
     'token': str
 }
+
+AdminStatisticalTemplateDesc = {
+    'label': str,
+    'data': dict
+}
+
+AdminStatisticalReportDesc = {
+    'label': str,
+    'template_id': uuid_regexp_or_empty,
+    'data': dict
+}

@@ -2,6 +2,7 @@ import {Data} from "@app/models/receiver/receiver-tip-data";
 
 export interface rtipResolverModel {
   submissionStatusStr: string;
+  reportModificationStr: string;
   context_name: string;
   context?: any;
   id: string;

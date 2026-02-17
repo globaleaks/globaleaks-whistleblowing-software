@@ -8,7 +8,8 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_create_user_profile, db_update_user_profile
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import parse_pgp_options, \
+from globaleaks.handlers.user import db_reconcile_statistical_key, \
+                                     parse_pgp_options, \
                                      serialize_user, \
                                      user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
@@ -98,7 +99,7 @@ def db_create_user(session, tid, user_session, request, language):
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
 
-    if encryption and crypto_escrow_pub_key_tenant_1 or crypto_escrow_pub_key_tenant_n:
+    if (encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password')):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
@@ -107,11 +108,8 @@ def db_create_user(session, tid, user_session, request, language):
             if token:
                 set_tmp_key(user_session, user, token, cc)
 
-            if any(role in user.profile.roles_list for role in ('admin', 'analyst')):
-                current_user = db_get(session, models.User, models.User.id == user_session.user_id)
-                if current_user.crypto_global_stat_prv_key:
-                    crypto_global_stat_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(current_user.crypto_global_stat_prv_key))
-                    user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_global_stat_prv_key))
+            current_user = db_get(session, models.User, models.User.id == user_session.user_id)
+            db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
 
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:

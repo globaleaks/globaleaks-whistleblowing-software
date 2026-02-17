@@ -1,77 +1,47 @@
-import {Component, OnInit, inject} from '@angular/core';
-import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
-import {TranslateService, TranslateModule} from '@ngx-translate/core';
-
-import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
+import {ChangeDetectorRef, Component, TemplateRef, ViewChild, inject} from '@angular/core';
+import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
 import {TranslatorPipe} from '@app/shared/pipes/translate';
+import {Tab} from '@app/models/component-model/tab';
+import {FormsModule} from '@angular/forms';
+import {NgTemplateOutlet} from '@angular/common';
+import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
+import {StatisticalReportsTabComponent} from '@app/pages/analyst/statistics/statistical-reports-tab/statistical-reports-tab.component';
+import {StatisticalTemplatesTabComponent} from '@app/pages/analyst/statistics/statistical-templates-tab/statistical-templates-tab.component';
 
 @Component({
     selector: 'src-statistics',
     templateUrl: './statistics.component.html',
     standalone: true,
-    imports: [
-    BaseChartDirective,
-    TranslateModule,
-    TranslatorPipe
-],
+    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, StatisticalReportsTabComponent, StatisticalTemplatesTabComponent, TranslatorPipe],
     providers: [provideCharts(withDefaultRegisterables())],
 })
-export class StatisticsComponent implements OnInit {
-  private translateService = inject(TranslateService);
-  private statisticsResolver = inject(StatisticsResolver);
+export class StatisticsComponent {
+  private cdr = inject(ChangeDetectorRef);
 
-  charts: any[] = [];
+  @ViewChild("tab1") tab1!: TemplateRef<StatisticalReportsTabComponent>;
+  @ViewChild("tab2") tab2!: TemplateRef<StatisticalTemplatesTabComponent>;
 
-  ngOnInit(): void {
-    this.initializeCharts();
-  }
+  tabs: Tab[];
+  active: string;
 
-  private calculatePercentage(value: number, total: number): string {
-    if (total === 0) {
-      return '0.0';
-    }
-    return ((value / total) * 100).toFixed(1);
-  }
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.active = "Statistical Reports";
 
-  private createChart(title: string, labels: string[], values: number[], colors: string[]) {
-    let total = 0;
-    let i: any;
+      this.tabs = [
+        {
+          id:"satistical_reports",
+          title: "Statistical Reports",
+          component: this.tab1
+        },
+        {
+          id:"templates",
+          title: "Templates",
+          component: this.tab2
+        },
+      ];
 
-    for (i in values) {
-      total += values[i];
-    }
-
-    for (i in labels) {
-      labels[i] = this.translateService.instant(labels[i]) + ": " + this.calculatePercentage(values[i], total) + "%";
-    }
-
-    return {
-      title: this.translateService.instant(title),
-      labels: labels,
-      datasets: [{'labels': labels, 'data': values, 'backgroundColor': colors}],
-    };
-  }
-
-  private initializeCharts(): void {
-    const { dataModel } = this.statisticsResolver;
-    const reports_count: number = dataModel.reports_count;
-
-    const a_1: number = dataModel.reports_with_no_access || 0;
-    const a_2: number = reports_count - dataModel.reports_with_no_access || 0;
-
-    const b_1: number = dataModel.reports_anonymous || 0;
-    const b_2: number = dataModel.reports_subscribed || 0;
-    const b_3: number = dataModel.reports_initially_anonymous || 0;
-
-    const c_1: number = dataModel.reports_tor || 0;
-    const c_2: number = reports_count - dataModel.reports_tor || 0;
-
-    const d_1: number = dataModel.reports_mobile || 0;
-    const d_2: number = reports_count - dataModel.reports_mobile || 0;
-
-    this.charts.push(this.createChart("Returning whistleblowers", ["Yes", "No"], [a_1, a_2], ["rgb(96,186,255)", "rgb(0,127,224)"]));
-    this.charts.push(this.createChart("Anonymity", ["Anonymous", "Subscribed", "Subscribed later"], [b_1, b_2, b_3], ["rgb(96,186,255)", "rgb(0,127,224)", "rgb(0,46,82)"]));
-    this.charts.push(this.createChart("Tor", ["Yes", "No"], [c_1, c_2], ["rgb(96,186,255)", "rgb(0,127,224)"]));
-    this.charts.push(this.createChart("Mobile", ["Yes", "No"], [d_1, d_2], ["rgb(96,186,255)", "rgb(0,127,224)"]));
+      this.cdr.detectChanges();
+    });
   }
 }

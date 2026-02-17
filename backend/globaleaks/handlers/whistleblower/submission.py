@@ -4,6 +4,7 @@ import re
 
 from nacl.encoding import Base64Encoder
 from nacl.public import PrivateKey
+from sqlalchemy.orm import aliased
 
 
 from globaleaks import models
@@ -34,14 +35,74 @@ def index_answers(answers, parent_index=''):
             index += 1
 
 
-def extract_statistical_data(session, tid:int, answers:dict):
-    # TODO: this function does not currently handle groups and subgroups of questions
-    statistical_fields = [fid[0] for fid in session.query(models.Field.id).filter(models.Field.tid == tid, models.Field.statistical == True).all()]
+# Field types whose answers are aggregable as option distributions
+STATISTICAL_CHOICE_TYPES = ('selectbox', 'multichoice', 'checkbox')
 
+
+def _entry_is_option_selected(flag):
+    return flag is True or (isinstance(flag, str) and flag.strip().lower() == 'true')
+
+
+def _extract_entry_answer_value(field_type, entry):
+    if field_type == 'checkbox':
+        # A checkbox answer has no single 'value': each option is stored as a
+        # separate flag keyed by its option id (bool True or the string 'True').
+        return [option_id for option_id, flag in entry.items()
+                if re.match(requests.uuid_regexp, option_id) and _entry_is_option_selected(flag)]
+
+    return entry.get('value')
+
+
+def extract_statistical_data(session, tid:int, answers:dict):
+    def collect_answer_entries(answer_map):
+        collected = {}
+        if not isinstance(answer_map, dict):
+            return collected
+
+        for field_id, entries in answer_map.items():
+            if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
+                continue
+
+            first_entry = entries[0]
+            if isinstance(first_entry, dict):
+                collected[field_id] = first_entry
+
+                nested = collect_answer_entries(first_entry)
+                if nested:
+                    collected.update(nested)
+
+        return collected
+
+    answer_entries = collect_answer_entries(answers)
+    answer_field_ids = list(answer_entries.keys())
+    if not answer_field_ids:
+        return {}
+
+    template_field = aliased(models.Field)
+    statistical_fields = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical).outerjoin(template_field, template_field.id == models.Field.template_id).filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(answer_field_ids)).all()
+
+    statistical_fields_by_id = {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical} for field_id, field_type, template_id, instance, field_statistical, template_statistical in statistical_fields}
     answers_dict = dict()
-    for k, v in answers.items():
-        if k in statistical_fields:
-            answers_dict[k] = v[0].get('value')
+    for k, entry in answer_entries.items():
+        if k not in statistical_fields_by_id:
+            continue
+
+        field_data = statistical_fields_by_id[k]
+        is_template_choice = (field_data['type'] in STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
+        include_in_statistical_data = bool(field_data['field_statistical']) or (is_template_choice and bool(field_data['template_statistical']))
+        if not include_in_statistical_data:
+            continue
+
+        answer_value = _extract_entry_answer_value(field_data['type'], entry)
+        if answer_value in (None, '', []):
+            continue
+
+        answers_dict[k] = answer_value
+
+        if is_template_choice and field_data['template_statistical']:
+            template_key = 'template:%s' % field_data['template_id']
+            if template_key not in answers_dict:
+                answers_dict[template_key] = answer_value
 
     return answers_dict
 
@@ -289,7 +350,6 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date)
 
     stat_data = extract_statistical_data(session, tid, answers)
-
     if crypto_is_available:
         if stat_data:
             crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]

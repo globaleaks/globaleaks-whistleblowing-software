@@ -141,6 +141,31 @@
                 }
               </span>
             </th>
+            <th class="TipInfoReport">
+              <span (click)="sortKey = 'reportModificationStr'; sortReverse = !sortReverse">
+                <span>{{'Report' | translate}}</span>
+                @if (sortKey === 'reportModificationStr') {
+                  <span>
+                    @if (!sortReverse) {
+                      <i class="fas fa-sort-down"></i>
+                    }
+                    @if (sortReverse) {
+                      <i class="fas fa-sort-up"></i>
+                    }
+                  </span>
+                } @else {
+                  <span class="text-muted"><i class="fas fa-sort"></i></span>
+                }
+              </span>
+              @if (RTips.dataModel.length > 0) {
+                <span class="dropdown-multi-select-container">
+                  <span [ngClass]="{ filterSelected: checkFilter(dropdownReportModificationModel) }" (click)="toggleReportModificationDropdown()"><i class="fas fa-filter"></i></span>
+                  <span [class.d-none]="!reportModificationDropdownVisible">
+                    <ng-multiselect-dropdown [class.dropdown-visible]="reportModificationDropdownVisible" [settings]="dropdownSettings" [data]="dropdownReportData" [(ngModel)]="dropdownReportModificationModel" (ngModelChange)="onChanged(dropdownReportModificationModel,'Report')" [attr.aria-label]="'Report' | translate"></ng-multiselect-dropdown>
+                  </span>
+                </span>
+              }
+            </th>
             <th class="TipInfoStatus">
               <span (click)="sortKey = 'submissionStatusStr'; sortReverse = !sortReverse">
                 <i class="fas fa-circle-dot"></i>
@@ -331,6 +356,15 @@
                 <td class="TipInfoContext">{{tip.context_name}}</td>
               }
               <td class="TipInfoLabel">{{tip.label}}</td>
+              <td class="TipInfoReport">
+                @if (tip.status === 'new') {
+                  <span class="badge bg-info">{{ 'New' | translate }}</span>
+                } @else if (!tip.updated) {
+                  <span class="badge bg-warning text-dark">{{ 'Updated' | translate }}</span>
+                } @else {
+                  <span>-</span>
+                }
+              </td>
               <td class="TipInfoStatus">{{tip.submissionStatusStr}}</td>
               <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
               <td class="TipInfoUpdateDate">{{tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
