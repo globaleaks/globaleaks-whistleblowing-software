@@ -34,6 +34,8 @@ import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 
@@ -329,8 +331,60 @@ export class HttpService {
     return this.httpClient.get<rtipResolverModel[]>("api/recipient/rtips");
   }
 
-  requestStatisticsResource(): Observable<statisticsResolverModel> {
-    return this.httpClient.get<statisticsResolverModel>("api/analyst/stats");
+  requestStatisticsResource(filters?: {
+    context_id?: string,
+    status?: string[],
+    tenant?: string[],
+    channel?: string[],
+    date_from?: number,
+    date_to?: number
+  }): Observable<statisticsResolverModel> {
+    const url = `api/analyst/stats`;
+    return this.httpClient.post<statisticsResolverModel>(url, filters || {});
+  }
+
+  requestStatisticalTemplates(): Observable<statisticalTemplateResolverModel[]> {
+    return this.httpClient.get<statisticalTemplateResolverModel[]>("api/analyst/templates");
+  }
+
+  requestStatisticalTemplate(id: string): Observable<statisticalTemplateResolverModel> {
+    return this.httpClient.get<statisticalTemplateResolverModel>("api/analyst/templates/" + id);
+  }
+
+  requestCreateStatisticalTemplate(data: statisticalTemplateResolverModel): Observable<statisticalTemplateResolverModel> {
+    return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
+  }
+
+  requestUpdateStatisticalTemplate(id: string, data: statisticalTemplateResolverModel): Observable<statisticalTemplateResolverModel> {
+    return this.httpClient.put<statisticalTemplateResolverModel>("api/analyst/templates/" + id, data);
+  }
+
+  requestDeleteStatisticalTemplate(id: string): Observable<void> {
+    return this.httpClient.delete<void>("api/analyst/templates/" + id);
+  }
+
+  requestStatisticalReports(): Observable<statisticalReportResolverModel[]> {
+    return this.httpClient.get<statisticalReportResolverModel[]>("api/analyst/reports");
+  }
+
+  requestStatisticalReport(id: string): Observable<statisticalReportResolverModel> {
+    return this.httpClient.get<statisticalReportResolverModel>("api/analyst/reports/" + id);
+  }
+
+  requestCreateStatisticalReport(data: statisticalReportResolverModel): Observable<statisticalReportResolverModel> {
+    return this.httpClient.post<statisticalReportResolverModel>("api/analyst/reports", data);
+  }
+
+  requestUpdateStatisticalReport(id: string, data: statisticalReportResolverModel): Observable<statisticalReportResolverModel> {
+    return this.httpClient.put<statisticalReportResolverModel>("api/analyst/reports/" + id, data);
+  }
+
+  requestDeleteStatisticalReport(id: string): Observable<void> {
+    return this.httpClient.delete<void>("api/analyst/reports/" + id);
+  }
+
+  requestFilterOptions(): Observable<any> {
+    return this.httpClient.get<any>('api/analyst/filter-options');
   }
 
   iarResource(): Observable<IarData[]> {

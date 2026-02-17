@@ -1328,3 +1328,52 @@ class WhistleblowerFile(_WhistleblowerFile, Base):
     def __table_args__(self):
         return (ForeignKeyConstraint(['internalfile_id'], ['internalfile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['receivertip_id'], ['receivertip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
+
+
+class _StatisticalReportTemplate(Model):
+    """
+    Stores configuration for statistical report templates.
+    """
+    __tablename__ = 'statisticalreporttemplate'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    label = Column(UnicodeText, default='', nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    data = Column(JSON, default=dict, nullable=False)
+
+    unicode_keys = ['label']
+    json_keys = ['data']
+
+
+class StatisticalReportTemplate(_StatisticalReportTemplate, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),)
+
+
+class _StatisticalReport(Model):
+    """
+    Stores generated statistical reports based on a template.
+    """
+    __tablename__ = 'statisticalreport'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    label = Column(UnicodeText, default='', nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    template_id = Column(UnicodeText(36), index=True)
+    data = Column(JSON, default=dict, nullable=False)
+
+    unicode_keys = ['label', 'template_id']
+    json_keys = ['data']
+
+
+class StatisticalReport(_StatisticalReport, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (
+            ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+            ForeignKeyConstraint(['template_id'], ['statisticalreporttemplate.id'], ondelete='SET NULL', deferrable=True, initially='DEFERRED'),
+        )
+

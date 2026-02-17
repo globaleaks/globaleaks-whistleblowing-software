@@ -2,6 +2,8 @@ import {Routes} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
+import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
+import {StatisticalReportsResolver} from "@app/shared/resolvers/statistical-reports.resolver";
 export const analystRoutes: Routes = [
   {
     path: "",
@@ -22,7 +24,7 @@ export const analystRoutes: Routes = [
     path: "statistics",
     loadComponent: () => import('@app/pages/analyst/statistics/statistics.component').then(m => m.StatisticsComponent),
     resolve: {
-      StatisticsResolver
+      StatisticsResolver, StatisticalTemplatesResolver, StatisticalReportsResolver
     },
     pathMatch: "full",
     data: {pageTitle: "statistics"},

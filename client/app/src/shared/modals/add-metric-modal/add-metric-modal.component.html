@@ -1,0 +1,412 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Add' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="step-section">
+    <h6 class="step-title">
+      <span class="step-number">1</span>
+      {{ 'Select' | translate }}
+    </h6>
+
+  <div class="mb-3">
+    <input type="text" class="form-control"
+           placeholder="{{ 'Search' | translate }}"
+           [(ngModel)]="searchTerm">
+  </div>
+
+  <div class="metrics-grid">
+    @for (metric of filteredMetrics; track metric.id) {
+      <div class="metric-option"
+           [class.selected]="selectedMetricId === metric.id"
+           (click)="selectMetric(metric.id)">
+        <div class="metric-content">
+          <div class="metric-title">{{ metric.title | translate }}</div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (filteredMetrics.length === 0) {
+    <div class="empty-state">
+      @if (searchTerm.trim()) {
+        <div class="text-center py-4">
+          <h6 class="text-muted">{{ 'No results' | translate }}</h6>
+        </div>
+      } @else {
+        <div class="text-center py-4">
+          <h6 class="text-muted">{{ 'All metrics added' | translate }}</h6>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (selectedMetricId) {
+  <div class="step-section">
+    <h6 class="step-title">
+      <span class="step-number">2</span>
+      {{ 'Display' | translate }}
+    </h6>
+
+    <div class="display-types">
+      @if (isDisplayTypeCompatible('number')) {
+        <div class="display-option"
+             data-cy="display-type-number"
+             [class.selected]="selectedDisplayType === 'number'"
+             (click)="selectDisplayType('number')">
+          <div class="display-preview">
+            <span class="display-number">#</span>
+          </div>
+          <div class="display-info">
+            <div class="display-name">{{ 'Number' | translate }}</div>
+          </div>
+        </div>
+      }
+
+      @if (isDisplayTypeCompatible('percentage')) {
+        <div class="display-option"
+             data-cy="display-type-percentage"
+             [class.selected]="selectedDisplayType === 'percentage'"
+             (click)="selectDisplayType('percentage')">
+          <div class="display-preview">
+            <span class="display-percentage">%</span>
+          </div>
+          <div class="display-info">
+            <div class="display-name">{{ 'Percentage' | translate }}</div>
+          </div>
+        </div>
+      }
+      @if (isDisplayTypeCompatible('bar')) {
+        <div class="display-option"
+             data-cy="display-type-bar"
+             [class.selected]="selectedDisplayType === 'bar'"
+             (click)="selectDisplayType('bar')">
+          <div class="display-preview">
+            <div class="chart-preview bar"></div>
+          </div>
+          <div class="display-info">
+            <div class="display-name">{{ 'Bar Chart' | translate }}</div>
+          </div>
+        </div>
+      }
+      @if (isDisplayTypeCompatible('pie')) {
+        <div class="display-option"
+             data-cy="display-type-pie"
+             [class.selected]="selectedDisplayType === 'pie'"
+             (click)="selectDisplayType('pie')">
+          <div class="display-preview">
+            <div class="chart-preview doughnut"></div>
+          </div>
+          <div class="display-info">
+            <div class="display-name">{{ 'Pie Chart' | translate }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+</div>
+
+<div class="modal-footer">
+  <button type="button" id="modal-action-cancel" class="btn btn-secondary" (click)="cancel()">
+    {{ 'Cancel' | translate }}
+  </button>
+  <button type="button"
+          id="modal-action-ok"
+          class="btn btn-primary"
+          (click)="save()"
+          [disabled]="!selectedMetricId || !selectedDisplayType">
+    {{ 'Add' | translate }}
+  </button>
+</div>
+
+<style>
+.modal-header {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #c8d1e0;
+}
+
+.modal-title {
+  color: #103253;
+  margin-bottom: 0.25rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid #c8d1e0;
+}
+
+.step-section {
+  margin-bottom: 2rem;
+}
+
+.step-section:last-child {
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #103253;
+  font-weight: 600;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #3679BB;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 0.75rem;
+}
+
+.form-control {
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  color: #103253;
+}
+
+.form-control:focus {
+  border-color: #3679BB;
+  box-shadow: 0 0 0 0.2rem rgba(54, 121, 187, 0.25);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric-option {
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.metric-option:hover {
+  border-color: #3679BB;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+  transform: translateY(-1px);
+}
+
+.metric-option.selected {
+  border-color: #3679BB;
+  background: #f5f7fa;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+}
+
+.metric-content {
+  text-align: center;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3679BB;
+  margin-bottom: 0.25rem;
+}
+
+.metric-title {
+  font-size: 0.875rem;
+  color: #103253;
+  line-height: 1.2;
+}
+
+.display-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.display-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #c8d1e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 80px;
+}
+
+.display-option:hover {
+  border-color: #3679BB;
+  background: #f5f7fa;
+}
+
+.display-option.selected {
+  border-color: #3679BB;
+  background: #f5f7fa;
+  box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+}
+
+.display-preview {
+  width: 80px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7fa;
+  border-radius: 4px;
+  margin-right: 1rem;
+  color: #205282;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.display-option.selected .display-preview {
+  background: #9FC9F1;
+  color: #103253;
+}
+
+.display-number {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.display-percentage {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.chart-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #205282;
+}
+
+.chart-preview.bar {
+  border-radius: 2px;
+  background: linear-gradient(to top, #205282 20%, #c8d1e0 20%, #c8d1e0 40%, #205282 40%, #205282 60%, #c8d1e0 60%);
+}
+
+
+.chart-preview.doughnut {
+  background: conic-gradient(#205282 0deg 120deg, #c8d1e0 120deg 240deg, #3679BB 240deg 360deg);
+  position: relative;
+}
+
+.chart-preview.doughnut::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #f5f7fa;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.display-option.selected .chart-preview {
+  background: #103253;
+}
+
+.display-option.selected .chart-preview.bar {
+  background: linear-gradient(to top, #103253 20%, #9FC9F1 20%, #9FC9F1 40%, #103253 40%, #103253 60%, #9FC9F1 60%);
+}
+
+
+.display-option.selected .chart-preview.doughnut {
+  background: conic-gradient(#103253 0deg 120deg, #9FC9F1 120deg 240deg, #3679BB 240deg 360deg);
+}
+
+.display-option.selected .chart-preview.doughnut::after {
+  background: #f5f7fa;
+}
+
+.display-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.display-name {
+  font-weight: 600;
+  color: #103253;
+  margin-bottom: 0.25rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: #f5f7fa;
+  border-radius: 4px;
+  border: 1px solid #c8d1e0;
+}
+
+.btn-primary {
+  background: #3679BB;
+  border-color: #3679BB;
+}
+
+.btn-primary:hover {
+  background: #205282;
+  border-color: #205282;
+}
+
+.btn-secondary {
+  background: #f5f7fa;
+  border-color: #c8d1e0;
+  color: #103253;
+}
+
+.btn-secondary:hover {
+  background: #c8d1e0;
+  border-color: #c8d1e0;
+  color: #103253;
+}
+
+@media (max-width: 576px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .display-types {
+    grid-template-columns: 1fr;
+  }
+
+  .display-option {
+    flex-direction: column;
+    text-align: center;
+    min-height: auto;
+    padding: 0.75rem;
+  }
+
+  .display-preview {
+    margin-right: 0;
+    margin-bottom: 0.75rem;
+    width: 100px;
+    height: 60px;
+  }
+}
+</style>

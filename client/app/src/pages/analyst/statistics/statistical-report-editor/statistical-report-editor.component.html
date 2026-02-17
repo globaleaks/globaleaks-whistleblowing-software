@@ -1,0 +1,50 @@
+<div class="config-item">
+  <div class="editorHeader row">
+    <span class="col-md-7" (click)="toggleEditing()">
+      <span>{{ reportData.label }} - {{ reportData.creation_date | date:'dd-MM-yyyy HH:mm' }}</span>
+    </span>
+    <span class="col-md-5 clearfix">
+      <span class="float-end">
+        @if (!editing) {
+          <button class="btn btn-sm btn-outline-secondary" id="edit_report" (click)="toggleEditing()">
+            <span>{{ 'View' | translate }}</span>
+          </button>
+        }
+        <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportReport(reportData)">
+          <i class="fa-solid fa-file-export"></i>
+          <span>{{ 'Export' | translate }}</span>
+        </button>
+        @if (editing) {
+          <button class="btn btn-sm btn-primary" id="save_report" [disabled]="editReport.invalid" (click)="saveReport(reportData);toggleEditing()">
+            <span>{{ 'Save' | translate }}</span>
+          </button>
+        }
+        @if (editing) {
+          <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing()">
+            <span>{{ 'Cancel' | translate }}</span>
+          </button>
+        }
+        <button class="btn btn-sm btn-danger" name="delete_report" id="delete_report" (click)="deleteReport(reportData)">
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+      </span>
+    </span>
+  </div>
+  @if (editing) {
+    <div>
+      <div class="form-group">
+        <label>{{ 'Label' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="reportData.label" name="label" />
+      </div>
+      <div class="form-group">
+        <label>{{ 'Template' | translate }}</label>
+        <select class="form-control" [(ngModel)]="reportData.template_id" name="template_id">
+          <option value="">{{ 'Select a template' | translate }}</option>
+          @for (template of templatesData; track template.id) {
+            <option [value]="template.id">{{ template.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  }
+</div>

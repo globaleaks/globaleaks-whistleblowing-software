@@ -1,0 +1,381 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Manage' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" aria-label="Close" (click)="cancel()"></button>
+</div>
+<div class="modal-body">
+  <div class="selection-section">
+    <div class="mb-3">
+      <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerm">
+    </div>
+    <div class="metrics-list">
+      @for (metric of filteredMetrics; track metric.id) {
+      <div class="metric-item" [class.selected]="selectedMetricId === metric.id"
+        [class.current]="metric.id === currentMetricCard?.id" (click)="selectMetric(metric.id)">
+        <div class="metric-info">
+          <div class="metric-name">{{ metric.title | translate }}</div>
+        </div>
+        <div class="metric-status">
+          @if (metric.id === currentMetricCard?.id) {
+          <span class="current-badge">{{ 'Current' | translate }}</span>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    @if (filteredMetrics.length === 0) {
+    <div class="empty-state">
+      <div class="text-center py-4">
+        <p class="text-muted">{{ 'No results' | translate }}</p>
+      </div>
+    </div>
+    }
+  </div>
+  <div class="display-section">
+    <div class="display-types-grid">
+      @if (isDisplayTypeCompatible('number')) {
+      <div class="display-type" [class.selected]="selectedChartType === 'number'" (click)="selectChartType('number')">
+        <div class="type-preview">
+          <span class="number-preview">#</span>
+        </div>
+        <div class="type-name">{{ 'Number' | translate }}</div>
+      </div>
+      }
+      @if (isDisplayTypeCompatible('percentage')) {
+      <div class="display-type" [class.selected]="selectedChartType === 'percentage'"
+        (click)="selectChartType('percentage')">
+        <div class="type-preview">
+          <span class="percentage-preview">%</span>
+        </div>
+        <div class="type-name">{{ 'Percentage' | translate }}</div>
+      </div>
+      }
+      @if (isDisplayTypeCompatible('bar')) {
+      <div class="display-type" [class.selected]="selectedChartType === 'bar'" (click)="selectChartType('bar')">
+        <div class="type-preview">
+          <div class="chart-preview bar"></div>
+        </div>
+        <div class="type-name">{{ 'Bar Chart' | translate }}</div>
+      </div>
+      }
+      @if (isDisplayTypeCompatible('pie')) {
+      <div class="display-type" [class.selected]="selectedChartType === 'pie'" (click)="selectChartType('pie')">
+        <div class="type-preview">
+          <div class="chart-preview doughnut"></div>
+        </div>
+        <div class="type-name">{{ 'Pie' | translate }}</div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" id="modal-action-cancel" class="btn btn-secondary" (click)="cancel()">
+    {{ 'Cancel' | translate }}
+  </button>
+  <button type="button" id="modal-action-ok" class="btn btn-primary" (click)="save()" [disabled]="!hasChanges">
+    {{ 'Apply' | translate }}
+  </button>
+</div>
+<style>
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #c8d1e0;
+  }
+
+  .modal-title {
+    color: #103253;
+    margin-bottom: 0.25rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid #c8d1e0;
+  }
+
+  .section-title {
+    color: #103253;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .current-metric-section {
+    margin-bottom: 2rem;
+  }
+
+  .current-metric-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+    border: 1px solid #c8d1e0;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .metric-display {
+    flex: 1;
+  }
+
+  .metric-title {
+    color: #103253;
+    font-weight: 500;
+  }
+
+  .type-badge {
+    background: #3679BB;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .selection-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-control {
+    border: 1px solid #c8d1e0;
+    border-radius: 4px;
+    color: #103253;
+  }
+
+  .form-control:focus {
+    border-color: #3679BB;
+    box-shadow: 0 0 0 0.2rem rgba(54, 121, 187, 0.25);
+  }
+
+  .metrics-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #c8d1e0;
+    border-radius: 4px;
+    background: white;
+  }
+
+  .metric-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f7fa;
+    transition: all 0.2s ease;
+  }
+
+  .metric-item:last-child {
+    border-bottom: none;
+  }
+
+  .metric-item:hover {
+    background: #f5f7fa;
+  }
+
+  .metric-item.selected {
+    background: #f5f7fa;
+    border-color: #3679BB;
+  }
+
+  .metric-item.current {
+    background: #9FC9F1;
+    color: #103253;
+  }
+
+  .metric-info {
+    flex: 1;
+  }
+
+  .metric-name {
+    font-weight: 500;
+    color: #103253;
+    margin-bottom: 0.25rem;
+  }
+
+
+  .metric-status {
+    display: flex;
+    align-items: center;
+  }
+
+  .current-badge {
+    background: #205282;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .display-section {
+    margin-bottom: 2rem;
+  }
+
+  .display-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .display-type:hover {
+    border-color: #3679BB;
+    background: #f5f7fa;
+  }
+
+  .display-type.selected {
+    border-color: #3679BB;
+    background: #f5f7fa;
+    box-shadow: 0 2px 8px rgba(54, 121, 187, 0.15);
+  }
+
+  .type-preview {
+    width: 50px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    color: #205282;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #f5f7fa;
+    border-radius: 4px;
+  }
+
+  .display-type {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    background: white;
+    border: 1px solid #c8d1e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 100px;
+  }
+
+  .display-type.selected .type-preview {
+    color: #103253;
+    background: #9FC9F1;
+  }
+
+  .number-preview {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  .percentage-preview {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  .chart-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #205282;
+  }
+
+  .chart-preview.bar {
+    border-radius: 2px;
+    background: linear-gradient(to top, #205282 30%, #c8d1e0 30%, #c8d1e0 60%, #205282 60%);
+  }
+
+
+  .chart-preview.doughnut {
+    background: conic-gradient(#205282 0deg 120deg, #c8d1e0 120deg 240deg, #3679BB 240deg 360deg);
+    position: relative;
+  }
+
+  .chart-preview.doughnut::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .display-type.selected .chart-preview {
+    background: #103253;
+  }
+
+  .display-type.selected .chart-preview.bar {
+    background: linear-gradient(to top, #103253 30%, #9FC9F1 30%, #9FC9F1 60%, #103253 60%);
+  }
+
+
+  .display-type.selected .chart-preview.doughnut {
+    background: conic-gradient(#103253 0deg 120deg, #9FC9F1 120deg 240deg, #3679BB 240deg 360deg);
+  }
+
+  .type-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #103253;
+  }
+
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: #f5f7fa;
+    border-radius: 4px;
+    border: 1px solid #c8d1e0;
+  }
+
+  .btn-primary {
+    background: #3679BB;
+    border-color: #3679BB;
+  }
+
+  .btn-primary:hover {
+    background: #205282;
+    border-color: #205282;
+  }
+
+  .btn-secondary {
+    background: #f5f7fa;
+    border-color: #c8d1e0;
+    color: #103253;
+  }
+
+  .btn-secondary:hover {
+    background: #c8d1e0;
+    border-color: #c8d1e0;
+    color: #103253;
+  }
+
+  @media (max-width: 576px) {
+    .display-types-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .current-metric-card {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.75rem;
+    }
+
+    .type-preview {
+      width: 45px;
+      height: 35px;
+      font-size: 1rem;
+    }
+  }
+</style>
