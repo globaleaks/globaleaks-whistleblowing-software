@@ -11,12 +11,13 @@ import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {StatisticalTemplateViewComponent} from "@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component";
 
 @Component({
     selector: "src-statistical-report-editor",
     templateUrl: "./statistical-report-editor.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, TranslatorPipe, FilterPipe]
+    imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, TranslatorPipe, FilterPipe, StatisticalTemplateViewComponent]
 })
 export class StatisticalReportEditorComponent implements OnInit {
   private httpService = inject(HttpService);
@@ -36,6 +37,10 @@ export class StatisticalReportEditorComponent implements OnInit {
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
     this.templatesData = this.templatesResolver.dataModel;
+  }
+
+  get selectedTemplate(): statisticalTemplateResolverModel | null {
+    return this.templatesData?.find(t => t.id === this.reportData?.template_id) || null;
   }
 
   toggleEditing(): void {

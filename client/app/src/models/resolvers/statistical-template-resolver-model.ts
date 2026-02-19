@@ -19,8 +19,15 @@ export class MetricCard {
   title: string;
   value: number | string;
   chartType?: string;
+  description?: string;
   category?: 'numeric' | 'comparative' | 'distribution';
   compatibleTypes?: string[];
+}
+
+export class ChartType {
+  value: string;
+  label: string;
+  icon: string;
 }
 
 export class ChartConfig {

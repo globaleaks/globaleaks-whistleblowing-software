@@ -1,0 +1,33 @@
+<div id="Content">
+  <div class="metrics-section mb-4">
+    <div class="row g-3">
+      @for (card of metricCards; track card.id) {
+        <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+          <div class="card metric-card h-100">
+            <div class="card-header">
+              <span class="card-title">{{ card.title | translate }}</span>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+              <div class="metric-value">{{ card.value }}</div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @for (chart of chartConfigs; track chart.id; let i = $index) {
+        <div class="col-xl-6 col-lg-12 col-md-12 mb-4">
+          <div class="card chart-card h-100">
+            <div class="card-header">
+              <span class="fw-bold">{{ chart.title | translate }}</span>
+            </div>
+            <div class="card-body analyst-graph p-3">
+              <div class="chart-container" style="height: 300px;">
+                <canvas baseChart class="chart" [type]="chart.type" [data]="chart.data" [options]="chart.options"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

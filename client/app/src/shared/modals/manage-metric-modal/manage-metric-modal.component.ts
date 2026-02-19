@@ -4,27 +4,14 @@ import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-
-interface MetricCard {
-  id: string;
-  title: string;
-  value: number | string;
-  chartType?: string;
-  category?: 'numeric' | 'comparative' | 'distribution';
-  compatibleTypes?: string[];
-}
-
-interface ChartType {
-  value: string;
-  label: string;
-  icon: string;
-}
+import {ChartType, MetricCard} from "@app/models/resolvers/statistical-template-resolver-model";
+import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 
 @Component({
   selector: "src-manage-metric-modal",
   templateUrl: "./manage-metric-modal.component.html",
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, TranslatorPipe]
+  imports: [FormsModule, CommonModule, TranslateModule, TranslatorPipe, NgSelectComponent, NgOptionTemplateDirective]
 })
 export class ManageMetricModalComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
@@ -36,6 +23,7 @@ export class ManageMetricModalComponent implements OnInit {
   selectedMetricId: string = '';
   selectedChartType: string = 'number';
   searchTerm: string = '';
+  filteredMetricList: MetricCard[] = [];
 
   chartTypes: ChartType[] = [
     { value: 'number', label: 'Number', icon: '123' },
@@ -49,20 +37,23 @@ export class ManageMetricModalComponent implements OnInit {
       this.selectedMetricId = this.currentMetricCard.id;
       this.selectedChartType = this.currentMetricCard.chartType || 'number';
     }
+    this.updateFilteredMetrics()
   }
 
-  get filteredMetrics(): MetricCard[] {
-    const nonSelectedMetrics = this.availableMetrics.filter(metric =>
-      !this.currentMetricIds.includes(metric.id) || metric.id === this.currentMetricCard?.id
+  updateFilteredMetrics(): void {
+    this.filteredMetricList = this.availableMetrics.filter(metric =>
+      !this.currentMetricIds.includes(metric.id) ||
+      metric.id === this.currentMetricCard?.id
     );
+  }
 
-    if (!this.searchTerm.trim()) {
-      return nonSelectedMetrics;
-    }
+  onSearch(term: string): void {
+    this.searchTerm = term.toLowerCase();
 
-    const search = this.searchTerm.toLowerCase();
-    return nonSelectedMetrics.filter(metric =>
-      metric.title.toLowerCase().includes(search)
+    this.filteredMetricList = this.availableMetrics.filter(metric =>
+      (!this.currentMetricIds.includes(metric.id) ||
+        metric.id === this.currentMetricCard?.id) &&
+      metric.title.toLowerCase().includes(this.searchTerm)
     );
   }
 

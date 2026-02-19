@@ -4,21 +4,14 @@ import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-
-interface MetricCard {
-  id: string;
-  title: string;
-  value: number | string;
-  description?: string;
-  category?: 'numeric' | 'comparative' | 'distribution';
-  compatibleTypes?: string[];
-}
+import {MetricCard} from "@app/models/resolvers/statistical-template-resolver-model";
+import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 
 @Component({
   selector: "src-add-metric-modal",
   templateUrl: "./add-metric-modal.component.html",
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, TranslatorPipe]
+  imports: [FormsModule, CommonModule, TranslateModule, TranslatorPipe, NgSelectComponent, NgOptionTemplateDirective]
 })
 export class AddMetricModalComponent implements OnInit {
   private activeModal = inject(NgbActiveModal);
@@ -28,27 +21,27 @@ export class AddMetricModalComponent implements OnInit {
   @Input() canAddCards: boolean = true;
   @Input() canAddCharts: boolean = true;
 
-  selectedMetricId: string = '';
-  selectedDisplayType: string = '';
-  searchTerm: string = '';
+  selectedMetricId = '';
+  selectedDisplayType = 'number';
+  searchTerm = '';
 
-  ngOnInit() {
-    this.selectedDisplayType = 'number';
+  filteredMetricList: MetricCard[] = [];
+
+  ngOnInit(): void {
+    this.updateFilteredMetrics();
   }
 
-  get filteredMetrics(): MetricCard[] {
-    const nonSelectedMetrics = this.availableMetrics.filter(metric =>
+  updateFilteredMetrics(): void {
+    this.filteredMetricList = this.availableMetrics.filter(metric =>
       !this.currentMetricIds.includes(metric.id)
     );
+  }
 
-    if (!this.searchTerm.trim()) {
-      return nonSelectedMetrics;
-    }
-
-    const search = this.searchTerm.toLowerCase();
-    return nonSelectedMetrics.filter(metric =>
-      metric.title.toLowerCase().includes(search) ||
-      metric.description?.toLowerCase().includes(search)
+  onSearch(term: string): void {
+    const search = term.toLowerCase();
+    this.filteredMetricList = this.availableMetrics.filter(metric =>
+      !this.currentMetricIds.includes(metric.id) &&
+      metric.title.toLowerCase().includes(search)
     );
   }
 

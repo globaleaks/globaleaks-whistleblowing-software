@@ -46,5 +46,10 @@
         </select>
       </div>
     </div>
+    @if (selectedTemplate) {
+    <div class="mt-3">
+      <src-statistical-template-view [templateData]="selectedTemplate" [templatesData]="templatesData"></src-statistical-template-view>
+    </div>
+    }
   }
 </div>
