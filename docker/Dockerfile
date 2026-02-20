@@ -7,7 +7,7 @@
 ARG BASE_IMAGE=debian:trixie-slim@sha256:38af8d51386e2fc12cc71c038c6343205450691f739fc5840dad7380a31e382e
 ARG DISTRIBUTION=trixie
 
-FROM ${BASE_IMAGE}
+FROM --platform=linux/amd64 ${BASE_IMAGE}
 
 ADD https://deb.globaleaks.org/install.sh /tmp/install.sh
 

@@ -44,7 +44,11 @@ services:
   globaleaks:
     environment:
       DISTRIBUTION: ${name}
-    build: .
+    build:
+      context: .
+      args:
+        BASE_IMAGE: ${base_image}
+        DISTRIBUTION: ${name}
     restart: unless-stopped
     container_name: globaleaks
     network_mode: bridge

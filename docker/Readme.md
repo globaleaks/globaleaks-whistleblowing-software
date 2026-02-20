@@ -3,6 +3,8 @@
 To run GlobaLeaks using Docker
 ```bash
  docker run -d --name globaleaks \
-  -p 80:80 -p 443:443 \
+  --platform linux/amd64 \
+  -p 80:8080 \
+  -p 443:8443 \
   -v globaleaks-data:/var/globaleaks \
   globaleaks/globaleaks:latest
