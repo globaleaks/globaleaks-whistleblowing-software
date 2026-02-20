@@ -64,12 +64,10 @@
                 <i class="fas fa-gear"></i>
               </button>
               <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdownButton">
-                @if (!tip || tip.context) {
-                  @if (!tip || preferencesService.dataModel.can_postpone_expiration) {
-                    <button id="tip-action-postpone" class="dropdown-item" type="button" (click)="tipPostpone()" [attr.aria-label]="'Edit the expiration date' | translate">
-                      <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
-                    </button>
-                  }
+                @if (preferencesService.dataModel.can_postpone_expiration) {
+                  <button id="tip-action-postpone" class="dropdown-item" type="button" (click)="tipPostpone()" [attr.aria-label]="'Edit the expiration date' | translate">
+                    <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
+                  </button>
                 }
                 @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
                   <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}" [attr.aria-label]="'Mask' | translate">
