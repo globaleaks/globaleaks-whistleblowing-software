@@ -60,6 +60,14 @@ jobs:
           COMMIT_HASH=$(git rev-parse HEAD)
           ./scripts/build.sh -d $TARGET_DISTRIBUTION -t $COMMIT_HASH -n -l -z
 
+      - name: Login to Docker Hardened Images (dhi.io)
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: dhi.io
+          username: ${{ secrets.DHI_USERNAME }}
+          password: ${{ secrets.DHI_TOKEN }}
+
       - name: Build and start Docker container
         run: |
           ./docker/generate_docker_compose.sh $TARGET_DISTRIBUTION > ./docker/docker-compose.yml
