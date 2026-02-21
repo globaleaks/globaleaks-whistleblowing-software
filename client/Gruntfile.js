@@ -295,6 +295,120 @@ module.exports = function(grunt) {
       sourceFile = "app/assets/data_src/pot/en.po",
       transifexApiKey = readTransifexApiKey();
 
+  function readWeblateToken() {
+    return (process.env.WEBLATE_TOKEN || "").trim();
+  }
+
+  // Weblate instance configuration (safe to commit)
+  const weblateUrl = "https://localizationlab.weblate.cloud";
+  const weblateProject = "globaleaks";
+  const weblateComponent = "stable";
+  const weblateSourceLang = "en";
+
+  // Secret (must come from environment)
+  const weblateToken = readWeblateToken();
+
+  function weblateApi(pathname) {
+    return `${weblateUrl}/api${pathname}`;
+  }
+
+  function weblateAuthHeaders() {
+    return { "Authorization": "Token " + weblateToken };
+  }
+
+  function extractLangCodeFromTranslationItem(item) {
+    // Weblate may serialize language as:
+    // - item.language_code: "it"
+    // - item.language: "it" OR URL ".../languages/it/"
+    // - item.language.code: "it"
+    if (!item) return null;
+
+    if (typeof item.language_code === "string") return item.language_code;
+    if (item.language && typeof item.language.code === "string") return item.language.code;
+
+    if (typeof item.language === "string") {
+      if (item.language.indexOf("/") !== -1) {
+        const m = item.language.match(/\/languages\/([^/]+)\/?$/);
+        return m ? m[1] : null;
+      }
+      return item.language;
+    }
+
+    return null;
+  }
+
+  function listWeblateTranslationsAllPages(cb) {
+    const firstUrl = weblateApi(`/components/${weblateProject}/${weblateComponent}/translations/`);
+    let acc = [];
+
+    function fetchPage(url) {
+      agent.get(url)
+        .set(weblateAuthHeaders())
+        .end(function(err, res) {
+          if (err || !res || !res.ok) {
+            console.log("Error: " + (res ? res.text : err));
+            return cb(err || new Error("Failed to list Weblate translations"));
+          }
+
+          let data;
+          try {
+            data = JSON.parse(res.text);
+          } catch (e) {
+            return cb(e);
+          }
+
+          if (Array.isArray(data.results)) acc = acc.concat(data.results);
+
+          if (data.next) {
+            return fetchPage(data.next); // data.next is usually absolute
+          }
+
+          cb(null, acc);
+        });
+    }
+
+    fetchPage(firstUrl);
+  }
+
+  function downloadWeblatePo(langCode, cb) {
+    const url = weblateApi(`/translations/${weblateProject}/${weblateComponent}/${langCode}/file/`);
+    grunt.file.mkdir("app/assets/data_src/pot");
+
+    const outPath = `app/assets/data_src/pot/${langCode}.po`;
+    const stream = fs.createWriteStream(outPath);
+
+    stream.on("finish", function() { cb(null, outPath); });
+    stream.on("error", function(e) { cb(e); });
+
+    agent.get(url)
+      .set(weblateAuthHeaders())
+      .pipe(stream);
+  }
+
+  function uploadWeblateSourcePo(cb) {
+    const url = weblateApi(`/translations/${weblateProject}/${weblateComponent}/${weblateSourceLang}/file/`);
+
+    if (!fs.existsSync(sourceFile)) {
+      console.log("Error: missing source file " + sourceFile + " (run grunt makeTranslationsSource first)");
+      return cb(false);
+    }
+
+    agent.post(url)
+      .set(weblateAuthHeaders())
+      // method=source updates source strings
+      .field("method", "replace")
+      // optional: be tolerant with conflicts
+      .field("conflicts", "ignore")
+      .attach("file", sourceFile)
+      .end(function(err, res) {
+        if (err || !res || !res.ok) {
+          console.log("Error: " + (res ? res.text : err));
+          return cb(false);
+        }
+        cb(true);
+      });
+  }
+
   async function updateTxSource(cb) {
     const gettextParser = await loadGettextParser();
     let url = baseurl + "/resource_strings_async_uploads";
@@ -595,6 +709,7 @@ module.exports = function(grunt) {
     updateTxSource(this.async());
   });
 
+  // Original Transifex-based fetch (kept for backwards compatibility)
   grunt.registerTask("fetchTranslations", function() {
     const done = this.async();  // Declare the async task
     (async () => {
@@ -635,6 +750,61 @@ module.exports = function(grunt) {
     })().catch(err => {
       console.error(err);
       done(false);  // Signal error to Grunt
+    });
+  });
+
+  // Local-only fetch: builds l10n/*.json from the PO files present on disk (no Transifex/Weblate stats)
+  grunt.registerTask("fetchTranslationsLocal", function() {
+    const done = this.async();
+
+    (async () => {
+      const gettextParser = await loadGettextParser();
+      let gt = new SimpleGettext();
+      gt.setTextDomain("stable");
+
+      const enPoPath = "app/assets/data_src/pot/en.po";
+      if (!fs.existsSync(enPoPath)) {
+        console.error("Missing " + enPoPath + ". Run `grunt makeTranslationsSource` first.");
+        return done(false);
+      }
+
+      const enParsed = gettextParser.po.parse(fs.readFileSync(enPoPath));
+      gt.addTranslations("en", "stable", enParsed);
+
+      const strings = Object.keys(enParsed["translations"][""] || {});
+      grunt.file.mkdir("app/assets/data/l10n");
+
+      // Discover languages from pot dir
+      let langs = [];
+      grunt.file.recurse("app/assets/data_src/pot/", function(absdir, rootdir, subdir, filename) {
+        if (!filename.endsWith(".po")) return;
+        const lang = filename.replace(/\.po$/, "");
+        if (lang && lang !== "en") langs.push(lang);
+      });
+
+      langs = Array.from(new Set(langs)).sort();
+
+      for (const lang_code of langs) {
+        const poPath = "app/assets/data_src/pot/" + lang_code + ".po";
+        if (!fs.existsSync(poPath)) continue;
+
+        const parsed = gettextParser.po.parse(fs.readFileSync(poPath));
+        gt.addTranslations(lang_code, "stable", parsed);
+        gt.setLocale(lang_code);
+
+        let translations = {};
+        for (let i = 0; i < strings.length; i++) {
+          if (strings[i] === "") continue;
+          translations[strings[i]] = str_unescape(gt.gettext(str_escape(strings[i])));
+        }
+
+        fs.writeFileSync("app/assets/data/l10n/" + lang_code + ".json", JSON.stringify(translations, null, 2));
+      }
+
+      done();
+    })().catch(err => {
+      console.error(err);
+      done(false);
     });
   });
 
@@ -862,6 +1032,64 @@ module.exports = function(grunt) {
     }
   });
 
+  // Run this task to push translations source on Weblate (no git access)
+  grunt.registerTask("weblateUploadSource", function() {
+    const done = this.async();
+
+    uploadWeblateSourcePo(function(ok) {
+      if (!ok) return done(false);
+      console.log("Weblate: uploaded source " + sourceFile);
+      done();
+    });
+  });
+
+  // Run this task to fetch translations from Weblate (no git access)
+  grunt.registerTask("weblateFetchTranslations", function() {
+    const done = this.async();
+
+    listWeblateTranslationsAllPages(function(err, items) {
+      if (err) return done(false);
+
+      let langsSet = {};
+      items.forEach(function(it) {
+        let code = extractLangCodeFromTranslationItem(it);
+        if (code) langsSet[code] = true;
+      });
+
+      let langs = Object.keys(langsSet)
+        .sort()
+        .filter(function(c) { return c !== weblateSourceLang; });
+
+      if (!langs.length) {
+        console.log("Weblate: no languages found to download (besides source language).");
+        return done();
+      }
+
+      let i = 0;
+      let next = function() {
+        if (i >= langs.length) return done();
+        let lang = langs[i++];
+
+        downloadWeblatePo(lang, function(err2, outPath) {
+          if (err2) {
+            console.log("Weblate: failed downloading " + lang + ": " + err2);
+            return done(false);
+          }
+          console.log("Weblate: downloaded " + lang + " -> " + outPath);
+          next();
+        });
+      };
+
+      next();
+    });
+  });
+
+  // Convenience wrappers for Weblate workflow:
+  // - pushTranslationsSourceWeblate: generates en.po then uploads to Weblate
+  // - updateTranslationsWeblate: downloads all po, generates l10n JSON, makes app data, verifies
+  grunt.registerTask("pushTranslationsSourceWeblate", ["makeTranslationsSource", "weblateUploadSource"]);
+  grunt.registerTask("updateTranslationsWeblate", ["weblateFetchTranslations", "fetchTranslationsLocal", "makeAppData", "verifyAppData"]);
+
   // Run this task to push translations on transifex
   grunt.registerTask("pushTranslationsSource", ["confirm", "☠☠☠pushTranslationsSource☠☠☠"]);
 
@@ -873,7 +1101,6 @@ module.exports = function(grunt) {
   grunt.registerTask("build", ["clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
 
   grunt.registerTask("build_for_testing", ["clean", "shell:build_for_testing", "package", "shell:brotli_compress", "clean:tmp"]);
- 
+
   grunt.registerTask("build_for_testing_and_instrument", ["clean", "shell:build_for_testing", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
 };
-

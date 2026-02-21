@@ -7,7 +7,7 @@
 ARG BASE_IMAGE=dhi.io/debian-base:trixie-debian13@sha256:b00e3adeeac63e73ccb806b375d1b0b8bc765d75daf3dd7efc3bed15778f0a85
 ARG DISTRIBUTION=trixie
 
-FROM ${BASE_IMAGE}
+FROM --platform=linux/amd64 ${BASE_IMAGE}
 
 ADD https://deb.globaleaks.org/install.sh /tmp/install.sh
 

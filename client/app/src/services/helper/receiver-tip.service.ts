@@ -23,8 +23,15 @@ export class ReceiverTipService {
 
   initialize(response: RecieverTipData) {
     this.tip = response;
-    this.tip.context = this.appDataService.contexts_by_id[this.tip.context_id];
-    this.tip.questionnaire = this.appDataService.questionnaires_by_id[this.tip.context["questionnaire_id"]];
+
+    this.tip.context =
+      this.appDataService.contexts_by_id?.[this.tip.context_id];
+
+    this.tip.questionnaire =
+      this.appDataService.questionnaires_by_id?.[
+        this.tip.context?.questionnaire_id
+      ];
+
     this.tip.msg_receiver_selected = null;
     this.tip.msg_receivers_selector = this.getMsgReceiversSelector();
   }
