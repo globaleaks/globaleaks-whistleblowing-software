@@ -333,9 +333,7 @@ export class HttpService {
 
   requestStatisticsResource(filters?: {
     context_id?: string,
-    status?: string[],
-    tenant?: string[],
-    channel?: string[],
+    channel?: Array<string | number>,
     date_from?: number,
     date_to?: number
   }): Observable<statisticsResolverModel> {
@@ -351,7 +349,7 @@ export class HttpService {
     return this.httpClient.get<statisticalTemplateResolverModel>("api/analyst/templates/" + id);
   }
 
-  requestCreateStatisticalTemplate(data: statisticalTemplateResolverModel): Observable<statisticalTemplateResolverModel> {
+  requestCreateStatisticalTemplate(data: { label: string; data: Record<string, unknown> }): Observable<statisticalTemplateResolverModel> {
     return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
   }
 
@@ -371,7 +369,7 @@ export class HttpService {
     return this.httpClient.get<statisticalReportResolverModel>("api/analyst/reports/" + id);
   }
 
-  requestCreateStatisticalReport(data: statisticalReportResolverModel): Observable<statisticalReportResolverModel> {
+  requestCreateStatisticalReport(data: { label: string; template_id: string; data: Record<string, unknown> }): Observable<statisticalReportResolverModel> {
     return this.httpClient.post<statisticalReportResolverModel>("api/analyst/reports", data);
   }
 

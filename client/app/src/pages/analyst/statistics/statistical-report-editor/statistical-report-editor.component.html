@@ -10,16 +10,14 @@
             <span>{{ 'View' | translate }}</span>
           </button>
         }
-        <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportReport(reportData)">
-          <i class="fa-solid fa-file-export"></i>
-          <span>{{ 'Export' | translate }}</span>
-        </button>
         @if (editing) {
+          <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportReportAsPDF()">
+            <i class="fa-solid fa-file-export"></i>
+            <span>{{ 'Export' | translate }}</span>
+          </button>
           <button class="btn btn-sm btn-primary" id="save_report" [disabled]="editReport.invalid" (click)="saveReport(reportData);toggleEditing()">
             <span>{{ 'Save' | translate }}</span>
           </button>
-        }
-        @if (editing) {
           <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing()">
             <span>{{ 'Cancel' | translate }}</span>
           </button>
@@ -47,8 +45,50 @@
       </div>
     </div>
     @if (selectedTemplate) {
+    <div id="SearchFilter" class="row mb-3 filter-section statistics-filter-bar">
+      <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+        <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
+          <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
+            [ngClass]="{'filter-active': dateFilter}" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
+            ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date Range' | translate) }}">
+            <i class="fas fa-calendar me-1"></i>
+            @if (dateFilter) {
+              <span>{{ dateFilter.fromDate | date:'dd-MM-yyyy' }} - {{ dateFilter.toDate | date:'dd-MM-yyyy' }}</span>
+            } @else {
+              <span>{{ 'Date Range' | translate }}</span>
+            }
+          </button>
+          <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
+            <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
+            </ngbd-datepicker-range>
+          </div>
+        </span>
+
+        <span class="dropdown-multi-select-container" (click)="$event.stopPropagation()">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [ngClass]="{'filter-active': channelFilterActive}"
+            (click)="toggleChannelFilter(); closeOtherDropdowns('channel')" ngbTooltip="{{ getFilterTooltip('channel') }}">
+            <i class="fas fa-filter me-1"></i>
+            <span>{{ getFilterDisplayText('channel') }}</span>
+            @if (channelDropdownModel.length > 0) {
+              <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
+            }
+          </button>
+          <span [class.d-none]="!channelDropdownVisible" (click)="$event.stopPropagation()">
+            <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="channelDropdownSettings" [data]="channelDropdownData" [(ngModel)]="channelDropdownModel" (onSelect)="onChannelFilterChange()" (onDeSelect)="onChannelFilterChange()">
+            </ng-multiselect-dropdown>
+          </span>
+        </span>
+
+        @if (hasActiveFilters()) {
+          <button data-cy="filter_clear_button" type="button" class="btn btn-sm btn-outline-danger" (click)="clearAllFilters()">
+            <i class="fas fa-times me-1"></i>
+            {{ 'Clear' | translate }}
+          </button>
+        }
+      </div>
+    </div>
     <div class="mt-3">
-      <src-statistical-template-view [templateData]="selectedTemplate" [templatesData]="templatesData"></src-statistical-template-view>
+      <src-statistical-template-view [templateData]="selectedTemplate" [templatesData]="templatesData" [refreshKey]="filterRevision"></src-statistical-template-view>
     </div>
     }
   }

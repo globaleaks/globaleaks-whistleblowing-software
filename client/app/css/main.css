@@ -1126,6 +1126,21 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   padding: 5px 5px 53px;
 }
 
+.statistics-filter-bar .ngb-datepicker-container,
+.statistics-filter-bar .dropdown-multi-select-container {
+  position: relative;
+}
+
+.statistics-filter-bar ngbd-datepicker-range.position-absolute {
+  left: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 1200;
+}
+
+.statistics-filter-bar .dropdown-visible > div.multiselect-dropdown > div.dropdown-list {
+  z-index: 1200;
+}
+
 .tenant-badge a.badge.bg-primary:hover,
 .tenant-badge a.badge.bg-primary:active,
 .tenant-badge a.badge.bg-primary:focus {

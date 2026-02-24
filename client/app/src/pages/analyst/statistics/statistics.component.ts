@@ -2,7 +2,6 @@ import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} fr
 import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
 import {TranslatorPipe} from '@app/shared/pipes/translate';
 import {Tab} from '@app/models/component-model/tab';
-import {NodeResolver} from '@app/shared/resolvers/node.resolver';
 import {FormsModule} from '@angular/forms';
 import {NgTemplateOutlet} from '@angular/common';
 import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
@@ -17,21 +16,18 @@ import {StatisticalTemplatesTabComponent} from '@app/pages/analyst/statistics/st
     providers: [provideCharts(withDefaultRegisterables())],
 })
 export class StatisticsComponent {
-  protected node = inject(NodeResolver);
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild("tab1") tab1!: TemplateRef<StatisticalReportsTabComponent>;
   @ViewChild("tab2") tab2!: TemplateRef<StatisticalTemplatesTabComponent>;
 
   tabs: Tab[];
-  nodeData: NodeResolver;
   active: string;
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.active = "Statistical Reports";
 
-      this.nodeData = this.node;
       this.tabs = [
         {
           id:"satistical_reports",

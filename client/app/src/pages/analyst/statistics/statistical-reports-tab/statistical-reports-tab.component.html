@@ -14,7 +14,7 @@
             <span>{{ 'Label' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
-          <div [ngClass]="{'is-invalid': newReport.form?.get('new_report.label')?.errors?.['required']}">
+          <div [ngClass]="{'is-invalid': newReport.form.get('new_report.label')?.errors?.['required']}">
             <input id="new-report-label" name="new_report.label" class="form-control" [(ngModel)]="new_report.label" type="text" required />
           </div>
         </div>
@@ -23,7 +23,7 @@
             <span>{{ 'Template' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
-          <div [ngClass]="{'is-invalid': newReport.form?.get('new_report.template_id')?.errors?.['required']}">
+          <div [ngClass]="{'is-invalid': newReport.form.get('new_report.template_id')?.errors?.['required']}">
             <select id="new-report-template-id" name="new_report.template_id" class="form-control" [(ngModel)]="new_report.template_id" required>
               <option value="">{{ 'Select a template' | translate }}</option>
               @for (template of templatesData; track template.id) {

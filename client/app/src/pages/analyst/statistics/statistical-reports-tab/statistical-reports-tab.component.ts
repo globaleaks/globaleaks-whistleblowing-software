@@ -1,7 +1,6 @@
 import {Component, Input, OnInit, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {Constants} from "@app/shared/constants/constants";
-import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -19,17 +18,16 @@ import {StatisticalReportEditorComponent} from "@app/pages/analyst/statistics/st
     imports: [StatisticalReportEditorComponent, FormsModule, NgbTooltipModule, NgClass, TranslatorPipe]
 })
 export class StatisticalReportsTabComponent implements OnInit {
-  protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private reportsResolver = inject(StatisticalReportsResolver);
-  private templatesResolver = inject(StatisticalTemplatesResolver);
-  @Input() statisticsForm: NgForm;
+  private readonly httpService = inject(HttpService);
+  private readonly reportsResolver = inject(StatisticalReportsResolver);
+  private readonly templatesResolver = inject(StatisticalTemplatesResolver);
+  @Input() statisticsForm!: NgForm;
   
   reportsData: statisticalReportResolverModel[] = [];
   templatesData: statisticalTemplateResolverModel[] = [];
-  @Input() reportsForm: NgForm;
+  @Input() reportsForm!: NgForm;
   showAddReport = false;
-  new_report: { label: string; template_id: string; data: any } = {
+  new_report: { label: string; template_id: string; data: Record<string, unknown> } = {
     label: "",
     template_id: "",
     data: {}
@@ -42,12 +40,12 @@ export class StatisticalReportsTabComponent implements OnInit {
     this.templatesData = this.templatesResolver.dataModel;
   }
 
-  toggleAddReport() {
+  toggleAddReport(): void {
     this.showAddReport = !this.showAddReport;
   }
 
-  addReport() {
-    this.httpService.requestCreateStatisticalReport(this.new_report as any).subscribe({
+  addReport(): void {
+    this.httpService.requestCreateStatisticalReport(this.new_report).subscribe({
       next: (response) => {
         this.reportsData.push(response);
         this.new_report = { label: "", template_id: "", data: {} };
@@ -55,4 +53,3 @@ export class StatisticalReportsTabComponent implements OnInit {
     });
   }
 }
-

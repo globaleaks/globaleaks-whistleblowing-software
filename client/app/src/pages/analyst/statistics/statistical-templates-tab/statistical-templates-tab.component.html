@@ -24,7 +24,7 @@
             <span>{{ 'Label' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
-          <div [ngClass]="{'is-invalid': newTemplate.form?.get('new_template.label')?.errors?.['required']}">
+          <div [ngClass]="{'is-invalid': newTemplate.form.get('new_template.label')?.errors?.['required']}">
             <input id="new-template-label" name="new_template.label" class="form-control" [(ngModel)]="new_template.label" type="text" required />
           </div>
         </div>
@@ -37,7 +37,7 @@
       </div>
     </div>
   }
-  @if (templatesData.length) {
+  @if (templatesData.length && filterOptions) {
     @for (template of filteredTemplatesData; track template.id; let index = $index) {
       <div class="templateList">
         <form id="template-{{index}}" name="editTemplate" #editTemplate="ngForm" novalidate>

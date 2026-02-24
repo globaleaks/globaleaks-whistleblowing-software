@@ -10,16 +10,10 @@
             <span>{{ 'Edit' | translate }}</span>
           </button>
         }
-        <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportReportAsPDF()">
-          <i class="fa-solid fa-file-export"></i>
-          <span>{{ 'Export' | translate }}</span>
-        </button>
         @if (editing) {
           <button class="btn btn-sm btn-primary" id="save_template" [disabled]="editTemplate.invalid" (click)="saveTemplate(templateData);toggleEditing()">
             <span>{{ 'Save' | translate }}</span>
           </button>
-        }
-        @if (editing) {
           <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing()">
             <span>{{ 'Cancel' | translate }}</span>
           </button>
@@ -37,170 +31,58 @@
         <input type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
       </div>
     </div>
-    <div class="row mb-4 filter-section">
-      <div class="col-12">
-        <div class="card">
-          <div class="card-body py-2">
-            <div class="d-flex flex-wrap align-items-center gap-3">
-              <div class="filter-item">
-                <span class="filter-label">{{ 'Date Range' | translate }}:</span>
-                <div class="filter-dropdown-container">
-                  <button data-cy="filter_date_button" class="btn btn-sm btn-outline-secondary filter-btn"
-                    [class.active]="dateFilter" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
-                    ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date Range' | translate) }}">
-                    <i class="fas fa-calendar me-1"></i>
-                    @if (dateFilter) {
-                      <span class="filter-value">{{ dateFilter.fromDate | date:'dd-MM-yyyy' }} - {{ dateFilter.toDate | date:'dd-MM-yyyy' }}</span>
-                    } @else {
-                      <span>{{ 'Date' | translate }}</span>
-                    }
-                  </button>
-                  @if (datePicker) {
-                  <div class="filter-dropdown-calendar" (click)="$event.stopPropagation()">
-                    <ngbd-datepicker-range [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
-                    </ngbd-datepicker-range>
-                  </div>
-                  }
-                </div>
-              </div>
-              <div class="filter-item">
-                <span class="filter-label">{{ 'Status' | translate }}:</span>
-                <div class="filter-dropdown-container">
-                  <button class="btn btn-sm btn-outline-secondary filter-btn" [class.active]="statusFilterActive"
-                    (click)="toggleStatusFilter(); closeOtherDropdowns('status')"
-                    ngbTooltip="{{ getFilterTooltip('status') }}">
-                    <i class="fas fa-filter me-1"></i>
-                    <span class="filter-value">{{ getFilterDisplayText('status') }}</span>
-                    @if (statusDropdownModel.length > 0) {
-                    <span class="badge bg-primary ms-1">{{ statusDropdownModel.length }}</span>
-                    }
-                  </button>
-                  @if (statusDropdownVisible) {
-                  <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown [data]="statusDropdownData" [(ngModel)]="statusDropdownModel"
-                      [settings]="compactDropdownSettings" (onSelect)="onStatusFilterChange()"
-                      (onDeSelect)="onStatusFilterChange()">
-                    </ng-multiselect-dropdown>
-                  </div>
-                  }
-                </div>
-              </div>
-              <div class="filter-item">
-                <span class="filter-label">{{ 'Channel' | translate }}:</span>
-                <div class="filter-dropdown-container">
-                  <button class="btn btn-sm btn-outline-secondary filter-btn" [class.active]="channelFilterActive"
-                    (click)="toggleChannelFilter(); closeOtherDropdowns('channel')"
-                    ngbTooltip="{{ getFilterTooltip('channel') }}">
-                    <i class="fas fa-filter me-1"></i>
-                    <span class="filter-value">{{ getFilterDisplayText('channel') }}</span>
-                    @if (channelDropdownModel.length > 0) {
-                    <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
-                    }
-                  </button>
-                  @if (channelDropdownVisible) {
-                  <div class="filter-dropdown compact-dropdown" (click)="$event.stopPropagation()">
-                    <ng-multiselect-dropdown [data]="channelDropdownData" [(ngModel)]="channelDropdownModel"
-                      [settings]="compactDropdownSettings" (onSelect)="onChannelFilterChange()"
-                      (onDeSelect)="onChannelFilterChange()">
-                    </ng-multiselect-dropdown>
-                  </div>
-                  }
-                </div>
-              </div>
-              @if (hasActiveFilters()) {
-                <div class="filter-item">
-                  <button data-cy="filter_clear_button" class="btn btn-sm btn-outline-danger" (click)="clearAllFilters()">
-                    <i class="fas fa-times me-1"></i>
-                    {{ 'Clear' | translate }}
-                  </button>
-                </div>
-              }
-            </div>
+    <div id="SearchFilter" class="row mb-3 filter-section statistics-filter-bar">
+      <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+        <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
+          <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
+            [ngClass]="{'filter-active': dateFilter}" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
+            ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date Range' | translate) }}">
+            <i class="fas fa-calendar me-1"></i>
+            @if (dateFilter) {
+              <span>{{ dateFilter.fromDate | date:'dd-MM-yyyy' }} - {{ dateFilter.toDate | date:'dd-MM-yyyy' }}</span>
+            } @else {
+              <span>{{ 'Date Range' | translate }}</span>
+            }
+          </button>
+          <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
+            <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
+            </ngbd-datepicker-range>
           </div>
-        </div>
+        </span>
+
+        <span class="dropdown-multi-select-container" (click)="$event.stopPropagation()">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [ngClass]="{'filter-active': channelFilterActive}"
+            (click)="toggleChannelFilter(); closeOtherDropdowns('channel')" ngbTooltip="{{ getFilterTooltip('channel') }}">
+            <i class="fas fa-filter me-1"></i>
+            <span>{{ getFilterDisplayText('channel') }}</span>
+            @if (channelDropdownModel.length > 0) {
+              <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
+            }
+          </button>
+          <span [class.d-none]="!channelDropdownVisible" (click)="$event.stopPropagation()">
+            <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="channelDropdownSettings" [data]="channelDropdownData" [(ngModel)]="channelDropdownModel" (onSelect)="onChannelFilterChange()" (onDeSelect)="onChannelFilterChange()">
+            </ng-multiselect-dropdown>
+          </span>
+        </span>
+
+        @if (hasActiveFilters()) {
+          <button data-cy="filter_clear_button" type="button" class="btn btn-sm btn-outline-danger" (click)="clearAllFilters()">
+            <i class="fas fa-times me-1"></i>
+            {{ 'Clear' | translate }}
+          </button>
+        }
       </div>
     </div>
     <div id="Content">
-      <div class="metrics-section mb-4">
-        <div class="row g-3">
-          @for (card of metricCards; track card.id) {
-            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-              <div class="card metric-card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <span class="card-title">
-                    {{ card.title | translate }}
-                  </span>
-                  <div class="dropdown" ngbDropdown placement="bottom-end">
-                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" type="button"
-                      ngbDropdownToggle [attr.aria-label]="'Actions' | translate" ngbTooltip="{{ 'Actions' | translate }}">
-                      <i class="fas fa-ellipsis-vertical"></i>
-                    </button>
-                    <div class="dropdown-menu" ngbDropdownMenu>
-                      <button class="dropdown-item text-danger" (click)="removeMetric(card.id)">
-                        <i class="fas fa-times me-2"></i>
-                        {{ 'Remove' | translate }}
-                      </button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item" (click)="manageMetric(card.id)">
-                        <i class="fas fa-pen-to-square me-2"></i>
-                        {{ 'Manage' | translate }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body d-flex align-items-center justify-content-center">
-                  <div class="metric-value">{{ card.value }}</div>
-                </div>
-              </div>
-            </div>
-          }
-          @if (canAddMoreMetrics()) {
-            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-              <div class="card add-metric-card h-100" (click)="addNewMetric()">
-                <div class="card-body d-flex flex-column justify-content-center align-items-center text-muted">
-                  <div class="add-icon mb-2">
-                    <i class="fas fa-plus fa-2x"></i>
-                  </div>
-                  <span class="add-text">{{ 'Add' | translate }}</span>
-                </div>
-              </div>
-            </div>
-          }
-          @for (chart of chartConfigs; track chart.id; let i = $index) {
-            <div class="col-xl-6 col-lg-12 col-md-12 mb-4">
-              <div class="card chart-card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <span class="fw-bold">{{ chart.title | translate }}</span>
-                  <div class="dropdown" ngbDropdown placement="bottom-end">
-                    <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" type="button"
-                      ngbDropdownToggle [attr.aria-label]="'Actions' | translate" ngbTooltip="{{ 'Actions' | translate }}">
-                      <i class="fas fa-ellipsis-vertical"></i>
-                    </button>
-                    <div class="dropdown-menu" ngbDropdownMenu>
-                      <button class="dropdown-item text-danger"
-                        (click)="removeChartMetric(getMetricIdFromChartId(chart.id))">
-                        <i class="fas fa-times me-2"></i>
-                        {{ 'Remove' | translate }}
-                      </button>
-                      <div class="dropdown-divider"></div>
-                      <button class="dropdown-item" (click)="manageMetric(getMetricIdFromChartId(chart.id))">
-                        <i class="fas fa-pen-to-square me-2"></i>
-                        {{ 'Manage' | translate }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body analyst-graph p-3">
-                  <div class="chart-container" style="height: 300px;">
-                    <canvas baseChart class="chart" [type]="chart.type" [data]="chart.data" [options]="chart.options">
-                    </canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
+      <src-statistical-template-view 
+        [templateData]="templateData" 
+        [templatesData]="templatesData"
+        [refreshKey]="filterRevision"
+        [editable]="true"
+        (removeMetric)="removeMetric($event)"
+        (addNewMetric)="addNewMetric()"
+        (manageMetric)="manageMetric($event)">
+      </src-statistical-template-view>
     </div>
   }
 </div>
