@@ -6,16 +6,6 @@
       <span>{{ 'Add' | translate }}</span>
     </button>
   </div>
-  <div class="row mb-3">
-    <div class="col d-flex justify-content-end">
-      <div class="input-group input-group-sm w-auto">
-        <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerm" (input)="onSearchChange()">
-        <span class="input-group-text">
-          <i class="fas fa-search"></i>
-        </span>
-      </div>
-    </div>
-  </div>
   @if (showAddTemplate) {
     <div class="row">
       <div ngForm="newTemplate" #newTemplate="ngForm" class="addTemplate col-md-6">
@@ -37,6 +27,16 @@
       </div>
     </div>
   }
+  <div class="row mb-3">
+    <div class="col d-flex justify-content-end">
+      <div class="input-group input-group-sm w-auto">
+        <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="searchTerm" (input)="onSearchChange()">
+        <span class="input-group-text">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+    </div>
+  </div>
   @if (templatesData.length && filterOptions) {
     @for (template of filteredTemplatesData; track template.id; let index = $index) {
       <div class="templateList">

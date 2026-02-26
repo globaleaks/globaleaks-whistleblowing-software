@@ -8,7 +8,7 @@ import {NgClass} from "@angular/common";
 import {StatisticalReportsResolver} from "@app/shared/resolvers/statistical-reports.resolver";
 import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
-import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {FilterOption, FilterOptionsResponse, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {StatisticalReportEditorComponent} from "@app/pages/analyst/statistics/statistical-report-editor/statistical-report-editor.component";
 
 @Component({
@@ -22,9 +22,9 @@ export class StatisticalReportsTabComponent implements OnInit {
   private readonly reportsResolver = inject(StatisticalReportsResolver);
   private readonly templatesResolver = inject(StatisticalTemplatesResolver);
   @Input() statisticsForm!: NgForm;
+  @Input() filterOptions: FilterOptionsResponse;
   
   reportsData: statisticalReportResolverModel[] = [];
-  templatesData: statisticalTemplateResolverModel[] = [];
   @Input() reportsForm!: NgForm;
   showAddReport = false;
   new_report: { label: string; template_id: string; data: Record<string, unknown> } = {
@@ -34,10 +34,21 @@ export class StatisticalReportsTabComponent implements OnInit {
   };
 
   protected readonly Constants = Constants;
+  get templatesData(): statisticalTemplateResolverModel[] {
+    return this.templatesResolver.dataModel;
+  }
 
   ngOnInit(): void {
     this.reportsData = this.reportsResolver.dataModel;
-    this.templatesData = this.templatesResolver.dataModel;
+      this.httpService.requestFilterOptions().subscribe((filterOptions: FilterOptionsResponse) => {
+        if (filterOptions && Array.isArray(filterOptions.channel)) {
+          filterOptions.channel = filterOptions.channel.map((ch: FilterOption & { label: string | Record<string, string> }): FilterOption => ({
+            id: ch.id,
+            label: typeof ch.label === "object" ? ch.label["en"] || Object.values(ch.label)[0] : ch.label
+          }));
+        }
+        this.filterOptions = filterOptions;
+      });
   }
 
   toggleAddReport(): void {

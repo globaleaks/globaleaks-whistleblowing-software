@@ -5,7 +5,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {CommonModule, DatePipe} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {ChannelFilterOption, DateFilter, MetricCard, MetricModalResult, statisticalTemplateResolverModel, StatisticsFilter} from "@app/models/resolvers/statistical-template-resolver-model";
+import {ChannelFilterOption, DateFilter, FilterOptionsResponse, MetricCard, MetricModalResult, statisticalTemplateResolverModel, StatisticsFilter} from "@app/models/resolvers/statistical-template-resolver-model";
 import {ReportTemplateData} from "@app/models/analyst/report-template.model";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {AddMetricModalComponent} from "@app/shared/modals/add-metric-modal/add-metric-modal.component";
@@ -46,7 +46,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
 
   @Input() templateData!: statisticalTemplateResolverModel;
   @Input() templatesData: statisticalTemplateResolverModel[] = [];
-  @Input() filterOptions: any;
+  @Input() filterOptions: FilterOptionsResponse;
   @Input() index = 0;
   @Input() editTemplate!: NgForm;
   @Output() dataToParent = new EventEmitter<string>();
@@ -159,7 +159,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
     }
 
     if (this.channelDropdownModel.length === 0) {
-      return "Any Channel";
+      return "Channel";
     }
 
     return this.channelDropdownModel.map(item => item.label).join(", ");
@@ -171,7 +171,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
     }
 
     if (this.channelDropdownModel.length === 0) {
-      return "Any Channel";
+      return "Channel";
     }
 
     if (this.channelDropdownModel.length === 1) {
@@ -399,6 +399,16 @@ export class StatisticalTemplateEditorComponent implements OnInit {
 
   saveTemplate(template: statisticalTemplateResolverModel): void {
     template.data = this.currentTemplate || this.buildTemplateData();
-    this.httpService.requestUpdateStatisticalTemplate(template.id, template).subscribe({});
+    this.httpService.requestUpdateStatisticalTemplate(template.id, template).subscribe({
+      next: (updatedTemplate: statisticalTemplateResolverModel) => {
+        this.templateData = updatedTemplate;
+        this.currentTemplate = updatedTemplate.data as ReportTemplateData;
+
+        const templateIndex = this.templatesData.findIndex(item => item.id === updatedTemplate.id);
+        if (templateIndex !== -1) {
+          this.templatesData[templateIndex] = updatedTemplate;
+        }
+      }
+    });
   }
 }

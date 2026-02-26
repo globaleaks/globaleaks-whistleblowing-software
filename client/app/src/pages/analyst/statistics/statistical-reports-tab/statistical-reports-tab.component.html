@@ -25,7 +25,6 @@
           </label>
           <div [ngClass]="{'is-invalid': newReport.form.get('new_report.template_id')?.errors?.['required']}">
             <select id="new-report-template-id" name="new_report.template_id" class="form-control" [(ngModel)]="new_report.template_id" required>
-              <option value="">{{ 'Select a template' | translate }}</option>
               @for (template of templatesData; track template.id) {
                 <option [value]="template.id">{{ template.label }}</option>
               }
@@ -45,7 +44,7 @@
     @for (report of reportsData; track report.id; let index = $index) {
       <div class="reportList">
         <form id="report-{{index}}" name="editReport" #editReport="ngForm" novalidate>
-          <src-statistical-report-editor [reportData]="report" [reportsData]="reportsData" [editReport]="editReport" [index]="index"></src-statistical-report-editor>
+          <src-statistical-report-editor [reportData]="report" [reportsData]="reportsData" [editReport]="editReport" [filterOptions]="filterOptions" [index]="index"></src-statistical-report-editor>
         </form>
       </div>
     }

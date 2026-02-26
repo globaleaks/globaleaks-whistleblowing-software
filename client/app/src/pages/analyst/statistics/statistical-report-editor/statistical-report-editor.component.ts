@@ -33,11 +33,11 @@ export class StatisticalReportEditorComponent implements OnInit {
   @Input() reportData: statisticalReportResolverModel;
   @Input() reportsData: statisticalReportResolverModel[];
   @Input() index: number;
+  @Input() filterOptions: any;
   @Input() editReport: NgForm;
   @Output() dataToParent = new EventEmitter<string>();
   editing = false;
   nodeData: nodeResolverModel;
-  templatesData: statisticalTemplateResolverModel[] = [];
   private templatesResolver = inject(StatisticalTemplatesResolver);
   channelDropdownVisible = false;
   channelDropdownModel: ChannelFilterOption[] = [];
@@ -64,27 +64,24 @@ export class StatisticalReportEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
-    this.templatesData = this.templatesResolver.dataModel;
     this.baseStatisticsData = this.statisticsResolver.dataModel ? {...this.statisticsResolver.dataModel} : null;
     this.initializeFilters();
   }
 
+  get templatesData(): statisticalTemplateResolverModel[] {
+    return this.templatesResolver.dataModel;
+  }
+
   get selectedTemplate(): statisticalTemplateResolverModel | null {
-    return this.templatesData?.find(t => t.id === this.reportData?.template_id) || null;
+    return this.templatesResolver.dataModel?.find(t => t.id === this.reportData?.template_id) || null;
   }
 
   toggleEditing(): void {
     this.editing = !this.editing;
   }
 
-  private initializeFilters(): void {
-    this.httpService.requestFilterOptions().subscribe((filterOptions: { channel?: Array<{ id: string | number; label: string | Record<string, string> }> }) => {
-      const channels = filterOptions?.channel || [];
-      this.channelDropdownData = channels.map((ch) => ({
-        id: ch.id,
-        label: typeof ch.label === "object" ? ch.label["en"] || Object.values(ch.label)[0] : ch.label
-      }));
-    });
+  private initializeFilters() {
+    this.channelDropdownData = this.filterOptions?.channel || [];
   }
 
   toggleChannelFilter(): void {
@@ -145,7 +142,7 @@ export class StatisticalReportEditorComponent implements OnInit {
     }
 
     if (this.channelDropdownModel.length === 0) {
-      return "Any Channel";
+      return "Channel";
     }
 
     return this.channelDropdownModel.map(item => item.label).join(", ");
@@ -157,7 +154,7 @@ export class StatisticalReportEditorComponent implements OnInit {
     }
 
     if (this.channelDropdownModel.length === 0) {
-      return "Any Channel";
+      return "Channel";
     }
 
     if (this.channelDropdownModel.length === 1) {

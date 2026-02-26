@@ -37,7 +37,6 @@
       <div class="form-group">
         <label>{{ 'Template' | translate }}</label>
         <select class="form-control" [(ngModel)]="reportData.template_id" name="template_id">
-          <option value="">{{ 'Select a template' | translate }}</option>
           @for (template of templatesData; track template.id) {
             <option [value]="template.id">{{ template.label }}</option>
           }
@@ -45,7 +44,7 @@
       </div>
     </div>
     @if (selectedTemplate) {
-    <div id="SearchFilter" class="row mb-3 filter-section statistics-filter-bar">
+    <div id="StatisticsFilter" class="row mb-3 filter-section statistics-filter-bar">
       <div class="col-12 d-flex flex-wrap align-items-center gap-2">
         <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
           <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
