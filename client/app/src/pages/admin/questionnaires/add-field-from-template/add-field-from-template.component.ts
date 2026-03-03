@@ -44,6 +44,12 @@ export class AddFieldFromTemplateComponent implements OnInit {
       field.template_id = this.new_field.template_id;
       field.instance = "reference";
       field.y = this.utilsService.newItemOrder(this.fields, "y");
+      this.fieldTemplatesData.forEach(fieldTemplate => {
+        if (fieldTemplate.id === this.new_field.template_id) {
+          field.type = fieldTemplate.type;
+          field.statistical = fieldTemplate.statistical;
+        }
+      })
       this.httpService.requestAddAdminQuestionnaireField(field).subscribe((newField: Field) => {
         this.fields.push(newField);
         this.new_field = {
@@ -62,6 +68,12 @@ export class AddFieldFromTemplateComponent implements OnInit {
       field.instance = "reference";
       field.y = this.utilsService.newItemOrder(this.step.children, "y");
       field.template_id = this.new_field.template_id;
+      this.fieldTemplatesData.forEach(fieldTemplate => {
+        if (fieldTemplate.id === this.new_field.template_id) {
+          field.type = fieldTemplate.type;
+          field.statistical = fieldTemplate.statistical;
+        }
+      })
       if(field.template_id !== field.fieldgroup_id){
         this.httpService.requestAddAdminQuestionnaireField(field).subscribe((newField: Step) => {
           this.step.children.push(newField);

@@ -22,31 +22,65 @@ export class AddMetricModalComponent implements OnInit {
   @Input() canAddCharts: boolean = true;
 
   selectedMetricId = '';
+  selectedStandardMetricId = '';
+  selectedTemplateMetricId = '';
   selectedDisplayType = 'number';
-  searchTerm = '';
 
-  filteredMetricList: MetricCard[] = [];
+  filteredStandardMetricList: MetricCard[] = [];
+  filteredTemplateMetricList: MetricCard[] = [];
 
   ngOnInit(): void {
     this.updateFilteredMetrics();
   }
 
   updateFilteredMetrics(): void {
-    this.filteredMetricList = this.availableMetrics.filter(metric =>
-      !this.currentMetricIds.includes(metric.id)
-    );
+    const metricsToAdd = this.availableMetrics.filter(metric => !this.currentMetricIds.includes(metric.id));
+    this.filteredStandardMetricList = metricsToAdd.filter(metric => !this.isQuestionTemplateMetric(metric));
+    this.filteredTemplateMetricList = metricsToAdd.filter(metric => this.isQuestionTemplateMetric(metric));
   }
 
-  onSearch(term: string): void {
+  onStandardMetricSearch(term: string): void {
     const search = term.toLowerCase();
-    this.filteredMetricList = this.availableMetrics.filter(metric =>
+    this.filteredStandardMetricList = this.availableMetrics.filter(metric =>
       !this.currentMetricIds.includes(metric.id) &&
+      !this.isQuestionTemplateMetric(metric) &&
       metric.title.toLowerCase().includes(search)
     );
   }
 
-  selectMetric(metricId: string): void {
-    this.selectedMetricId = metricId;
+  onTemplateMetricSearch(term: string): void {
+    const search = term.toLowerCase();
+    this.filteredTemplateMetricList = this.availableMetrics.filter(metric =>
+      !this.currentMetricIds.includes(metric.id) &&
+      this.isQuestionTemplateMetric(metric) &&
+      metric.title.toLowerCase().includes(search)
+    );
+  }
+
+  selectStandardMetric(metricId: string): void {
+    const normalizedMetricId = this.normalizeMetricId(metricId);
+    if (!normalizedMetricId) {
+      return;
+    }
+
+    this.selectedStandardMetricId = normalizedMetricId;
+    this.selectedTemplateMetricId = '';
+    this.selectedMetricId = normalizedMetricId;
+    const compatibleTypes = this.getCompatibleDisplayTypes();
+    if (compatibleTypes.length > 0) {
+      this.selectedDisplayType = compatibleTypes[0];
+    }
+  }
+
+  selectTemplateMetric(metricId: string): void {
+    const normalizedMetricId = this.normalizeMetricId(metricId);
+    if (!normalizedMetricId) {
+      return;
+    }
+
+    this.selectedTemplateMetricId = normalizedMetricId;
+    this.selectedStandardMetricId = '';
+    this.selectedMetricId = normalizedMetricId;
     const compatibleTypes = this.getCompatibleDisplayTypes();
     if (compatibleTypes.length > 0) {
       this.selectedDisplayType = compatibleTypes[0];
@@ -71,6 +105,23 @@ export class AddMetricModalComponent implements OnInit {
 
   isDisplayTypeCompatible(displayType: string): boolean {
     return this.getCompatibleDisplayTypes().includes(displayType);
+  }
+
+  isQuestionTemplateMetric(metric?: MetricCard): boolean {
+    return metric?.metricType === 'question_template_dropdown';
+  }
+
+  private normalizeMetricId(metricSelection: unknown): string {
+    if (typeof metricSelection === 'string') {
+      return metricSelection;
+    }
+
+    if (metricSelection && typeof metricSelection === 'object' && 'id' in metricSelection) {
+      const metricId = (metricSelection as {id?: unknown}).id;
+      return typeof metricId === 'string' ? metricId : '';
+    }
+
+    return '';
   }
 
   save(): void {

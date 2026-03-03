@@ -8,12 +8,17 @@
   <div class="selection-section">
     <div class="form-group">
       <label for="metric-select">{{ 'Select Metric' | translate }}</label>
-      <ng-select id="metric-select" [(ngModel)]="selectedMetricId" name="selectedMetricId" bindLabel="title" bindValue="id" [items]="filteredMetricList" [searchable]="true" [clearable]="false" [placeholder]="'Search' | translate" (search)="onSearch($event.term)">
+      <ng-select id="metric-select" [(ngModel)]="selectedStandardMetricId" name="selectedStandardMetricId" bindLabel="title" bindValue="id" [items]="filteredStandardMetricList" [searchable]="true" [clearable]="false" [placeholder]="'Search' | translate" (search)="onStandardMetricSearch($event.term)" (ngModelChange)="selectStandardMetric($event)">
         <ng-template ng-option-tmp let-item="item">
           <span>{{ item.title | translate }}</span>
-                <ng-template ng-option-tmp let-item="item">
-          {{ item.title | translate }}
         </ng-template>
+      </ng-select>
+    </div>
+    <div class="form-group mt-3">
+      <label for="template-metric-select">{{ 'Question Template' | translate }}</label>
+      <ng-select id="template-metric-select" [(ngModel)]="selectedTemplateMetricId" name="selectedTemplateMetricId" bindLabel="title" bindValue="id" [items]="filteredTemplateMetricList" [searchable]="true" [clearable]="false" [placeholder]="'Search' | translate" (search)="onTemplateMetricSearch($event.term)" (ngModelChange)="selectTemplateMetric($event)">
+        <ng-template ng-option-tmp let-item="item">
+          <span>{{ item.title | translate }}</span>
         </ng-template>
       </ng-select>
     </div>

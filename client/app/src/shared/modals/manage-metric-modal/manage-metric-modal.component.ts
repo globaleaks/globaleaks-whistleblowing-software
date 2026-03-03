@@ -21,9 +21,11 @@ export class ManageMetricModalComponent implements OnInit {
   @Input() currentMetricCard?: MetricCard;
 
   selectedMetricId: string = '';
+  selectedStandardMetricId: string = '';
+  selectedTemplateMetricId: string = '';
   selectedChartType: string = 'number';
-  searchTerm: string = '';
-  filteredMetricList: MetricCard[] = [];
+  filteredStandardMetricList: MetricCard[] = [];
+  filteredTemplateMetricList: MetricCard[] = [];
 
   chartTypes: ChartType[] = [
     { value: 'number', label: 'Number', icon: '123' },
@@ -36,29 +38,64 @@ export class ManageMetricModalComponent implements OnInit {
     if (this.currentMetricCard) {
       this.selectedMetricId = this.currentMetricCard.id;
       this.selectedChartType = this.currentMetricCard.chartType || 'number';
+      if (this.isQuestionTemplateMetric(this.currentMetricCard)) {
+        this.selectedTemplateMetricId = this.currentMetricCard.id;
+      } else {
+        this.selectedStandardMetricId = this.currentMetricCard.id;
+      }
     }
     this.updateFilteredMetrics()
   }
 
   updateFilteredMetrics(): void {
-    this.filteredMetricList = this.availableMetrics.filter(metric =>
+    const metricsToShow = this.availableMetrics.filter(metric =>
       !this.currentMetricIds.includes(metric.id) ||
       metric.id === this.currentMetricCard?.id
     );
+    this.filteredStandardMetricList = metricsToShow.filter(metric => !this.isQuestionTemplateMetric(metric));
+    this.filteredTemplateMetricList = metricsToShow.filter(metric => this.isQuestionTemplateMetric(metric));
   }
 
-  onSearch(term: string): void {
-    this.searchTerm = term.toLowerCase();
-
-    this.filteredMetricList = this.availableMetrics.filter(metric =>
+  onStandardMetricSearch(term: string): void {
+    const searchTerm = term.toLowerCase();
+    this.filteredStandardMetricList = this.availableMetrics.filter(metric =>
       (!this.currentMetricIds.includes(metric.id) ||
         metric.id === this.currentMetricCard?.id) &&
-      metric.title.toLowerCase().includes(this.searchTerm)
+      !this.isQuestionTemplateMetric(metric) &&
+      metric.title.toLowerCase().includes(searchTerm)
     );
   }
 
-  selectMetric(metricId: string): void {
-    this.selectedMetricId = metricId;
+  onTemplateMetricSearch(term: string): void {
+    const searchTerm = term.toLowerCase();
+    this.filteredTemplateMetricList = this.availableMetrics.filter(metric =>
+      (!this.currentMetricIds.includes(metric.id) ||
+        metric.id === this.currentMetricCard?.id) &&
+      this.isQuestionTemplateMetric(metric) &&
+      metric.title.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  selectStandardMetric(metricId: string): void {
+    const normalizedMetricId = this.normalizeMetricId(metricId);
+    if (!normalizedMetricId) {
+      return;
+    }
+
+    this.selectedStandardMetricId = normalizedMetricId;
+    this.selectedTemplateMetricId = '';
+    this.selectedMetricId = normalizedMetricId;
+  }
+
+  selectTemplateMetric(metricId: string): void {
+    const normalizedMetricId = this.normalizeMetricId(metricId);
+    if (!normalizedMetricId) {
+      return;
+    }
+
+    this.selectedTemplateMetricId = normalizedMetricId;
+    this.selectedStandardMetricId = '';
+    this.selectedMetricId = normalizedMetricId;
   }
 
   selectChartType(chartType: string): void {
@@ -99,5 +136,22 @@ export class ManageMetricModalComponent implements OnInit {
 
   isDisplayTypeCompatible(displayType: string): boolean {
     return this.getCompatibleDisplayTypes().includes(displayType);
+  }
+
+  isQuestionTemplateMetric(metric?: MetricCard): boolean {
+    return metric?.metricType === 'question_template_dropdown';
+  }
+
+  private normalizeMetricId(metricSelection: unknown): string {
+    if (typeof metricSelection === 'string') {
+      return metricSelection;
+    }
+
+    if (metricSelection && typeof metricSelection === 'object' && 'id' in metricSelection) {
+      const metricId = (metricSelection as {id?: unknown}).id;
+      return typeof metricId === 'string' ? metricId : '';
+    }
+
+    return '';
   }
 }

@@ -264,8 +264,10 @@ export class StatisticalTemplateEditorComponent implements OnInit {
         title: result.metric.title,
         value: result.metric.value,
         chartType: result.chartType,
+        metricType: result.metric.metricType,
         category: result.metric.category,
-        compatibleTypes: result.metric.compatibleTypes
+        compatibleTypes: result.metric.compatibleTypes,
+        customData: result.metric.customData
       };
 
       if (["bar", "pie"].includes(result.chartType)) {
@@ -332,8 +334,10 @@ export class StatisticalTemplateEditorComponent implements OnInit {
         title: result.metric.title,
         value: result.metric.value,
         chartType: result.chartType,
+        metricType: result.metric.metricType,
         category: result.metric.category,
-        compatibleTypes: result.metric.compatibleTypes
+        compatibleTypes: result.metric.compatibleTypes,
+        customData: result.metric.customData
       };
 
       if (isChart) {

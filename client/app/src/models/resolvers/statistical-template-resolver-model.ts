@@ -20,8 +20,13 @@ export class MetricCard {
   value: number | string;
   chartType?: string;
   description?: string;
+  metricType?: 'standard' | 'question_template_dropdown';
   category?: 'numeric' | 'comparative' | 'distribution';
   compatibleTypes?: string[];
+  customData?: {
+    labels: string[];
+    data: number[];
+  };
 }
 
 export class ChartType {

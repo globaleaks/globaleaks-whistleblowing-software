@@ -1,4 +1,5 @@
 from sqlalchemy.sql.expression import func, and_, false
+from nacl.encoding import Base64Encoder
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import transact, tw
@@ -6,6 +7,7 @@ from twisted.internet.defer import inlineCallbacks
 import json
 from datetime import datetime, timedelta
 from globaleaks.rest import errors, requests
+from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now, uuid4
 
 
@@ -149,6 +151,223 @@ def _context_display_label(context_name):
     return str(context_name).strip() if context_name is not None else ''
 
 
+def _localized_label(value, language='en'):
+    if isinstance(value, dict):
+        lang_value = value.get(language)
+        if isinstance(lang_value, str) and lang_value.strip():
+            return lang_value.strip()
+
+        english = value.get('en')
+        if isinstance(english, str) and english.strip():
+            return english.strip()
+
+        for localized_value in value.values():
+            if isinstance(localized_value, str) and localized_value.strip():
+                return localized_value.strip()
+
+        return ''
+
+    if isinstance(value, str):
+        return value.strip()
+
+    return str(value).strip() if value is not None else ''
+
+
+def _decode_stat_answers(raw_stat_answers, stat_prv_key):
+    if raw_stat_answers in (None, '', {}):
+        return {}
+
+    if isinstance(raw_stat_answers, dict):
+        return raw_stat_answers
+
+    if isinstance(raw_stat_answers, str):
+        stat_text = raw_stat_answers.strip()
+        if not stat_text:
+            return {}
+
+        try:
+            parsed = json.loads(stat_text)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
+
+        if not stat_prv_key:
+            return {}
+
+        try:
+            encrypted_payload = Base64Encoder.decode(stat_text.encode('utf-8'))
+            decrypted = GCE.asymmetric_decrypt(stat_prv_key, encrypted_payload).decode('utf-8')
+            parsed = json.loads(decrypted)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            return {}
+
+    return {}
+
+
+def _get_user_stat_prv_key(session, tid, user_id, user_cc):
+    if not user_id or not user_cc:
+        return None
+
+    encrypted_stat_key = session.query(models.User.crypto_global_stat_prv_key) \
+                                .filter(models.User.id == user_id,
+                                        models.User.tid == tid) \
+                                .one_or_none()
+
+    if not encrypted_stat_key or not encrypted_stat_key[0]:
+        return None
+
+    try:
+        return GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(encrypted_stat_key[0].encode()))
+    except Exception:
+        return None
+
+
+def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
+    template_rows = session.query(models.Field.id, models.Field.label) \
+                           .filter(models.Field.tid.in_({1, tid}),
+                                   models.Field.instance == 'template',
+                                   models.Field.fieldgroup_id.is_(None),
+                                   models.Field.type == 'selectbox',
+                                   models.Field.statistical == True) \
+                           .all()
+    if not template_rows:
+        return []
+
+    template_ids = [template_id for template_id, _ in template_rows]
+    template_id_keys = {template_id: str(template_id) for template_id in template_ids}
+    template_metrics = {
+        template_id_keys[template_id]: {
+            'template_id': template_id_keys[template_id],
+            'title': _localized_label(label, language),
+            'option_labels': {},
+            'option_counts': {},
+            'total_answers': 0
+        } for template_id, label in template_rows
+    }
+
+    option_rows = session.query(models.FieldOption.field_id, models.FieldOption.id, models.FieldOption.label) \
+                         .filter(models.FieldOption.field_id.in_(template_ids)) \
+                         .all()
+    for field_id, option_id, option_label in option_rows:
+        field_id_key = template_id_keys.get(field_id, str(field_id))
+        option_id_str = str(option_id)
+        template_metrics[field_id_key]['option_labels'][option_id_str] = _localized_label(option_label, language) or option_id_str
+        template_metrics[field_id_key]['option_counts'][option_id_str] = 0
+
+    field_template_rows = session.query(models.Field.id, models.Field.template_id) \
+                                 .filter(models.Field.tid.in_({1, tid}),
+                                         models.Field.type == 'selectbox',
+                                         models.Field.template_id.in_(template_ids)) \
+                                 .all()
+
+    field_to_template = {
+        str(field_id): template_id_keys.get(template_id, str(template_id))
+        for field_id, template_id in field_template_rows
+    }
+
+    stat_prv_key = _get_user_stat_prv_key(session, tid, user_id, user_cc)
+    stat_rows = session.query(models.InternalTipAnswers.stat_answers) \
+                       .join(filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTipAnswers.internaltip_id) \
+                       .all()
+
+    for stat_answers, in stat_rows:
+        stat_answers_dict = _decode_stat_answers(stat_answers, stat_prv_key)
+        if not stat_answers_dict:
+            continue
+
+        for answer_key, answer_value in stat_answers_dict.items():
+            if answer_value in (None, ''):
+                continue
+            answer_key_str = str(answer_key).strip()
+            template_id = None
+            key_is_field_mapping = False
+
+            if answer_key_str.startswith('template:'):
+                template_id = answer_key_str.split('template:', 1)[1]
+            elif answer_key_str in field_to_template:
+                template_id = field_to_template[answer_key_str]
+                key_is_field_mapping = True
+            elif answer_key_str in template_metrics:
+                template_id = answer_key_str
+
+            if template_id not in template_metrics:
+                continue
+
+            template_answer_key = 'template:%s' % template_id
+            if key_is_field_mapping and template_answer_key in stat_answers_dict:
+                continue
+
+            if answer_key_str == template_id and template_answer_key in stat_answers_dict:
+                continue
+
+            answer_value_key = str(answer_value)
+            metric_data = template_metrics[template_id]
+            metric_data['total_answers'] += 1
+
+            if answer_value_key not in metric_data['option_counts']:
+                metric_data['option_counts'][answer_value_key] = 0
+                metric_data['option_labels'][answer_value_key] = answer_value_key
+
+            metric_data['option_counts'][answer_value_key] += 1
+
+    dropdown_metrics = []
+    for template_id, metric_data in sorted(template_metrics.items(), key=lambda x: x[1]['title'].lower()):
+        total_answers = metric_data['total_answers']
+        option_entries = []
+        for option_id, count in sorted(metric_data['option_counts'].items(), key=lambda x: x[1], reverse=True):
+            option_entries.append({
+                'id': option_id,
+                'label': metric_data['option_labels'].get(option_id, option_id),
+                'count': count,
+                'percentage': round((count * 100.0 / total_answers), 1) if total_answers else 0
+            })
+
+        dropdown_metrics.append({
+            'id': 'question_template_dropdown_%s' % template_id,
+            'template_id': template_id,
+            'title': metric_data['title'] or template_id,
+            'total_answers': total_answers,
+            'options': option_entries
+        })
+
+    return dropdown_metrics
+
+
+def _get_filtered_tips_subquery(session, tid, filters):
+    filtered_tips_query = session.query(models.InternalTip.id).filter(models.InternalTip.tid == tid)
+    filtered_tips_query = apply_filters_to_query(session, filtered_tips_query, filters, tid)
+    return filtered_tips_query.subquery()
+
+
+def _count_filtered_tips(session, tid, filtered_tips_subquery, *extra_conditions):
+    query = session.query(func.count(models.InternalTip.id)) \
+                   .join(filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id) \
+                   .filter(models.InternalTip.tid == tid)
+
+    if extra_conditions:
+        query = query.filter(*extra_conditions)
+
+    return query.scalar() or 0
+
+
+def _count_identity_tips(session, tid, filtered_tips_subquery, equals_creation_date):
+    creation_date_condition = models.InternalTipData.creation_date == models.InternalTip.creation_date \
+        if equals_creation_date else \
+        models.InternalTipData.creation_date != models.InternalTip.creation_date
+
+    return session.query(func.count(func.distinct(models.InternalTip.id))) \
+                  .join(filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id) \
+                  .join(models.InternalTipData,
+                        and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
+                             models.InternalTipData.key == 'whistleblower_identity',
+                             creation_date_condition)) \
+                  .filter(models.InternalTip.tid == tid) \
+                  .scalar() or 0
+
+
 def apply_filters_to_query(session, query, filters, tid):
     if not filters:
         return query
@@ -188,14 +407,7 @@ def apply_filters_to_query(session, query, filters, tid):
 
     return query
 
-def calculate_time_based_metrics(session, tid, filters=None):
-    filtered_tips_query = session.query(models.InternalTip.id).filter(models.InternalTip.tid == tid)
-    filtered_tips_query = apply_filters_to_query(session, filtered_tips_query, filters, tid)
-
-    if filtered_tips_query.first() is None:
-        return _empty_time_metrics()
-    filtered_tips_subquery = filtered_tips_query.subquery()
-
+def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
     tip_rows = session.query(
         models.InternalTip.id,
         models.InternalTip.creation_date
@@ -204,6 +416,8 @@ def calculate_time_based_metrics(session, tid, filters=None):
     ).filter(
         models.InternalTip.tid == tid
     ).all()
+    if not tip_rows:
+        return _empty_time_metrics()
 
     tip_creation_map = {tip_id: creation_date for tip_id, creation_date in tip_rows}
 
@@ -302,44 +516,19 @@ def calculate_time_based_metrics(session, tid, filters=None):
     }
 
 @transact
-def get_stats(session, tid, filters=None):
-    base_query = session.query(func.count(models.InternalTip.id)).filter(models.InternalTip.tid == tid)
-    base_query = apply_filters_to_query(session, base_query, filters, tid)
-    reports_count = base_query.one()[0]
-    no_access_query = session.query(func.count(models.InternalTip.id)) \
-                            .filter(models.InternalTip.tid == tid,
-                models.InternalTip.access_count == 0)
-    no_access_query = apply_filters_to_query(session, no_access_query, filters, tid)
+def get_stats(session, tid, filters=None, language='en', user_id=None, user_cc=None):
+    filtered_tips_subquery = _get_filtered_tips_subquery(session, tid, filters)
 
-    num_tips_no_access = no_access_query.one()[0]
-    mobile_query = session.query(func.count(models.InternalTip.id)) \
-                            .filter(models.InternalTip.tid == tid,
-                models.InternalTip.mobile == True)
-    mobile_query = apply_filters_to_query(session, mobile_query, filters, tid)
-    num_tips_mobile = mobile_query.one()[0]
-    tor_query = session.query(func.count(models.InternalTip.id)) \
-                            .filter(models.InternalTip.tid == tid,
-                models.InternalTip.tor == True)
-    tor_query = apply_filters_to_query(session, tor_query, filters, tid)
-    num_tips_tor = tor_query.one()[0]
-    subscribed_query = session.query(func.count(models.InternalTip.id)) \
-                            .filter(models.InternalTip.tid == tid) \
-                            .join(models.InternalTipData,
-                                  and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                       models.InternalTipData.key == 'whistleblower_identity',
-                                       models.InternalTipData.creation_date == models.InternalTip.creation_date))
-    subscribed_query = apply_filters_to_query(session, subscribed_query, filters, tid)
-    num_subscribed_tips = subscribed_query.one()[0]
-    initially_anonymous_query = session.query(func.count(models.InternalTip.id)) \
-                                    .filter(models.InternalTip.tid == tid) \
-                                    .join(models.InternalTipData,
-                                          and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                               models.InternalTipData.key == 'whistleblower_identity',
-                                               models.InternalTipData.creation_date != models.InternalTip.creation_date))
-    initially_anonymous_query = apply_filters_to_query(session, initially_anonymous_query, filters, tid)
-    num_initially_anonymous_tips = initially_anonymous_query.one()[0]
-    num_anonymous_tips = reports_count - num_subscribed_tips - num_initially_anonymous_tips
-    time_metrics = calculate_time_based_metrics(session, tid, filters)
+    reports_count = _count_filtered_tips(session, tid, filtered_tips_subquery)
+    num_tips_no_access = _count_filtered_tips(session, tid, filtered_tips_subquery, models.InternalTip.access_count == 0)
+    num_tips_mobile = _count_filtered_tips(session, tid, filtered_tips_subquery, models.InternalTip.mobile.is_(True))
+    num_tips_tor = _count_filtered_tips(session, tid, filtered_tips_subquery, models.InternalTip.tor.is_(True))
+
+    num_subscribed_tips = _count_identity_tips(session, tid, filtered_tips_subquery, equals_creation_date=True)
+    num_initially_anonymous_tips = _count_identity_tips(session, tid, filtered_tips_subquery, equals_creation_date=False)
+
+    num_anonymous_tips = max(0, reports_count - num_subscribed_tips - num_initially_anonymous_tips)
+    time_metrics = calculate_time_based_metrics(session, tid, filtered_tips_subquery)
 
     stats = {
         "reports_count": reports_count,
@@ -351,6 +540,14 @@ def get_stats(session, tid, filters=None):
         "reports_tor": num_tips_tor
     }
 
+    stats["question_template_dropdown_metrics"] = calculate_dropdown_template_metrics(
+        session,
+        tid,
+        filtered_tips_subquery=filtered_tips_subquery,
+        language=language,
+        user_id=user_id,
+        user_cc=user_cc
+    )
     stats.update(time_metrics)
     return stats
     
@@ -397,11 +594,23 @@ class Statistics(BaseHandler):
     check_roles = 'analyst'
 
     def get(self):
-        return get_stats(self.request.tid, None)
+        return get_stats(
+            self.request.tid,
+            None,
+            self.request.language,
+            self.session.user_id,
+            self.session.cc
+        )
 
     def post(self):
         filters = _parse_filters(self.request.content.read())
-        return get_stats(self.request.tid, filters)
+        return get_stats(
+            self.request.tid,
+            filters,
+            self.request.language,
+            self.session.user_id,
+            self.session.cc
+        )
 
 def db_create_statistical_template(session, tid, request):
     default = _default_template()

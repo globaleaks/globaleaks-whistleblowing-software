@@ -15,4 +15,16 @@ export class statisticsResolverModel {
   avg_exchanges_per_report: number;
   total_exchanges: number;
   reports_with_exchanges: number;
+  question_template_dropdown_metrics?: Array<{
+    id: string;
+    template_id: string;
+    title: string;
+    total_answers: number;
+    options: Array<{
+      id: string;
+      label: string;
+      count: number;
+      percentage: number;
+    }>;
+  }>;
 }
