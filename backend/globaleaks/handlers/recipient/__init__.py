@@ -87,6 +87,37 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                              .filter(models.ReceiverContext.receiver_id == receiver_id):
         receiver_contexts.add(context_id[0])
 
+    forwardings = {}
+    tenants = {}
+    # Retrieve all the internaltipforwardings associated with the tips associated with the current receiver
+    for forwarding in session.query(models.InternalTipForwarding) \
+                                            .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
+                                                    models.ReceiverTip.receiver_id == receiver_id),
+                                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                                    models.InternalTipForwarding.internaltip_id == models.InternalTip.id) \
+                                            .distinct():
+
+        # Retrieve tenant id and name
+        T = {}
+        T['tid'] = forwarding.tid
+        if tenants.get(forwarding.tid, None):
+            T['name'] = tenants[forwarding.tid]
+        else:
+            tenant_name = db_get(session, models.Config, (models.Config.tid == forwarding.tid, models.Config.var_name == 'name')).value
+            T['name'] = tenant_name
+            tenants[forwarding.tid] = tenant_name
+
+        if forwardings.get(forwarding.internaltip_id, None) is None:
+            D = {}
+            D["count"] = 1
+            eos = [T]
+            D["eos"] = eos
+            forwardings[forwarding.internaltip_id] = D
+        else:
+            forwardings[forwarding.internaltip_id]["count"] += 1
+            forwardings[forwarding.internaltip_id]["eos"].append(T)
+
+
     dict_ret = dict()
     # Fetch rtip, internaltip and associated questionnaire schema
     for rtip, itip, answers, data in session.query(models.ReceiverTip,
@@ -126,9 +157,11 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
         else:
             subscription = 2
 
-        # forwardings_count, tenants = get_internaltip_forwarding(session, itip.id)
-        forwardings_count = 0
-        tenants = []
+        total_forwardings_eo = 0
+        forwardings_tenants = []
+        if forwardings.get(itip.id, None):
+            total_forwardings_eo = forwardings[itip.id]["count"]
+            forwardings_tenants = forwardings[itip.id]["eos"]
 
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
@@ -154,8 +187,8 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                 'receiver_count': receiver_count_by_itip.get(itip.id, 0),
                 'subscription': subscription,
                 'accessible': accessible,
-                'total_forwardings_eo': forwardings_count,
-                'forwardings': tenants
+                'total_forwardings_eo': total_forwardings_eo,
+                'forwardings': forwardings_tenants
             }
 
     return list(dict_ret.values())
