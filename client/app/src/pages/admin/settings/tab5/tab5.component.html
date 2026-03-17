@@ -91,6 +91,13 @@
       </div>
     }
     <div class="form-group">
+      <label for="homepage-input">{{ 'Homepage' | translate }}</label>
+      <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" required>
+        <option value="/">/</option>
+        <option value="/submission">/submission</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label for="custom-support-url">{{ 'Custom support URL' | translate }}</label>
       <input id="custom-support-url" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_support_url" #customSupportURL="ngModel" name="customSupportURL" [pattern]="Constants.httpsRegexp" [ngClass]="{'is-invalid': customSupportURL?.errors?.['pattern']}" type="text" />
     </div>
