@@ -163,6 +163,16 @@ class NodeInstance(BaseHandler):
         request = yield self.validate_request(self.request.content.read(),
                                               config[1])
 
+        # When IDP authentication is enabled, validate server-side that the
+        # configured issuer is reachable and exposes a usable JWKS before
+        # persisting the change. This is done on the backend (not in the
+        # browser) so it is not constrained by the client CSP connect-src.
+        if request.get('idp') and request.get('idp_issuer'):
+            try:
+                yield State.oidcauth.validate_issuer(request['idp_issuer'])
+            except Exception:
+                raise errors.InputValidationError('Unable to validate the configured IdP issuer')
+
         ret = yield tw(db_update_node,
                        self.request.tid,
                        self.session,

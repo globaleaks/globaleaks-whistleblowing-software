@@ -6,6 +6,7 @@ declare global {
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_receiver: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_custodian: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
+      login_keycloak: (username?: string, password?: string, url?: string) => void;
       login_whistleblower: (receipt: string) => void;
       logout: () => void;
       simple_login_admin: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
@@ -38,6 +39,24 @@ function terminalLog(violations) {
 
   cy.task('table', violationData)
 }
+
+Cypress.Commands.add("login_keycloak", (username, password, url) => {
+  username = username === undefined ? "admin" : username;
+  password = password === undefined ? Cypress.env("keycloak_user_password") : password;
+  url = url === undefined ? "/#/login" : url;
+
+  cy.visit(url);
+
+  cy.origin(
+    'http://127.0.0.1:9090',
+    { args: [username, password] },
+    ([u, p]) => {
+      cy.get('input#username').type(u);
+      cy.get('input#password').type(p);
+      cy.get('input[type="submit"],button[type="submit"]').click();
+    }
+  );
+});
 
 Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
@@ -191,11 +210,11 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
   let finalURL = "/actions/forcedpasswordchange";
 
   cy.visit(url);
-  cy.get('ng-select[name="authentication.loginData.loginUsername"]').click(); 
+  cy.get('ng-select[name="authentication.loginData.loginUsername"]').click();
   cy.get('.ng-option').first().click();
 
   // @ts-ignore
-  
+
   cy.get("[name=\"password\"]").type(password);
   cy.get("#login-button").click();
 

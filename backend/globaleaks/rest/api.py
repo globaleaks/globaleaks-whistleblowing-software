@@ -10,6 +10,7 @@ import secrets
 
 from functools import lru_cache
 from typing import List, Tuple
+from urllib.parse import urlparse
 
 from globaleaks import jobs
 from sqlalchemy.orm.exc import NoResultFound
@@ -45,6 +46,7 @@ from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.sock import isIPAddress
+from globaleaks.orm import db_log
 
 tid_regexp = r'([0-9]+)'
 role_regexp = r'(admin|analyst|custodian|receiver)'
@@ -237,6 +239,29 @@ def parse_accept_language(raw_header: str) -> List[str]:
     return [lang for lang, _, _ in parsed]
 
 
+def extract_bearer_token(request):
+    try:
+        auth_header = request.getHeader('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            return auth_header[len('Bearer '):].strip()
+    except:
+        pass
+
+    return None
+
+
+def idp_origin_from_issuer(issuer):
+    """Return the scheme://host[:port] origin of the configured IdP issuer"""
+    try:
+        parsed = urlparse(issuer)
+        if parsed.scheme and parsed.netloc:
+            return ("%s://%s" % (parsed.scheme, parsed.netloc)).encode()
+    except:
+        pass
+
+    return None
+
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -410,6 +435,7 @@ class APIResourceWrapper(Resource):
         request.multilang = False
         request.finished = False
         request.nonce = base64.b64encode(secrets.token_bytes(16))
+        request.oidc_token = None
 
         request.client_ip = request.getClientIP()
         if isinstance(request.client_ip, bytes):
@@ -488,6 +514,20 @@ class APIResourceWrapper(Resource):
             request.tid = None
             request.setResponseCode(400)
             return b''
+
+        # OIDC token verification against the IdP configured on the tenant
+        if State.tenants[request.tid].cache.get('idp'):
+            bearer_token = extract_bearer_token(request)
+            if bearer_token:
+                issuer = State.tenants[request.tid].cache.get('idp_issuer')
+                try:
+                    request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer)
+                except Exception as e:
+                    try:
+                        db_log(None, tid=request.tid, type='idp_malfunction', object_id=None, details=str(e))
+                    except Exception:
+                        pass
+                    request.oidc_token = None
 
         if self.should_redirect_tor(request):
             self.redirect_tor(request)
@@ -620,9 +660,16 @@ class APIResourceWrapper(Resource):
 
         # CSP Policy on the entry point
         if request.path == b'/index.html':
+            # Allow the client to reach the tenant's configured IdP (if any)
+            idp_connect_src = b""
+            if request.tid in State.tenants and State.tenants[request.tid].cache.get('idp'):
+                idp_origin = idp_origin_from_issuer(State.tenants[request.tid].cache.get('idp_issuer'))
+                if idp_origin:
+                    idp_connect_src = b" " + idp_origin
+
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
-                              b"connect-src 'self';"
+                              b"connect-src 'self'" + idp_connect_src + b";"
                               b"default-src 'none';"
                               b"font-src 'self';"
                               b"form-action 'none';"

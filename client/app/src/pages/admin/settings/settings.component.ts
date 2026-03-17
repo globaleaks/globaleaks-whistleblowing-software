@@ -7,18 +7,19 @@ import {Tab2Component} from "@app/pages/admin/settings/tab2/tab2.component";
 import {Tab3Component} from "@app/pages/admin/settings/tab3/tab3.component";
 import {Tab4Component} from "@app/pages/admin/settings/tab4/tab4.component";
 import {Tab5Component} from "@app/pages/admin/settings/tab5/tab5.component";
+import {Tab6Component} from "@app/pages/admin/settings/tab6/tab6.component";
+import {Tab7Component} from "@app/pages/admin/settings/tab7/tab7.component";
 import {FormsModule} from "@angular/forms";
 import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
 import {NgTemplateOutlet} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
-import {Tab6Component} from "@app/pages/admin/settings/tab6/tab6.component";
 
 @Component({
     selector: "src-admin-settings",
     templateUrl: "./settings.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, Tab1Component, Tab2Component, Tab3Component, Tab4Component, Tab5Component, Tab6Component, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, Tab1Component, Tab2Component, Tab3Component, Tab4Component, Tab5Component, Tab6Component, Tab7Component, TranslatorPipe, TranslateModule]
 })
 export class AdminSettingsComponent implements AfterViewInit {
   protected node = inject(NodeResolver);
@@ -31,6 +32,7 @@ export class AdminSettingsComponent implements AfterViewInit {
   @ViewChild("tab4") tab4!: TemplateRef<Tab4Component>;
   @ViewChild("tab5") tab5!: TemplateRef<Tab5Component>;
   @ViewChild("tab6") tab6!: TemplateRef<Tab6Component>;
+  @ViewChild("tab7") tab7!: TemplateRef<Tab7Component>;
   tabs: Tab[];
   nodeData: NodeResolver;
   active: string;
@@ -73,6 +75,11 @@ export class AdminSettingsComponent implements AfterViewInit {
             id:"backup",
             title: "Backup",
             component: this.tab6
+          },
+          {
+            id:"authentication",
+            title: "Authentication",
+            component: this.tab7
           }
         ]);
       }

@@ -45,6 +45,7 @@
         "@ngx-translate/core": "17.0.0",
         "@ngx-translate/http-loader": "17.0.0",
         "@popperjs/core": "2.11.8",
+        "angular-oauth2-oidc": "20.0.3",
         "angularx-qrcode": "20.0.0",
         "bootstrap": "5.3.8",
         "chart.js": "4.5.1",
@@ -59,7 +60,7 @@
         "pdfjs-dist": "5.6.205",
         "requestidlecallback-polyfill": "1.0.2",
         "rxjs": "7.8.2",
-        "yauzl": "3.3.0"
+        "yauzl": "3.4.0"
       },
       "devDependencies": {
         "@angular-devkit/architect": "0.2003.23",
@@ -7698,6 +7699,19 @@
         "typescript-eslint": "^8.0.0"
       }
     },
+    "node_modules/angular-oauth2-oidc": {
+      "version": "20.0.3",
+      "resolved": "https://registry.npmjs.org/angular-oauth2-oidc/-/angular-oauth2-oidc-20.0.3.tgz",
+      "integrity": "sha512-SL0iV/WlrX35J4CXvc7VdoNhlol+YIo8c0i1NrfAQ70++dxLZjg/li6vNx7lu2sC3GElZLzmlbBZOvlvLB2Q5w==",
+      "license": "MIT",
+      "dependencies": {
+        "tslib": "^2.5.2"
+      },
+      "peerDependencies": {
+        "@angular/common": ">=20.0.0",
+        "@angular/core": ">=20.0.0"
+      }
+    },
     "node_modules/angularx-qrcode": {
       "version": "20.0.0",
       "license": "MIT",
@@ -8291,6 +8305,7 @@
     },
     "node_modules/buffer-crc32": {
       "version": "0.2.13",
+      "dev": true,
       "license": "MIT",
       "engines": {
         "node": "*"
@@ -21287,12 +21302,11 @@
       }
     },
     "node_modules/yauzl": {
-      "version": "3.3.0",
-      "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.3.0.tgz",
-      "integrity": "sha512-PtGEvEP30p7sbIBJKUBjUnqgTVOyMURc4dLo9iNyAJnNIEz9pm88cCXF21w94Kg3k6RXkeZh5DHOGS0qEONvNQ==",
+      "version": "3.4.0",
+      "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
+      "integrity": "sha512-jIH9yLR9wqr0wOS0TpBvo/g/2UgZH5qePVbjgRliiF0BYvOZyaBknKsF+x9Iht0O6sqgnB93rCICdOZFecJuDw==",
       "license": "MIT",
       "dependencies": {
-        "buffer-crc32": "~0.2.3",
         "pend": "~1.2.0"
       },
       "engines": {

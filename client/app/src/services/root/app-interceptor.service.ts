@@ -49,6 +49,10 @@ export class appInterceptor implements HttpInterceptor {
   }
 
   intercept(httpRequest: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (new URL(httpRequest.url, window.location.origin).origin !== window.location.origin) {
+      return next.handle(httpRequest); // skip header injection
+    }
+
     if (httpRequest.url.endsWith("/data/i18n/.json")) {
       return next.handle(httpRequest);
     }

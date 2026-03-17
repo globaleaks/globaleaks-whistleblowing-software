@@ -68,6 +68,8 @@ export class Node {
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
   receipt_salt: string;
+  idp: boolean;
+  idp_issuer: string;
 }
 
 export interface LanguagesSupported {

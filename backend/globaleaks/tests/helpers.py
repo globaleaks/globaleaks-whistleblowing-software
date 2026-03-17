@@ -380,6 +380,8 @@ class MockDict:
             'backup_time': '',
             'backup_period': 1,
             'backup_retention': 7,
+            'idp': False,
+            'idp_issuer': '',
         }
 
         self.dummyNetwork = {
@@ -513,6 +515,7 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
     request.port = 8443
     request.language = 'en'
     request.multilang = False
+    request.oidc_token = ''
 
     def isSecure():
         return request.port == 8443
@@ -1022,7 +1025,7 @@ class TestHandler(TestGLWithPopulatedDB):
             if role == 'whistleblower' and user_id == None:
                 session = initialize_submission_session(1)
             else:
-                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions)
+                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions)
 
             if permissions:
                 for p in user_permissions:

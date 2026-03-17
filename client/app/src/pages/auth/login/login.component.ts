@@ -10,6 +10,7 @@ import {DefaultLoginComponent} from "./templates/default-login/default-login.com
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
+import {OAuthService} from 'angular-oauth2-oidc';
 
 @Component({
     selector: "app-login",
@@ -22,10 +23,23 @@ export class LoginComponent implements OnInit {
   router = inject(Router);
   private route = inject(ActivatedRoute);
   protected appDataService = inject(AppDataService);
-
+  private oauthService = inject(OAuthService);
 
   protected readonly location = location;
   loginData = new LoginDataRef();
+
+  constructor() {
+    // When returning from the IDP the authorization response (code/state or error)
+    // is carried in the query string and is still being processed asynchronously by
+    // loadDiscoveryDocumentAndTryLogin(). Re-triggering the login flow here would
+    // discard the pending code and bounce back to the IDP, so skip it in that case.
+    const params = new URLSearchParams(window.location.search);
+    const pendingAuthResponse = params.has("code") || params.has("error");
+
+    if (this.appDataService.public.node.idp && !pendingAuthResponse && !this.oauthService.hasValidAccessToken() && !this.authentication.session) {
+      this.oauthService.initLoginFlow();
+    }
+  }
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {

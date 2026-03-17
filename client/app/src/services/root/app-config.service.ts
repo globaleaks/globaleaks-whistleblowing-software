@@ -10,6 +10,8 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {NgZone} from "@angular/core";
+import {AuthConfig, OAuthService} from 'angular-oauth2-oidc';
+import {filter} from 'rxjs';
 
 @Injectable({
   providedIn: "root"
@@ -24,6 +26,7 @@ export class AppConfigService {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
+  private oauthService = inject(OAuthService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private ngZone = inject(NgZone);
   private isRunning = false;
@@ -55,6 +58,24 @@ export class AppConfigService {
         if (data.body !== null) {
           this.appDataService.updatePublic(data.body);
         }
+
+        if (this.appDataService.public.node.idp) {
+            this.oauthService.configure({
+                issuer: this.appDataService.public.node.idp_issuer,
+                redirectUri: window.location.origin + '/#/login',
+                clientId: 'globaleaks',
+                responseType: 'code',
+                scope: 'openid profile email',
+                requireHttps: false,
+                postLogoutRedirectUri: window.location.origin + '/',
+            });
+            this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
+              if (this.authenticationService.session) {
+                  this.oauthService.setupAutomaticSilentRefresh();
+              }
+            });
+        }
+
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);

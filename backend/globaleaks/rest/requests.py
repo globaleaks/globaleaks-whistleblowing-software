@@ -269,6 +269,8 @@ AdminNodeDesc = {
     'backup_time': str,
     'backup_period': int,
     'backup_retention': int,
+    'idp': bool,
+    'idp_issuer': str,
 }
 
 AdminNetworkDesc = {

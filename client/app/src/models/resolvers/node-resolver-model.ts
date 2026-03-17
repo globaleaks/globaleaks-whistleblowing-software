@@ -85,4 +85,9 @@ export class nodeResolverModel {
   backup_period: number;
   backup_retention: number;
   backup_job_status: string;
+  idp:boolean;
+  idp_issuer: string;
+  auth_type: string;
+  enable2FA: boolean;
+  enforce2FA: boolean;
 }
