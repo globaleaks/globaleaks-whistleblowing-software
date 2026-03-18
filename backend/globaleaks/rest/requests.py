@@ -529,7 +529,6 @@ SignupDesc = {
 
 SupportDesc = {
     'mail_address': email_regexp,
-    'url': url_regexp_or_empty,
     'text': str
 }
 
