@@ -1,3 +1,20 @@
+Changes in version 5.0.89
+    Fix gl-admin restore command failing with missing directory error
+    Add path validation and input format checks for password reset tokens
+    Prevent to delete a channel till areport in such channel exists (#4574)
+    Replace integration with Transifex with integration with Weblate (#4755)
+    Revise footer moving Custom Footer below Policies (#4767)
+    Prevent configuring the data retention policy on intermediate substatuses
+    Fix bug causing reset of submission substatuses configurations
+    Make it possible to select which page should be the homepage among / and /submission (#4785)
+    Implement URL defanging on untrusted support user input (#4789)
+    Implemented URL defanging for untrusted support user input (#4788) and
+      updated code to derive the support URL from the server hostname
+      (thanks to @zaphoxx)
+    Fix issue #4754, #4764, #4769
+    Bump client dependencies to their latest stable versions
+    Update translations
+
 Changes in version 5.0.88
     Fix sorting on reports' list (#4730)
     Improve UI in relation to masked files (#4724)
