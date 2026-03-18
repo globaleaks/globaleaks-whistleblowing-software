@@ -58,14 +58,14 @@ describe("admin configure, add, and delete channels", () => {
     cy.get(".addSubmissionStatus").should("be.visible");
     cy.get('input[name="name"]').type("Test");
     cy.get("#add-btn").click();
-    cy.get(".config-section").contains("Test").should("be.visible").click();
+    cy.get(".config-section").contains("Closed").should("be.visible").click();
     cy.get("#add-sub-status").click();
     cy.get('input[name="label"]').type("closed 1");
     cy.get("#add-submission-sub-status").click();
     cy.get("#add-sub-status").click();
     cy.get('input[name="label"]').type("closed 2");
     cy.get("#add-submission-sub-status").click();
-    cy.get('#substatus-edit-button').first().click();
+    cy.get('#substatus-edit-button').last().click();
     cy.get('input[name="substatus.label"]').clear();
     cy.get('input[name="substatus.label"]').type('Test Label').should('have.value', 'Test Label');
     cy.get('select[name="substatus.tip_timetolive_option"]').select(1);
