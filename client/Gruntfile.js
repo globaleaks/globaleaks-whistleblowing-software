@@ -274,7 +274,7 @@ module.exports = function(grunt) {
         options: {
           // Static text.
           question: "WARNING:\n"+
-              "this task may cause translations loss and should be executed only on main branch.\n\n" +
+              "this task may cause translations loss and should be executed only on stable branch.\n\n" +
               "Are you sure you want to proceed (Y/N)?",
           input: "_key:y"
         }
@@ -372,20 +372,8 @@ module.exports = function(grunt) {
     return val.replace(/\\n/g, "\n").replace(/\\t/g, "\t");
   }
 
-  function readTransifexApiKey() {
-    let keyfile = process.env.HOME + "/.transifexapikey";
-
-    if (!fs.existsSync(keyfile)) {
-      return "";
-    }
-
-    return grunt.file.read(keyfile).trim();
-  }
-
   let agent = superagent.agent(),
-      baseurl = "https://rest.api.transifex.com",
-      sourceFile = "app/assets/data_src/pot/en.po",
-      transifexApiKey = readTransifexApiKey();
+      sourceFile = "app/assets/data_src/pot/en.po"
 
   function readWeblateToken() {
     return (process.env.WEBLATE_TOKEN || "").trim();
@@ -501,206 +489,6 @@ module.exports = function(grunt) {
       });
   }
 
-  async function updateTxSource(cb) {
-    const gettextParser = await loadGettextParser();
-    let url = baseurl + "/resource_strings_async_uploads";
-
-    let content = {
-      "data": {
-        "attributes": {
-          "callback_url": null,
-          "content": grunt.file.read(sourceFile),
-          "content_encoding": "text",
-          "replace_edited_strings": false
-        },
-        "relationships": {
-          "resource": {
-            "data": {
-              "id": "o:otf:p:globaleaks:r:stable",
-              "type": "resources"
-            }
-          }
-        },
-        "type": "resource_strings_async_uploads"
-      }
-    };
-
-    agent.post(url)
-        .set({"Content-Type": "application/vnd.api+json", "Authorization": "Bearer " + transifexApiKey})
-        .send(content)
-        .end(function(err, res) {
-          if (res) {
-            if (res.ok) {
-              cb();
-            } else {
-              console.log("Error: " + res.text);
-            }
-          } else {
-            console.log("Error: failed to fetch resource " + url);
-          }
-        });
-  }
-
-  function listLanguages(cb) {
-    let url = baseurl + "/projects/o:otf:p:globaleaks/languages";
-
-    agent.get(url)
-        .set({"Authorization": "Bearer " + transifexApiKey})
-        .end(function(err, res) {
-          if (res) {
-            if (res.ok) {
-              let result = JSON.parse(res.text);
-              cb(result);
-            } else {
-              console.log("Error: " + res.text);
-            }
-          } else {
-            console.log("Error: failed to fetch resource");
-          }
-        });
-  }
-
-  async function fetchTxTranslationsPO(langCode, cb) {
-    const gettextParser = await loadGettextParser();
-    let url = baseurl + "/resource_translations_async_downloads";
-
-    agent.post(url)
-        .set({"Authorization": "Bearer " + transifexApiKey, "Content-Type": "application/vnd.api+json"})
-        .send({
-          "data": {
-            "attributes": {
-              "content_encoding": "text",
-              "file_type": "default",
-              "mode": "default"
-            },
-            "relationships": {
-              "language": {
-                "data": {
-                  "id": "l:" + langCode,
-                  "type": "languages"
-                }
-              },
-              "resource": {
-                "data": {
-                  "id": "o:otf:p:globaleaks:r:stable",
-                  "type": "resources"
-                }
-              }
-            },
-            "type": "resource_translations_async_downloads"
-          }
-        })
-        .end(function(err, res) {
-          if (res && res.ok) {
-            url = JSON.parse(res.text).data.links.self;
-
-            let fetchPO = function(url) {
-              agent.get(url)
-                  .set({"Authorization": "Bearer " + transifexApiKey})
-                  .end(function(err, res) {
-                    if (res && res.ok) {
-                      if (res.redirects.length) {
-                        let stream = fs.createWriteStream("app/assets/data_src/pot/" + langCode + ".po");
-
-                        stream.on("finish", function () {
-                          cb(true);
-                        });
-
-                        agent.get(res.redirects[0])
-                            .set({"Authorization": "Bearer " + transifexApiKey})
-                            .pipe(stream);
-
-                      } else {
-                        fetchPO(url);
-                      }
-                    } else {
-                      console.log("Error: failed to fetch resource");
-                      cb(false);
-                    }
-                  });
-            };
-
-            fetchPO(url);
-          } else {
-            console.log("Error: failed to fetch resource");
-            cb(false);
-          }
-        });
-  }
-
-  async function fetchTxTranslationsForLanguage(langCode, cb) {
-    const gettextParser = await loadGettextParser();
-    let url = baseurl + "/resource_language_stats/o:otf:p:globaleaks:r:stable:l:" + langCode;
-
-    agent.get(url)
-        .set({"Authorization": "Bearer " + transifexApiKey})
-        .end(function(err, res) {
-          if (res && res.ok) {
-            let content = JSON.parse(res.text);
-
-            // Add the new translations for languages translated above 50%
-            if (content.data.attributes.translated_strings > content.data.attributes.untranslated_strings) {
-              fetchTxTranslationsPO(langCode, cb);
-            } else {
-              cb(false);
-            }
-          } else {
-            console.log("Error: failed to fetch resource");
-            cb(false);
-          }
-        });
-  }
-
-  async function fetchTxTranslations(cb){
-    let fetched_languages = 0,
-        total_languages,
-        supported_languages = {};
-
-    listLanguages(function(result) {
-      result.data = result.data.sort(function(a, b) {
-        if (a.code > b.code) {
-          return 1;
-        }
-
-        if (a.code < b.code) {
-          return -1;
-        }
-
-        return 0;
-      });
-
-      total_languages = result.data.length;
-
-      let fetchLanguage = function(language) {
-        fetchTxTranslationsForLanguage(language.attributes.code, function(ret){
-          if (ret) {
-            console.log("Fetched " + language.attributes.code);
-            supported_languages[language.attributes.code] = language.attributes.name;
-          }
-
-          fetched_languages += 1;
-
-          if (total_languages === fetched_languages) {
-            let sorted_keys = Object.keys(supported_languages).sort();
-
-            console.log("List of available translations:");
-
-            for (let i in sorted_keys) {
-              console.log(" { \"code\": \"" + sorted_keys[i] +
-                  "\", \"name\": \"" + supported_languages[sorted_keys[i]] +"\" },");
-            }
-
-            cb(supported_languages);
-          } else {
-            fetchLanguage(result.data[fetched_languages]);
-          }
-        });
-      };
-
-      fetchLanguage(result.data[0]);
-    });
-  }
-
   grunt.registerTask("fetchFonts", function () {
     const done = this.async();
 
@@ -771,7 +559,7 @@ module.exports = function(grunt) {
       "charset": "UTF-8",
       "headers": {
         "project-id-version": "GlobaLeaks",
-        "language-team": "English (http://www.transifex.com/otf/globaleaks/language/en/)",
+        "language-team": "English",
         "mime-version": "1.0",
         "content-type": "text/plain; charset=UTF-8",
         "content-transfer-encoding": "8bit",
@@ -858,109 +646,6 @@ module.exports = function(grunt) {
 
     console.log("Written " + Object.keys(data["translations"][""]).length + " string to app/assets/data_src/pot/en.po.");
     done();
-  });
-
-  grunt.registerTask("☠☠☠pushTranslationsSource☠☠☠", function() {
-    updateTxSource(this.async());
-  });
-
-  // Original Transifex-based fetch (kept for backwards compatibility)
-  grunt.registerTask("fetchTranslations", function() {
-    const done = this.async();  // Declare the async task
-    (async () => {
-      const gettextParser = await loadGettextParser();
-      let gt = new SimpleGettext(),
-          lang_code;
-
-      gt.setTextDomain("stable");
-
-      fetchTxTranslations(function(supported_languages) {
-        // Parse and load the PO file
-        gt.addTranslations("en", "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po")));
-        let strings = Object.keys(gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/en.po"))["translations"][""]);
-
-        // Process each supported language
-        for (lang_code in supported_languages) {
-          let translations = {}, output;
-
-          gt.addTranslations(lang_code, "stable", gettextParser.po.parse(fs.readFileSync("app/assets/data_src/pot/" + lang_code + ".po")));
-          gt.setLocale(lang_code);
-
-          for (let i = 0; i < strings.length; i++) {
-            if (strings[i] === "") {
-              continue;
-            }
-
-            translations[strings[i]] = str_unescape(gt.gettext(str_escape(strings[i])));
-          }
-
-          // Write translations to JSON files
-          output = JSON.stringify(translations, null, 2);
-          fs.writeFileSync("app/assets/data/l10n/" + lang_code + ".json", output);
-        }
-
-        // Ensure Grunt knows the task is finished
-        done();
-      });
-    })().catch(err => {
-      console.error(err);
-      done(false);  // Signal error to Grunt
-    });
-  });
-
-  // Local-only fetch: builds l10n/*.json from the PO files present on disk (no Transifex/Weblate stats)
-  grunt.registerTask("fetchTranslationsLocal", function() {
-    const done = this.async();
-
-    (async () => {
-      const gettextParser = await loadGettextParser();
-      let gt = new SimpleGettext();
-      gt.setTextDomain("stable");
-
-      const enPoPath = "app/assets/data_src/pot/en.po";
-      if (!fs.existsSync(enPoPath)) {
-        console.error("Missing " + enPoPath + ". Run `grunt makeTranslationsSource` first.");
-        return done(false);
-      }
-
-      const enParsed = gettextParser.po.parse(fs.readFileSync(enPoPath));
-      gt.addTranslations("en", "stable", enParsed);
-
-      const strings = Object.keys(enParsed["translations"][""] || {});
-      grunt.file.mkdir("app/assets/data/l10n");
-
-      // Discover languages from pot dir
-      let langs = [];
-      grunt.file.recurse("app/assets/data_src/pot/", function(absdir, rootdir, subdir, filename) {
-        if (!filename.endsWith(".po")) return;
-        const lang = filename.replace(/\.po$/, "");
-        if (lang && lang !== "en") langs.push(lang);
-      });
-
-      langs = Array.from(new Set(langs)).sort();
-
-      for (const lang_code of langs) {
-        const poPath = "app/assets/data_src/pot/" + lang_code + ".po";
-        if (!fs.existsSync(poPath)) continue;
-
-        const parsed = gettextParser.po.parse(fs.readFileSync(poPath));
-        gt.addTranslations(lang_code, "stable", parsed);
-        gt.setLocale(lang_code);
-
-        let translations = {};
-        for (let i = 0; i < strings.length; i++) {
-          if (strings[i] === "") continue;
-          translations[strings[i]] = str_unescape(gt.gettext(str_escape(strings[i])));
-        }
-
-        fs.writeFileSync("app/assets/data/l10n/" + lang_code + ".json", JSON.stringify(translations, null, 2));
-      }
-
-      done();
-    })().catch(err => {
-      console.error(err);
-      done(false);
-    });
   });
 
   grunt.registerTask("makeAppData", function() {
@@ -1239,17 +924,9 @@ module.exports = function(grunt) {
     });
   });
 
-  // Convenience wrappers for Weblate workflow:
-  // - pushTranslationsSourceWeblate: generates en.po then uploads to Weblate
-  // - updateTranslationsWeblate: downloads all po, generates l10n JSON, makes app data, verifies
-  grunt.registerTask("pushTranslationsSourceWeblate", ["makeTranslationsSource", "weblateUploadSource"]);
-  grunt.registerTask("updateTranslationsWeblate", ["weblateFetchTranslations", "fetchTranslationsLocal", "makeAppData", "verifyAppData"]);
+  grunt.registerTask("pushTranslationsSource", ["confirm", "weblateUploadSource"]);
 
-  // Run this task to push translations on transifex
-  grunt.registerTask("pushTranslationsSource", ["confirm", "☠☠☠pushTranslationsSource☠☠☠"]);
-
-  // Run this task to fetch translations from transifex and create application files
-  grunt.registerTask("updateTranslations", ["fetchTranslations", "makeAppData", "verifyAppData"]);
+  grunt.registerTask("updateTranslations", ["weblateFetchTranslations", "makeAppData", "verifyAppData"]);
 
   grunt.registerTask("package", ["fetchFonts", "copy:build", "webpack", "string-replace", "postcss", "copy:package"]);
 
