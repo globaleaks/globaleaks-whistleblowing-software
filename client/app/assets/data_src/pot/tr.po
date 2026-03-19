@@ -32,13 +32,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Kaya Zeren <kayazeren@gmail.com>, 2020-2026\n"
-"Language-Team: Turkish (http://app.transifex.com/otf/globaleaks/language/tr/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Turkish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/tr/>\n"
+"Language: tr\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -609,6 +612,7 @@ msgstr "Yüksek"
 msgid "Hint"
 msgstr "İpucu"
 
+#, fuzzy
 msgid "Home"
 msgstr "Başlangıç"
 
@@ -847,7 +851,7 @@ msgid "Notifications"
 msgstr "Bildirimler"
 
 msgid "Notify administrators of software problems"
-msgstr " Yazılım sorunları yöneticilere bildirilsin"
+msgstr "Yazılım sorunları yöneticilere bildirilsin"
 
 msgid "Notify developers of software problems"
 msgstr "Yazılım sorunları geliştiricilere bildirilsin"
@@ -1357,10 +1361,12 @@ msgid ""
 "deselected:"
 msgstr "İhbar şu alıcılara gönderilecek. Bu alıcıları daha sonra çıkaramazsınız:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Bu adım adım yönerge ihbar platformunuzu oluştururken size rehberlik edecek."
+msgstr ""
+"Bu adım adım yönerge ihbar platformunuzu oluştururken size rehberlik edecek."
 
 msgid "The link will expire in 7 days."
 msgstr "Bağlantı 7 sonra geçersiz olacak."
@@ -1527,7 +1533,10 @@ msgid ""
 "Using automatic HTTPS configuration will handle the entire process of "
 "requesting, enabling and renewing certificates from the Let's Encrypt "
 "Certificate Authority."
-msgstr "Otomatik HTTPS yapılandırması, Let's Encrypt Sertifika yetkilisinden sertifika isteğinin yapılması, etkinleştirilmesi ve yenilenmesi ile ilgili tüm süreçleri gerçekleştirir.  "
+msgstr ""
+"Otomatik HTTPS yapılandırması, Let's Encrypt Sertifika yetkilisinden "
+"sertifika isteğinin yapılması, etkinleştirilmesi ve yenilenmesi ile ilgili "
+"tüm süreçleri gerçekleştirir."
 
 msgid "Valid until:"
 msgstr "Geçerlilik sonu:"
@@ -1559,12 +1568,17 @@ msgstr "Dosya yüklemenin tamamlanması bekleniyor."
 msgid "Warning"
 msgstr "Uyarı"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Alıcıların parolalarını unutmaları durumunda verilerin kaybolmasını engellemek için bu seçeneği açmanızı öneririz. Diğer yandan, yalnızca alıcıların gönderimlere erişmesine izin veren bir sistem kurmak istiyorsanız bu seçeneği açmanızı önermiyoruz."
+msgstr ""
+"Alıcıların parolalarını unutmaları durumunda verilerin kaybolmasını "
+"engellemek için bu seçeneği açmanızı öneririz. Diğer yandan, yalnızca "
+"alıcıların gönderimlere erişmesine izin veren bir sistem kurmak istiyorsanız "
+"bu seçeneği açmanızı önermiyoruz."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1631,6 +1645,7 @@ msgstr "Yeni e-posta adresiniz doğrulandı."
 msgid "Your report was successful."
 msgstr "İhbarınız alındı."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "İhbarda bulunma platformunuz neredeyse hazır!"
 
@@ -1770,6 +1785,7 @@ msgstr "Saygılarımızla,"
 msgid "Account activation"
 msgstr "Hesap etkinleştirme"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "İhbar platformunuza şuradan erişilebilir:"
 
@@ -1816,6 +1832,7 @@ msgstr "Geçerli bir PGP anahtarı olmadan sistem bu kişilere şifrelenmiş bil
 msgid "PGP key expiration alert"
 msgstr "PGP anahtarı geçerlilik sonu tarihi uyarısı"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Yeni bir ihbar sitesi kaydedildi."
 
@@ -1831,6 +1848,7 @@ msgstr "Ad: {Name}"
 msgid "Email: {Email}"
 msgstr "E-posta: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Yeni ihbar sitesi kaydedildi."
 
@@ -1868,6 +1886,7 @@ msgstr "Gönderici: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Tarih: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Gönderici: Muhbir"
 
@@ -1909,10 +1928,13 @@ msgstr "Sistem denemeyi sürdürecek."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS sertifikası yenilenemedi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Bu e-posta, bir koruyucunun, {TipNum} numaralı ihbarın muhbirinin kimliğine erişme izni verdiğini bildirmek için gönderilmiştir."
+msgstr ""
+"Bu e-posta, bir koruyucunun, {TipNum} numaralı ihbarın muhbirinin kimliğine "
+"erişme izni verdiğini bildirmek için gönderilmiştir."
 
 msgid "The report can be accessed at:"
 msgstr "İhbara şuradan erişebilirsiniz: "
@@ -1920,10 +1942,13 @@ msgstr "İhbara şuradan erişebilirsiniz: "
 msgid "Access to reporting person's identity authorized"
 msgstr "Muhbirin kimliğine erişme izin verildi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Bu e-posta, bir koruyucunun, {TipNum} numaralı ihbarın muhbirinin kimliğine erişme izni vermediğini bildirmek için gönderilmiştir."
+msgstr ""
+"Bu e-posta, bir koruyucunun, {TipNum} numaralı ihbarın muhbirinin kimliğine "
+"erişme izni vermediğini bildirmek için gönderilmiştir."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Muhbirin kimliğine erişme izni verilmedi"

@@ -28,13 +28,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Daniel Vaknine, 2022-2024\n"
-"Language-Team: Swedish (http://app.transifex.com/otf/globaleaks/language/sv/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Swedish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/sv/>\n"
+"Language: sv\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sv\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -605,6 +608,7 @@ msgstr "Hög"
 msgid "Hint"
 msgstr "Ledtråd"
 
+#, fuzzy
 msgid "Home"
 msgstr "Hem"
 
@@ -1353,10 +1357,13 @@ msgid ""
 "deselected:"
 msgstr "Följande mottagare mottar din rapport och kan ej väljas bort:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Följande förfarande med en steg-för-steg-beskrivning kommer att vara ditt rättesnöre då du skapar din visselblåsarplattform."
+msgstr ""
+"Följande förfarande med en steg-för-steg-beskrivning kommer att vara ditt "
+"rättesnöre då du skapar din visselblåsarplattform."
 
 msgid "The link will expire in 7 days."
 msgstr "Länken kommer vara ogiltig om 7 dagar."
@@ -1555,12 +1562,17 @@ msgstr "Väntar på att uppladdningen av filen/filerna är klar."
 msgid "Warning"
 msgstr "Varning"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Vi råder dig att välja detta alternativ om du vill skydda dina uppgifter så att de inte går förlorade i en situation där mottagare förlorar sina lösenord. Å andra sidan råder vi dig att inte använda denna egenskap om du vill bygga upp ett system där endast mottagarna får åtkomst till tipsen."
+msgstr ""
+"Vi råder dig att välja detta alternativ om du vill skydda dina uppgifter så "
+"att de inte går förlorade i en situation där mottagare förlorar sina "
+"lösenord. Å andra sidan råder vi dig att inte använda denna egenskap om du "
+"vill bygga upp ett system där endast mottagarna får åtkomst till tipsen."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1627,6 +1639,7 @@ msgstr "Din nya e-postadress har bekräftats."
 msgid "Your report was successful."
 msgstr "Du har lämnat in rapporten."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Din visselblåsarplattform är nästan klar!"
 
@@ -1766,6 +1779,7 @@ msgstr "Med vänliga hälsningar,"
 msgid "Account activation"
 msgstr "Aktivering av kontot"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Din visselblåsarplattform är nu tillgänglig på adressen:"
 
@@ -1812,6 +1826,7 @@ msgstr "Utan giltiga PGP-nycklar kan systemet inte skicka krypterade meddelanden
 msgid "PGP key expiration alert"
 msgstr "Varning för utgång av PGP-nyckelns giltighetstid"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "En ny webbplats för visselblåsare har registrerats."
 
@@ -1827,6 +1842,7 @@ msgstr "Namn: {Name}"
 msgid "Email: {Email}"
 msgstr "E-post: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Ny visselblåsarwebbplats registrerad"
 
@@ -1864,6 +1880,7 @@ msgstr "Från: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datum: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Från: Visselblåsaren"
 
@@ -1905,10 +1922,14 @@ msgstr "Systemet kommer att försöka förnya certifikatet på nytt."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Förnyelse av HTTPS-certifikatet misslyckades."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Syftet med detta e-postmeddelande är att upplysa dig om att en systemförvaltare har tillåtit att du får åtkomst till visselblåsarens identitet bakom rapporten {TipNum}."
+msgstr ""
+"Syftet med detta e-postmeddelande är att upplysa dig om att en "
+"systemförvaltare har tillåtit att du får åtkomst till visselblåsarens "
+"identitet bakom rapporten {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Rapporten kan nås på:"
@@ -1916,10 +1937,14 @@ msgstr "Rapporten kan nås på:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Åtkomst till visselblåsarens identitet tillåten"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Syftet med detta e-postmeddelande är att upplysa dig om att en systemförvaltare har nekat dig åtkomst till visselblåsarens identitet bakom rapporten {TipNum}."
+msgstr ""
+"Syftet med detta e-postmeddelande är att upplysa dig om att en "
+"systemförvaltare har nekat dig åtkomst till visselblåsarens identitet bakom "
+"rapporten {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Åtkomst till visselblåsarens identitet nekad"

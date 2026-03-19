@@ -16,13 +16,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Tiina Salmi, 2025\n"
-"Language-Team: Finnish (http://app.transifex.com/otf/globaleaks/language/fi/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Finnish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/fi/>\n"
+"Language: fi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fi\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -593,6 +596,7 @@ msgstr "Korkea"
 msgid "Hint"
 msgstr "Vinkki"
 
+#, fuzzy
 msgid "Home"
 msgstr "Etusivu"
 
@@ -706,7 +710,7 @@ msgid "License"
 msgstr "Lisenssi"
 
 msgid "Listen"
-msgstr ""
+msgstr "Kuuntele"
 
 msgid "Log accesses of internal users"
 msgstr "Tallenna sisäisten käyttäjien kirjautumiset"
@@ -974,7 +978,7 @@ msgid "Questions"
 msgstr "Kysymykset"
 
 msgid "Read receipt"
-msgstr ""
+msgstr "Lukukuittaus"
 
 msgid "Receivers"
 msgstr "Vastaanottajat"
@@ -1268,7 +1272,7 @@ msgid "Subscribed"
 msgstr "Tilattu"
 
 msgid "Subscribed later"
-msgstr ""
+msgstr "Ilmoitettu myöhemmin"
 
 msgid "Subscription date"
 msgstr "Tilauspäivämäärä"
@@ -1341,10 +1345,13 @@ msgid ""
 "deselected:"
 msgstr "Seuraavat vastaanottajat saavat ilmoituksesi, eikä valintaa voi poistaa:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Tämän vaihe vaiheelta -opastuksen avulla voit ottaa vihjepalvelun käyttöösi haluamillasi asetuksilla."
+msgstr ""
+"Tämän vaihe vaiheelta -opastuksen avulla voit ottaa vihjepalvelun käyttöösi "
+"haluamillasi asetuksilla."
 
 msgid "The link will expire in 7 days."
 msgstr "Linkki vanhenee 7 päivän kuluttua."
@@ -1543,12 +1550,17 @@ msgstr "Odotetaan tiedosto(je)n latauksen valmistumista."
 msgid "Warning"
 msgstr "Varoitus"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Suosittelemme, että valitset tämän vaihtoehdon, jos haluat suojata tietoja katoamiselta tilanteessa, jossa vastaanottajat kadottavat salasanansa. Toisaalta emme suosittele tämän ominaisuuden käyttöä, jos haluat perustaa järjestelmän, jossa vain vastaanottajilla on pääsy ilmoituksiin."
+msgstr ""
+"Suosittelemme, että valitset tämän vaihtoehdon, jos haluat suojata tietoja "
+"katoamiselta tilanteessa, jossa vastaanottajat kadottavat salasanansa. "
+"Toisaalta emme suosittele tämän ominaisuuden käyttöä, jos haluat perustaa "
+"järjestelmän, jossa vain vastaanottajilla on pääsy ilmoituksiin."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1590,7 +1602,7 @@ msgid ""
 msgstr "Muodostat yhteyden palvelimeen ilman nimettömyyttä ja tämä palvelin tukee vain anonyymejä lähetyksiä"
 
 msgid "You are entering a report received through other channels."
-msgstr ""
+msgstr "You are entering a report received through other channels."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1615,6 +1627,7 @@ msgstr "Uusi sähköpostiosoitteesi on vahvistettu."
 msgid "Your report was successful."
 msgstr "Ilmoituksesi onnistui."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Whistleblowing-alustasi on melkein valmis!"
 
@@ -1754,6 +1767,7 @@ msgstr "Ystävällisin terveisin,"
 msgid "Account activation"
 msgstr "Tilin aktivointi"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Whistleblowing-alustasi on nyt käytettävissä osoitteessa:"
 
@@ -1800,6 +1814,7 @@ msgstr "Ilman kelvollista PGP-avainta järjestelmä ei voi lähettää heille sa
 msgid "PGP key expiration alert"
 msgstr "PGP-avaimen vanhentumisvaroitus"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Uusi whistleblowing-sivusto on rekisteröity."
 
@@ -1815,6 +1830,7 @@ msgstr "Nimi: {Name}"
 msgid "Email: {Email}"
 msgstr "Sähköpostiosoite: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Uusi whistleblowing-sivusto rekisteröity"
 
@@ -1852,6 +1868,7 @@ msgstr "Lähettäjä: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Päivämäärä: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Lähettäjä: Vihjeen antaja"
 
@@ -1893,10 +1910,13 @@ msgstr "Järjestelmä jatkaa yrittämistä."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS-sertifikaatin uusiminen epäonnistui"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Tässä sähköpostiviestissä ilmoitetaan, että valvoja on antanut sinulle pääsyn ilmoituksen {TipNum} tekijän henkilötietoihin."
+msgstr ""
+"Tässä sähköpostiviestissä ilmoitetaan, että valvoja on antanut sinulle "
+"pääsyn ilmoituksen {TipNum} tekijän henkilötietoihin."
 
 msgid "The report can be accessed at:"
 msgstr "Ilmoitukseen pääsee osoitteessa:"
@@ -1904,10 +1924,13 @@ msgstr "Ilmoitukseen pääsee osoitteessa:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Pääsy ilmoittajan henkilöllisyyteen valtuutettu"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Tässä sähköpostiviestissä ilmoitetaan, että säilytystaho on evännyt sinulta pääsyn ilmoituksen {TipNum} tekijän henkilötietoihin."
+msgstr ""
+"Tässä sähköpostiviestissä ilmoitetaan, että säilytystaho on evännyt sinulta "
+"pääsyn ilmoituksen {TipNum} tekijän henkilötietoihin."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Pääsy ilmoittajan henkilöllisyyteen evätty"

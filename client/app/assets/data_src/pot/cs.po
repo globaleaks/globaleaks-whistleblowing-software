@@ -18,13 +18,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Jiří Skryja, 2022-2026\n"
-"Language-Team: Czech (http://app.transifex.com/otf/globaleaks/language/cs/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Czech <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/cs/>\n"
+"Language: cs\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: cs\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -595,6 +599,7 @@ msgstr "Vysoká"
 msgid "Hint"
 msgstr "Nápověda"
 
+#, fuzzy
 msgid "Home"
 msgstr "Domů"
 
@@ -1343,10 +1348,13 @@ msgid ""
 "deselected:"
 msgstr "Následující příjemci obdrží vaše oznámení nebylo možné zrušit jejich výběr:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Následující popis jednotlivých kroků vás provede vytvořením vaší whistleblowingové platformy."
+msgstr ""
+"Následující popis jednotlivých kroků vás provede vytvořením vaší "
+"whistleblowingové platformy."
 
 msgid "The link will expire in 7 days."
 msgstr "Platnost odkazu vyprší za 7 dní."
@@ -1545,12 +1553,17 @@ msgstr "Čekáme na dokončení nahrávání souborů."
 msgid "Warning"
 msgstr "Varování"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Doporučujeme vybrat tuto možnost, pokud chcete chránit data před ztrátou v situaci, kdy příjemci ztratí svá hesla. Ale nedoporučujeme použít tuto funkci, pokud chcete nastavit systém, kde mají přístup k oznámením pouze příjemci."
+msgstr ""
+"Doporučujeme vybrat tuto možnost, pokud chcete chránit data před ztrátou v "
+"situaci, kdy příjemci ztratí svá hesla. Ale nedoporučujeme použít tuto "
+"funkci, pokud chcete nastavit systém, kde mají přístup k oznámením pouze "
+"příjemci."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1617,6 +1630,7 @@ msgstr "Vaše nová e-mailová adresa byla ověřena."
 msgid "Your report was successful."
 msgstr "Podání Vašeho oznámení proběhlo úspěšně."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Vaše whistleblowingová platforma je téměř hotova!"
 
@@ -1756,6 +1770,7 @@ msgstr "S poděkováním,"
 msgid "Account activation"
 msgstr "Aktivace účtu"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Vaše whistleblowingová platforma je dostupná na:"
 
@@ -1802,6 +1817,7 @@ msgstr "Bez platného PGP certifikátu jim systém nebude schopný poslat šifro
 msgid "PGP key expiration alert"
 msgstr "Upozornění na vypršení platnosti PGP certifikátu."
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Bylo zaregistrována nová whistleblowingová stránka."
 
@@ -1817,6 +1833,7 @@ msgstr "Jméno: {Name} "
 msgid "Email: {Email}"
 msgstr "Email: {Email} "
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Nová whistleblowingová stránka registrována."
 
@@ -1854,6 +1871,7 @@ msgstr "Od: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datum: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Od: Oznamovatel"
 
@@ -1895,10 +1913,13 @@ msgstr "Systém to bude i nadále zkoušet."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Selhalo obnovení certifikátu HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Toto je e-mailové upozornění, že správce Vám povolil přístup k identitě oznamovatele oznámení {TipNum}."
+msgstr ""
+"Toto je e-mailové upozornění, že správce Vám povolil přístup k identitě "
+"oznamovatele oznámení {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Oznámení je dostupné na adrese:"
@@ -1906,10 +1927,13 @@ msgstr "Oznámení je dostupné na adrese:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Přístup k identitě oznamovatele schválen"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Toto je e-mailové upozornění, že správce Vám zamítl přístup k identitě oznamovatele oznámení {TipNum}."
+msgstr ""
+"Toto je e-mailové upozornění, že správce Vám zamítl přístup k identitě "
+"oznamovatele oznámení {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Přístup k identitě oznamovatele zamítnut"

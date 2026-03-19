@@ -45,13 +45,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: AO <aol10n@duck.com>, 2026\n"
-"Language-Team: French (http://app.transifex.com/otf/globaleaks/language/fr/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: French <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/fr/>\n"
+"Language: fr\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
+"1000000 == 0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -622,6 +626,7 @@ msgstr "Élevé"
 msgid "Hint"
 msgstr "Indice"
 
+#, fuzzy
 msgid "Home"
 msgstr "Accueil"
 
@@ -1370,10 +1375,13 @@ msgid ""
 "deselected:"
 msgstr "Les destinataires suivants recevront votre signalement et n’ont pas pu être dessélectionnés :"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "La procédure étape par étape suivante vous guidera dans la création de votre plateforme de lancement d’alertes."
+msgstr ""
+"La procédure étape par étape suivante vous guidera dans la création de votre "
+"plateforme de lancement d’alertes."
 
 msgid "The link will expire in 7 days."
 msgstr "Le lien arrivera à expiration dans sept jours."
@@ -1572,12 +1580,18 @@ msgstr "En attente de la fin du téléversement des fichiers."
 msgid "Warning"
 msgstr "Avertissement"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Nous recommandons de sélectionner cette option si vous voulez protéger vos données contre la perte au cas où les destinataires perdraient leur mot de passe. Par contre, nous ne recommanderions pas d’utiliser cette fonction si vous voulez mettre en place un système où seuls les destinataires auraient accès à leurs envois."
+msgstr ""
+"Nous recommandons de sélectionner cette option si vous voulez protéger vos "
+"données contre la perte au cas où les destinataires perdraient leur mot de "
+"passe. Par contre, nous ne recommanderions pas d’utiliser cette fonction si "
+"vous voulez mettre en place un système où seuls les destinataires auraient "
+"accès à leurs envois."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1644,6 +1658,7 @@ msgstr "Votre nouvelle adresse courriel a été validée."
 msgid "Your report was successful."
 msgstr "Votre signalement a bien été effectué."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Votre plateforme de lancement d’alertes est presque prête."
 
@@ -1783,8 +1798,11 @@ msgstr "Salutations cordiales,"
 msgid "Account activation"
 msgstr "Activation du compte"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "Il est maintenant possible d’accéder à votre plateforme de lancement d’alertes sur :"
+msgstr ""
+"Il est maintenant possible d’accéder à votre plateforme de lancement "
+"d’alertes sur :"
 
 msgid "To log in, visit:"
 msgstr "Pour vous connecter, visitez :"
@@ -1829,6 +1847,7 @@ msgstr "Sans clé PGP valide, le système ne pourra pas leur envoyer des notific
 msgid "PGP key expiration alert"
 msgstr "Alerte d’expiration de la clé PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Un nouveau site de lancement d’alerte a été enregistré."
 
@@ -1844,6 +1863,7 @@ msgstr "Nom : {Name}"
 msgid "Email: {Email}"
 msgstr "Adresse courriel : {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Un nouveau site de lancement d’alerte a été enregistré."
 
@@ -1881,6 +1901,7 @@ msgstr "De : {Author}"
 msgid "Date: {EventTime}"
 msgstr "Date : {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "De : Personne qui effectue le signalement"
 
@@ -1922,10 +1943,13 @@ msgstr "Le système continuera d’essayer."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Échec de renouvellement du certificat HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Le but de ce courriel est de vous aviser qu’un gardien vous a autorisé l’accès à l’identité du créateur du signalement {TipNum}."
+msgstr ""
+"Le but de ce courriel est de vous aviser qu’un gardien vous a autorisé "
+"l’accès à l’identité du créateur du signalement {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Le signalement est accessible à :"
@@ -1933,10 +1957,13 @@ msgstr "Le signalement est accessible à :"
 msgid "Access to reporting person's identity authorized"
 msgstr "L’accès à l’identité de la personne qui a effectué le signalement est autorisé"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Le but de ce courriel est de vous aviser qu’un gardien vous a refusé l’accès à l’identité de la personne qui a effectué le signalement {TipNum}."
+msgstr ""
+"Le but de ce courriel est de vous aviser qu’un gardien vous a refusé l’accès "
+"à l’identité de la personne qui a effectué le signalement {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "L’accès à l’identité de la personne qui a effectué le signalement est refusé"

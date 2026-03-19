@@ -45,13 +45,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: José Javier Alamá Izquierdo, 2023-2025\n"
-"Language-Team: Spanish (http://app.transifex.com/otf/globaleaks/language/es/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: emmapeel "
+"<emmapeel@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Spanish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/es/>\n"
+"Language: es\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
+"0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -78,7 +82,7 @@ msgstr "Acceso solicitado"
 msgid ""
 "Access to the reporting person's identity has been requested to the "
 "custodian."
-msgstr "Se ha solicitado al custodio acceso a la identidad del denunciante"
+msgstr "Se ha solicitado al custodio acceso a la identidad del denunciante."
 
 msgid "Account recovery key"
 msgstr "Código de recuperación de la cuenta"
@@ -126,7 +130,7 @@ msgid "Allow the recipient to edit the reports' expiration date"
 msgstr "Permitir a este usuario editar la fecha de caducidad de las denuncias"
 
 msgid "Allow the recipient to delete reports"
-msgstr "Permitir a este usuario borrar denuncias."
+msgstr "Permitir a este usuario borrar denuncias"
 
 msgid "Allow the reporting person to add attachments"
 msgstr "Permitir al denunciante añadir nuevos adjuntos a su denuncia"
@@ -198,7 +202,7 @@ msgid "Authorize"
 msgstr "Autorizar"
 
 msgid "Authorize access to the reporting person's identity"
-msgstr "Autorizar acceso a la identidad del denunciante "
+msgstr "Autorizar acceso a la identidad del denunciante"
 
 msgid "Authorized"
 msgstr "Autorizada"
@@ -222,7 +226,7 @@ msgid "Before proceeding, please set a new password."
 msgstr "Antes de continuar, por favor establezca una nueva contraseña."
 
 msgid "Block the submission"
-msgstr "Bloquear el envío "
+msgstr "Bloquear el envío"
 
 msgid "By confirming, you will edit the expiration date to:"
 msgstr "Al confirmar, cambiará la fecha de caducidad a:"
@@ -238,6 +242,7 @@ msgstr "Al habilitar esta característica, contribuirá al desarrollo y segurida
 msgid "Cancel"
 msgstr "Cancelar"
 
+#, fuzzy
 msgid "Case management"
 msgstr "Estados de una denuncia"
 
@@ -361,7 +366,7 @@ msgid "Deny"
 msgstr "Denegar"
 
 msgid "Deny access to the reporting person's identity"
-msgstr "Denegar acceso a la identidad del denunciante "
+msgstr "Denegar acceso a la identidad del denunciante"
 
 msgid "Description"
 msgstr "Descripción"
@@ -491,7 +496,9 @@ msgstr "Introduzca el código de autenticación en dos pasos"
 
 msgid ""
 "Enter your account recovery key to complete the password reset procedure"
-msgstr "Ingrese su clave de recuperación de cuenta para completar el procedimiento de restablecimiento de su contraseña. "
+msgstr ""
+"Ingrese su clave de recuperación de cuenta para completar el procedimiento "
+"de restablecimiento de su contraseña"
 
 msgid ""
 "Enter your account's username or your email address to request a password "
@@ -557,7 +564,9 @@ msgstr "Por razones de seguridad es necesario cambiar el código."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
-msgstr "Por razones de seguridad, se requiere intervalos regulares para los cambios de contraseña. "
+msgstr ""
+"Por razones de seguridad, se requieren cambios de contraseña a intervalos "
+"regulares."
 
 msgid "For the user documentation, visit:"
 msgstr "Para la documentación de usuario, ir a:"
@@ -593,10 +602,12 @@ msgid "Give this user ability to grant user access to reports"
 msgstr "Dar a este usuario la capacidad de otorgar acceso a las denuncias"
 
 msgid "Give this user ability to mask information"
-msgstr "Dar a este usuario la capacidad de ocultar parte del texto de la denuncia."
+msgstr "Dar a este usuario la capacidad de ocultar parte de la información"
 
 msgid "Give this user ability to permanently redact masked information"
-msgstr "Dar a este usuario la capacidad de eliminar permanentemente parte del texto de una denuncia."
+msgstr ""
+"Dar a este usuario la capacidad de eliminar permanentemente parte del texto "
+"de una denuncia"
 
 msgid "Give this user ability to transfer reports to other users"
 msgstr "Dar a este usuario la capacidad de transferir denuncias a otros usuarios"
@@ -622,6 +633,7 @@ msgstr "Alto"
 msgid "Hint"
 msgstr "Sugerencia"
 
+#, fuzzy
 msgid "Home"
 msgstr "Principal"
 
@@ -629,7 +641,7 @@ msgid "Homepage title"
 msgstr "Título de la página principal"
 
 msgid "Hostname"
-msgstr "Nombre del servidor "
+msgstr "Nombre del servidor"
 
 msgid "I have read and agree to the terms of the license."
 msgstr "He leído y estoy de acuerdo con los términos de la licencia."
@@ -690,7 +702,7 @@ msgid "Invalid email address"
 msgstr "Dirección de correo electrónico no válida"
 
 msgid "Invalid phone number"
-msgstr "Número de teléfono no válido."
+msgstr "Número de teléfono no válido"
 
 msgid "Issuer:"
 msgstr "Emisor:"
@@ -735,7 +747,7 @@ msgid "License"
 msgstr "Licencia"
 
 msgid "Listen"
-msgstr ""
+msgstr "Escuchar"
 
 msgid "Log accesses of internal users"
 msgstr "Registrar los accesos de los usuarios internos"
@@ -744,7 +756,7 @@ msgid "Log in"
 msgstr "Iniciar sesión"
 
 msgid "Logging level"
-msgstr "Nivel de registro "
+msgstr "Nivel de registro"
 
 msgid "Logo"
 msgstr "Logo"
@@ -872,13 +884,13 @@ msgid "Number"
 msgstr "Número"
 
 msgid "Number of days till notifying unread reports to users"
-msgstr "Días de plazo para notificar a usuarios acerca de denuncias no leídas."
+msgstr "Días de plazo para notificar a usuarios acerca de denuncias no leídas"
 
 msgid "Number of downloads"
 msgstr "Número de descargas"
 
 msgid "Number of hours before sending a report expiration alert"
-msgstr "Número de horas antes de enviar una alerta de caducidad de una denuncia."
+msgstr "Número de horas antes de enviar una alerta de caducidad de una denuncia"
 
 msgid "Object"
 msgstr "Objeto"
@@ -1066,13 +1078,13 @@ msgid "Report date"
 msgstr "Fecha de presentación"
 
 msgid "Report statuses"
-msgstr "Estados de una denuncia."
+msgstr "Estados de una denuncia"
 
 msgid "Reports"
 msgstr "Denuncias"
 
 msgid "Request access to the reporting person's identity"
-msgstr "Solicitar acceso a la identidad del denunciante "
+msgstr "Solicitar acceso a la identidad del denunciante"
 
 msgid "Request date"
 msgstr "Solicitar fecha"
@@ -1099,7 +1111,7 @@ msgid "Reset"
 msgstr "Restablecer"
 
 msgid "Reset SMTP configuration"
-msgstr "Restablecer la configuración SMTP "
+msgstr "Restablecer la configuración SMTP"
 
 msgid "Reset notification templates to default"
 msgstr "Restablecer plantillas de notificación predeterminadas"
@@ -1150,7 +1162,7 @@ msgid "Save all"
 msgstr "Guardar todo"
 
 msgid "Scan the QR code with the app"
-msgstr "Escanee el código QR con su aplicación "
+msgstr "Escanee el código QR con su aplicación"
 
 msgid "Scheduled jobs"
 msgstr "Tareas programadas"
@@ -1225,7 +1237,7 @@ msgid "Show"
 msgstr "Mostrar"
 
 msgid "Show channels in alphabetical order"
-msgstr "Mostrar canales en orden alfabético."
+msgstr "Mostrar canales en orden alfabético"
 
 msgid "Show recipients in alphabetical order"
 msgstr "Mostrar destinatarios por orden alfabético"
@@ -1370,10 +1382,13 @@ msgid ""
 "deselected:"
 msgstr "Los siguientes destinatarios recibirán su reporte y no podrán ser deseleccionados:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "El siguiente procedimiento le guiará paso por paso a través de la creación de su plataforma para la recepción de denuncias."
+msgstr ""
+"El siguiente procedimiento le guiará paso por paso a través de la creación "
+"de su plataforma para la recepción de denuncias."
 
 msgid "The link will expire in 7 days."
 msgstr "El enlace expirará en 7 días."
@@ -1407,7 +1422,7 @@ msgid "The provided reset token is invalid or expired."
 msgstr "El token provisto es inválido o ha expirado."
 
 msgid "The access code is either invalid or the report has expired."
-msgstr "El código es inválido o bien la denuncia ha expirado"
+msgstr "El código es inválido o bien la denuncia ha expirado."
 
 msgid "The specified input is not valid."
 msgstr "La entrada especificada no es válida."
@@ -1422,7 +1437,7 @@ msgid "The two passwords do not match"
 msgstr "Las dos contraseñas introducidas no coinciden"
 
 msgid "The upload request exceeds the size limit"
-msgstr "El fichero que quiere subir excede el tamaño máximo permitido."
+msgstr "El fichero que quiere subir excede el tamaño máximo permitido"
 
 msgid "The user will be forced to change its password on next login."
 msgstr "El usuario será forzado a cambiar su contraseña en el próximo inicio de sesión."
@@ -1431,10 +1446,10 @@ msgid "The validation link is either incorrect or has expired."
 msgstr "El enlace de validación es incorrecto o ha expirado."
 
 msgid "The reporting person has already read the last update"
-msgstr "El denunciante ya ha leído la ultima actualización. "
+msgstr "El denunciante ya ha leído la ultima actualización"
 
 msgid "The reporting person has not read the last update yet"
-msgstr "El denunciante no ha leído la ultima actualización. "
+msgstr "El denunciante no ha leído la ultima actualización"
 
 msgid "Then, copy and paste the following address into the Tor Browser:"
 msgstr "Luego, copie y pegue la siguiente dirección en el Navegador Tor:"
@@ -1451,7 +1466,9 @@ msgid "This field is mandatory"
 msgstr "Este campo es obligatorio"
 
 msgid "This is a demo platform, please do not use it for real submissions."
-msgstr "Este es un buzón de demostración, por favor no lo utilice para denuncias reales. "
+msgstr ""
+"Este es un buzón de demostración, por favor no lo utilice para denuncias "
+"reales."
 
 msgid "This user has not performed the first login yet."
 msgstr "Este usuario aún no ha realizado el primer inicio de sesión."
@@ -1572,19 +1589,28 @@ msgstr "Esperando a que la subida de archivo(s) se complete."
 msgid "Warning"
 msgstr "Advertencia"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Aconsejamos seleccionar esta opción si quiere evitar que los datos se pierdan en el caso de que los destinatarios pierdan sus contraseñas. Por otro lado, desaconsejamos usarla si quiere establecer un sistema donde solo a los destinatarios se les permita acceder a las denuncias."
+msgstr ""
+"Aconsejamos seleccionar esta opción si quiere evitar que los datos se "
+"pierdan en el caso de que los destinatarios pierdan sus contraseñas. Por "
+"otro lado, desaconsejamos usarla si quiere establecer un sistema donde solo "
+"a los destinatarios se les permita acceder a las denuncias."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
 "your “Account Recovery Key” and store it safely. This key will be necessary "
 "to recover your access to the platform and to your data in case you forget "
 "your password."
-msgstr "Recomendamos que acceda a la sección “Preferencias” para descargar su “Clave de Recuperación de Cuenta” y almacenarla de forma segura. \nEsta clave será necesaria para recuperar su acceso a la plataforma y sus datos, en caso que olvide su contraseña."
+msgstr ""
+"Recomendamos que acceda a la sección “Preferencias” para descargar su “Clave "
+"de Recuperación de Cuenta” y almacenarla de forma segura. Esta clave será "
+"necesaria para recuperar su acceso a la plataforma y sus datos, en caso que "
+"olvide su contraseña."
 
 msgid "We will try to get back to you as soon as possible."
 msgstr "Intentaremos responderle tan pronto como sea posible."
@@ -1605,7 +1631,7 @@ msgid "Whistleblowing Policy"
 msgstr "Política de denuncias"
 
 msgid "Whistleblowing button"
-msgstr "Botón para presentar la denuncia."
+msgstr "Botón para presentar la denuncia"
 
 msgid "Width"
 msgstr "Ancho"
@@ -1633,7 +1659,7 @@ msgid "You have completed the platform wizard."
 msgstr "Ha completado con éxito el asistente de la plataforma."
 
 msgid "You have reached the maximum number of selectable recipients."
-msgstr "Ha alcanzado el numero máximo de destinatarios seleccionables"
+msgstr "Ha alcanzado el numero máximo de destinatarios seleccionables."
 
 msgid "You must select at least one recipient."
 msgstr "Debe seleccionar al menos un destinatario."
@@ -1644,6 +1670,7 @@ msgstr "Su nueva dirección de correo electrónico ha sido validada."
 msgid "Your report was successful."
 msgstr "Su denuncia se presentó correctamente."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "¡Su plataforma para recibir denuncias ya está casi lista!"
 
@@ -1783,6 +1810,7 @@ msgstr "Saludos cordiales,"
 msgid "Account activation"
 msgstr "Activación de la cuenta"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Su plataforma para denunciantes está accesible ahora en:"
 
@@ -1829,6 +1857,7 @@ msgstr "Sin una clave PGP válida, el sistema no podrá enviarle notificaciones 
 msgid "PGP key expiration alert"
 msgstr "Alerta de caducidad de clave PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Se ha registrado un nuevo sitio para denunciantes."
 
@@ -1844,8 +1873,9 @@ msgstr "Nombre: {Name}"
 msgid "Email: {Email}"
 msgstr "Correo electrónico: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
-msgstr "Se ha registrado el nuevo sitio para denunciantes."
+msgstr "Se ha registrado el nuevo sitio para denunciantes"
 
 msgid ""
 "This is a test email sent out from the platform's administrative interface."
@@ -1881,6 +1911,7 @@ msgstr "De: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Fecha: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "De: Denunciante"
 
@@ -1920,12 +1951,15 @@ msgid "The system will keep trying."
 msgstr "El sistema continuará intentándolo."
 
 msgid "Failed HTTPS certificate renewal"
-msgstr "Fallo en la renovación del certificado HTTPS."
+msgstr "Fallo en la renovación del certificado HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Este correo electrónico es para notificarle que un custodio le ha autorizado a acceder a la identidad del informante para la denuncia {TipNum}."
+msgstr ""
+"Este correo electrónico es para notificarle que un custodio le ha autorizado "
+"a acceder a la identidad del informante para la denuncia {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Se puede acceder a la denuncia desde:"
@@ -1933,10 +1967,13 @@ msgstr "Se puede acceder a la denuncia desde:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Acceso a la identidad del denunciante autorizada"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Este correo electrónico es para notificarle que un custodio le ha negado el acceso a la identidad del informante para la denuncia {TipNum}."
+msgstr ""
+"Este correo electrónico es para notificarle que un custodio le ha negado el "
+"acceso a la identidad del informante para la denuncia {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Acceso a la identidad del denunciante denegado"
@@ -2054,7 +2091,7 @@ msgid "This email is to remind you the presence of unread or updated reports."
 msgstr "Este correo electrónico es para recordarle que existen denuncias no leídas o actualizadas."
 
 msgid "Reminder about unread or updated reports"
-msgstr "Recordar la existencia de denuncias no leídas o actualizadas."
+msgstr "Recordar la existencia de denuncias no leídas o actualizadas"
 
 msgid "Role: {Role}"
 msgstr "Rol: {Role}"

@@ -54,13 +54,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>, 2014-2024\n"
-"Language-Team: German (http://app.transifex.com/otf/globaleaks/language/de/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: German <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/de/>\n"
+"Language: de\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -237,7 +240,8 @@ msgid "By confirming, you will edit the expiration date to:"
 msgstr "Mit der Bestätigung ändern Sie das Ablaufdatum auf:"
 
 msgid "By confirming, you will set a reminder on date:"
-msgstr "Mit Ihrer Bestätigung legen Sie eine Erinnerung für den ... fest"
+msgstr ""
+"Wenn Sie bestätigen, wird eine Erinnerung für den folgenden Tag eingerichtet:"
 
 msgid ""
 "By enabling this feature, you will contribute to the development and "
@@ -338,7 +342,7 @@ msgid "Custom privacy panel"
 msgstr "Benutzerdefiniertes Datenschutzpanel"
 
 msgid "Custom support URL"
-msgstr "Adresse des Kundenservices "
+msgstr "Benutzerdefinierte Unterstützungs-URL"
 
 msgid "Custom text"
 msgstr "Benutzerdefinierter Text"
@@ -631,6 +635,7 @@ msgstr "Hoch"
 msgid "Hint"
 msgstr "Hinweis"
 
+#, fuzzy
 msgid "Home"
 msgstr "Start"
 
@@ -744,7 +749,7 @@ msgid "License"
 msgstr "Lizenz"
 
 msgid "Listen"
-msgstr ""
+msgstr "Anhören"
 
 msgid "Log accesses of internal users"
 msgstr "Zugriffe interner Benutzer protokollieren"
@@ -782,7 +787,7 @@ msgid "Mark as important"
 msgstr "Als wichtig markieren"
 
 msgid "Mask"
-msgstr "Maskieren "
+msgstr "Maskieren"
 
 msgid "Max"
 msgstr "Max"
@@ -794,7 +799,7 @@ msgid "Maximum number of input characters"
 msgstr "Maximale Anzahl an Eingabezeichen"
 
 msgid "Maximum number of selectable recipients:"
-msgstr "Maximale Anzahl auswählbarer Empfänger: "
+msgstr "Maximale Anzahl auswählbarer Empfänger:"
 
 msgid "Me only"
 msgstr "Nur ich"
@@ -863,7 +868,7 @@ msgid "None"
 msgstr "Keine"
 
 msgid "Not provided."
-msgstr "Nicht vorgesehen "
+msgstr "Nicht vorgesehen."
 
 msgid "Notifications"
 msgstr "Benachrichtigungen"
@@ -887,7 +892,7 @@ msgid "Number of downloads"
 msgstr "Anzahl von Downloads"
 
 msgid "Number of hours before sending a report expiration alert"
-msgstr "Anzahl der Stunden vor dem Senden eines Berichtablaufalarms."
+msgstr "Anzahl der Stunden vor dem Senden eines Berichtablaufalarms"
 
 msgid "Object"
 msgstr "Objekt"
@@ -1012,7 +1017,7 @@ msgid "Questions"
 msgstr "Fragen"
 
 msgid "Read receipt"
-msgstr ""
+msgstr "Lesen Sie den Beleg"
 
 msgid "Receivers"
 msgstr "Empfänger"
@@ -1159,7 +1164,7 @@ msgid "Save all"
 msgstr "Alles speichern"
 
 msgid "Scan the QR code with the app"
-msgstr "Scannen Sie den QR-Code mit der App."
+msgstr "Scannen Sie den QR-Code mit der App"
 
 msgid "Scheduled jobs"
 msgstr "Geplante Aufgaben"
@@ -1189,7 +1194,7 @@ msgid "Select all recipients by default"
 msgstr "Alle Empfänger standardmäßig auswählen"
 
 msgid "Select an option"
-msgstr "Treffen Sie eine Auswahl "
+msgstr "Treffen Sie eine Auswahl"
 
 msgid "Select the recipients of your report"
 msgstr "Wählen Sie die Empfänger Ihres Berichtes aus"
@@ -1306,7 +1311,7 @@ msgid "Subscribed"
 msgstr "Abonniert"
 
 msgid "Subscribed later"
-msgstr ""
+msgstr "Später abonniert"
 
 msgid "Subscription date"
 msgstr "Datum der Anmeldung"
@@ -1379,10 +1384,13 @@ msgid ""
 "deselected:"
 msgstr "Die folgenden Empfänger erhalten Ihren Bericht und konnten nicht abgewählt werden:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Der folgende Schritt-für-Schritt-Assistent wird Sie durch die Konfiguration Ihrer Hinweisgeberseite führen."
+msgstr ""
+"Der folgende Schritt-für-Schritt-Assistent wird Sie durch die Konfiguration "
+"Ihrer Hinweisgeberseite führen."
 
 msgid "The link will expire in 7 days."
 msgstr "Dieser Link wird in 7 Tagen ablaufen."
@@ -1431,7 +1439,7 @@ msgid "The two passwords do not match"
 msgstr "Die zwei Passwörter stimmen nicht überein"
 
 msgid "The upload request exceeds the size limit"
-msgstr "Der Upload überschreitet das eingestellte MB Limit."
+msgstr "Der Upload überschreitet das eingestellte MB Limit"
 
 msgid "The user will be forced to change its password on next login."
 msgstr "Der Benutzer wird gezwungen, das Passwort bei der nächsten Anmeldung zu ändern."
@@ -1440,10 +1448,10 @@ msgid "The validation link is either incorrect or has expired."
 msgstr "Der Validierungslink ist entweder falsch oder abgelaufen."
 
 msgid "The reporting person has already read the last update"
-msgstr "Der Hinweisgeber hat die letzte Aktualisierung bereits gelesen."
+msgstr "Der Hinweisgeber hat die letzte Aktualisierung bereits gelesen"
 
 msgid "The reporting person has not read the last update yet"
-msgstr "Der Hinweisgeber hat die letzte Aktualisierung noch nicht gelesen."
+msgstr "Der Hinweisgeber hat die letzte Aktualisierung noch nicht gelesen"
 
 msgid "Then, copy and paste the following address into the Tor Browser:"
 msgstr "Anschließend kopieren Sie die folgende Adresse und fügen Sie sie in den installierten Tor-Browser ein:"
@@ -1472,7 +1480,7 @@ msgid "Title"
 msgstr "Titel"
 
 msgid "To"
-msgstr "An "
+msgstr "An"
 
 msgid "To:"
 msgstr "An:"
@@ -1581,12 +1589,17 @@ msgstr "Warte darauf, dass die Datei(en) fertig hochgeladen werden."
 msgid "Warning"
 msgstr "Warnung"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Wir raten Ihnen zu dieser Option, wenn Sie Daten vor Verlust schützen möchten, falls die Empfänger ihre Passwörter verlieren. Andererseits raten wir davon ab, diese Funktion zu verwenden, wenn Sie ein System einrichten möchten, bei dem nur die Empfänger auf die Einreichungen zugreifen können."
+msgstr ""
+"Wir raten Ihnen zu dieser Option, wenn Sie Daten vor Verlust schützen "
+"möchten, falls die Empfänger ihre Passwörter verlieren. Andererseits raten "
+"wir davon ab, diese Funktion zu verwenden, wenn Sie ein System einrichten "
+"möchten, bei dem nur die Empfänger auf die Einreichungen zugreifen können."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1625,10 +1638,12 @@ msgstr "Ja"
 msgid ""
 "You are connecting to the server without anonymity and this server supports "
 "only anonymous submissions"
-msgstr "Sie versuchen, eine nicht anonyme Verbindung zu diesem Server herzustellen. Dieser Server erlaubt nur anonyme Verbindungen. "
+msgstr ""
+"Sie versuchen, eine nicht anonyme Verbindung zu diesem Server herzustellen. "
+"Dieser Server erlaubt nur anonyme Verbindungen"
 
 msgid "You are entering a report received through other channels."
-msgstr ""
+msgstr "Sie geben einen Bericht ein, den Sie über andere Kanäle erhalten haben."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1653,6 +1668,7 @@ msgstr "Ihre neue E-Mail-Adresse wurde bestätigt."
 msgid "Your report was successful."
 msgstr "Ihr Bericht war erfolgreich."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Ihre Hinweisgeberplattform ist fast bereit!"
 
@@ -1792,6 +1808,7 @@ msgstr "Mit freundlichen Grüßen"
 msgid "Account activation"
 msgstr "Kontoaktivierung"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Ihre Hinweisgeberplattform ist nun hier erreichbar:"
 
@@ -1838,6 +1855,7 @@ msgstr "Ohne einen gültigen PGP-Schlüssel kann das System Ihnen keine verschl�
 msgid "PGP key expiration alert"
 msgstr "PGP-Schlüsselablaufalarm"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Eine neue Hinweisgeberseite wurde registriert."
 
@@ -1853,6 +1871,7 @@ msgstr "Name: {Name}"
 msgid "Email: {Email}"
 msgstr "E-Mail: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Neue Hinweisgeberseite registriert"
 
@@ -1890,6 +1909,7 @@ msgstr "Von: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datum: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Von: Hinweisgeber"
 
@@ -1931,10 +1951,14 @@ msgstr "Das System wird es weiterhin versuchen."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Fehlgeschlagene HTTPS-Zertifikatserneuerung"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Dies ist eine E-Mail, um Sie zu benachrichtigen, dass ein Verwalter Sie zum Zugriff auf die Hinweisgeberidentität für den Bericht {TipNum} autorisiert hat."
+msgstr ""
+"Dies ist eine E-Mail, um Sie zu benachrichtigen, dass ein Verwalter Sie zum "
+"Zugriff auf die Hinweisgeberidentität für den Bericht {TipNum} autorisiert "
+"hat."
 
 msgid "The report can be accessed at:"
 msgstr "Der Bericht kann aufgerufen werden unter:"
@@ -1942,10 +1966,14 @@ msgstr "Der Bericht kann aufgerufen werden unter:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Zugriff auf die Identität des Hinweisgebers autorisiert"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Dies ist eine E-Mail, um Sie zu benachrichtigen, dass ein Verwalter Ihnen den Zugriff auf die Hinweisgeberidentität für den Bericht {TipNum} verweigert hat."
+msgstr ""
+"Dies ist eine E-Mail, um Sie zu benachrichtigen, dass ein Verwalter Ihnen "
+"den Zugriff auf die Hinweisgeberidentität für den Bericht {TipNum} "
+"verweigert hat."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Zugriff auf die Identität des Hinweisgebers verweigert"

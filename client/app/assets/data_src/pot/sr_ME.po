@@ -4,13 +4,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Serbian (Montenegro) (http://app.transifex.com/otf/globaleaks/language/sr_ME/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Montenegrin <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/cnr/>\n"
+"Language: sr_ME\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sr_ME\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -581,6 +585,7 @@ msgstr "Visoko"
 msgid "Hint"
 msgstr "Podsjetnik"
 
+#, fuzzy
 msgid "Home"
 msgstr "Početna stranica"
 
@@ -1329,10 +1334,13 @@ msgid ""
 "deselected:"
 msgstr "Sljedeći primaoci će primiti vašu prijavu i nije ih moguće poništiti:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Sljedeća postupna procedura vodiće vas kroz kreiranje platforme za uzbunjivanje."
+msgstr ""
+"Sljedeća postupna procedura vodiće vas kroz kreiranje platforme za "
+"uzbunjivanje."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1531,12 +1539,17 @@ msgstr "Čeka se da se završi otpremanje datoteka."
 msgid "Warning"
 msgstr "Upozorenje"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Savjetujemo da izaberete ovu opciju ako želite da zaštitite podatke od gubitka u situaciji kada primaoci izgube svoje lozinke. S druge strane, ne bismo savjetovali korišćenje ove funkcije ako želite da podesite sistem u kome samo primaoci mogu da pristupaju podnescima."
+msgstr ""
+"Savjetujemo da izaberete ovu opciju ako želite da zaštitite podatke od "
+"gubitka u situaciji kada primaoci izgube svoje lozinke. S druge strane, ne "
+"bismo savjetovali korišćenje ove funkcije ako želite da podesite sistem u "
+"kome samo primaoci mogu da pristupaju podnescima."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1603,6 +1616,7 @@ msgstr "Vaša nova adresa e-pošte je potvrđena."
 msgid "Your report was successful."
 msgstr "Vaša prijava je bila uspješna."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Vaša platforma za uzbunjivanje je skoro spremna!"
 
@@ -1742,6 +1756,7 @@ msgstr "Srdačan pozdrav,"
 msgid "Account activation"
 msgstr "Aktivacija naloga"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Vaša platforma za uzbunjivanje sada je dostupna na:"
 
@@ -1788,6 +1803,7 @@ msgstr "Bez važećeg PGP ključa, sistem neće moći da im šalje šifrovana
 msgid "PGP key expiration alert"
 msgstr "Upozorenje o isteku PGP ključa"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Registrovana je nova lokacija za uzbunjivanje."
 
@@ -1803,6 +1819,7 @@ msgstr "Naziv: {Name}"
 msgid "Email: {Email}"
 msgstr "E-pošta: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Registrovana je nova lokacija za uzbunjivače"
 
@@ -1840,6 +1857,7 @@ msgstr "Od: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datum: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Od: Uzbunjivаč"
 
@@ -1881,10 +1899,13 @@ msgstr "Sistem će nastaviti da pokušava."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Obnavljanje HTTPS sertifikata nije uspjelo"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Ovo je e-poruka sa obavještenjem da vas je čuvar ovlastio za pristup identitetu koji podnosi prijavu {TipNum}."
+msgstr ""
+"Ovo je e-poruka sa obavještenjem da vas je čuvar ovlastio za pristup "
+"identitetu koji podnosi prijavu {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Prijavi se može pristupiti na:"
@@ -1892,10 +1913,13 @@ msgstr "Prijavi se može pristupiti na:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Odobren je pristup identitetu uzbunjivača"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Ovo je e-poruka sa obavještenjem da vam je čuvar odbio pristup identitetu koji podnosi prijavu {TipNum}."
+msgstr ""
+"Ovo je e-poruka sa obavještenjem da vam je čuvar odbio pristup identitetu "
+"koji podnosi prijavu {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Pristup identitetu uzbunjivača je odbijen"

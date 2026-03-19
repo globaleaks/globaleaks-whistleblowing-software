@@ -5,13 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Swahili (http://app.transifex.com/otf/globaleaks/language/sw/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Swahili <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/sw/>\n"
+"Language: sw\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sw\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -582,6 +585,7 @@ msgstr "Juu"
 msgid "Hint"
 msgstr "Kidokezo"
 
+#, fuzzy
 msgid "Home"
 msgstr "Nyumbani"
 
@@ -1330,10 +1334,14 @@ msgid ""
 "deselected:"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Hatua-kwa-hatua zifuatazo zitakuongoza kutengeneza\n\njukwaa lako la kutoa taarifa za siri."
+msgstr ""
+"Hatua-kwa-hatua zifuatazo zitakuongoza kutengeneza\n"
+"\n"
+"jukwaa lako la kutoa taarifa za siri."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1532,12 +1540,22 @@ msgstr "Inasubiri faili/mafaili ili kumaliza upakuaji."
 msgid "Warning"
 msgstr "Onyo"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Tunashauri kuchagua chaguo hili kama utapenda kuwalinda watoa taarifa za siri\n\nMawasilisho kutopotea katika mazingira ambayo wapokeaji wamepoteza\n\nmaneno yao ya siri. Kwa upande mwingine, hatutashauri utumie jukwaa hili kama\n\nunataka kuweka mfumo ambapo wapokeaji tu wanaweza kufikia mawasilisho."
+msgstr ""
+"Tunashauri kuchagua chaguo hili kama utapenda kuwalinda watoa taarifa za "
+"siri\n"
+"\n"
+"Mawasilisho kutopotea katika mazingira ambayo wapokeaji wamepoteza\n"
+"\n"
+"maneno yao ya siri. Kwa upande mwingine, hatutashauri utumie jukwaa hili "
+"kama\n"
+"\n"
+"unataka kuweka mfumo ambapo wapokeaji tu wanaweza kufikia mawasilisho."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1604,6 +1622,7 @@ msgstr "Anwani yako mpya ya barua pepe imethibitishwa."
 msgid "Your report was successful."
 msgstr "Ripoti yako imefanikiwa."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Jukwaa lako la kutoa taarifa za siri lipo tayari!"
 
@@ -1743,6 +1762,7 @@ msgstr "Wasalam,"
 msgid "Account activation"
 msgstr "Uhaishaji wa akaunti"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Akauti yako ya kutuma taarifa za siri kwa sasa inafikiwa kupitia:"
 
@@ -1789,6 +1809,7 @@ msgstr " Bila funguo halali ya PGP, mfumo hautaweza kuzituma kwa njia ya kificho
 msgid "PGP key expiration alert"
 msgstr "Taarifa muhimu ya kumalizika kwa muda wa PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Tovuti mpya ya kutoa taarifa za siri imesajiliwa"
 
@@ -1804,6 +1825,7 @@ msgstr "Jina: {Name}"
 msgid "Email: {Email}"
 msgstr "Barua pepe: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Tovuti mpya ya kutoa taarifa za siri imesajiliwa"
 
@@ -1841,6 +1863,7 @@ msgstr "Kutoka: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Tarehe: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Kutoka: Mtoa taarifa ya siri"
 
@@ -1882,10 +1905,13 @@ msgstr "Mfumo utaendelea kujaribu."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Imeshindwa kufanya upya cheti cha HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Barua pepe hii ni kukujulisha ya kwamba mwangalizi amekuidhinisha kuona utambulisho wa mtoa taarifa ya siri kwa ripoti {TipNum}."
+msgstr ""
+"Barua pepe hii ni kukujulisha ya kwamba mwangalizi amekuidhinisha kuona "
+"utambulisho wa mtoa taarifa ya siri kwa ripoti {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr ""
@@ -1893,10 +1919,13 @@ msgstr ""
 msgid "Access to reporting person's identity authorized"
 msgstr "Ufikiaji wa utambulisho wa mtoa taarifa ya siri umeidhinishwa"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Barua pepe hii ni kukujulisha ya kwamba mwangalizi amekataa usifikie utambulisho wa mtoa taarifa ya siri kwa ripoti {TipNum}."
+msgstr ""
+"Barua pepe hii ni kukujulisha ya kwamba mwangalizi amekataa usifikie "
+"utambulisho wa mtoa taarifa ya siri kwa ripoti {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Ufikiaji wa utambulisho wa mtoa taarifa ya siri umekataliwa"

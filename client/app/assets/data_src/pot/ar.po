@@ -54,13 +54,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014-2018,2020-2022,2024\n"
-"Language-Team: Arabic (http://app.transifex.com/otf/globaleaks/language/ar/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Arabic <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ar/>\n"
+"Language: ar\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ar\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -254,7 +258,7 @@ msgid "Certificate"
 msgstr "شهادة"
 
 msgid "Certificate Signing Request"
-msgstr "طلب توقيع الشهادة  "
+msgstr "طلب توقيع الشهادة"
 
 msgid "Change status"
 msgstr "تغيير الحالة"
@@ -263,7 +267,7 @@ msgid "Change your password"
 msgstr "تغيير كلمة المرور"
 
 msgid "Changelog"
-msgstr "سجلّ التغييرات "
+msgstr "سجلّ التغييرات"
 
 msgid "Channel"
 msgstr "القناة"
@@ -305,7 +309,7 @@ msgid "Configure"
 msgstr "اضبط"
 
 msgid "Confirm"
-msgstr "تأكيد "
+msgstr "تأكيد"
 
 msgid "Congratulations!"
 msgstr "تهانينا!"
@@ -329,7 +333,7 @@ msgid "Current password"
 msgstr "كلمة السر الحالية"
 
 msgid "Custodian"
-msgstr " الحارس"
+msgstr "الحارس"
 
 msgid "Custom"
 msgstr "مخصص"
@@ -347,7 +351,7 @@ msgid "Custom translation"
 msgstr "الترجمة المخصصة"
 
 msgid "Date"
-msgstr "تاريخ "
+msgstr "تاريخ"
 
 msgid "Date of the request"
 msgstr "تاريخ الطلب"
@@ -559,7 +563,7 @@ msgid "Fiscal code"
 msgstr "الكود الضريبي"
 
 msgid "Footer"
-msgstr "ذيل الصفحة "
+msgstr "ذيل الصفحة"
 
 msgid "For security reasons, the code needs to be changed."
 msgstr "لأغراض أمنية يجب تغيير الرمز."
@@ -575,7 +579,7 @@ msgid "Forbidden operation"
 msgstr "العملية ممنوعة"
 
 msgid "Force password change"
-msgstr " الاجبار على تغيير كلمة المرور "
+msgstr "الاجبار على تغيير كلمة المرور"
 
 msgid "Forcefully selected"
 msgstr "مختارة بالقوّة"
@@ -631,6 +635,7 @@ msgstr "عالٍ"
 msgid "Hint"
 msgstr "تلميح"
 
+#, fuzzy
 msgid "Home"
 msgstr "الصفحة الرئيسية"
 
@@ -675,7 +680,7 @@ msgstr "إدخال"
 msgid ""
 "In this step the answers to the following questions are either missing or "
 "invalid:"
-msgstr " بهذه الخطوة , الإجابات على هذه الأسئلة مفقودة أو غير صالحة:"
+msgstr "بهذه الخطوة , الإجابات على هذه الأسئلة مفقودة أو غير صالحة:"
 
 msgid "Initially anonymous"
 msgstr "مجهول الهوية مبدئيًا"
@@ -756,7 +761,7 @@ msgid "Logging level"
 msgstr "مستوى التسجيل"
 
 msgid "Logo"
-msgstr "الشعار "
+msgstr "الشعار"
 
 msgid "Logout"
 msgstr "تسجيل الخروج"
@@ -1186,7 +1191,7 @@ msgid "Select all"
 msgstr "اختر الكل"
 
 msgid "Select all recipients by default"
-msgstr "اختر جميع المتلقين بشكل اعتيادي "
+msgstr "اختر جميع المتلقين بشكل اعتيادي"
 
 msgid "Select an option"
 msgstr "حدد اختيار"
@@ -1204,7 +1209,7 @@ msgid "Send"
 msgstr "إرسال"
 
 msgid "Send a test email to your email address."
-msgstr " ارسال بريد الكتروني تجريبي الى عنوان البريد الإلكتروني الخاص بك."
+msgstr "ارسال بريد الكتروني تجريبي الى عنوان البريد الإلكتروني الخاص بك."
 
 msgid "Send activation link"
 msgstr "إرسال رابط التفعيل"
@@ -1222,7 +1227,7 @@ msgid "Set the value to 0 to disable this feature."
 msgstr "اضبط القيمة على 0 لإلغاء تفعيل هذه الخاصية."
 
 msgid "Set up encryption by providing a PGP public key"
-msgstr "إعداد التشفير عن طريق توفير مفتاح PGP عمومي "
+msgstr "إعداد التشفير عن طريق توفير مفتاح PGP عمومي"
 
 msgid "Settings"
 msgstr "الإعدادات"
@@ -1379,6 +1384,7 @@ msgid ""
 "deselected:"
 msgstr "سيتلقى المستلمون التالين تقريرك ولا يمكن إلغاء تحديدهم:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
@@ -1440,7 +1446,7 @@ msgid "The validation link is either incorrect or has expired."
 msgstr "إما أن رابط التحقق غير صحيح أو انتهت صلاحيته."
 
 msgid "The reporting person has already read the last update"
-msgstr "المبلغ قد قرأ آخر تحديث "
+msgstr "المبلغ قد قرأ آخر تحديث"
 
 msgid "The reporting person has not read the last update yet"
 msgstr "المبلغ لم يقرأ آخر تحديث بعد"
@@ -1523,7 +1529,7 @@ msgid "Upload a file:"
 msgstr "رفع ملف:"
 
 msgid "Upload date"
-msgstr "تاريخ  الرّفع"
+msgstr "تاريخ الرّفع"
 
 msgid "Use as default"
 msgstr "التعيين كوضع افتراضي"
@@ -1581,12 +1587,17 @@ msgstr "يجري انتظار إنهاء رفع الملف/الملفات."
 msgid "Warning"
 msgstr "تنبيه"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "صح بتحديد هذا الخيار إذا كنت ترغب في حماية البيانات من الضياع في حالة فقدان المستلمين لكلمات المرور الخاصة بهم. من ناحية أخرى ، لا ننصح باستخدام هذه الميزة إذا كنت ترغب في إعداد نظام يستطيع فيه المستلمون فقط الوصول إلى عمليات الإرسال."
+msgstr ""
+"صح بتحديد هذا الخيار إذا كنت ترغب في حماية البيانات من الضياع في حالة فقدان "
+"المستلمين لكلمات المرور الخاصة بهم. من ناحية أخرى ، لا ننصح باستخدام هذه "
+"الميزة إذا كنت ترغب في إعداد نظام يستطيع فيه المستلمون فقط الوصول إلى عمليات "
+"الإرسال."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1625,7 +1636,9 @@ msgstr "نعم"
 msgid ""
 "You are connecting to the server without anonymity and this server supports "
 "only anonymous submissions"
-msgstr "أنت تتصل بالخادم بطريقة لا تخفي هويتك. هذا الخادم يعمل فقط مع المتصلين و البلاغات المجهولة المصدر "
+msgstr ""
+"أنت تتصل بالخادم بطريقة لا تخفي هويتك. هذا الخادم يعمل فقط مع المتصلين و "
+"البلاغات المجهولة المصدر"
 
 msgid "You are entering a report received through other channels."
 msgstr ""
@@ -1653,6 +1666,7 @@ msgstr "تم التحقق من عنوان البريد الإلكتروني ال
 msgid "Your report was successful."
 msgstr "تمّ الابلاغ بنجاح."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "منصة التبليغ الخاصة بك على وشك أن تكون جاهزة!"
 
@@ -1708,7 +1722,7 @@ msgid "It is a rumor I heard"
 msgstr "شائعة - سمعت عنها"
 
 msgid "How are you involved in the reported facts?"
-msgstr "ما هي علاقتك في الحادث موضوع التقرير؟ "
+msgstr "ما هي علاقتك في الحادث موضوع التقرير؟"
 
 msgid "Do you have evidence to support your report?"
 msgstr "هل لديك ادلة تدعم تقريرك؟"
@@ -1768,13 +1782,15 @@ msgstr "عزيزي {RecipientName},"
 msgid ""
 "You're receiving this email because a user account has been created for you "
 "on the system: {Site}"
-msgstr "انت تستقبل هذا البريد الإلكتروني لأنه تم إنشاء حساب مستخدم لك على النظام:  {Site}"
+msgstr ""
+"انت تستقبل هذا البريد الإلكتروني لأنه تم إنشاء حساب مستخدم لك على النظام: "
+"{Site}"
 
 msgid "Username: {Username}"
 msgstr "اسم المستخدم: {Username}"
 
 msgid "Activation link: {Url}"
-msgstr "رابط تفعيل  {Url}"
+msgstr "رابط تفعيل {Url}"
 
 msgid ""
 "Please click on the activation link to proceed with the account activation "
@@ -1784,7 +1800,9 @@ msgstr "من فضلك قم بالضغط على رابط التفعيل من أج
 msgid ""
 "After successful activation you will be able to access the system via the "
 "following link: {LoginUrl}"
-msgstr "بعد التفعيل الناجح، سيكون بمقدورك الولوج إلى النظام من خلال الرابط التالي:  {LoginUrl}"
+msgstr ""
+"بعد التفعيل الناجح، سيكون بمقدورك الولوج إلى النظام من خلال الرابط التالي: "
+"{LoginUrl}"
 
 msgid "Kind regards,"
 msgstr "أطيب التحيّات،"
@@ -1792,6 +1810,7 @@ msgstr "أطيب التحيّات،"
 msgid "Account activation"
 msgstr "تفعيل الحساب"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "يمكن الآن الوصول إلى منصة الإبلاغ على:"
 
@@ -1838,6 +1857,7 @@ msgstr "بدون مفتاح PGP صالح، لن يكون النظام قادرا
 msgid "PGP key expiration alert"
 msgstr "تنبيه انتهاء صلاحية مفتاح PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "موقع جديد لكشف الفساد تم إنشائه."
 
@@ -1853,6 +1873,7 @@ msgstr "الاسم: {Name}"
 msgid "Email: {Email}"
 msgstr "البريد الإلكتروني: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "موقع جديد لكشف الفساد تم تسجيله."
 
@@ -1885,11 +1906,12 @@ msgid "Email change request"
 msgstr "طلب تغيير البريد الإلكتروني."
 
 msgid "From: {Author}"
-msgstr "بواسطة:  {Author}"
+msgstr "بواسطة: {Author}"
 
 msgid "Date: {EventTime}"
 msgstr "التاريخ: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "من: المُبلٍّغ"
 
@@ -1931,10 +1953,13 @@ msgstr "النظام سوف يستمر في المحاولة."
 msgid "Failed HTTPS certificate renewal"
 msgstr "عملية تجديد فاشلة لشهادة HTTPS."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ هذا البلاغ {TipNum}."
+msgstr ""
+"هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ "
+"هذا البلاغ {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "يكمن النفاذ إلى التقرير:"
@@ -1942,13 +1967,16 @@ msgstr "يكمن النفاذ إلى التقرير:"
 msgid "Access to reporting person's identity authorized"
 msgstr "الاذن بالحصول على هوية المبلغ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ هذا البلاغ {TipNum}."
+msgstr ""
+"هذا هو البريد الالكتروني لإعلامك أن أمين الحفظ قد أذن لك بالوصول إلى هوية مبلغ "
+"هذا البلاغ {TipNum}."
 
 msgid "Access to reporting person's identity denied"
-msgstr " عدم الاذن بالحصول على هوية المبلغ "
+msgstr "عدم الاذن بالحصول على هوية المبلغ"
 
 msgid ""
 "This is an email to notify you that a recipient has requested access to the "

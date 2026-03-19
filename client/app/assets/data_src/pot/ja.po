@@ -10,13 +10,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2015-2022\n"
-"Language-Team: Japanese (http://app.transifex.com/otf/globaleaks/language/ja/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Japanese <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ja/>\n"
+"Language: ja\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -587,6 +590,7 @@ msgstr "高い"
 msgid "Hint"
 msgstr "ヒント"
 
+#, fuzzy
 msgid "Home"
 msgstr "ホーム"
 
@@ -1335,10 +1339,13 @@ msgid ""
 "deselected:"
 msgstr "次の受信者があなたの報告を受け取ります。選択を解除することはできません:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "次のステップバイステップの手順で、内部告発プラットフォームの作成をガイドします。"
+msgstr ""
+"次のステップバイステップの手順で、内部告発プラットフォームの作成をガイドしま"
+"す。"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1537,12 +1544,17 @@ msgstr "ファイルのアップロードが完了するのを待っています
 msgid "Warning"
 msgstr "警告"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "受信者がパスワードを紛失した状況でデータが失われるのを防ぎたい場合は、このオプションを選択することをお勧めします。 一方、受信者のみが提出物にアクセスできるようにシステムをセットアップしたい場合は、この機能を使用することはお勧めしません。"
+msgstr ""
+"受信者がパスワードを紛失した状況でデータが失われるのを防ぎたい場合は、この"
+"オプションを選択することをお勧めします。 一方、受信者のみが提出物にアクセスで"
+"きるようにシステムをセットアップしたい場合は、この機能を使用することはお勧め"
+"しません。"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1609,6 +1621,7 @@ msgstr "新しいメールアドレスが検証されました。"
 msgid "Your report was successful."
 msgstr "あなたの報告は成功しました。"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "内部告発プラットフォームがもう少しで準備できます!"
 
@@ -1748,6 +1761,7 @@ msgstr "敬具"
 msgid "Account activation"
 msgstr "アカウントのアクティベーション"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "内部告発プラットフォームがアクセス可能になりました:"
 
@@ -1794,6 +1808,7 @@ msgstr "有効なPGP鍵がなければ、システムはあなたに暗号化さ
 msgid "PGP key expiration alert"
 msgstr "PGP鍵期限切れアラート"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "新しい告発サイトが登録されました。"
 
@@ -1809,6 +1824,7 @@ msgstr "名前: {Name}"
 msgid "Email: {Email}"
 msgstr "メール: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "新しい告発サイトが登録されました。"
 
@@ -1846,6 +1862,7 @@ msgstr "送信元: {Author}"
 msgid "Date: {EventTime}"
 msgstr "日付: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "差出人: Whistleblower"
 
@@ -1887,10 +1904,13 @@ msgstr "システムは再試行します。"
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS証明書の更新に失敗しました"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "これは、報告 {TipNum} の内部告発者の身元にあなたがアクセスすることを、管理人が承認したことを通知するメールです。"
+msgstr ""
+"これは、報告 {TipNum} の内部告発者の身元にあなたがアクセスすることを、管理人"
+"が承認したことを通知するメールです。"
 
 msgid "The report can be accessed at:"
 msgstr "報告は以下からアクセスできます:"
@@ -1898,10 +1918,13 @@ msgstr "報告は以下からアクセスできます:"
 msgid "Access to reporting person's identity authorized"
 msgstr "内部告発者の身元へのアクセスを承認しました"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "これは、報告 {TipNum} の内部告発者の身元にあなたがアクセスすることを、管理人が否認したことを通知するメールです。"
+msgstr ""
+"これは、報告 {TipNum} の内部告発者の身元にあなたがアクセスすることを、管理人"
+"が否認したことを通知するメールです。"
 
 msgid "Access to reporting person's identity denied"
 msgstr "内部告発者の身元へのアクセスを否認しました"

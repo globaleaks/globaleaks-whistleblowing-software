@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2017,2020,2022\n"
-"Language-Team: Tamil (http://app.transifex.com/otf/globaleaks/language/ta/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Tamil <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ta/>\n"
+"Language: ta\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ta\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "உயர்"
 msgid "Hint"
 msgstr "சாடைக்குறிப்பு"
 
+#, fuzzy
 msgid "Home"
 msgstr "முகப்பு"
 
@@ -1332,10 +1336,12 @@ msgid ""
 "deselected:"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "பின்வரும் படி படிப்படியாக உங்கள் விசிலடிக்கும் தளம் உருவாக்குவதன் மூலம் உங்களுக்கு வழிகாட்டும்."
+msgstr ""
+"பின்வரும் படி படிப்படியாக உங்கள் விசிலடிக்கும் தளம் உருவாக்குவதன் மூலம் உங்களுக்கு வழிகாட்டும்."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1606,6 +1612,7 @@ msgstr "உங்கள் புதிய மின்னஞ்சல் மு
 msgid "Your report was successful."
 msgstr "உங்கள் சமர்ப்பிப்பு வெற்றியடைந்தது."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "உங்கள் விசிலடிக்கும் தளம் கிட்டத்தட்ட தயாராக உள்ளது!"
 
@@ -1745,6 +1752,7 @@ msgstr "Kind regards,"
 msgid "Account activation"
 msgstr ""
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "இப்போது உங்கள் விசிலடிக்கும் தளம் இப்போது அணுகக்கூடியது:"
 
@@ -1791,6 +1799,7 @@ msgstr "ஒரு செல்லுபடியாகும் PGP முக்
 msgid "PGP key expiration alert"
 msgstr "பிஜிபி முக்கிய காலாவதி எச்சரிக்கை"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "ஒரு புதிய விசிலடிக்கும் தளம் பதிவு செய்யப்பட்டுள்ளது."
 
@@ -1806,6 +1815,7 @@ msgstr "பெயர்: {Name}"
 msgid "Email: {Email}"
 msgstr "மின்னஞ்சல்: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "புதிய விசில்ப்ளேஸ் தளம் பதிவுசெய்யப்பட்டது"
 
@@ -1843,6 +1853,7 @@ msgstr "இருந்து: {Author}"
 msgid "Date: {EventTime}"
 msgstr "தேதி: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "இருந்து: விசில்ப்ளோயர்"
 
@@ -1884,10 +1895,13 @@ msgstr "கணினி முயற்சிக்கும்."
 msgid "Failed HTTPS certificate renewal"
 msgstr "தோல்வியடைந்த HTTPS சான்றிதழ் புதுப்பித்தல்"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "சமர்ப்பிப்பு {TipNum} க்கு விஸ்டிபிலிங் அடையாளத்தை அணுகல் ஒரு பாதுகாவலர் உங்களுக்கு அங்கீகாரம் அளித்துள்ளதை உங்களுக்கு தெரிவிக்கும் மின்னஞ்சலாகும்."
+msgstr ""
+"சமர்ப்பிப்பு {TipNum} க்கு விஸ்டிபிலிங் அடையாளத்தை அணுகல் ஒரு பாதுகாவலர் உங்களுக்கு அங்கீகாரம் "
+"அளித்துள்ளதை உங்களுக்கு தெரிவிக்கும் மின்னஞ்சலாகும்."
 
 msgid "The report can be accessed at:"
 msgstr "சமர்ப்பிப்பு அணுகலாம்:"

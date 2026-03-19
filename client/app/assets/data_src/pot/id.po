@@ -30,13 +30,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Arif Budiman <arifbudiman@gmail.com>, 2015,2025\n"
-"Language-Team: Indonesian (http://app.transifex.com/otf/globaleaks/language/id/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Indonesian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/id/>\n"
+"Language: id\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -607,6 +610,7 @@ msgstr "Tinggi"
 msgid "Hint"
 msgstr "Petunjuk"
 
+#, fuzzy
 msgid "Home"
 msgstr "Beranda "
 
@@ -1355,10 +1359,13 @@ msgid ""
 "deselected:"
 msgstr "Penerima berikut akan menerima laporan Anda dan tidak dapat dibatalkan."
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Prosedur berurutan berikut akan memandu pembuatan platform laporan informasi publik anda."
+msgstr ""
+"Prosedur berurutan berikut akan memandu pembuatan platform laporan informasi "
+"publik anda."
 
 msgid "The link will expire in 7 days."
 msgstr "Tautan akan kadaluwarsa dalam 7 hari."
@@ -1557,12 +1564,17 @@ msgstr "Menunggu berkas untuk selesai diunggah."
 msgid "Warning"
 msgstr "Peringatan"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Kami menyarankan memilih opsi ini jika Anda ingin melindungi data agar tidak hilang dalam situasi saat penerima kehilangan kata sandinya. Di sisi lain, kami tidak menyarankan menggunakan fitur ini jika Anda ingin mengatur sebuah sistem di mana hanya penerima yang dapat mengakses kiriman."
+msgstr ""
+"Kami menyarankan memilih opsi ini jika Anda ingin melindungi data agar tidak "
+"hilang dalam situasi saat penerima kehilangan kata sandinya. Di sisi lain, "
+"kami tidak menyarankan menggunakan fitur ini jika Anda ingin mengatur sebuah "
+"sistem di mana hanya penerima yang dapat mengakses kiriman."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1629,6 +1641,7 @@ msgstr "Alamat surel baru Anda sudah divalidasi "
 msgid "Your report was successful."
 msgstr "Laporan Anda telah berhasil."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Platform laporan informasi publik Anda hampir selesai!"
 
@@ -1768,6 +1781,7 @@ msgstr "Salam,"
 msgid "Account activation"
 msgstr "Aktivasi akun"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Platform laporan informasi publik Anda sekarang dapat diakses di:"
 
@@ -1814,6 +1828,7 @@ msgstr "Tanpa kunci PGP yang sah, sistem tidak akan dapat mengirim notifikasi te
 msgid "PGP key expiration alert"
 msgstr "Peringatan kedaluwarsa Kunci PGP "
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Sebuah situs laporan informasi publik yang baru telah terdaftar."
 
@@ -1829,6 +1844,7 @@ msgstr "Nama: {Name}"
 msgid "Email: {Email}"
 msgstr "Surel: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Situs laporan informasi publik yang baru telah terdaftar"
 
@@ -1866,6 +1882,7 @@ msgstr "Dari: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Tanggal: {EventTime} "
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Dari: Informan publik"
 
@@ -1907,10 +1924,13 @@ msgstr "Sistem akan terus mencoba."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Pembaruan sertifikat HTTPS gagal"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Surel ini memberi tahu Anda bahwa seorang pihak penjaga telah memberikan Anda akses terhadap identitas informan publik terkait laporannya {TipNum}."
+msgstr ""
+"Surel ini memberi tahu Anda bahwa seorang pihak penjaga telah memberikan "
+"Anda akses terhadap identitas informan publik terkait laporannya {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Laporan dapat diakses di:"
@@ -1918,10 +1938,13 @@ msgstr "Laporan dapat diakses di:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Akses ke identitas informan publik telah diizinkan."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Surel ini memberi tahu Anda bahwa seorang pihak penjaga telah menolak akses Anda terhadap identitas informan publik terkait laporannya {TipNum}."
+msgstr ""
+"Surel ini memberi tahu Anda bahwa seorang pihak penjaga telah menolak akses "
+"Anda terhadap identitas informan publik terkait laporannya {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Akses ke identitas informan publik telah ditolak "

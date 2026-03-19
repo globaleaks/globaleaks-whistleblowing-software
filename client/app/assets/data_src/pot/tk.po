@@ -10,13 +10,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Turkmen (http://app.transifex.com/otf/globaleaks/language/tk/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Turkmen <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/tk/>\n"
+"Language: tk\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: tk\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -587,6 +590,7 @@ msgstr "Ýokary"
 msgid "Hint"
 msgstr "Ýaňzytma"
 
+#, fuzzy
 msgid "Home"
 msgstr "Baş sahypa"
 
@@ -1335,10 +1339,13 @@ msgid ""
 "deselected:"
 msgstr "Aşakdaky alyjylar hasabatyňyzy alarlar we yza saýlanyp bilinmez:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Aşakdaky ädimme-ädim prosedura size gizlin habar ýetiriji platforma döretmek üçin ýol görkezer."
+msgstr ""
+"Aşakdaky ädimme-ädim prosedura size gizlin habar ýetiriji platforma döretmek "
+"üçin ýol görkezer."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1537,12 +1544,17 @@ msgstr "Faýl (lar) ýüklemegiň gutarmagyna garaşylýar."
 msgid "Warning"
 msgstr "Duýduryş"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Alyjylaryň parollaryny ýitiren ýagdaýynda maglumatlary ýitirmekden goramak isleseňiz, bu opsiýany saýlamagy maslahat berýäris. Başga bir tarapdan, diňe alyjylaryň tabşyryklara girip bilýän ulgamyny gurmak isleseňiz, bu aýratynlygy ulanmagy maslahat bermeýäris."
+msgstr ""
+"Alyjylaryň parollaryny ýitiren ýagdaýynda maglumatlary ýitirmekden goramak "
+"isleseňiz, bu opsiýany saýlamagy maslahat berýäris. Başga bir tarapdan, diňe "
+"alyjylaryň tabşyryklara girip bilýän ulgamyny gurmak isleseňiz, bu "
+"aýratynlygy ulanmagy maslahat bermeýäris."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1609,6 +1621,7 @@ msgstr "Täze email salgyňyz tassyklandy."
 msgid "Your report was successful."
 msgstr "Hasabatyňyz üstünlikli boldy."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Gizlin habar ýetiriji platformaňyz taýyn diýen ýaly!"
 
@@ -1748,6 +1761,7 @@ msgstr "Hormat bilen,"
 msgid "Account activation"
 msgstr "Hasaby işjeňleşdirmek"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Gizlin habar ýetiriji platformaňyz indi elýeterli:"
 
@@ -1794,6 +1808,7 @@ msgstr "Dogry PGP açary bolmasa ulgam şifrlenen habarnamalary iberip bilmez."
 msgid "PGP key expiration alert"
 msgstr "PGP açarynyň möhletiniň dolma duýduryşy"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Täze gizlin habar ýetiriji sahypa hasaba alyndy."
 
@@ -1809,6 +1824,7 @@ msgstr "Ady: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}\n "
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Täze gizlin habar ýetiriji sahypa hasaba alyndy."
 
@@ -1846,6 +1862,7 @@ msgstr "Kimden: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Sene: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Kimden: Gizlin habar ýetiriji"
 
@@ -1887,10 +1904,13 @@ msgstr "Ulgam synanyşmagyny dowam etdirer."
 msgid "Failed HTTPS certificate renewal"
 msgstr " HTTPS şahadatnamasynyň täzelenmegi şowsuz"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Bu, gözegçiniň hasabat üçin gizlin habar ýetirijiniň şahsyýet hasabyna girmäge ygtyýar berendigini habar bermek üçin email {TipNum}."
+msgstr ""
+"Bu, gözegçiniň hasabat üçin gizlin habar ýetirijiniň şahsyýet hasabyna "
+"girmäge ygtyýar berendigini habar bermek üçin email {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Hasabata şu ýerden girip bilersiňiz:"
@@ -1898,10 +1918,13 @@ msgstr "Hasabata şu ýerden girip bilersiňiz:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Gizlin habar ýetirijiň şahsyýetine girmek ygtyýar berildi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Bu, gözegçiniň hasabat üçin gizlin habar ýetirijiniň şahsyýet hasabyna girmäge ret edendigi barada habar bermek üçin email {TipNum}."
+msgstr ""
+"Bu, gözegçiniň hasabat üçin gizlin habar ýetirijiniň şahsyýet hasabyna "
+"girmäge ret edendigi barada habar bermek üçin email {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Gizlin habar ýetirijiň şahsyýetine girmek ret edildi"

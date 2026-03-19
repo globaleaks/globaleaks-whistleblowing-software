@@ -6,13 +6,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: 0f41b5a358484c50d812a80e7387c7ca_b389158 <e89646e3c4143fd4f5c23fbc4ae4882b_892000>, 2020\n"
-"Language-Team: Lithuanian (http://app.transifex.com/otf/globaleaks/language/lt/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Lithuanian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/lt/>\n"
+"Language: lt\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: lt\n"
-"Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);\n"
+"Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
+"11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 "
+": n % 1 != 0 ? 2: 3);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +588,7 @@ msgstr "Aukštas"
 msgid "Hint"
 msgstr "Užuomina"
 
+#, fuzzy
 msgid "Home"
 msgstr "Pradžia"
 
@@ -1331,10 +1337,13 @@ msgid ""
 "deselected:"
 msgstr "Jūsų pranešimą gaus šie gavėjai, kurių atšaukti nebegalima:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Toliau pateikiama išsami procedūra padės jums sukurti pranešimo apie pažeidimus platformą."
+msgstr ""
+"Toliau pateikiama išsami procedūra padės jums sukurti pranešimo apie "
+"pažeidimus platformą."
 
 msgid "The link will expire in 7 days."
 msgstr "Nuoroda baigs galioti po 7 dienų."
@@ -1533,12 +1542,17 @@ msgstr "Laukiama, kol failas(-ai) bus įkeltas (-i)."
 msgid "Warning"
 msgstr "Įspėjimas"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Patariame pasirinkti šią parinktį, jei norite apsaugoti duomenis nuo praradimo tuo atveju, jei gavėjai prarastų savo slaptažodžius. Kita vertus, nepatariame naudoti šios funkcijos, jei norite nustatyti sistemą, kurioje tik gavėjai gali pasiekti pateikimus."
+msgstr ""
+"Patariame pasirinkti šią parinktį, jei norite apsaugoti duomenis nuo "
+"praradimo tuo atveju, jei gavėjai prarastų savo slaptažodžius. Kita vertus, "
+"nepatariame naudoti šios funkcijos, jei norite nustatyti sistemą, kurioje "
+"tik gavėjai gali pasiekti pateikimus."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1605,6 +1619,7 @@ msgstr "Jūsų naujas el. pašto adresas patvirtintas."
 msgid "Your report was successful."
 msgstr "Jūsų pranešimas įkeltas."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Jūsų pranešimų platforma beveik paruošta!"
 
@@ -1744,6 +1759,7 @@ msgstr "Pagarbiai"
 msgid "Account activation"
 msgstr "Paskyros aktyvavimas"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Jūsų pranešimų platforma dabar pasiekiama šiuo adresu:"
 
@@ -1790,6 +1806,7 @@ msgstr "Be galiojančio PGP rakto sistema negalės siųsti jiems šifruotų pran
 msgid "PGP key expiration alert"
 msgstr "Įspėjimas apie PGP rakto galiojimo pabaigą"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Užregistruota nauja pranešimų apie pažeidimus svetainė."
 
@@ -1805,6 +1822,7 @@ msgstr "Pavadinimas: {Name}"
 msgid "Email: {Email}"
 msgstr "El. paštas: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Užregistruota nauja pranešimų apie pažeidimus svetainė"
 
@@ -1842,6 +1860,7 @@ msgstr "Nuo: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Nuo: Pranešėjas"
 
@@ -1883,10 +1902,13 @@ msgstr "Sistema bandys toliau."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS sertifikato atnaujinti nepavyko"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Šiuo el. laišku pranešama, kad saugotojas suteikė jums teisę sužinoti pranešimo pranešėjo tapatybę {TipNum}."
+msgstr ""
+"Šiuo el. laišku pranešama, kad saugotojas suteikė jums teisę sužinoti "
+"pranešimo pranešėjo tapatybę {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Pranešimą rasite:"
@@ -1894,10 +1916,13 @@ msgstr "Pranešimą rasite:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Leidimas susipažinti su pranešėjo tapatybe"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Šiuo el. laišku pranešama, kad saugotojas atsisakė suteikti prieigą prie pranešimo pranešėjo tapatybės {TipNum}."
+msgstr ""
+"Šiuo el. laišku pranešama, kad saugotojas atsisakė suteikti prieigą prie "
+"pranešimo pranešėjo tapatybės {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Neleidžiama susipažinti su pranešėjo tapatybe"

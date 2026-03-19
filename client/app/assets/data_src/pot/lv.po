@@ -10,13 +10,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Krista, 2022\n"
-"Language-Team: Latvian (http://app.transifex.com/otf/globaleaks/language/lv/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Latvian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/lv/>\n"
+"Language: lv\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: lv\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -587,6 +590,7 @@ msgstr "Augsts"
 msgid "Hint"
 msgstr "Mājiens"
 
+#, fuzzy
 msgid "Home"
 msgstr "Mājas"
 
@@ -1335,10 +1339,13 @@ msgid ""
 "deselected:"
 msgstr "Tālāk norādītie adresāti saņems jūsu ziņojumu, un atlasi nevarēs noņemt:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Tālāk sniegtā procedūra palīdzēs jums izveidot jūsu trauksmes celšanas platformu."
+msgstr ""
+"Tālāk sniegtā procedūra palīdzēs jums izveidot jūsu trauksmes celšanas "
+"platformu."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1537,12 +1544,17 @@ msgstr "Gaida līdz fails(-i) tiks augšupielādēts(-i)."
 msgid "Warning"
 msgstr "Brīdinājums"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Mēs iesakām izvēlēties šo opciju, ja vēlaties aizsargāt datus no pazušanas situācijā, kad saņēmēji pazaudē savas paroles. No otras puses, mēs neiesakām izmantot šo funkciju, ja vēlaties iestatīt sistēmu, kurā tikai saņēmēji var piekļūt iesniegumiem."
+msgstr ""
+"Mēs iesakām izvēlēties šo opciju, ja vēlaties aizsargāt datus no pazušanas "
+"situācijā, kad saņēmēji pazaudē savas paroles. No otras puses, mēs neiesakām "
+"izmantot šo funkciju, ja vēlaties iestatīt sistēmu, kurā tikai saņēmēji var "
+"piekļūt iesniegumiem."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1609,6 +1621,7 @@ msgstr "Jūsu jaunā e-pasta adrese ir apstiprināta."
 msgid "Your report was successful."
 msgstr "Jūsu ziņojums veiksmīgi saņemts."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Jūsu trauksmes celšanas platforma ir gandrīz gatava!"
 
@@ -1748,6 +1761,7 @@ msgstr "Ar cieņu"
 msgid "Account activation"
 msgstr "Konta aktivizēšana"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Jūsu trauksmes celšanas platforma tagad ir pieejama vietnē:"
 
@@ -1794,6 +1808,7 @@ msgstr "Bez derīgas PGP atslēgas sistēma nevarēs viņiem nosūtīt šifrētu
 msgid "PGP key expiration alert"
 msgstr "Brīdinājums par PGP atslēgas derīguma termiņu"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Ir reģistrēta jauna trauksmes celšanas vietne."
 
@@ -1809,6 +1824,7 @@ msgstr "Vārds: {Name}"
 msgid "Email: {Email}"
 msgstr "E-pasts: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Reģistrēta jauna trauksmes celšanas vietne"
 
@@ -1846,6 +1862,7 @@ msgstr "No: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datums: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "No: Trauksmes cēlējs"
 
@@ -1887,10 +1904,13 @@ msgstr "Sistēma turpinās mēģināt."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Neizdevās atjaunot HTTPS sertifikātu"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Šis ir e-pasta ziņojums, lai informētu, ka pārzinis ir pilnvarojis jūs piekļūt ziņojuma iesniedzēja identitātei {TipNum}."
+msgstr ""
+"Šis ir e-pasta ziņojums, lai informētu, ka pārzinis ir pilnvarojis jūs "
+"piekļūt ziņojuma iesniedzēja identitātei {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Ziņojumam var piekļūt:"
@@ -1898,10 +1918,13 @@ msgstr "Ziņojumam var piekļūt:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Piekļuve trauksmes cēlēja identitātei ir atļauta"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Šis ir e-pasta ziņojums, lai informētu, ka pārzinis ir liedzis jums piekļuvi ziņojuma iesniedzēja identitātei {TipNum}."
+msgstr ""
+"Šis ir e-pasta ziņojums, lai informētu, ka pārzinis ir liedzis jums piekļuvi "
+"ziņojuma iesniedzēja identitātei {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Piekļuve trauksmes cēlēja identitātei liegta"
