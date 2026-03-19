@@ -451,7 +451,21 @@ module.exports = function(grunt) {
   }
 
   function downloadWeblatePo(langCode, cb) {
-    const url = weblateApi(`/translations/${weblateProject}/${weblateComponent}/${langCode}/file/`);
+    const weblateLangCodeMap = {
+      "fa_AF": "prs",
+      "ku_IQ": "ckb_IQ",
+      "sr_ME": "cnr",
+      "sr_RS@latin": "sr_Latn",
+      "ug@Cyrl": "ug@cyrl",
+      "ug@Latin": "ug@latin",
+      "zh_CN": "zh_Hans",
+      "zh_HK": "zh_Hant_HK",
+      "zh_TW": "zh_Hant"
+    };
+
+    let weblateLangCode = weblateLangCodeMap[langCode] || langCode;
+
+    const url = weblateApi(`/translations/${weblateProject}/${weblateComponent}/${weblateLangCode}/file/`);
     grunt.file.mkdir("app/assets/data_src/pot");
 
     const outPath = `app/assets/data_src/pot/${langCode}.po`;
