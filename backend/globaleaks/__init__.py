@@ -6,7 +6,7 @@ import operator
 __author__ = 'GlobaLeaks'
 __email__ = 'info@globaleaks.org'
 __copyright__ = '2011-2026 - GlobaLeaks'
-__version__ = '5.0.88'
+__version__ = '5.0.89'
 __license__ = 'AGPL-3.0'
 
 DATABASE_VERSION = 68
