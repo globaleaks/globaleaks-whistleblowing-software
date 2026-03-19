@@ -1,6 +1,6 @@
 {
   "name": "globaleaks",
-  "version": "5.0.88",
+  "version": "5.0.89",
   "scripts": {
     "test": "npx cypress run --browser=chromium",
     "eslint": "ng lint",

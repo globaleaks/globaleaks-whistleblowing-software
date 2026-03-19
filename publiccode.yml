@@ -1,11 +1,11 @@
 name: GlobaLeaks
-releaseDate: '2026-01-28'
+releaseDate: '2026-03-19'
 publiccodeYmlVersion: '0.5.0'
 url: 'https://github.com/globaleaks/globaleaks-whistleblowing-software'
 landingURL: 'https://www.globaleaks.org/'
 roadmap: "https://docs.globaleaks.org/en/stable/technical/roadmap.html"
 logo: brand/assets/svg/globaleaks-icon-color.svg
-softwareVersion: 5.0.88
+softwareVersion: 5.0.89
 softwareType: standalone/web
 developmentStatus: stable
 platforms:
