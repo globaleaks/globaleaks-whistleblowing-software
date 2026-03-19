@@ -28,13 +28,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025-2026\n"
-"Language-Team: Italian (http://app.transifex.com/otf/globaleaks/language/it/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Italian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/it/>\n"
+"Language: it\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: it\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
+"0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -109,7 +113,7 @@ msgid "Allow the recipient to edit the reports' expiration date"
 msgstr "Permetti al ricevente di modificare la data di scadenza dei report"
 
 msgid "Allow the recipient to delete reports"
-msgstr "Permetti a questo ricevente di cancellare le segnalazioni."
+msgstr "Permetti a questo ricevente di cancellare le segnalazioni"
 
 msgid "Allow the reporting person to add attachments"
 msgstr "Permetti alla persona segnalante di aggiungere allegati alla segnalazione"
@@ -605,6 +609,7 @@ msgstr "Alto"
 msgid "Hint"
 msgstr "Suggerimento"
 
+#, fuzzy
 msgid "Home"
 msgstr "Pagina iniziale"
 
@@ -1353,10 +1358,13 @@ msgid ""
 "deselected:"
 msgstr "I seguenti destinatari riceveranno la segnalazione e non possono essere deselezionati:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Completa la seguente procedura guidata per creare la tua piattaforma di sengnalazione."
+msgstr ""
+"Completa la seguente procedura guidata per creare la tua piattaforma di "
+"sengnalazione."
 
 msgid "The link will expire in 7 days."
 msgstr "Il link ha una validità di 7 giorni."
@@ -1555,12 +1563,17 @@ msgstr "In attesa che i file finiscano di essere caricati."
 msgid "Warning"
 msgstr "Attenzione"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Ti suggeriamo di selezionare questa opzione se vuoi proteggere i dati da perdita nella situazione in cui i riceventi perdessero la loro password. Al contrario, non ti suggeriamo di scegliere questa opzione se vuoi installare un sistema in cui solo i riceventi possano accedere alle segnalazioni."
+msgstr ""
+"Ti suggeriamo di selezionare questa opzione se vuoi proteggere i dati da "
+"perdita nella situazione in cui i riceventi perdessero la loro password. Al "
+"contrario, non ti suggeriamo di scegliere questa opzione se vuoi installare "
+"un sistema in cui solo i riceventi possano accedere alle segnalazioni."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1599,7 +1612,9 @@ msgstr "Si"
 msgid ""
 "You are connecting to the server without anonymity and this server supports "
 "only anonymous submissions"
-msgstr "Ti stai connettendo a questo nodo in maniera non anonima,  ed esso supporta solo trasmissioni anonime"
+msgstr ""
+"Ti stai connettendo a questo nodo in maniera non anonima, ed esso supporta "
+"solo trasmissioni anonime"
 
 msgid "You are entering a report received through other channels."
 msgstr "Stai inserendo una segnalazione ricevuta tramite altri canali."
@@ -1627,6 +1642,7 @@ msgstr "Il tuo nuovo indirizzo email è stato validato."
 msgid "Your report was successful."
 msgstr "La tua segnalazione è andata a buon fine."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "La tua piattaforma di whistleblowing è quasi pronta!"
 
@@ -1655,7 +1671,7 @@ msgid "Select a reporting channel:"
 msgstr "Scegli un canale di segnalazione:"
 
 msgid "Please summarize your report in a few words."
-msgstr "Descrivi in poche parole la tua segnalazione. "
+msgstr "Descrivi in poche parole la tua segnalazione."
 
 msgid "Describe your report in detail."
 msgstr "Descrivi la tua segnalazione in dettaglio."
@@ -1705,7 +1721,7 @@ msgstr "Hai segnalato i fatti ad altre organizzazioni o ad altri individui?"
 msgid ""
 "Please list the organizations and/or individuals you have informed about "
 "these facts."
-msgstr "Indica quali organizzazioni e/o individui hai informato dei fatti. "
+msgstr "Indica quali organizzazioni e/o individui hai informato dei fatti."
 
 msgid ""
 "Have these organizations investigated your claims? If so, what was the "
@@ -1766,6 +1782,7 @@ msgstr "Distinti saluti,"
 msgid "Account activation"
 msgstr "Attivazione account"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "La tua piattaforma di whistleblowing è ora accessibile all'indirizzo:"
 
@@ -1812,6 +1829,7 @@ msgstr "Senza una chiave PGP valida, il sistema non sarà in grado di inviare lo
 msgid "PGP key expiration alert"
 msgstr "Notifica di scadenza chiave PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Un nuovo sito di whistleblowing è stato registrato."
 
@@ -1827,6 +1845,7 @@ msgstr "Nome: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Nuovo sito di whistleblowing registrato"
 
@@ -1845,7 +1864,9 @@ msgstr "Email di test"
 msgid ""
 "This is an email to notify you that a request has been made to change your "
 "email address to {NewEmailAddress}."
-msgstr "Questa email è per notificarti di una nuova richiesta di cambio email verso  {NewEmailAddress}."
+msgstr ""
+"Questa email è per notificarti di una nuova richiesta di cambio email verso "
+"{NewEmailAddress}."
 
 msgid "Click the following link to validate this change:"
 msgstr "Clicca sul seguente indirizzo per validare questo cambio:"
@@ -1864,6 +1885,7 @@ msgstr "Da: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Da: Persona segnalante"
 
@@ -1905,10 +1927,13 @@ msgstr "Il sistema effetturerà automaticamente nuovi tentativi."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Fallimento nel rinnovo del certificato HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Con la presente email ti notifichiamo che un custode ti ha autorizzato ad accedere all'identità della persona segnalante per la segnalazione {TipNum}."
+msgstr ""
+"Con la presente email ti notifichiamo che un custode ti ha autorizzato ad "
+"accedere all'identità della persona segnalante per la segnalazione {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "La segnalazione può essere consultata accedendo all'indirizzo:"
@@ -1916,10 +1941,13 @@ msgstr "La segnalazione può essere consultata accedendo all'indirizzo:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Accesso all'identità della persona segnalante autorizzato"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Con la presente email ti notifichiamo che un custode ti ha negato l'accesso all'identità della persona segnalante per la segnalazione {TipNum}"
+msgstr ""
+"Con la presente email ti notifichiamo che un custode ti ha negato l'accesso "
+"all'identità della persona segnalante per la segnalazione {TipNum}"
 
 msgid "Access to reporting person's identity denied"
 msgstr "Accesso all'identità della persona segnalante negato"
@@ -1930,7 +1958,7 @@ msgid ""
 msgstr "Questa email è per informarti che un ricevente ha richiesto accesso all'identità della persona segnalante per la segnalazione {TipNum}"
 
 msgid "The request can be accessed at:"
-msgstr "La richiesta può  essere acceduta:"
+msgstr "La richiesta può essere acceduta:"
 
 msgid "New request of access to a reporting person's identity"
 msgstr "Nuova richiesta di accesso all'identità di una persona segnalante"

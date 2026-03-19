@@ -15,13 +15,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Søren Christensen, 2024\n"
-"Language-Team: Danish (http://app.transifex.com/otf/globaleaks/language/da/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Danish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/da/>\n"
+"Language: da\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: da\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -87,7 +90,7 @@ msgid "Admin"
 msgstr "Admin"
 
 msgid "Administrators authorized to change user passwords:"
-msgstr "Tillad administratorer at ændre brugeradgangskoder"
+msgstr "Tillad administratorer at ændre brugeradgangskoder:"
 
 msgid "Advanced"
 msgstr "Avanceret"
@@ -99,7 +102,7 @@ msgid "Allow the recipient to delete reports"
 msgstr "Tillad modtageren at slette indberetninger"
 
 msgid "Allow the reporting person to add attachments"
-msgstr "Tillad whistlebloweren at tilføje vedhæftelser til indsendelsen"
+msgstr "Tillad whistlebloweren at tilføje vedhæftninger til indsendelsen"
 
 msgid "Allow the reporting person to write comments"
 msgstr "Tillad whistlebloweren at skrive kommentarer"
@@ -117,7 +120,7 @@ msgid "An update is available:"
 msgstr "Der er tilgængelige opdateringer:"
 
 msgid "Analyst"
-msgstr "Analyst"
+msgstr "Analytiker"
 
 msgid "Anomalies"
 msgstr "Uregelmæssigheder"
@@ -183,7 +186,7 @@ msgid "Available disk space"
 msgstr "Tilgængelig diskplads"
 
 msgid "Before proceeding please read carefully the documentation at:"
-msgstr "Før du forsætter, gennemlæs venligst dokumentationen grundigt"
+msgstr "Før du forsætter, gennemlæs venligst dokumentationen grundigt:"
 
 msgid "Before proceeding, please enable the two factor authentication."
 msgstr "Aktivér venligst to-faktor-godkendelse inden du fortsætter."
@@ -592,6 +595,7 @@ msgstr "Høj"
 msgid "Hint"
 msgstr "Tips"
 
+#, fuzzy
 msgid "Home"
 msgstr "Hjem"
 
@@ -705,7 +709,7 @@ msgid "License"
 msgstr "Licens"
 
 msgid "Listen"
-msgstr ""
+msgstr "Lyt"
 
 msgid "Log accesses of internal users"
 msgstr "Log interne brugeres adgang"
@@ -824,7 +828,7 @@ msgid "None"
 msgstr "Ingen"
 
 msgid "Not provided."
-msgstr "Ikke leveret"
+msgstr "Ikke leveret."
 
 msgid "Notifications"
 msgstr "Underretninger"
@@ -842,7 +846,9 @@ msgid "Number"
 msgstr "Nummer"
 
 msgid "Number of days till notifying unread reports to users"
-msgstr " \nAntal dage indtil notifikation om ulæste rapporter til bliver sendt til brugerne"
+msgstr ""
+"Antal dage indtil notifikation om ulæste rapporter til bliver sendt til "
+"brugerne"
 
 msgid "Number of downloads"
 msgstr "Antal downloads"
@@ -973,7 +979,7 @@ msgid "Questions"
 msgstr "Spørgsmål"
 
 msgid "Read receipt"
-msgstr ""
+msgstr "Læs kvittering"
 
 msgid "Receivers"
 msgstr "Modtagere"
@@ -1120,7 +1126,7 @@ msgid "Save all"
 msgstr "Gem alle"
 
 msgid "Scan the QR code with the app"
-msgstr "Scan QR-koden med din mobile enhed."
+msgstr "Scan QR-koden med din mobile enhed"
 
 msgid "Scheduled jobs"
 msgstr "Planlagte kørsler"
@@ -1264,10 +1270,10 @@ msgid "Submit a report"
 msgstr "Indsend en rapportering"
 
 msgid "Subscribed"
-msgstr "Abonnerer "
+msgstr "Abonneret"
 
 msgid "Subscribed later"
-msgstr ""
+msgstr "Abonneret senere"
 
 msgid "Subscription date"
 msgstr "Tilmeld-dato"
@@ -1340,10 +1346,13 @@ msgid ""
 "deselected:"
 msgstr "De følgende modtagere modtager din rapport og kunne ikke fravælges:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "De følgende trin-for-trin-procedurer guider dig igennem opsætningen af din whistleblowing-platform."
+msgstr ""
+"De følgende trin-for-trin-procedurer guider dig igennem opsætningen af din "
+"whistleblowing-platform."
 
 msgid "The link will expire in 7 days."
 msgstr "Dette link vil udløbe om 7 dage."
@@ -1401,13 +1410,13 @@ msgid "The validation link is either incorrect or has expired."
 msgstr "Bekræftelseslinket er ugyldig eller udløbet."
 
 msgid "The reporting person has already read the last update"
-msgstr "Whistlebloweren har allerede læst den seneste opdatering."
+msgstr "Whistlebloweren har allerede læst den seneste opdatering"
 
 msgid "The reporting person has not read the last update yet"
-msgstr "Whistlebloweren har ikke læst den seneste opdatering endnu."
+msgstr "Whistlebloweren har ikke læst den seneste opdatering endnu"
 
 msgid "Then, copy and paste the following address into the Tor Browser:"
-msgstr "Kopier og indsæt følgende adresse i din Tor browser: "
+msgstr "Kopier og indsæt følgende adresse i din Tor browser:"
 
 msgid ""
 "This custom text is no longer displayed on the platform. The original text "
@@ -1542,12 +1551,17 @@ msgstr "Venter på at fil(er) er færdiguploadet."
 msgid "Warning"
 msgstr "Advarsel"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Vi anbefaler at vælge denne indstilling, hvis du vil beskytte data mod at gå tabt i en situation, hvor modtagere mister deres adgangskoder. På den anden side vil vi ikke anbefale at bruge denne funktion, hvis du vil konfigurere et system, hvor kun modtagere har adgang til indsendelser."
+msgstr ""
+"Vi anbefaler at vælge denne indstilling, hvis du vil beskytte data mod at gå "
+"tabt i en situation, hvor modtagere mister deres adgangskoder. På den anden "
+"side vil vi ikke anbefale at bruge denne funktion, hvis du vil konfigurere "
+"et system, hvor kun modtagere har adgang til indsendelser."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1589,7 +1603,7 @@ msgid ""
 msgstr "Du forbinder til serveren uden anonymitet og denne server tillader kun anonymiserede indsendelser"
 
 msgid "You are entering a report received through other channels."
-msgstr ""
+msgstr "Du åbner nu en rapport som er modtaget gennem andre kanaler."
 
 msgid ""
 "You are strongly advised to visit this site using the app called Tor "
@@ -1614,6 +1628,7 @@ msgstr "Din nye e-mail-adresse er blevet valideret."
 msgid "Your report was successful."
 msgstr "Din indsendelse er gennemført."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Din whistleblowing platform er næsten færdig!"
 
@@ -1753,6 +1768,7 @@ msgstr "Med venlig hilsen"
 msgid "Account activation"
 msgstr "Kontoaktivering"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Din whistleblowing-platform kan nu tilgås på:"
 
@@ -1799,6 +1815,7 @@ msgstr "Uden gyldig PGP-nøgle vil systemet ikke være i stand til at sende dem 
 msgid "PGP key expiration alert"
 msgstr "Advarsel om udløb af PGP-nøgle"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Et nyt whistleblowing-site er blevet registreret."
 
@@ -1814,6 +1831,7 @@ msgstr "Navn: {Name}"
 msgid "Email: {Email}"
 msgstr "E-mail: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Nyt whistleblowing-site registreret"
 
@@ -1851,6 +1869,7 @@ msgstr "Fra: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Dato: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Fra: Whistleblower"
 
@@ -1892,10 +1911,14 @@ msgstr "Systemet vil blive ved med at forsøge."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS-certifikatfornyelse fejlede."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Dette er en e-mail for at underrette dig om, at en tilsynsførende har autoriseret dig til at få adgang til whistleblowerens identitet i forbindelse med indsendelsen {TipNum}."
+msgstr ""
+"Dette er en e-mail for at underrette dig om, at en tilsynsførende har "
+"autoriseret dig til at få adgang til whistleblowerens identitet i "
+"forbindelse med indsendelsen {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Indberetningen kan tilgås på:"
@@ -1903,10 +1926,14 @@ msgstr "Indberetningen kan tilgås på:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Adgang til whistleblowers identitet godkendes"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Dette er en e-mail for at underrette dig om, at en tilsynsførende har autoriseret dig til at få adgang til whistleblowerens identitet i forbindelse med indsendelsen {TipNum}."
+msgstr ""
+"Dette er en e-mail for at underrette dig om, at en tilsynsførende har "
+"autoriseret dig til at få adgang til whistleblowerens identitet i "
+"forbindelse med indsendelsen {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Adgang til whistleblowers identitet afvist"

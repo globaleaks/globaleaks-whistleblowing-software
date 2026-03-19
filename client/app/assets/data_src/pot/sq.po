@@ -15,13 +15,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2026\n"
-"Language-Team: Albanian (http://app.transifex.com/otf/globaleaks/language/sq/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Albanian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/sq/>\n"
+"Language: sq\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sq\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -592,6 +595,7 @@ msgstr "I lartë"
 msgid "Hint"
 msgstr "Ndihmëz"
 
+#, fuzzy
 msgid "Home"
 msgstr "Kreu"
 
@@ -1340,10 +1344,13 @@ msgid ""
 "deselected:"
 msgstr "Marrësit vijues do ta marrin raportimin tuaj dhe për ta s’mund të hiqet përzgjedhja:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Procedura vijuese do t’ju udhëheqë hap pas hapi përgjatë krijimit të platformës tuaj për nxjerrje të fshehtash."
+msgstr ""
+"Procedura vijuese do t’ju udhëheqë hap pas hapi përgjatë krijimit të "
+"platformës tuaj për nxjerrje të fshehtash."
 
 msgid "The link will expire in 7 days."
 msgstr "Lidhja do të skadojë pas 7 ditësh"
@@ -1542,12 +1549,18 @@ msgstr "Po pritet që të përfundojë ngarkimi i kartelës(ave)."
 msgid "Warning"
 msgstr "Sinjalizim"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Këshillojmë përzgjedhjen e kësaj mundësie, nëse do të donit të mbronit të dhënat nga humbja, për raste kur marrësit humbin fjalëkalimet e tyre. Më anë tjetër, nuk do ta këshillonim përdorimin e kësaj veçori, nëse doni të ujdisni një sistem në të cilin vetëm marrësit janë në gjendje të hyjnë te parashtrime."
+msgstr ""
+"Këshillojmë përzgjedhjen e kësaj mundësie, nëse do të donit të mbronit të "
+"dhënat nga humbja, për raste kur marrësit humbin fjalëkalimet e tyre. Më anë "
+"tjetër, nuk do ta këshillonim përdorimin e kësaj veçori, nëse doni të "
+"ujdisni një sistem në të cilin vetëm marrësit janë në gjendje të hyjnë te "
+"parashtrime."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1614,6 +1627,7 @@ msgstr "Adresa juaj e re email është vleftësuar."
 msgid "Your report was successful."
 msgstr "Raportimi juaj qe i suksesshëm."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Platforma juaj për nxjerrje të fshehtash thuajse është gati!"
 
@@ -1753,6 +1767,7 @@ msgstr "Të fala,"
 msgid "Account activation"
 msgstr "Aktivizim llogarie"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Platforma juaj për nxjerrje të fshehtash tani mund të përdoret që nga:"
 
@@ -1799,6 +1814,7 @@ msgstr "Pa një kyç PGP të vlefshëm, sistemi s’do të jetë në gjendje t�
 msgid "PGP key expiration alert"
 msgstr "Sinjalizim skadimi kyçi PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "U regjistrua sajt i ri nxjerrjeje të fshehtash."
 
@@ -1814,6 +1830,7 @@ msgstr "Emër: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "U regjistrua sajt i ri nxjerrjeje të fshehtash"
 
@@ -1851,6 +1868,7 @@ msgstr "Nga: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Datë: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Nga: Nxjerrës të fshehte"
 
@@ -1892,10 +1910,13 @@ msgstr "Sistemi do të vazhdojë të provojë."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Dështim rinovimi dëshmie HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Ky është një email për t’ju njoftuar se një ruajtës ju ka autorizuar të njihni identitetin e nxjerrësit të së fshehtës për raportimin {TipNum}."
+msgstr ""
+"Ky është një email për t’ju njoftuar se një ruajtës ju ka autorizuar të "
+"njihni identitetin e nxjerrësit të së fshehtës për raportimin {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Raportimi mund të shihet te:"
@@ -1903,10 +1924,13 @@ msgstr "Raportimi mund të shihet te:"
 msgid "Access to reporting person's identity authorized"
 msgstr "U autorizua hyrje te identitet nxjerrësi të fshehte"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Ky është një email për t’ju njoftuar se një ruajtës ju ka mohuar njohjen e identitetit të nxjerrësit të së fshehtës për raportimin {TipNum}."
+msgstr ""
+"Ky është një email për t’ju njoftuar se një ruajtës ju ka mohuar njohjen e "
+"identitetit të nxjerrësit të së fshehtës për raportimin {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "U hodh poshtë hyrje te identitet nxjerrësi të fshehte"

@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2024\n"
-"Language-Team: Greenlandic (http://app.transifex.com/otf/globaleaks/language/kl/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Greenlandic <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/kl/>\n"
+"Language: kl\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: kl\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "Qaffasissoq"
 msgid "Hint"
 msgstr "Oqamisaarneq"
 
+#, fuzzy
 msgid "Home"
 msgstr "Angerlarsimaffik"
 
@@ -1332,10 +1336,14 @@ msgid ""
 "deselected:"
 msgstr "Tigusisussat uku nalunaarusiannik tigusissapput peerneqarsinnaanatillu:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Najoqqutassat tulleriissakkat uku pasinapiluttumik kalerriinermi paasissutissanik siammarterivimmi pilersitsiniarnerni aqqutissiutissavaatsit. "
+msgstr ""
+"Najoqqutassat tulleriissakkat uku pasinapiluttumik kalerriinermi "
+"paasissutissanik siammarterivimmi pilersitsiniarnerni "
+"aqqutissiutissavaatsit. "
 
 msgid "The link will expire in 7 days."
 msgstr "Linkeq ullut 7 qaangiuppata qaangiuttuussaaq"
@@ -1534,12 +1542,18 @@ msgstr "Filit uploadternerata naammassinissaa utaqqineqarput."
 msgid "Warning"
 msgstr "Mianersoqqussut"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Innersuutigissavarput, aalajangersagaq una paasissutissaativit tigusisussap isertaatimi annaaneratigut tammannginnissaannut illersorniarlugit  toqqassagit. Illua tungaani una atuuffik systemimik  tigusisussaq kisimi nassiunneqartunut isersinnaalertussanngorlugu pilersitserusukkuit  innersuussutiginngilarput."
+msgstr ""
+"Innersuutigissavarput, aalajangersagaq una paasissutissaativit tigusisussap "
+"isertaatimi annaaneratigut tammannginnissaannut illersorniarlugit  "
+"toqqassagit. Illua tungaani una atuuffik systemimik  tigusisussaq kisimi "
+"nassiunneqartunut isersinnaalertussanngorlugu pilersitserusukkuit  "
+"innersuussutiginngilarput."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1606,8 +1620,11 @@ msgstr "Emailadresse nutaaq uppernassusaa akuerineqarpoq"
 msgid "Your report was successful."
 msgstr "Nalunaarusiat iluatsippoq."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
-msgstr "Pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit naammassingajalerpoq!"
+msgstr ""
+"Pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit "
+"naammassingajalerpoq!"
 
 msgid "days"
 msgstr "ullut"
@@ -1745,8 +1762,11 @@ msgstr "Inussiarnersumik inuulluaqqusillunga,"
 msgid "Account activation"
 msgstr "Konto atuutilernissaa"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "Maanna pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit maana iserfigisinnaanngorpat: "
+msgstr ""
+"Maanna pasinapiluttumik kalerriinermi paasissutissanik siammarteriviit maana "
+"iserfigisinnaanngorpat: "
 
 msgid "To log in, visit:"
 msgstr "Isernissannut, una takuguk:"
@@ -1791,8 +1811,11 @@ msgstr "PGP-matuersaammik atuuttumik peqanngikkaanni systemi nalunaarutinik ille
 msgid "PGP key expiration alert"
 msgstr "PGP-matuersaat qaangiuttoornissaanut mianersoqqussut"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
-msgstr "Pasinapiluttumik kalerriinermi nutaamik nittartartakkamik nalunaarsugaqartoqarsimavoq."
+msgstr ""
+"Pasinapiluttumik kalerriinermi nutaamik nittartartakkamik "
+"nalunaarsugaqartoqarsimavoq."
 
 msgid "Registration data:"
 msgstr "Paasissutissat nalunaarsorneqartut:"
@@ -1806,6 +1829,7 @@ msgstr "Ateq: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Pasinapiluttumik kalerriinermi quppernermik nutaamik nalunaarsugaqarpoq"
 
@@ -1843,6 +1867,7 @@ msgstr "Uannga: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Ulloq: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Uannga: Whistlebloweri"
 
@@ -1884,10 +1909,14 @@ msgstr "Systemi misileeqattaasooq."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS-mik nutarteriniarneq iluatsinngitsoorpoq"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Tassani emailikkut nalunaarfigineqarputit depotforvalterip pisinnaatikkaatit nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaatillutit {TipNum}."
+msgstr ""
+"Tassani emailikkut nalunaarfigineqarputit depotforvalterip pisinnaatikkaatit "
+"nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaatillutit "
+"{TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Nalunaarusiaq uani takuneqarsinnaavoq: "
@@ -1895,10 +1924,14 @@ msgstr "Nalunaarusiaq uani takuneqarsinnaavoq: "
 msgid "Access to reporting person's identity authorized"
 msgstr "Whistleblowerip kinaassusersinneqarnissaanut akuerineqarpoq"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Tassani emailikkut nalunaarfigineqarputit depotforvalterip nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaanissat akuerinngikkaa {TipNum}."
+msgstr ""
+"Tassani emailikkut nalunaarfigineqarputit depotforvalterip "
+"nalunaarutiginiakkat pillugu whistleblowing-identitetimut isersinnaanissat "
+"akuerinngikkaa {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Whistleblowerip kinaassusaa paasinissaanut itigartinneqarpoq"

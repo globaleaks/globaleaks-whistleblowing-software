@@ -21,13 +21,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2022\n"
-"Language-Team: Romanian (http://app.transifex.com/otf/globaleaks/language/ro/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Romanian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ro/>\n"
+"Language: ro\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ro\n"
-"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -598,6 +602,7 @@ msgstr "Ridicat"
 msgid "Hint"
 msgstr "Indiciu"
 
+#, fuzzy
 msgid "Home"
 msgstr "Acasă"
 
@@ -1346,10 +1351,13 @@ msgid ""
 "deselected:"
 msgstr "Următorii destinatari vor primi avertizarea ta și nu pot fi deselectați:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Aceste instrucțiuni te vor ghida pas cu pas în procesul de creare a platformei tale pentru avertizori de integritate. "
+msgstr ""
+"Aceste instrucțiuni te vor ghida pas cu pas în procesul de creare a "
+"platformei tale pentru avertizori de integritate. "
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1548,12 +1556,17 @@ msgstr "Se așteaptă finalizarea încărcării fișierului(lor)."
 msgid "Warning"
 msgstr "Avertizare"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Vă recomandăm să selectați această opțiune dacă doriți să protejați datele împotriva pierderii în situația în care destinatarii își pierd parolele. Pe de altă parte, nu vă sfătuim să utilizați această caracteristică dacă doriți să configurați un sistem în care numai destinatarii pot accesa sesizările."
+msgstr ""
+"Vă recomandăm să selectați această opțiune dacă doriți să protejați datele "
+"împotriva pierderii în situația în care destinatarii își pierd parolele. Pe "
+"de altă parte, nu vă sfătuim să utilizați această caracteristică dacă doriți "
+"să configurați un sistem în care numai destinatarii pot accesa sesizările."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1620,6 +1633,7 @@ msgstr "Noua adresă de e-mail a fost validată."
 msgid "Your report was successful."
 msgstr "Ai trimis sesizarea cu succes."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Platforma ta pentru avertizorii de integritate este aproape gata!"
 
@@ -1759,6 +1773,7 @@ msgstr "Toate cele bune,"
 msgid "Account activation"
 msgstr "Activarea contului"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Platforma ta pentru avertizori de integritate este accesibilă la: "
 
@@ -1805,6 +1820,7 @@ msgstr "Fără o cheie PGP validă, sistemul nu va fi în măsură să le trimit
 msgid "PGP key expiration alert"
 msgstr "Alertă expirare cheie PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "A fost înregistrată o nouă platformă pentru avertizorii de integritate."
 
@@ -1820,6 +1836,7 @@ msgstr "Nume: {Name}"
 msgid "Email: {Email}"
 msgstr "E-mail: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Noua platformă pentru avertizorii de integritate înregistrată"
 
@@ -1857,6 +1874,7 @@ msgstr "De la: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Dată: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "De la: Avertizor de intergritate"
 
@@ -1898,10 +1916,13 @@ msgstr "Sistemul va continua să încerce."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Reînoirea certificatului HTTPS a eșuat."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Acesta este un e-mail pentru a te anunța că un custode te-a autorizat să accesezi identitatea avertizorului sesizării {TipNum}."
+msgstr ""
+"Acesta este un e-mail pentru a te anunța că un custode te-a autorizat să "
+"accesezi identitatea avertizorului sesizării {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Sesizarea poate fi accesată la:"
@@ -1909,10 +1930,13 @@ msgstr "Sesizarea poate fi accesată la:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Accesul la identitatea avertizorului a fost autorizat."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Acesta este un e-mail pentru a te anunța că un custode ți-a refuzat accesul la identitatea avertizorului sesizării {TipNum}."
+msgstr ""
+"Acesta este un e-mail pentru a te anunța că un custode ți-a refuzat accesul "
+"la identitatea avertizorului sesizării {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Accesul la identitatea avertizorului a fost respins."

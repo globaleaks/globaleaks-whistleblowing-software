@@ -5,13 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Pashto (http://app.transifex.com/otf/globaleaks/language/ps/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Pashto <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ps/>\n"
+"Language: ps\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ps\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -582,6 +585,7 @@ msgstr "لوړ"
 msgid "Hint"
 msgstr "اشاره"
 
+#, fuzzy
 msgid "Home"
 msgstr "کور"
 
@@ -1330,10 +1334,13 @@ msgid ""
 "deselected:"
 msgstr "لاندني تر لاسه کوونکي به ستاسې رپوت تر لاسه کړي او هغوی بیرته نشئ لري کولای:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "لاندنی ګام په ګام پروسیجر به تاسې د خپلې افشاګري د پلټفارم د جوړولو په برخه کې راهنمايي کړي."
+msgstr ""
+"لاندنی ګام په ګام پروسیجر به تاسې د خپلې افشاګري د پلټفارم د جوړولو په برخه "
+"کې راهنمايي کړي."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1532,12 +1539,18 @@ msgstr "فایل (ونو) ته منتظر یاست تر څو اپلوډینګ ب
 msgid "Warning"
 msgstr "خبرداری"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "زموږ مشوره دا ده تر څو دغه غوراوی وټاکئ په دې خاطر که چیرته غواړئ چې خپل اطلاعات مو د تر لاسه کوونکي کس له خوا د خپل پټ نوم د ورک کېدو په صورت کې خوندي وساتل شي. په بله وینا، موږ دا مشوره نه درکوو چې تاسې دا فیچر وکاروئ که چیرته غواړئ چې داسې سیستم نصب کړئ چیرته چې یوازې تر لاسه کوونکی کسان د دې جوګه واوسي چې سبمیشنونو ته لاسرسی ولري."
+msgstr ""
+"زموږ مشوره دا ده تر څو دغه غوراوی وټاکئ په دې خاطر که چیرته غواړئ چې خپل "
+"اطلاعات مو د تر لاسه کوونکي کس له خوا د خپل پټ نوم د ورک کېدو په صورت کې خوندي "
+"وساتل شي. په بله وینا، موږ دا مشوره نه درکوو چې تاسې دا فیچر وکاروئ که چیرته "
+"غواړئ چې داسې سیستم نصب کړئ چیرته چې یوازې تر لاسه کوونکی کسان د دې جوګه "
+"واوسي چې سبمیشنونو ته لاسرسی ولري."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1604,6 +1617,7 @@ msgstr "ستاسې نوې برېښنالیک پته تایید شوې ده."
 msgid "Your report was successful."
 msgstr "ستاسې رپوټ بریالی و."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "ستاسې د افشاګري پلټفارم چمتو دی!"
 
@@ -1743,6 +1757,7 @@ msgstr "په خورا درنښت،"
 msgid "Account activation"
 msgstr "د اکاونټ فعالول"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "ستاسې د افشاګری پلټفارم اوس دلته د لاسرسي وړ دی:"
 
@@ -1789,6 +1804,7 @@ msgstr "د یوه معتبر PGP رمز پرته، سیستم نشي کولای 
 msgid "PGP key expiration alert"
 msgstr "د PGP د رمز د انقضاء خبرتیا"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "د افشاګري نوی سایټ ثبت شو."
 
@@ -1804,6 +1820,7 @@ msgstr "نوم: {Name}"
 msgid "Email: {Email}"
 msgstr "برېښنالیک: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "د افشاګري نوی سایټ ثبت شوی دی"
 
@@ -1841,6 +1858,7 @@ msgstr "له خوا: {Author}"
 msgid "Date: {EventTime}"
 msgstr "نېټه: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "له خوا: افشاګر"
 
@@ -1882,10 +1900,13 @@ msgstr "دغه سیستم به خپلو هڅو ته دوام ورکړي."
 msgid "Failed HTTPS certificate renewal"
 msgstr "د ناکامه شوي HTTPS د تصدیق لیک بیا نوی کول"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "دا برېښنالیک تاسې خبروي چې یوه ساتونکي تاسې ته اجازه درکړي ده تر څو د همدې رپوت لپاره د افشاګر پیژندګلوي ته لاسرسی ولری {TipNum}."
+msgstr ""
+"دا برېښنالیک تاسې خبروي چې یوه ساتونکي تاسې ته اجازه درکړي ده تر څو د همدې "
+"رپوت لپاره د افشاګر پیژندګلوي ته لاسرسی ولری {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "دغه رپوټ ته کېدای شي لاندې لاسرسی ولری:"
@@ -1893,10 +1914,13 @@ msgstr "دغه رپوټ ته کېدای شي لاندې لاسرسی ولری:"
 msgid "Access to reporting person's identity authorized"
 msgstr "د افشاګر پیژندګلوي ته لاسرسی مجاز شوی"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "دا برېښنالیک تاسې خبروي چې یوه ساتونکي د رپوت لپاره د افشاګر پیژندګلوي ته ستاسې لاسرسی رد کړی دی {TipNum}."
+msgstr ""
+"دا برېښنالیک تاسې خبروي چې یوه ساتونکي د رپوت لپاره د افشاګر پیژندګلوي ته "
+"ستاسې لاسرسی رد کړی دی {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "د افشاګر پیژندګلوي ته لاسرسی رد شو"

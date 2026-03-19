@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Merle Mändmets, 2023\n"
-"Language-Team: Estonian (http://app.transifex.com/otf/globaleaks/language/et/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Estonian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/et/>\n"
+"Language: et\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: et\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "Kõrge"
 msgid "Hint"
 msgstr "Vihje"
 
+#, fuzzy
 msgid "Home"
 msgstr "Avaleht"
 
@@ -1331,10 +1335,12 @@ msgid ""
 "deselected:"
 msgstr "Järgmised saajad saavad teie teavituse ning nende valikut ei saanud tühistada:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Järgnev sammsammuline juhend aitab teil luua oma vihjeandmise platvormi."
+msgstr ""
+"Järgnev sammsammuline juhend aitab teil luua oma vihjeandmise platvormi."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1533,12 +1539,17 @@ msgstr "Oodake, kuni fail(id) on üles laaditud."
 msgid "Warning"
 msgstr "Hoiatus"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Soovitame valida selle suvandi, kui soovite kaitsta andmeid kaotsimineku eest olukorras, kus saajad kaotavad oma paroolid. Teisest küljest ei soovita me seda funktsiooni kasutada, kui soovite seadistada süsteemi, kus ainult saajad pääsevad teabeesitustele ligi."
+msgstr ""
+"Soovitame valida selle suvandi, kui soovite kaitsta andmeid kaotsimineku "
+"eest olukorras, kus saajad kaotavad oma paroolid. Teisest küljest ei soovita "
+"me seda funktsiooni kasutada, kui soovite seadistada süsteemi, kus ainult "
+"saajad pääsevad teabeesitustele ligi."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1605,6 +1616,7 @@ msgstr "Teie uus meiliaadress on valideeritud."
 msgid "Your report was successful."
 msgstr "Teie teavitus on esitatud."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Teie vihjeandmise platvorm on peaaegu valmis."
 
@@ -1744,6 +1756,7 @@ msgstr "Lugupidamisega"
 msgid "Account activation"
 msgstr "Konto aktiveerimine"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Teie vihjeandmise platvorm on nüüd ligipääsetav aadressil:"
 
@@ -1790,6 +1803,7 @@ msgstr "Ilma kehtiva PGP võtmeta ei saa süsteem neile krüptitud teavitusi saa
 msgid "PGP key expiration alert"
 msgstr "PGP võtme aegumise hoiatus"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Uus vihjeandmise sait on registreeritud."
 
@@ -1805,6 +1819,7 @@ msgstr "Nimi: {Name}"
 msgid "Email: {Email}"
 msgstr "Meiliaadress: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Uus vihjeandmise sait registreeritud"
 
@@ -1842,6 +1857,7 @@ msgstr "Saatja: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Kuupäev: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Saatja: vihjeandja"
 
@@ -1883,10 +1899,13 @@ msgstr "Süsteem jätkab üritamist."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Nurjunud HTTPS-i sertifikaadi uuendamine"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Käesoleva meiliga teatame, et hoidja on andnud teile õiguse vaadata teavituse {TipNum} vihjeandja isikuandmeid."
+msgstr ""
+"Käesoleva meiliga teatame, et hoidja on andnud teile õiguse vaadata "
+"teavituse {TipNum} vihjeandja isikuandmeid."
 
 msgid "The report can be accessed at:"
 msgstr "Teavitust saab vaadata järgmisel aadressil:"
@@ -1894,10 +1913,13 @@ msgstr "Teavitust saab vaadata järgmisel aadressil:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Vihjeandja isikuandmete vaatamise õigus antud"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Käesoleva meiliga teatame, et hoidja ei andnud teile õigust vaadata teavituse {TipNum} vihjeandja isikuandmeid."
+msgstr ""
+"Käesoleva meiliga teatame, et hoidja ei andnud teile õigust vaadata "
+"teavituse {TipNum} vihjeandja isikuandmeid."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Vihjeandja isikuandmete vaatamise õigust ei antud"

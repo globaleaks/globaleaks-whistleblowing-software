@@ -12,13 +12,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2017-2018,2020-2022\n"
-"Language-Team: Azerbaijani (http://app.transifex.com/otf/globaleaks/language/az/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Azerbaijani <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/az/>\n"
+"Language: az\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: az\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -589,6 +592,7 @@ msgstr "Yuksək"
 msgid "Hint"
 msgstr "Göstəriş"
 
+#, fuzzy
 msgid "Home"
 msgstr "Ana Səhifə "
 
@@ -1337,10 +1341,13 @@ msgid ""
 "deselected:"
 msgstr "Bu alıcılar hesabatınızı alacaq və onlarla bağlı seçimi ləğv etmək olmaz:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Aşağıdakı prosedur məlumatlandırma platformanızı yaratmaqda sizə addım-addım yardım edəcək."
+msgstr ""
+"Aşağıdakı prosedur məlumatlandırma platformanızı yaratmaqda sizə addım-addım "
+"yardım edəcək."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1539,12 +1546,17 @@ msgstr "Faylın (faylların) yüklənməsinin bitməsini gözləyir."
 msgid "Warning"
 msgstr "Xəbərdarlıq"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Alıcılar öz parollarını itirdikdə belə, məlumatlarını mühafizə edə bilsinlər deyə, bu seçimdən istifadə etməyi məsləhət görürük. Digər tərəfdən, göndərmələri yalnız alıcıların əldə edə biləcəyi sistem yaratmaq istəyirsizsə, bu funksiyadan istifadə etməməyinizi tövsiyə edirik."
+msgstr ""
+"Alıcılar öz parollarını itirdikdə belə, məlumatlarını mühafizə edə bilsinlər "
+"deyə, bu seçimdən istifadə etməyi məsləhət görürük. Digər tərəfdən, "
+"göndərmələri yalnız alıcıların əldə edə biləcəyi sistem yaratmaq "
+"istəyirsizsə, bu funksiyadan istifadə etməməyinizi tövsiyə edirik."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1611,6 +1623,7 @@ msgstr "Yeni email ünvanınız təsdiqləndi."
 msgid "Your report was successful."
 msgstr "Sizin təqdimatınız uğurlu oldu."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Məlumatlandırma platformanız hazırlanır!"
 
@@ -1750,6 +1763,7 @@ msgstr "Xoş arzularla,"
 msgid "Account activation"
 msgstr "Hesab aktivasiyası"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Məlumatlandırma platformanız əlçatandır:"
 
@@ -1796,6 +1810,7 @@ msgstr "Etibarlı PGP açarı olmadan sistem şifrəli bildirişlər göndərə 
 msgid "PGP key expiration alert"
 msgstr "PGP açarı müddətinin başa çatması haqda xəbərdarlıq "
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Yeni məlumatlandırma saytı qeydə alınıb."
 
@@ -1811,6 +1826,7 @@ msgstr "Ad: {Name}"
 msgid "Email: {Email}"
 msgstr "Emeyl: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Yeni məlumatlandırma saytı qeydə alındı"
 
@@ -1848,6 +1864,7 @@ msgstr "Kimdən: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Tarix: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Kimdən: İnformasiya ötürəndən"
 
@@ -1889,10 +1906,13 @@ msgstr "Sistem cəhdə davam edəcək."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS sertifikat yenilənməsi xətası"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Bu məktub sizə, məlumatlandırma platformasına keçidinizin mühafizəçi tərəfindən təsdiqləndiyini bildirməkçün göndərilib {TipNum}."
+msgstr ""
+"Bu məktub sizə, məlumatlandırma platformasına keçidinizin mühafizəçi "
+"tərəfindən təsdiqləndiyini bildirməkçün göndərilib {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Hesabat əldə edilə bilər:"
@@ -1900,10 +1920,13 @@ msgstr "Hesabat əldə edilə bilər:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Məlumatlandırma platformasına keçidə icazə verildi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Bu məktub sizə, məlumatlandırma platformasına keçidinizin mühafizəçi tərəfindən təsdiqlənmədiyini bildirməkçün göndərilib {TipNum}."
+msgstr ""
+"Bu məktub sizə, məlumatlandırma platformasına keçidinizin mühafizəçi "
+"tərəfindən təsdiqlənmədiyini bildirməkçün göndərilib {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Məlumatlandırma platformasına keçid rədd edildi"

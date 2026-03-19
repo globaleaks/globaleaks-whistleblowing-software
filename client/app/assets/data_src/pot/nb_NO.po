@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>, 2014-2018\n"
-"Language-Team: Norwegian Bokmål (Norway) (http://app.transifex.com/otf/globaleaks/language/nb_NO/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Norwegian Bokmål <https://localizationlab.weblate.cloud/"
+"projects/globaleaks/stable/nb_NO/>\n"
+"Language: nb_NO\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nb_NO\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "Høy"
 msgid "Hint"
 msgstr "Hint"
 
+#, fuzzy
 msgid "Home"
 msgstr "Hjem"
 
@@ -1332,10 +1336,13 @@ msgid ""
 "deselected:"
 msgstr "Følgende mottakere vil motta din rapport og kunne ikke fravelges:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Denne stegvise prosedyren vil geleide deg gjennom opprettelse av din fløyteblåser-plattform."
+msgstr ""
+"Denne stegvise prosedyren vil geleide deg gjennom opprettelse av din "
+"fløyteblåser-plattform."
 
 msgid "The link will expire in 7 days."
 msgstr "Lenken vil utløpe om 7 dager."
@@ -1534,12 +1541,17 @@ msgstr "Venter på at filen/filen(e) skal lastes opp."
 msgid "Warning"
 msgstr "Advarsel"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Vår anbefaling er å velge alternativet hvis du ønsker å unngå tap av data i tilfelle mottakerne mister deres passord. På den annen side anbefaler vi ikke denne funksjonen i tilfelle du ønsker å konfigurere et system der kun mottakere har tilgang til innsendinger."
+msgstr ""
+"Vår anbefaling er å velge alternativet hvis du ønsker å unngå tap av data i "
+"tilfelle mottakerne mister deres passord. På den annen side anbefaler vi "
+"ikke denne funksjonen i tilfelle du ønsker å konfigurere et system der kun "
+"mottakere har tilgang til innsendinger."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1606,6 +1618,7 @@ msgstr "Den nye e-postadressen har blitt validert."
 msgid "Your report was successful."
 msgstr "Din rapport lyktes."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Din fløyteblåserplattform er nesten klar!"
 
@@ -1745,6 +1758,7 @@ msgstr "Vennlig hilsen,"
 msgid "Account activation"
 msgstr "Kontoaktivering"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Din fløyteblåserplattform er nå tilgjengelig på:"
 
@@ -1791,6 +1805,7 @@ msgstr "Uten en gyldig PGP-nøkkel, vil systemet ikke kunne sende dem krypterte 
 msgid "PGP key expiration alert"
 msgstr "Utløpsvarsel for PGP-nøkkel"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "En ny fløyteblåserside har blitt registrert."
 
@@ -1806,6 +1821,7 @@ msgstr "Navn: {Name}"
 msgid "Email: {Email}"
 msgstr "E-post: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Ny fløyteblåserside registrert"
 
@@ -1843,6 +1859,7 @@ msgstr "Fra: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Dato: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Fra: Fløyteblåser"
 
@@ -1884,10 +1901,13 @@ msgstr "Systemet vil fortsette å prøve."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Fornyelse av HTTPS-sertifikat mislyktes"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Denne e-posten informerer deg om at en tillitsperson har autorisert deg til å få tilgang til fløyteblåserens sanne identitet for rapporten {TipNum}."
+msgstr ""
+"Denne e-posten informerer deg om at en tillitsperson har autorisert deg til "
+"å få tilgang til fløyteblåserens sanne identitet for rapporten {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Få tilgang til rapporten på:"
@@ -1895,10 +1915,13 @@ msgstr "Få tilgang til rapporten på:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Tilgang til fløyteblåserens sanne identitet godkjent"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Denne e-posten informerer deg om at en tillitsperson har nektet deg tilgang tilgang til fløyteblåserens sanne identitet for rapporten {TipNum}."
+msgstr ""
+"Denne e-posten informerer deg om at en tillitsperson har nektet deg tilgang "
+"tilgang til fløyteblåserens sanne identitet for rapporten {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Nektet tilgang til fløyteblåserens sanne identitet"

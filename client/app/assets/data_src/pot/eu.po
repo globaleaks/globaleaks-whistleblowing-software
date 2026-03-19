@@ -23,13 +23,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Jose Manuel Diaz Bossini, 2023\n"
-"Language-Team: Basque (http://app.transifex.com/otf/globaleaks/language/eu/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Basque <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/eu/>\n"
+"Language: eu\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: eu\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -600,6 +603,7 @@ msgstr "Altua"
 msgid "Hint"
 msgstr "Iradokizuna"
 
+#, fuzzy
 msgid "Home"
 msgstr "Nagusia"
 
@@ -1348,10 +1352,13 @@ msgid ""
 "deselected:"
 msgstr "Hurrengo hartzaileek zure txostena jasoko dute eta ezingo dira deshautatuak izan:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Hurrengo prozedurak urratsez urrats eramango zaitu salaketak jasotzeko plataforma sortzeko."
+msgstr ""
+"Hurrengo prozedurak urratsez urrats eramango zaitu salaketak jasotzeko "
+"plataforma sortzeko."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1550,12 +1557,17 @@ msgstr "Fitxategiak igotzen bukatzearen zain."
 msgid "Warning"
 msgstr "Oharra"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Aukera hau hautatzea gomendatzen dugu hartzaileek haien pasahitzak galduz gero datuak galtzea saihestu nahi bada. Bestetik, hobe da ez erabiltzea hartzaileei salaketetan sartzea bakarrik utziko zaien sistema bat ezarri nahi bada."
+msgstr ""
+"Aukera hau hautatzea gomendatzen dugu hartzaileek haien pasahitzak galduz "
+"gero datuak galtzea saihestu nahi bada. Bestetik, hobe da ez erabiltzea "
+"hartzaileei salaketetan sartzea bakarrik utziko zaien sistema bat ezarri "
+"nahi bada."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1622,6 +1634,7 @@ msgstr "Zure helbide elektroniko berria balioztatu dugu."
 msgid "Your report was successful."
 msgstr "Zure salaketa behar bezala aurkeztu da."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Salaketak jasotzeko plataforma ia prest dago!"
 
@@ -1761,6 +1774,7 @@ msgstr "Adeitasunez,"
 msgid "Account activation"
 msgstr "Kontua aktibatzea"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Salatzaileen plataforma hemen dago orain erabilgarri:"
 
@@ -1807,6 +1821,7 @@ msgstr "Baliozko PGP gakorik gabe, sistemak ezingo dizu jakinarazpen zifraturik 
 msgid "PGP key expiration alert"
 msgstr "PGP gakoaren iraungitze abisua"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Salatzaileentzako leku berri bat erregistratu da."
 
@@ -1822,6 +1837,7 @@ msgstr "Izena: {Name}"
 msgid "Email: {Email}"
 msgstr "Posta elektronikoa: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Salatzaileentzako leku berria erregistratu da."
 
@@ -1859,6 +1875,7 @@ msgstr "Nork: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Nork: Salatzailea"
 
@@ -1900,10 +1917,14 @@ msgstr "Saiatzen jarraituko du sistemak."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Akatsa HTTPS ziurtagiria berritzean."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Posta elektroniko honen bidez jagoleak {TipNum} salaketarentzat informatzailearen nortasuna atzitzeko baimena eman dizula jakinarazten dizugu."
+msgstr ""
+"Posta elektroniko honen bidez jagoleak {TipNum} salaketarentzat "
+"informatzailearen nortasuna atzitzeko baimena eman dizula jakinarazten "
+"dizugu."
 
 msgid "The report can be accessed at:"
 msgstr "Hemendik sar zaitezke salaketan:"
@@ -1911,10 +1932,14 @@ msgstr "Hemendik sar zaitezke salaketan:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Salatzailearen identitatera sarbidea baimendu da"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Posta elektroniko honen bidez jagoleak {TipNum} salaketarentzat informatzailearen nortasuna atzitzeko baimena ematen ez dizula jakinarazten dizugu."
+msgstr ""
+"Posta elektroniko honen bidez jagoleak {TipNum} salaketarentzat "
+"informatzailearen nortasuna atzitzeko baimena ematen ez dizula jakinarazten "
+"dizugu."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Salatzailearen identitatera sarbidea ukatu da"

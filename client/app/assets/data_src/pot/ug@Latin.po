@@ -5,13 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Uighur (Latin) (http://app.transifex.com/otf/globaleaks/language/ug@Latin/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Uyghur <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ug@latin/>\n"
+"Language: ug@Latin\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ug@Latin\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -582,6 +585,7 @@ msgstr "Yuquri"
 msgid "Hint"
 msgstr "Isharet"
 
+#, fuzzy
 msgid "Home"
 msgstr "Bash sehipe"
 
@@ -1330,10 +1334,13 @@ msgid ""
 "deselected:"
 msgstr "Töwendiki tapshuriwalghuchilar sizning melumatingizni tashuriwalidu we tallashtin qalduralmaysiz:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Töwendiki qedemmu-qedem sizning öz pash qilish supingizni qurup chiqishingizgha yétekchilik qilidu."
+msgstr ""
+"Töwendiki qedemmu-qedem sizning öz pash qilish supingizni qurup "
+"chiqishingizgha yétekchilik qilidu."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1532,12 +1539,18 @@ msgstr "Höjjet(ler)ning yüklinip bolishini saqlawatidu."
 msgid "Warning"
 msgstr "Agahlandurush"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Eger tapshuriwalghuchilar parolini yüttürüp qoyghanda ehwallarda, melumatlarni qoghdap qalmaqchi bolsingiz, bu tallashni tallishingizni tewsiye qilimiz. yene bir tereptin, eger siz peqet tabshuriwalghuchilarla yollanmilarni ziyaret qilalaydighan bir sistéma qurmaqchi bolsingiz, bu tallashni tallishingizni tewsiye qilmaymiz."
+msgstr ""
+"Eger tapshuriwalghuchilar parolini yüttürüp qoyghanda ehwallarda, "
+"melumatlarni qoghdap qalmaqchi bolsingiz, bu tallashni tallishingizni "
+"tewsiye qilimiz. yene bir tereptin, eger siz peqet tabshuriwalghuchilarla "
+"yollanmilarni ziyaret qilalaydighan bir sistéma qurmaqchi bolsingiz, bu "
+"tallashni tallishingizni tewsiye qilmaymiz."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1604,6 +1617,7 @@ msgstr "Sizning yéngi élxet adrésingiz delillendi."
 msgid "Your report was successful."
 msgstr "Melumatingiz muweppiqiyetlik boldi."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Sizning pash qilish supingiz teyyar bolay dep qaldi!"
 
@@ -1743,6 +1757,7 @@ msgstr "Hörmet bilen,"
 msgid "Account activation"
 msgstr "Hésap aktiplash"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Pash qilish supingizni hazir bu yerdin ziyaret qilghili bolidu:"
 
@@ -1789,6 +1804,7 @@ msgstr "Inawetlik bir PGP achquchi bolmisa, mulazimétir ulargha shifrilen’gen
 msgid "PGP key expiration alert"
 msgstr "PGP achquch sürük agahlandurishi"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Bir yéngi pash qilish supisi tizimlitildi."
 
@@ -1804,6 +1820,7 @@ msgstr "Nami: {Name}"
 msgid "Email: {Email}"
 msgstr "Élxet: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Yéngi pash qilish békiti tizimlatti"
 
@@ -1841,6 +1858,7 @@ msgstr "Ewetküchi: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Chisla: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Ewetküchi: pash qilghuchi"
 
@@ -1882,10 +1900,13 @@ msgstr "Sistéma dawamliq qayta sinaydu."
 msgid "Failed HTTPS certificate renewal"
 msgstr "‏HTTPS guwahnamisini yéngilash meghlup boldi."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Bu élxet sizge saqlighuchining {TipNum} luq melumatning pash qilghuchi kimlikini ziyaret qilishningizgha hoquq bergenlikini uqturush üchündur."
+msgstr ""
+"Bu élxet sizge saqlighuchining {TipNum} luq melumatning pash qilghuchi "
+"kimlikini ziyaret qilishningizgha hoquq bergenlikini uqturush üchündur."
 
 msgid "The report can be accessed at:"
 msgstr "Melumatni bu yerdin köreleysiz:"
@@ -1893,10 +1914,13 @@ msgstr "Melumatni bu yerdin köreleysiz:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Pash qilghuchining kimlikini ziyaret qilishqa hoquq bérildi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Bu élxet sizge saqlighuchining {TipNum} luq melumatining pash qilghuchi kimlikini ziyaret qilishningizni ret qilghinini uqturush üchündur."
+msgstr ""
+"Bu élxet sizge saqlighuchining {TipNum} luq melumatining pash qilghuchi "
+"kimlikini ziyaret qilishningizni ret qilghinini uqturush üchündur."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Pash qilghuchining kimlikini ziyaret qilish ret qilindi"

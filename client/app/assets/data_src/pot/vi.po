@@ -20,13 +20,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Nathan Tran, 2021,2023\n"
-"Language-Team: Vietnamese (http://app.transifex.com/otf/globaleaks/language/vi/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Vietnamese <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/vi/>\n"
+"Language: vi\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: vi\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -597,6 +600,7 @@ msgstr "Cao"
 msgid "Hint"
 msgstr "Gợi ý"
 
+#, fuzzy
 msgid "Home"
 msgstr "Trang nhà"
 
@@ -1345,10 +1349,12 @@ msgid ""
 "deselected:"
 msgstr "Những người sau đây sẽ nhận được báo cáo của bạn và không thể bị hủy chọn:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Quy trình từng bước sau đây sẽ hướng dẫn cách tạo ra hệ thống tố giác của bạn"
+msgstr ""
+"Quy trình từng bước sau đây sẽ hướng dẫn cách tạo ra hệ thống tố giác của bạn"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1547,12 +1553,17 @@ msgstr "Chờ cho (các) tập tin tải lên."
 msgid "Warning"
 msgstr "Cảnh báo"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Chúng tôi khuyên bạn lấy lựa chọn này nếu muốn bảo vệ dữ liệu khỏi bị mất trong trường hợp người nhận mất mật khẩu của họ. Trong trường hợp khác, chúng tôi khuyên không nên dùng tính năng này nếu bạn muốn có một hệ thống mà chỉ có nhóm người nhận truy cập được các báo cáo."
+msgstr ""
+"Chúng tôi khuyên bạn lấy lựa chọn này nếu muốn bảo vệ dữ liệu khỏi bị mất "
+"trong trường hợp người nhận mất mật khẩu của họ. Trong trường hợp khác, "
+"chúng tôi khuyên không nên dùng tính năng này nếu bạn muốn có một hệ thống "
+"mà chỉ có nhóm người nhận truy cập được các báo cáo."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1619,6 +1630,7 @@ msgstr "Địa chỉ email của bạn đã được kiểm nhận."
 msgid "Your report was successful."
 msgstr "Báo cáo của bạn đã thành công."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Hệ thống tố giác của bạn đã gần xong!"
 
@@ -1758,6 +1770,7 @@ msgstr "Trân trọng,"
 msgid "Account activation"
 msgstr "Kích hoạt tài khoản"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Hệ thống tố giác có thể được truy cập tại:"
 
@@ -1804,6 +1817,7 @@ msgstr "Nếu không có chìa khóa PGP hợp lệ, hệ thống sẽ không th
 msgid "PGP key expiration alert"
 msgstr "Cảnh báo khóa PGP hết hạn"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Một trang web tố giác mới đã được đăng ký."
 
@@ -1819,6 +1833,7 @@ msgstr "Tên: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Trang web tố giác mới đăng ký"
 
@@ -1856,6 +1871,7 @@ msgstr "Từ: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Ngày: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Từ: Người Tố Giác"
 
@@ -1897,10 +1913,13 @@ msgstr "Hệ thống sẽ tiếp tục thử lại."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Việc gia hạn chứng chỉ HTTPS thất bại"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Email này thông báo cho bạn biết là người bảo quản đã cho phép bạn truy cập vào danh tính người tố giác của báo cáo {TipNum}."
+msgstr ""
+"Email này thông báo cho bạn biết là người bảo quản đã cho phép bạn truy cập "
+"vào danh tính người tố giác của báo cáo {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Báo cáo có thể được truy cập nơi đây:"
@@ -1908,10 +1927,13 @@ msgstr "Báo cáo có thể được truy cập nơi đây:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Được phép truy cập vào danh tính người tố giác"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Email này thông báo cho bạn biết người bảo quản đã từ chối không cho phép bạn truy cập vào danh tính người tố giác của báo cáo {TipNum}."
+msgstr ""
+"Email này thông báo cho bạn biết người bảo quản đã từ chối không cho phép "
+"bạn truy cập vào danh tính người tố giác của báo cáo {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Bị từ chối truy cập vào danh tính người tố giác"

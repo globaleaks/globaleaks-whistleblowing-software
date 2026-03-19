@@ -6,13 +6,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Belarusian (http://app.transifex.com/otf/globaleaks/language/be/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Belarusian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/be/>\n"
+"Language: be\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: be\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +588,7 @@ msgstr "Высокая"
 msgid "Hint"
 msgstr "Падказка"
 
+#, fuzzy
 msgid "Home"
 msgstr "Галоўная"
 
@@ -1331,10 +1337,13 @@ msgid ""
 "deselected:"
 msgstr "Вашу справаздачу атрымаюць наступныя атрымальнікі, прычым гэтую адпраўку нельга адмяніць:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Наступная пакрокавая працэдура дапаможа вам стварыць сваю платформу для выкрывальніцтва."
+msgstr ""
+"Наступная пакрокавая працэдура дапаможа вам стварыць сваю платформу для "
+"выкрывальніцтва."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1533,12 +1542,17 @@ msgstr "Чаканне завяршэння загрузкі файла(ў)."
 msgid "Warning"
 msgstr "Увага"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Раім выбраць гэтую опцыю, калі вы хочаце абараніць дадзеныя ад страты ў сітуацыі, калі атрымальнікі губляюць пароль. З іншага боку, не раім выкарыстоўваць гэтую функцыю, калі вы хочаце стварыць сістэму, у якой толькі атрымальнікі могуць атрымаць доступ да матэрыялаў."
+msgstr ""
+"Раім выбраць гэтую опцыю, калі вы хочаце абараніць дадзеныя ад страты ў "
+"сітуацыі, калі атрымальнікі губляюць пароль. З іншага боку, не раім "
+"выкарыстоўваць гэтую функцыю, калі вы хочаце стварыць сістэму, у якой толькі "
+"атрымальнікі могуць атрымаць доступ да матэрыялаў."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1605,6 +1619,7 @@ msgstr "Ваш новы адрас электроннай пошты быў па
 msgid "Your report was successful."
 msgstr "Ваша справаздача паспяхова зробленая. "
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Ваша выкрывальніцкая платформа амаль гатовая!"
 
@@ -1744,6 +1759,7 @@ msgstr "З павагай,"
 msgid "Account activation"
 msgstr "Актывацыя ўліковага запісу"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Ваша выкрывальніцкая платформа ўжо зараз даступная тут:"
 
@@ -1790,6 +1806,7 @@ msgstr "Без дзейнага ключа PGP сістэма не зможа а
 msgid "PGP key expiration alert"
 msgstr "Апавяшчэнне пра сканчэнне тэрміну дзеяння ключа PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Зарэгістраваны новы выкрывальніцкі сайт."
 
@@ -1805,6 +1822,7 @@ msgstr "Імя: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Зарэгістраваны новы выкрывальніцкі сайт."
 
@@ -1842,6 +1860,7 @@ msgstr "Ад: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Дата: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Ад: Выкрывальніка"
 
@@ -1883,10 +1902,13 @@ msgstr "Сістэма будзе працягваць спробы."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Памылка абнаўлення сертыфікату HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Гэтым электронным лістом паведамляем, што захавальнік дазволіў вам атрымаць доступ да інфармацыі пра асобу аўтара справаздачы {TipNum}."
+msgstr ""
+"Гэтым электронным лістом паведамляем, што захавальнік дазволіў вам атрымаць "
+"доступ да інфармацыі пра асобу аўтара справаздачы {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Справаздачу можна атрымаць па адрасе:"
@@ -1894,10 +1916,13 @@ msgstr "Справаздачу можна атрымаць па адрасе:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Доступ да інфармацыі пра асобу выкрывальніка атрыманы"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Гэтым электронным лістом паведамляем, што захавальнік не дазволіў вам атрымаць доступ да інфармацыі пра асобу аўтара справаздачы {TipNum}."
+msgstr ""
+"Гэтым электронным лістом паведамляем, што захавальнік не дазволіў вам "
+"атрымаць доступ да інфармацыі пра асобу аўтара справаздачы {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Адмова доступу да інфармацыі пра асобу выкрывальніка"

@@ -26,13 +26,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2015,2017-2018,2020-2022\n"
-"Language-Team: Chinese (China) (http://app.transifex.com/otf/globaleaks/language/zh_CN/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Chinese (Simplified Han script) <https://"
+"localizationlab.weblate.cloud/projects/globaleaks/stable/zh_Hans/>\n"
+"Language: zh_CN\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -603,6 +606,7 @@ msgstr "高"
 msgid "Hint"
 msgstr "提示"
 
+#, fuzzy
 msgid "Home"
 msgstr "主页"
 
@@ -1351,6 +1355,7 @@ msgid ""
 "deselected:"
 msgstr "以下接收人将收到您的报告，并且不可取消选择："
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
@@ -1553,12 +1558,15 @@ msgstr "正在等待文件完成上传。"
 msgid "Warning"
 msgstr "警告"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "为了防止接收人忘记密码时丢失数据，我们建议选择该选项。另一方面，如果您想要的系统，只允许接收人访问提交内容，请勿使用该功能。"
+msgstr ""
+"为了防止接收人忘记密码时丢失数据，我们建议选择该选项。另一方面，如果您想要的"
+"系统，只允许接收人访问提交内容，请勿使用该功能。"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1625,6 +1633,7 @@ msgstr "新的电子邮件地址已验证。"
 msgid "Your report was successful."
 msgstr "您的报告已成功提交。"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "您的揭发者平台已接近完成！"
 
@@ -1764,6 +1773,7 @@ msgstr "谨致，"
 msgid "Account activation"
 msgstr "帐户激活"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "您的揭发平台现在可访问："
 
@@ -1810,6 +1820,7 @@ msgstr "没有有效的 PGP 公钥，系统将无法发送加密通知。"
 msgid "PGP key expiration alert"
 msgstr "PGP 公钥过期提醒"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "新建的揭发网站已注册。"
 
@@ -1825,6 +1836,7 @@ msgstr "名称：{Name}"
 msgid "Email: {Email}"
 msgstr "电子邮件：{Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "新的揭发网站已注册"
 
@@ -1862,6 +1874,7 @@ msgstr "来自：{Author}"
 msgid "Date: {EventTime}"
 msgstr "日期：{EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "来自：揭发者"
 
@@ -1903,6 +1916,7 @@ msgstr "系统将继续尝试。"
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS 证书续订失败"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
@@ -1914,6 +1928,7 @@ msgstr "此报告可在此访问："
 msgid "Access to reporting person's identity authorized"
 msgstr "已授权访问揭发者身份"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."

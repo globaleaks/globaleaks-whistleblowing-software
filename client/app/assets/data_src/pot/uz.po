@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Uzbek (http://app.transifex.com/otf/globaleaks/language/uz/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Uzbek <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/uz/>\n"
+"Language: uz\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: uz\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "Yuqori"
 msgid "Hint"
 msgstr "Bildirgi"
 
+#, fuzzy
 msgid "Home"
 msgstr "Boshiga"
 
@@ -1332,10 +1336,13 @@ msgid ""
 "deselected:"
 msgstr "Quyidagi qabul qiluvchilar xabaringizni oladi va ularni tanlovdan yechish imkonsiz:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Quyidagi koʻrsatmalar yordamida oʻz oshkor qilish platformangizni yarata olasiz."
+msgstr ""
+"Quyidagi koʻrsatmalar yordamida oʻz oshkor qilish platformangizni yarata "
+"olasiz."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1534,12 +1541,17 @@ msgstr "Fayl(lar)ning oxirigacha yuklanishi kutilmoqda."
 msgid "Warning"
 msgstr "Diqqat"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Qabul qiluvchilar parollarini unutishi kabi vaziyatlarda axborotlarni oʻchib ketishdan himoyalashni istasangiz, bu parametrni tanlashni tavsiya qilamiz. Lekin agar anonim xabarlarni faqat qabul qiluvchilar koʻra oladigan tizim sozlamoqchi boʻlsangiz, bu parametr yoqilmasligi kerak."
+msgstr ""
+"Qabul qiluvchilar parollarini unutishi kabi vaziyatlarda axborotlarni oʻchib "
+"ketishdan himoyalashni istasangiz, bu parametrni tanlashni tavsiya qilamiz. "
+"Lekin agar anonim xabarlarni faqat qabul qiluvchilar koʻra oladigan tizim "
+"sozlamoqchi boʻlsangiz, bu parametr yoqilmasligi kerak."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1606,6 +1618,7 @@ msgstr "Yangi email manzilingiz tasdiqlandi."
 msgid "Your report was successful."
 msgstr "Xabaringiz qabul qilindi."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Oshkor qilish platformangiz deyarli tayyor!"
 
@@ -1745,6 +1758,7 @@ msgstr "Hurmat bilan,"
 msgid "Account activation"
 msgstr "Hisobni faollashtirish"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Oshkor qilish platformangiz quyidagi manzilda ochiladi:"
 
@@ -1791,6 +1805,7 @@ msgstr "Yaroqli PGP kalitisiz tizim ularga shirflangan bildirishnomalar yubora o
 msgid "PGP key expiration alert"
 msgstr "PGP kalit muddati signali"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Yangi oshkor qilish sayti roʻyxatdan oʻtkazildi."
 
@@ -1806,6 +1821,7 @@ msgstr "Ismi: {Name}"
 msgid "Email: {Email}"
 msgstr "Email manzili: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Yangi oshkor qilish sayti roʻyxatdan oʻtkazildi"
 
@@ -1843,6 +1859,7 @@ msgstr "Kimdan: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Sana: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Kimdan: Oshkor qiluvchidan"
 
@@ -1884,10 +1901,13 @@ msgstr "Tizim urinishda davom etadi."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS sertifikat muddati uzaytirilmadi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Bu xat sizga {TipNum} xabari oshkor qiluvchisining shaxsiy axborotini koʻrishga himoyachi tomonidan ruxsat berilgani haqida xabar qiladi."
+msgstr ""
+"Bu xat sizga {TipNum} xabari oshkor qiluvchisining shaxsiy axborotini "
+"koʻrishga himoyachi tomonidan ruxsat berilgani haqida xabar qiladi."
 
 msgid "The report can be accessed at:"
 msgstr "Anonim xabarni quyida ochish muimkin:"
@@ -1895,10 +1915,13 @@ msgstr "Anonim xabarni quyida ochish muimkin:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Oshkor qiluvchining shaxsiy axborotini koʻrishga ruxsat berildi"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Bu xat sizga {TipNum} xabari oshkor qiluvchisining shaxsiy axborotini koʻrishga himoyachi tomonidan ruxsat rad etilgani haqida xabar qiladi."
+msgstr ""
+"Bu xat sizga {TipNum} xabari oshkor qiluvchisining shaxsiy axborotini "
+"koʻrishga himoyachi tomonidan ruxsat rad etilgani haqida xabar qiladi."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Oshkor qiluvchining shaxsiy axborotini koʻrishga ruxsat rad etildi"
