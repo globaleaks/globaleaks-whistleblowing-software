@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -10,7 +10,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
-import {ChannelFilterOption, DateFilter, StatisticsFilter, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {ChannelFilterOption, DateFilter, FilterOptionsResponse, StatisticsFilter, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {StatisticalTemplateViewComponent} from "@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component";
 import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
@@ -24,7 +24,7 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
     standalone: true,
     imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, TranslatorPipe, FilterPipe, StatisticalTemplateViewComponent, NgMultiSelectDropDownModule, DateRangeSelectorComponent]
 })
-export class StatisticalReportEditorComponent implements OnInit {
+export class StatisticalReportEditorComponent implements OnInit, OnChanges {
   private httpService = inject(HttpService);
   protected nodeResolver = inject(NodeResolver);
   private utilsService = inject(UtilsService);
@@ -33,7 +33,7 @@ export class StatisticalReportEditorComponent implements OnInit {
   @Input() reportData: statisticalReportResolverModel;
   @Input() reportsData: statisticalReportResolverModel[];
   @Input() index: number;
-  @Input() filterOptions: any;
+  @Input() filterOptions: FilterOptionsResponse;
   @Input() editReport: NgForm;
   @Output() dataToParent = new EventEmitter<string>();
   editing = false;
@@ -66,6 +66,12 @@ export class StatisticalReportEditorComponent implements OnInit {
     this.nodeData = this.nodeResolver.dataModel;
     this.baseStatisticsData = this.statisticsResolver.dataModel ? {...this.statisticsResolver.dataModel} : null;
     this.initializeFilters();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['filterOptions'] && !changes['filterOptions'].firstChange) {
+      this.initializeFilters();
+    }
   }
 
   get templatesData(): statisticalTemplateResolverModel[] {

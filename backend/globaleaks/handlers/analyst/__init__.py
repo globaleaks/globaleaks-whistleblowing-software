@@ -34,6 +34,29 @@ def _hours_between(later, earlier):
         return None
 
 
+def _round_time_metric(hours):
+    if hours is None:
+        return 0
+
+    return round(hours, 4)
+
+
+def _get_status_from_audit_log_data(log_data):
+    if isinstance(log_data, dict):
+        return log_data.get('status')
+
+    if isinstance(log_data, str):
+        try:
+            parsed = json.loads(log_data)
+        except Exception:
+            return None
+
+        if isinstance(parsed, dict):
+            return parsed.get('status')
+
+    return None
+
+
 def _parse_filters(raw_filters):
     if raw_filters in (None, b'', ''):
         return None
@@ -437,7 +460,7 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
     ).order_by(models.AuditLog.date.asc()).all()
 
     for object_id, log_date, log_data in status_logs:
-        status = log_data.get('status') if isinstance(log_data, dict) else None
+        status = _get_status_from_audit_log_data(log_data)
         if status == 'opened' and object_id not in first_opened_by_tip:
             first_opened_by_tip[object_id] = log_date
         elif status == 'closed' and object_id not in first_closed_by_tip:
@@ -453,14 +476,15 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         if opening_hours is not None:
             opening_times.append(opening_hours)
 
-        closure_hours = _hours_between(closed_date, creation_date)
+        closure_start_date = opened_date or creation_date
+        closure_hours = _hours_between(closed_date, closure_start_date)
         if closure_hours is not None:
             closure_times.append(closure_hours)
 
     avg_opening_time = sum(opening_times) / len(opening_times) if opening_times else 0
     avg_closure_time = sum(closure_times) / len(closure_times) if closure_times else 0
 
-    first_comment_subq = session.query(
+    first_whistleblower_comment_subq = session.query(
         models.Comment.internaltip_id,
         func.min(models.Comment.creation_date).label('first_comment_date')
     ).join(
@@ -470,15 +494,17 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
     ).filter(
         and_(
             models.InternalTip.tid == tid,
-            models.Comment.author_id.isnot(None)
+            models.Comment.author_id.is_(None),
+            models.Comment.visibility == 0
         )
     ).group_by(models.Comment.internaltip_id).subquery()
 
     response_query = session.query(
-        first_comment_subq.c.first_comment_date,
+        first_whistleblower_comment_subq.c.first_comment_date,
         models.InternalTip.creation_date
     ).join(
-        first_comment_subq, first_comment_subq.c.internaltip_id == models.InternalTip.id
+        first_whistleblower_comment_subq,
+        first_whistleblower_comment_subq.c.internaltip_id == models.InternalTip.id
     )
     response_times = []
     for first_comment_date, creation_date in response_query.all():
@@ -504,12 +530,12 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
     avg_exchanges_per_tip = total_exchanges / num_tips_with_exchanges if num_tips_with_exchanges > 0 else 0
 
     return {
-        "avg_opening_time_hours": round(avg_opening_time, 2),
-        "avg_first_reply_time_hours": round(avg_first_reply_time, 2),
-        "avg_closure_time_hours": round(avg_closure_time, 2),
-        "avg_access_time_hours": round(avg_opening_time, 2),
-        "avg_response_time_hours": round(avg_first_reply_time, 2),
-        "avg_identity_disclosure_time_hours": round(avg_closure_time, 2),
+        "avg_opening_time_hours": _round_time_metric(avg_opening_time),
+        "avg_first_reply_time_hours": _round_time_metric(avg_first_reply_time),
+        "avg_closure_time_hours": _round_time_metric(avg_closure_time),
+        "avg_access_time_hours": _round_time_metric(avg_opening_time),
+        "avg_response_time_hours": _round_time_metric(avg_first_reply_time),
+        "avg_identity_disclosure_time_hours": _round_time_metric(avg_closure_time),
         "avg_exchanges_per_report": round(avg_exchanges_per_tip, 2),
         "total_exchanges": total_exchanges,
         "reports_with_exchanges": num_tips_with_exchanges

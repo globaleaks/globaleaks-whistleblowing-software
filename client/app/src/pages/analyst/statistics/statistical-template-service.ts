@@ -40,6 +40,24 @@ export class StatisticalTemplateService {
   createMetricCatalog(dataModel: any): MetricCard[] {
     const toNumber = (value: any): number => Number(value) || 0;
     const toFixed1 = (value: number): string => value.toFixed(1);
+    const toDurationLabel = (hoursValue: any): string => {
+      const hours = toNumber(hoursValue);
+      if (!Number.isFinite(hours) || hours <= 0) {
+        return "0.0 days";
+      }
+
+      if (hours < 1) {
+        const minutes = hours * 60;
+        return `${toFixed1(minutes)} minutes`;
+      }
+
+      if (hours < 24) {
+        return `${toFixed1(hours)} hours`;
+      }
+
+      const days = hours / 24;
+      return `${toFixed1(days)} days`;
+    };
 
     const reports_count = dataModel.reports_count || 0;
     const reports_with_no_access = dataModel.reports_with_no_access || 0;
@@ -90,9 +108,9 @@ export class StatisticalTemplateService {
       createMetric('desktop_reports', 'Desktop Reports', `${reports_desktop} (${toFixed1(100 - toNumber(mobile_usage_rate))}%)`),
       createMetric('disclosure_rate', 'Identity Disclosure Rate', `${disclosure_rate}%`),
       createMetric('security_usage', 'High Security Reports', `${tor_reports + anonymous_reports}`),
-      createMetric('avg_access_time', 'Average timing of opening of report', `${(dataModel.avg_opening_time_hours ?? dataModel.avg_access_time_hours ?? 0)}h`),
-      createMetric('avg_response_time', 'Average timing of first reply', `${(dataModel.avg_first_reply_time_hours ?? dataModel.avg_response_time_hours ?? 0)}h`),
-      createMetric('avg_disclosure_time', 'Average timing of closure of report', `${(dataModel.avg_closure_time_hours ?? dataModel.avg_identity_disclosure_time_hours ?? 0)}h`),
+      createMetric('avg_access_time', 'Average timing of opening of report', toDurationLabel(dataModel.avg_opening_time_hours ?? dataModel.avg_access_time_hours ?? 0)),
+      createMetric('avg_response_time', 'Average timing of first reply', toDurationLabel(dataModel.avg_first_reply_time_hours ?? dataModel.avg_response_time_hours ?? 0)),
+      createMetric('avg_disclosure_time', 'Average timing of closure of report', toDurationLabel(dataModel.avg_closure_time_hours ?? dataModel.avg_identity_disclosure_time_hours ?? 0)),
       createMetric('avg_exchanges', 'Average Exchanges per Report', toFixed1(toNumber(dataModel.avg_exchanges_per_report))),
       createMetric('total_exchanges', 'Total Exchanges', dataModel.total_exchanges || 0),
       createMetric('reports_with_exchanges', 'Reports with Exchanges', dataModel.reports_with_exchanges || 0),
@@ -210,6 +228,28 @@ export class StatisticalTemplateService {
   }
 
   private getChartOptions(chartType?: string): any {
+    const getTooltipValue = (context: any): number | string => {
+      if (typeof context.raw === 'number' || typeof context.raw === 'string') {
+        return context.raw;
+      }
+
+      if (typeof context.parsed === 'number' || typeof context.parsed === 'string') {
+        return context.parsed;
+      }
+
+      if (context.parsed && typeof context.parsed === 'object') {
+        if (typeof context.parsed.y === 'number' || typeof context.parsed.y === 'string') {
+          return context.parsed.y;
+        }
+
+        if (typeof context.parsed.x === 'number' || typeof context.parsed.x === 'string') {
+          return context.parsed.x;
+        }
+      }
+
+      return '';
+    };
+
     const baseOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -241,8 +281,8 @@ export class StatisticalTemplateService {
           callbacks: {
             label: function (context: any) {
               const label = context.label || '';
-              const value = context.parsed || context.raw;
-              return `${label}: ${value}`;
+              const value = getTooltipValue(context);
+              return label ? `${label}: ${value}` : `${value}`;
             }
           }
         }

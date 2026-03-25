@@ -132,7 +132,7 @@ class TestAPI(TestGL):
                                                     'form-action \'none\';' \
                                                     'frame-ancestors \'none\';' \
                                                     'frame-src \'self\';' \
-                                                    'img-src \'self\';' \
+                                                    'img-src \'self\' blob: data:;' \
                                                     'media-src \'self\';' \
                                                     'script-src \'self\';' \
                                                     'style-src \'self\' \'random-nonce\';' \

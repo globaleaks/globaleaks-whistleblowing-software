@@ -40,7 +40,7 @@
       </div>
     </div>
   }
-  @if (reportsData.length) {
+  @if (reportsData.length && filterOptions) {
     @for (report of reportsData; track report.id; let index = $index) {
       <div class="reportList">
         <form id="report-{{index}}" name="editReport" #editReport="ngForm" novalidate>
