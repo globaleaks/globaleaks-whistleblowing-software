@@ -9,12 +9,13 @@ import {DatePipe} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-wbfiles",
     templateUrl: "./wb-files.component.html",
     standalone: true,
-    imports: [DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe]
+    imports: [DatePipe, NgbTooltipModule, TranslateModule, TranslatorPipe, ByteFmtPipe]
 })
 export class WbFilesComponent implements OnInit {
   private appDataService = inject(AppDataService);

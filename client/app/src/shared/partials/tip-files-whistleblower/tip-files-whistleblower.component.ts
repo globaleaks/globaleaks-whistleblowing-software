@@ -54,6 +54,13 @@ export class TipFilesWhistleblowerComponent {
     return data;
   }
 
+  isWbFileRead(file: WbFile): boolean {
+    if (this.wbTipService) {
+      return this.wbTipService.tip.receivers.some(r => r.last_access && new Date(r.last_access) > new Date(file.creation_date));
+    }
+    return false;
+  }
+
   public toggleColLapse() {
     this.collapsed = !this.collapsed;
   }

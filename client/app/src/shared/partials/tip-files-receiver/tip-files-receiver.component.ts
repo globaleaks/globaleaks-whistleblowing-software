@@ -45,6 +45,10 @@ export class TipFilesReceiverComponent implements OnInit {
     return data;
   }
 
+  isWbFileRead(file: WbFile): boolean {
+    return new Date(this.tipService.tip.last_access) > new Date(file.creation_date);
+  }
+
   redactFileOperation(operation: string, content_type: string, file: any, tip_id: string) {
     const redactionData:RedactionData= {
       reference_id: file.ifile_id,

@@ -11,6 +11,9 @@
         }
 
         <span class="filename px-1">{{ wbFile.name }}</span>
+        @if ((ctx === 'rtip' || ctx === 'wbtip') && wbFile.downloaded) {
+          <i class="fas fa-check text-success float-end" ngbTooltip="{{'Seen' | translate}}"></i>
+        }
       </span>
 
       <span class="float-end">
@@ -51,13 +54,6 @@
         <span>{{ 'Size:' | translate }}</span>
         <span>{{ wbFile.size | byteFmt:2 }}</span>
       </span>
-
-      @if (ctx === 'rtip') {
-        <span class="px-1">
-          <span>{{ 'Number of downloads' | translate }}</span>:
-          <span>{{ wbFile.downloads }}</span>
-        </span>
-      }
     </div>
 
     @if (wbFile.description) {

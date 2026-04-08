@@ -131,6 +131,8 @@ export class Option {
 export class Receiver {
   id: string;
   name: string;
+  active: boolean;
+  last_access: string | null;
 }
 
 export class Data {
@@ -146,4 +148,5 @@ export interface MsgReceiversSelector {
 export type ReceiversById = Record<string, {
     name: string;
     active: boolean;
+    last_access: string | null;
   }>;
