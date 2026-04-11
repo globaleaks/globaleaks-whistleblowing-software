@@ -1,11 +1,10 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
 import {Observable} from "rxjs";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
@@ -24,7 +23,6 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class StepsListComponent implements OnInit {
   private utilsService = inject(UtilsService);
-  private questionnaireService = inject(QuestionnaireService);
   private modalService = inject(NgbModal);
   private fieldUtilities = inject(FieldUtilitiesService);
   protected nodeResolver = inject(NodeResolver);
@@ -34,6 +32,7 @@ export class StepsListComponent implements OnInit {
   @Input() steps: Step[];
   @Input() questionnaire: questionnaireResolverModel;
   @Input() index: number;
+  @Output() deleted = new EventEmitter<string>();
   editing = false;
   showAddTrigger = false;
   parsedFields: ParsedFields;
@@ -89,9 +88,8 @@ export class StepsListComponent implements OnInit {
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
         return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(_ => {
-          this.utilsService.deleteResource(this.steps, arg);
+          this.deleted.emit(this.step.id);
         });
       };
     });

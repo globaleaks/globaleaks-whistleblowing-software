@@ -12,13 +12,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Bengali (http://app.transifex.com/otf/globaleaks/language/bn/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Bengali <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/bn/>\n"
+"Language: bn\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: bn\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -589,6 +592,7 @@ msgstr "উচ্চ"
 msgid "Hint"
 msgstr "ইঙ্গিত"
 
+#, fuzzy
 msgid "Home"
 msgstr "হোম"
 
@@ -700,6 +704,9 @@ msgstr "টর ছাড়া প্ল্যাটফর্মটিতে প
 
 msgid "License"
 msgstr "লাইসেন্স"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "অভ্যন্তরীণ ব্যবহারকারীদের লগ অ্যাক্সেসগুলি"
@@ -1334,10 +1341,12 @@ msgid ""
 "deselected:"
 msgstr "নিম্নলিখিত প্রাপকরা আপনার প্রতিবেদনটি পাবেন এবং তা বাদ দেওয়া যাবেনা:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "নিম্নলিখিত ধাপে ধাপে পদ্ধতি আপনার হুইসেল ব্লোইং প্ল্যাটফর্ম তৈরির জন্য আপনাকে গাইড করবে।"
+msgstr ""
+"নিম্নলিখিত ধাপে ধাপে পদ্ধতি আপনার হুইসেল ব্লোইং প্ল্যাটফর্ম তৈরির জন্য আপনাকে গাইড করবে।"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1536,12 +1545,17 @@ msgstr "ফাইল (গুলি) আপলোড শেষ হবার অ�
 msgid "Warning"
 msgstr "সতর্কতা"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "প্রাপকরা তাদের পাসওয়ার্ড হারিয়ে গেলে এমন পরিস্থিতিতে তথ্য হারিয়ে যাওয়ার হাত থেকে রক্ষা করতে চাইলে আমরা এই বিকল্পটি নির্বাচন করার পরামর্শ দিচ্ছি। অন্যদিকে, আপনি যদি এমন কোনও সিস্টেম সেটআপ করতে চান যেখানে কেবল প্রাপকগণ সাবমিশনে অ্যাক্সেস করতে সক্ষম হন তবে আমরা এই বৈশিষ্ট্যটি ব্যবহার করার পরামর্শ দেব না।"
+msgstr ""
+"প্রাপকরা তাদের পাসওয়ার্ড হারিয়ে গেলে এমন পরিস্থিতিতে তথ্য হারিয়ে যাওয়ার হাত থেকে রক্ষা করতে "
+"চাইলে আমরা এই বিকল্পটি নির্বাচন করার পরামর্শ দিচ্ছি। অন্যদিকে, আপনি যদি এমন কোনও "
+"সিস্টেম সেটআপ করতে চান যেখানে কেবল প্রাপকগণ সাবমিশনে অ্যাক্সেস করতে সক্ষম হন তবে আমরা "
+"এই বৈশিষ্ট্যটি ব্যবহার করার পরামর্শ দেব না।"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1608,6 +1622,7 @@ msgstr "আপনার নতুন ইমেল ঠিকানা বৈধ �
 msgid "Your report was successful."
 msgstr "আপনার রিপোর্টটি সফল হয়েছিল।"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "আপনার হুইসেল ব্লোইং প্ল্যাটফর্ম প্রায় প্রস্তুত!"
 
@@ -1747,6 +1762,7 @@ msgstr "আন্তরিক শুভেচ্ছা,"
 msgid "Account activation"
 msgstr "অ্যাকাউন্ট সক্রিয়করণ"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "আপনার হুইসেল ব্লোইং প্ল্যাটফর্ম এখন এখানে প্রবেশযোগ্য:"
 
@@ -1793,6 +1809,7 @@ msgstr "একটি বৈধ পিজিপি কী ছাড়া সি�
 msgid "PGP key expiration alert"
 msgstr "পিজিপি কী'র মেয়াদ শেষ হওয়ার সতর্ক বার্তা"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "একটি নতুন হুইসেল ব্লোইং সাইট নিবন্ধিত হয়েছে।"
 
@@ -1808,6 +1825,7 @@ msgstr "নাম: {Name}"
 msgid "Email: {Email}"
 msgstr "ইমেইল: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "নতুন হুইসেল ব্লোইং সাইট নিবন্ধিত হয়েছে।"
 
@@ -1845,6 +1863,7 @@ msgstr "থেকে: {Author}"
 msgid "Date: {EventTime}"
 msgstr "তারিখ: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "থেকে: হুইসেল ব্লোয়ার"
 
@@ -1886,10 +1905,13 @@ msgstr "সিস্টেম চেষ্টা চালিয়ে যাব
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS সার্টিফিকেট নবায়নে ব্যর্থ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "এই ইমেইলটি আপনাকে অবহিত করতে যে, কোনও তত্ত্বাবধায়ক আপনাকে {TipNum}  রিপোর্টের জন্য হুইসেল ব্লোয়িং পরিচয় অ্যাক্সেসের জন্য অনুমতি দিয়েছে। "
+msgstr ""
+"এই ইমেইলটি আপনাকে অবহিত করতে যে, কোনও তত্ত্বাবধায়ক আপনাকে {TipNum}  রিপোর্টের জন্য "
+"হুইসেল ব্লোয়িং পরিচয় অ্যাক্সেসের জন্য অনুমতি দিয়েছে। "
 
 msgid "The report can be accessed at:"
 msgstr "রিপোর্টটিতে এখান থেকে প্রবেশ করা যেতে পারেঃ"
@@ -1897,10 +1919,13 @@ msgstr "রিপোর্টটিতে এখান থেকে প্রব
 msgid "Access to reporting person's identity authorized"
 msgstr "হুইসেল ব্লোয়ারের পরিচয় অনুমোদিত"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "এই ইমেইলটি আপনাকে অবহিত করতে যে, কোনও তত্ত্বাবধায়ক আপনাকে {TipNum}  রিপোর্টের জন্য হুইসেল ব্লোয়িং পরিচয় দেখার জন্য বাঁধা দিয়েছে। "
+msgstr ""
+"এই ইমেইলটি আপনাকে অবহিত করতে যে, কোনও তত্ত্বাবধায়ক আপনাকে {TipNum}  রিপোর্টের জন্য "
+"হুইসেল ব্লোয়িং পরিচয় দেখার জন্য বাঁধা দিয়েছে। "
 
 msgid "Access to reporting person's identity denied"
 msgstr "হুইসেল ব্লোয়ারের পরিচয় অনঅনুমোদিত"

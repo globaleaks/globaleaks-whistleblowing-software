@@ -25,7 +25,7 @@ export class HttpsFilesComponent implements OnInit {
   private modalService = inject(NgbModal);
   private utilsService = inject(UtilsService);
 
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() updated = new EventEmitter<string>();
   @Input() tlsConfig: TlsConfig;
   @Input() state = 0;
   @ViewChild('pkInput') pkInput: ElementRef<HTMLInputElement>;
@@ -55,7 +55,7 @@ export class HttpsFilesComponent implements OnInit {
           resource.content = str;
           this.httpService.requestCSRContentResource(resource.name, resource).subscribe({
            next:() => {
-              this.dataToParent.emit();
+              this.updated.emit();
             },
            error:()=> {
               this.clearInputFields();
@@ -69,7 +69,7 @@ export class HttpsFilesComponent implements OnInit {
   genKey() {
     const authHeader = this.authenticationService.getHeader();
     this.httpService.requestUpdateTlsConfigFilesResource("key", authHeader, this.fileResources.key).subscribe(() => {
-      this.dataToParent.emit();
+      this.updated.emit();
     });
   }
 
@@ -79,7 +79,7 @@ export class HttpsFilesComponent implements OnInit {
     modalRef.componentInstance.confirmFunction = (arg: string) => {
       return this.httpService.requestDeleteTlsConfigFilesResource(arg).subscribe(() => {
         this.clearInputFields();
-        this.dataToParent.emit();
+        this.updated.emit();
       });
     };
     return modalRef.result;
@@ -112,7 +112,7 @@ export class HttpsFilesComponent implements OnInit {
   }
 
   toggleCfg() {
-    this.utilsService.toggleCfg(this.authenticationService, this.tlsConfig, this.dataToParent);
+    this.utilsService.toggleCfg(this.authenticationService, this.tlsConfig, this.updated);
   }
 
   resetCfg() {
@@ -120,7 +120,7 @@ export class HttpsFilesComponent implements OnInit {
     modalRef.componentInstance.arg = null;
     modalRef.componentInstance.confirmFunction = () => {
       return this.httpService.requestDeleteTlsConfigResource().subscribe(() => {
-        this.dataToParent.emit();
+        this.updated.emit();
       });
     };
     return modalRef.result;

@@ -1,10 +1,9 @@
--<!-- Filtering bar -->
-<div class="row mb-3">
-  <div class="col d-flex align-items-center gap-3 justify-content-start">
+<div *ngIf="items.length" class="row mb-3">
+  <div class="col d-flex justify-content-end">
     <app-search-input
       class="flex-shrink-0"
       [(value)]="searchText"
-      (valueChange)="update()">
+      (valueChange)="onSearchUpdate()">
     </app-search-input>
 
     <div class="form-check m-0 d-flex align-items-center" *ngIf="filterOptFn">

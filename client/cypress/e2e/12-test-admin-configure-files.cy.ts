@@ -23,35 +23,20 @@ describe("Admin configure files", () => {
 
     cy.takeScreenshot("admin/site_settings_files");
 
-    const customCSSFile = "files/test.css";
-    cy.fixture(customCSSFile).then((fileContent) => {
-      cy.get('div.uploadfile.file-css input[type="file"]').then(($input) => {
-        const inputElement = $input[0] as HTMLInputElement;
-        const blob = new Blob([fileContent], { type: 'text/css' });
-        const testFile = new File([blob], 'file-name.css', { type: 'text/css' });
-        const dataTransfer = new DataTransfer();
+    cy.get("div.uploadfile.file-css input[type='file']").selectFile({
+      contents: "./cypress/fixtures/files/test.css",
+      fileName: "test.css",
+      mimeType: "text/css"
+    }, {"force": true});
 
-        dataTransfer.items.add(testFile);
-        inputElement.files = dataTransfer.files;
-        cy.wrap($input).trigger('change', { force: true });
-      });
-    });
+    cy.get("div.file-custom input").selectFile({
+      contents: "./cypress/fixtures/files/test.pdf",
+      fileName: "test.pdf",
+      mimeType: "application/pdf"
+    }, {"force": true});
 
-    const customFile = "files/test.pdf";
-    cy.fixture(customFile).then((fileContent) => {
-      cy.get("div.file-custom input").then(($input) => {
-        const inputElement = $input[0] as HTMLInputElement;
-        const blob = new Blob([fileContent], { type: "application/pdf" });
-        const testFile = new File([blob], customFile, { type: "application/pdf" });
-        const dataTransfer = new DataTransfer();
+    cy.contains('test.pdf').should('be.visible')
 
-        dataTransfer.items.add(testFile);
-        inputElement.files = dataTransfer.files;
-        cy.wrap($input).trigger("change", { force: true });
-      });
-    });
-
-    cy.get('table#fileList').find('td#file_name').should('contain', 'test.pdf').should('be.visible');
     cy.get("table#fileList").get(".fa-download").last().click();
     cy.get("table#fileList").get(".fa-trash").last().click();
 

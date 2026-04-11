@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/c
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NewField} from "@app/models/admin/new-field";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
 import {Step} from "@app/models/resolvers/questionnaire-model";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {FormsModule} from "@angular/forms";
@@ -17,14 +16,13 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslatorPipe, TranslateModule]
 })
 export class AddFieldFromTemplateComponent implements OnInit {
-  private questionnaireService = inject(QuestionnaireService);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
   @Input() fieldTemplatesData: fieldtemplatesResolverModel[];
   @Input() step: Step;
   @Input() type: string;
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() added = new EventEmitter<void>();
 
   fields: Step[] | Field[];
   new_field: { template_id: string } = {template_id: ""};
@@ -36,42 +34,34 @@ export class AddFieldFromTemplateComponent implements OnInit {
   }
 
   addFieldFromTemplate(): void {
-    if (this.type === "step") {
-      const field = new NewField();
-      field.step_id = this.step.id;
-      field.template_id = "";
+    const templateId = this.new_field.template_id;
+    if (!templateId) return;
 
-      field.template_id = this.new_field.template_id;
-      field.instance = "reference";
-      field.y = this.utilsService.newItemOrder(this.fields, "y");
-      this.httpService.requestAddAdminQuestionnaireField(field).subscribe((newField: Field) => {
-        this.fields.push(newField);
-        this.new_field = {
-          template_id: ""
-        };
-        this.dataToParent.emit();
-        return this.questionnaireService.sendData();
-      });
-    }
-    if (this.type === "field") {
-      const field = new NewField();
-      field.template_id = "";
-      field.fieldgroup_id = this.step.id;
+    const isStep = this.type === "step";
+    const isField = this.type === "field";
+    if (!isStep && !isField) return;
 
-      field.template_id = this.new_field.template_id;
-      field.instance = "reference";
-      field.y = this.utilsService.newItemOrder(this.step.children, "y");
-      field.template_id = this.new_field.template_id;
-      if(field.template_id !== field.fieldgroup_id){
-        this.httpService.requestAddAdminQuestionnaireField(field).subscribe((newField: Step) => {
-          this.step.children.push(newField);
-          this.new_field = {
-            template_id: ""
-          };
-          this.dataToParent.emit();
-          return this.questionnaireService.sendData();
-        });
-      }
+    const parentId = this.step?.id;
+    const list = isStep ? (this.fields as any[]) : (this.step.children as any[]);
+    const ySource = isStep ? (this.fields as any[]) : (this.step.children as any[]);
+
+    if (isField && templateId === parentId) return;
+
+    const field = new NewField();
+    field.template_id = templateId;
+    field.instance = "reference";
+    field.y = this.utilsService.newItemOrder(ySource, "y");
+
+    if (isStep) {
+      field.step_id = parentId;
+    } else {
+      field.fieldgroup_id = parentId;
     }
+
+    this.httpService.requestAddAdminQuestionnaireField(field).subscribe((created: any) => {
+      list.push(created);
+      this.new_field.template_id = "";
+      this.added.emit();
+    });
   }
 }

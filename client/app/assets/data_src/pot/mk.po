@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020-2022\n"
-"Language-Team: Macedonian (http://app.transifex.com/otf/globaleaks/language/mk/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Macedonian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/mk/>\n"
+"Language: mk\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: mk\n"
 "Plural-Forms: nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "Високо"
 msgid "Hint"
 msgstr "Помош"
 
+#, fuzzy
 msgid "Home"
 msgstr "Дома"
 
@@ -695,6 +699,9 @@ msgstr "Дозволи платформата да биде достапна б�
 
 msgid "License"
 msgstr "Лиценца"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Извештај за пристап на внатрешни корисници"
@@ -1329,10 +1336,13 @@ msgid ""
 "deselected:"
 msgstr "Следниве примачи ќе го примат вашиот извештај и не можат да бидат отстранети:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Следнава чекор-по-чекор процедура ќе ве води низ создавање на вашата платформа за свиркање."
+msgstr ""
+"Следнава чекор-по-чекор процедура ќе ве води низ создавање на вашата "
+"платформа за свиркање."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1531,12 +1541,18 @@ msgstr "Чекање датотеката(ите) да завршат со пр�
 msgid "Warning"
 msgstr "Внимание"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Советуваме бирање на оваа опција ако сакате да ги заштитите податоците од загуба во ситуација кога примачите ќе ги загубат нивните лозини. Од друга страна, ве советуваме да не ја користите оваа можност ако сакате да поставите систем каде што само примачите се во можност да им пристапуваат на поднесоците."
+msgstr ""
+"Советуваме бирање на оваа опција ако сакате да ги заштитите податоците од "
+"загуба во ситуација кога примачите ќе ги загубат нивните лозини. Од друга "
+"страна, ве советуваме да не ја користите оваа можност ако сакате да "
+"поставите систем каде што само примачите се во можност да им пристапуваат на "
+"поднесоците."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1603,6 +1619,7 @@ msgstr "Вашата нова адреса на е-пошта беше потв�
 msgid "Your report was successful."
 msgstr "Вашиот извештај беше успешен."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Вашата платформа за свиркање е скоро готова!"
 
@@ -1742,6 +1759,7 @@ msgstr "Со почит,"
 msgid "Account activation"
 msgstr "Активација на сметка"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Вашата платформа за свиркање сега е достапна на:"
 
@@ -1788,6 +1806,7 @@ msgstr "Без валиден PGP клуч, системот нема да мо�
 msgid "PGP key expiration alert"
 msgstr "Аларм за истекување на PGP клуч  "
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Нова веб страна за свиркање беше регистрирана."
 
@@ -1803,6 +1822,7 @@ msgstr "Име: {Name}"
 msgid "Email: {Email}"
 msgstr "Е-пошта: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Регистрирана нова веб страна за свиркање"
 
@@ -1840,6 +1860,7 @@ msgstr "Од: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Датум: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Од: Свиркач"
 
@@ -1881,10 +1902,13 @@ msgstr "Системот ќе продолжи да се обидува."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Неуспешно обновување на HTTPS сертификат"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Ова е е-пошта за известување дека чувар ви дозволи пристап до идентитетот на свиркањето за извештајот {TipNum}."
+msgstr ""
+"Ова е е-пошта за известување дека чувар ви дозволи пристап до идентитетот на "
+"свиркањето за извештајот {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Кон извештајот може да се пристапи на:"
@@ -1892,10 +1916,13 @@ msgstr "Кон извештајот може да се пристапи на:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Дозволен пристап до идентитетот на свиркачот"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Ова е е-пошта за известување дека чувар не ви дозволи пристап до идентитетот на свиркањето за извештајот {TipNum}."
+msgstr ""
+"Ова е е-пошта за известување дека чувар не ви дозволи пристап до идентитетот "
+"на свиркањето за извештајот {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Одбиен пристап до идентитетот на свиркачот"

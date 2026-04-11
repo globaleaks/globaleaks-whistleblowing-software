@@ -1,30 +1,59 @@
-class Cache(object):
-    memory_cache_dict = {}
+from collections import OrderedDict
+from threading import RLock
+
+
+class Cache:
+    # Tune these safely
+    MAX_ENTRIES_PER_TENANT = 256
+
+    # tid -> OrderedDict[(resource, language)] = (content_type, data)
+    _tenants = {}
+    _lock = RLock()
 
     @classmethod
     def get(cls, tid, resource, language):
-        if tid in cls.memory_cache_dict \
-           and resource in cls.memory_cache_dict[tid] \
-           and language in cls.memory_cache_dict[tid][resource]:
-            return cls.memory_cache_dict[tid][resource][language]
+        key = (resource, language)
+
+        with cls._lock:
+            tenant_cache = cls._tenants.get(tid)
+            if not tenant_cache:
+                return None
+
+            try:
+                value = tenant_cache.pop(key)
+                # mark as most recently used
+                tenant_cache[key] = value
+                return value
+            except KeyError:
+                return None
 
     @classmethod
     def set(cls, tid, resource, language, content_type, data):
-        if tid not in Cache.memory_cache_dict:
-            cls.memory_cache_dict[tid] = {}
+        key = (resource, language)
+        value = (content_type, data)
 
-        if resource not in Cache.memory_cache_dict[tid]:
-            cls.memory_cache_dict[tid][resource] = {}
+        with cls._lock:
+            tenant_cache = cls._tenants.get(tid)
 
-        entry = (content_type, data)
+            if tenant_cache is None:
+                tenant_cache = OrderedDict()
+                cls._tenants[tid] = tenant_cache
 
-        cls.memory_cache_dict[tid][resource][language] = entry
+            # refresh if already present
+            tenant_cache.pop(key, None)
+            tenant_cache[key] = value
 
-        return entry
+            # LRU eviction per tenant
+            while len(tenant_cache) > cls.MAX_ENTRIES_PER_TENANT:
+                tenant_cache.popitem(last=False)
+
+        return value
 
     @classmethod
     def invalidate(cls, tid=1):
-        if tid == 1:
-            cls.memory_cache_dict.clear()
-        else:
-            cls.memory_cache_dict.pop(tid, None)
+        with cls._lock:
+            if tid == 1:
+                # global flush (root tenant semantics preserved)
+                cls._tenants.clear()
+            else:
+                cls._tenants.pop(tid, None)

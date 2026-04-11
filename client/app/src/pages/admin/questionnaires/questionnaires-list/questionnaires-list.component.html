@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="col-md-12">
-        <src-steps [questionnaire]="questionnaire"></src-steps>
+        <src-steps [questionnaire]="questionnaire" (deleted)="onDelete($event)"></src-steps>
       </div>
     </div>
   </div>

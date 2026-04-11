@@ -2,9 +2,6 @@ import {Component, HostListener, OnInit, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
-import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
-import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-access.component";
-import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -13,7 +10,6 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
 import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
-import {Receiver} from "@app/models/receiver/receiver-tip-data";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {concatMap, delay, from, tap} from "rxjs";
@@ -58,7 +54,7 @@ export class TipsComponent implements OnInit {
   dropdownContextData: { id: number; label: string; }[] = [];
   dropdownScoreModel: { id: number; label: string; }[] = [];
   dropdownScoreData: { id: number; label: string; }[] = [];
-  sortKey = "creation_date";
+  sortKey: keyof rtipResolverModel = 'creation_date';
   sortReverse = true;
   channelDropdownVisible = false;
   statusDropdownVisible = false;
@@ -162,7 +158,7 @@ export class TipsComponent implements OnInit {
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
-      tip.context_name = tip.context.name;
+      tip.context_name = tip.context?.name ?? '';
       tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
       if (!uniqueKeys.includes(tip.submissionStatusStr)) {
         uniqueKeys.push(tip.submissionStatusStr);

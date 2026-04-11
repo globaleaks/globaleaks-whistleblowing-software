@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Uyghur (http://app.transifex.com/otf/globaleaks/language/ug/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Uyghur <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ug/>\n"
+"Language: ug\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ug\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "يۇقۇرى"
 msgid "Hint"
 msgstr "ئىشارەت"
 
+#, fuzzy
 msgid "Home"
 msgstr "باش سەھىپە"
 
@@ -695,6 +699,9 @@ msgstr "بۇ سوۇپىنى Tor ئىشلەتمەيمۇ ئۇلانغىلى بول
 
 msgid "License"
 msgstr "نەشر ھوقۇقى"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "ئىچكى ئىشلەتكۈچىلەرنىڭ زىيارەتلىرىنى خاتىرىلە"
@@ -1329,10 +1336,13 @@ msgid ""
 "deselected:"
 msgstr "تۆۋەندىكى تاپشۇرىۋالغۇچىلار سىزنىڭ مەلۇماتىڭىزنى تاشۇرىۋالىدۇ ۋە تاللاشتىن قالدۇرالمايسىز:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "تۆۋەندىكى قەدەممۇ-قەدەم سىزنىڭ ئۆز پاش قىلىش سۇپىڭىزنى قۇرۇپ چىقىشىڭىزغا يېتەكچىلىك قىلىدۇ."
+msgstr ""
+"تۆۋەندىكى قەدەممۇ-قەدەم سىزنىڭ ئۆز پاش قىلىش سۇپىڭىزنى قۇرۇپ چىقىشىڭىزغا "
+"يېتەكچىلىك قىلىدۇ."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1531,12 +1541,17 @@ msgstr "ھۆججەت(لەر)نىڭ يۈكلىنىپ بولىشىنى ساقلا�
 msgid "Warning"
 msgstr "ئاگاھلاندۇرۇش"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "ئەگەر تاپشۇرىۋالغۇچىلار پارولىنى يۈتتۈرۈپ قويغاندا ئەھۋاللاردا، مەلۇماتلارنى قوغداپ قالماقچى بولسىڭىز، بۇ تاللاشنى تاللىشىڭىزنى تەۋسىيە قىلىمىز. يەنە بىر تەرەپتىن، ئەگەر سىز پەقەت تابشۇرىۋالغۇچىلارلا يوللانمىلارنى زىيارەت قىلالايدىغان بىر سىستېما قۇرماقچى بولسىڭىز، بۇ تاللاشنى تاللىشىڭىزنى تەۋسىيە قىلمايمىز."
+msgstr ""
+"ئەگەر تاپشۇرىۋالغۇچىلار پارولىنى يۈتتۈرۈپ قويغاندا ئەھۋاللاردا، مەلۇماتلارنى "
+"قوغداپ قالماقچى بولسىڭىز، بۇ تاللاشنى تاللىشىڭىزنى تەۋسىيە قىلىمىز. يەنە بىر "
+"تەرەپتىن، ئەگەر سىز پەقەت تابشۇرىۋالغۇچىلارلا يوللانمىلارنى زىيارەت قىلالايدىغان "
+"بىر سىستېما قۇرماقچى بولسىڭىز، بۇ تاللاشنى تاللىشىڭىزنى تەۋسىيە قىلمايمىز."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1603,6 +1618,7 @@ msgstr "سىزنىڭ يېڭى ئېلخەت ئادرېسىڭىز دەلىللەن
 msgid "Your report was successful."
 msgstr "مەلۇماتىڭىز مۇۋەپپىقىيەتلىك بولدى."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "سىزنىڭ پاش قىلىش سۇپىڭىز تەييار بولاي دەپ قالدى!"
 
@@ -1742,6 +1758,7 @@ msgstr "ھۆرمەت بىلەن،"
 msgid "Account activation"
 msgstr "ھېساپ ئاكتىپلاش"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "پاش قىلىش سۇپىڭىزنى ھازىر بۇ يەردىن زىيارەت قىلغىلى بولىدۇ:"
 
@@ -1788,6 +1805,7 @@ msgstr "ئىناۋەتلىك بىر PGP ئاچقۇچى بولمىسا، مۇلا
 msgid "PGP key expiration alert"
 msgstr "PGP ئاچقۇچ سۈرۈك ئاگاھلاندۇرىشى"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "بىر يېڭى پاش قىلىش سۇپىسى تىزىملىتىلدى."
 
@@ -1803,6 +1821,7 @@ msgstr "نامى: {Name}"
 msgid "Email: {Email}"
 msgstr "ئېلخەت: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "يېڭى پاش قىلىش بېكىتى تىزىملاتتى"
 
@@ -1840,6 +1859,7 @@ msgstr "ئەۋەتكۈچى: {Author}"
 msgid "Date: {EventTime}"
 msgstr "چىسلا: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ئەۋەتكۈچى: پاش قىلغۇچى"
 
@@ -1881,10 +1901,13 @@ msgstr "سىستېما داۋاملىق قايتا سىنايدۇ."
 msgid "Failed HTTPS certificate renewal"
 msgstr "‏HTTPS گۇۋاھنامىسىنى يېڭىلاش مەغلۇپ بولدى."
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "بۇ ئېلخەت سىزگە ساقلىغۇچىنىڭ {TipNum} لۇق مەلۇماتنىڭ پاش قىلغۇچى كىملىكىنى زىيارەت قىلىشنىڭىزغا ھوقۇق بەرگەنلىكىنى ئۇقتۇرۇش ئۈچۈندۇر."
+msgstr ""
+"بۇ ئېلخەت سىزگە ساقلىغۇچىنىڭ {TipNum} لۇق مەلۇماتنىڭ پاش قىلغۇچى كىملىكىنى "
+"زىيارەت قىلىشنىڭىزغا ھوقۇق بەرگەنلىكىنى ئۇقتۇرۇش ئۈچۈندۇر."
 
 msgid "The report can be accessed at:"
 msgstr "مەلۇماتنى بۇ يەردىن كۆرەلەيسىز:"
@@ -1892,10 +1915,13 @@ msgstr "مەلۇماتنى بۇ يەردىن كۆرەلەيسىز:"
 msgid "Access to reporting person's identity authorized"
 msgstr "پاش قىلغۇچىنىڭ كىملىكىنى زىيارەت قىلىشقا ھوقۇق بېرىلدى"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "بۇ ئېلخەت سىزگە ساقلىغۇچىنىڭ {TipNum} لۇق مەلۇماتىنىڭ پاش قىلغۇچى كىملىكىنى زىيارەت قىلىشنىڭىزنى رەت قىلغىنىنى ئۇقتۇرۇش ئۈچۈندۇر."
+msgstr ""
+"بۇ ئېلخەت سىزگە ساقلىغۇچىنىڭ {TipNum} لۇق مەلۇماتىنىڭ پاش قىلغۇچى كىملىكىنى "
+"زىيارەت قىلىشنىڭىزنى رەت قىلغىنىنى ئۇقتۇرۇش ئۈچۈندۇر."
 
 msgid "Access to reporting person's identity denied"
 msgstr "پاش قىلغۇچىنىڭ كىملىكىنى زىيارەت قىلىش رەت قىلىندى"

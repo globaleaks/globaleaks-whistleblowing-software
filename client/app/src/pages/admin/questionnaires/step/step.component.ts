@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, Component, Input, OnInit, inject} from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
-import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import {Step} from "@app/models/resolvers/questionnaire-model";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {HttpService} from "@app/shared/services/http.service";
 
@@ -20,7 +20,6 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, TranslatorPipe, OrderByPipe, TranslateModule]
 })
 export class StepComponent implements OnInit {
-  private cdr = inject(ChangeDetectorRef);
   private httpService = inject(HttpService);
   protected fieldTemplates = inject(FieldTemplatesResolver);
 
@@ -48,30 +47,12 @@ export class StepComponent implements OnInit {
     this.showAddQuestion = false;
   }
 
-  listenToAddField() {
+  onAdd() {
     this.showAddQuestion = false;
-  }
-
-  listenToAddFieldFormTemplate() {
     this.showAddQuestionFromTemplate = false;
   }
 
-  listenToFields() {
-    this.getResolver()
-  }
-
-  getResolver() {
-    return this.httpService.requestQuestionnairesResource().subscribe(response => {
-      response.forEach((step: questionnaireResolverModel) => {
-        if (step.id === this.step.questionnaire_id) {
-          step.steps.forEach((innerStep: any) => {
-            if (innerStep.id === this.step.id) {
-              this.step = innerStep;
-            }
-          })
-          this.cdr.markForCheck();
-        }
-      });
-    });
+  onDelete(id: string) {
+    this.step.children = this.step.children.filter(i => i.id !== id);
   }
 }

@@ -3,7 +3,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
-import {AppDataService} from "@app/app-data.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";

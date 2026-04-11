@@ -35,7 +35,7 @@
             <div class="fileUploadBox mt-2 mb-2">
               @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
                 <div>
-                  <src-rfile-upload-status (dataToParent)="receiveData($event)" [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
+                  <src-rfile-upload-status (updated)="receiveData($event)" [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
                 </div>
               }
             </div>

@@ -23,13 +23,11 @@
         <src-tip-info [tipService]="wbTipService"></src-tip-info>
       </div>
     </div>
-    @if (wbTipService.tip.receivers && wbTipService.tip.receivers.length > 1) {
-      <div class="row">
-        <div class="col-md-12">
-          <src-tip-receiver-list [tipService]="wbTipService"></src-tip-receiver-list>
-        </div>
+    <div class="row">
+      <div class="col-md-12">
+        <src-tip-receiver-list [tipService]="wbTipService"></src-tip-receiver-list>
       </div>
-    }
+    </div>
     @if (wbTipService.tip.data) {
       <div class="row">
         <div [ngClass]="{'col-md-12': !wbTipService.tip.whistleblower_identity_field,'col-md-6': wbTipService.tip.whistleblower_identity_field}">

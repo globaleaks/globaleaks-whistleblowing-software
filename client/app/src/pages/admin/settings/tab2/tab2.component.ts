@@ -1,6 +1,5 @@
 import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
 import {NgForm} from "@angular/forms";
-import Flow from "@flowjs/flow.js";
 import type {FlowFile} from "@flowjs/flow.js";
 import {FlowConfig} from "@flowjs/ngx-flow";
 import {AuthenticationService} from "@app/services/helper/authentication.service";

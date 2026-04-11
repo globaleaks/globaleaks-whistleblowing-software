@@ -95,13 +95,13 @@ def backup(args):
 
     must_stop = is_gl_running()
 
-    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
+    if must_stop: sp.check_call(["systemctl", "stop", "globaleaks"])
     print("Creating an archive backup of the globaleaks setup. . .")
     p_head, p_tail = os.path.split(args.workdir)
 
     sp.check_call(["tar", "-zcf", args.backuppath, "--exclude='backups'", "-C", args.workdir, '.'])
 
-    if must_stop: sp.check_call(["service", "globaleaks", "start"])
+    if must_stop: sp.check_call(["systemctl", "start", "globaleaks"])
     print("Success: The archived backup was created at:", args.backuppath)
 
 
@@ -119,17 +119,18 @@ def restore(args):
     print("-"*72)
 
     must_stop = is_gl_running()
-    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
+    if must_stop: sp.check_call(["systemctl", "stop", "globaleaks"])
     print("Deleting {} . . .".format(args.workdir))
 
     p_head, p_tail = os.path.split(args.workdir)
 
     shutil.rmtree(args.workdir)
+    os.makedirs(args.workdir)
 
     print("Extracting the archive {}".format(args.backuppath))
     sp.check_call(["tar", "-xf", args.backuppath, "-C", args.workdir])
 
-    if must_stop: sp.check_call(["service", "globaleaks", "stop"])
+    if must_stop: sp.check_call(["systemctl", "start", "globaleaks"])
 
     print("Success! globaleaks has been restored from a backup")
 

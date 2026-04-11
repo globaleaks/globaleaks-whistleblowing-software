@@ -1,11 +1,11 @@
 name: GlobaLeaks
-releaseDate: '2025-12-14'
+releaseDate: '2026-04-11'
 publiccodeYmlVersion: '0.5.0'
 url: 'https://github.com/globaleaks/globaleaks-whistleblowing-software'
 landingURL: 'https://www.globaleaks.org/'
 roadmap: "https://docs.globaleaks.org/en/stable/technical/roadmap.html"
 logo: brand/assets/svg/globaleaks-icon-color.svg
-softwareVersion: 5.0.87
+softwareVersion: 5.0.90
 softwareType: standalone/web
 developmentStatus: stable
 platforms:
@@ -82,13 +82,13 @@ localisation:
     - et
     - eu
     - fa
-    - fa_AF
+    - fa-AF
     - fi
     - fr
     - gl
     - he
-    - hr_HR
-    - hu_HU
+    - hr-HR
+    - hu-HU
     - id
     - it
     - ja
@@ -100,18 +100,19 @@ localisation:
     - lt
     - mg
     - mk
+    - mn
     - ms
     - my
-    - nb_NO
+    - nb-NO
     - nl
     - pl
     - ps
-    - pt_BR
-    - pt_PT
+    - pt-BR
+    - pt-PT
     - ro
     - ru
     - sk
-    - sl_SI
+    - sl-SI
     - sq
     - sr-ME
     - sr-RS
@@ -129,9 +130,9 @@ localisation:
     - uk
     - ur
     - vi
-    - zh_CN
-    - zh_HK
-    - zh_TW
+    - zh-CN
+    - zh-HK
+    - zh-TW
 IT:
   piattaforme:
     spid: true

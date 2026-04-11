@@ -2,7 +2,6 @@ import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import Flow from "@flowjs/flow.js";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import {NgClass} from "@angular/common";
@@ -30,7 +29,7 @@ export class TipUploadWbFileComponent {
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
   @Input() tip: RecieverTipData;
   @Input() key: string;
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() updated = new EventEmitter<string>();
   collapsed = false;
   file_upload_description = "";
   fileInput = "fileinput";
@@ -45,8 +44,9 @@ export class TipUploadWbFileComponent {
       flowJsInstance.opts.singleFile = true;
       flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024};
       flowJsInstance.on("fileSuccess", (_) => {
-        this.dataToParent.emit()
+        this.updated.emit()
         this.errorFile = null;
+        this.cdr.detectChanges();
       });
       flowJsInstance.on("fileError", (file, _) => {
         this.showError = true;
@@ -61,9 +61,9 @@ export class TipUploadWbFileComponent {
     }
   }
 
-  listenToWbfiles(files: string) {
-    this.utilsService.deleteResource(this.tip.rfiles, files);
-    this.dataToParent.emit()
+  listenToWbfiles(id: string) {
+    this.utilsService.deleteResource(this.tip.rfiles, id);
+    this.updated.emit();
   }
 
   protected dismissError() {

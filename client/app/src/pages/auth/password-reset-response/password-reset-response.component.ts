@@ -3,7 +3,6 @@ import {PasswordRecoveryModel} from "@app/models/authentication/password-recover
 import {ActivatedRoute, Router} from "@angular/router";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {AppDataService} from "@app/app-data.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";

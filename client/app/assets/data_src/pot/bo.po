@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Tibetan (http://app.transifex.com/otf/globaleaks/language/bo/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Tibetan <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/bo/>\n"
+"Language: bo\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: bo\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "མཐོ་པོ།"
 msgid "Hint"
 msgstr "བརྡ་སྟོན།"
 
+#, fuzzy
 msgid "Home"
 msgstr "མདུན་ངོས།"
 
@@ -694,6 +698,9 @@ msgstr "གླེང་སྟེགས་དེ་ Tor མེད་པའི་�
 
 msgid "License"
 msgstr "ཆོག་མཆན་ལག་ཁྱེར།"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "ནང་རོལ་སྤྱོད་པ་པོའི་ཐོ་འགོད་ལྟ་སྤྱོད།"
@@ -1328,10 +1335,12 @@ msgid ""
 "deselected:"
 msgstr "གཤམ་འཁོད་འབྱོར་ཡུལ་རྣམས་ལ་ཁྱེད་ཀྱི་སྙན་ཐོ་འབྱོར་བ་དང་། མི་འདེམས་པ་བྱེད་མི་ཐུབ་པ་ཡིན།:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "ཁྱེད་ཀྱི་གསང་སྒྲོག་སྟེགས་བུ་བསྐྲུན་པར་གཤམ་འཁོད་རིམ་པ་ཅན་གྱི་རྒྱུད་རིམ་གྱིས་ལམ་སྟོན་བྱེད་ཀྱི་རེད། "
+msgstr ""
+"ཁྱེད་ཀྱི་གསང་སྒྲོག་སྟེགས་བུ་བསྐྲུན་པར་གཤམ་འཁོད་རིམ་པ་ཅན་གྱི་རྒྱུད་རིམ་གྱིས་ལམ་སྟོན་བྱེད་ཀྱི་རེད། "
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1530,12 +1539,17 @@ msgstr "ཡིག་ཆ་(རྣམས་) ཡར་འཇུག་ཟིན་
 msgid "Warning"
 msgstr "ཉེན་བརྡ།"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "འབྱོར་ཡུལ་རྣམས་ཀྱི་སོ་སོའི་གསང་ཡིག་བརླག་པའི་གནས་སྟངས་སུ། གཞི་གྲངས་རྣམས་བོར་བརླག་མེད་པར་སྲུང་སྐྱོབ་བྱེད་པར་འདོད་ན་གདམ་ག་འདི་འདེམས་རྒྱུར་ང་ཚོས་སློབ་སྟོན་བྱེད་ཀྱི་ཡོད། ཕྱོགས་གཞན་ཞིག་ཏུ། གལ་ཏེ་ཁྱེད་ཀྱིས་འབྱོར་ཡུལ་ཁོ་ནས་ཞུ་འབུལ་ལྟ་སྤྱོད་ཆོག་པའི་མ་ལག་ཅིག་སྒྲིག་བཀོད་བྱེད་པ་འདོད་ན། ང་ཚོད་ཁྱད་ཆོས་འདི་བེད་སྤྱོད་མི་བྱེད་པའི་སློབ་སྟོན་བྱེད་ཀྱི་ཡོད། "
+msgstr ""
+"འབྱོར་ཡུལ་རྣམས་ཀྱི་སོ་སོའི་གསང་ཡིག་བརླག་པའི་གནས་སྟངས་སུ། གཞི་གྲངས་རྣམས་བོར་བརླག་མེད་པར་སྲུང་སྐྱོབ་བྱེད་"
+"པར་འདོད་ན་གདམ་ག་འདི་འདེམས་རྒྱུར་ང་ཚོས་སློབ་སྟོན་བྱེད་ཀྱི་ཡོད། ཕྱོགས་གཞན་ཞིག་ཏུ། གལ་ཏེ་ཁྱེད་ཀྱིས་འབྱོར་ཡུལ"
+"་ཁོ་ནས་ཞུ་འབུལ་ལྟ་སྤྱོད་ཆོག་པའི་མ་ལག་ཅིག་སྒྲིག་བཀོད་བྱེད་པ་འདོད་ན། ང་ཚོད་ཁྱད་ཆོས་འདི་བེད་སྤྱོད་མི་བྱེད་པའི"
+"་སློབ་སྟོན་བྱེད་ཀྱི་ཡོད། "
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1602,6 +1616,7 @@ msgstr "ཁྱེད་ཀྱི་གློག་འཕྲིན་ཁ་བྱ
 msgid "Your report was successful."
 msgstr "ཁྱེད་ཀྱི་སྙན་ཐོ་ལེགས་གྲུབ་ཟིན།"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "ཁྱེད་ཀྱི་གསང་སྒྲོག་པའི་གླེང་སྟེགས་དེ་ཕལ་ཆེར་གྲ་སྒྲིག་རེད་འདུག"
 
@@ -1741,8 +1756,10 @@ msgstr "འཚམས་འདྲི་བཅས།"
 msgid "Account activation"
 msgstr "ཐོ་ཁོངས་ནུས་ལྡན་བཟོ་ཚུལ།"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "ཁྱེད་ཀྱི་གསང་སྒྲོག་པའི་གླེང་སྟེགས་དེ་ད་ལྟ་འདིའི་སྟེང་ལྟ་སྤྱོད་ཐུབ་པ་ཡིན།:"
+msgstr ""
+"ཁྱེད་ཀྱི་གསང་སྒྲོག་པའི་གླེང་སྟེགས་དེ་ད་ལྟ་འདིའི་སྟེང་ལྟ་སྤྱོད་ཐུབ་པ་ཡིན།:"
 
 msgid "To log in, visit:"
 msgstr "ནང་འཛུལ་བྱེད་པར། འདིའི་སྟེང་བསྐྱོད།:"
@@ -1787,6 +1804,7 @@ msgstr "འཐད་ལྡན་ PGP མཐེབ་ཞིག་མེད་པ�
 msgid "PGP key expiration alert"
 msgstr "PGP མཐེབ་དུས་ཡོལ་ཉེན་བརྡ།"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "གསང་སྒྲོག་པའི་དྲ་ཚིགས་གསར་པ་ཞིག་དེབ་སྐྱེལ་བྱེད་འདུག"
 
@@ -1802,6 +1820,7 @@ msgstr "མིང་།: {Name}"
 msgid "Email: {Email}"
 msgstr "གློག་འཕྲིན།: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "གསང་སྒྲོག་པའི་དྲ་ཚིགས་གསར་པ་དེབ་སྐྱེལ་ཟིན།"
 
@@ -1839,6 +1858,7 @@ msgstr "ནས།: {Author}"
 msgid "Date: {EventTime}"
 msgstr "ཚེས་གྲངས།: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ནས།: གསང་སྒྲོག་པ།"
 
@@ -1880,10 +1900,13 @@ msgstr "མ་ལག་གིས་མུ་མཐུད་ནས་འབད་
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS ལག་འཁྱེར་བསྐྱར་བཟོ་མི་ཐུབ།"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "བདག་གཉེར་བ་ཞིག་གིས་ཁྱེད་ལ་སྙན་ཐོའི་ {TipNum} ཆེད་གསང་སྒྲོག་ངོ་བོ་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་སྤྲད་ཡོད་པའི་གློག་འཕྲིན་བརྡ་ཐོ་ཞིག་ཡིན། "
+msgstr ""
+"བདག་གཉེར་བ་ཞིག་གིས་ཁྱེད་ལ་སྙན་ཐོའི་ {TipNum} ཆེད་གསང་སྒྲོག་ངོ་བོ་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་སྤྲད་ཡོད་པའི་གློག་"
+"འཕྲིན་བརྡ་ཐོ་ཞིག་ཡིན། "
 
 msgid "The report can be accessed at:"
 msgstr "སྙན་ཐོ་དེ་འདིའི་སྟེང་ལྟ་སྤྱོད་བྱེད་ཐུབ།:"
@@ -1891,10 +1914,13 @@ msgstr "སྙན་ཐོ་དེ་འདིའི་སྟེང་ལྟ་
 msgid "Access to reporting person's identity authorized"
 msgstr "གསང་སྒྲོག་པའི་ངོ་བོའི་སྟེང་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་ཟིན།"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "བདག་གཉེར་བ་ཞིག་གིས་ཁྱེད་ལ་སྙན་ཐོའི་ {TipNum} ཆེད་གསང་སྒྲོག་ངོ་བོ་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་སྤྲད་མེད་པའི་གློག་འཕྲིན་བརྡ་ཐོ་ཞིག་ཡིན། "
+msgstr ""
+"བདག་གཉེར་བ་ཞིག་གིས་ཁྱེད་ལ་སྙན་ཐོའི་ {TipNum} ཆེད་གསང་སྒྲོག་ངོ་བོ་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་སྤྲད་མེད་པའི་གློག་"
+"འཕྲིན་བརྡ་ཐོ་ཞིག་ཡིན། "
 
 msgid "Access to reporting person's identity denied"
 msgstr "གསང་སྒྲོག་པའི་ངོ་བོའི་སྟེང་ལྟ་སྤྱོད་བཀའ་འཁྲོལ་མི་འདུག"

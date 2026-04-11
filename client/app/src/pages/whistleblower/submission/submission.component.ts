@@ -10,7 +10,6 @@ import {NgForm, FormsModule} from "@angular/forms";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Context, Questionnaire, Receiver} from "@app/models/app/public-model";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
-import {Field} from "@app/models/resolvers/field-template-model";
 import Flow from "@flowjs/flow.js";
 import {TitleService} from "@app/shared/services/title.service";
 import {Router} from "@angular/router";

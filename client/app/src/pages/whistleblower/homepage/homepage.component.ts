@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, inject, OnInit} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DisclaimerComponent} from "@app/shared/modals/disclaimer/disclaimer.component";
@@ -17,11 +17,17 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     standalone: true,
     imports: [MarkdownComponent, ReceiptComponent, TranslateModule, TranslatorPipe, StripHtmlPipe]
 })
-export class HomepageComponent {
+export class HomepageComponent  implements OnInit {
   protected appConfigService = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
   private modalService = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
 
+  ngOnInit(): void {
+    if (this.appDataService.public.node.homepage === '/submission') {
+      this.appConfigService.setPage("submissionpage");
+    }
+  }
 
   openSubmission() {
     if (this.appDataService.public.node.disclaimer_text) {
@@ -37,6 +43,7 @@ export class HomepageComponent {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         this.appConfigService.setPage("submissionpage");
+        this.cdr.markForCheck();
         return this.appDataService.page;
       };
     });

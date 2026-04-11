@@ -1,5 +1,5 @@
 import {Injectable, inject} from "@angular/core";
-import {Observable, of, BehaviorSubject, switchMap, map} from "rxjs";
+import {Observable, BehaviorSubject, switchMap, map} from "rxjs";
 import {HttpService} from "@app/shared/services/http.service";
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";

@@ -1,4 +1,4 @@
-import * as sodium from 'libsodium-wrappers-sumo';
+import sodium from 'libsodium-wrappers-sumo';
 
 async function hashArgon2(password, salt, iterations, memory) {
   const passwordBytes = sodium.from_string(password);

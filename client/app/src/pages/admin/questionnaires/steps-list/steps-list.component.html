@@ -6,16 +6,6 @@
     </span>
     <span class="col-md-5 clearfix">
       <span class="float-end">
-        @if (index !== 0) {
-          <button class="actionButton btn btn-sm btn-primary" (click)="moveUp($event,index)" ngbTooltip="{{'Move up' | translate}}">
-            <i class="fas fa-chevron-up"></i>
-          </button>
-        }
-        @if (index !== questionnaire.steps.length - 1) {
-          <button class="actionButton btn btn-sm btn-primary" (click)="moveDown($event,index)" ngbTooltip="{{'Move down' | translate}}">
-            <i class="fas fa-chevron-down"></i>
-          </button>
-        }
         @if (!editing) {
           <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(); $event.stopPropagation();">
             <span>{{ 'Edit' | translate }}</span>
@@ -33,6 +23,12 @@
         }
         <button name="delStep" class="btn btn-sm btn-danger" (click)="deleteStep(step); $event.stopPropagation();">
           <span>{{ 'Delete' | translate }}</span>
+        </button>
+        <button class="actionButton btn btn-sm btn-primary" (click)="moveUp($event,index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="index === 0">
+          <i class="fas fa-chevron-up"></i>
+        </button>
+        <button class="actionButton btn btn-sm btn-primary" (click)="moveDown($event,index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="index === questionnaire.steps.length - 1">
+          <i class="fas fa-chevron-down"></i>
         </button>
       </span>
     </span>

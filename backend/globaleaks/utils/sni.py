@@ -58,12 +58,14 @@ class _ContextProxy(object):
     def __setattr__(self, attr, val):
         if attr in ('_obj', '_factory'):
             self.__dict__[attr] = val
-
-        return setattr(self._obj, attr, val)
+        else:
+            setattr(self._obj, attr, val)
 
     def __delattr__(self, attr):
-        return delattr(self._obj, attr)
-
+        if attr in ('_obj', '_factory'):
+            del self.__dict__[attr]
+        else:
+            delattr(self._obj, attr)
 
 class _ConnectionProxy(object):
     """
@@ -137,7 +139,7 @@ class SNIMap(object):
 
     def selectContext(self, connection):
         try:
-            common_name = connection.get_servername().decode()
+            common_name = connection.get_servername().decode().lower()
         except:
             common_name = '127.0.0.1'
 

@@ -16,6 +16,7 @@ export class nodeResolverModel {
   encryption: boolean;
   escrow: boolean;
   hostname: string;
+  homepage: string;
   latest_version: string;
   log_accesses_of_internal_users: boolean;
   log_level: string;

@@ -30,5 +30,5 @@
 .form-select-custom:focus {
   outline: none;
   border-color: #66afe9;
-  box-shadow: 0 0 5px rgb(102 175 233 / 0.5);
+  box-shadow: 0 0 5px rgb(102 175 233 / 50%);
 }

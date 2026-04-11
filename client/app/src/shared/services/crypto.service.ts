@@ -1,7 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Observable, from, of} from "rxjs";
 import {switchMap} from "rxjs/operators";
-import * as sodium from 'libsodium-wrappers-sumo';
 
 @Injectable({
   providedIn: "root"

@@ -479,15 +479,6 @@
                           <input id="field-option-label-{{option.id}}" class="form-control" name="option.label" [(ngModel)]="option.label" [attr.placeholder]="'Label' | translate" [placeholder]="'Label' | translate" type="text" [disabled]="!field.editable" required />
                         </div>
                         <div class="col-md-5">
-                          <button name="delOption" class="btn btn-sm btn-danger" (click)="delOption(option)">
-                            <i class="fas fa-xmark"></i>
-                          </button>
-                          <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
-                            <i class="fas fa-chevron-up"></i>
-                          </button>
-                          <button [disabled]="i === field.options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
-                            <i class="fas fa-chevron-down"></i>
-                          </button>
                           <span>
                             <button class="btn btn-sm" id="option_hint" [ngClass]="option.hint1 || option.hint2 ? 'btn-primary' : 'btn-outline-secondary'" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
                               <i class="fas fa-circle-question"></i>
@@ -525,6 +516,15 @@
                               </button>
                             </span>
                           }
+                          <button name="delOption" class="btn btn-sm btn-danger" (click)="delOption(option)">
+                            <i class="fas fa-xmark"></i>
+                          </button>
+                          <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
+                            <i class="fas fa-chevron-up"></i>
+                          </button>
+                          <button [disabled]="i === field.options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
+                            <i class="fas fa-chevron-down"></i>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -555,12 +555,12 @@
                   <div class="row">
                     @if (showAddQuestion) {
                       <div class="col-md-12">
-                        <src-add-field [step]="field" [type]="'field'" (dataToParent)="listenToAddField()"></src-add-field>
+                        <src-add-field [step]="field" [type]="'field'"></src-add-field>
                       </div>
                     }
                     @if (showAddQuestionFromTemplate) {
                       <div class="col-md-12">
-                        <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field" [type]="'field'" (dataToParent)="listenToAddFieldFormTemplate()"></src-add-field-from-template>
+                        <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field" [type]="'field'"></src-add-field-from-template>
                       </div>
                     }
                   </div>
@@ -570,7 +570,7 @@
                     <div>
                       <div id="field-{{index}}" class="fieldBox">
                         <form #editField="ngForm">
-                          <src-fields (dataToParent)="listenToFields()" [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields"></src-fields>
+                          <src-fields [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields"></src-fields>
                         </form>
                       </div>
                     </div>

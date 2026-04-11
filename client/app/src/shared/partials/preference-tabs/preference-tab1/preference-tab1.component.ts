@@ -12,7 +12,6 @@ import {HttpService} from "@app/shared/services/http.service";
 import {
   EncryptionRecoveryKeyComponent
 } from "@app/shared/modals/encryption-recovery-key/encryption-recovery-key.component";
-import {TranslationService} from "@app/services/helper/translation.service";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {

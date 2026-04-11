@@ -1,0 +1,2131 @@
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2026-04-09 08:06+0000\n"
+"Last-Translator: Nomin-Erdene J "
+"<boditugs@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Mongolian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/mn/>\n"
+"Language: mn\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
+
+msgid "0 = auto"
+msgstr "0 = авто"
+
+msgid "Accept multiple answers"
+msgstr "Олон хариултыг хүлээн авах"
+
+msgid "Accept multiple file uploads"
+msgstr "Олон файл байршуулахыг зөвшөөрөх"
+
+msgid "Acceptable"
+msgstr "Хүлээн зөвшөөрөгдөхүйц"
+
+msgid "Access control"
+msgstr "Хандалтын хяналт"
+
+msgid "Access date"
+msgstr "Хандалтын огноо"
+
+msgid "Access requested"
+msgstr "Хандалт хүссэн"
+
+msgid "Account recovery key"
+msgstr "Бүртгэл сэргээх түлхүүр"
+
+msgid "Activities"
+msgstr "Үйл ажиллагаанууд"
+
+msgid "Add"
+msgstr "Нэмэх"
+
+msgid "Add custom text"
+msgstr "Захиалгат текст нэмэх"
+
+msgid "Add multimedia content"
+msgstr "Мультимедиа контент нэмэх"
+
+msgid "Add new question"
+msgstr "Шинэ асуулт нэмэх"
+
+msgid "Add new questionnaire"
+msgstr "Шинэ асуулга нэмэх"
+
+msgid "Add question from template"
+msgstr "Загвараас асуулт нэмэх"
+
+msgid "Addition"
+msgstr "Нэмэлт"
+
+msgid "Additional questionnaire"
+msgstr "Нэмэлт асуулга"
+
+msgid "Address"
+msgstr "Хаяг"
+
+msgid "Admin"
+msgstr "Админ"
+
+msgid "Administrators authorized to change user passwords:"
+msgstr "Хэрэглэгчийн нууц үгийг өөрчлөх эрх бүхий админууд:"
+
+msgid "Advanced"
+msgstr "Ахисан"
+
+msgid "Allow the recipient to edit the reports' expiration date"
+msgstr "Хүлээн авагчид мэдээллийн хугацаа дуусах огноог засахыг зөвшөөрөх"
+
+msgid "Allow the recipient to delete reports"
+msgstr "Хүлээн авагчид мэдээллийг устгахыг зөвшөөрөх"
+
+msgid "Allow the reporting person to add attachments"
+msgstr "Мэдээлэгч хүнд хавсралт нэмэхийг зөвшөөрөх"
+
+msgid "Allow the reporting person to write comments"
+msgstr "Мэдээлэгч хүнд сэтгэгдэл бичихийг зөвшөөрөх"
+
+msgid "Allow users to sign up"
+msgstr "Хэрэглэгчдэд бүртгүүлэхийг зөвшөөрөх"
+
+msgid "Allow reporting persons to select their recipients"
+msgstr "Мэдээлэгчдэд хүлээн авагчдаа сонгохыг зөвшөөрөх"
+
+msgid "Allowed IP addresses"
+msgstr "Зөвшөөрөгдсөн IP хаягууд"
+
+msgid "An update is available:"
+msgstr "Шинэчлэлт боломжтой байна:"
+
+msgid "Analyst"
+msgstr "Шинжээч"
+
+msgid "Anomalies"
+msgstr "Гажилтууд"
+
+msgid "Anomaly detection thresholds"
+msgstr "Гажилт илрүүлэх босго"
+
+msgid "Anonymity"
+msgstr "Өөрийгөө нууцлах"
+
+msgid "Anonymize outgoing connections"
+msgstr "Гарч буй холболтуудыг танигдахгүй болгох"
+
+msgid "Anonymous"
+msgstr "Өөрийгөө нууцалсан"
+
+msgid "Are you sure?"
+msgstr "Та итгэлтэй байна уу?"
+
+msgid "Assigned to"
+msgstr "Хуваарилагдсан"
+
+msgid "Attachment"
+msgstr "Хавсралт"
+
+msgid "Attachments"
+msgstr "Хавсралтууд"
+
+msgid "Attention"
+msgstr "Анхаарал"
+
+msgid "Audio"
+msgstr "Аудио"
+
+msgid "Audit log"
+msgstr "Аудитын бүртгэл"
+
+msgid "Authentication failed"
+msgstr "Баталгаажуулалт амжилтгүй боллоо"
+
+msgid "Authorization"
+msgstr "Зөвшөөрөл"
+
+msgid "Authorize"
+msgstr "Зөвшөөрөх"
+
+msgid "Authorize access to the reporting person's identity"
+msgstr "Мэдээлэгчийн хувийн нууцад хандахыг зөвшөөрөх"
+
+msgid "Authorized"
+msgstr "Зөвшөөрсөн"
+
+msgid "Auto-renewal"
+msgstr "Автомат шинэчлэлт"
+
+msgid "Automatic configuration"
+msgstr "Автомат тохиргоо"
+
+msgid "Available disk space"
+msgstr "Боломжтой дискний зай"
+
+msgid "Before proceeding please read carefully the documentation at:"
+msgstr "Үргэлжлүүлэхийн өмнө дараах баримт бичгийг анхааралтай уншина уу:"
+
+msgid "Before proceeding, please enable the two factor authentication."
+msgstr "Үргэлжлүүлэхийн өмнө давхар баталгаажуулалтыг идэвхжүүлнэ үү."
+
+msgid "Before proceeding, please set a new password."
+msgstr "Үргэлжлүүлэхийн өмнө шинэ нууц үг тохируулна уу."
+
+msgid "Block the submission"
+msgstr "Илгээхийг хаах"
+
+msgid "By confirming, you will edit the expiration date to:"
+msgstr "Баталгаажуулснаар та хугацаа дуусах огноог дараах байдлаар засварлана:"
+
+msgid "By confirming, you will set a reminder on date:"
+msgstr "Баталгаажуулснаар та дараах огноонд сануулагч тохируулах болно:"
+
+msgid ""
+"By enabling this feature, you will contribute to the development and "
+"security of the platform."
+msgstr ""
+"Энэ функцийг идэвхжүүлснээр та платформын хөгжил болон аюулгүй байдалд хувь "
+"нэмэр оруулах болно."
+
+msgid "Cancel"
+msgstr "Цуцлах"
+
+msgid "Case management"
+msgstr "Кейс менежмент"
+
+msgid "Certificate"
+msgstr "Гэрчилгээ"
+
+msgid "Certificate Signing Request"
+msgstr "Гэрчилгээнд гарын үсэг зурах хүсэлт"
+
+msgid "Deselect all"
+msgstr "Бүгдийг нь сонгохоо болих"
+
+msgid "Details"
+msgstr "Дэлгэрэнгүй мэдээлэл"
+
+msgid "Details of the PGP key:"
+msgstr "PGP түлхүүрийн дэлгэрэнгүй мэдээлэл:"
+
+msgid "Devices"
+msgstr "Төхөөрөмжүүд"
+
+msgid "Disable"
+msgstr "Идэвхгүй болгох"
+
+msgid "Disable notifications to administrators"
+msgstr "Админуудад мэдэгдлийг идэвхгүй болгох"
+
+msgid "Disable notifications to custodians"
+msgstr "Кастодианд мэдэгдэхийг идэвхгүй болгох"
+
+msgid "Disable notifications to recipients"
+msgstr "Хүлээн авагчдад мэдэгдэхийг идэвхгүй болгох"
+
+msgid "Disable submissions"
+msgstr "Илгээмжийг идэвхгүй болгох"
+
+msgid "Disable the privacy panel"
+msgstr "Нууцлалын самбарыг идэвхгүй болгох"
+
+msgid "Disable two factor authentication"
+msgstr "Давхар баталгаажуулалтыг идэвхгүй болгох"
+
+msgid "Disabled"
+msgstr "Идэвхгүй"
+
+msgid "Disclaimer"
+msgstr "Татгалзах мэдэгдэл"
+
+msgid "Display options alphabetically"
+msgstr "Сонголтуудыг цагаан толгойн үсгээр харуулах"
+
+msgid "Download"
+msgstr "Татаж авах"
+
+msgid "Download copy of the Privacy Policy"
+msgstr "Нууцлалын бодлогын хуулбарыг татаж авах"
+
+msgid "Download the Tor Browser"
+msgstr "Tor хөтөчийг татаж авах"
+
+msgid "Duplicate"
+msgstr "Хуулбарлах"
+
+msgid "Each entry must be separated with a comma."
+msgstr "Оруулга бүрийг таслалаар тусгаарлах ёстой."
+
+msgid "Earliest selectable date"
+msgstr "Хамгийн эрт сонгож болох огноо"
+
+msgid "Edit"
+msgstr "Засварлах"
+
+msgid "Edit the expiration date"
+msgstr "Хугацаа дуусах огноог засах"
+
+msgid "Email"
+msgstr "И-мэйл"
+
+msgid "Email address"
+msgstr "И-мэйл хаяг"
+
+msgid "Enable"
+msgstr "Идэвхжүүлэх"
+
+msgid "Enable PGP"
+msgstr "PGP-г идэвхжүүлэх"
+
+msgid "Enable administrators to change user passwords"
+msgstr "Администраторуудад хэрэглэгчийн нууц үгийг өөрчлөхийг зөвшөөрөх"
+
+msgid "Enable custom privacy panel"
+msgstr "Захиалгат нууцлалын самбарыг идэвхжүүлэх"
+
+msgid "Enable email notifications"
+msgstr "Имэйл мэдэгдлийг идэвхжүүлэх"
+
+msgid "Enable email notifications for:"
+msgstr "Дараахын имэйл мэдэгдлийг идэвхжүүлэх:"
+
+msgid "Enable encryption"
+msgstr "Шифрлэлтийг идэвхжүүлэх"
+
+msgid "Enable scoring system"
+msgstr "Онооны системийг идэвхжүүлэх"
+
+msgid "Enable search engines indexing"
+msgstr "Хайлтын системийн индексжүүлэлтийг идэвхжүүлэх"
+
+msgid "Enable simplified login"
+msgstr "Хялбаршуулсан нэвтрэлтийг идэвхжүүлэх"
+
+msgid "Enable terms of service"
+msgstr "Үйлчилгээний нөхцөлийг идэвхжүүлэх"
+
+msgid "Enable two factor authentication"
+msgstr "Давхар баталгаажуулалтыг идэвхжүүлэх"
+
+msgid "Enabled"
+msgstr "Идэвхжүүлсэн"
+
+msgid "Enter a name for the copy"
+msgstr "Хуулбарын нэрийг оруулна уу"
+
+msgid "Enter a report"
+msgstr "Мэдээлэл оруулах"
+
+msgid "Enter the two factor authentication code"
+msgstr "Давхар баталгаажуулалтын кодыг оруулна уу"
+
+msgid "Enter your account recovery key to complete the password reset procedure"
+msgstr ""
+"Нууц үг шинэчлэх процедурыг дуусгахын тулд бүртгэлээ сэргээх түлхүүрээ "
+"оруулна уу"
+
+msgid ""
+"Enter your account's username or your email address to request a password "
+"reset."
+msgstr ""
+"Нууц үгээ шинэчлэх хүсэлт гаргахын тулд бүртгэлийнхээ хэрэглэгчийн нэр эсвэл "
+"имэйл хаягийг оруулна уу."
+
+msgid "Enter your email address to request a password reset."
+msgstr "Нууц үгээ шинэчлэх хүсэлт гаргахын тулд имэйл хаягаа оруулна уу."
+
+msgid "Error on input validation"
+msgstr "Оролтын баталгаажуулалтын алдаа"
+
+msgid "Error!"
+msgstr "Алдаа!"
+
+msgid "Everyone"
+msgstr "Хүн бүр"
+
+msgid "Example:"
+msgstr "Жишээ нь:"
+
+msgid "Expand"
+msgstr "Өргөжүүлэх"
+
+msgid ""
+"Access to the reporting person's identity has been requested to the "
+"custodian."
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандах эрхийг кастодианд хүссэн."
+
+msgid "Custodian"
+msgstr "Кастодиан"
+
+msgid "Change status"
+msgstr "Төлвийг өөрчлөх"
+
+msgid "Change your password"
+msgstr "Нууц үгээ өөрчилнө үү"
+
+msgid "Changelog"
+msgstr "Өөрчлөлтийн бүртгэл"
+
+msgid "Channel"
+msgstr "Суваг"
+
+msgid "Channels"
+msgstr "Сувгууд"
+
+msgid "Check your inbox to activate it."
+msgstr "Идэвхжүүлэхийн тулд ирсэн имэйлээ шалгана уу."
+
+msgid "Checkbox"
+msgstr "Чекбокс"
+
+msgid "City"
+msgstr "Хот"
+
+msgid "Close"
+msgstr "Хаах"
+
+msgid "Closed"
+msgstr "Хаасан"
+
+msgid "Collapse"
+msgstr "Хураах"
+
+msgid "Column"
+msgstr "Багана"
+
+msgid "Comments"
+msgstr "Сэтгэгдлүүд"
+
+msgid "Computer"
+msgstr "Компьютер"
+
+msgid "Configure"
+msgstr "Тохируулах"
+
+msgid "Confirm"
+msgstr "Баталгаажуулах"
+
+msgid "Congratulations!"
+msgstr "Баяр хүргэе!"
+
+msgid "Copy to clipboard"
+msgstr "Түр санах ойд хуулах"
+
+msgid "Country"
+msgstr "Улс"
+
+msgid "Country code"
+msgstr "Улсын код"
+
+msgid "Creation date"
+msgstr "Үүсгэсэн огноо"
+
+msgid "Creation date:"
+msgstr "Үүсгэсэн огноо:"
+
+msgid "Current password"
+msgstr "Одоогийн нууц үг"
+
+msgid "Custom"
+msgstr "Захиалгат"
+
+msgid "Custom privacy panel"
+msgstr "Захиалгат нууцлалын самбар"
+
+msgid "Custom support URL"
+msgstr "Захиалгат дэмжлэгийн URL"
+
+msgid "Custom text"
+msgstr "Захиалгат текст"
+
+msgid "Custom translation"
+msgstr "Захиалгат орчуулга"
+
+msgid "Date"
+msgstr "Огноо"
+
+msgid "Date of the request"
+msgstr "Хүсэлтийн огноо"
+
+msgid "Date range"
+msgstr "Огнооны хүрээ"
+
+msgid ""
+"Default mail configuration in use. Please consider using a private mail "
+"server."
+msgstr ""
+"Анхдагч имэйл тохиргоог ашиглаж байна. Хувийн имэйл сервер ашиглах талаар "
+"бодож үзнэ үү."
+
+msgid "Delete"
+msgstr "Устгах"
+
+msgid "Denied"
+msgstr "Татгалзсан"
+
+msgid "Deny"
+msgstr "Татгалзах"
+
+msgid "Deny access to the reporting person's identity"
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандахыг хориглох"
+
+msgid "Description"
+msgstr "Тайлбар"
+
+msgid "Deselect"
+msgstr "Сонголтыг цуцлах"
+
+msgid "Expiration date"
+msgstr "Хугацаа дуусах огноо"
+
+msgid "Export"
+msgstr "Экспортлох"
+
+msgid "File size"
+msgstr "Файлын хэмжээ"
+
+msgid "File size not accepted."
+msgstr "Файлын хэмжээг хүлээн авахгүй."
+
+msgid "Filename"
+msgstr "Файлын нэр"
+
+msgid "Files"
+msgstr "Файлууд"
+
+msgid "Files attached by recipients"
+msgstr "Хүлээн авагчдын хавсаргасан файлууд"
+
+msgid "Fill the additional questionnaire"
+msgstr "Нэмэлт асуулгыг бөглөнө үү"
+
+msgid "Fingerprint"
+msgstr "Хурууны хээ"
+
+msgid "First"
+msgstr "Эхний"
+
+msgid "Fiscal code"
+msgstr "Санхүүгийн код"
+
+msgid "Footer"
+msgstr "Доод хэсэг"
+
+msgid "For security reasons, the code needs to be changed."
+msgstr "Аюулгүй байдлын үүднээс кодыг өөрчлөх шаардлагатай."
+
+msgid "For security reasons, password changes are required at regular intervals."
+msgstr ""
+"Аюулгүй байдлын үүднээс нууц үгээ тогтмол хугацаанд өөрчлөх шаардлагатай "
+"байдаг."
+
+msgid "For the user documentation, visit:"
+msgstr "Хэрэглэгчийн баримт бичигтэй танилцахын тулд дараах хаягаар зочилно уу:"
+
+msgid "Forbidden operation"
+msgstr "Хориотой үйл ажиллагаа"
+
+msgid "Force password change"
+msgstr "Нууц үгийг хүчээр өөрчлөх"
+
+msgid "Forcefully selected"
+msgstr "Албадан сонгосон"
+
+msgid "Forgot password?"
+msgstr "Нууц үгээ мартсан уу?"
+
+msgid "From"
+msgstr "-аас"
+
+msgid "From:"
+msgstr "-аас:"
+
+msgid "Generate"
+msgstr "Үүсгэх"
+
+msgid "Give the user administrative access to the following features:"
+msgstr "Хэрэглэгчид дараах функцуудад администраторын эрх олгох:"
+
+msgid "Give this admin ability to change user passwords"
+msgstr "Энэ админд хэрэглэгчийн нууц үгийг өөрчлөх эрхийг өгөх"
+
+msgid "Give this user ability to grant user access to reports"
+msgstr "Энэ хэрэглэгчдэд мэдээлэлд хандах эрх олгох боломжийг олгох"
+
+msgid "Give this user ability to mask information"
+msgstr "Энэ хэрэглэгчид мэдээллийг нуух чадварыг олгох"
+
+msgid "Give this user ability to permanently redact masked information"
+msgstr "Энэ хэрэглэгчид далдлагдсан мэдээллийг бүрмөсөн устгах боломжийг олгох"
+
+msgid "Give this user ability to transfer reports to other users"
+msgstr "Энэ хэрэглэгчид мэдээллийг бусад хэрэглэгчдэд дамжуулах боломжийг олгох"
+
+msgid "Grant access"
+msgstr "Хандалт олгох"
+
+msgid "Group of questions"
+msgstr "Асуултуудын бүлэг"
+
+msgid "Have you already submitted a report? Enter your access code."
+msgstr "Та аль хэдийн мэдээллээ илгээсэн үү? Хандалтын кодоо оруулна уу."
+
+msgid "Hidden"
+msgstr "Нуугдсан"
+
+msgid "Hide"
+msgstr "Нуух"
+
+msgid "High"
+msgstr "Өндөр"
+
+msgid "Hint"
+msgstr "Зөвлөгөө"
+
+msgid "Home"
+msgstr "Гэр"
+
+msgid "Homepage title"
+msgstr "Нүүр хуудасны гарчиг"
+
+msgid "Hostname"
+msgstr "Хостын нэр"
+
+msgid "I have read and agree to the terms of the license."
+msgstr "Би лицензийн нөхцөлийг уншиж, зөвшөөрч байна."
+
+msgid "I've read and accept the Privacy Policy"
+msgstr "Би Нууцлалын бодлогыг уншиж, зөвшөөрч байна"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Identity"
+msgstr "Таних тэмдэг"
+
+msgid "If not activated within 24 hours the platform will be automatically deleted."
+msgstr ""
+"Хэрэв 24 цагийн дотор идэвхжүүлээгүй бол платформ автоматаар устах болно."
+
+msgid ""
+"If you need technical support, have general questions, or have new ideas "
+"for the software:"
+msgstr ""
+"Хэрэв танд техникийн туслалцаа хэрэгтэй бол, ерөнхий асуулт байвал, эсвэл "
+"програм хангамжийн талаар шинэ санаа байвал:"
+
+msgid ""
+"If you want to contribute to software development or report a bug, please "
+"open an issue in our ticketing system:"
+msgstr ""
+"Хэрэв та програм хангамж хөгжүүлэхэд хувь нэмэр оруулах эсвэл алдаа "
+"мэдээлэхийг хүсвэл манай тасалбарын системд асуудал нээнэ үү:"
+
+msgid "Image"
+msgstr "Зураг"
+
+msgid "Import"
+msgstr "Импортлох"
+
+msgid ""
+"In this step the answers to the following questions are either missing or "
+"invalid:"
+msgstr "Энэ алхамд дараах асуултуудын хариулт дутуу эсвэл хүчингүй байна:"
+
+msgid "Initially anonymous"
+msgstr "Эхэндээ нэргүй"
+
+msgid "Input validation"
+msgstr "Оролтын баталгаажуулалт"
+
+msgid "Install an authenticator app on your phone"
+msgstr "Утсан дээрээ баталгаажуулах апп суулгана уу"
+
+msgid "Intermediate Certificates"
+msgstr "Дунд шатны гэрчилгээ"
+
+msgid "Internal server error"
+msgstr "Дотоод серверийн алдаа"
+
+msgid "Invalid confirmation"
+msgstr "Буруу баталгаажуулалт"
+
+msgid "Invalid email address"
+msgstr "Буруу имэйл хаяг"
+
+msgid "Invalid phone number"
+msgstr "Буруу утасны дугаар"
+
+msgid "Issuer:"
+msgstr "Гаргагч:"
+
+msgid "Join our chat:"
+msgstr "Манай чатад нэгдээрэй:"
+
+msgid "Label"
+msgstr "Шошго"
+
+msgid "Label the report"
+msgstr "Мэдээллийг шошголох"
+
+msgid "Language"
+msgstr "Хэл"
+
+msgid "Language:"
+msgstr "Хэл:"
+
+msgid "Languages"
+msgstr "Хэлнүүд"
+
+msgid "Last"
+msgstr "Сүүлийн"
+
+msgid "Last Access"
+msgstr "Сүүлийн Хандалт"
+
+msgid "Last access"
+msgstr "Сүүлийн хандалт"
+
+msgid "Last update"
+msgstr "Сүүлийн шинэчлэлт"
+
+msgid "Latest selectable date"
+msgstr "Хамгийн сүүлд сонгож болох огноо"
+
+msgid "Let the platform be reachable without Tor"
+msgstr "Тор-гүйгээр платформд хандах боломжтой болгох"
+
+msgid "License"
+msgstr "Лиценз"
+
+msgid "Listen"
+msgstr "Сонсох"
+
+msgid "Log accesses of internal users"
+msgstr "Дотоод хэрэглэгчдийн бүртгэлийн хандалтууд"
+
+msgid "Log in"
+msgstr "Нэвтрэх"
+
+msgid "Logging level"
+msgstr "Нэвтрэх түвшин"
+
+msgid "Logo"
+msgstr "Лого"
+
+msgid "Logout"
+msgstr "Гарах"
+
+msgid "Low"
+msgstr "Бага"
+
+msgid ""
+"Make a copy and store it in a safe place. It will be necessary if you lose "
+"your password to recover the access to your account without data loss."
+msgstr ""
+"Хуулбарыг хийж, аюулгүй газар хадгална уу. Хэрэв та нууц үгээ алдсан бол "
+"нэвтрэх эрхээ өгөгдөл алдалгүйгээр сэргээхийн тулд шаардлагатай."
+
+msgid "Make it possible for this admin to reset user passwords."
+msgstr "Энэ админыг хэрэглэгчийн нууц үгийг дахин тохируулах боломжтой болгох."
+
+msgid "Mandatory"
+msgstr "Заавал биелүүлэх"
+
+msgid "Manual configuration"
+msgstr "Гараар тохируулах"
+
+msgid "Mark as important"
+msgstr "Чухал гэж тэмдэглэх"
+
+msgid "Mask"
+msgstr "Маск"
+
+msgid "Max"
+msgstr "Макс"
+
+msgid "Maximum file size is:"
+msgstr "Файлын хамгийн дээд хэмжээ нь:"
+
+msgid "Maximum number of input characters"
+msgstr "Оролтын тэмдэгтийн дээд хэмжээ"
+
+msgid "Maximum number of selectable recipients:"
+msgstr "Сонгож болох хүлээн авагчдын дээд тоо:"
+
+msgid "Me only"
+msgstr "Зөвхөн надад"
+
+msgid "Medium"
+msgstr "Дунд зэрэг"
+
+msgid "Min"
+msgstr "Мин"
+
+msgid "Minimum number of input characters"
+msgstr "Оролтын тэмдэгтийн хамгийн бага тоо"
+
+msgid "Mobile"
+msgstr "Гар утас"
+
+msgid "Mode:"
+msgstr "Горим:"
+
+msgid "Motivation"
+msgstr "Урам зориг"
+
+msgid "Move down"
+msgstr "Доош зөөх"
+
+msgid "Move left"
+msgstr "Зүүн тийш зөөх"
+
+msgid "Move right"
+msgstr "Баруун тийш зөөх"
+
+msgid "Move up"
+msgstr "Дээш зөөх"
+
+msgid "Multi-line text input"
+msgstr "Олон мөртэй текст оруулах"
+
+msgid "Multiple choice input"
+msgstr "Олон сонголттой оролт"
+
+msgid "Multiplier"
+msgstr "Үржүүлэгч"
+
+msgid "Name"
+msgstr "Нэр"
+
+msgid "Network"
+msgstr "Сүлжээ"
+
+msgid "New"
+msgstr "Шинэ"
+
+msgid "New password"
+msgstr "Шинэ нууц үг"
+
+msgid "New request"
+msgstr "Шинэ хүсэлт"
+
+msgid "Next"
+msgstr "Дараах"
+
+msgid "No"
+msgstr "Үгүй"
+
+msgid "None"
+msgstr "Байхгүй"
+
+msgid "Not provided."
+msgstr "Өгөгдөөгүй."
+
+msgid "Notifications"
+msgstr "Мэдэгдлүүд"
+
+msgid "Notify administrators of software problems"
+msgstr "Програм хангамжийн асуудлын талаар администраторуудад мэдэгдэх"
+
+msgid "Notify developers of software problems"
+msgstr "Програм хангамжийн асуудлын талаар хөгжүүлэгчдэд мэдэгдэх"
+
+msgid "Now type your password, then click 'Log in':"
+msgstr "Одоо нууц үгээ бичээд, дараа нь 'Нэвтрэх' дээр дарна уу:"
+
+msgid "Number"
+msgstr "Дугаар"
+
+msgid "Number of days till notifying unread reports to users"
+msgstr "Уншаагүй мэдээллийг хэрэглэгчдэд мэдэгдэх хүртэлх хоногийн тоо"
+
+msgid "Number of downloads"
+msgstr "Татаж авсан тоо"
+
+msgid "Assign score points"
+msgstr "Онооны үнэлгээ өгөх"
+
+msgid "Checkbox label"
+msgstr "Чекбоксны шошго"
+
+msgid "Number of hours before sending a report expiration alert"
+msgstr "Мэдээллийн хугацаа дуусах тухай мэдэгдэл илгээхээс өмнөх цагийн тоо"
+
+msgid "Object"
+msgstr "Объект"
+
+msgid ""
+"One or more recipients have not performed the first login yet. This means "
+"they won't be receiving reports."
+msgstr ""
+"Нэг буюу хэд хэдэн хүлээн авагч анхны нэвтрэлтийг хараахан хийгээгүй байна. "
+"Энэ нь тэд мэдээлэл хүлээн авахгүй гэсэн үг юм."
+
+msgid "Open"
+msgstr "Нээлттэй"
+
+msgid "Opened"
+msgstr "Нээсэн"
+
+msgid "Options"
+msgstr "Сонголтууд"
+
+msgid "Organization"
+msgstr "Байгууллага"
+
+msgid "Original text"
+msgstr "Эх текст"
+
+msgid "Original translation"
+msgstr "Эх орчуулга"
+
+msgid "Password"
+msgstr "Нууц үг"
+
+msgid "Password change interval"
+msgstr "Нууц үг солих интервал"
+
+msgid "Password reset"
+msgstr "Нууц үгийг дахин тохируулах"
+
+msgid "Password reset requested."
+msgstr "Нууц үг шинэчлэх хүсэлт гаргалаа."
+
+msgid "Phone number"
+msgstr "Утасны дугаар"
+
+msgid "Placeholder"
+msgstr "Орлуулагч"
+
+msgid "Platform wizard"
+msgstr "Платформын шидтэн"
+
+msgid "Please check your inbox for further instructions."
+msgstr "Дэлгэрэнгүй зааврыг авахын тулд имэйл хаягаа шалгана уу."
+
+msgid "Please choose a configuration profile:"
+msgstr "Тохиргооны профайл сонгоно уу:"
+
+msgid "Please choose a different username."
+msgstr "Өөр хэрэглэгчийн нэр сонгоно уу."
+
+msgid "Please note that all the associated data will be permanently deleted."
+msgstr "Холбогдох бүх өгөгдөл бүрмөсөн устах болно гэдгийг анхаарна уу."
+
+msgid "Please select your account:"
+msgstr "Өөрийн бүртгэлийг сонгоно уу:"
+
+msgid "Preferences"
+msgstr "Тохиргоо"
+
+msgid "Presentation"
+msgstr "Танилцуулга"
+
+msgid "Preview"
+msgstr "Урьдчилан харах"
+
+msgid "Previous"
+msgstr "Өмнөх"
+
+msgid "Print"
+msgstr "Хэвлэх"
+
+msgid "Privacy Policy"
+msgstr "Нууцлалын бодлого"
+
+msgid "Private Key"
+msgstr "Хувийн түлхүүр"
+
+msgid "Privileges"
+msgstr "Эрх мэдэл"
+
+msgid "Proceed"
+msgstr "Үргэлжлүүлэх"
+
+msgid "Profile"
+msgstr "Профайл"
+
+msgid "Project name"
+msgstr "Төслийн нэр"
+
+msgid "Public name"
+msgstr "Олон нийтийн нэр"
+
+msgid "Question"
+msgstr "Асуулт"
+
+msgid "Question group"
+msgstr "Асуултын бүлэг"
+
+msgid "Question templates"
+msgstr "Асуултын загварууд"
+
+msgid "Question to solicit possible reporting persons"
+msgstr "Мэдээлэл өгөх боломжтой хүмүүсийг асуух асуулт"
+
+msgid "Questionnaire"
+msgstr "Асуулга"
+
+msgid "Questionnaire answers"
+msgstr "Асуулгын хариултууд"
+
+msgid "Questionnaires"
+msgstr "Асуулгууд"
+
+msgid "Questions"
+msgstr "Асуултууд"
+
+msgid "Read receipt"
+msgstr "Баримтыг уншсан"
+
+msgid "Receivers"
+msgstr "Хүлээн авагчид"
+
+msgid "Recipient"
+msgstr "Хүлээн авагч"
+
+msgid "Recipient selection"
+msgstr "Хүлээн авагчийн сонголт"
+
+msgid "Recipients"
+msgstr "Хүлээн авагч нар"
+
+msgid "Recipients have requested you to fill an additional questionnaire."
+msgstr "Хүлээн авагчид танаас нэмэлт асуулга бөглөхийг хүслээ."
+
+msgid "Recipients only"
+msgstr "Зөвхөн хүлээн авагчид"
+
+msgid "Recipients selected:"
+msgstr "Сонгогдсон хүлээн авагчид:"
+
+msgid "Redact"
+msgstr "Редакт"
+
+msgid "Refresh"
+msgstr "Шинэчлэх"
+
+msgid "Regenerate"
+msgstr "Дахин үүсгэх"
+
+msgid "Regular expression"
+msgstr "Энгийн илэрхийлэл"
+
+msgid "Regular expression validator"
+msgstr "Энгийн илэрхийллийн баталгаажуулагч"
+
+msgid "Remember your access code for this report."
+msgstr "Энэ мэдээлэлд хандах кодоо санаарай."
+
+msgid "Reminder date"
+msgstr "Сануулагчийн огноо"
+
+msgid "Remove"
+msgstr "Хасах"
+
+msgid "Reopen"
+msgstr "Дахин нээх"
+
+msgid "Reply motivation"
+msgstr "Урам зоригт хариулах"
+
+msgid "Reply to the request"
+msgstr "Хүсэлтэд хариу өгөх"
+
+msgid "Report"
+msgstr "Мэдээлэл"
+
+msgid "Report date"
+msgstr "Мэдээллийн огноо"
+
+msgid "Report statuses"
+msgstr "Мэдээллийн төлвүүд"
+
+msgid "Reports"
+msgstr "Мэдээллүүд"
+
+msgid "Request access to the reporting person's identity"
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандах хүсэлт гаргах"
+
+msgid "Request date"
+msgstr "Хүсэлт гаргасан огноо"
+
+msgid "Request motivation"
+msgstr "Урам зориг хүсэх"
+
+msgid "Request status"
+msgstr "Хүсэлтийн төлөв"
+
+msgid "Request support"
+msgstr "Дэмжлэг хүсэх"
+
+msgid "Requests"
+msgstr "Хүсэлтүүд"
+
+msgid "Require authentication"
+msgstr "Баталгаажуулалт шаардах"
+
+msgid "Require two factor authentication"
+msgstr "Давхар баталгаажуулалт шаардах"
+
+msgid "Reset"
+msgstr "Дахин тохируулах"
+
+msgid "Reset SMTP configuration"
+msgstr "SMTP тохиргоог дахин тохируулах"
+
+msgid "Reset notification templates to default"
+msgstr "Мэдэгдлийн загваруудыг анхдагчаар тохируулах"
+
+msgid "Reset reports"
+msgstr "Мэдээллүүдийг дахин тохируулах"
+
+msgid "Resource can only be accessed via the Tor network"
+msgstr "Нөөцөд зөвхөн Tor сүлжээгээр дамжуулан хандах боломжтой"
+
+msgid "Resource not found"
+msgstr "Нөөц олдсонгүй"
+
+msgid "Restrict access to specific IP addresses"
+msgstr "Тодорхой IP хаягууд руу хандах эрхийг хязгаарлах"
+
+msgid "Returning reporting persons"
+msgstr "Буцаж ирж буй мэдээлэгчид"
+
+msgid "Revoke access"
+msgstr "Хандалтыг цуцлах"
+
+msgid "Role"
+msgstr "Дүр"
+
+msgid "Roles enabled to use the platform without Tor"
+msgstr "Тор-гүйгээр платформ ашиглах боломжтой дүрүүд"
+
+msgid "Root domain used for secondary sites"
+msgstr "Хоёрдогч сайтуудад ашигладаг үндсэн домэйн"
+
+msgid "Row"
+msgstr "Мөр"
+
+msgid "SMTP email address"
+msgstr "SMTP имэйл хаяг"
+
+msgid "SMTP server address"
+msgstr "SMTP серверийн хаяг"
+
+msgid "SMTP server port"
+msgstr "SMTP серверийн порт"
+
+msgid "Save"
+msgstr "Хадгалах"
+
+msgid "Save all"
+msgstr "Бүгдийг хадгалах"
+
+msgid "Scan the QR code with the app"
+msgstr "Аппликейшн ашиглан QR кодыг уншуулах"
+
+msgid "Scheduled jobs"
+msgstr "Төлөвлөсөн ажлууд"
+
+msgid "Score"
+msgstr "Оноо"
+
+msgid "Scoring system options"
+msgstr "Онооны системийн сонголтууд"
+
+msgid "Search"
+msgstr "Хайх"
+
+msgid "Security"
+msgstr "Нууцлал"
+
+msgid "Select"
+msgstr "Сонгох"
+
+msgid "Select a file or drag it here."
+msgstr "Файлыг сонгох эсвэл энд чирч авчирна уу."
+
+msgid "Select all"
+msgstr "Бүгдийг сонгох"
+
+msgid "Select all recipients by default"
+msgstr "Бүх хүлээн авагчдыг анхдагчаар сонгоно уу"
+
+msgid "Select an option"
+msgstr "Сонголт сонгоно уу"
+
+msgid "Select the recipients of your report"
+msgstr "Мэдээллийнхээ хүлээн авагчдыг сонгоно уу"
+
+msgid "Select your language"
+msgstr "Хэлээ сонгоно уу"
+
+msgid "Selection box"
+msgstr "Сонголтын хайрцаг"
+
+msgid "Send"
+msgstr "Илгээх"
+
+msgid "Send a test email to your email address."
+msgstr "Имэйл хаяг руугаа туршилтын имэйл илгээх."
+
+msgid "Send activation link"
+msgstr "Идэвхжүүлэх холбоос илгээх"
+
+msgid "Send reset link"
+msgstr "Дахин тохируулах холбоосыг илгээх"
+
+msgid "Set a reminder"
+msgstr "Сануулагч тохируулах"
+
+msgid "Set password"
+msgstr "Нууц үг тохируулах"
+
+msgid "Set the value to 0 to disable this feature."
+msgstr "Энэ функцийг идэвхгүй болгохын тулд утгыг 0 болгож тохируулна уу."
+
+msgid "Set up encryption by providing a PGP public key"
+msgstr "PGP нийтийн түлхүүрийг оруулж шифрлэлтийг тохируулна уу"
+
+msgid "Settings"
+msgstr "Тохиргоонууд"
+
+msgid "Severity"
+msgstr "Хүндийн түвшин"
+
+msgid "Show"
+msgstr "Харуулах"
+
+msgid "Show channels in alphabetical order"
+msgstr "Сувгуудыг цагаан толгойн дарааллаар харуулах"
+
+msgid "Show recipients in alphabetical order"
+msgstr "Хүлээн авагчдыг цагаан толгойн дарааллаар харуулах"
+
+msgid "Show the questionnaire navigation interface"
+msgstr "Санал асуулгын навигацийн интерфэйсийг харуулах"
+
+msgid "Sign up"
+msgstr "Бүртгүүлэх"
+
+msgid "Silence email notifications"
+msgstr "Имэйл мэдэгдлүүдийг чимээгүй болгох"
+
+msgid "Single-line text input"
+msgstr "Нэг мөртэй текст оруулах"
+
+msgid "Site"
+msgstr "Сайт"
+
+msgid "Sites"
+msgstr "Сайтууд"
+
+msgid "Size limit for file attachments"
+msgstr "Файл хавсралтын хэмжээний хязгаар"
+
+msgid "Size:"
+msgstr "Хэмжээ:"
+
+msgid "Skip the recipient account creation."
+msgstr "Хүлээн авагчийн бүртгэл үүсгэхийг алгасах."
+
+msgid "Software version:"
+msgstr "Програм хангамжийн хувилбар:"
+
+msgid "Statistics"
+msgstr "Статистик"
+
+msgid "Stats"
+msgstr "Статистикууд"
+
+msgid "Status"
+msgstr "Төлөв"
+
+msgid "Status:"
+msgstr "Төлөв:"
+
+msgid "Step"
+msgstr "Алхам"
+
+msgid "Steps"
+msgstr "Алхмууд"
+
+msgid "Strong"
+msgstr "Хүчтэй"
+
+msgid "Subdomain"
+msgstr "Дэд домэйн"
+
+msgid "Submissions disabled"
+msgstr "Илгээлт идэвхгүй болсон"
+
+msgid "Submit"
+msgstr "Илгээнэ"
+
+msgid "Submit a report"
+msgstr "Мэдээлэл илгээх"
+
+msgid "Subscribed"
+msgstr "Захиалсан"
+
+msgid "Subscribed later"
+msgstr "Дараа захиалсан"
+
+msgid "Subscription date"
+msgstr "Захиалгын огноо"
+
+msgid "Substatuses"
+msgstr "Дэд төлвүүд"
+
+msgid "Success!"
+msgstr "Амжилттай!"
+
+msgid "Sufficient"
+msgstr "Хангалттай"
+
+msgid "Surname"
+msgstr "Овог"
+
+msgid "Tax code"
+msgstr "Татварын код"
+
+msgid "Template"
+msgstr "Загвар"
+
+msgid "Template override"
+msgstr "Загварыг дарж бичих"
+
+msgid "Templates"
+msgstr "Загварууд"
+
+msgid "Terms of service"
+msgstr "Үйлчилгээний нөхцөл"
+
+msgid "Test the configuration"
+msgstr "Тохиргоог турших"
+
+msgid "Text"
+msgstr "Текст"
+
+msgid "Text customization"
+msgstr "Текстийн тохируулга"
+
+msgid "Text shown after the user has selected the option."
+msgstr "Хэрэглэгч сонголтыг сонгосны дараа текстийг харуулна."
+
+msgid "Text shown on top of the interface for selecting channels"
+msgstr "Сувгуудыг сонгох интерфэйсийн дээд хэсэгт текстийг харуулав"
+
+msgid "Text shown upon negative answer"
+msgstr "Сөрөг хариултын дараа текстийг харуулна"
+
+msgid "Thank you."
+msgstr "Баярлалаа."
+
+msgid "The answer is too short"
+msgstr "Хариулт нь хэтэрхий богино байна"
+
+msgid ""
+"The chosen password is too weak. A valid password should be at least 12 "
+"characters long and contain a variety of characters including at least a "
+"lowercase character, a capital character, a number and a special character."
+msgstr ""
+"Сонгосон нууц үг хэтэрхий сул байна. Хүчинтэй нууц үг нь дор хаяж 12 "
+"тэмдэгтээс бүрдэх бөгөөд жижиг үсэг, том үсэг, тоо болон тусгай тэмдэгт "
+"зэрэг олон төрлийн тэмдэгт агуулсан байх ёстой."
+
+msgid "The code is either invalid or expired."
+msgstr "Код хүчингүй эсвэл хугацаа нь дууссан байна."
+
+msgid "The connection is not secure."
+msgstr "Холболт аюулгүй биш байна."
+
+msgid ""
+"The following recipients will receive your report and could not be "
+"deselected:"
+msgstr ""
+"Дараах хүлээн авагчид таны мэдээллийг хүлээн авах бөгөөд сонголтоо цуцлах "
+"боломжгүй:"
+
+msgid ""
+"The following step-by-step procedure will guide you through creating your "
+"whistleblowing platform."
+msgstr ""
+"Дараах алхам алхмаарх зааварчилгаа нь таны шүгэл үлээх платформыг үүсгэхэд "
+"тань туслах болно."
+
+msgid "The link will expire in 7 days."
+msgstr "Холбоос 7 хоногийн дараа хугацаа нь дуусна."
+
+msgid ""
+"The manual configuration wizard will guide you through the setup of HTTPS "
+"from an alternative Certificate Authority."
+msgstr ""
+"Гарын авлагын тохиргооны туслах нь өөр гэрчилгээжүүлэх байгууллагаас HTTPS-"
+"ийг тохируулахад танд туслах болно."
+
+msgid "The new password must be different from the current one."
+msgstr "Шинэ нууц үг одоогийнхоос өөр байх ёстой."
+
+msgid ""
+"The platform is still not configured for HTTPS connections and should "
+"therefore only be used for testing purposes."
+msgstr ""
+"Энэ платформ нь HTTPS холболтод зориулагдаагүй хэвээр байгаа тул зөвхөн "
+"туршилтын зорилгоор ашиглах ёстой."
+
+msgid ""
+"The platform must be reachable through a public IP address and the selected "
+"hostname must have a DNS record referencing that address."
+msgstr ""
+"Платформ нь олон нийтийн IP хаягаар дамжин холбогдох боломжтой байх ёстой "
+"бөгөөд сонгосон хостын нэр нь тухайн хаягийг заасан DNS бичлэгтэй байх ёстой."
+
+msgid "The platform supports the configuration of HTTPS through this interface."
+msgstr "Энэ платформ нь энэ интерфэйсээр дамжуулан HTTPS тохиргоог дэмждэг."
+
+msgid "The provided recovery key is invalid."
+msgstr "Өгөгдсөн сэргээх түлхүүр хүчингүй байна."
+
+msgid "The provided reset token is invalid or expired."
+msgstr ""
+"Өгөгдсөн дахин тохируулах токен хүчингүй эсвэл хугацаа нь дууссан байна."
+
+msgid "The access code is either invalid or the report has expired."
+msgstr "Хандалтын код хүчингүй эсвэл мэдээллийн хугацаа дууссан байна."
+
+msgid "The specified input is not valid."
+msgstr "Заасан оролт хүчингүй байна."
+
+msgid "The specified input is not valid:"
+msgstr "Заасан оролт хүчингүй байна:"
+
+msgid "The specified old password is not valid"
+msgstr "Заасан хуучин нууц үг хүчингүй байна"
+
+msgid "The two passwords do not match"
+msgstr "Хоёр нууц үг таарахгүй байна"
+
+msgid "The upload request exceeds the size limit"
+msgstr "Байршуулах хүсэлт хэмжээний хязгаараас хэтэрсэн байна"
+
+msgid "The user will be forced to change its password on next login."
+msgstr ""
+"Хэрэглэгч дараагийн удаа нэвтрэхдээ нууц үгээ өөрчлөх шаардлагатай болно."
+
+msgid "The validation link is either incorrect or has expired."
+msgstr "Баталгаажуулах холбоос буруу эсвэл хугацаа нь дууссан байна."
+
+msgid "The reporting person has already read the last update"
+msgstr "Мэдээлэгч нь сүүлийн шинэчлэлтийг аль хэдийн уншсан байна"
+
+msgid "The reporting person has not read the last update yet"
+msgstr "Мэдээлэгч нь сүүлийн шинэчлэлтийг хараахан уншаагүй байна"
+
+msgid "Then, copy and paste the following address into the Tor Browser:"
+msgstr "Дараа нь дараах хаягийг хуулж, Tor хөтөч руу буулгана уу:"
+
+msgid ""
+"This custom text is no longer displayed on the platform. The original text "
+"has either changed or been removed."
+msgstr ""
+"Энэ захиалгат текстийг платформ дээр харуулахаа больсон. Анхны текст "
+"өөрчлөгдсөн эсвэл устгагдсан байна."
+
+msgid "This domain name is not available."
+msgstr "Энэ домэйн нэр боломжгүй байна."
+
+msgid "This field is mandatory"
+msgstr "Энэ талбарыг заавал бөглөх шаардлагатай"
+
+msgid "This is a demo platform, please do not use it for real submissions."
+msgstr "Энэ бол демо платформ тул бодит илгээмжүүдэд бүү ашиглаарай."
+
+msgid "This user has not performed the first login yet."
+msgstr "Энэ хэрэглэгч анхны нэвтрэлтээ хараахан хийгээгүй байна."
+
+msgid "Threshold"
+msgstr "Босго"
+
+msgid "Title"
+msgstr "Гарчиг"
+
+msgid "To"
+msgstr "Хэнд"
+
+msgid "To:"
+msgstr "Хэнд:"
+
+msgid "Tor"
+msgstr "Tor"
+
+msgid "Tor Onion Service"
+msgstr "Tor Onion Үйлчилгээ"
+
+msgid "Transfer"
+msgstr "Шилжүүлэг"
+
+msgid "Transfer access"
+msgstr "Хандалтыг шилжүүлэх"
+
+msgid "Trigger conditions"
+msgstr "Триггерийн нөхцөлүүд"
+
+msgid "Trigger question"
+msgstr "Триггерийн асуулт"
+
+msgid "Triggered by score:"
+msgstr "Оноогоор өдөөгдсөн:"
+
+msgid "Turn on email notifications"
+msgstr "Имэйл мэдэгдлийг асаах"
+
+msgid "Type"
+msgstr "Төрөл"
+
+msgid "Type your new password again"
+msgstr "Шинэ нууц үгээ дахин бичнэ үү"
+
+msgid "URL redirects"
+msgstr "URL дахин чиглүүлэлтүүд"
+
+msgid "Unhide"
+msgstr "Ил гаргах"
+
+msgid "Unselect"
+msgstr "Сонголтоо цуцлах"
+
+msgid "Upload"
+msgstr "Байршуулах"
+
+msgid "Upload a file:"
+msgstr "Файл байршуулах:"
+
+msgid "Upload date"
+msgstr "Байршуулсан огноо"
+
+msgid "Use as default"
+msgstr "Анхдагчаар ашиглах"
+
+msgid ""
+"Use the 16 digit access code to log in. It will allow you to view any "
+"messages we sent you, and also to add extra info."
+msgstr ""
+"Нэвтрэхийн тулд 16 оронтой нэвтрэх кодыг ашиглана уу. Энэ нь танд бидний "
+"илгээсэн аливаа мессежийг харах, мөн нэмэлт мэдээлэл нэмэх боломжийг олгоно."
+
+msgid "Use the first site for administrative purposes only"
+msgstr "Эхний сайтыг зөвхөн захиргааны зорилгоор ашиглах"
+
+msgid "User"
+msgstr "Хэрэглэгч"
+
+msgid "Username"
+msgstr "Хэрэглэгчийн нэр"
+
+msgid "Users"
+msgstr "Хэрэглэгчид"
+
+msgid ""
+"Using automatic HTTPS configuration will handle the entire process of "
+"requesting, enabling and renewing certificates from the Let's Encrypt "
+"Certificate Authority."
+msgstr ""
+"Автомат HTTPS тохиргоог ашиглах нь Let's Encrypt Certification Authority-аас "
+"гэрчилгээ хүсэх, идэвхжүүлэх, шинэчлэх бүх үйл явцыг хариуцах болно."
+
+msgid "Valid until:"
+msgstr "Хүчинтэй хугацаа:"
+
+msgid "Validation of email address change in progress."
+msgstr "Имэйл хаягийн өөрчлөлтийг баталгаажуулж байна."
+
+msgid "Value"
+msgstr "Утга"
+
+msgid "Video"
+msgstr "Видео"
+
+msgid "View"
+msgstr "Харах"
+
+msgid "View your report"
+msgstr "Мэдээллээ харах"
+
+msgid "Voice"
+msgstr "Дуу хоолой"
+
+msgid "Waiting for authorization"
+msgstr "Зөвшөөрөл хүлээж байна"
+
+msgid "Waiting for the file(s) to finish uploading."
+msgstr "Файл(ууд)-ыг байршуулж дуусахыг хүлээж байна."
+
+msgid "Warning"
+msgstr "Анхааруулга"
+
+msgid ""
+"We advise selecting this option if you would like to protect data from "
+"being lost in the situation where recipients lose their passwords. On the "
+"other hand, we would not advise using this feature if you want to setup a "
+"system where only recipients are able to access submissions."
+msgstr ""
+"Хэрэв хүлээн авагч нар нууц үгээ алдсан тохиолдолд өгөгдөл алдагдахаас "
+"хамгаалахыг хүсвэл энэ сонголтыг сонгохыг зөвлөж байна. Нөгөөтэйгүүр, хэрэв "
+"та зөвхөн хүлээн авагч нар л илгээсэн мэдээлэлд хандах боломжтой систем "
+"тохируулахыг хүсвэл энэ функцийг ашиглахыг зөвлөхгүй."
+
+msgid ""
+"We recommend that you access the “Preferences” section in order to retrieve "
+"your “Account Recovery Key” and store it safely. This key will be necessary "
+"to recover your access to the platform and to your data in case you forget "
+"your password."
+msgstr ""
+"\"Бүртгэл сэргээх түлхүүр\"-ээ авч, аюулгүй хадгалахын тулд \"Тохиргоо\" "
+"хэсэгт хандахыг зөвлөж байна. Энэ түлхүүр нь та нууц үгээ мартсан тохиолдолд "
+"платформ болон өгөгдөлдөө хандах эрхээ сэргээхэд шаардлагатай болно."
+
+msgid "We will try to get back to you as soon as possible."
+msgstr "Бид тантай аль болох хурдан холбогдохыг хичээх болно."
+
+msgid "Weak"
+msgstr "Сул"
+
+msgid "Welcome!"
+msgstr "Тавтай морил!"
+
+msgid "Reporting person"
+msgstr "Мэдээлэгч"
+
+msgid "Whistleblowing Policy"
+msgstr "Шүгэл үлээх бодлого"
+
+msgid "Whistleblowing button"
+msgstr "Шүгэл үлээх товчлуур"
+
+msgid "Width"
+msgstr "Өргөн"
+
+msgid "Yes"
+msgstr "Тийм"
+
+msgid ""
+"You are connecting to the server without anonymity and this server supports "
+"only anonymous submissions"
+msgstr ""
+"Та нэрээ нууцлахгүйгээр серверт холбогдож байгаа бөгөөд энэ сервер зөвхөн "
+"нэрээ нууцалсан илгээлтийг дэмждэг"
+
+msgid "You are entering a report received through other channels."
+msgstr "Та бусад сувгаар хүлээн авсан мэдээлэл рүү нэвтэрч байна."
+
+msgid ""
+"You are strongly advised to visit this site using the app called Tor "
+"Browser, that protects your identity."
+msgstr ""
+"Таны хувийн мэдээллийг хамгаалах Tor Browser аппликейшнийг ашиглан энэ "
+"сайтад зочлохыг танд зөвлөж байна."
+
+msgid "You have completed the platform activation."
+msgstr "Та платформ идэвхжүүлэлтийг дуусгасан."
+
+msgid "You have completed the platform wizard."
+msgstr "Та платформын туслахыг дуусгасан."
+
+msgid "You have reached the maximum number of selectable recipients."
+msgstr "Та сонгож болох хүлээн авагчдын дээд хязгаарт хүрсэн байна."
+
+msgid "You must select at least one recipient."
+msgstr "Та дор хаяж нэг хүлээн авагч сонгох ёстой."
+
+msgid "Your new email address has been validated."
+msgstr "Таны шинэ имэйл хаяг баталгаажсан."
+
+msgid "Your report was successful."
+msgstr "Таны мэдээлэл амжилттай боллоо."
+
+msgid "Your whistleblowing platform is almost ready!"
+msgstr "Таны шүгэл үлээх платформ бараг бэлэн боллоо!"
+
+msgid "days"
+msgstr "өдрүүд"
+
+msgid "file unavailable"
+msgstr "файл байхгүй байна"
+
+msgid "megabytes"
+msgstr "мегабайт"
+
+msgid "percentage"
+msgstr "хувь"
+
+msgid "please enter a valid email address."
+msgstr "хүчинтэй имэйл хаяг оруулна уу."
+
+msgid "please enter numbers only."
+msgstr "зөвхөн тоо оруулна уу."
+
+msgid "seconds"
+msgstr "секунд"
+
+msgid "Select a reporting channel:"
+msgstr "Мэдээллэх сувгаа сонгоно уу:"
+
+msgid "Please summarize your report in a few words."
+msgstr "Мэдээллээ хураангүй оруулна уу."
+
+msgid "Describe your report in detail."
+msgstr "Мэдээллээ дэлгэрэнгүй оруулна уу."
+
+msgid "Where did the facts happen?"
+msgstr "Бодит баримтууд хаана болсон бэ?"
+
+msgid "When did the facts happen?"
+msgstr "Бодит баримтууд хэзээ болсон бэ?"
+
+msgid "I'm a victim"
+msgstr "Би бол хохирогч"
+
+msgid "I'm involved in the facts"
+msgstr "Би бодит баримтуудад холбоотой"
+
+msgid "I witnessed the facts in person"
+msgstr "Би бодит баримтуудыг биечлэн харсан"
+
+msgid "I was personally told by a direct witness"
+msgstr "Гэрч надад хэлсэн"
+
+msgid "It is a rumor I heard"
+msgstr "Энэ бол миний сонссон цуурхал"
+
+msgid "How are you involved in the reported facts?"
+msgstr "Та мэдээллэгдсэн баримтуудад хэрхэн холбоотой вэ?"
+
+msgid "Do you have evidence to support your report?"
+msgstr "Танд өгсөн мэдээллээ нотлох баримт байгаа юу?"
+
+msgid "Please attach the evidence to support your report."
+msgstr "Мэдээллээ нотлох баримтыг хавсаргана уу."
+
+msgid "Please describe the evidence in detail."
+msgstr "Нотлох баримтыг дэлгэрэнгүй тайлбарлана уу."
+
+msgid ""
+"A thorough description of the submitted evidence enhances our ability to "
+"evaluate claims and investigate. Please take care to reference significant "
+"portions of any videos, images or documents submitted."
+msgstr ""
+"Илгээсэн нотлох баримтын дэлгэрэнгүй тайлбар нь бидний мөрдөн шалгах "
+"чадварыг нэмэгдүүлдэг. Илгээсэн аливаа видео, зураг эсвэл баримт бичгийн "
+"чухал хэсгүүдийг тайлбарлахад анхаарна уу."
+
+msgid "Have you reported the facts to other organizations and/or individuals?"
+msgstr ""
+"Та нотлох баримтуудыг бусад байгууллага болон/эсвэл хувь хүмүүст мэдээлсэн "
+"үү?"
+
+msgid ""
+"Please list the organizations and/or individuals you have informed about "
+"these facts."
+msgstr ""
+"Эдгээр нотлох баримтуудын талаар танд мэдэгдсэн байгууллага болон/эсвэл хувь "
+"хүмүүсийг жагсаан бичнэ үү."
+
+msgid ""
+"Have these organizations investigated your claims? If so, what was the "
+"outcome?"
+msgstr ""
+"Эдгээр байгууллагууд таны өгсөн мэдээллийг шалгасан уу? Хэрэв тийм бол үр "
+"дүн нь юу байсан бэ?"
+
+msgid "What is the outcome you want to achieve with our support?"
+msgstr "Бидний дэмжлэгтэйгээр та ямар үр дүнд хүрэхийг хүсч байна вэ?"
+
+msgid "Would you like to tell us who you are?"
+msgstr "Та өөрийгөө хэн болохыг бидэнд хэлмээр байна уу?"
+
+msgid "First name"
+msgstr "Өөрийн нэр"
+
+msgid "Last name"
+msgstr "Өөрийн овог"
+
+msgid "Alternative contact method"
+msgstr "Холбоо барих өөр арга"
+
+msgid "I prefer to be contacted via this platform only"
+msgstr "Би зөвхөн энэ платформоор дамжуулан холбогдохыг илүүд үзэж байна"
+
+msgid "Other"
+msgstr "Бусад"
+
+msgid "Specify"
+msgstr "Тодорхойлох"
+
+msgid "Dear {RecipientName},"
+msgstr "Эрхэм хүндэт {RecipientName},"
+
+msgid ""
+"You're receiving this email because a user account has been created for you "
+"on the system: {Site}"
+msgstr ""
+"Та дараах системд хэрэглэгчийн бүртгэл үүсгэсэн тул энэ имэйлийг хүлээн авч "
+"байна: {Site}"
+
+msgid "Username: {Username}"
+msgstr "Хэрэглэгчийн нэр: {Username}"
+
+msgid "Activation link: {Url}"
+msgstr "Идэвхжүүлэх холбоос: {Url}"
+
+msgid ""
+"Please click on the activation link to proceed with the account activation "
+"and to set your user password."
+msgstr ""
+"Бүртгэл идэвхжүүлэхийг үргэлжлүүлэх болон хэрэглэгчийн нууц үгээ "
+"тохируулахын тулд идэвхжүүлэх холбоос дээр дарна уу."
+
+msgid ""
+"After successful activation you will be able to access the system via the "
+"following link: {LoginUrl}"
+msgstr ""
+"Амжилттай идэвхжүүлсний дараа та дараах холбоосоор дамжуулан системд нэвтрэх "
+"боломжтой болно: {LoginUrl}"
+
+msgid "Kind regards,"
+msgstr "Хүндэтгэсэн,"
+
+msgid "Account activation"
+msgstr "Бүртгэл идэвхжүүлэх"
+
+msgid "Your whistleblowing platform is now accessible at:"
+msgstr "Таны шүгэл үлээх платформ одоо дараах хаягаар хандах боломжтой боллоо:"
+
+msgid "To log in, visit:"
+msgstr "Нэвтрэхийн тулд дараах хаягаар зочилно уу:"
+
+msgid "Users' credentials:"
+msgstr "Хэрэглэгч нарын мэдээллүүд:"
+
+msgid "The platform will be automatically deleted on:"
+msgstr "Платформ дараах үед автоматаар устах болно:"
+
+msgid "Access instructions"
+msgstr "Хандалтын зааварчилгаа"
+
+msgid "Available disk space: {FreeMemory}/{TotalMemory}"
+msgstr "Дискний зай: {FreeMemory}/{TotalMemory}"
+
+msgid ""
+"The server cannot guarantee that a new report can be stored, so submissions "
+"have been disabled."
+msgstr ""
+"Сервер шинэ мэдээллийг хадгалах боломжтой гэдгийг баталгаажуулж чадахгүй тул "
+"илгээхийг идэвхгүй болгосон."
+
+msgid ""
+"Please consider asking your technical support to create more disk space on "
+"the server."
+msgstr ""
+"Сервер дээр илүү их дискний зай гаргахын тулд техникийн тусламж авах талаар "
+"бодолцоно уу."
+
+msgid ""
+"GlobaLeaks technology includes a server status checking component which "
+"will alert you in case something requires your attention."
+msgstr ""
+"GlobaLeaks технологи нь серверийн төлвийг шалгах бүрэлдэхүүн хэсгийг "
+"агуулдаг бөгөөд энэ нь таны анхаарлыг татах шаардлагатай зүйл тохиолдсон "
+"тохиолдолд танд мэдэгдэх болно."
+
+msgid ""
+"This is an email to inform you that the PGP key of the following users is "
+"going to expire or has already expired:"
+msgstr ""
+"Энэ нь дараах хэрэглэгчдийн PGP түлхүүрийн хугацаа дуусах гэж байгаа эсвэл "
+"аль хэдийн хугацаа нь дууссан болохыг мэдэгдэх имэйл юм:"
+
+msgid ""
+"Without a valid PGP key, the system will not be able to send them encrypted "
+"notifications."
+msgstr ""
+"Хүчинтэй PGP түлхүүргүйгээр систем тэдэнд шифрлэгдсэн мэдэгдэл илгээх "
+"боломжгүй болно."
+
+msgid "PGP key expiration alert"
+msgstr "PGP түлхүүрийн хугацаа дуусах тухай мэдэгдэл"
+
+msgid "A new whistleblowing site has been registered."
+msgstr "Шүгэл үлээх шинэ сайт бүртгэгдлээ."
+
+msgid "Registration data:"
+msgstr "Бүртгэлийн мэдээлэл:"
+
+msgid "Site: {Url}"
+msgstr "Сайт: {Url}"
+
+msgid "Name: {Name}"
+msgstr "Нэр: {Name}"
+
+msgid "Email: {Email}"
+msgstr "Имэйл: {Email}"
+
+msgid "New whistleblowing site registered"
+msgstr "Шүгэл үлээх шинэ сайт бүртгэгдлээ"
+
+msgid "This is a test email sent out from the platform's administrative interface."
+msgstr "Энэ бол платформын удирдлагын интерфэйсээс илгээсэн туршилтын имэйл юм."
+
+msgid ""
+"Reception of this email indicates that the server was able to authenticate "
+"to and interact with the SMTP mail server."
+msgstr ""
+"Энэ имэйлийг хүлээн авснаар сервер нь SMTP шуудангийн сервертэй холбогдож, "
+"харилцах боломжтой байгааг харуулж байна."
+
+msgid "Test email"
+msgstr "Туршилтын имэйл"
+
+msgid ""
+"This is an email to notify you that a request has been made to change your "
+"email address to {NewEmailAddress}."
+msgstr ""
+"Энэ бол таны имэйл хаягийг {NewEmailAddress} болгон өөрчлөх хүсэлт гаргасан "
+"тухай танд мэдэгдэх имэйл юм."
+
+msgid "Click the following link to validate this change:"
+msgstr "Энэ өөрчлөлтийг баталгаажуулахын тулд дараах холбоос дээр дарна уу:"
+
+msgid ""
+"If you didn't request this change, change your password and contact your "
+"system administrator."
+msgstr ""
+"Хэрэв та энэ өөрчлөлтийг хүсээгүй бол нууц үгээ сольж, системийн админтайгаа "
+"холбогдоно уу."
+
+msgid "Email change request"
+msgstr "И-мэйл өөрчлөх хүсэлт"
+
+msgid "From: {Author}"
+msgstr "Илгээгч: {Author}"
+
+msgid "Date: {EventTime}"
+msgstr "Огноо: {EventTime}"
+
+msgid "From: Whistleblower"
+msgstr "Илгээгч: Шүгэл үлээгч"
+
+msgid "Date: {SubmissionDate}"
+msgstr "Огноо: {SubmissionDate}"
+
+msgid "Label: {TipLabel}"
+msgstr "Шошго: {TipLabel}"
+
+msgid "Status: {TipStatus}"
+msgstr "Төлөв: {TipStatus}"
+
+msgid ""
+"The HTTPS certificate loaded on the platform is about to, or has already "
+"expired."
+msgstr ""
+"Платформ дээр ачаалагдсан HTTPS сертификатын хугацаа дуусах гэж байна эсвэл "
+"аль хэдийн дууссан байна."
+
+msgid "Expiration date: {ExpirationDate}"
+msgstr "Хугацаа дуусах огноо: {ExpirationDate}"
+
+msgid ""
+"Without a valid certificate, the platform will be accessible in a secure "
+"way only via Tor."
+msgstr ""
+"Хүчинтэй гэрчилгээгүй бол платформд зөвхөн Tor-оор дамжуулан аюулгүй аргаар "
+"хандах боломжтой."
+
+msgid "Log in to solve the issue."
+msgstr "Асуудлыг шийдэхийн тулд нэвтэрнэ үү."
+
+msgid "Expiration alert for HTTPS certificate"
+msgstr "HTTPS гэрчилгээний хугацаа дуусах тухай мэдэгдэл"
+
+msgid "The automatic HTTPS certificate renewal scheduled for today just failed."
+msgstr ""
+"Өнөөдөр төлөвлөсөн HTTPS гэрчилгээг автоматаар шинэчлэх ажиллагаа амжилтгүй "
+"боллоо."
+
+msgid "The system will keep trying."
+msgstr "Систем үргэлжлүүлэн оролдох болно."
+
+msgid "Failed HTTPS certificate renewal"
+msgstr "HTTPS гэрчилгээг шинэчлэх амжилтгүй боллоо"
+
+msgid ""
+"This is an email to notify you that a custodian has authorized you to "
+"access to the whistleblowing identity for the report {TipNum}."
+msgstr ""
+"Энэ бол танд {TipNum} мэдээллийн мэдээлэгчийн мэдээлэлд хандах эрхийг "
+"кастодиан танд олгосон тухай мэдэгдэх имэйл юм."
+
+msgid "The report can be accessed at:"
+msgstr "Мэдээлэлд дараах хаягаар хандах боломжтой:"
+
+msgid "Access to reporting person's identity authorized"
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандах эрх баталгаажлаа"
+
+msgid ""
+"This is an email to notify you that a custodian has denied you access to "
+"the whistleblowing identity for the report {TipNum}."
+msgstr ""
+"Энэ бол танд {TipNum} мэдээллийн мэдээлэгчийн хувийн мэдээлэлд хандах эрхийг "
+"кастодиан татгалзсан тухай мэдэгдэх имэйл юм."
+
+msgid "Access to reporting person's identity denied"
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандах эрхийг хаасан"
+
+msgid ""
+"This is an email to notify you that a recipient has requested access to the "
+"reporting person's identity for the report {TipNum}"
+msgstr ""
+"Энэ бол хүлээн авагч нь {TipNum} мэдээллийн талаарх мэдээлэгчийн хувийн "
+"мэдээлэлд хандах хүсэлт гаргасан тухай танд мэдэгдэх имэйл юм"
+
+msgid "The request can be accessed at:"
+msgstr "Хүсэлт рүү дараах хаягаар хандах боломжтой:"
+
+msgid "New request of access to a reporting person's identity"
+msgstr "Мэдээлэгчийн хувийн мэдээлэлд хандах шинэ хүсэлт"
+
+msgid ""
+"This is an email to notify you that the reporting person for the report "
+"{TipNum} has provided their identity."
+msgstr ""
+"Энэ бол {TipNum} мэдээллийн мэдээлэгч өөрийн хувийн мэдээллээ өгсөн болохыг "
+"танд мэдэгдэх имэйл юм."
+
+msgid "The reporting person has provided their identity"
+msgstr "Мэдээлэгч нь өөрийн хувийн мэдээллээ өгсөн"
+
+msgid ""
+"You're receiving this email because a password reset has been requested for "
+"the account: {Username}"
+msgstr ""
+"Дараах бүртгэлд нууц үг шинэчлэх хүсэлт гаргасан тул энэ имэйлийг хүлээн авч "
+"байна: {Username}"
+
+msgid ""
+"If you didn't make this request, you may safely ignore and delete this "
+"email."
+msgstr ""
+"Хэрэв та энэ хүсэлтийг гаргаагүй бол энэ имэйлийг үл тоомсорлож, устгаж "
+"болно."
+
+msgid "You can confirm your request by clicking the following link:"
+msgstr "Та дараах холбоос дээр дарж хүсэлтээ баталгаажуулж болно:"
+
+msgid "Password reset instructions"
+msgstr "Нууц үг шинэчлэх зааварчилгаа"
+
+msgid ""
+"This is an email to inform you that your PGP key is expiring or has already "
+"expired."
+msgstr ""
+"Энэ бол таны PGP түлхүүрийн хугацаа дуусаж байгаа эсвэл аль хэдийн дууссан "
+"болохыг мэдэгдэх имэйл юм."
+
+msgid ""
+"You should extend its validity and update the key present on the platform, "
+"or upload a new key."
+msgstr ""
+"Та үүний хүчинтэй хугацааг сунгаж, платформ дээр байгаа түлхүүрийг шинэчлэх "
+"эсвэл шинэ түлхүүр байршуулах хэрэгтэй."
+
+msgid ""
+"Without a valid PGP key, the system won't be able to encrypt data provided "
+"to you."
+msgstr ""
+"Хүчинтэй PGP түлхүүргүйгээр систем танд өгсөн өгөгдлийг шифрлэх боломжгүй "
+"болно."
+
+msgid "Click the link to activate the platform:"
+msgstr "Платформыг идэвхжүүлэхийн тулд холбоос дээр дарна уу:"
+
+msgid "Activation"
+msgstr "Идэвхжүүлэлт"
+
+msgid "A software update is available."
+msgstr "Програм хангамжийн шинэчлэлт боломжтой байна."
+
+msgid "It is good security practice to keep the platform up to date."
+msgstr "Платформыг шинэчилж байх нь аюулгүй байдлын сайн дадал юм."
+
+msgid ""
+"To learn about new features and bug fixes in the new version consult the "
+"change log at: {ChangeLogUrl}"
+msgstr ""
+"Шинэ хувилбарын шинэ функцууд, алдааны засваруудын талаар мэдэхийг хүсвэл "
+"дараах хаягаар өөрчлөлтийн бүртгэлийг үзнэ үү: {ChangeLogUrl}"
+
+msgid ""
+"For instructions on software updates, please refer to the documentation at: "
+"{UpdateGuideUrl}"
+msgstr ""
+"Програм хангамжийн шинэчлэлтийн зааврыг дараах хаягаар орж үзнэ үү: "
+"{UpdateGuideUrl}"
+
+msgid ""
+"This is an email to notify you that a recipient has granted you access to "
+"one or more reports."
+msgstr ""
+"Энэ бол хүлээн авагч танд нэг буюу хэд хэдэн мэдээлэлд хандах эрх олгосон "
+"тухай мэдэгдэх имэйл юм."
+
+msgid "New report"
+msgstr "Шинэ мэдээлэл"
+
+msgid "One or more reports are expiring and will be soon deleted."
+msgstr ""
+"Нэг буюу хэд хэдэн мэдээллийн хугацаа дуусаж байгаа бөгөөд удахгүй устгагдах "
+"болно."
+
+msgid "The earliest expiration date is {EarliestExpirationDate}."
+msgstr "Хамгийн эрт хугацаа дуусах огноо нь {EarliestExpirationDate} байна."
+
+msgid "Please remember to check them before they are deleted."
+msgstr "Устгахаасаа өмнө тэдгээрийг шалгахаа мартуузай."
+
+msgid "Some reports will expire soon"
+msgstr "Зарим мэдээллийн хугацаа нь удахгүй дуусна"
+
+msgid "This is an email to notify you the reception of a new report."
+msgstr "Энэ бол танд шинэ мэдээлэл ирсэн тухай мэдэгдэх имэйл юм."
+
+msgid ""
+"This is an email to notify you that the reminder date for one or more "
+"reports has been met."
+msgstr ""
+"Энэ бол нэг буюу хэд хэдэн мэдээллийн сануулах хугацаа дууссаныг танд "
+"мэдэгдэх имэйл юм."
+
+msgid "Reminder"
+msgstr "Сануулга"
+
+msgid "This is an email to notify that an existing report has been updated."
+msgstr "Энэ бол одоо байгаа мэдээлэл шинэчлэгдсэнийг мэдэгдэх имэйл юм."
+
+msgid "Report updated"
+msgstr "Мэдээлэл шинэчлэгдсэн"
+
+msgid "This email is to remind you the presence of unread or updated reports."
+msgstr ""
+"Энэ имэйл нь уншаагүй эсвэл шинэчлэгдсэн мэдээллүүд байгаа эсэхийг танд "
+"сануулах зорилготой юм."
+
+msgid "Reminder about unread or updated reports"
+msgstr "Уншаагүй эсвэл шинэчлэгдсэн мэдээллийн талаар сануулга"
+
+msgid "Role: {Role}"
+msgstr "Үүрэг роль: {Role}"
+
+msgid "Password: {Password}"
+msgstr "Нууц үг: {Password}"

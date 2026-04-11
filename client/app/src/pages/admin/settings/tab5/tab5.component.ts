@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject, OnDestroy} from "@angular/core";
+import {Component, Input, OnInit, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Constants} from "@app/shared/constants/constants";
@@ -15,7 +15,6 @@ import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-mo
 import {NgClass} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
-import {Subscription} from "rxjs";
 
 @Component({
     selector: "src-tab5",
@@ -23,7 +22,7 @@ import {Subscription} from "rxjs";
     standalone: true,
     imports: [FormsModule, NgClass, TranslatorPipe, TranslateModule]
 })
-export class Tab5Component implements OnInit, OnDestroy {
+export class Tab5Component implements OnInit {
   private authenticationService = inject(AuthenticationService);
   private modalService = inject(NgbModal);
   private appConfigService = inject(AppConfigService);
@@ -37,7 +36,6 @@ export class Tab5Component implements OnInit, OnDestroy {
   userData: User[] = [];
   questionnaireData: questionnaireResolverModel[];
   routeReload = false;
-  private userDataSubscription: Subscription;
 
   protected readonly Constants = Constants;
 
@@ -50,12 +48,6 @@ export class Tab5Component implements OnInit, OnDestroy {
 
   filterUserData(): void {
     this.userData = this.userData.filter((user: { escrow: boolean }) => user.escrow);
-  }
-
-  ngOnDestroy(): void {
-    if (this.userDataSubscription) {
-      this.userDataSubscription.unsubscribe();
-    }
   }
 
   enableEncryption() {

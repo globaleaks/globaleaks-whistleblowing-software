@@ -41,4 +41,8 @@ export class CaseManagementTab1Component {
       }
     );
   };
+
+  onDelete(id: string) {
+    this.appDataServices.submissionStatuses = [...this.appDataServices.submissionStatuses.filter(i => i.id !== id)];
+  }
 }

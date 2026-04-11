@@ -14,7 +14,7 @@ export class HttpsSetupComponent {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
 
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() updated = new EventEmitter<string>();
   fileResources: FileResources = {
     key: {name: "key"},
     cert: {name: "cert"},
@@ -26,12 +26,12 @@ export class HttpsSetupComponent {
     const authHeader = this.authenticationService.getHeader();
     this.httpService.requestUpdateTlsConfigFilesResource("key", authHeader, this.fileResources.key).subscribe(() => {
       this.httpService.requestAdminAcmeResource(Object, authHeader).subscribe(() => {
-        this.dataToParent.emit();
+        this.updated.emit();
       });
     });
   }
 
   setup() {
-    this.dataToParent.emit("files");
+    this.updated.emit("files");
   }
 }

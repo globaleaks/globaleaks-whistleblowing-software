@@ -10,7 +10,7 @@ Key principles and objectives:
 - `Security, and privacy and anonymity <security-privacy-anonymity_>`_
 - `Accessibility, internationalization and inclusivity <accessibility-internationalization-inclusivity_>`_
 - `Flexibility and scalability, interoperability <flexibility-scalability-interoperability_>`_
-- `Open-Source, sustainability and digital sovereignty <opensource-sustainability-digitalsereignty_>`_
+- `Open-Source, sustainability and digital sovereignty <opensource-sustainability-digitalsovereignty_>`_
 
 .. _security-privacy-anonymity:
 
@@ -52,7 +52,7 @@ Objectives:
 - Improves operational efficiency through seamless data flows;
 - Supports long-term sustainability and avoiding technical lock-in.
 
-.. _opensource-sustainability-digitalsereignty:
+.. _opensource-sustainability-digitalsovereignty:
 
 Open Source, sustainability and digital sovereignty
 ---------------------------------------------------

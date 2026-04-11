@@ -4,7 +4,7 @@
 # 1b2d1cdb6e04db506a4a3a9a77ce72e1_3f4ad99 <6bd8696b3cb62846c4adcb6bdaea20ac_310289>, 2015
 # 1b2d1cdb6e04db506a4a3a9a77ce72e1_3f4ad99 <6bd8696b3cb62846c4adcb6bdaea20ac_310289>, 2015-2016
 # Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2014,2017-2018,2020-2023
-# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025
+# Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025-2026
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
 # b33a4006134bb6ee62b30fc0fac5cec6, 2013
@@ -24,13 +24,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2025\n"
-"Language-Team: Hungarian (Hungary) (http://app.transifex.com/otf/globaleaks/language/hu_HU/)\n"
+"PO-Revision-Date: 2026-03-28 13:06+0000\n"
+"Last-Translator: Zala Krisztina "
+"<pdng@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Hungarian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/hu_HU/>\n"
+"Language: hu_HU\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: hu_HU\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -601,6 +604,7 @@ msgstr "Magas"
 msgid "Hint"
 msgstr "Tipp"
 
+#, fuzzy
 msgid "Home"
 msgstr "Kezdőlap"
 
@@ -712,6 +716,9 @@ msgstr "Tegye elérhetővé a platformot Tor nélkül"
 
 msgid "License"
 msgstr "Licensz"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Belső felhasználók belépési logja"
@@ -1159,7 +1166,7 @@ msgid "Select an option"
 msgstr ""
 
 msgid "Select the recipients of your report"
-msgstr ""
+msgstr "Válasszon bejelentési csatornát"
 
 msgid "Select your language"
 msgstr ""
@@ -1974,10 +1981,10 @@ msgid "Activation"
 msgstr "Aktiválás"
 
 msgid "A software update is available."
-msgstr "Egy szoftver frissítés elérhető."
+msgstr "Egy szoftverfrissítés elérhető."
 
 msgid "It is good security practice to keep the platform up to date."
-msgstr "Az jó biztonsági gyakorlat, ha a platform rendszeresen frissítésre kerül."
+msgstr "A platform rendszeres frissítése biztosítja a megfelelő biztonságot."
 
 msgid ""
 "To learn about new features and bug fixes in the new version consult the "
@@ -1987,7 +1994,9 @@ msgstr "Az új verzióban az új funkciók és a javítások megismeréséhez te
 msgid ""
 "For instructions on software updates, please refer to the documentation at: "
 "{UpdateGuideUrl}"
-msgstr "Útmutatásért a frissítésekhez tekintse meg a kézikönyvet: {UpdateGuideUrl}"
+msgstr ""
+"A frissitésekhez kapcsolódó információkért nézze meg a kézikönyvet: "
+"{UpdateGuideUrl}"
 
 msgid ""
 "This is an email to notify you that a recipient has granted you access to "
@@ -1998,13 +2007,13 @@ msgid "New report"
 msgstr "Új jelentés"
 
 msgid "One or more reports are expiring and will be soon deleted."
-msgstr ""
+msgstr "Egy vagy több riport hamarosan lejár, és törlésre kerül."
 
 msgid "The earliest expiration date is {EarliestExpirationDate}."
 msgstr "A legkorábbi lejárati dátum: {EarliestExpirationDate}."
 
 msgid "Please remember to check them before they are deleted."
-msgstr "Kérjük ellenőrizze őket, mielőtt törlődnek."
+msgstr "Kérjük, ellenőrizze őket, mielőtt törlődnek."
 
 msgid "Some reports will expire soon"
 msgstr "Néhány jelentés hamarosan lejár"

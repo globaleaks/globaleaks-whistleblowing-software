@@ -1,0 +1,11 @@
+version = 1
+
+[[annotations]]
+path = ["**"]
+SPDX-License-Identifier = "AGPL-3.0-or-later AND LicenseRef-GlobaLeaks-AGPL-3.0-or-later-Section7-Additional-Terms"
+SPDX-FileCopyrightText = "2011-2026 GlobaLeaks"
+
+[[annotations]]
+path = ["brand/**"]
+SPDX-License-Identifier = "CC-BY-NC-SA-4.0"
+SPDX-FileCopyrightText = "GlobaLeaks authors"

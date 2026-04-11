@@ -36,12 +36,12 @@ import { ReceiptValidatorDirective } from "@app/shared/directive/receipt-validat
 import { mockEngine } from "@app/services/helper/mocks";
 import { MarkdownRendererService } from '@app/services/helper/markdown.service';
 import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateService, TranslateModule, TranslateLoader } from "@ngx-translate/core";
-import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient, HttpClient } from "@angular/common/http";
+import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from "@angular/common/http";
 import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor } from "@app/services/root/app-interceptor.service";
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { FlowInjectionToken, NgxFlowModule } from "@flowjs/ngx-flow";
-import { NgbDatepickerI18n, NgbModule, NgbPaginationConfig, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import { NgbDatepickerI18n, NgbModule, NgbPaginationConfig, NgbTooltipConfig, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import { CustomDatepickerI18n } from "@app/shared/services/custom-datepicker-i18n";
 import { appRoutes } from "@app/app.routes";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
@@ -51,7 +51,7 @@ import { provideNgIdleKeepalive } from "@ng-idle/keepalive";
 import { MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
 import { AppComponent } from "@app/pages/app/app.component";
 import { provideRouter } from "@angular/router";
-import { ApplicationRef, enableProdMode, importProvidersFrom } from '@angular/core';
+import { ApplicationRef, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import Flow from "@flowjs/flow.js";
 
@@ -59,6 +59,7 @@ enableProdMode();
 
 bootstrapApplication(AppComponent, {
     providers: [
+        provideZonelessChangeDetection(),
         provideRouter(appRoutes),
         provideNgIdleKeepalive(),
         importProvidersFrom(NgbModule,
@@ -100,6 +101,15 @@ bootstrapApplication(AppComponent, {
                                           // will be shown when maxSize > number of pages.
             return config;
           }
+        },
+	{
+          provide: NgbTooltipConfig,
+          useFactory: () => {
+            const config = new NgbTooltipConfig();
+	    config.triggers = 'mouseenter:mouseleave';
+
+	    return config;
+	  }
         },
         { provide: 'MockEngine', useValue: mockEngine },
         ReceiptValidatorDirective,

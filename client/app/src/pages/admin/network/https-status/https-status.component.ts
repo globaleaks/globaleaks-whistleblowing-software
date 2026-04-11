@@ -16,7 +16,7 @@ export class HttpsStatusComponent implements OnInit {
   protected networkResolver = inject(NetworkResolver);
   private nodeResolver = inject(NodeResolver);
 
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() updated = new EventEmitter<string>();
   @Input() tlsConfig: TlsConfig;
   nodeData: nodeResolverModel;
 

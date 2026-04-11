@@ -68,6 +68,7 @@ const icons = [
   solidIcons.faNetworkWired,
   solidIcons.faPenToSquare,
   solidIcons.faPeopleArrows,
+  solidIcons.faPlay,
   solidIcons.faPlus,
   solidIcons.faPrint,
   solidIcons.faRankingStar,

@@ -138,6 +138,7 @@ export class TipComponent implements OnInit {
           setTimeout(() => {
               this.initNavBar();
           });
+          this.cdr.markForCheck();
         }
       }
     );
@@ -145,7 +146,7 @@ export class TipComponent implements OnInit {
 
   initNavBar() {
     setTimeout(() => {
-      this.active = "Everyone";
+      this.active = this.active || "Everyone";
       this.tabs = [
         {
           title: "Everyone",
@@ -363,12 +364,12 @@ export class TipComponent implements OnInit {
   }
 
   setReminder() {
+    const tip_reminder = this.appDataService.contexts_by_id?.[this.tip.context_id]?.tip_reminder ?? 0;
     const modalRef = this.modalService.open(TipOperationSetReminderComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "set_reminder",
-      contexts_by_id: this.appDataService.contexts_by_id,
-      reminder_date: this.utils.getPostponeDate(this.appDataService.contexts_by_id[this.tip.context_id].tip_reminder),
+      reminder_date: this.utils.getPostponeDate(tip_reminder),
       dateOptions: {
         minDate: new Date(this.tip.creation_date)
       },
@@ -377,15 +378,15 @@ export class TipComponent implements OnInit {
   }
 
   tipPostpone() {
+    const tip_timetolive = this.appDataService.contexts_by_id?.[this.tip.context_id]?.tip_timetolive ?? 90;
     const modalRef = this.modalService.open(TipOperationPostponeComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "postpone",
-      contexts_by_id: this.appDataService.contexts_by_id,
-      expiration_date: this.utils.getPostponeDate(this.appDataService.contexts_by_id[this.tip.context_id].tip_timetolive),
+      expiration_date: this.utils.getPostponeDate(tip_timetolive),
       dateOptions: {
         minDate: this.utils.getMinPostponeDate(this.tip.expiration_date),
-        maxDate: this.utils.getPostponeDate(Math.max(365, this.appDataService.contexts_by_id[this.tip.context_id].tip_timetolive * 2))
+        maxDate: this.utils.getPostponeDate(Math.max(365, tip_timetolive * 2))
       },
       opened: false,
       Utils: this.utils

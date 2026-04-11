@@ -26,13 +26,19 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2015-2018,2020-2022\n"
-"Language-Team: Ukrainian (http://app.transifex.com/otf/globaleaks/language/uk/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Ukrainian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/uk/>\n"
+"Language: uk\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: uk\n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 "
+"? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > "
+"14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % "
+"100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -603,6 +609,7 @@ msgstr "Високий"
 msgid "Hint"
 msgstr "Підказка"
 
+#, fuzzy
 msgid "Home"
 msgstr "Головна"
 
@@ -714,6 +721,9 @@ msgstr "Дозволити доступ до платформи без Tor"
 
 msgid "License"
 msgstr "Ліцензія"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Журнал авторизації внутрішніх користувачів"
@@ -1348,10 +1358,13 @@ msgid ""
 "deselected:"
 msgstr "Наступні отримувачі  одержать ваш звіт, вибір яких не можна скасувати:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Наступна покрокова процедура дозволить вам створити платформу для інформування."
+msgstr ""
+"Наступна покрокова процедура дозволить вам створити платформу для "
+"інформування."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1550,12 +1563,17 @@ msgstr "Відбувається завантаження файлу(-ів)."
 msgid "Warning"
 msgstr "Попередження"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Ми рекомендуємо вибрати цю опцію, якщо ви хочете зберегти дані від втрати в ситуації, коли отримувачі втрачають свої паролі. З іншого боку, ми не рекомендуємо використовувати цю функцію, якщо ви хочете налаштувати систему таким чином, щоб тільки отримувачі мали доступ до наданих матеріалів."
+msgstr ""
+"Ми рекомендуємо вибрати цю опцію, якщо ви хочете зберегти дані від втрати в "
+"ситуації, коли отримувачі втрачають свої паролі. З іншого боку, ми не "
+"рекомендуємо використовувати цю функцію, якщо ви хочете налаштувати систему "
+"таким чином, щоб тільки отримувачі мали доступ до наданих матеріалів."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1622,6 +1640,7 @@ msgstr "Ваша нова адреса електронної пошти пер�
 msgid "Your report was successful."
 msgstr "Ваш звіт успішно відправлено."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Ваша платформа для інформування майже готова!"
 
@@ -1761,6 +1780,7 @@ msgstr "З повагою,"
 msgid "Account activation"
 msgstr "Активація облікового запису"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Ваша платформа для інформування тепер доступна за адресою:"
 
@@ -1807,6 +1827,7 @@ msgstr "Без дійсного PGP ключа, система не зможе �
 msgid "PGP key expiration alert"
 msgstr "Попередження про закінчення терміну дії PGP ключа"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Зареєстрований новий сайт для інформування."
 
@@ -1822,6 +1843,7 @@ msgstr "Ім'я: {Name}"
 msgid "Email: {Email}"
 msgstr "Ел. пошта: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Зареєстровано новий сайт для інформування."
 
@@ -1859,6 +1881,7 @@ msgstr "Від: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Дата: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Від: Інформатора"
 
@@ -1900,10 +1923,13 @@ msgstr "Спроби оновлення будуть продовжені."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Не вдалося оновити сертифіката HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Цим листом повідомляємо що зберігач задовольнив Ваш запит на доступ до особистих даних інформатора, який надіслав звіт {TipNum}."
+msgstr ""
+"Цим листом повідомляємо що зберігач задовольнив Ваш запит на доступ до "
+"особистих даних інформатора, який надіслав звіт {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Звіт можна отримати:"
@@ -1911,10 +1937,15 @@ msgstr "Звіт можна отримати:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Запит на інформацію про особу інформатора було задоволено"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Цим листом повідомляємо що зберігач відхилив Ваш запит на доступ до особистих даних інформатора, який надіслав звіт {TipNum}.\n\n "
+msgstr ""
+"Цим листом повідомляємо що зберігач відхилив Ваш запит на доступ до "
+"особистих даних інформатора, який надіслав звіт {TipNum}.\n"
+"\n"
+" "
 
 msgid "Access to reporting person's identity denied"
 msgstr "Запит на інформацію про особу інформатора було відхилено"

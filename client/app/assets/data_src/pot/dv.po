@@ -10,13 +10,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020-2022\n"
-"Language-Team: Divehi (http://app.transifex.com/otf/globaleaks/language/dv/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Dhivehi <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/dv/>\n"
+"Language: dv\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: dv\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -587,6 +590,7 @@ msgstr "މަތި"
 msgid "Hint"
 msgstr "އިތުރު އެހީ"
 
+#, fuzzy
 msgid "Home"
 msgstr "ފުރަތަމަ ޞަފްހާ"
 
@@ -698,6 +702,9 @@ msgstr "ޓީ.އޯ.އާރް އާއިނުލާ ޕްލެޓްފޯމަށް ވަދެވ�
 
 msgid "License"
 msgstr "ލައިސަންސް"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "އިންޓާނަލް ޔޫސާރސްގެ ލޮގް އެކްސެސްތައް"
@@ -1332,10 +1339,12 @@ msgid ""
 "deselected:"
 msgstr "ތިރީގައިވާ ރިސިޕިއަންޓުންނަށް ތިޔަ ފަރާތުގެ  ރިޕޯޓް ލިބިވަޑައިގަންނަވާނެ އަދި އެފަރާތްތައް ބާތިލެއް ނުކުރެއްވޭނެ"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "ވިސްލްބްލޯ ކުރުމަށް ތިޔަ ފަރާތަށް ޚާއްޞަ ޕްލެޓްފޯމް ހެދުމަށް މިވާ އިރުޝާދުތަކާއި އެއް ގޮތަށް އަމަލުކުރައްވާ"
+msgstr ""
+"ވިސްލްބްލޯ ކުރުމަށް ތިޔަ ފަރާތަށް ޚާއްޞަ ޕްލެޓްފޯމް ހެދުމަށް މިވާ އިރުޝާދުތަކާއި އެއް ގޮތަށް އަމަލުކުރައްވާ"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1534,12 +1543,16 @@ msgstr "ފައިލް(ތައް) އަޕްލޯޑް ވަންދެން މަޑުކޮއ�
 msgid "Warning"
 msgstr "އިންޒާރު"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "ރިސިޕިއަންޓްގެ ޕާސްވޯޑް ގެއްލިއްޖެ ހާލަތެއްގައި ހުރިހާ ޑޭޓާ އެއް ނުގެއްލޭ ގޮތައް ރައްކާ ކުރެވިފައި ހުރުމަށް އެދޭނަމަ، މި އޮޕްޝަން އިހްތިޔާރުކުރުމަށް އެދެމެވެ. އެެހެންނަމަވެސް،  ސިސްޓަމް ސެޓްއަޕް ކުރަނީ ހަމައެކަނި ރިސިޕިއަންޓުންނަށް ސަބްމިޝަންސް ބެލޭ ގޮތައް ނަމަ، މި އޮޕްޝަން ހިޔާރުނުކުރެއްވުމަށް އެދެމެވެ. "
+msgstr ""
+"ރިސިޕިއަންޓްގެ ޕާސްވޯޑް ގެއްލިއްޖެ ހާލަތެއްގައި ހުރިހާ ޑޭޓާ އެއް ނުގެއްލޭ ގޮތައް ރައްކާ ކުރެވިފައި ހުރުމަށް އެދޭނަމަ، މި އޮޕްޝަން "
+"އިހްތިޔާރުކުރުމަށް އެދެމެވެ. އެެހެންނަމަވެސް،  ސިސްޓަމް ސެޓްއަޕް ކުރަނީ ހަމައެކަނި ރިސިޕިއަންޓުންނަށް ސަބްމިޝަންސް ބެލޭ ގޮތައް ނަމަ، މި "
+"އޮޕްޝަން ހިޔާރުނުކުރެއްވުމަށް އެދެމެވެ. "
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1606,6 +1619,7 @@ msgstr "އައު އީމެއިލް އެޑްރެސް ވެލިޑޭޓްވެއްޖެ"
 msgid "Your report was successful."
 msgstr "ރިޕޯޓު ކުރެވިއްޖެ"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "ތިފަރާތުގެ ވިސިލްބްލޯވިންގ ޕްލެޓްފޯމު ގާތްގަޑަކަށް ވަނީ ތައްުޔާރުވެފައި"
 
@@ -1745,6 +1759,7 @@ msgstr "އިޙްތިރާމާއެކު ޝުކުރު ދަންނަވަން"
 msgid "Account activation"
 msgstr "އެކައުންޓް އެކްޓިވޭޓްކުރުން"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "ތިބާގެ ވިސިލްބްލޯވިން ޕްލެޓްފޯމަށް  ވަދެވޭނީ"
 
@@ -1791,6 +1806,7 @@ msgstr "ސައްޙަ ޕީ.ޖީ..ޕީ ކީއަކާއި ނުލާ ސިސްޓަމް�
 msgid "PGP key expiration alert"
 msgstr "ޕީ.ޖީ.ޕީ ކީގެ މުއްދަތު ހަމަވާތީ ފޮނުވޭ އެލާރޓް"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr " އައު ވިސިލްބްލޯވިންގ ސައިޓެއް ވަނީ ރަޖިސްޓަރވެފައި"
 
@@ -1806,6 +1822,7 @@ msgstr "ނަން:{Name}"
 msgid "Email: {Email}"
 msgstr "އީމެއިލް: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "ވިސްލްބްލޯކުރާ އާ ސައިޓެއް ރަޖިސްޓަރީކުރެވިއްޖެ"
 
@@ -1843,6 +1860,7 @@ msgstr "ފޮނުވާ ފަރާތް:{Author}"
 msgid "Date: {EventTime}"
 msgstr "ތާރީޚް {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ވިސިލްބްލޯވަރގެ ފަރާތުން"
 
@@ -1884,10 +1902,13 @@ msgstr "ސިސްޓަމް އިތުރަށް މަސައްކަތްކުރަމުންދ
 msgid "Failed HTTPS certificate renewal"
 msgstr "އެޗް.ޓީ.ޓީ.ޕީ.އެސް ސެޓްފިކެޓް އައު ކުރެވޭގޮތެއް ނުވި"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "މި އީމެއިލްއަކީ {TipNum} ރިޕޯޓްގެ ވިސިލްބްލޯވަރގެ އައިޑެންޓިޓީ ހޯދުމަށް އޮތް އެކްސެސް ތިޔަ ފަރާތަށް ކަސްޓޯޑިއަންއެއް ދީފައިވާކަން އެންގުމަށް ފޮނުވިފައިވާ އީމެއިލްއެއް"
+msgstr ""
+"މި އީމެއިލްއަކީ {TipNum} ރިޕޯޓްގެ ވިސިލްބްލޯވަރގެ އައިޑެންޓިޓީ ހޯދުމަށް އޮތް އެކްސެސް ތިޔަ ފަރާތަށް ކަސްޓޯޑިއަންއެއް ދީފައިވާކަން "
+"އެންގުމަށް ފޮނުވިފައިވާ އީމެއިލްއެއް"
 
 msgid "The report can be accessed at:"
 msgstr "މި ރިޕޯޓަށް އެކްސެސްވުމަށް :"
@@ -1895,10 +1916,13 @@ msgstr "މި ރިޕޯޓަށް އެކްސެސްވުމަށް :"
 msgid "Access to reporting person's identity authorized"
 msgstr "ވިސިލްބްލޯވަރގެ އައިޑެންޓިޓީއާ ގުޅޭ މައުލޫމާތަށް އެކްސެސް ލިބިއްޖެ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "މި އީމެއިލަކީ  ރިޕޯޓު {TipNum} ގެ ވިސްލްބްލޯވަރގެ އައިޑެންޓިޓީ ހޯދުމަށް އޮތް އެކްސެސް ތިޔަ ފަރާތަށް ދިނުމަށް ކަސްޓޯޑިއަންއެއް އިންކާރުކުރިކަން  އެންގުމަށް ފޮނުވިފައިވާ އީމެއިލެއް "
+msgstr ""
+"މި އީމެއިލަކީ  ރިޕޯޓު {TipNum} ގެ ވިސްލްބްލޯވަރގެ އައިޑެންޓިޓީ ހޯދުމަށް އޮތް އެކްސެސް ތިޔަ ފަރާތަށް ދިނުމަށް ކަސްޓޯޑިއަންއެއް "
+"އިންކާރުކުރިކަން  އެންގުމަށް ފޮނުވިފައިވާ އީމެއިލެއް "
 
 msgid "Access to reporting person's identity denied"
 msgstr "ވިސިލްބްލޯވަރގެ އައިޑެންޓިޓީއާ ގުޅޭ މައުލޫމާތު ލިބުމުގެ ޙުއްދައެއް ނުލިބޭ"

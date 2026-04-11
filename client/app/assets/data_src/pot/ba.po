@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Bashkir (http://app.transifex.com/otf/globaleaks/language/ba/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Bashkir <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ba/>\n"
+"Language: ba\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ba\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "Юғары"
 msgid "Hint"
 msgstr "Һүҙ ярҙамы"
 
+#, fuzzy
 msgid "Home"
 msgstr "Баш бит"
 
@@ -694,6 +698,9 @@ msgstr "Платформаға Tor ҡулланмайынса инеү мөмк�
 
 msgid "License"
 msgstr "Лицензия"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Эске ҡулланыусыларҙың авторизация журналы"
@@ -1328,10 +1335,13 @@ msgid ""
 "deselected:"
 msgstr "Түбәндәге ҡабул итеүселәр отчетығыҙҙы аласаҡ, уларҙы һайлауҙы кисектереп булмай"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Түбәндәге эҙмә-эҙлекле процедура һеҙгә мәғлүмәт биреү өсөн платформа төҙөргә мөмкинлек бирәсәк"
+msgstr ""
+"Түбәндәге эҙмә-эҙлекле процедура һеҙгә мәғлүмәт биреү өсөн платформа төҙөргә "
+"мөмкинлек бирәсәк"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1530,12 +1540,17 @@ msgstr "Файл(дар) тейәлә"
 msgid "Warning"
 msgstr "Иҫкәртеү"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Ҡабул итеүселәрҙең паролдәрен юғалтыу ихтималлығы булып, үҙегеҙҙе мәғлүмәтте юғалтыуҙан ҡурсаларға теләһәгеҙ, һеҙгә был опцияны һайларға тәҡдим итәбеҙ. Икенсе яҡтан, әгәр системаны ебәрелгән материалдарға ҡулланыусылар  инерлек итеп көйләргә теләһәгеҙ,беҙ был функцияны тәҡдим итмәйбеҙ."
+msgstr ""
+"Ҡабул итеүселәрҙең паролдәрен юғалтыу ихтималлығы булып, үҙегеҙҙе мәғлүмәтте "
+"юғалтыуҙан ҡурсаларға теләһәгеҙ, һеҙгә был опцияны һайларға тәҡдим итәбеҙ. "
+"Икенсе яҡтан, әгәр системаны ебәрелгән материалдарға ҡулланыусылар  инерлек "
+"итеп көйләргә теләһәгеҙ,беҙ был функцияны тәҡдим итмәйбеҙ."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1602,6 +1617,7 @@ msgstr "Электрон почтағыҙҙың яңы адресы раҫлан
 msgid "Your report was successful."
 msgstr "Материалдарығыҙ тапшырылышы уңышлы үтте"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Платформағыҙ хәбәр ебәреү өсөн әҙер тиһәң дә була"
 
@@ -1741,6 +1757,7 @@ msgstr "Ихтирам менән:"
 msgid "Account activation"
 msgstr "Иҫәп яҙмаһын әүҙемләштереү"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Һеҙҙең мәғлүмәт платформаһына ошо адрес буйынса инергә була:"
 
@@ -1787,6 +1804,7 @@ msgstr "Ғәмәлдәге PGP-асҡысы булмай тороп, систе�
 msgid "PGP key expiration alert"
 msgstr "PGP-асҡысының ғәмәл мөҙҙәте сыҡҡаны хаҡындағы белдереүҙәр"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Хәбәр ебәреү өсөн яңы сайт теркәлде"
 
@@ -1802,6 +1820,7 @@ msgstr "Исеме: {Name}"
 msgid "Email: {Email}"
 msgstr "Эл.адрес: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Хәбәр ебәреү өсөн яңы сайт теркәлде"
 
@@ -1839,6 +1858,7 @@ msgstr "Бынан: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Дата: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Кемдән: информатор"
 
@@ -1880,10 +1900,13 @@ msgstr "Яңыртыуға ынтылыш дауам итәсәк"
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS сертификатын яңыртыуҙағы буталыш"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Был хәбәр аша һеҙгә һаҡлаусының информатор шәхсиәтенә {TipNum} отчетына ярашлы инеү рөхсәте  биреүен еткерәбеҙ"
+msgstr ""
+"Был хәбәр аша һеҙгә һаҡлаусының информатор шәхсиәтенә {TipNum} отчетына "
+"ярашлы инеү рөхсәте  биреүен еткерәбеҙ"
 
 msgid "The report can be accessed at:"
 msgstr "Отчет түбәндәге биттә:"
@@ -1891,10 +1914,13 @@ msgstr "Отчет түбәндәге биттә:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Информатор шәхсиәтенә инергә рөхсәт"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Был хәбәр аша һеҙгә һаҡлаусының информатор шәхсиәтенә {TipNum} отчетына ярашлы инеү тыйылыуын еткерәбеҙ"
+msgstr ""
+"Был хәбәр аша һеҙгә һаҡлаусының информатор шәхсиәтенә {TipNum} отчетына "
+"ярашлы инеү тыйылыуын еткерәбеҙ"
 
 msgid "Access to reporting person's identity denied"
 msgstr "Информатор шәхсиәтенә инеү мөмкинлеге кире ҡағылды"

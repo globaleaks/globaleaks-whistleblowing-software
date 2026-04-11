@@ -19,14 +19,14 @@
   @if (showAddQuestion) {
     <div class="row config-section">
       <div class="col-md-6">
-        <src-add-field [step]="step" [type]="'step'" (dataToParent)="listenToAddField()"></src-add-field>
+        <src-add-field [step]="step" [type]="'step'" (added)="onAdd()"></src-add-field>
       </div>
     </div>
   }
   @if (showAddQuestionFromTemplate) {
     <div class="row config-section">
       <div class="col-md-6">
-        <src-add-field-from-template [step]="step" [type]="'step'" [fieldTemplatesData]="fieldTemplatesData" (dataToParent)="listenToAddFieldFormTemplate()"></src-add-field-from-template>
+        <src-add-field-from-template [step]="step" [type]="'step'" [fieldTemplatesData]="fieldTemplatesData" (added)="onAdd()"></src-add-field-from-template>
       </div>
     </div>
   }
@@ -35,7 +35,7 @@
       <div class="col-md-12">
         <div id="field-{{index}}" class="fieldBox">
           <form #editField="ngForm">
-            <src-fields (dataToParent)="listenToFields()" [editField]="editField" [type]="'step'" [step]="step" [field]="field" [fields]="step.children" [parsedFields]="parsedFields"></src-fields>
+            <src-fields [editField]="editField" [type]="'step'" [step]="step" [field]="field" [fields]="step.children" [parsedFields]="parsedFields" (deleted)="onDelete($event)"></src-fields>
           </form>
         </div>
       </div>

@@ -8,7 +8,7 @@ To perform a backup, run the following command:
 
   gl-admin backup
 
-After running the command, you will find a `tar.gz` archive in `/tmp`. The file will be named in the format: `globaleaks-$version-$timestamp.tar.gz`.
+After running the command, you will find a `tar.gz` archive in `/tmp`. The file will be named in the format: `globaleaks_backup_YY_MM_DD.tar.gz`.
 
 
 To perform a restore from an existing backup, run the following command:

@@ -7,13 +7,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Chechen (http://app.transifex.com/otf/globaleaks/language/ce/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Chechen <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ce/>\n"
+"Language: ce\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ce\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -584,6 +587,7 @@ msgstr "Лакхара"
 msgid "Hint"
 msgstr "Къадор"
 
+#, fuzzy
 msgid "Home"
 msgstr "ЦIа"
 
@@ -695,6 +699,9 @@ msgstr "Tor а йоцуш, тlекхочийлехь хилийта платфо
 
 msgid "License"
 msgstr "Лицензи"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Чоьхьарчу пайдаэцархойн журналашна тlекхочийла"
@@ -1329,10 +1336,13 @@ msgid ""
 "deselected:"
 msgstr "Хьан арз хIокху дIаэцархошка кхочур ду, уьш юкъара дIабаха йиш яц:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "ХIокху гIулчашца йолчу процедуро гойтур ду, хьайн Iорадаккхархочун платформа муха кхолла еза."
+msgstr ""
+"ХIокху гIулчашца йолчу процедуро гойтур ду, хьайн Iорадаккхархочун платформа "
+"муха кхолла еза."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1531,12 +1541,17 @@ msgstr "Файл(аш) дIахIоттор дерзаре хьоьжу."
 msgid "Warning"
 msgstr "Варе"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Оха хьехар до хlара опци харжа, хьайн информаци lалашъян хьуна лаахь, дIаэцархоша шайн паролш яйъича. Вуьшта, оха хьехар ца до кху башхалонах пайдаэца, хьуна дIаэцархой бен хьан чудаларшна тlе ца кхочуьйтуш, система нисъян лаахь."
+msgstr ""
+"Оха хьехар до хlара опци харжа, хьайн информаци lалашъян хьуна лаахь, "
+"дIаэцархоша шайн паролш яйъича. Вуьшта, оха хьехар ца до кху башхалонах "
+"пайдаэца, хьуна дIаэцархой бен хьан чудаларшна тlе ца кхочуьйтуш, система "
+"нисъян лаахь."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1603,6 +1618,7 @@ msgstr "Хьан электронан поштин керла адрес бак�
 msgid "Your report was successful."
 msgstr "Хьан арз кхиамца схьакхаьчна."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Iорадаккхархочун платформа кийча хила герга ю!"
 
@@ -1742,6 +1758,7 @@ msgstr "Ларамца,"
 msgid "Account activation"
 msgstr "Аккаунтан активаци"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Хьан Iорадаккхархочун платформа хlинца тlекхочийлехь ю кху адресца:"
 
@@ -1788,6 +1805,7 @@ msgstr "PGP-ан бакъдолу догlа ца хилча, системин а
 msgid "PGP key expiration alert"
 msgstr "PGP догlанан чекхдаларан хенах вареяр"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Керлачу Iорадаккхархочун сайтана регистраци йина."
 
@@ -1803,6 +1821,7 @@ msgstr "Цlе: {Name}"
 msgid "Email: {Email}"
 msgstr "Электронан пошта: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Керла Iорадаккхархочун сайтана регистраци йина"
 
@@ -1840,6 +1859,7 @@ msgstr "Хьаьнгара: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Дата: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Хьаьнгара: Iорадаккхархо"
 
@@ -1881,10 +1901,13 @@ msgstr "Система кхидlа а хьажа гlертар ю."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS сертификат карладаккхар ца нисделла"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Кху электронан кехатца хаам бо хьоьга, цхьана lуналхочо хьуна Iорадаккхархочун цIарна тlекхача бакъо елла хиларх {TipNum}."
+msgstr ""
+"Кху электронан кехатца хаам бо хьоьга, цхьана lуналхочо хьуна "
+"Iорадаккхархочун цIарна тlекхача бакъо елла хиларх {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "Орзана тIекхача йиш ю хIокху адресца:"
@@ -1892,10 +1915,13 @@ msgstr "Орзана тIекхача йиш ю хIокху адресца:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Iорадаккхархочун цIарна тlекхочийла магийна"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Кху электронан кехатца хаам бо хьоьга, цхьана lуналхочо хьуна Iорадаккхархочун цIарна тlекхача бакъо елла ца хиларх {TipNum}."
+msgstr ""
+"Кху электронан кехатца хаам бо хьоьга, цхьана lуналхочо хьуна "
+"Iорадаккхархочун цIарна тlекхача бакъо елла ца хиларх {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Iорадаккхархочун цIарна тlекхочийла ца магийна"

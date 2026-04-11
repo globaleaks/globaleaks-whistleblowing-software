@@ -123,11 +123,11 @@ export class FieldUtilitiesService {
     const score = scope.points_to_sum * scope.points_to_mul;
     if (scope.context) {
       if (score < scope.context.score_threshold_medium) {
-        scope.score = 1;
+        scope.score = 0;
       } else if (score < scope.context.score_threshold_high) {
-        scope.score = 2;
+        scope.score = 1;
       } else {
-        scope.score = 3;
+        scope.score = 2;
       }
     }
   }

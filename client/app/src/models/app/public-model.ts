@@ -26,6 +26,7 @@ export class Node {
   enable_custom_privacy_badge: boolean;
   enable_scoring_system: boolean;
   enable_signup: boolean;
+  homepage: string;
   hostname: string;
   https_whistleblower = false;
   maximum_filesize: number;

@@ -1,5 +1,13 @@
 /* eslint-disable no-undef */
 
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.min.mjs';
+import * as pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs';
+
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+const workerBlob = new Blob([pdfWorker], { type: 'application/javascript' });
+const workerBlobUrl = URL.createObjectURL(workerBlob);
+GlobalWorkerOptions.workerSrc = workerBlobUrl;
+
 const mediaViewer = document.getElementById("media-viewer");
 const pdfViewer = document.getElementById("pdf-viewer");
 const pdfCanvas = document.getElementById("pdf-canvas");
@@ -12,50 +20,50 @@ let pageNum = 1;
 let pageCount = 0;
 
 
-function receiveMessage(evt) {
-  const url = URL.createObjectURL(evt.data.blob);
+function receiveMessage(event) {
+  const url = URL.createObjectURL(event.data.blob);
 
-  if (evt.data.tag === "pdf") {
+  if (event.data.tag === "pdf") {
     pdfViewer.style.display = "block";
     mediaViewer.style.display = "none";
     createPdfViewer(url);
   } else {
     pdfViewer.style.display = "none";
     mediaViewer.style.display = "block";
-
-    // Clear existing content in mediaViewer
-    while (mediaViewer.firstChild) {
-      mediaViewer.removeChild(mediaViewer.firstChild);
-    }
+    mediaViewer.replaceChildren();
 
     let viewerElement;
 
-    if (evt.data.tag === "audio") {
-      viewerElement = document.createElement("audio");
-      viewerElement.id = "viewer";
-      viewerElement.src = url;
-      viewerElement.controls = true;
-    } else if (evt.data.tag === "image") {
-      viewerElement = document.createElement("img");
-      viewerElement.id = "viewer";
-      viewerElement.src = url;
-    } else if (evt.data.tag === "video") {
-      viewerElement = document.createElement("video");
-      viewerElement.id = "viewer";
-      viewerElement.src = url;
-      viewerElement.controls = true;
-    } else if (evt.data.tag === "txt") {
-      evt.data.blob.text().then(function (text) {
-        viewerElement = document.createElement("pre");
-        viewerElement.id = "viewer";
-        viewerElement.textContent = text;
-        mediaViewer.appendChild(viewerElement);
-      });
-      return; // Exit early to avoid appending an undefined `viewerElement`
+    switch (event.data.tag) {
+      case "audio":
+        viewerElement = document.createElement("audio");
+        viewerElement.controls = true;
+        viewerElement.src = url;
+        break;
+      case "video":
+        viewerElement = document.createElement("video");
+        viewerElement.controls = true;
+        viewerElement.src = url;
+        break;
+      case "image":
+        viewerElement = document.createElement("img");
+        viewerElement.src = url;
+        break;
+      case "txt":
+        event.data.blob.text().then((text) => {
+          const pre = document.createElement("pre");
+          pre.textContent = text;
+          mediaViewer.appendChild(pre);
+        });
+        return; // Exit early for async text loading
+      default:
+        console.warn("Unsupported media type:", event.data.tag);
+        return;
     }
 
     // Append the created viewer element
     if (viewerElement) {
+      viewerElement.id = "viewer";
       mediaViewer.appendChild(viewerElement);
     }
   }
@@ -63,12 +71,11 @@ function receiveMessage(evt) {
 
 
 function createPdfViewer(url) {
-  pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
+  pdfjsLib.getDocument(url).promise.then((pdfDoc_) => {
     pdfDoc = pdfDoc_;
     pageCount = pdfDoc.numPages;
-
-    pdfControlPageCount.innerText = pageCount;
-    pdfControlPage.innerText = 0;
+    pdfControlPageCount.textContent = pageCount;
+    pageNum = 1;
     renderPage(pageNum);
   });
 
@@ -77,56 +84,33 @@ function createPdfViewer(url) {
 }
 
 function renderPage(num) {
-  pdfDoc.getPage(num).then(function (page) {
-    // find scale to fit page in canvas
-    const scale = pdfCanvas.clientWidth / page.getViewport({scale: 1.0}).width;
-    const viewport = page.getViewport({scale: scale});
-    const canvas = pdfCanvas;
-    const context = canvas.getContext("2d");
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
+  pdfDoc.getPage(num).then((page) => {
+    const scale = pdfCanvas.clientWidth / page.getViewport({ scale: 1 }).width;
+    const viewport = page.getViewport({ scale });
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
 
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport,
-    };
-    const renderTask = page.render(renderContext);
-    renderTask.promise.then(function () {
-      // updating label
-      pdfControlPage.innerText = pageNum;
-      // disable and enable control buttons
-      if (pageNum <= 1) {
-        pdfControlPrev.disabled = true;
-      }
-      if (pageNum >= pageCount) {
-        pdfControlNext.disabled = true;
-      }
-      if (pageNum > 1) {
-        pdfControlPrev.disabled = false;
-      }
-      if (pageNum < pageCount) {
-        pdfControlNext.disabled = false;
-      }
+    const context = pdfCanvas.getContext("2d");
+    page.render({ canvasContext: context, viewport }).promise.then(() => {
+      pdfControlPage.textContent = pageNum;
+      pdfControlPrev.disabled = pageNum <= 1;
+      pdfControlNext.disabled = pageNum >= pageCount;
     });
   });
 }
 
 function pdfNextPage() {
-  if (pageNum >= pageCount) {
-    return;
+  if (pageNum < pageCount) {
+    pageNum++;
+    renderPage(pageNum);
   }
-  pageNum++;
-  pdfControlPage.value = pageNum;
-  renderPage(pageNum);
 }
 
 function pdfPrevPage() {
-  if (pageNum <= 1) {
-    return;
+  if (pageNum > 1) {
+    pageNum--;
+    renderPage(pageNum);
   }
-  pageNum--;
-  pdfControlPage.value = pageNum;
-  renderPage(pageNum);
 }
 
 window.addEventListener(

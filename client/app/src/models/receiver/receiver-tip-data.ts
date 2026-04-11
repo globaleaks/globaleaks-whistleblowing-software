@@ -1,6 +1,5 @@
 import {
   Step,
-  TriggeredByOption,
   Children,
   RFile,
   WbFile,

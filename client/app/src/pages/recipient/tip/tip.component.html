@@ -147,13 +147,11 @@
       </div>
     </div>
     @if (tip && tip.receivers) {
-      @if (tip.receivers.length > 1) {
-        <div class="row">
-          <div class="col-md-12">
-            <src-tip-receiver-list [tipService]="RTipService"></src-tip-receiver-list>
-          </div>
+      <div class="row">
+        <div class="col-md-12">
+          <src-tip-receiver-list [tipService]="RTipService"></src-tip-receiver-list>
         </div>
-      }
+      </div>
     }
     <div class="row">
       <div [ngClass]="{'col-md-12': !(tip && tip.identity_provided),'col-md-6': (tip && tip.identity_provided)}">
@@ -184,30 +182,26 @@
         </ul>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
         <div class="row">
-          <ng-template #tab1>
-            <div class="col-md-6 col-sm-12">
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (dataToParent)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
+          <div class="col-md-12">
+            <ng-template #tab1>
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (updated)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
               @if (tip && tip.context) {
                 <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
               }
-            </div>
-          </ng-template>
-          <ng-template #tab2>
-            <div class="col-md-6 col-md-12">
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (dataToParent)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
+            </ng-template>
+            <ng-template #tab2>
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
               @if (tip && tip.context) {
                 <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
-              }
-            </div>
-          </ng-template>
-          <ng-template #tab3>
-            <div class="col-md-6 col-md-12">
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (dataToParent)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
+                }
+            </ng-template>
+            <ng-template #tab3>
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
               @if (tip && tip.context) {
                 <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
               }
-            </div>
-          </ng-template>
+            </ng-template>
+         </div>
         </div>
       </div>
     </div>

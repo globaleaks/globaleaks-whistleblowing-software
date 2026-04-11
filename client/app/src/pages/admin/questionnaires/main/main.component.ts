@@ -1,17 +1,14 @@
 import {HttpClient} from "@angular/common/http";
-import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
-import {Subject, takeUntil} from "rxjs";
 import {NgClass} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {QuestionnairesListComponent} from "../questionnaires-list/questionnaires-list.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
@@ -23,27 +20,19 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslatorPipe, TranslateModule]
 })
-export class MainComponent implements OnInit, OnDestroy {
+export class MainComponent implements OnInit {
   private http = inject(HttpClient);
-  private questionnaireService = inject(QuestionnaireService);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
   protected questionnairesResolver = inject(QuestionnairesResolver);
 
-  private destroy$ = new Subject<void>();
   questionnairesData: questionnaireResolverModel[] = [];
   new_questionnaire: { name: string } = {name: ""};
   showAddQuestionnaire = false;
   @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
 
   ngOnInit(): void {
-    this.questionnaireService.sharedData = "step";
-    this.questionnaireService.getData().pipe(takeUntil(this.destroy$)).subscribe(() => {
-      return this.getResolver();
-    });
     this.questionnairesData = this.questionnairesResolver.dataModel;
-    this.cdr.markForCheck();
   }
 
   addQuestionnaire() {
@@ -53,7 +42,6 @@ export class MainComponent implements OnInit, OnDestroy {
       this.questionnairesData.push(res);
       this.new_questionnaire = {name: ""};
       this.getResolver();
-      this.cdr.markForCheck();
     });
   }
 
@@ -82,7 +70,6 @@ export class MainComponent implements OnInit, OnDestroy {
     return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
       this.questionnairesResolver.dataModel = response;
       this.questionnairesData = response;
-      this.cdr.markForCheck();
     });
   }
 
@@ -90,8 +77,7 @@ export class MainComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  onDelete(id: string) {
+    this.questionnairesData = this.questionnairesData.filter(i => i.id !== id);
   }
 }

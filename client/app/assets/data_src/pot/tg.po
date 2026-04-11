@@ -13,13 +13,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Tajik (http://app.transifex.com/otf/globaleaks/language/tg/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Tajik <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/tg/>\n"
+"Language: tg\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: tg\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -590,6 +593,7 @@ msgstr "Баланд"
 msgid "Hint"
 msgstr "Ишора"
 
+#, fuzzy
 msgid "Home"
 msgstr "Асосӣ"
 
@@ -701,6 +705,9 @@ msgstr "Барномаро бидуни Tor дастрас кардан "
 
 msgid "License"
 msgstr "Иҷозатнома"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "Дастрасии корбарони дохилӣ ба номгӯ"
@@ -1335,10 +1342,13 @@ msgid ""
 "deselected:"
 msgstr "Гирандагони зерин гузориши шуморо қабул мекунанд ва интихоб лағв карда намешавад:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Тартиби зина ба зинаи зерин ба шумо дар эҷоди барномаи хабаррасонии худ роҳнамоӣ мекунад."
+msgstr ""
+"Тартиби зина ба зинаи зерин ба шумо дар эҷоди барномаи хабаррасонии худ "
+"роҳнамоӣ мекунад."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1537,12 +1547,18 @@ msgstr "Интизори файл(ҳо) то ба анҷом расидани б
 msgid "Warning"
 msgstr "Огоҳӣ"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Агар шумо мехоҳед маълумотро аз гум шудан дар ҳолате, ки гирандагон гузарвожаҳои худро гум мекунанд, муҳофизат кунед, мо маслиҳат медиҳем, ки ин вариантро интихоб кунед. Аз тарафи дигар, агар шумо хоҳед, ки системаеро насб кунед, ки танҳо гирандагон ба ирсолҳо дастрасӣ дошта бошанд, пас маслиҳат намедиҳем, ки ин функсияро истифода баред."
+msgstr ""
+"Агар шумо мехоҳед маълумотро аз гум шудан дар ҳолате, ки гирандагон "
+"гузарвожаҳои худро гум мекунанд, муҳофизат кунед, мо маслиҳат медиҳем, ки ин "
+"вариантро интихоб кунед. Аз тарафи дигар, агар шумо хоҳед, ки системаеро "
+"насб кунед, ки танҳо гирандагон ба ирсолҳо дастрасӣ дошта бошанд, пас "
+"маслиҳат намедиҳем, ки ин функсияро истифода баред."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1609,6 +1625,7 @@ msgstr "Суроғаи почтаи электронии шумо тасдиқ �
 msgid "Your report was successful."
 msgstr "Ҳисоботи шумо муваффақ шуд."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Барномаи хабаррасонии шумо қариб омода аст!"
 
@@ -1748,6 +1765,7 @@ msgstr "Бо эҳтиром,"
 msgid "Account activation"
 msgstr "Фаъолсозии аккаунт"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "Барномаи хабаррасонии шумо акнун дар суроғаи зерин дастрас аст:"
 
@@ -1794,6 +1812,7 @@ msgstr "Бе калиди PGP-и эътибордор система намет�
 msgid "PGP key expiration alert"
 msgstr "Огоҳии итмоми мӯҳлати калиди PGP "
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Торнамои нави хабаррасонӣ ба қайд гирифта шуд."
 
@@ -1809,6 +1828,7 @@ msgstr "Ном: {Name}"
 msgid "Email: {Email}"
 msgstr "Почтаи электронӣ: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Торнамои нави хабаррасонӣ ба қайд гирифта шуд"
 
@@ -1846,6 +1866,7 @@ msgstr "Аз: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Сана: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Аз: Хабардиҳанда"
 
@@ -1887,10 +1908,13 @@ msgstr "Система кӯшишро идома хоҳад дод."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Навсозии шаҳодатномаи HTTPS ноком шуд"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "Ин почтаи электронӣ ба шумо маълум мекунад, ки як муҳофиз ба шумо иҷозат додааст, ки ба шахсияти хабардиҳандаи гузориш {TipNum} дастрасӣ пайдо кунед."
+msgstr ""
+"Ин почтаи электронӣ ба шумо маълум мекунад, ки як муҳофиз ба шумо иҷозат "
+"додааст, ки ба шахсияти хабардиҳандаи гузориш {TipNum} дастрасӣ пайдо кунед."
 
 msgid "The report can be accessed at:"
 msgstr "Шиносоӣ бо гузориш дар ин суроға дастрас аст:"
@@ -1898,10 +1922,13 @@ msgstr "Шиносоӣ бо гузориш дар ин суроға дастра
 msgid "Access to reporting person's identity authorized"
 msgstr "Дастрасӣ ба шахсияти хабардиҳанда иҷоза шуд"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "Ин почтаи электронӣ ба шумо маълум мекунад, ки як муҳофиз дастрасии шуморо ба шахсияти хабардиҳандаи гузориш {TipNum} рад кардааст."
+msgstr ""
+"Ин почтаи электронӣ ба шумо маълум мекунад, ки як муҳофиз дастрасии шуморо "
+"ба шахсияти хабардиҳандаи гузориш {TipNum} рад кардааст."
 
 msgid "Access to reporting person's identity denied"
 msgstr "Дастрасӣ ба шахсияти хабардиҳанда рад шуд"

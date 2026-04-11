@@ -1,10 +1,10 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {NgForm, FormsModule} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
@@ -28,7 +28,11 @@ export class SiteslistComponent {
   @Input() tenant: tenantResolverModel;
   @Input() tenants: tenantResolverModel[];
   @Input() index: number;
+<<<<<<< HEAD
   @Input() indexNumber: number;
+=======
+  @Output() deleted = new EventEmitter<number>();
+>>>>>>> origin/stable
   editing = false;
 
   toggleActivation(event: Event): void {
@@ -72,10 +76,9 @@ export class SiteslistComponent {
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
         const url = "api/admin/tenants/" + arg.id;
         return this.httpService.requestDeleteTenant(url).subscribe(_ => {
-          this.utilsService.deleteResource(this.tenants, arg);
+          this.deleted.emit(this.tenant.id);
         });
       };
     });

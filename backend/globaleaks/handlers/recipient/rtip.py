@@ -214,8 +214,14 @@ def db_get_ttl(session, orm_object_model, orm_object_id):
     """
     # we exploit the fact that we have the same "tip_timetolive" name in
     # the SubmissionSubStatus, SubmissionStatus and Context tables
-    return session.query(orm_object_model.tip_timetolive) \
-                  .filter(orm_object_model.id == orm_object_id).one()[0]
+    row = (
+        session.query(orm_object_model.tip_timetolive)
+        .filter(orm_object_model.id == orm_object_id)
+        .one_or_none()
+    )
+
+    # row is either a tuple-like result (ttl,) or None
+    return row[0] if row and row[0] is not None else 365
 
 
 def db_recalculate_data_retention(session, itip, report_reopen_request):
@@ -746,8 +752,6 @@ def redact_report(session, user_session, report, enforce=False):
     for comment in report['comments']:
         if comment['id'] in redactions_by_reference_id:
             comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
-
-    report['wbfiles'] = [x for x in report['wbfiles'] if x['ifile_id'] not in redactions_by_reference_id]
 
     return report
 

@@ -40,7 +40,7 @@ export class UserEditorComponent implements OnInit {
   @Input() index: number;
   @Input() editUser: NgForm;
   @Input() profiles: UserProfile[];
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() deleted = new EventEmitter<string>();
   @ViewChild("uploader") uploaderInput: ElementRef;
   editing = false;
   filteredProfiles: UserProfile[];
@@ -111,9 +111,7 @@ export class UserEditorComponent implements OnInit {
     }
 
     return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
-      next:()=>{
-        this.sendDataToParent();
-      },
+      next:()=>{},
       error:()=>{
         if (this.uploaderInput) {
           this.uploaderInput.nativeElement.value = "";
@@ -122,11 +120,7 @@ export class UserEditorComponent implements OnInit {
     });
   }
 
-  sendDataToParent() {
-    this.dataToParent.emit();
-  }
-
-  deleteUser(user: User) {
+  deleteUser(user: userResolverModel) {
     this.openConfirmableModalDialog(user, "").subscribe();
   }
 
@@ -138,10 +132,8 @@ export class UserEditorComponent implements OnInit {
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
         return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
-          this.utilsService.deleteResource(this.users, arg);
-          this.sendDataToParent();
+          this.deleted.emit(this.user.id);
         });
       };
     });

@@ -42,36 +42,21 @@ find "$WORKFLOWS_DIR" -type f \( -name "*.yml" \) | while read -r workflow; do
     grep -E 'uses: .*@' "$workflow" | while read -r line; do
         echo "  Found action line: $line"
 
-        repo=$(echo "$line" | sed -E 's/.*uses: ([^@]+)@.*/\1/')
+        repo_full=$(echo "$line" | sed -E 's/.*uses: ([^@]+)@.*/\1/')
+        repo=$(echo "$repo_full" | cut -d/ -f1,2)
+
         ref=$(echo "$line" | sed -E 's/.*@([^ ]+).*/\1/')
         echo "    Repo: $repo"
         echo "    Current ref: $ref"
 
-        # Get default branch
-	default_branch=$(gh_api "https://api.github.com/repos/$repo" | jq -r '.default_branch // empty')
-        if [ -z "$default_branch" ]; then
-            echo "    [WARNING] Could not detect default branch, skipping..."
-            continue
-        fi
+        latest_tag=$(
+          gh_api "https://api.github.com/repos/$repo/tags?per_page=100" \
+          | jq -r '.[].name' \
+          | sort -V \
+          | tail -n 1
+        )
 
-        # Get latest commit hash
-        latest_hash=$(gh_api "https://api.github.com/repos/$repo/commits/$default_branch" \
-                    | jq -r '.sha')
-        if [ -z "$latest_hash" ]; then
-            echo "    [WARNING] Could not fetch latest commit hash, skipping..."
-            continue
-        fi
-
-        # Get latest release tag (optional)
-        latest_tag=$(gh_api "https://api.github.com/repos/$repo/releases/latest" \
-                    | jq -r '.tag_name // empty')
-
-        # Build new line with optional tag comment
-        if [ -n "$latest_tag" ]; then
-            new_line="${line%@*}@${latest_hash} # ${latest_tag}"
-        else
-            new_line="${line%@*}@${latest_hash}"
-        fi
+        new_line="${line%@*}@${latest_tag}"
 
         # Escape for sed
         escaped_old_line=$(printf '%s\n' "$line" | sed 's/[\/&]/\\&/g')
@@ -80,7 +65,7 @@ find "$WORKFLOWS_DIR" -type f \( -name "*.yml" \) | while read -r workflow; do
         # Replace the old line with the new line
         sed -i "s|$escaped_old_line|$escaped_new_line|" "$workflow"
 
-        echo "    Updated $repo@$ref -> $latest_hash $( [ -n "$latest_tag" ] && echo " #$latest_tag" )"
+        echo "    Updated $repo@$ref -> $latest_tag"
         echo
     done
 done

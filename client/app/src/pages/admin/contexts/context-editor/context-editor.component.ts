@@ -36,7 +36,7 @@ export class ContextEditorComponent implements OnInit {
   @Input() contextResolver: contextResolverModel;
   @Input() index: number;
   @Input() editContext: NgForm;
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() deleted = new EventEmitter<string>();
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
@@ -127,7 +127,7 @@ export class ContextEditorComponent implements OnInit {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         return this.utilsService.deleteAdminContext(arg.id).subscribe(_ => {
-          this.utilsService.deleteResource(this.contextsData,arg);
+	  this.deleted.emit(arg.id);
         });
       };
     });

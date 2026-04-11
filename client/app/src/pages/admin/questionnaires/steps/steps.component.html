@@ -42,7 +42,7 @@
   <div class="row">
     @for (stepData of questionnaire.steps; track stepData; let index = $index) {
       <div class="col-md-12">
-        <src-steps-list [step]="stepData" [questionnaire]="questionnaire" [steps]="questionnaire.steps" [index]="index"></src-steps-list>
+        <src-steps-list [step]="stepData" [questionnaire]="questionnaire" [steps]="questionnaire.steps" [index]="index" (deleted)="onDelete($event)"></src-steps-list>
       </div>
     }
   </div>

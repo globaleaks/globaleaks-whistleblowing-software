@@ -45,10 +45,10 @@
     </div>
   </div>
 }
-<app-paginated-interface [items]="tenants" [filterField]="'name'" [itemsPerPage]="20" [orderBy]="'id'">
+<app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'">
   <ng-template #content let-item="item" let-index="index">
     <form id="tenant-{{index}}"  #editTenant="ngForm" novalidate>
-      <src-siteslist [tenant]="item" [tenants]="tenants"></src-siteslist>
+      <src-siteslist [tenant]="item" [tenants]="tenants" (deleted)="onDelete($event)"></src-siteslist>
     </form>
   </ng-template>
 </app-paginated-interface>

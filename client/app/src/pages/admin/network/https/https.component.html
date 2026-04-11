@@ -16,18 +16,18 @@
     <div id="HTTPSSettings">
         <div class="card card-default">
             <div class="card-body">
-            <src-https-status [tlsConfig]="tlsConfig" (dataToParent)="httpsStatus($event)"></src-https-status>
+            <src-https-status [tlsConfig]="tlsConfig" (updated)="onUpdate($event)"></src-https-status>
             @switch (menuState) {
-            @case ('setup') {
-                <div>
-                    <src-https-setup (dataToParent)="httpsSetup($event)"></src-https-setup>
-                </div>
-            }
-            @default {
-                <div>
-                    <src-https-files [tlsConfig]="tlsConfig" [state]="state" (dataToParent)="httpsFiles($event)"></src-https-files>
-                </div>
-            }
+              @case ('setup') {
+                  <div>
+                      <src-https-setup (updated)="onUpdate($event)"></src-https-setup>
+                  </div>
+              }
+              @default {
+                  <div>
+                      <src-https-files [tlsConfig]="tlsConfig" [state]="state" (updated)="onUpdate($event)"></src-https-files>
+                  </div>
+              }
             }
             </div>
         </div>

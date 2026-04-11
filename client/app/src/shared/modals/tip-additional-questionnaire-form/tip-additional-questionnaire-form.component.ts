@@ -7,7 +7,6 @@ import {FieldUtilitiesService} from "@app/shared/services/field-utilities.servic
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
-import {Field} from "@app/models/resolvers/field-template-model";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
 import {NgClass} from "@angular/common";
 import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";

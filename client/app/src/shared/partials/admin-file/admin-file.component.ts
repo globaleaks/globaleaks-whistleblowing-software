@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, Input, ViewChild, inject} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";

@@ -89,25 +89,7 @@ export class HttpsComponent implements OnInit {
     this.menuState = choice;
   }
 
-  httpsSetup(data: string) {
-    if (data) {
-      this.menuState = data;
-    }
-    if (!data) {
-      this.initFunction();
-    }
-  }
-
-  httpsFiles(data: string) {
-    if (data) {
-      this.menuState = data;
-    }
-    if (!data) {
-      this.initFunction();
-    }
-  }
-
-  httpsStatus(data: string) {
+  onUpdate(data: string) {
     if (data) {
       this.menuState = data;
     }

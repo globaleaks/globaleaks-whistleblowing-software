@@ -2,10 +2,8 @@ import {
   AfterViewInit,
   Component,
   ContentChild,
-  DoCheck,
   inject,
   Input,
-  IterableDiffers,
   OnChanges,
   SimpleChanges,
   TemplateRef
@@ -21,7 +19,7 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
   templateUrl: './paginated-interface.component.html',
   imports: [CommonModule, FormsModule, PaginationComponent, SearchInputComponent],
 })
-export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, OnChanges {
+export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges {
   @Input() mode: 'table' | 'simple' = 'simple';
   @Input() items: T[] = [];
   @Input() filterField = '';
@@ -48,21 +46,12 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, O
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
-  private differ = this.iterableDiffers.find([]).create<T>(undefined);
-
   private utilsService = inject(UtilsService);
 
-  constructor(private iterableDiffers: IterableDiffers) {}
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.update();
-  }
-
-  ngDoCheck(): void {
-    const changes = this.differ.diff(this.items);
-    if (changes) {
-      this.update();
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -128,9 +117,11 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, DoCheck, O
     // Pagination
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = this.currentPage * this.itemsPerPage;
-    const paged = this.filteredItems.slice(start, end);
+    this.paginatedItems = [...this.filteredItems.slice(start, end)];
+  }
 
-    // Preserve reference for Angular change detection
-    this.paginatedItems.splice(0, this.paginatedItems.length, ...paged);
+  onSearchUpdate(): void {
+    this.currentPage = 1;
+    this.update();
   }
 }

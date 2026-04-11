@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -29,6 +29,7 @@ export class SubStatusManagerComponent {
   @Input() index: number;
   @Input() first: boolean;
   @Input() last: boolean;
+  @Output() deleted = new EventEmitter<string>();
 
   isSystemDefined(state: Status): boolean {
     return ["new", "opened", "closed"].indexOf(state.id) !== -1;
@@ -108,9 +109,16 @@ export class SubStatusManagerComponent {
         observer.complete()
         const url = "api/admin/statuses/" + arg.id;
         return this.utilsService.deleteStatus(url).subscribe(_ => {
-          this.utilsService.deleteResource(this.submissionStatuses, arg);
+          this.deleted.emit(arg.id);
         });
       };
     });
+  }
+
+  //onDelete(id: string) {
+  //  this.appDataServices.submissionStatuses = [...this.appDataServices.submissionStatuses.filter(i => i.id !== id)];
+  //}
+  onDelete(id: string) {
+    this.submissionsStatus.substatuses = [...this.submissionsStatus.substatuses.filter(i => i.id !== id)];
   }
 }

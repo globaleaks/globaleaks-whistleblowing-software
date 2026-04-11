@@ -3,7 +3,6 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NewStep} from "@app/models/admin/new-step";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {FormsModule} from "@angular/forms";
 import {StepsListComponent} from "../steps-list/steps-list.component";
@@ -17,12 +16,11 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, StepsListComponent, TranslatorPipe, TranslateModule]
 })
 export class StepsComponent implements OnInit {
-  private questionnaireService = inject(QuestionnaireService);
   protected node = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
   private httpService = inject(HttpService);
 
-  @Output() dataToParent = new EventEmitter<string>();
+  @Output() deleted = new EventEmitter<string>();
   @Input() questionnaire: questionnaireResolverModel;
   showAddStep = false;
   step: Step;
@@ -46,7 +44,10 @@ export class StepsComponent implements OnInit {
     this.httpService.requestAddAdminQuestionnaireStep(step).subscribe((newStep: Step) => {
       this.questionnaire.steps.push(newStep);
       this.new_step = {label: ""};
-      this.dataToParent.emit();
     });
+  }
+
+  onDelete(id: string) {
+    this.questionnaire.steps = this.questionnaire.steps.filter(i => i.id !== id);
   }
 }

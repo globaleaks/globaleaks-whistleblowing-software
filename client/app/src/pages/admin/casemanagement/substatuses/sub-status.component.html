@@ -49,16 +49,6 @@
             </span>
             <span class="col-md-5 clearfix">
               <span class="float-end">
-                @if (!first) {
-                  <button id="move-up-button" class="btn btn-sm btn-primary" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}">
-                    <i class="fas fa-chevron-up"></i>
-                  </button>
-                }
-                @if (!last) {
-                  <button id="move-down-button" class="btn btn-sm btn-primary" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}">
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                }
                 @if (!this.subStatusEditing[index]) {
                   <button id="substatus-edit-button" class="btn btn-sm btn-outline-secondary" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
                     <span>{{'Edit'|translate}}</span>
@@ -77,36 +67,44 @@
                 <button id="substatus-delete-button" class="btn btn-sm btn-danger" (click)="deleteSubSubmissionStatus(substatus); $event.stopPropagation();">
                   <span>{{'Delete'|translate}}</span>
                 </button>
+                <button id="move-up-button" class="btn btn-sm btn-primary" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="first">
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+                <button id="move-down-button" class="btn btn-sm btn-primary" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="last">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
               </span>
             </span>
           </div>
           @if (this.subStatusEditing[index]) {
             <div ngForm="editStep">
               <hr />
-              <div class="row">
+              <div class="row align-items-end">
                 <div class="col-md-3">
                   <div class="form-group">
                     <label for="substatus-label-{{substatus.id}}">{{'Label'|translate}}</label>
                     <input id="substatus-label-{{substatus.id}}" class="form-control" name="substatus.label" [(ngModel)]="substatus.label" type="text" required />
                   </div>
                 </div>
-                <div class="col-md-3">
-                  <div class="form-group">
-                    <label><span>{{ 'Expiration date' | translate }}</span> (<span>{{ 'days' | translate }}</span>)</label>
-                    <select class="form-control" name="substatus.tip_timetolive_option" [(ngModel)]="substatus.tip_timetolive_option">
-                      <option value="-1">{{ 'Disabled' | translate }}</option>
-                      <option value="0">{{ 'Custom' | translate }}</option>
-                    </select>
+                @if (substatus.submissionstatus_id === 'closed') {
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label><span>{{ 'Expiration date' | translate }}</span> (<span>{{ 'days' | translate }}</span>)</label>
+                      <select class="form-control" name="substatus.tip_timetolive_option" [(ngModel)]="substatus.tip_timetolive_option">
+                        <option value="-1">{{ 'Disabled' | translate }}</option>
+                        <option value="0">{{ 'Custom' | translate }}</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-1">
-                  <div class="form-group">
-                    <label for="substatus-timetolive-{{substatus.id}}" class="visually-hidden">{{'Expiration date' | translate}}</label>
-                    @if (isCustomOptionSelected(substatus.tip_timetolive_option)) {
-                      <input id="substatus-timetolive-{{substatus.id}}" class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" required/>
-                    }
-                  </div>
-                </div>
+                  @if (isCustomOptionSelected(substatus.tip_timetolive_option)) {
+                    <div class="col-md-1">
+                      <div class="form-group">
+                        <label for="substatus-timetolive-{{substatus.id}}" class="visually-hidden">{{'Expiration date' | translate}}</label>
+                        <input id="substatus-timetolive-{{substatus.id}}" class="form-control" name="substatus.tip_timetolive" [(ngModel)]="substatus.tip_timetolive" type="number" min="1" required/>
+                      </div>
+                    </div>
+                  }
+                }
               </div>
             </div>
           }

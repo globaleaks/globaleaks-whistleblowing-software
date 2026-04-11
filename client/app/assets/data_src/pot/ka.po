@@ -5,13 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2018,2020-2022\n"
-"Language-Team: Georgian (http://app.transifex.com/otf/globaleaks/language/ka/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Georgian <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ka/>\n"
+"Language: ka\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ka\n"
-"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -582,6 +585,7 @@ msgstr "მაღალი"
 msgid "Hint"
 msgstr "მინიშნება"
 
+#, fuzzy
 msgid "Home"
 msgstr "მთავარი"
 
@@ -693,6 +697,9 @@ msgstr "პლატფორმა ხელმისაწვდომი ი�
 
 msgid "License"
 msgstr "ლიცენზია"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "შიდა მომხმარებლების წვდომის ჟურნალი"
@@ -1327,10 +1334,13 @@ msgid ""
 "deselected:"
 msgstr "შემდეგი მიმღებები მიიღბენ თქვენს ანგარიშს და არჩევას ვერ გააუქმებთ:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "თქვენი დარღვევების შეტყობინების პლატფორმის შექმნაში დაგეხმარებათ შემდეგი ეტაპობრივი პროცედურა."
+msgstr ""
+"თქვენი დარღვევების შეტყობინების პლატფორმის შექმნაში დაგეხმარებათ შემდეგი "
+"ეტაპობრივი პროცედურა."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1529,12 +1539,17 @@ msgstr "ფაილ(ებ)ის ატვირთვის დასრუ�
 msgid "Warning"
 msgstr "გაფრთხილება"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "თუ გსურთ დაიცვათ მონაცემები დაკარგვისგან სიტუაციაში, როდესაც მიმღებები კარგავენ პაროლებს, გირჩევთ აირჩიოთ ეს ვარიანტი. მეორეს მხრივ, არ გირჩევთ ამ ფუნქციის გამოყენებას, თუ გსურთ სისტემის დაყენება, სადაც მხოლოდ მიმღებებს შეუძლიათ წარდგენებზე წვდომა."
+msgstr ""
+"თუ გსურთ დაიცვათ მონაცემები დაკარგვისგან სიტუაციაში, როდესაც მიმღებები "
+"კარგავენ პაროლებს, გირჩევთ აირჩიოთ ეს ვარიანტი. მეორეს მხრივ, არ გირჩევთ ამ "
+"ფუნქციის გამოყენებას, თუ გსურთ სისტემის დაყენება, სადაც მხოლოდ მიმღებებს "
+"შეუძლიათ წარდგენებზე წვდომა."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1601,6 +1616,7 @@ msgstr "თქვენი ახალი ელფოსტის მისა
 msgid "Your report was successful."
 msgstr "შენი ანგარიში წარმატებულია."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "თქვენი ინსტრუქტორის პლათფორმა თითქმის მზადაა!"
 
@@ -1740,6 +1756,7 @@ msgstr "კეთილი სურვილებით,"
 msgid "Account activation"
 msgstr "ანგარიშის აქტივაცია"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "თქვენი ინსტრუქტორის პლატფორმა ახლა ხელმისაწვდომია:"
 
@@ -1786,6 +1803,7 @@ msgstr "უმოქმედო PGP გასაღებით, სისტ�
 msgid "PGP key expiration alert"
 msgstr "PGP გასაღები ვადის გასვლის შეხსენება"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "დარეგისტრირდა ინსტრუქტორის ახალი საიტი."
 
@@ -1801,6 +1819,7 @@ msgstr "სახელი: {Name}"
 msgid "Email: {Email}"
 msgstr "ელფოსტა: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "დარეგისტრირდა ახალი ინსტრუქტორის საიტი"
 
@@ -1838,6 +1857,7 @@ msgstr "ვისგან: {Author}"
 msgid "Date: {EventTime}"
 msgstr "თარიღი: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ავტორი: Whistleblower"
 
@@ -1879,10 +1899,13 @@ msgstr "სისტემა გააგრძელებს ცდას."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS სერტიფიკატის განახლება წარუმატებელია"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "ეს არის ელწერილი, რომელიც გაცნობებთ, რომ მეუვემ დაადასტურა თქვენი წვდომა ინსტრუქტორის იდენდობაზე ანგარიშისათვის {TipNum}."
+msgstr ""
+"ეს არის ელწერილი, რომელიც გაცნობებთ, რომ მეუვემ დაადასტურა თქვენი წვდომა "
+"ინსტრუქტორის იდენდობაზე ანგარიშისათვის {TipNum}."
 
 msgid "The report can be accessed at:"
 msgstr "ანგარიშზე წვდომა შესაძლებელია:"
@@ -1890,10 +1913,13 @@ msgstr "ანგარიშზე წვდომა შესაძლებ�
 msgid "Access to reporting person's identity authorized"
 msgstr "ინსტრუქტორის ინდენტობაზე წვდომა ავტორიზებულია"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "ეს არის ელწერილი შეტყობინებით, რომ მეუვემ უარჰყო თქვენი წვდომა ინტრუქტორის იდენტობაზე ანგარიშისთვის {TipNum}."
+msgstr ""
+"ეს არის ელწერილი შეტყობინებით, რომ მეუვემ უარჰყო თქვენი წვდომა ინტრუქტორის "
+"იდენტობაზე ანგარიშისთვის {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "წვდომა ინსტუქტორის იდენტობაზე უარყოფილია"

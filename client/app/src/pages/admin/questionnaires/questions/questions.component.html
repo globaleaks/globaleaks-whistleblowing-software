@@ -16,8 +16,8 @@
   </div>
   @if (showAddQuestion) {
     <div class="config-section col-md-6">
-      @if (questionnairesData.length > 0) {
-        <src-add-field [fields]="fields" [type]="'template'" (dataToParent)="listenToAddField()"></src-add-field>
+      @if (questionnairesData) {
+        <src-add-field [fields]="fields" [type]="'template'" (added)="onAdd()"></src-add-field>
       }
     </div>
   }
@@ -26,7 +26,7 @@
     <ng-template #content let-item="item" let-index="index">
       <div id="field-{{index}}" class="fieldBox">
         <form #editField="ngForm">
-          <src-fields [editField]="editField" [type]="'template'" [field]="item" [fields]="fields"></src-fields>
+          <src-fields [editField]="editField" [type]="'template'" [field]="item" [fields]="fields" (deleted)="onDelete($event)"></src-fields>
         </form>
       </div>
     </ng-template>

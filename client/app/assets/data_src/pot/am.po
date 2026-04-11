@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2020-2022\n"
-"Language-Team: Amharic (http://app.transifex.com/otf/globaleaks/language/am/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Amharic <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/am/>\n"
+"Language: am\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: am\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "ከፍተኛ"
 msgid "Hint"
 msgstr "ፍንጭ"
 
+#, fuzzy
 msgid "Home"
 msgstr "ቅድመ ገጽ "
 
@@ -694,6 +698,9 @@ msgstr "የመሳርያ ስርኣቱ ያለ ቶር እንዲገኝ አድርግ"
 
 msgid "License"
 msgstr "ፍቃድ"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "የውስጥ ተጠቃሚዎች የመግባት መዳረሻዎች"
@@ -1328,10 +1335,14 @@ msgid ""
 "deselected:"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "የሚከተለው ደረጃ በደረጃ የቀረበ ቅደም ተከተል የመረጃ መስጫ የመሳርያ ስርኣታችሁን\n\nለመፍጠር ይመራችኋል፡፡"
+msgstr ""
+"የሚከተለው ደረጃ በደረጃ የቀረበ ቅደም ተከተል የመረጃ መስጫ የመሳርያ ስርኣታችሁን\n"
+"\n"
+"ለመፍጠር ይመራችኋል፡፡"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1530,12 +1541,16 @@ msgstr "ፋይል ጭኖ እስኪጨርስ በመጠበቅ ላይ"
 msgid "Warning"
 msgstr "ማስጠንቀቂያ"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "ለተጨማሪ መረጃ ወደ አስተዳደር በይነገጽ ግቡና \n\n\\\"ስርኣት ስታቲስትክስ\\\" and \\\"አፈንጋጮች\\\" የሚለውን ክፍል ተመልከቱ"
+msgstr ""
+"ለተጨማሪ መረጃ ወደ አስተዳደር በይነገጽ ግቡና \n"
+"\n"
+"\\\"ስርኣት ስታቲስትክስ\\\" and \\\"አፈንጋጮች\\\" የሚለውን ክፍል ተመልከቱ"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1602,6 +1617,7 @@ msgstr "አዲሱ የኢሜል አድራሻ ተረጋግጧል፡፡"
 msgid "Your report was successful."
 msgstr "ሪፖርተዎ ተሳክቷል፡፡"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "የመረጃ መስጫ የመሳርያ ስርኣቶ ዝግጁ ሊሆን ጥቂት ቀርቶታል!"
 
@@ -1741,6 +1757,7 @@ msgstr "ከትህትና ጋር"
 msgid "Account activation"
 msgstr "መለያ ማንቃት"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "የመረጃ መስጫ የመሳርያ ስርአቱን አሁን እዚህ ማግኘት ይችላሉ፡-"
 
@@ -1787,6 +1804,7 @@ msgstr "ትክክለኛ የፒጂፒ ቁልፍ ከሌለ ስርኣቱ የተመ�
 msgid "PGP key expiration alert"
 msgstr "የፒጂፒ ቁልፍ መቃጠያ ማስጠንቀቂያ"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "አዲስ መረጃ መስጫ ድረገጽ ተመዝግቧል፡፡"
 
@@ -1802,6 +1820,7 @@ msgstr "ስም፡- {Name}"
 msgid "Email: {Email}"
 msgstr "ኢሜይል፡- {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "አዲስ መረጃ መስጫ ድረገጽ ተመዝግቧል፡፡"
 
@@ -1839,6 +1858,7 @@ msgstr "ከ፡- {Author}"
 msgid "Date: {EventTime}"
 msgstr "ቀን፡- {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ከ፡- መረጃሰጪ"
 
@@ -1880,6 +1900,7 @@ msgstr "ስርኣቱ መሞከር ይቀጥላል፡፡"
 msgid "Failed HTTPS certificate renewal"
 msgstr "የከሸፈ የኤችቲቲፒኤስ ምስክር ወረቀት እድሳት"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
@@ -1891,6 +1912,7 @@ msgstr "ሪፖርቱ እዚህ ላይ መደረስ ይችላል፡-"
 msgid "Access to reporting person's identity authorized"
 msgstr "ለመረጃ ሰጪው ማንነት መድረሻ ተፈቅዷል"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."

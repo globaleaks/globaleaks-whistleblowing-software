@@ -4,10 +4,10 @@
 # Build Arguments:
 #   BASE_IMAGE:     The base image for the OS (e.g., debian:trixie-slim@sha256:...)
 #   DISTRIBUTION:   The target distribution codename (e.g., trixie)
-ARG BASE_IMAGE=debian:trixie-slim@sha256:f2306da7a8fb6440535937baed0ce0018736742d6dc5beec9d6a31355b259726
+ARG BASE_IMAGE=debian:trixie-slim@sha256:b29a157cc8540addda9836c23750e389693bf3b6d9a932a55504899e5601a66b
 ARG DISTRIBUTION=trixie
 
-FROM ${BASE_IMAGE}
+FROM --platform=linux/amd64 ${BASE_IMAGE}
 
 ADD https://deb.globaleaks.org/install.sh /tmp/install.sh
 

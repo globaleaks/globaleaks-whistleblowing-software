@@ -27,9 +27,11 @@ subdomain_regexp_or_empty = r'^[0-9a-z\-]+$|^$'
 url_regexp = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$'
 url_regexp_or_empty = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$|^$'
 tip_operation_regexp = r'^(postpone|set)$'
+token_regexp = r'^[a-f0-9]{64}$'
 short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
+homepage_regexp = r'^/(submission)?$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -204,6 +206,7 @@ AdminNodeDesc = {
     'footer_whistleblowing_policy': str,
     'disclaimer_text': str,
     'rootdomain': hostname_regexp_or_empty,
+    'homepage': homepage_regexp,
     'whistleblowing_question': str,
     'whistleblowing_button': str,
     'languages_enabled': [str],
@@ -531,7 +534,6 @@ SignupDesc = {
 
 SupportDesc = {
     'mail_address': email_regexp,
-    'url': url_regexp_or_empty,
     'text': str
 }
 
@@ -540,7 +542,7 @@ PasswordReset1Desc = {
 }
 
 PasswordReset2Desc = {
-    'reset_token': str,
+    'reset_token': token_regexp,
     'recovery_key': str,
     'auth_code': str
 }

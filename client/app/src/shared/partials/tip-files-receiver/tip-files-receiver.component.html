@@ -13,7 +13,7 @@
     </div>
     @if (!collapsed) {
       <div class="card-body">
-        @if (tipService.tip.wbfiles.length) {
+        @if (tipService.tip.wbfiles) {
           <div class="table-responsive">
             <table class="table table-striped" id="fileList">
               <thead>
@@ -28,17 +28,19 @@
               </thead>
               <tbody id="fileListBody">
                 @for (file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
-                  @if ((file.name !== 'audio.webm') && (!maskService.isMasked(file.ifile_id,tipService.tip) || redactMode)) {
-                    <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
-                      <td>{{ file.name }}</td>
-                      <td>
-
-                        <button class="btn btn-sm btn-primary tip-action-views-file" [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}"
-                          [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
+                  <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
+                    <td>{{ file.name }}</td>
+                    <td>
+                      @if (!maskService.isMasked(file.ifile_id,tipService.tip)) {
+                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}" [disabled]="maskService.isMasked(file.ifile_id,tipService.tip) || !utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
                           <i class="fas fa-eye"></i>
                         </button>
-                      </td>
-                      <td>
+                      } @else {
+                        <span class="ml-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+                      }
+                    </td>
+                    <td>
+                      @if (!maskService.isMasked(file.ifile_id,tipService.tip)) {
                         <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)" type="button" [attr.aria-label]="'Download' | translate">
                           <i class="fas fa-download"></i>
                         </button>

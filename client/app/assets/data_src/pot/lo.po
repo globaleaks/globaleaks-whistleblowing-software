@@ -5,13 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Lao (http://app.transifex.com/otf/globaleaks/language/lo/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Lao <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/lo/>\n"
+"Language: lo\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: lo\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -582,6 +585,7 @@ msgstr "ສູງ"
 msgid "Hint"
 msgstr "ຄຳແນະນຳ"
 
+#, fuzzy
 msgid "Home"
 msgstr "ໜ້າ​ຫຼັກ"
 
@@ -693,6 +697,9 @@ msgstr "ອະນຸຍາດໃຫ້ສາມາດເຂົ້າເຖິງ
 
 msgid "License"
 msgstr "ການ​ອະ​ນຸ​ຍາດ"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "ບັນທຶກການເຂົ້າເຖິງຂອງບັນດາຜູ້ໃຊ້ພາຍໃນ"
@@ -1327,10 +1334,12 @@ msgid ""
 "deselected:"
 msgstr "ຜູ້ຮັບຕໍ່ໄປນີ້ຈະໄດ້ຮັບລາຍງານຂອງທ່ານ ແລະ ບໍ່ສາມາດຍົກເລີກການເລືອກໄດ້:"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "ຂັ້ນຕອນທີ່ເປັນແຕ່ລະຂັ້ນຕໍ່ໄປນີ້ຈະນຳພາທ່ານຕະຫຼອດການສ້າງລະບົບການແຈ້ງເບາະແສຂອງທ່ານ."
+msgstr ""
+"ຂັ້ນຕອນທີ່ເປັນແຕ່ລະຂັ້ນຕໍ່ໄປນີ້ຈະນຳພາທ່ານຕະຫຼອດການສ້າງລະບົບການແຈ້ງເບາະແສຂອງທ່ານ."
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1529,12 +1538,16 @@ msgstr "ກຳລັງລໍຖ້າໃຫ້ອັບໂຫຼດໄຟລ໌
 msgid "Warning"
 msgstr "ຄຳເຕືອນ"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "ພວກເຮົາຂໍແນະນຳໃຫ້ເລືອກຕົວເລືອກນີ້ ຖ້າທ່ານຢາກຈະປົກປ້ອງຂໍ້ມູນຈາກການສູນເສຍໃນກໍລະນີທີ່ຜູ້ຮັບລືມລະຫັດຜ່ານຂອງຕົນ. ໃນທາງກັບກັນ, ພວກເຮົາຈະບໍ່ຂໍແນະນຳໃຫ້ນຳໃຊ້ຄຸນສົມບັດນີ້ ຖ້າທ່ານຕ້ອງການຕັ້ງລະບົບທີ່ມີພຽງແຕ່ຜູ້ຮັບເທົ່ານັ້ນທີ່ສາມາດເຂົ້າເຖິງການສົ່ງໄດ້"
+msgstr ""
+"ພວກເຮົາຂໍແນະນຳໃຫ້ເລືອກຕົວເລືອກນີ້ ຖ້າທ່ານຢາກຈະປົກປ້ອງຂໍ້ມູນຈາກການສູນເສຍໃນກໍລະນີທີ່ຜູ້ຮັບລືມລະຫັດຜ່ານຂອງ"
+"ຕົນ. ໃນທາງກັບກັນ, ພວກເຮົາຈະບໍ່ຂໍແນະນຳໃຫ້ນຳໃຊ້ຄຸນສົມບັດນີ້ ຖ້າທ່ານຕ້ອງການຕັ້ງລະບົບທີ່ມີພຽງແຕ່ຜູ້ຮັບເທົ່ານັ້ນທີ່"
+"ສາມາດເຂົ້າເຖິງການສົ່ງໄດ້"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1601,6 +1614,7 @@ msgstr "ທີ່ຢູ່ອີເມວໃໝ່ຂອງທ່ານໄດ້
 msgid "Your report was successful."
 msgstr "ການລາຍງານຂອງທ່ານສຳເລັດແລ້ວ."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "ລະບົບການແຈ້ງເບາະແສຂອງທ່ານເກືອບຈະພ້ອມໃຊ້ງານແລ້ວ!"
 
@@ -1740,6 +1754,7 @@ msgstr "ດ້ວຍ​ຄວາມ​ເຄົາ​ລົບນັບຖື,"
 msgid "Account activation"
 msgstr "ການເປີດໃຊ້ງານບັນຊີ"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "ໃນຕອນນີ້ແມ່ນສາມາດເຂົ້າເຖິງລະບົບການແຈ້ງເບາະແສຂອງທ່ານໄດ້ທີ່:"
 
@@ -1786,6 +1801,7 @@ msgstr "ຖ້າບໍ່ມີລະຫັດ PGP ທີ່ຍັງໃຊ້�
 msgid "PGP key expiration alert"
 msgstr "ການແຈ້ງເຕືອນການໝົດອາຍຸຂອງລະຫັດ PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "ເວັບໄຊການແຈ້ງເບາະແສໃໝ່ໄດ້ຮັບການລົງທະບຽນແລ້ວ."
 
@@ -1801,6 +1817,7 @@ msgstr "ຊື່: {Name}"
 msgid "Email: {Email}"
 msgstr "ອີເມວ: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "ໄດ້ລົງທະບຽນເວັບໄຊການແຈ້ງເບາະແສໃໝ່ແລ້ວ"
 
@@ -1838,6 +1855,7 @@ msgstr "ຈາກ: {Author}"
 msgid "Date: {EventTime}"
 msgstr "ວັນທີ: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ຈາກ: ຜູ້ແຈ້ງເບາະແສ"
 
@@ -1879,10 +1897,13 @@ msgstr "ລະບົບຈະພະຍາຍາມຕໍ່ໄປ."
 msgid "Failed HTTPS certificate renewal"
 msgstr "ການຕໍ່ອາຍຸໃບຢັ້ງຢືນ HTTPS ບໍ່ສຳເລັດ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "ນີ້ແມ່ນອີເມວເພື່ອແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຜູ້ປົກປ້ອງຂໍ້ມູນໄດ້ອະນຸຍາດໃຫ້ທ່ານເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນໃນການແຈ້ງເບາະແສຂອງລາຍງານ {TipNum} ແລ້ວ."
+msgstr ""
+"ນີ້ແມ່ນອີເມວເພື່ອແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຜູ້ປົກປ້ອງຂໍ້ມູນໄດ້ອະນຸຍາດໃຫ້ທ່ານເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນໃນການແຈ້ງເບາະແສ"
+"ຂອງລາຍງານ {TipNum} ແລ້ວ."
 
 msgid "The report can be accessed at:"
 msgstr "ສາມາດເຂົ້າເຖິງລາຍງານໄດ້ທີ່:"
@@ -1890,10 +1911,13 @@ msgstr "ສາມາດເຂົ້າເຖິງລາຍງານໄດ້ທ
 msgid "Access to reporting person's identity authorized"
 msgstr "ມີການອະນຸຍາດໃຫ້ເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນຂອງຜູ້ແຈ້ງເບາະແສແລ້ວ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "ນີ້ແມ່ນອີເມວເພື່ອແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຜູ້ປົກປ້ອງຂໍ້ມູນໄດ້ປະຕິເສດບໍ່ໃຫ້ທ່ານເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນໃນການແຈ້ງເບາະແສຂອງລາຍງານ {TipNum}."
+msgstr ""
+"ນີ້ແມ່ນອີເມວເພື່ອແຈ້ງໃຫ້ທ່ານຊາບວ່າ ຜູ້ປົກປ້ອງຂໍ້ມູນໄດ້ປະຕິເສດບໍ່ໃຫ້ທ່ານເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນໃນການແຈ້ງເບາະແ"
+"ສຂອງລາຍງານ {TipNum}."
 
 msgid "Access to reporting person's identity denied"
 msgstr "ມີການປະຕິເສດບໍ່ໃຫ້ເຂົ້າເຖິງຂໍ້ມູນລະບຸຕົວຕົນຂອງຜູ້ແຈ້ງເບາະແສ"

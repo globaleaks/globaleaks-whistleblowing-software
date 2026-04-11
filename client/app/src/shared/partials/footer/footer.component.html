@@ -1,10 +1,7 @@
 <footer id="FooterBox">
   @if (appDataService.public.node) {
-    @if (appDataService.public.node.footer) {
-      <span id="CustomFooter" class="vcenter preformatted mb-1"><markdown [data]="appDataService.public.node.footer | stripHtml"></markdown></span>
-    }
     @if (appDataService.public.node.footer_whistleblowing_policy || appDataService.public.node.footer_privacy_policy) {
-      <div id="Policies" class="vcenter mb-1">
+      <div id="Policies" class="vcenter">
         @if (appDataService.public.node.footer_whistleblowing_policy) {
           <a href="{{appDataService.public.node.footer_whistleblowing_policy}}">{{'Whistleblowing Policy' | translate}}</a>
         }
@@ -15,6 +12,9 @@
           <a href="{{appDataService.public.node.footer_privacy_policy}}">{{'Privacy Policy' | translate}}</a>
         }
       </div>
+    }
+    @if (appDataService.public.node.footer) {
+      <span id="CustomFooter" class="vcenter"><markdown [data]="appDataService.public.node.footer | stripHtml"></markdown></span>
     }
     <div id="AttributionClause" class="vcenter">Powered by <a href="https://www.globaleaks.org/" title="GlobaLeaks - Secure Whistleblowing Software" target="_blank">GlobaLeaks</a></div>
   }

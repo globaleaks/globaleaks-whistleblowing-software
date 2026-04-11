@@ -3,7 +3,7 @@ If you've discovered a vulnerability, please refrain from filing a public issue.
 We kindly ask that you follow responsible disclosure guidelines, keeping in mind the risks faced by whistleblowers.
 
 To report a vulnerability, please contact us privately via one of the following methods:
-- Reporting form: Submit a security advisory
+- Reporting form: [Submit a security advisory](https://github.com/globaleaks/globaleaks-whistleblowing-software/security/advisories/new)
 - Email: security@globaleaks.org
 
 For any sensitive information, please encrypt your message using our PGP key: F6EFBDFAD0A3CF4A55085C3E7BBB231D031957FA

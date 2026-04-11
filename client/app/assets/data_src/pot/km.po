@@ -9,13 +9,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: sophat CHY <sophatchy@gmail.com>, 2022\n"
-"Language-Team: Khmer (http://app.transifex.com/otf/globaleaks/language/km/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Khmer (Central) <https://localizationlab.weblate.cloud/"
+"projects/globaleaks/stable/km/>\n"
+"Language: km\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: km\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -34,7 +37,7 @@ msgid "Access control"
 msgstr "គ្រប់គ្រងការប្រើប្រាស់"
 
 msgid "Access date"
-msgstr ""
+msgstr "កាលបរិច្ឆេទការប្រើប្រាស់"
 
 msgid "Access requested"
 msgstr "បានស្នើសុំការប្រើប្រាស់"
@@ -87,7 +90,7 @@ msgid "Advanced"
 msgstr "កម្រិតខ្ពស់"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr ""
+msgstr "អនុញ្ញាតអ្នកទទួលកែប្រែកាលបរិច្ឆេទផុតកំណត់របស់របាយការណ៍"
 
 msgid "Allow the recipient to delete reports"
 msgstr "អនុញ្ញាតអ្នកទទួលលុបរបាយការណ៍"
@@ -111,7 +114,7 @@ msgid "An update is available:"
 msgstr "មានបច្ចុប្បន្នភាពមួយ៖"
 
 msgid "Analyst"
-msgstr ""
+msgstr "អ្នកវិភាគ"
 
 msgid "Anomalies"
 msgstr "មិនប្រក្រតី"
@@ -126,7 +129,7 @@ msgid "Anonymize outgoing connections"
 msgstr "ការតភ្ជាប់ចេញក្រៅដោយអនាមិកភាព"
 
 msgid "Anonymous"
-msgstr ""
+msgstr "អនាមិក"
 
 msgid "Are you sure?"
 msgstr "តើ​អ្នក​ប្រាកដ​ឬ?"
@@ -144,7 +147,7 @@ msgid "Attachments"
 msgstr "ឯកសារភ្ជាប់"
 
 msgid "Attention"
-msgstr ""
+msgstr "ការយកចិត្តទុកដាក់"
 
 msgid "Audio"
 msgstr "សំឡេង"
@@ -566,7 +569,7 @@ msgid "Give this user ability to transfer reports to other users"
 msgstr ""
 
 msgid "Grant access"
-msgstr ""
+msgstr "ផ្តល់សិទ្ធិចូលប្រើ"
 
 msgid "Group of questions"
 msgstr "ក្រុមសំណួរ"
@@ -586,6 +589,7 @@ msgstr "ខ្ពស់"
 msgid "Hint"
 msgstr "ជំនួយ"
 
+#, fuzzy
 msgid "Home"
 msgstr "ទំព័រដើម"
 
@@ -697,6 +701,9 @@ msgstr "បើកវេទិកាឲ្យចូលបានដោយមិន
 
 msgid "License"
 msgstr "អាជ្ញាប័ណ្ណ"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "ការចូលប្រើប្រាស់របស់អ្នកប្រើប្រាស់ខាងក្នុង"
@@ -1331,10 +1338,12 @@ msgid ""
 "deselected:"
 msgstr "អ្នកទទួលខាងក្រោម នឹងទទួលរបាយការណ៍របស់អ្នក និងមិនអាចដកចេញទេ៖"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "ដំណើរការមួយជំហានម្តងៗខាងក្រោមនេះ នឹងជួយណែនាំអ្នកក្នុងការបង្កើតវេទិការាយការណ៍របស់អ្នក។"
+msgstr ""
+"ដំណើរការមួយជំហានម្តងៗខាងក្រោមនេះ នឹងជួយណែនាំអ្នកក្នុងការបង្កើតវេទិការាយការណ៍របស់អ្នក។"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1533,12 +1542,16 @@ msgstr "កំពុងរង់ចាំឯកសារ​ ដើម្បី�
 msgid "Warning"
 msgstr "ប្រយ័ត្ន"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "យើងខ្ញុំណែនាំជ្រើសរើសជម្រើសនេះ បើអ្នកចង់ការពារទិន្នន័យពីការបាត់បង់ក្នុងស្ថានភាព ដែលអ្នកទទួលបាត់ពាក្យសម្ងាត់របស់គេ។ ផ្ទុយទៅវិញ យើងខ្ញុំមិនណែនាំប្រើប្រាស់មុខងារនេះទេ បើអ្នកចង់ដំឡើងប្រព័ន្ធ ដែលមានតែអ្នកទទួលប៉ុណ្ណោះអាចចូលប្រើប្រាស់ការដាក់បញ្ជូន។"
+msgstr ""
+"យើងខ្ញុំណែនាំជ្រើសរើសជម្រើសនេះ បើអ្នកចង់ការពារទិន្នន័យពីការបាត់បង់ក្នុងស្ថានភាព ដែលអ្នកទទួលបាត់ពា"
+"ក្យសម្ងាត់របស់គេ។ ផ្ទុយទៅវិញ យើងខ្ញុំមិនណែនាំប្រើប្រាស់មុខងារនេះទេ បើអ្នកចង់ដំឡើងប្រព័ន្ធ ដែលមានតែអ្"
+"នកទទួលប៉ុណ្ណោះអាចចូលប្រើប្រាស់ការដាក់បញ្ជូន។"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1605,6 +1618,7 @@ msgstr "អាសយដ្ឋានអុីម៉ែលរបស់អ្នក
 msgid "Your report was successful."
 msgstr "របាយការណ៍របស់អ្នកជោគជ័យ។"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "វេទិការាយការណ៍របស់អ្នក​ជិតរួចរាល់ហើយ!"
 
@@ -1703,7 +1717,7 @@ msgid "Last name"
 msgstr "ត្រកូល"
 
 msgid "Alternative contact method"
-msgstr ""
+msgstr "វិធីសាស្ត្រទំនាក់ទំនងជំនួស"
 
 msgid "I prefer to be contacted via this platform only"
 msgstr ""
@@ -1744,6 +1758,7 @@ msgstr "ដោយក្តីគោរព"
 msgid "Account activation"
 msgstr "ដំណើរការគណនី"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "វេទិការាយការណ៍របស់អ្នក ឥឡូវអាចចូលប្រើប្រាស់បាននៅ៖"
 
@@ -1760,7 +1775,7 @@ msgid "Access instructions"
 msgstr "ការណែនាំអំពីការចូលប្រើប្រាស់"
 
 msgid "Available disk space: {FreeMemory}/{TotalMemory}"
-msgstr ""
+msgstr "ទំហំថាសដែលអាចប្រើបាន: {FreeMemory}/{TotalMemory}"
 
 msgid ""
 "The server cannot guarantee that a new report can be stored, so submissions "
@@ -1790,6 +1805,7 @@ msgstr "មិនមានសោរ PGP ត្រឹមត្រូវ ប្រ
 msgid "PGP key expiration alert"
 msgstr "សារជូនដំណឹងអំពីការផុតកំណត់សោរ PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "ទំព័ររាយការណ៍ថ្មីមួយ ត្រូវបានចុះឈ្មោះ។"
 
@@ -1805,6 +1821,7 @@ msgstr "ឈ្មោះ៖ {Name}"
 msgid "Email: {Email}"
 msgstr "អុីមែល៖ {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "គេហទំព័ររាយការណ៍ថ្មី បានចុះឈ្មោះ"
 
@@ -1842,6 +1859,7 @@ msgstr "ពី៖ {Author}"
 msgid "Date: {EventTime}"
 msgstr "កាលបរិច្ឆេទ៖ {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "ពី៖ អ្នករាយការណ៍"
 
@@ -1883,10 +1901,13 @@ msgstr "ប្រព័ន្ធនេះនឹងបន្តសាកល្ប
 msgid "Failed HTTPS certificate renewal"
 msgstr "បរាជ័យក្នុងការបន្តវិញ្ញាបនប័ត្រ HTTPS"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "នេះជាអុីមែលជូនដំណឹងអ្នកថា អ្នកថែរក្សាម្នាក់បានផ្តល់សិទ្ធិអ្នកឲ្យចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ សម្រាប់របាយការណ៍ {TipNum}។"
+msgstr ""
+"នេះជាអុីមែលជូនដំណឹងអ្នកថា អ្នកថែរក្សាម្នាក់បានផ្តល់សិទ្ធិអ្នកឲ្យចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ សម្"
+"រាប់របាយការណ៍ {TipNum}។"
 
 msgid "The report can be accessed at:"
 msgstr "របាយការណ៍អាចចូលប្រើប្រាស់បាននៅ៖"
@@ -1894,10 +1915,13 @@ msgstr "របាយការណ៍អាចចូលប្រើប្រាស
 msgid "Access to reporting person's identity authorized"
 msgstr "ការចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ត្រូវបានអនុញ្ញាត"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "នេះជាអុីមែលជូនដំណឹងអ្នកថា អ្នកថែរក្សាម្នាក់បានបដិសេធអ្នកមិនឲ្យចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ សម្រាប់របាយការណ៍ {TipNum}។"
+msgstr ""
+"នេះជាអុីមែលជូនដំណឹងអ្នកថា អ្នកថែរក្សាម្នាក់បានបដិសេធអ្នកមិនឲ្យចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ ស"
+"ម្រាប់របាយការណ៍ {TipNum}។"
 
 msgid "Access to reporting person's identity denied"
 msgstr "ការចូលប្រើប្រាស់អត្តសញ្ញាណអ្នករាយការណ៍ត្រូវបានបដិសេធ"

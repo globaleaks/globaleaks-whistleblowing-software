@@ -1,5 +1,5 @@
 <app-paginated-interface [mode]="'table'" [items]="this.tips">
-  <ng-template  #header>
+  <ng-template #header>
     <tr>
       <th><i class="fas fa-hashtag" aria-hidden="true"></i><span class="visually-hidden">{{'ID' | translate}}</span></th>
       <th>{{'Date'|translate}}</th>
@@ -11,7 +11,7 @@
       <th>{{'Comments'|translate}}</th>
       <th>{{'Files'|translate}}</th>
       <th>{{'Receivers'|translate}}</th>
-      <th>{{'Whistleblower\'s last access'|translate}}</th>
+      <th>{{'Last access'|translate}}</th>
     </tr>
   </ng-template>
   <ng-template #content let-data="item" let-index="index">
@@ -27,13 +27,11 @@
         <td></td>
       }
       <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>
-      <td>@if (data.tor) {
-        <i class="fas fa-check"></i>
-      }</td>
+      <td>@if (data.tor) {<i class="fas fa-check"></i>} @else {<i class="fas fa-xmark"></i>}</td>
       <td>{{data.comments}}</td>
       <td>{{data.files}}</td>
       <td>{{data.receiver_count}}</td>
-      <td>{{data.last_access | date:'dd-MM-yyyy HH:mm'}}</td>
+      <td>{{data.last_access}}</td>
     </tr>
   </ng-template>
 </app-paginated-interface>

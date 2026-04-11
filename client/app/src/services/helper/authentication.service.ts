@@ -13,7 +13,6 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
 import {CryptoService} from "@app/shared/services/crypto.service";
-import {TokenResponse} from "@app/models/authentication/token-response";
 
 @Injectable({
   providedIn: "root"

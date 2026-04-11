@@ -20,7 +20,7 @@ usage() {
   echo -e " -p (push on repository)"
 }
 
-while getopts "d:t:nph:l" opt; do
+while getopts "d:t:nph:lz" opt; do
   case $opt in
     d) DISTRIBUTION="$OPTARG"
     ;;
@@ -31,6 +31,8 @@ while getopts "d:t:nph:l" opt; do
     p) PUSH=1
     ;;
     l) LOCAL_ENV=1
+    ;;
+    z) TESTING=1
     ;;
     h)
         usage
@@ -88,7 +90,11 @@ fi
 git fetch --depth=1 origin "$TAG"
 git checkout "$TAG" 2>/dev/null || git checkout "tags/$TAG"
 
-cd client && npm install -d && ./node_modules/grunt/bin/grunt build
+if [ $TESTING -eq 1 ]; then
+  cd client && npm install -d && ./node_modules/grunt/bin/grunt build_for_testing
+else
+  cd client && npm install -d && ./node_modules/grunt/bin/grunt build
+fi
 
 cd $ROOTDIR
 

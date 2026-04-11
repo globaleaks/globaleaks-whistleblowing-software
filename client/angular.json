@@ -24,7 +24,7 @@
               }
             },
             "main": "app/main.ts",
-            "polyfills": ["zone.js", "@angular/localize/init", "requestidlecallback-polyfill"],
+            "polyfills": ["@angular/localize/init", "requestidlecallback-polyfill"],
             "tsConfig": "tsconfig.app.json",
             "outputPath": "dist",
             "index": { "input": "app/index.html", "preloadInitial": false},

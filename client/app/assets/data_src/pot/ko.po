@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2016-2018,2020-2022\n"
-"Language-Team: Korean (http://app.transifex.com/otf/globaleaks/language/ko/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Korean <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/ko/>\n"
+"Language: ko\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "높음"
 msgid "Hint"
 msgstr "힌트"
 
+#, fuzzy
 msgid "Home"
 msgstr "홈"
 
@@ -694,6 +698,9 @@ msgstr "Tor 없는 플랫폼 액세스 허용"
 
 msgid "License"
 msgstr "라이선스"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "내부 사용자 액세스 기록"
@@ -1328,6 +1335,7 @@ msgid ""
 "deselected:"
 msgstr "다음 수신자는 보고서를 받게 되며 선택 사항을 취소할 수 없습니다."
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
@@ -1530,12 +1538,16 @@ msgstr "파일 업로드가 완료되기를 기다리고 있습니다."
 msgid "Warning"
 msgstr "경고"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "수신자가 비밀번호를 잊어버린 경우 데이터가 손실되지 않도록 보호하려면 해당 옵션을 선택하는 것이 좋습니다. 반면, 수신자만 제출에 액세스할 수 있는 시스템을 설정하려는 경우 해당 기능을 사용하지 않는 것이 좋습니다."
+msgstr ""
+"수신자가 비밀번호를 잊어버린 경우 데이터가 손실되지 않도록 보호하려면 해당 "
+"옵션을 선택하는 것이 좋습니다. 반면, 수신자만 제출에 액세스할 수 있는 "
+"시스템을 설정하려는 경우 해당 기능을 사용하지 않는 것이 좋습니다."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1602,6 +1614,7 @@ msgstr "새 이메일 주소가 검증되었습니다."
 msgid "Your report was successful."
 msgstr "보고서 제출에 성공했습니다."
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "내부 고발 플랫폼이 거의 준비 완료되었습니다!"
 
@@ -1741,6 +1754,7 @@ msgstr "감사합니다."
 msgid "Account activation"
 msgstr "계정 활성화"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "이제 다음 링크에서 내부 고발 플랫폼에 액세스할 수 있습니다."
 
@@ -1787,6 +1801,7 @@ msgstr "유효한 PGP 키가 없으면, 시스템에서 암호화된 알림을 �
 msgid "PGP key expiration alert"
 msgstr "PGP 키 만료 경고"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "새 내부 고발 사이트가 등록되었습니다."
 
@@ -1802,6 +1817,7 @@ msgstr "이름: {Name}"
 msgid "Email: {Email}"
 msgstr "이메일: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "새 내부 고발 사이트 등록"
 
@@ -1839,6 +1855,7 @@ msgstr "발신자: {Author}"
 msgid "Date: {EventTime}"
 msgstr "날짜: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "발신자: 내부 고발자"
 
@@ -1880,10 +1897,13 @@ msgstr "시스템에서 계속 시도합니다."
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS 인증서 갱신 실패"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "관리자가 {TipNum} 보고서의 내부 고발 신원 액세스 권한을 사용자에게 승인했음을 알리는 이메일입니다."
+msgstr ""
+"관리자가 {TipNum} 보고서의 내부 고발 신원 액세스 권한을 사용자에게 "
+"승인했음을 알리는 이메일입니다."
 
 msgid "The report can be accessed at:"
 msgstr "보고서는 다음 위치에서 액세스할 수 있습니다."
@@ -1891,10 +1911,13 @@ msgstr "보고서는 다음 위치에서 액세스할 수 있습니다."
 msgid "Access to reporting person's identity authorized"
 msgstr "내부 고발자의 신원 액세스 권한 승인"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "관리인이 {TipNum} 보고서의 내부 고발 신원 액세스 권한을 사용자에 대해 거부했음을 알리는 이메일입니다."
+msgstr ""
+"관리인이 {TipNum} 보고서의 내부 고발 신원 액세스 권한을 사용자에 대해 "
+"거부했음을 알리는 이메일입니다."
 
 msgid "Access to reporting person's identity denied"
 msgstr "내부 고발자의 신원 액세스 권한을 거부"

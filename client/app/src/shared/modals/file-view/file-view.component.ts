@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -19,6 +19,7 @@ export class FileViewComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
   private utilsService = inject(UtilsService);
   private modalService = inject(NgbModal);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() args: {
     file: WbFile,
@@ -48,6 +49,7 @@ export class FileViewComponent implements OnInit {
         iframeElement.contentWindow.postMessage(data, "*");
 
       }, {once: true});
+      this.cdr.markForCheck();
     });
   }
 

@@ -20,7 +20,6 @@ import {AdminSidebarComponent} from "../admin/sidebar/sidebar.component";
 import {AnalystSidebarComponent} from "../analyst/sidebar/sidebar.component";
 import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component";
 import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
-import {HttpClient} from "@angular/common/http";
 import {registerLocales} from "@app/services/helper/locale-provider";
 import {mockEngine} from "@app/services/helper/mocks";
 import {DEFAULT_INTERRUPTSOURCES, Idle} from "@ng-idle/core";

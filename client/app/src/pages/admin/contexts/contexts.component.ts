@@ -53,7 +53,7 @@ export class ContextsComponent implements OnInit {
     context.questionnaire_id = "default";
     context.order = this.newItemOrder(this.contextsData, "order");
     this.utilsService.addAdminContext(context).subscribe(res => {
-      this.contextsData.push(res);
+      this.contextsData = [...this.contextsData, res];
       this.new_context.name = "";
     });
   }
@@ -71,5 +71,9 @@ export class ContextsComponent implements OnInit {
     }
 
     return max + 1;
+  }
+
+  onDelete(id: string) {
+   this.contextsData = this.contextsData.filter(context => context.id !== id);
   }
 }

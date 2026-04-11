@@ -56,9 +56,6 @@ Languages
 .........
 In this section you could enable all the languages required by your project and configure the default language.
 
-.. note::
-   Thanks to the `Localization Lab <https://www.localizationlab.org/>`_ and our great volunteer community, the software is already available and continuously made available in a lot of languages. This aspect of internationalization is crucial in many projects. In case you are starting a project and the required languages are not available we strongly invite you to register on our `web translation platform <https://www.transifex.com/otf/globaleaks/>`_ offered by `Transifex <https://www.transifex.com/otf/globaleaks/>`_ and support yourself the translation. Internationalization and Localization is in fact are crucial for the success of a whistleblowing project. Thank you!
-
 .. image:: ../../images/admin/site_settings_languages.png
    :align: center
 

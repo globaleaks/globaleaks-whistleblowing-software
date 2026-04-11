@@ -1,11 +1,8 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
-import {Subject, takeUntil} from "rxjs";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model"
 import {AddFieldComponent} from "../add-field/add-field.component";;
@@ -21,13 +18,11 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslateModule]
 })
-export class QuestionsComponent implements OnInit, OnDestroy {
-  private questionnaireService = inject(QuestionnaireService);
+export class QuestionsComponent implements OnInit {
   private httpClient = inject(HttpClient);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   private fieldTemplates = inject(FieldTemplatesResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
 
   showAddQuestion = false;
   fields: fieldtemplatesResolverModel[] = [];
@@ -35,21 +30,8 @@ export class QuestionsComponent implements OnInit, OnDestroy {
   step: Step;
   @ViewChild('uploadInput') uploadInput: ElementRef<HTMLInputElement>;
 
-  private destroy$ = new Subject<void>();
-
   ngOnInit(): void {
-    this.questionnaireService.sharedData = "template";
-    this.questionnaireService.getQuestionnairesData().pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.getResolver();
-      return this.getQuestionnairesResolver();
-    });
-    this.questionnairesData = this.questionnairesResolver.dataModel;
-    if (Array.isArray(this.fieldTemplates.dataModel)) {
-      this.fields = this.fieldTemplates.dataModel;
-    } else {
-      this.fields = [this.fieldTemplates.dataModel];
-    }
-    this.fields = this.fields.filter((field: { editable: boolean; }) => field.editable);
+    this.getResolver();
   }
 
   toggleAddQuestion() {
@@ -73,13 +55,6 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getQuestionnairesResolver() {
-    return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
-      this.questionnairesResolver.dataModel = response;
-      this.questionnairesData = response;
-    });
-  }
-
   getResolver() {
     return this.httpService.requestAdminFieldTemplateResource().subscribe(response => {
       this.fieldTemplates.dataModel = response;
@@ -88,12 +63,12 @@ export class QuestionsComponent implements OnInit, OnDestroy {
     });
   }
 
-  listenToAddField() {
+  onAdd() {
     this.showAddQuestion = false;
+    this.getResolver();
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  onDelete(id: string) {
+    this.fields = this.fields.filter(i => i.id !== id);
   }
 }

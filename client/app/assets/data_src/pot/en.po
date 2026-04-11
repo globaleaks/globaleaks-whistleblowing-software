@@ -703,6 +703,9 @@ msgstr "Let the platform be reachable without Tor"
 msgid "License"
 msgstr "License"
 
+msgid "Listen"
+msgstr "Listen"
+
 msgid "Log accesses of internal users"
 msgstr "Log accesses of internal users"
 
@@ -1609,9 +1612,6 @@ msgstr "Welcome!"
 
 msgid "Reporting person"
 msgstr "Reporting person"
-
-msgid "Reporting person's last access"
-msgstr "Reporting person's last access"
 
 msgid "Whistleblowing Policy"
 msgstr "Whistleblowing Policy"

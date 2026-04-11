@@ -82,10 +82,10 @@
   }
 </div>
 @if (users) {
-  <app-paginated-interface [items]="users" [filterField]="'name'" [orderBy]="'name'">
+  <app-paginated-interface [items]="usersData" [filterField]="'name'" [orderBy]="'name'">
     <ng-template #content let-item="item" let-index="index">
       <form id="user-{{index}}" class="userList" name="editUser" #editUser="ngForm" novalidate>
-        <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="users" [profiles]="profiles"></src-user-editor>
+        <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData" [profiles]="profiles" (deleted)="onDelete($event)"></src-user-editor>
       </form>
     </ng-template>
   </app-paginated-interface>

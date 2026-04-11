@@ -6,13 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>, 2021-2022\n"
-"Language-Team: Burmese (http://app.transifex.com/otf/globaleaks/language/my/)\n"
+"PO-Revision-Date: 2026-03-19 11:46+0000\n"
+"Last-Translator: Anonymous "
+"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Burmese <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/my/>\n"
+"Language: my\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: my\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -583,6 +586,7 @@ msgstr "မြင့်"
 msgid "Hint"
 msgstr "အရိပ်အမြွက်"
 
+#, fuzzy
 msgid "Home"
 msgstr "ပင်မ စာမျက်နှာ"
 
@@ -694,6 +698,9 @@ msgstr "Tor အသုံးမပြုဘဲ ပလက်ဖောင်းသ�
 
 msgid "License"
 msgstr "လိုင်စင်"
+
+msgid "Listen"
+msgstr ""
 
 msgid "Log accesses of internal users"
 msgstr "အတွင်းပိုင်း အသုံးပြုသူများ၏ ဝင်ရောက်ခွင့် မှတ်တမ်း"
@@ -1328,10 +1335,12 @@ msgid ""
 "deselected:"
 msgstr "အောက်ပါလက်ခံသူများသည် သင့်အစီရင်ခံစာကို လက်ခံရရှိမည်ဖြစ်ပြီး ရွေးချယ်မှုဖျက်ရန် မဖြစ်နိုင်ပါ -"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "အောက်ပါ အဆင့်ဆင့် လုပ်ထုံးလုပ်နည်းက သင့်သတင်းပေးပလက်ဖောင်းကို ဖန်တီးရာတွင် သင့်အား လမ်းညွှန်ပါမည်။"
+msgstr ""
+"အောက်ပါ အဆင့်ဆင့် လုပ်ထုံးလုပ်နည်းက သင့်သတင်းပေးပလက်ဖောင်းကို ဖန်တီးရာတွင် သင့်အား လမ်းညွှန်ပါမည်။"
 
 msgid "The link will expire in 7 days."
 msgstr ""
@@ -1530,12 +1539,16 @@ msgstr "ဖိုင်(များ) အပ်လုဒ်လုပ်ခြင
 msgid "Warning"
 msgstr "သတိပေးချက်"
 
+#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "လက်ခံသူများ၏ စကားဝှက်များ ပျောက်ဆုံးသည့် အခြေအနေတွင် ဒေတာ ဆုံးရှုံးခြင်းမှ ကာကွယ်လိုပါက ဤနည်းလမ်းကို ရွေးချယ်ရန် သင့်အား ကျွန်ုပ်တို့ အကြံပြုပါသည်။ သို့သော် သင်သည် လက်ခံသူများကသာ တင်သွင်းမှုများ ဝင်ရောက်ကြည့်ရှုနိုင်သည့် စနစ်ကို တည်ဆောက်လိုပါက ဤလုပ်ဆောင်ချက်ကို အသုံးမပြုရန် ကျွန်ုပ်တို့ အကြံပြုပါသည်။"
+msgstr ""
+"လက်ခံသူများ၏ စကားဝှက်များ ပျောက်ဆုံးသည့် အခြေအနေတွင် ဒေတာ ဆုံးရှုံးခြင်းမှ ကာကွယ်လိုပါက ဤနည်းလမ်းကို ရွေး"
+"ချယ်ရန် သင့်အား ကျွန်ုပ်တို့ အကြံပြုပါသည်။ သို့သော် သင်သည် လက်ခံသူများကသာ တင်သွင်းမှုများ ဝင်ရောက်ကြည့်ရှုနိုင်သည့် "
+"စနစ်ကို တည်ဆောက်လိုပါက ဤလုပ်ဆောင်ချက်ကို အသုံးမပြုရန် ကျွန်ုပ်တို့ အကြံပြုပါသည်။"
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1602,6 +1615,7 @@ msgstr "သင့်အီးမေးလ်လိပ်စာအသစ်ကိ
 msgid "Your report was successful."
 msgstr "သင့်အစီရင်ခံစာ အောင်မြင်ပါသည်။"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "သင်၏ သတင်းပေးပလက်ဖောင်း အဆင်သင့် ဖြစ်ပါတော့မည်။"
 
@@ -1741,6 +1755,7 @@ msgstr "မေတ္တာဖြင့်"
 msgid "Account activation"
 msgstr "အကောင့် သက်ဝင်လုပ်ဆောင်ခြင်း"
 
+#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
 msgstr "သင်၏ သတင်းပေးပလက်ဖောင်းကို ယခု အသုံးပြုနိုင်ပြီ - "
 
@@ -1787,6 +1802,7 @@ msgstr "မှန်ကန်သော PGP စကားဝှက်သော့ 
 msgid "PGP key expiration alert"
 msgstr "PGP စကားဝှက်သော့ သက်တမ်းကုန်ဆုံးမှု သတိပေးချက်"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "သတင်းပေးဝက်ဘ်ဆိုက်အသစ်တစ်ခုကို မှတ်ပုံတင်လိုက်သည်။"
 
@@ -1802,6 +1818,7 @@ msgstr "အမည် - {Name}"
 msgid "Email: {Email}"
 msgstr "အီးမေးလ် - {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "သတင်းပေးဝက်ဘ်ဆိုက်အသစ် မှတ်ပုံတင်ထားသည်"
 
@@ -1839,6 +1856,7 @@ msgstr "မှ - {Author}"
 msgid "Date: {EventTime}"
 msgstr "ရက်စွဲ - {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "မှ - သတင်းပေးသူ"
 
@@ -1880,10 +1898,13 @@ msgstr "စနစ်က ဆက်လက်ကြိုးပမ်းပါမ�
 msgid "Failed HTTPS certificate renewal"
 msgstr "HTTPS အသိအမှတ်ပြုလက်မှတ် သက်တမ်းတိုးခြင်း မအောင်မြင်ပါ"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "ဤသည်မှာ အစီရင်ခံစာ {TipNum} အတွက် သတင်းပေး ကိုယ်ပိုင်အမှတ်သင်္ကေတကို အုပ်ထိန်းသူက သင့်အား ဝင်ရောက်ကြည့်ရှုခွင့်ပြုထားကြောင်း အကြောင်းကြားသည့် အီးမေးလ် ဖြစ်သည်။"
+msgstr ""
+"ဤသည်မှာ အစီရင်ခံစာ {TipNum} အတွက် သတင်းပေး ကိုယ်ပိုင်အမှတ်သင်္ကေတကို အုပ်ထိန်းသူက သင့်အား ဝင်ရောက်ကြည့်ရှုခွင့်ပြု"
+"ထားကြောင်း အကြောင်းကြားသည့် အီးမေးလ် ဖြစ်သည်။"
 
 msgid "The report can be accessed at:"
 msgstr "အစီရင်ခံစာကို ဝင်ရောက်ကြည့်ရှုနိုင်သည် - "
@@ -1891,10 +1912,13 @@ msgstr "အစီရင်ခံစာကို ဝင်ရောက်ကြ�
 msgid "Access to reporting person's identity authorized"
 msgstr "သတင်းပေးသူများ၏ ကိုယ်ပိုင်အမှတ်သင်္ကေတကို ဝင်ရောက်ကြည့်ရှုခွင့် ရှိသည်"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "ဤသည်မှာ အစီရင်ခံစာ {TipNum} အတွက် သတင်းပေး ကိုယ်ပိုင်အမှတ်သင်္ကေတကို အုပ်ထိန်းသူက သင့်အား ဝင်ရောက်ကြည့်ရှုခွင့် ငြင်းပယ်ထားကြောင်း အကြောင်းကြားသည့် အီးမေးလ် ဖြစ်သည်။"
+msgstr ""
+"ဤသည်မှာ အစီရင်ခံစာ {TipNum} အတွက် သတင်းပေး ကိုယ်ပိုင်အမှတ်သင်္ကေတကို အုပ်ထိန်းသူက သင့်အား ဝင်ရောက်ကြည့်ရှုခွင့် "
+"ငြင်းပယ်ထားကြောင်း အကြောင်းကြားသည့် အီးမေးလ် ဖြစ်သည်။"
 
 msgid "Access to reporting person's identity denied"
 msgstr "သတင်းပေးသူ၏ ကိုယ်ပိုင်အမှတ်သင်္ကေတကို ဝင်ရောက်ကြည့်ရှုခွင့် ငြင်းပယ်ထားသည်"

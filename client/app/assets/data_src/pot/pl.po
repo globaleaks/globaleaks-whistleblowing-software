@@ -25,13 +25,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2013-05-29 17:59+0000\n"
-"Last-Translator: Aron <aron.plotnikowski@cryptolab.net>, 2014\n"
-"Language-Team: Polish (http://app.transifex.com/otf/globaleaks/language/pl/)\n"
+"PO-Revision-Date: 2026-03-24 07:06+0000\n"
+"Last-Translator: Justyna Zhang "
+"<tinatranslation@users.noreply.localizationlab.weblate.cloud>\n"
+"Language-Team: Polish <https://localizationlab.weblate.cloud/projects/"
+"globaleaks/stable/pl/>\n"
+"Language: pl\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pl\n"
-"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
+"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"X-Generator: Weblate 5.16.2\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -103,7 +108,7 @@ msgid "Advanced"
 msgstr "Zaawansowane"
 
 msgid "Allow the recipient to edit the reports' expiration date"
-msgstr ""
+msgstr "Odbiorcy mogą zmieniać datę wygaśnięcia raportów"
 
 msgid "Allow the recipient to delete reports"
 msgstr "Odbiorcy mogą usuwać zgłoszenia"
@@ -205,7 +210,7 @@ msgid "Block the submission"
 msgstr "Zablokuj zgłoszenie"
 
 msgid "By confirming, you will edit the expiration date to:"
-msgstr ""
+msgstr "Potwierdzając, zmienisz datę wygaśnięcia naa:"
 
 msgid "By confirming, you will set a reminder on date:"
 msgstr "Potwierdzając, ustawisz przypomnienie na dzień:"
@@ -537,7 +542,9 @@ msgstr "Ze względów bezpieczeństwa kod musi zostać zmieniony."
 
 msgid ""
 "For security reasons, password changes are required at regular intervals."
-msgstr "Ze względów bezpieczeństwa zmiany haseł są wymagane w regularnych odstępach czasu"
+msgstr ""
+"Ze względów bezpieczeństwa zmiany haseł są wymagane w regularnych odstępach "
+"czasu."
 
 msgid "For the user documentation, visit:"
 msgstr "Dokumentacja użytkownika:"
@@ -570,7 +577,9 @@ msgid "Give this admin ability to change user passwords"
 msgstr "Pozwól temu administratorowi zmieniać hasła użytkowników"
 
 msgid "Give this user ability to grant user access to reports"
-msgstr "Daj temu użytkownikowi możliwość przyznawania dostępu do raportów innym użytkownikom."
+msgstr ""
+"Daj temu użytkownikowi możliwość przyznawania dostępu do raportów innym "
+"użytkownikom"
 
 msgid "Give this user ability to mask information"
 msgstr "Daj temu użytkownikowi możliwość maskowania informacji"
@@ -602,6 +611,7 @@ msgstr "Wysoki"
 msgid "Hint"
 msgstr "Wskazówka"
 
+#, fuzzy
 msgid "Home"
 msgstr "Główna"
 
@@ -713,6 +723,9 @@ msgstr "Platforma może być osiągalna bez korzystania z Tor"
 
 msgid "License"
 msgstr "Licencja"
+
+msgid "Listen"
+msgstr "Posłuchaj"
 
 msgid "Log accesses of internal users"
 msgstr "Loguj uzyskiwanie dostępu przez wewnętrznych użytkowników"
@@ -980,7 +993,7 @@ msgid "Questions"
 msgstr "Pytania"
 
 msgid "Read receipt"
-msgstr ""
+msgstr "Potwierdzenie odczytania"
 
 msgid "Receivers"
 msgstr "Odbiorcy"
@@ -1347,10 +1360,13 @@ msgid ""
 "deselected:"
 msgstr "Następujący odbiorcy otrzymają ten raport (i nie można ich usunąć z listy odbiorców):"
 
+#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
-msgstr "Poniższy przewodnik przeprowadzi Cię krok po kroku przez proces tworzenia platformy sygnalistycznej."
+msgstr ""
+"Poniższy przewodnik przeprowadzi Cię krok po kroku przez proces tworzenia "
+"platformy sygnalistycznej."
 
 msgid "The link will expire in 7 days."
 msgstr "Link wygaśnie za 7 dni."
@@ -1554,7 +1570,10 @@ msgid ""
 " lost in the situation where recipients lose their passwords. On the other "
 "hand, we would not advise using this feature if you want to setup a system "
 "where only recipients are able to access submissions."
-msgstr "Zalecamy Ci zaznaczenie tej opcji, jeśli chcesz uchronić swoje dane przed utratą w sytuacji, gdy wszyscy odbiorcy zgubią swoje hasła. Z drugiej strony nie zalecalibyśmy włączania tej opcji, jeśli chcesz skonfigurować system, w którym jedynie odbiorcy mogą mieć dostęp do zgłoszeń."
+msgstr ""
+"Wybierz tę opcję, jeśli chcesz zabezpieczyć dane przed utratą w sytuacji, "
+"gdy odbiorcy zgubią swoje hasła. Nie jest ona jednak zalecana, jeśli chcesz "
+"skonfigurować system, w którym wyłącznie odbiorcy mają dostęp do zgłoszeń."
 
 msgid ""
 "We recommend that you access the “Preferences” section in order to retrieve "
@@ -1621,6 +1640,7 @@ msgstr "Twój nowy adres email został zweryfikowany."
 msgid "Your report was successful."
 msgstr "Dostaliśmy twoje zgłoszenie"
 
+#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
 msgstr "Twoja platforma dla sygnalistów jest prawie gotowa!"
 
@@ -1761,7 +1781,7 @@ msgid "Account activation"
 msgstr "Aktywacja konta"
 
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "Teraz Twoja platforma sygnalistów jest dostępna pod adresem:"
+msgstr "Twoja platforma sygnalistów jest już dostępna pod adresem:"
 
 msgid "To log in, visit:"
 msgstr "Aby się zalogować, odwiedź"
@@ -1806,6 +1826,7 @@ msgstr "Bez ważnego klucza PGP system nie będzie w stanie wysyłać im zaszyfr
 msgid "PGP key expiration alert"
 msgstr "Alert o wygaśnięciu klucza PGP"
 
+#, fuzzy
 msgid "A new whistleblowing site has been registered."
 msgstr "Zarejestrowano nowego sygnalistę"
 
@@ -1821,6 +1842,7 @@ msgstr "Nazwa: {Name}"
 msgid "Email: {Email}"
 msgstr "E-mail: {Email}"
 
+#, fuzzy
 msgid "New whistleblowing site registered"
 msgstr "Zarejestrowano nową stronę sygnalistów"
 
@@ -1858,6 +1880,7 @@ msgstr "Autor: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
+#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Autor: Sygnalista"
 
@@ -1899,10 +1922,13 @@ msgstr "System będzie próbował dalej."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Odnowienie certyfikatu HTTPS nie powiodło się"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
-msgstr "To jest wiadomość mailowa z powiadomieniem, że kurator autoryzował Twój dostęp do tożsamości sygnalisty od raportu {TipNum}"
+msgstr ""
+"To jest wiadomość mailowa z powiadomieniem, że kurator autoryzował Twój "
+"dostęp do tożsamości sygnalisty od raportu {TipNum}"
 
 msgid "The report can be accessed at:"
 msgstr "Zgłoszenie jest dostępne w:"
@@ -1910,10 +1936,13 @@ msgstr "Zgłoszenie jest dostępne w:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Autoryzowano dostęp do tożsamości sygnalisty"
 
+#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
-msgstr "To jest wiadomość mailowa z powiadomieniem, że kurator odmówił Ci dostępu do tożsamości sygnalisty od raportu {TipNum}"
+msgstr ""
+"To jest wiadomość mailowa z powiadomieniem, że kurator odmówił Ci dostępu do "
+"tożsamości sygnalisty od raportu {TipNum}"
 
 msgid "Access to reporting person's identity denied"
 msgstr "Odmówiono dostępu do tożsamości sygnalisty"

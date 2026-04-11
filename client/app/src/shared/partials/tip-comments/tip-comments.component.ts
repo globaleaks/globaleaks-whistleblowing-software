@@ -1,5 +1,5 @@
 import {AppDataService} from "@app/app-data.service";
-import {ChangeDetectorRef, Component, Input, OnInit, inject} from "@angular/core";
+import {Component, Input, inject} from "@angular/core";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -22,13 +22,12 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule, TranslatorPipe]
 })
-export class TipCommentsComponent implements OnInit {
+export class TipCommentsComponent {
   private maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
   private rTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
   appDataService = inject(AppDataService);
 
   @Input() tipService: ReceiverTipService | WbtipService;
@@ -38,12 +37,7 @@ export class TipCommentsComponent implements OnInit {
 
   collapsed = false;
   newCommentContent = "";
-  comments: Comment[] = [];
   newComments: Comment;
-
-  ngOnInit() {
-    this.comments = this.tipService.tip.comments;
-  }
 
   public toggleCollapse() {
     this.collapsed = !this.collapsed;
@@ -55,10 +49,7 @@ export class TipCommentsComponent implements OnInit {
 
     response.subscribe(
       (data) => {
-        this.comments = this.tipService.tip.comments;
-        this.tipService.tip.comments.push(data);
-        this.comments = [...this.comments, this.newComments];
-        this.cdr.detectChanges();
+        this.tipService.tip.comments = [data, ...this.tipService.tip.comments];
       }
     );
   }

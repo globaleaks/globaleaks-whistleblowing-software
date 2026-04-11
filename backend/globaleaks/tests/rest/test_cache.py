@@ -3,7 +3,7 @@ from globaleaks.rest.cache import Cache
 
 class TestCache(unittest.TestCase):
     def setUp(self):
-        Cache.memory_cache_dict.clear()  # Ensure cache is empty before each test
+        Cache.invalidate() # Ensure cache is empty before each test
 
     def test_set_and_get_cache(self):
         Cache.set(1, b"/test", "en", b"application/json", "cached_response")

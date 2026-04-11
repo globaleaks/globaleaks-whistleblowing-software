@@ -30,9 +30,9 @@
           <table class="table table-striped" id="fileList">
             <tbody id="fileListBody">
               @for (file of files | orderBy:'name'; track file) {
-	        @if (special_files_names.indexOf(file.name) === -1) {
+                @if (special_files_names.indexOf(file.name) === -1) {
                 <tr>
-                  <td id="file_name">{{file.name}}</td>
+                  <td class="fileName">{{file.name}}</td>
                   <td>
                     <a class="btn btn-sm btn-primary" [href]="'s/' + file.name" [download]="file.name">
                       <i class="fas fa-download"></i>
@@ -44,7 +44,7 @@
                     </button>
                   </td>
                 </tr>
-		}
+                }
               }
             </tbody>
           </table>

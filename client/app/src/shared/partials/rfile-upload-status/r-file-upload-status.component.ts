@@ -16,7 +16,7 @@ import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 export class RFileUploadStatusComponent {
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-  @Output() dataToParent: EventEmitter<any> = new EventEmitter<any>();
+  @Output() updated: EventEmitter<any> = new EventEmitter<string>();
   @Input() file: Transfer;
   @Input() formUploader: boolean;
 }

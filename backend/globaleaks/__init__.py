@@ -5,8 +5,8 @@ import operator
 
 __author__ = 'GlobaLeaks'
 __email__ = 'info@globaleaks.org'
-__copyright__ = '2011-2025 - GlobaLeaks'
-__version__ = '5.0.87'
+__copyright__ = '2011-2026 - GlobaLeaks'
+__version__ = '5.0.90'
 __license__ = 'AGPL-3.0'
 
 DATABASE_VERSION = 71
@@ -65,6 +65,7 @@ LANGUAGES_SUPPORTED = [
     {'code': 'lv', 'name': 'Latvian', 'native': 'Latviešu'},
     {'code': 'mg', 'name': 'Malagasy', 'native': 'Malagasy'},
     {'code': 'mk', 'name': 'Macedonian', 'native': '\u043c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438'},
+    {'code': 'mn', 'name': 'Mongolian', 'native': '\u041c\u043e\u043d\u0433\u043e\u043b'},
     {'code': 'ms', 'name': 'Malay', 'native': 'Bahasa Melayu'},
     {'code': 'my', 'name': 'Burmese', 'native': '\u1019\u103C\u1014\u103A\u1019\u102C'},
     {'code': 'nb_NO', 'name': 'Norwegian', 'native': 'Norsk bokm\u00e5l'},

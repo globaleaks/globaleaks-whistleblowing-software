@@ -25,7 +25,7 @@ export class WbFilesComponent implements OnInit {
   @Input() wbFile: RFile;
   @Input() ctx: string;
   @Input() receivers_by_id: ReceiversById;
-  @Output() dataToParent = new EventEmitter<any>();
+  @Output() updated = new EventEmitter<any>();
 
   ngOnInit(): void {
   }
@@ -36,7 +36,7 @@ export class WbFilesComponent implements OnInit {
       (
         {
           next: async _ => {
-            this.dataToParent.emit(wbFile)
+            this.updated.emit(wbFile)
           }
         }
       );

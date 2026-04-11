@@ -4,7 +4,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NewField} from "@app/models/admin/new-field";
 import {FieldTemplate} from "@app/models/admin/field-Template";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
-import {QuestionnaireService} from "@app/pages/admin/questionnaires/questionnaire.service";
 import {Step} from "@app/models/resolvers/questionnaire-model";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {FormsModule} from "@angular/forms";
@@ -19,14 +18,13 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslatorPipe, TranslateModule]
 })
 export class AddFieldComponent {
-  private questionnaireService = inject(QuestionnaireService);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  @Output() dataToParent = new EventEmitter<string>();
   @Input() step: Step;
   @Input() fields: fieldtemplatesResolverModel[];
   @Input() type: string;
+  @Output() added = new EventEmitter<void>();
   new_field: { label: string, type: string } = {label: "", type: ""};
 
   addField() {
@@ -47,7 +45,7 @@ export class AddFieldComponent {
           label: "",
           type: ""
         };
-        this.dataToParent.emit();
+        this.added.emit();
       });
     }
     if (this.type === "template") {
@@ -57,12 +55,12 @@ export class AddFieldComponent {
       field.label = this.new_field.label;
       field.type = this.new_field.type;
       this.httpService.requestAddAdminQuestionnaireFieldTemplate(field).subscribe((newField: FieldTemplate) => {
-        this.fields.push(newField as unknown as Field);
+	this.fields.push(newField as unknown as Field);
         this.new_field = {
           label: "",
           type: ""
         };
-        this.dataToParent.emit();
+        this.added.emit();
       });
     }
     if (this.type === "field") {
@@ -84,7 +82,7 @@ export class AddFieldComponent {
           label: "",
           type: ""
         };
-        this.dataToParent.emit();
+	this.added.emit();
       });
     }
   }
