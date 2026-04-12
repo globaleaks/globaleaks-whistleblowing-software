@@ -1,6 +1,7 @@
 import copy
 import json
 from nacl.encoding import Base64Encoder
+from sqlalchemy import func
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -18,7 +19,6 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
-from datetime import datetime
 
 
 def db_create_user(session, tid, user_session, request, language):
@@ -126,7 +126,49 @@ def db_create_user(session, tid, user_session, request, language):
     return user
 
 
-def db_delete_user(session, tid, user_session, user_id):
+def db_get_user_stats(session, tid, user_id):
+    """
+    Get statistics about a user's report access
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The ID of the user
+    :return: A dictionary with user statistics
+    """
+    total_reports = session.query(func.count(models.ReceiverTip.id)).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar() or 0
+
+    user_tips = session.query(models.ReceiverTip.internaltip_id).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).subquery()
+
+    exclusive_reports = 0
+    for (internaltip_id,) in session.query(user_tips.c.internaltip_id):
+        recipient_count = session.query(func.count(models.ReceiverTip.id)).filter(
+            models.ReceiverTip.internaltip_id == internaltip_id
+        ).scalar() or 0
+        if recipient_count == 1:
+            exclusive_reports += 1
+
+    last_update = session.query(func.max(models.InternalTip.update_date)).join(
+        models.ReceiverTip,
+        models.InternalTip.id == models.ReceiverTip.internaltip_id
+    ).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar()
+
+    if not last_update:
+        last_update = datetime_null()
+
+    return {
+        'total_reports': total_reports,
+        'exclusive_reports': exclusive_reports,
+        'last_update': last_update.isoformat()
+    }
+
+
+def db_delete_user(session, tid, user_session, user_id, check):
     db_get(session, models.User, models.User.id == user_session.user_id)
 
     user = db_get(session, models.User, models.User.id == user_id)
@@ -138,13 +180,21 @@ def db_delete_user(session, tid, user_session, user_id):
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
 
+    stats = db_get_user_stats(session, tid, user_id)
+
+    if check:
+        stats_changed = (
+            stats['total_reports'] != check['total_reports'] or
+            stats['exclusive_reports'] != check['exclusive_reports'] or
+            stats['last_update'] != check['last_update']
+        )
+
+        if stats_changed:
+            raise errors.ForbiddenOperation
+
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
 
-    if user.id == user.profile_id:
-        # in this condition we should delete the profile since it will become unused
-        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
-
-    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
+    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id, data=stats)
 
 
 @transact
@@ -290,4 +340,24 @@ class UserInstance(BaseHandler):
         """
         Delete the specified user.
         """
-        return tw(db_delete_user, self.request.tid, self.session, user_id)
+        check = self.request.content.read()
+        if check:
+            check = self.validate_request(check,
+                                          requests.AdminUserDeleteDesc)
+
+
+        return tw(db_delete_user,
+                  self.request.tid,
+                  self.session,
+                  user_id,
+                  check)
+
+
+class UserStats(BaseHandler):
+    check_roles = 'admin'
+
+    def get(self, user_id):
+        """
+        Retrieve statistics about a user's report access.
+        """
+        return tw(db_get_user_stats, self.request.tid, user_id)

@@ -9,6 +9,7 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {CommonModule, DatePipe} from "@angular/common";
+import {NgForm} from "@angular/forms";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -25,14 +26,12 @@ export class SiteslistComponent {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
+  @Input() editTenant: NgForm;
   @Input() tenant: tenantResolverModel;
   @Input() tenants: tenantResolverModel[];
   @Input() index: number;
-<<<<<<< HEAD
   @Input() indexNumber: number;
-=======
   @Output() deleted = new EventEmitter<number>();
->>>>>>> origin/stable
   editing = false;
 
   toggleActivation(event: Event): void {
@@ -55,10 +54,9 @@ export class SiteslistComponent {
     });
   }
 
-  deleteTenant(event: Event, tenant: tenantResolverModel) {
+  deleteTenant(event: Event, tenant: tenantResolverModel, statsChanged = false) {
     event.stopPropagation();
-    this.openConfirmableModalDialog(tenant, "").subscribe(_ => {
-    });
+    this.openConfirmableModalDialog(tenant, statsChanged).subscribe();
   }
 
   configureTenant($event: Event, tid: number): void {
@@ -69,16 +67,25 @@ export class SiteslistComponent {
     });
   }
 
-  openConfirmableModalDialog(arg: tenantResolverModel, scope: any): Observable<string> {
-    scope = !scope ? this : scope;
+  openConfirmableModalDialog(arg: tenantResolverModel, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.tenant = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
+
       modalRef.componentInstance.confirmFunction = () => {
+        const stats = modalRef.componentInstance.tenantStats;
+        observer.complete();
         const url = "api/admin/tenants/" + arg.id;
-        return this.httpService.requestDeleteTenant(url).subscribe(_ => {
-          this.deleted.emit(this.tenant.id);
+        return this.httpService.requestDeleteTenant(url, stats).subscribe({
+          next: () => {
+            this.deleted.emit(this.tenant.id);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              this.deleteTenant(new Event('click'), arg, true);
+            }
+          }
         });
       };
     });

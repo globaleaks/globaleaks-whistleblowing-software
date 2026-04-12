@@ -33,6 +33,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.takeScreenshot("admin/sites_management_sites");
 
     cy.get("button[name='delete_tenant']").last().click();
+
     cy.get("#modal-action-ok").click();
 
     cy.get("button[name='configure_tenant']").last().click();

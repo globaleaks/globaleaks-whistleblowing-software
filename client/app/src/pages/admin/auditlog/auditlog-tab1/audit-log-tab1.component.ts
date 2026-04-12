@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
 import {AuditLogResolver} from "@app/shared/resolvers/audit-log-resolver.service";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
@@ -29,9 +30,11 @@ export class AuditLogTab1Component implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
   private translateService = inject(TranslateService);
+  private activatedRoute = inject(ActivatedRoute);
 
   auditLog: auditlogResolverModel[] = [];
   filteredAuditLog: auditlogResolverModel[] = [];
+  selectedUserId = "";
 
   users: User[] = [];
 
@@ -59,6 +62,10 @@ export class AuditLogTab1Component implements OnInit {
     this.loadAuditLogData();
     this.initializeTypeFilterData();
     this.updateFilteredAuditLogData();
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.selectedUserId = params["user"] ?? "";
+      this.updateFilteredAuditLogData();
+    });
   }
 
   loadUsersData() {

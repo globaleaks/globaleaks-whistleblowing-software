@@ -110,7 +110,7 @@ export class ProfileEditorComponent implements OnInit {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         return this.utilsService.deleteAdminUserProfile(arg.id).subscribe(_ => {
-          this.utilsService.deleteResource(this.profiles, arg);
+          ; // TODO this.utilsService.deleteResource(this.profiles, arg);
         });
       };
     });

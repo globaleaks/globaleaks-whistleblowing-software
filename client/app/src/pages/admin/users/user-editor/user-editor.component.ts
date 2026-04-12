@@ -1,6 +1,6 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
-import {NgbDateStruct, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
@@ -120,20 +120,28 @@ export class UserEditorComponent implements OnInit {
     });
   }
 
-  deleteUser(user: userResolverModel) {
-    this.openConfirmableModalDialog(user, "").subscribe();
+  deleteUser(user: User, statsChanged = false) {
+    this.openConfirmableModalDialog(user, statsChanged).subscribe();
   }
 
-  openConfirmableModalDialog(arg: User, scope: any): Observable<string> {
-    scope = !scope ? this : scope;
+  openConfirmableModalDialog(arg: User, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.user = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
-          this.deleted.emit(this.user.id);
+        const stats = modalRef.componentInstance.userStats;
+        observer.complete();
+        return this.utilsService.deleteAdminUser(arg.id, stats).subscribe({
+          next: () => {
+            this.deleted.emit(this.user.id);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              this.deleteUser(arg, true);
+            }
+          }
         });
       };
     });

@@ -1174,7 +1174,7 @@ class TestInstanceHandler(TestHandler):
 
         data = yield self._test_desc['create'](1, self.session, data, 'en')
 
-        handler = self.request(data, role='admin')
+        handler = self.request(None, role='admin')
 
         if hasattr(handler, 'delete'):
             yield handler.delete(data['id'])

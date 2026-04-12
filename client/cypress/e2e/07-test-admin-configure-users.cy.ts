@@ -141,6 +141,22 @@ describe("admin add, configure, and delete users", () => {
     cy.logout();
   });
 
+  it("should show user stats in delete confirmation modal", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/users");
+
+    cy.get(".userList").last().within(() => {
+      cy.get('button[name="edit_user"]').click();
+    });
+
+    cy.get('#delete_user').click();
+
+    cy.get('#modal-action-cancel').click();
+    cy.get('.modal-title').should('not.exist');
+
+    cy.logout();
+  });
+
 });
 
 describe("Multiple role profile", () => {

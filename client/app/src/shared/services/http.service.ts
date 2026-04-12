@@ -73,8 +73,12 @@ export class HttpService {
     return this.httpClient.delete<Session>("api/auth/session");
   }
 
-  requestDeleteTenant(url: string): Observable<tenantResolverModel> {
-    return this.httpClient.delete<tenantResolverModel>(url);
+  requestDeleteTenant(url: string, body: any): Observable<tenantResolverModel> {
+    return this.httpClient.request<tenantResolverModel>('delete', url, { body });
+  }
+
+  requestAdminTenantStats(tenantId: number): Observable<{open_reports: number; total_reports: number; last_update: string}> {
+    return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string}>(`api/admin/tenants/${tenantId}/stats`);
   }
 
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
@@ -378,8 +382,12 @@ export class HttpService {
     return this.httpClient.put<User>("api/admin/users/" + id, param);
   }
 
-  requestDeleteAdminUser(id: string): Observable<User> {
-    return this.httpClient.delete<User>("api/admin/users/" + id);
+  requestDeleteAdminUser(id: string, body: any): Observable<User> {
+    return this.httpClient.request<User>("delete", "api/admin/users/" + id, { body });
+  }
+
+  requestAdminUserStats(id: string): Observable<{total_reports: number; exclusive_reports: number; last_update: string}> {
+    return this.httpClient.get<{total_reports: number; exclusive_reports: number; last_update: string}>("api/admin/users/" + id + "/stats");
   }
 
   requestAddAdminUserProfile(param: NewUserProfile): Observable<UserProfile> {

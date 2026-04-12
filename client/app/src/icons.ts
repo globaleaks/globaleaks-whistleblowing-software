@@ -79,6 +79,7 @@ const icons = [
   solidIcons.faSort,
   solidIcons.faSortDown,
   solidIcons.faSortUp,
+  solidIcons.faSpinner,
   solidIcons.faSquare,
   solidIcons.faSquareCheck,
   solidIcons.faStar,
