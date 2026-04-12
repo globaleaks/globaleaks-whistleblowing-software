@@ -63,4 +63,4 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         return self.handler.put(4)
 
     def test_delete(self):
-        return self.handler.delete(4)
+        return self.request(None, role='admin').delete(4)

@@ -1,13 +1,85 @@
 <div class="modal-header">
   <h5 id="modal-title" class="modal-title">{{'Are you sure?' | translate}}</h5>
-  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
-</div>
-<div class="modal-body">{{'Please note that all the associated data will be permanently deleted.' | translate}}</div>
-<div class="modal-footer">
-  <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-    <i class="fas fa-check" aria-hidden="true"></i><span>{{'Yes' | translate}}</span>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
   </button>
-  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fas fa-xmark" aria-hidden="true"></i><span>{{'No' | translate}}</span>
+</div>
+
+<div class="modal-body">
+  @if (statsChanged) {
+    <div class="alert alert-warning" role="alert" data-cy="stats-changed">
+      <i class="fas fa-circle-exclamation me-1" aria-hidden="true"></i>
+      <span>{{'Deletion prevented due to a status change during operation.' | translate}}</span>
+    </div>
+  }
+
+  <p data-cy="default-delete-message">{{'Please note that all the associated data will be permanently deleted.' | translate}}</p>
+
+  @if (user) {
+    @if (loadingStats()) {
+      <div class="text-center py-2">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+      </div>
+    } @else if (userStats) {
+      <div class="mb-2" data-cy="user-total-reports">
+        <strong>{{'Reports' | translate}}:</strong> {{userStats.total_reports}}
+      </div>
+
+      <div class="mb-2" data-cy="user-exclusive-reports">
+        <strong>{{'Reports with exclusive access' | translate}}:</strong> {{userStats.exclusive_reports}}
+      </div>
+    }
+  }
+
+  @if (tenant) {
+    @if (loadingStats()) {
+      <div class="text-center py-2">
+        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+      </div>
+    } @else if (tenantStats) {
+      <div class="alert alert-info mb-3" role="alert" data-cy="tenant-audit-reminder">
+        <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
+        {{'Before proceeding ensure to check the audit log.' | translate}}
+      </div>
+
+      <div class="mb-2" data-cy="tenant-open-reports">
+        <strong>{{'Open reports' | translate}}:</strong> {{tenantStats.open_reports}}
+      </div>
+
+      <div class="mb-2" data-cy="tenant-total-reports">
+        <strong>{{'Total reports' | translate}}:</strong> {{tenantStats.total_reports}}
+      </div>
+    }
+  }
+
+  <div class="mt-3">
+    <button
+      type="button"
+      class="btn btn-sm btn-outline-secondary"
+      (click)="openAuditLog()"
+    >
+      <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+      <span>{{'Audit log' | translate}}</span>
+    </button>
+</div>
+
+<div class="modal-footer">
+  <button
+    id="modal-action-ok"
+    class="btn btn-danger"
+    (click)="confirm()"
+    [disabled]="loadingStats()"
+  >
+    <i class="fas fa-check" aria-hidden="true"></i>
+    <span>{{'Delete' | translate}}</span>
+  </button>
+
+  <button
+    id="modal-action-cancel"
+    class="btn btn-outline-secondary"
+    (click)="cancel()"
+  >
+    <i class="fas fa-xmark" aria-hidden="true"></i>
+    <span>{{'Cancel' | translate}}</span>
   </button>
 </div>

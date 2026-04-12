@@ -1,6 +1,7 @@
 # -*- coding: UTF-8
 import json
 from nacl.encoding import Base64Encoder
+from sqlalchemy import func
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES, models
@@ -14,13 +15,13 @@ from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, \
     db_get_config_variable, db_set_config_variable
-from globaleaks.orm import db_del, db_get, transact, tw
+from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import isIPAddress
 from globaleaks.utils.tls import gen_selfsigned_certificate
-from globaleaks.utils.utility import uuid4
+from globaleaks.utils.utility import datetime_null, uuid4
 
 DEFAULT_PROFILE_ID = 1000001
 
@@ -112,6 +113,43 @@ def is_profile_mapped(session, tid):
         return session.query(Config).filter_by(value=tid, var_name='profile').first() is not None
     else:
         return False
+
+
+def db_get_tenant_stats(session, tid):
+    """
+    Get statistics about a tenant's reports.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: Dictionary with tenant statistics
+    """
+    total_reports = session.query(models.InternalTip).filter(
+        models.InternalTip.tid == tid
+    ).count()
+
+    open_reports = session.query(models.InternalTip).filter(
+        models.InternalTip.tid == tid,
+        models.InternalTip.status != 'closed'
+    ).count()
+
+    last_update = session.query(func.max(models.InternalTip.update_date)).filter(
+        models.InternalTip.tid == tid
+    ).scalar()
+
+    if not last_update:
+        last_update = datetime_null()
+
+    return {
+        'total_reports': total_reports,
+        'open_reports': open_reports,
+        'last_update': last_update.isoformat()
+    }
+
+
+@transact
+def get_tenant_stats(session, tid):
+    return db_get_tenant_stats(session, tid)
+
 
 @transact
 def create_and_initialize(session, desc, *args, **kwargs):
@@ -425,10 +463,57 @@ class TenantInstance(BaseHandler):
         """
         Delete the specified tenant.
         """
-
         profile_mapped_status = yield is_profile_mapped(tid)
         if profile_mapped_status:
             raise errors.ForbiddenOperation
 
         tid = int(tid)
-        tw(db_del, models.Tenant, models.Tenant.id == tid)
+
+        check = self.request.content.read()
+        if check:
+            check = self.validate_request(check,
+                                          requests.AdminTenantDeleteDesc)
+
+        yield tw(db_delete_tenant,
+                 self.request.tid,
+                 self.session,
+                 tid,
+                 check)
+
+
+def db_delete_tenant(session, request_tid, user_session, tid, check):
+    """
+    Delete a tenant after validating stats.
+
+    :param session: An ORM session
+    :param request_tid: The requesting tenant ID
+    :param user_session: The user session
+    :param tid: The tenant ID to delete
+    :param check: deletion checks
+    """
+    stats = db_get_tenant_stats(session, tid)
+
+    if check:
+        stats_changed = (
+            stats['total_reports'] != check['total_reports'] or
+            stats['open_reports'] != check['open_reports'] or
+            stats['last_update'] != check['last_update']
+        )
+
+        if stats_changed:
+            raise errors.ForbiddenOperation
+
+    db_del(session, models.Tenant, models.Tenant.id == tid)
+
+    db_log(session, tid=request_tid, type='delete_tenant', user_id=user_session.user_id, object_id=str(tid), data=stats)
+
+
+class TenantStats(BaseHandler):
+    check_roles = 'admin'
+    root_tenant_only = True
+
+    def get(self, tid):
+        """
+        Retrieve statistics about a tenant's reports.
+        """
+        return get_tenant_stats(int(tid))

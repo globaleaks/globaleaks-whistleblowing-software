@@ -124,6 +124,6 @@ export class UsersTab1Component implements OnInit {
   }
 
   onDelete(id: string) {
-   this.usersData = this.usersData.filter(user => user.id !== id);
+   this.users = this.users.filter(user => user.id !== id);
   }
 }

@@ -14,7 +14,7 @@ import { AuthenticationService } from "@app/services/helper/authentication.servi
     NgSelectComponent,
     FormsModule,
     TranslateModule,
-    TranslatorPipe,
+    TranslatorPipe
   ]
 })
 export class RoleSelectionModalComponent implements OnInit {
