@@ -50,7 +50,7 @@
         "chart.js": "4.5.1",
         "cypress-axe": "1.7.0",
         "dompurify": "3.3.3",
-        "libsodium-wrappers-sumo": "0.8.3",
+        "libsodium-wrappers-sumo": "0.8.2",
         "marked": "18.0.0",
         "ng-multiselect-dropdown": "1.0.0",
         "ng2-charts": "9.0.0",
@@ -13714,9 +13714,9 @@
       "license": "ISC"
     },
     "node_modules/libsodium-wrappers-sumo": {
-      "version": "0.8.3",
-      "resolved": "https://registry.npmjs.org/libsodium-wrappers-sumo/-/libsodium-wrappers-sumo-0.8.3.tgz",
-      "integrity": "sha512-EfLSlxKJ7RUGVospOlvbvse0suAAVPR+CkZfFcFjPzPtTEgVfvIaZUPsWndVjxYp/om2HDc0iLeR5wLF8YbHZg==",
+      "version": "0.8.2",
+      "resolved": "https://registry.npmjs.org/libsodium-wrappers-sumo/-/libsodium-wrappers-sumo-0.8.2.tgz",
+      "integrity": "sha512-wd1xAY++Kr6VMikSaa4EPRAHJmFvNlGWiiwU3Jh3GR1zRYF3/I3vy/wYsr4k3LVsNzwb9sqfEQ4LdVQ6zEebyQ==",
       "license": "ISC",
       "dependencies": {
         "libsodium-sumo": "^0.8.0"
