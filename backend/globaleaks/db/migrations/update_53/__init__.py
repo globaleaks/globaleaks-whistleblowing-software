@@ -1,7 +1,6 @@
 # -*- coding: UTF-8
 
 from globaleaks.db.migrations.update import MigrationBase
-from globaleaks.handlers.admin.operation import db_reset_smtp_settings
 from globaleaks.models import Model
 from globaleaks.models.enums import *
 from globaleaks.models.properties import *
@@ -172,11 +171,6 @@ class MigrationScript(MigrationBase):
         self.session_new.query(m) \
                         .filter(m.var_name == 'https_priv_key') \
                         .update({'var_name': 'https_key'})
-
-        for tid in self.session_new.query(m.tid) \
-                                   .filter(m.var_name == 'smtp_port',
-                                           m.value == 9267):
-            db_reset_smtp_settings(self.session_new, tid[0])
 
         m = self.model_to['ConfigL10N']
 

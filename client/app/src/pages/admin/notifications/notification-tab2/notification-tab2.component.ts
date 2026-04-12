@@ -27,4 +27,8 @@ export class NotificationTab2Component implements OnInit {
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe();
   }
+
+  resetTemplates() {
+    this.utilsService.runAdminOperation("reset_templates", {}, true).subscribe();
+  }
 }

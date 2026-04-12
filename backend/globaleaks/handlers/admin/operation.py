@@ -161,22 +161,6 @@ def disable_user_permission_file_upload(session, tid, user_session):
     user_session.permissions['can_upload_files'] = False
 
 
-def db_reset_smtp_settings(session, tid):
-    config = ConfigFactory(session, tid)
-    config.set_val('smtp_server', 'mail.globaleaks.org')
-    config.set_val('smtp_port', 587)
-    config.set_val('smtp_username', 'globaleaks')
-    config.set_val('smtp_password', 'globaleaks')
-    config.set_val('smtp_source_email', 'notifications@globaleaks.org')
-    config.set_val('smtp_security', 'TLS')
-    config.set_val('smtp_authentication', True)
-
-
-@transact
-def reset_smtp_settings(session, tid):
-    return db_reset_smtp_settings(session, tid)
-
-
 @transact
 def reset_templates(session, tid):
     ConfigL10NFactory(session, tid).reset('notification')
@@ -270,9 +254,6 @@ class AdminOperationHandler(OperationHandler):
     def enable_encryption(self, req_args, *args, **kwargs):
         return enable_encryption(self.request.tid)
 
-    def reset_smtp_settings(self, req_args, *args, **kwargs):
-        return reset_smtp_settings(self.request.tid)
-
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
 
@@ -339,7 +320,9 @@ class AdminOperationHandler(OperationHandler):
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
-        yield self.state.sendmail(tid, user['mail_address'], subject, body)
+        use_smtp2 = req_args.get('smtp2', False)
+        mail_address = req_args.get('to_mail_address', '')
+        yield self.state.sendmail(tid, mail_address, subject, body, use_smtp2=use_smtp2)
 
     def toggle_escrow(self, req_args, *args, **kwargs):
         return toggle_escrow(self.request.tid, self.session)
@@ -361,7 +344,6 @@ class AdminOperationHandler(OperationHandler):
             'enable_encryption': AdminOperationHandler.enable_encryption,
             'disable_2fa': AdminOperationHandler.disable_2fa,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
-            'reset_smtp_settings': AdminOperationHandler.reset_smtp_settings,
             'reset_submissions': AdminOperationHandler.reset_submissions,
             'set_user_password': AdminOperationHandler.set_user_password,
             'send_password_reset_email': AdminOperationHandler.send_password_reset_email,
