@@ -39,17 +39,25 @@ export class TipCommentsComponent {
   newCommentContent = "";
   newComments: Comment;
 
+  get commentsAllowed(): boolean {
+    return this.tipService?.tip?.comments_allowed ?? true;
+  }
+
   public toggleCollapse() {
     this.collapsed = !this.collapsed;
   }
 
   newComment() {
+    if (!this.commentsAllowed || !this.newCommentContent) {
+      return;
+    }
+
     const response = this.tipService.newComment(this.newCommentContent, this.key);
-    this.newCommentContent = "";
 
     response.subscribe(
       (data) => {
         this.tipService.tip.comments = [data, ...this.tipService.tip.comments];
+        this.newCommentContent = "";
       }
     );
   }

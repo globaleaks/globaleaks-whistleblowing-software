@@ -30,6 +30,7 @@ export class RecieverTipData {
   score: number;
   status: string;
   substatus: string;
+  comments_allowed: boolean;
   receivers: Receiver[];
   comments: Comment[];
   rfiles: RFile[];

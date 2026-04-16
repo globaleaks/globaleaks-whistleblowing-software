@@ -1,8 +1,11 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers import auth
+from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.orm import tw
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 
@@ -43,6 +46,34 @@ class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
 
             yield handler.post()
+
+    @inlineCallbacks
+    def test_post_is_blocked_when_comment_window_is_disabled_after_closure(self):
+        body = {
+            'content': "can you provide an evidence of what you are telling?",
+            'visibility': "internal"
+        }
+
+        yield tw(helpers.db_set_config_variable, 1, 'comment_period_after_closure_days', 0)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            yield rtip.update_tip_submission_status(1, self.dummyReceiver_1['id'], wbtip_desc['id'], 'closed', None)
+
+            handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+            yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_get_marks_comments_as_read_only_when_comment_window_has_expired(self):
+        yield tw(helpers.db_set_config_variable, 1, 'comment_period_after_closure_days', 0)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            yield rtip.update_tip_submission_status(1, self.dummyReceiver_1['id'], wbtip_desc['id'], 'closed', None)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertFalse(wbtip_desc['comments_allowed'])
 
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):

@@ -1,5 +1,5 @@
 from sqlalchemy import not_
-from globaleaks.models import Config, ConfigL10N, EnabledLanguage
+from globaleaks.models import Config, ConfigL10N, EnabledLanguage, Tenant
 from globaleaks.models.properties import *
 from globaleaks.models.config_desc import ConfigDescriptor, ConfigFilters, ConfigL10NFilters
 from globaleaks.utils.onion import generate_onion_service_v3
@@ -42,9 +42,8 @@ class ConfigFactory(object):
         return {c.var_name: c for c in self.session.query(Config).filter(Config.tid == self.tid, Config.var_name.in_(ConfigFilters[filter_name]))}
 
     def update(self, filter_name, data):
-        for k, v in self.get_all(filter_name).items():
-            if k in data:
-                v.set_v(data[k])
+        for key in (x for x in ConfigFilters[filter_name] if x in ConfigDescriptor and x in data):
+            self.set_val(key, data[key])
 
     def get_cfg(self, var_name):
         return self.session.query(Config).filter(Config.tid == self.tid, Config.var_name == var_name).one_or_none()
@@ -60,9 +59,17 @@ class ConfigFactory(object):
         v = self.get_cfg(var_name)
         if v:
             v.set_v(value)
+        elif self.session.query(Tenant.id).filter(Tenant.id == self.tid).one_or_none() is not None:
+            self.session.add(Config({'tid': self.tid, 'var_name': var_name, 'value': value}))
 
     def serialize(self, filter_name):
-        return {k: v.value for k, v in self.get_all(filter_name).items()}
+        serialized = {
+            key: get_default(ConfigDescriptor[key].default)
+            for key in ConfigFilters[filter_name]
+            if key in ConfigDescriptor
+        }
+        serialized.update({k: v.value for k, v in self.get_all(filter_name).items()})
+        return serialized
 
     def update_defaults(self):
         actual = set([c[0] for c in self.session.query(Config.var_name).filter(Config.tid == self.tid)])

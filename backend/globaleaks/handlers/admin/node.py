@@ -97,6 +97,9 @@ def db_update_node(session, tid, user_session, request, language):
 
     config = ConfigFactory(session, tid)
 
+    if request.get('comment_period_after_closure_days', 0) < 0:
+        raise errors.InputValidationError('Comment period after report closure must be greater than or equal to 0')
+
     config.update('node', request)
 
     if 'languages_enabled' in request and 'default_language' in request:

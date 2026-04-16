@@ -262,6 +262,7 @@ Not provided.
 Notifications
 Notify administrators of software problems
 Notify developers of software problems
+This report is closed and no longer accepts comments.
 Now type your password, then click 'Log in':
 Number
 Number of days till notifying unread reports to users
@@ -277,6 +278,7 @@ Original text
 Original translation
 Password
 Password change interval
+Comment period after report closure (days)
 Password reset
 Password reset requested.
 Phone number
@@ -376,7 +378,9 @@ Send activation link
 Send reset link
 Set a reminder
 Set password
+A positive value allows comments for the specified number of days after closure.
 Set the value to 0 to disable this feature.
+Set the value to 0 to disable comments immediately after closure.
 Set up encryption by providing a PGP public key
 Settings
 Severity

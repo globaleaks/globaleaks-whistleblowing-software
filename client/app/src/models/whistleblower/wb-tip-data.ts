@@ -19,6 +19,7 @@ export class WbTipData {
   score: number;
   status: string;
   substatus: string;
+  comments_allowed: boolean;
   receivers: Receiver[];
   comments: Comment[];
   rfiles: RFile[];

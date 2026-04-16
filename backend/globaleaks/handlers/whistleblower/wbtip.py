@@ -7,6 +7,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models
+from globaleaks.handlers.comment import assert_comment_submission_allowed
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
@@ -81,6 +82,7 @@ def create_comment(session, tid, user_id, content):
                   models.InternalTip,
                   (models.InternalTip.id == user_id,
                    models.InternalTip.tid == tid))
+    assert_comment_submission_allowed(session, itip)
 
     itip.update_date = itip.last_access = datetime_now()
 

@@ -6,6 +6,7 @@ from sqlalchemy import func, or_, not_
 from sqlalchemy.orm import aliased
 
 from globaleaks import models
+from globaleaks.handlers.comment import is_comment_submission_allowed
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
@@ -224,6 +225,7 @@ def serialize_itip(session, internaltip, language):
         'score': internaltip.score,
         'status': internaltip.status,
         'substatus': internaltip.substatus,
+        'comments_allowed': is_comment_submission_allowed(session, internaltip),
         'receivers': [],
         'comments': [],
         'wbfiles': [],

@@ -23,6 +23,7 @@ export class nodeResolverModel {
   maximum_filesize: number;
   mode: string;
   name: string;
+  comment_period_after_closure_days: number;
   password_change_period: number;
   pgp: boolean;
   rootdomain: string;

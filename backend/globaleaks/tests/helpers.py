@@ -354,6 +354,7 @@ class MockDict:
             'threshold_free_disk_megabytes_low': 1000,
             'threshold_free_disk_percentage_high': 3,
             'threshold_free_disk_percentage_low': 10,
+            'comment_period_after_closure_days': 14,
             'password_change_period': 90,
             'unread_reminder_time': 1,
             'enable_admin_exception_notification': True,

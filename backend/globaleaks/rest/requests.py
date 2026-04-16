@@ -234,6 +234,7 @@ AdminNodeDesc = {
     'threshold_free_disk_megabytes_low': int,
     'threshold_free_disk_percentage_high': int,
     'threshold_free_disk_percentage_low': int,
+    'comment_period_after_closure_days': int,
     'password_change_period': int,
     'unread_reminder_time': int,
     'enable_admin_exception_notification': bool,

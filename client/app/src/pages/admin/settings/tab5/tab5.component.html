@@ -83,6 +83,12 @@
       <div>{{ 'For security reasons, password changes are required at regular intervals.' | translate }}</div>
       <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
     </div>
+    <div class="form-group">
+      <label for="comment-period-after-closure-days">{{ 'Comment period after report closure (days)' | translate }}</label>
+      <input id="comment-period-after-closure-days" class="form-control" [(ngModel)]="nodeResolver.dataModel.comment_period_after_closure_days" type="number" min="0" />
+      <div>{{ 'A positive value allows comments for the specified number of days after closure.' | translate }}</div>
+      <div>{{ 'Set the value to 0 to disable comments immediately after closure.' | translate }}</div>
+    </div>
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
         <label for="unread-reminder-time">{{ 'Number of days till notifying unread reports to users' | translate }}</label>

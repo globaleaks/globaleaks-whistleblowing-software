@@ -6,6 +6,8 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.orm import tw
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_never, datetime_now
 
@@ -444,6 +446,34 @@ class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
+
+    @inlineCallbacks
+    def test_post_is_blocked_when_comment_window_is_disabled_after_closure(self):
+        body = {
+            'content': "can you provide an evidence of what you are telling?",
+            'visibility': "public"
+        }
+
+        yield tw(helpers.db_set_config_variable, 1, 'comment_period_after_closure_days', 0)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield rtip.update_tip_submission_status(1, rtip_desc['receiver_id'], rtip_desc['id'], 'closed', None)
+
+            handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield self.assertFailure(handler.post(rtip_desc['id']), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_get_marks_comments_as_read_only_when_comment_window_has_expired(self):
+        yield tw(helpers.db_set_config_variable, 1, 'comment_period_after_closure_days', 0)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield rtip.update_tip_submission_status(1, rtip_desc['receiver_id'], rtip_desc['id'], 'closed', None)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertFalse(rtip_desc['comments_allowed'])
 
 
 class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):

@@ -19,12 +19,21 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_put_update_node(self):
         self.dummyNode['custom_support_url'] = 'https://www.globaleaks.org'
+        self.dummyNode['comment_period_after_closure_days'] = 21
 
         handler = self.request(self.dummyNode, role='admin')
         response = yield handler.put()
         self.assertTrue(isinstance(response, dict))
         self.assertTrue(response['version'], __version__)
         self.assertEqual(response['custom_support_url'], 'https://www.globaleaks.org')
+        self.assertEqual(response['comment_period_after_closure_days'], 21)
+
+    @inlineCallbacks
+    def test_get_includes_comment_period_after_closure_days(self):
+        handler = self.request(role='admin')
+        response = yield handler.get()
+
+        self.assertEqual(response['comment_period_after_closure_days'], 14)
 
     @inlineCallbacks
     def test_put_update_node_invalid_lang(self):

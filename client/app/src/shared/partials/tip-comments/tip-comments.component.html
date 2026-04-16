@@ -14,12 +14,15 @@
     <div class="card-body">
       <div id="TipCommentsInputBox">
         <label for="new-comment-content" class="visually-hidden">{{ 'Comment' | translate }}</label>
-        <textarea id="new-comment-content" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off" autoExpand></textarea>
+        <textarea id="new-comment-content" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off" autoExpand [disabled]="!commentsAllowed"></textarea>
         <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
-        <button id="comment-action-send" class="btn btn-primary mt-2" (click)="newComment()" [disabled]="!newCommentContent">
+        <button id="comment-action-send" class="btn btn-primary mt-2" (click)="newComment()" [disabled]="!commentsAllowed || !newCommentContent">
           <i class="fas fa-comment"></i>
           <span>{{'Send'|translate}}</span>
         </button>
+        @if (!commentsAllowed) {
+          <div class="mt-2 text-muted">{{ 'This report is closed and no longer accepts comments.' | translate }}</div>
+        }
       </div>
       @if (tipService.tip.comments && tipService.tip.comments.length) {
         <app-paginated-interface data-cy="SubmissionComments" id="SubmissionComments" [items]="tipService.tip.comments" [filterField]="'content'" [itemsPerPage]="10"   [filter]="{ visibility: key }" orderBy="creation_date" [orderDesc]="true">

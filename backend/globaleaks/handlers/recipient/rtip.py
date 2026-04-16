@@ -16,6 +16,7 @@ from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.comment import assert_comment_submission_allowed
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
@@ -1006,6 +1007,7 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     :return: A serialized descriptor of the comment
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+    assert_comment_submission_allowed(session, itip)
 
     rtip.last_access = datetime_now()
     if visibility == 'public':
