@@ -10,7 +10,7 @@ from twisted.python.log import addObserver
 from twisted.web import resource, server
 
 from globaleaks.jobs import job, jobs_list
-from globaleaks.services import tor
+from globaleaks.services import antivirus, tor
 
 from globaleaks.db import create_db, initialize_db, update_db, \
     sync_refresh_tenant_cache, sync_initialize_snimap
@@ -58,6 +58,7 @@ class Service(service.Service):
         self.state.services.append(self.state.tor)
 
         self.state.jobs_monitor = job.JobsMonitor(self.state.jobs)
+        antivirus.sync_antivirus_runtime()
 
     def stop_jobs(self):
         deferred_list = []

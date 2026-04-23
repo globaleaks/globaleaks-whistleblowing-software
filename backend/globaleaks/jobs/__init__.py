@@ -10,8 +10,9 @@ from globaleaks.jobs import anomalies, \
                             periodic_minutely, \
                             pgp_check, \
                             session_management, \
-                            update_check
-
+                            update_check, \
+                            update_antivirus, \
+                            antivirus_decryptor
 jobs_list = [
     anomalies.Anomalies,
     cache_reset.CacheReset,

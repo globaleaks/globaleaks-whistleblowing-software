@@ -77,5 +77,8 @@ export class nodeResolverModel {
   can_postpone_expiration: boolean;
   profile:boolean;
   is_profile:boolean;
+  antivirus_enabled:boolean;
+  antivirus_clamd_ip: string;
+  antivirus_clamd_port: number;
   tid: number;
 }

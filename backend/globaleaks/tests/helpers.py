@@ -374,6 +374,9 @@ class MockDict:
             'basic_auth_password': '',
             'custom_support_url': '',
             'pgp': False,
+            'antivirus_enabled': False,
+            'antivirus_clamd_ip': 'localhost',
+            'antivirus_clamd_port': 3310,
             'user_privacy_policy_text': '',
             'user_privacy_policy_url': ''
         }
@@ -628,7 +631,7 @@ class TestGL(unittest.TestCase):
         self.dummyNode = dummyStuff.dummyNode
 
         self.assertEqual(os.listdir(Settings.attachments_path), [])
-        self.assertEqual(os.listdir(Settings.tmp_path), [])
+        self.assertEqual(os.listdir(Settings.tmp_path), ['antivirus'])
 
     def get_dummy_user(self, role, username):
         new_u = dict(MockDict().dummyUser)

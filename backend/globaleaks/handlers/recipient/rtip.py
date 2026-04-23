@@ -1,11 +1,12 @@
 # Handlers dealing with tip interface for receivers (rtip)
 import copy
 import json
+import mimetypes
 import os
 import re
 import time
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from nacl.encoding import Base64Encoder
 from twisted.internet.threads import deferToThread
@@ -22,17 +23,23 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import serialize_user
-from globaleaks.models import UserProfile, serializers
+
+from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
+from globaleaks.utils.antivirus import ANTIVIRUS_RECHECK_DAYS, enqueue_antivirus_scan, get_av_result, prepare_file_download
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
-
+from globaleaks.settings import Settings
+from globaleaks.models.config import db_get_config_variable
+from io import BytesIO
+from globaleaks.utils.securetempfile import SecureTemporaryFile
+from globaleaks.utils.zipstream import ZipStream
 
 @transact
 def get_report_audit_log(session, tid, user_id, itip_id):
@@ -624,6 +631,35 @@ def db_access_rfile(session, tid, user_id, rfile_id):
                   (models.ReceiverFile.id == rfile_id,
                    models.ReceiverFile.internaltip_id.in_(itips_ids)))
 
+@transact
+def track_expired_verification_status(session, tip):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=ANTIVIRUS_RECHECK_DAYS)
+    files_to_track = set()
+
+    for file_obj in tip.get('wbfiles', []) + tip.get('rfiles', []):
+        name = file_obj.get('id')
+        path = os.path.join(Settings.tmp_path, name)
+        validation_date = file_obj.get('verification_date')
+        status = file_obj.get('status')
+
+        if validation_date and validation_date.tzinfo is None:
+            validation_date = validation_date.replace(tzinfo=timezone.utc)
+
+        if ((not status and not validation_date and not os.path.exists(path))
+            or (validation_date and validation_date < cutoff and status!=models.EnumStateFile.pending.name)):
+            files_to_track.add(name)
+
+            if file_obj in tip.get('wbfiles', []):
+                ifile = session.query(models.InternalFile).get(name)
+                if ifile:
+                    ifile.state = models.EnumStateFile.pending.name
+            else:
+                rfile = session.query(models.ReceiverFile).get(name)
+                print(rfile, flush=True)
+                if rfile:
+                    rfile.state = models.EnumStateFile.pending.name
+
+    return files_to_track
 
 @transact
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
@@ -1260,25 +1296,26 @@ class WhistleblowerFileDownload(BaseHandler):
 
     @transact
     def download_wbfile(self, session, tid, user_id, file_id):
-        user, ifile, wbfile, rtip, profile = db_get(session,
+        user, ifile, wbfile, rtip = db_get(session,
                                            (models.User,
                                             models.InternalFile,
                                             models.WhistleblowerFile,
-                                            models.ReceiverTip,
-                                            models.UserProfile),
+                                            models.ReceiverTip),
                                            (models.User.id == user_id,
                                             models.ReceiverTip.receiver_id == models.User.id,
-                                            models.UserProfile.id == models.User.profile_id,
                                             models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
                                             models.WhistleblowerFile.id == file_id))
+
+        antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
+        recheck_needed = prepare_file_download(ifile, antivirus_enabled)
 
         redaction = session.query(models.Redaction) \
                            .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
 
         if redaction is not None and \
-                not user_session.permissions.can_mask_information and \
-                not user_session.permissions.can_redact_information:
+                not self.session.permissions.can_mask_information and \
+                not self.session.permissions.can_redact_information:
             raise errors.ForbiddenOperation
 
         if wbfile.access_date == datetime_null():
@@ -1287,13 +1324,19 @@ class WhistleblowerFileDownload(BaseHandler):
         log.debug("Download of file %s by receiver %s" %
                   (wbfile.internalfile_id, rtip.receiver_id))
 
-        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public
+        return (ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key,
+                rtip.deprecated_crypto_files_prv_key, user.pgp_key_public,
+                ifile.state, antivirus_enabled, recheck_needed)
 
     @inlineCallbacks
     def get(self, wbfile_id):
-        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key = yield self.download_wbfile(self.request.tid,
-                                                                                                   self.session.user_id,
-                                                                                                   wbfile_id)
+        (name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key,
+         state, antivirus_enabled, recheck_needed) = yield self.download_wbfile(
+            self.request.tid, self.session.user_id, wbfile_id)
+
+        if recheck_needed and tip_prv_key:
+            _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
+            enqueue_antivirus_scan(ifile_id, _tip_prv_key)
 
         filelocation = os.path.join(self.state.settings.attachments_path, wbfile_id)
         if not os.path.exists(filelocation):
@@ -1302,22 +1345,46 @@ class WhistleblowerFileDownload(BaseHandler):
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
+        files = []
+
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             name = GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(name.encode())).decode()
 
             try:
-                # First attempt
-                filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                sfo = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                files.append({'fo': sfo, 'name': name})
             except:
-                # Second attempt
                 if not tip_prv_key2:
                     raise
 
                 files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key2))
-                filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+                sfo = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+                files.append({'fo': sfo, 'name': name})
+        else:
+            files.append({'path': filelocation, 'name': name})
 
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        mimetype, _ = mimetypes.guess_type(name)
+        mimetype = mimetype or 'application/octet-stream'
+        try:
+            size = os.path.getsize(filelocation)
+        except Exception:
+            size = 0
+
+        av_result = get_av_result(state)
+        readme = f"Filename: {name}\nType: {mimetype}\nSize: {size}\nAntivirus result: {av_result}\n".encode()
+        files.append({'fo': BytesIO(readme), 'name': 'README.TXT'})
+
+        zipstream = ZipStream(files)
+        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+
+        with stf.open('w') as f:
+            for x in zipstream:
+                f.write(x)
+
+        zip_name = os.path.splitext(name)[0] + '.zip'
+        with stf.open('r') as f:
+            yield self.write_file_as_download(zip_name, f, pgp_key)
 
 
 class ReceiverFileUpload(BaseHandler):
@@ -1342,35 +1409,72 @@ class ReceiverFileDownload(BaseHandler):
     @transact
     def download_rfile(self, session, tid, user_id, file_id):
         try:
-            rfile, rtip, pgp_key = db_get(session,
-                                          (models.ReceiverFile,
-                                           models.ReceiverTip,
-                                           models.User.pgp_key_public),
+            user, rfile, rtip = db_get(session,
+                                          (models.User,
+                                           models.ReceiverFile,
+                                           models.ReceiverTip),
                                           (models.User.id == user_id,
                                            models.User.profile_id == models.UserProfile.id,
                                            models.User.id == models.ReceiverTip.receiver_id,
                                            models.ReceiverFile.id == file_id,
                                            models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
+
+            antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
+            recheck_needed = prepare_file_download(rfile, antivirus_enabled)
+
         except:
             raise errors.ResourceNotFound
         else:
-            return rfile.name, rfile.id, rtip.crypto_tip_prv_key, pgp_key
+            return (rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public,
+                    rfile.state, recheck_needed)
 
     @inlineCallbacks
     def get(self, rfile_id):
-        name, filename, tip_prv_key, pgp_key = yield self.download_rfile(self.request.tid, self.session.user_id,
-                                                                         rfile_id)
+        (name, filename, tip_prv_key, pgp_key,
+         state, recheck_needed) = yield self.download_rfile(
+            self.request.tid, self.session.user_id, rfile_id)
+
+        if recheck_needed and tip_prv_key:
+            _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
+            enqueue_antivirus_scan(filename, _tip_prv_key)
 
         filelocation = os.path.join(self.state.settings.attachments_path, filename)
+        if not os.path.exists(filelocation):
+            filelocation = os.path.join(self.state.settings.attachments_path, filename)
+
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
+
+        files = []
 
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             name = GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(name.encode())).decode()
-            filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+            sfo = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+            files.append({'fo': sfo, 'name': name})
+        else:
+            files.append({'path': filelocation, 'name': name})
 
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        mimetype, _ = mimetypes.guess_type(name)
+        mimetype = mimetype or 'application/octet-stream'
+        try:
+            size = os.path.getsize(filelocation)
+        except Exception:
+            size = 0
+
+        av_result = get_av_result(state)
+        readme = f"Filename: {name}\nType: {mimetype}\nSize: {size}\nAntivirus result: {av_result}\n".encode()
+        files.append({'fo': BytesIO(readme), 'name': 'README.TXT'})
+
+        zipstream = ZipStream(files)
+        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+
+        with stf.open('w') as f:
+            for x in zipstream:
+                f.write(x)
+
+        with stf.open('r') as f:
+            yield self.write_file_as_download(name + '.zip', f, pgp_key)
 
     def delete(self, file_id):
         """

@@ -94,6 +94,11 @@ class SettingsClass(object, metaclass=Singleton):
         self.accesslogfile = os.path.abspath(os.path.join(self.log_path, "access.log"))
         self.csp_report_file = os.path.abspath(os.path.join(self.log_path, "csp-report.log"))
 
+        self.antivirus_path = os.path.abspath(os.path.join(self.working_path, 'antivirus'))
+        self.antivirus_db_path = os.path.abspath(os.path.join(self.antivirus_path, 'db'))
+        self.antivirus_sock_path = os.path.abspath(os.path.join(self.antivirus_path, 'clamd.sock'))
+        self.antivirus_tmp_path = os.path.abspath(os.path.join(self.tmp_path, 'antivirus'))
+
         # Client path detection
         client_found=False
         self.client_path = possible_client_paths[0]
@@ -110,6 +115,9 @@ class SettingsClass(object, metaclass=Singleton):
         self.questionnaires_path = os.path.join(self.client_path, 'data/questionnaires')
         self.questions_path = os.path.join(self.client_path, 'data/questions')
         self.field_attrs_file = os.path.join(self.client_path, 'data/field_attrs.json')
+
+        self.conf_clamd = os.path.join(self.antivirus_path, "clamd.conf")
+        self.conf_freshclam = os.path.join(self.antivirus_path, "freshclam.conf")
 
         set_db_uri(make_db_uri(self.db_file_path))
 

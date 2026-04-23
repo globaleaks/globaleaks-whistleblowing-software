@@ -13,7 +13,7 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
     @transact
     def check0(self, session):
         self.assertEqual(len(os.listdir(Settings.attachments_path)), 0)
-        self.assertEqual(len(os.listdir(Settings.tmp_path)), 0)
+        self.assertEqual(os.listdir(Settings.tmp_path), ['antivirus'])
 
         self.db_test_model_count(session, models.InternalTip, 0)
         self.db_test_model_count(session, models.ReceiverTip, 0)

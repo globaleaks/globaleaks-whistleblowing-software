@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="f1d9be90-e26d-48d5-bfd0-d075f230c09c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/backend.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_70/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_70/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_71/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_71/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/node.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/node.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/recipient/rtip.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/recipient/rtip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/whistleblower/wbtip.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/whistleblower/wbtip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/jobs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/jobs/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/jobs/delivery.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/jobs/delivery.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/models/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/models/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/rest/requests.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/rest/requests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-71.db" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-71.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-71.db" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-71.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_node.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_node.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/recipient/test_rfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/recipient/test_rfile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/recipient/test_rtip.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/recipient/test_rtip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/whistleblower/test_wbtip.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/whistleblower/test_wbtip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_cleaning.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_cleaning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_delivery_and_notification.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_delivery_and_notification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/utils/sock.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/utils/sock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.bionic" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.bionic" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.bookworm" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.bookworm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.bullseye" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.bullseye" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.buster" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.buster" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.focal" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.focal" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.jammy" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.jammy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.noble" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.noble" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements/requirements.txt.trixie" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements/requirements.txt.trixie" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/models/app/public-model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/models/app/public-model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/models/app/shared-public-model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/models/app/shared-public-model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/models/resolvers/node-resolver-model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/models/resolvers/node-resolver-model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/settings.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/settings.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/settings.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/settings.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/users/profile-editor/profile-editor.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/users/profile-editor/profile-editor.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/delete-confirmation/delete-confirmation.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/delete-confirmation/delete-confirmation.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/06-test-admin-configure-advanced.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/06-test-admin-configure-advanced.cy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/22-test-recipient-actions.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/22-test-recipient-actions.cy.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3CkXSnGc3Xu2txaCthuo6hvNxh2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "testcase-ui-revision",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.stylelint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.stylelint": "/home/morgan-freeman/Workspace/Globaleaks/globaleaks-whistleblowing-software/client/node_modules/stylelint",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "/home/morgan-freeman/Workspace/Globaleaks/globaleaks-whistleblowing-software/client/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-PY-261.22158.340" />
+        <option value="bundled-python-sdk-b63d5a1f7c97-b61e75351b1f-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.22158.340" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f1d9be90-e26d-48d5-bfd0-d075f230c09c" name="Changes" comment="" />
+      <created>1776930544118</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776930544118</updated>
+      <workItem from="1776930544623" duration="307000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

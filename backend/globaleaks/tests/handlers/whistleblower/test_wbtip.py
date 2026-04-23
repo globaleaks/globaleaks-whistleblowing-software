@@ -1,9 +1,16 @@
-from twisted.internet.defer import inlineCallbacks
+from unittest.mock import patch
 
+from twisted.internet.defer import inlineCallbacks, succeed
+
+from globaleaks import models
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import transact
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
+from globaleaks.utils.utility import datetime_now
 
 
 class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
@@ -48,6 +55,17 @@ class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
     _handler = wbtip.WhistleblowerFileDownload
 
+    @transact
+    def set_antivirus_enabled(self, session, enabled):
+        db_set_config_variable(session, 1, 'antivirus_enabled', enabled)
+
+    @transact
+    def set_wbfile_antivirus_state(self, session, file_id, state):
+        db_set_config_variable(session, 1, 'antivirus_enabled', True)
+        ifile = session.query(models.InternalFile).filter_by(id=file_id).one()
+        ifile.state = state
+        ifile.verification_date = datetime_now()
+
     @inlineCallbacks
     def test_get(self):
         yield self.perform_minimal_submission_actions()
@@ -60,6 +78,49 @@ class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
                 handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
                 yield handler.get(wbfile_id)
                 self.assertNotEqual(handler.request.getResponseBody(), '')
+
+    @inlineCallbacks
+    def test_get_allows_infected_file(self):
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+
+        wbtip_desc = (yield self.get_wbtips())[0]
+        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
+
+        yield self.set_wbfile_antivirus_state(wbfile_id, models.EnumStateFile.infected.name)
+
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        yield handler.get(wbfile_id)
+        self.assertNotEqual(handler.request.getResponseBody(), '')
+
+    @inlineCallbacks
+    def test_get_allows_infected_file_after_unsafe_scan(self):
+        yield self.perform_minimal_submission_actions()
+        yield self.set_antivirus_enabled(True)
+
+        with patch('globaleaks.jobs.delivery.FileAnalysis.scan_file', return_value=succeed('unsafe')):
+            yield Delivery().run()
+
+        wbtip_desc = (yield self.get_wbtips())[0]
+        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
+
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        yield handler.get(wbfile_id)
+        self.assertNotEqual(handler.request.getResponseBody(), '')
+
+    @inlineCallbacks
+    def test_get_allows_pending_file(self):
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+
+        wbtip_desc = (yield self.get_wbtips())[0]
+        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
+
+        yield self.set_wbfile_antivirus_state(wbfile_id, models.EnumStateFile.pending.name)
+
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        yield handler.get(wbfile_id)
+        self.assertNotEqual(handler.request.getResponseBody(), '')
 
 
 class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):

@@ -1,4 +1,20 @@
 describe("recipient admin tip actions", () => {
+
+  it("should disable antivirus", function () {
+    cy.login_admin();
+    cy.visit("/#/admin/settings")
+    cy.get('[data-cy="antivirus"]').click().should("be.visible").click();
+
+    cy.get('[data-cy="antivirus-enabled"]').then($el => {
+      if ($el.is(':checked')) {
+        cy.wrap($el).click();
+      }
+    });
+    cy.get('[data-cy="save-antivirus-settings"]').click();
+    cy.logout();
+    cy.waitForUrl("/#/login")
+  });
+
   it("should apply grant and revoke access to selected reports for a specific recipient", function () {
     cy.login_receiver();
 
