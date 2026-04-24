@@ -1,6 +1,4 @@
 # Implement the notification of new submissions
-import itertools
-
 from datetime import datetime, timedelta
 from sqlalchemy import not_
 from sqlalchemy.sql.expression import func
@@ -145,7 +143,6 @@ class MailGenerator(object):
         config = ConfigFactory(session, 1)
         timestamp_daily_notifications = config.get_val('timestamp_daily_notifications')
 
-        rtips_ids = {}
         silent_tids = []
 
         for tid in self.state.tenants:
@@ -153,44 +150,16 @@ class MailGenerator(object):
             if cache.notification and cache.enable_notification_emails_recipient:
                 silent_tids.append(tid)
 
-        results1 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.ReceiverTip) \
-                          .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                  models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                  models.ReceiverTip.new.is_(True)) \
-                          .order_by(models.InternalTip.creation_date)
+        results = session.query(models.User, models.ReceiverTip, models.InternalTip) \
+                         .filter(models.User.id == models.ReceiverTip.receiver_id,
+                                 models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                 models.InternalTip.update_date > models.ReceiverTip.last_access,
+                                 models.ReceiverTip.last_notification <= models.ReceiverTip.last_access) \
+                         .order_by(models.InternalTip.creation_date)
 
-        results2 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.Comment) \
-                                 .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                         models.ReceiverTip.internaltip_id == models.Comment.internaltip_id,
-                                         models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                         models.Comment.new.is_(True)) \
-                                 .order_by(models.Comment.creation_date)
-
-        results3 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.WhistleblowerFile) \
-                          .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                    models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
-                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                    models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
-                                    models.WhistleblowerFile.new.is_(True)) \
-                          .order_by(models.InternalFile.creation_date)
-
-        for user, rtip, itip, obj in itertools.chain(results1, results2, results3):
-            tid = user.tid
-
-            if (tid in silent_tids) or \
-                rtips_ids.get(rtip.id, False) or \
-                rtip.last_notification > rtip.last_access or \
-                (isinstance(obj, models.Comment) and obj.author_id == user.id):
-                obj.new = False
-                continue
-
-            obj.new = False
-            rtip.last_notification = now
-
-            rtips_ids[rtip.id] = True
-
+        for user, rtip, itip in results:
             try:
-                if isinstance(obj, models.ReceiverTip):
+                if rtip.new and itip.creation_date == itip.update_date:
                     data = {'type': 'tip'}
                 else:
                     data = {'type': 'tip_update'}
@@ -198,9 +167,12 @@ class MailGenerator(object):
                 data['user'] = user_serialize_user(session, user, user.language)
                 data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
 
-                self.process_mail_creation(session, tid, data)
+                self.process_mail_creation(session, user.tid, data)
             except:
                 pass
+            finally:
+                rtip.new = False
+                rtip.last_notification = now
 
         if now < datetime.fromtimestamp(timestamp_daily_notifications) + timedelta(1):
             return
