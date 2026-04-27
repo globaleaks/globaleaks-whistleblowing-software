@@ -70,6 +70,7 @@ export class Node {
   receipt_salt: string;
   idp: boolean;
   idp_issuer: string;
+  antivirus_enabled: boolean;
 }
 
 export interface LanguagesSupported {

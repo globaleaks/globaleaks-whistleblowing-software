@@ -1,14 +1,22 @@
+import io
 import os
-
+import time
+from datetime import datetime
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
+from globaleaks.models.config import db_get_config_variable
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
+from globaleaks.utils.antivirus import FileAnalysis
+from globaleaks.models.enums import EnumStateFile
+from globaleaks.jobs.job import LoopingJob
+from twisted.internet.defer import inlineCallbacks
+from globaleaks.orm import transact
 
 
 __all__ = ['Delivery']
@@ -53,6 +61,8 @@ def file_delivery(session):
             'key': itip.crypto_tip_pub_key,
             'src': ifile.id,
             'dst': os.path.abspath(os.path.join(Settings.attachments_path, ifile.id)),
+            'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
+            'type': 'internal'
         }
 
         # Retrieve all receivers for this file
@@ -79,10 +89,32 @@ def file_delivery(session):
             'key': itip.crypto_tip_pub_key,
             'src': rfile.id,
             'dst': os.path.abspath(os.path.join(Settings.attachments_path, rfile.id)),
+            'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
+            'type': 'receiver'
         }
 
     return files_map
 
+@transact
+def save_antivirus_status(session, file_id, result, file_type='internal'):
+    model = models.InternalFile if file_type == 'internal' else models.ReceiverFile
+    file_obj = session.query(model).filter_by(id=file_id).first()
+    if file_obj is None:
+        return
+
+    tid = session.query(models.InternalTip.tid).filter_by(id=file_obj.internaltip_id).scalar()
+    if tid is None or not db_get_config_variable(session, tid, 'antivirus_enabled'):
+        result = None
+
+    if result == 'unsafe':
+        file_obj.verification_date = datetime.utcnow()
+        file_obj.state = EnumStateFile.infected.name
+    elif result == 'safe':
+        file_obj.verification_date = datetime.utcnow()
+        file_obj.state = EnumStateFile.verified.name
+    else:
+        file_obj.verification_date = None
+        file_obj.state = EnumStateFile.pending.name
 
 def write_plaintext_file(sf, dest_path):
     try:
@@ -120,14 +152,41 @@ class Delivery(LoopingJob):
         This function creates receiver files
         """
         files_map = yield file_delivery()
+        scanner = FileAnalysis()
 
-        for _, file in files_map.items():
-            try:
-                sf = self.state.get_tmp_file_by_name(file['src'])
+        for file_id, file in files_map.items():
+            sf = self._get_source_file(file['src'])
+            if sf is None:
+                continue
 
-                if file['key']:
-                    write_encrypted_file(file['key'], sf, file['dst'])
-                else:
-                    write_plaintext_file(sf, file['dst'])
-            except:
-                pass
+            manual = isinstance(sf, io.BufferedReader)
+            if not manual:
+                sf = sf.open('r')
+
+            if file['scan']:
+                result = yield self._scan(sf, file_id, file.get('type', 'internal'), scanner)
+            else:
+                save_antivirus_status(file_id, None, file.get('type', 'internal'))
+
+            sf.seek(0)
+            (write_encrypted_file if file['key'] else write_plaintext_file)(file['key'] if file['key'] else sf, sf, file['dst'])
+            sf.close()
+            tmp_path = os.path.join(Settings.tmp_path, file_id)
+            os.remove(tmp_path)
+
+    def _get_source_file(self, filename):
+        sf = self.state.get_tmp_file_by_name(filename)
+        if sf is None:
+            time.sleep(1)
+            sf = self.state.get_tmp_file_by_name(filename)
+        if sf is None:
+            path = os.path.join(Settings.tmp_path, filename)
+            return open(path, "rb") if os.path.exists(path) else None
+        return sf
+
+    @inlineCallbacks
+    def _scan(self, sf, file_id, file_type, scanner):
+        sf.seek(0)
+        result = yield scanner.scan_file(sf.read())
+        save_antivirus_status(file_id, result, file_type)
+        return result

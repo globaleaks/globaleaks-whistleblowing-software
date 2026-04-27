@@ -83,7 +83,7 @@ class MigrationScript(MigrationBase):
             }
 
             for p in user_permissions:
-                if getattr(old_obj, p):
+                if getattr(old_obj, p, False):
                     user_desc['permissions'][p] = True
 
             new_profile = user.db_create_user_profile(self.session_new, user_desc.get("tid"), user_desc)

@@ -922,6 +922,8 @@ class _ReceiverFile(Model):
     new = Column(Boolean, default=True, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
 class ReceiverFile(_ReceiverFile, Base):
     @declared_attr
@@ -1207,7 +1209,6 @@ class _User(Model):
                  'can_edit_general_settings',
                  'forcefully_selected',
                  'readonly',
-                 'can_download_infected',
                  'clicked_recovery_key']
 
     date_keys = ['accepted_privacy_policy',

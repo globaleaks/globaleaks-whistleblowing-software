@@ -1,11 +1,15 @@
 import time
 from datetime import datetime
+from unittest.mock import patch
 from sqlalchemy.orm.exc import NoResultFound
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, succeed
 
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import transact
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_never, datetime_now
 
@@ -524,6 +528,21 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.WhistleblowerFileDownload
+
+    @transact
+    def set_antivirus_enabled(self, session, enabled):
+        db_set_config_variable(session, 1, 'antivirus_enabled', enabled)
+
+    @transact
+    def set_wbfile_antivirus_state(self, session, file_id, state):
+        db_set_config_variable(session, 1, 'antivirus_enabled', True)
+        ifile = session.query(models.InternalFile) \
+                       .join(models.WhistleblowerFile,
+                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id) \
+                       .filter(models.WhistleblowerFile.id == file_id).one()
+        ifile.state = state
+        ifile.verification_date = datetime_now()
+
 
     @inlineCallbacks
     def test_get(self):

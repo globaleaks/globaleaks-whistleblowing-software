@@ -271,6 +271,9 @@ AdminNodeDesc = {
     'backup_retention': int,
     'idp': bool,
     'idp_issuer': str,
+    'antivirus_enabled': bool,
+    'antivirus_clamd_ip': str,
+    'antivirus_clamd_port': int,
 }
 
 AdminNetworkDesc = {
