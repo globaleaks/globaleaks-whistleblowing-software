@@ -30,7 +30,7 @@
   </div>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Unseen' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Unseen' | translate" [filterOptFn]="filterNewOrUpdated" [mobileCards]="'tips'">
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>
@@ -239,19 +239,19 @@
                 </div>
               </span>
             </th>
-            <th class="TipInfoReadReceipt">
+            <th class="TipInfoReadReceipt table-row-hide">
               <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
-            <th class="TipInfoComments">
+            <th class="TipInfoComments table-row-hide">
               <i class="fas fa-comment" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Comments' | translate}}</span>
             </th>
-            <th class="TipInfoFiles">
+            <th class="TipInfoFiles table-row-hide">
               <i class="fas fa-file" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Files' | translate}}</span>
             </th>
-            <th class="TipInfoIdentity">
+            <th class="TipInfoIdentity table-row-hide">
               <i class="fas fa-user" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Identity' | translate}}</span>
             </th>

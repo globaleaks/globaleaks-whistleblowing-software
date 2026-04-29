@@ -29,7 +29,7 @@
 </div>
 
 <!-- TABLE MODE -->
-<table *ngIf="mode === 'table' && header && content" class="table table-striped w-100">
+<table *ngIf="mode === 'table' && header && content" class="table table-striped w-100" [appTableMobileCards]="mobileCards">
   <thead>
     <ng-container [ngTemplateOutlet]="header"></ng-container>
   </thead>

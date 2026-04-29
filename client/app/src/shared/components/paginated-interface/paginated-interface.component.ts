@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {TableMobileCardsDirective} from "@app/shared/directive/table-mobile-cards.directive";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {SearchInputComponent} from '@app/shared/components/search/search.component';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
@@ -17,13 +18,14 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 @Component({
   selector: 'app-paginated-interface',
   templateUrl: './paginated-interface.component.html',
-  imports: [CommonModule, FormsModule, PaginationComponent, SearchInputComponent],
+  imports: [CommonModule, FormsModule, PaginationComponent, SearchInputComponent, TableMobileCardsDirective],
 })
 export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges {
   @Input() mode: 'table' | 'simple' = 'simple';
   @Input() items: T[] = [];
   @Input() filterField = '';
   @Input() itemsPerPage = 20;
+  @Input() mobileCards:string;
 
   /** Optional: filter by key-value pairs */
   @Input() filter?: { [key: string]: any };
