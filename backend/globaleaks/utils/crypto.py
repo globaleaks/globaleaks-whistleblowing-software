@@ -2,7 +2,6 @@ import binascii
 import hashlib
 import os
 import pyotp
-import random
 import secrets
 import string
 import struct
@@ -96,7 +95,7 @@ def generateRandomPassword(N: int) -> str:
     password += secrets.SystemRandom().choice(string.digits)
     password += secrets.SystemRandom().choice(accessible_special_symbols)
 
-    password = ''.join(random.sample(password, N))
+    password = ''.join(secrets.SystemRandom().sample(password, N))
 
     return password
 
@@ -140,7 +139,7 @@ class _StreamingEncryptionObject(object):
         data = _convert_to_bytes(data)
         n = len(data)
         max_pad = min(max(int(n * self.PADDING_FRACTION), self.PADDING_MIN), self.PADDING_MAX)
-        pad_len = random.randint(0, max_pad)
+        pad_len = secrets.randbelow(max_pad + 1)
         padding = os.urandom(pad_len)
         trailer = struct.pack(">H", pad_len)
         return data + padding + trailer
@@ -321,7 +320,7 @@ class _GCE(object):
         """
         Return a random receipt of 16 digits.
         """
-        return ''.join(random.SystemRandom().choice(string.digits) for _ in range(16))
+        return ''.join(secrets.SystemRandom().choice(string.digits) for _ in range(16))
 
     @staticmethod
     def generate_salt(seed: str = '') -> str:
@@ -413,7 +412,7 @@ class _GCE(object):
         if max_pad > pmax:
             max_pad = pmax
 
-        pad_len = random.randint(0, max_pad)
+        pad_len = secrets.randbelow(max_pad + 1)
         padding = os.urandom(pad_len)
         trailer = struct.pack(">H", pad_len)
 
