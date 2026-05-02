@@ -6,6 +6,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_never, datetime_now
 
@@ -334,6 +335,23 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             response = yield handler.get(rtip_desc['id'])
             self.assertEqual(response['label'], operation['args']['value'])
+
+    @inlineCallbacks
+    def test_set_status_forbidden(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'set',
+              'args': {
+                'key': 'status',
+                'value': 'closed'
+              }
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+
+            with self.assertRaises(errors.ForbiddenOperation):
+                yield handler.put(rtip_desc['id'])
 
     @inlineCallbacks
     def test_silence_notify(self):

@@ -1185,7 +1185,10 @@ class RTipInstance(OperationHandler):
         if key == 'enable_notifications':
             return set_receivertip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
 
-        return set_internaltip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
+        elif key in ['important', 'label']:
+            return set_internaltip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
+
+        raise errors.ForbiddenOperation
 
     def grant_tip_access(self, req_args, itip_id, *args, **kwargs):
         return grant_tip_access(self.request.tid, self.session.user_id, self.session.cc, itip_id, req_args['receiver'])
