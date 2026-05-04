@@ -84,6 +84,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
                                                   isouter=True) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
                                                         models.ReceiverTip.receiver_id == receiver_id),
+                                                    models.InternalTip.tid == tid,
                                                     models.InternalTip.update_date >= updated_after,
                                                     models.InternalTip.update_date <= updated_before,
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
