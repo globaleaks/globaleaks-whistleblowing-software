@@ -1,3 +1,11 @@
+Changes in version 5.0.92
+    Add tid constraint to user and tip queries
+    Implement key restrictions on rtip 'set' operation
+    Remove usage of random.sample and random.randint in favor of secrets functions
+    Fix issue #4821
+    Bump client dependencies to latest stable versions
+    [doc] Remove oudated documentation about client exceptions
+
 Changes in version 5.0.91
     Fix admin UI in relation to reordering of users, context and questions
     Bump client dependencies to latest stable versions
