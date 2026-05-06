@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6.3.0
+        uses: actions/setup-node@v6.4.0
         with:
           node-version: 'lts/*'
 
@@ -332,7 +332,7 @@ jobs:
 
       - name: Upload test and audit artifacts
         if: always()
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-artifacts
           path: |
