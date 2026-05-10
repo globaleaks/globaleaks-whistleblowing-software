@@ -224,7 +224,8 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalTip),
                              (models.InternalFile.id == file_id,
                               models.InternalFile.internaltip_id == models.InternalTip.id,
-                              models.InternalTip.id == user_id))
+                              models.InternalTip.id == user_id,
+                              models.InternalTip.tid == tid))
         log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key
@@ -256,7 +257,8 @@ class ReceiverFileDownload(BaseHandler):
                                (models.ReceiverFile, models.InternalTip),
                                (models.ReceiverFile.id == file_id,
                                 models.ReceiverFile.internaltip_id == models.InternalTip.id,
-                                models.InternalTip.id == self.session.user_id))
+                                models.InternalTip.id == self.session.user_id,
+                                models.InternalTip.tid == tid))
 
         if not wbtip:
             raise errors.ResourceNotFound

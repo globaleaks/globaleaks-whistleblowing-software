@@ -1245,6 +1245,8 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.ReceiverTip.receiver_id == models.User.id,
                                             models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
+                                            models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                            models.InternalTip.tid == tid,
                                             models.WhistleblowerFile.id == file_id))
 
         redaction = session.query(models.Redaction) \
@@ -1323,7 +1325,9 @@ class ReceiverFileDownload(BaseHandler):
                                           (models.User.id == user_id,
                                            models.User.id == models.ReceiverTip.receiver_id,
                                            models.ReceiverFile.id == file_id,
-                                           models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id))
+                                           models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id,
+                                           models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                           models.InternalTip.tid == tid))
         except:
             raise errors.ResourceNotFound
         else:
