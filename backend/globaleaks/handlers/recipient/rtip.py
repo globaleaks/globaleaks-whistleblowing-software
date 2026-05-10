@@ -478,6 +478,11 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
     if not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
+    index = next((i for i, q in enumerate(tip_data['questionnaires'])
+                  if redaction.reference_id in json.dumps(q['answers'])), None)
+    if index is None:
+        return
+
     new_temporary_redaction = get_new_temporary_redaction(currentMaskedData['temporary_redaction'],
                                                           copy.deepcopy(redaction_data['permanent_redaction']))
 
@@ -486,7 +491,7 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
 
     db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
 
-    answers = tip_data['questionnaires'][0]['answers']
+    answers = tip_data['questionnaires'][index]['answers']
 
     db_redact_answers(answers, redaction)
 
@@ -497,7 +502,9 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_answers = session.query(models.InternalTipAnswers) \
-                          .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+                          .filter_by(internaltip_id=currentMaskedData['internaltip_id']) \
+                          .order_by(models.InternalTipAnswers.creation_date.asc()) \
+                          .offset(index).limit(1).one_or_none()
 
     if itip_answers:
         itip_answers.answers = _content
@@ -527,7 +534,8 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_whistleblower_identity = session.query(models.InternalTipData) \
-                        .filter_by(internaltip_id=currentMaskedData['internaltip_id']).first()
+                        .filter_by(internaltip_id=currentMaskedData['internaltip_id'],
+                                   key='whistleblower_identity').first()
     if itip_whistleblower_identity:
         itip_whistleblower_identity.value = _content
 
