@@ -1105,7 +1105,7 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
         elif content_type == 'file':
             if len(redaction.temporary_redaction) == 1 and \
                     redaction.temporary_redaction[0].get('start', False) == '-inf' and \
-                    redaction.temporary_redaction[0].get('start', False) == '-inf':
+                    redaction.temporary_redaction[0].get('end', False) == 'inf':
                 delete_wbfile(session, tid, user_id, redaction.reference_id)
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
