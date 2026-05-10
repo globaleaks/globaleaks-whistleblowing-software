@@ -300,7 +300,6 @@ class BaseHandler(object):
             raise errors.ResourceNotFound
 
     def check_confirmation(self):
-        tid = self.request.tid
         user_id = self.session.user_id
 
         secret = decodeString(self.request.headers.get(b'x-confirmation', b''))
