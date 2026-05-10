@@ -257,6 +257,7 @@ class ReceiverFileDownload(BaseHandler):
                                (models.ReceiverFile, models.InternalTip),
                                (models.ReceiverFile.id == file_id,
                                 models.ReceiverFile.internaltip_id == models.InternalTip.id,
+                                models.ReceiverFile.visibility == 'public',
                                 models.InternalTip.id == self.session.user_id,
                                 models.InternalTip.tid == tid))
 
