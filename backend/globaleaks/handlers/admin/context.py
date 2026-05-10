@@ -73,9 +73,15 @@ def db_associate_context_receivers(session, context, receiver_ids):
     if not receiver_ids:
         return
 
-    if not session.query(models.Context).filter(models.Context.id == context.id,
-                                                models.Context.tid == models.User.tid,
-                                                models.User.id.in_(receiver_ids)).count():
+    # While it is expected in the future to possibly allow a user to be
+    # enabled on channels of multiple tenants, for the moment it is safer
+    # to strictly limit associations to users belonging to the same tenant.
+    valid_receivers = session.query(models.User.id).filter(
+        models.User.id.in_(receiver_ids),
+        models.User.tid == context.tid
+    ).count()
+
+    if valid_receivers != len(receiver_ids):
         raise errors.InputValidationError
 
     for i, receiver_id in enumerate(receiver_ids):
