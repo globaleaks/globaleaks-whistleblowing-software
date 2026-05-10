@@ -1347,10 +1347,6 @@ class ReceiverFileDownload(BaseHandler):
                                                                          rfile_id)
 
         filelocation = os.path.join(self.state.settings.attachments_path, filename)
-        if not os.path.exists(filelocation):
-            filelocation = os.path.join(self.state.settings.attachments_path, filename)
-
-        filelocation = os.path.join(self.state.settings.attachments_path, filename)
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
