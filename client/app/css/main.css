@@ -308,8 +308,12 @@ h6 {
 
 .context-image,
 .receiver-image {
-  height: 10rem;
-  max-width: 20rem;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 20rem);
+  max-height: 10rem;
+  object-fit: contain;
 }
 
 .title {
@@ -336,20 +340,22 @@ h6 {
 }
 
 .wb-image-upload{
-  height: 10.4rem;
+  width: auto;
+  height: auto;
   max-width: 20.4rem;
   max-height: 9.5rem;
-  min-width: 10.4rem;
   padding: 10px 10px 20px;
   object-fit: contain;
 }
 
 .logo-image {
+  display: block;
   border: 1px dashed #c8d1e0;
-  height: 10.4rem;
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
   max-width: 20.4rem;
   max-height: 10rem;
-  min-width: 10.4rem;
   padding: 10px 10px 20px;
   object-fit: contain;
   border-radius: 5px;
