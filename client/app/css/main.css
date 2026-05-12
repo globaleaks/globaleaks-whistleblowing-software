@@ -311,7 +311,7 @@ h6 {
   display: block;
   width: auto;
   height: auto;
-  max-width: min(100%, 20rem);
+  max-width: min(100%, 28rem);
   max-height: 10rem;
   object-fit: contain;
 }
