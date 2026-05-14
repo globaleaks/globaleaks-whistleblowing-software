@@ -70,6 +70,13 @@ def get_engine(db_uri=None, foreign_keys=True, orm_lockdown=True):
         conn.execute('PRAGMA cache_size=-32000')
         conn.execute('PRAGMA trusted_schema=OFF')
         conn.execute('PRAGMA temp_store=MEMORY')
+        conn.execute('PRAGMA dqs_ddl=0')
+        conn.execute('PRAGMA dqs_dml=0')
+
+        if hasattr(conn, 'setconfig'):  # Python 3.12+
+            conn.setconfig(sqlite3.SQLITE_DBCONFIG_ENABLE_TRIGGER, False)
+            conn.setconfig(sqlite3.SQLITE_DBCONFIG_ENABLE_VIEW, False)
+            conn.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
 
         if foreign_keys:
             conn.execute('PRAGMA foreign_keys=ON')
