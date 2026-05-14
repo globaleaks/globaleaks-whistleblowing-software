@@ -1,3 +1,14 @@
+Changes in version 5.0.93
+    Implement security enhancements following auditors suggestions:
+    - Enhance isolation checks for tenant boundaries
+    - Correct roles checking on network config
+    - Revise masking functions in relation to additional questionnaire
+    - Limit context and recipients association to users of the same tenant
+    - Ensure whistleblowers could not download files that are private to recipients even knowing the UUID
+    - Tighten SQLite connection hardening
+    Bump angular to 20.3.21
+    Bump client dependencies to their latest stable version
+
 Changes in version 5.0.92
     Add tid constraint to user and tip queries
     Implement key restrictions on rtip 'set' operation
