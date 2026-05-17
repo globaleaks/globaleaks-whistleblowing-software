@@ -16,9 +16,9 @@ Distribution upgrade
 --------------------
 For security and stability reasons it is recommended to not perform an automatic distribution upgrade.
 
-GlobaLeaks could be instead easily migrated migrated to a new up-to-date Debian system with the following recommended instructions:
+GlobaLeaks could be instead easily migrated to a new up-to-date Debian system with the following recommended instructions:
 
 - create an archive backup of /var/globaleaks
-- instantiate the lates Debian available
+- instantiate the latest Debian available
 - log on the new server and extract the backup in /var/globaleaks
 - follow the :doc:`Installation Guide </setup/installation>`; GlobaLeaks while installing will recognize the presence of an existing data directory and will use it

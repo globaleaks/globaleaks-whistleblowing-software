@@ -99,7 +99,7 @@ User options
 
 Questionnaires
 --------------
-The softare implements a standard default questionnaire that is proposed as a good base for a generic whistleblowing procedure. This questinnaire is the current result of the research performed by the project team with the organizations that have adopted the solution and expecially with anticorruption and investigative journalism NGOs.
+The software implements a standard default questionnaire that is proposed as a good base for a generic whistleblowing procedure. This questionnaire is the current result of the research performed by the project team with the organizations that have adopted the solution and especially with anticorruption and investigative journalism NGOs.
 
 As every organization has different needs, risks and goals globaleaks has been designed considering to implement an advanced questionnaire builder offering the possibility to design custom questionnaires.
 
