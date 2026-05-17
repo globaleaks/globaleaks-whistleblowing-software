@@ -285,6 +285,7 @@ class APIResourceWrapper(Resource):
         Resource.__init__(self)
         self.registry = Trie()
         self.handler = None
+        self.static_routes = {}
 
         for prefix, handler, regexp in api_spec:
             if not hasattr(handler, '_decorated'):
@@ -300,10 +301,18 @@ class APIResourceWrapper(Resource):
             if not regexp.endswith("$"):
                 regexp += "$"
 
-            self.registry.insert(prefix, re.compile(regexp), handler)
+            compiled = re.compile(regexp)
+            self.registry.insert(prefix, compiled, handler)
 
-    @lru_cache(maxsize=2048)
+            if compiled.groups == 0:
+                m = compiled.match(prefix)
+                if m is not None:
+                    self.static_routes[prefix] = (m, handler)
+
     def resolve_handler(self, path):
+        hit = self.static_routes.get(path)
+        if hit is not None:
+            return hit
         return self.registry.search(path)
 
     def should_redirect_https(self, request):
