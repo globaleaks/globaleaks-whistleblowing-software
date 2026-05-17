@@ -54,7 +54,6 @@
         "marked": "18.0.3",
         "ng-multiselect-dropdown": "1.0.0",
         "ng2-charts": "9.0.0",
-        "ngx-clipboard": "16.0.0",
         "ngx-markdown": "20.1.0",
         "pdfjs-dist": "5.7.284",
         "requestidlecallback-polyfill": "1.0.2",
@@ -15129,18 +15128,6 @@
         "rxjs": "^6.5.3 || ^7.4.0"
       }
     },
-    "node_modules/ngx-clipboard": {
-      "version": "16.0.0",
-      "license": "MIT",
-      "dependencies": {
-        "ngx-window-token": ">=7.0.0",
-        "tslib": "^2.0.0"
-      },
-      "peerDependencies": {
-        "@angular/common": ">=13.0.0",
-        "@angular/core": ">=13.0.0"
-      }
-    },
     "node_modules/ngx-markdown": {
       "version": "20.1.0",
       "license": "MIT",
@@ -15161,20 +15148,6 @@
         "marked": "^15.0.0 || ^16.0.0",
         "rxjs": "^6.5.3 || ^7.4.0",
         "zone.js": "~0.15.0"
-      }
-    },
-    "node_modules/ngx-window-token": {
-      "version": "7.0.0",
-      "license": "MIT",
-      "dependencies": {
-        "tslib": "^2.0.0"
-      },
-      "engines": {
-        "node": "^14.20.0 || ^16.13.0 || >=18.10.0"
-      },
-      "peerDependencies": {
-        "@angular/common": ">=13.0.0",
-        "@angular/core": ">=13.0.0"
       }
     },
     "node_modules/node-addon-api": {
