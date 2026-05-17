@@ -12,7 +12,7 @@ The software comprises two main components: a `Backend` and a `Client`:
 * The Backend is a Python-based server that runs on a physical server and exposes a `REST API <https://en.wikipedia.org/wiki/Representational_state_transfer>`_.
 * The Client is a TypeScript client-side web application that interacts with the Backend only through `XHR <https://en.wikipedia.org/wiki/XMLHttpRequest>`_.
 
-Following the `Zero Trust paradigm <https://nvlpubs.nist.gov/nistpubs/specialpublications/NIST.SP.800-207.pdf>`_ and aiming at implementing a fully auditable technlogy both the Backend and the Client are implemented using only open-source libraries.
+Following the `Zero Trust paradigm <https://nvlpubs.nist.gov/nistpubs/specialpublications/NIST.SP.800-207.pdf>`_ and aiming at implementing a fully auditable technology both the Backend and the Client are implemented using only open-source libraries.
 
 Here could be found the Software Bills of Materials: `SBOM <https://github.com/globaleaks/globaleaks-whistleblowing-software/dependency-graph/sbom>`_.
 
@@ -42,7 +42,7 @@ The system implements the following password security measures:
 
 Password storage
 ----------------
-Passwords are never stored on the server either in plaintext or in form on hash; instead, the system maintains only the hash of of a key drived from the user password.
+Passwords are never stored on the server either in plaintext or in form on hash; instead, the system maintains only the hash of a key derived from the user password.
 
 Passwords are hashed using `Argon2 <https://en.wikipedia.org/wiki/Argon2>`_ with a configuration of 16 iterations and 128MB of RAM, a per-user salt for each user and a per-system salt for whistleblowers.
 
@@ -400,9 +400,9 @@ Implemented thresholds are:
    "threshold_reports_per_hour_per_ip", "Limit the number of reports that can be filed per hour by the same IP address", "10", "BLOCK"
    "threshold_reports_per_hour_per_tenant_per_ip", "Limit the number of reports that can be filed per hour per tenant by the same IP address", "5", "BLOCK"
    "threshold_attachments_per_hour_per_report", "Limit the number of attachments that can be uploaded per hour on a report", "30", "DELAY"
-   "threshold_operations_per_hour_per_report", "Limit the number of oprations that can be performed per hour on a report", "30", "DELAY"
-   "threshold_operations_per_minute_per_report", "Limit the number of oprations that can be performed per minute on a report", "20", "DELAY"
-   "threshold_operations_per_second_per_report", "Limit the number of oprations that can be performed per second on a report", "1", "DELAY"
+   "threshold_operations_per_hour_per_report", "Limit the number of operations that can be performed per hour on a report", "30", "DELAY"
+   "threshold_operations_per_minute_per_report", "Limit the number of operations that can be performed per minute on a report", "20", "DELAY"
+   "threshold_operations_per_second_per_report", "Limit the number of operations that can be performed per second on a report", "1", "DELAY"
 
 
 In case of necessity, threshold configurations can be adjusted using the `gl-admin` command as follows:
