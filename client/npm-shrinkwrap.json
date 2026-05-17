@@ -48,7 +48,6 @@
         "angularx-qrcode": "20.0.0",
         "bootstrap": "5.3.8",
         "chart.js": "4.5.1",
-        "cypress-axe": "1.7.0",
         "dompurify": "3.4.4",
         "libsodium-wrappers-sumo": "0.8.4",
         "marked": "18.0.3",
@@ -57,8 +56,7 @@
         "ngx-markdown": "20.1.0",
         "pdfjs-dist": "5.7.284",
         "requestidlecallback-polyfill": "1.0.2",
-        "rxjs": "7.8.2",
-        "yauzl": "3.3.0"
+        "rxjs": "7.8.2"
       },
       "devDependencies": {
         "@angular-devkit/architect": "0.2003.26",
@@ -80,6 +78,7 @@
         "axe-core": "4.11.4",
         "cssnano": "7.1.9",
         "cypress": "15.15.0",
+        "cypress-axe": "1.7.0",
         "eslint": "10.4.0",
         "gettext-parser": "9.0.2",
         "grunt": "1.6.2",
@@ -102,7 +101,8 @@
         "superagent": "10.3.0",
         "ts-node": "10.9.2",
         "typescript": "5.9.3",
-        "typescript-eslint": "8.59.3"
+        "typescript-eslint": "8.59.3",
+        "yauzl": "3.3.0"
       }
     },
     "node_modules/@algolia/abtesting": {
@@ -8420,6 +8420,7 @@
     },
     "node_modules/buffer-crc32": {
       "version": "0.2.13",
+      "dev": true,
       "license": "MIT",
       "engines": {
         "node": "*"
@@ -9576,6 +9577,7 @@
     },
     "node_modules/cypress-axe": {
       "version": "1.7.0",
+      "dev": true,
       "license": "MIT",
       "engines": {
         "node": ">=10"
@@ -16465,6 +16467,7 @@
     },
     "node_modules/pend": {
       "version": "1.2.0",
+      "dev": true,
       "license": "MIT"
     },
     "node_modules/performance-now": {
@@ -21492,6 +21495,7 @@
       "version": "3.3.0",
       "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.3.0.tgz",
       "integrity": "sha512-PtGEvEP30p7sbIBJKUBjUnqgTVOyMURc4dLo9iNyAJnNIEz9pm88cCXF21w94Kg3k6RXkeZh5DHOGS0qEONvNQ==",
+      "dev": true,
       "license": "MIT",
       "dependencies": {
         "buffer-crc32": "~0.2.3",
