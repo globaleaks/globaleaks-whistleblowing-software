@@ -64,16 +64,14 @@ def sha256(data: Union[bytes, str]) -> bytes:
     :param data: A data to be hashed
     :return: A hash value
     """
-    h = hashes.Hash(hashes.SHA256(), backend=crypto_backend)
-    h.update(_convert_to_bytes(data))
-    return binascii.b2a_hex(h.finalize())
+    return hashlib.sha256(_convert_to_bytes(data)).hexdigest().encode()
 
 
 def generateRandomKey() -> str:
     """
     Return a random secret of 256bits (hex string).
     """
-    return nacl_random(32).hex()
+    return secrets.token_hex(32)
 
 
 def generateRandomPassword(N: int) -> str:
@@ -232,7 +230,7 @@ class _StreamingEncryptionObject(object):
         chunk_nonce = self.getNextNonce(last)
         self.fd.write(struct.pack('>B', last))
         self.fd.write(struct.pack('>I', len(chunk)))
-        self.fd.write(self.box.encrypt(chunk, chunk_nonce)[24:])
+        self.fd.write(self.box.encrypt(chunk, chunk_nonce).ciphertext)
 
     def _encrypt_chunk_v2(self, chunk: bytes, last: int) -> None:
         chunk = self._pad_bytes(chunk)
@@ -294,10 +292,6 @@ class _StreamingEncryptionObject(object):
     def __exit__(self, exc_type: Optional[Any], exc_val: Optional[Any], exc_tb: Optional[Any]) -> None:
         self.close()
 
-    def __del__(self) -> None:
-        self.close()
-
-
 
 class _GCE(object):
     options = {
@@ -320,17 +314,19 @@ class _GCE(object):
         """
         Return a random receipt of 16 digits.
         """
-        return ''.join(secrets.SystemRandom().choice(string.digits) for _ in range(16))
+        return f"{secrets.randbelow(10**16):016d}"
 
     @staticmethod
     def generate_salt(seed: str = '') -> str:
         """
         Return a salt with 128 bits of entropy.
         """
-        random_bytes = nacl_random(16)
-        deterministic_bytes = hashlib.sha256(seed.encode()).digest()[:16]
+        if seed:
+            salt = hashlib.sha256(seed.encode()).digest()[:16]
+        else:
+            salt = nacl_random(16)
 
-        return Base64Encoder.encode(deterministic_bytes if seed else random_bytes).decode()
+        return Base64Encoder.encode(salt).decode()
 
     @staticmethod
     def generate_key() -> bytes:
