@@ -21,7 +21,7 @@ A new release version is issued by means of the official version bump script by 
 
 Release tagging
 ===============
-The release is tagged by meand of the following commands
+The release is tagged by means of the following commands
 
 .. code:: sh
 

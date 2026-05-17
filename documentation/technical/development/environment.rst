@@ -35,32 +35,31 @@ Client dependencies could be installed by issuing:
 
 .. code:: sh
 
-  cd GlobaLeaks/client
+  cd globaleaks-whistleblowing-software/client
   npm install -d
-  grunt copy:sources
 
 Backend dependencies could be installed by issuing:
 
 .. code:: sh
 
-  cd GlobaLeaks/backend
+  cd globaleaks-whistleblowing-software/backend
   python3 -m venv env
   source env/bin/activate
   pip3 install -r requirements.txt
 
-This will create for you a python virtualenv in the directory env containing all the required python dependencies. To leave the virtualenv, type ``deactivate``.
+This will create a Python virtualenv in the ``env`` directory containing all required dependencies. To leave the virtualenv, type ``deactivate``.
 
-Then, anytime you will want to activate the environment to run globaleaks you will just need to issue the command:
+Then, anytime you will want to activate the environment to run GlobaLeaks you will just need to issue the command:
 
 .. code:: sh
 
-  cd GlobaLeaks/backend && source ./env/bin/activate
+  cd globaleaks-whistleblowing-software/backend && source ./env/bin/activate
 
 Setup the client:
 
 .. code:: sh
 
-  cd GlobaLeaks/client
+  cd globaleaks-whistleblowing-software/client
   npm install -d
   grunt build
 
@@ -68,18 +67,18 @@ Setup the backend and its dependencies:
 
 .. code:: sh
 
-  cd GlobaLeaks/backend
+  cd globaleaks-whistleblowing-software/backend
   python3 -m venv env
   source env/bin/activate
   pip3 install -r requirements.txt
 
 Run
 ===
-To run globaleaks from sources within the development environment you should issue:
+To run GlobaLeaks from sources within the development environment you should issue:
 
 .. code:: sh
 
-  cd GlobaLeaks/backend
+  cd globaleaks-whistleblowing-software/backend
   source env/bin/activate
   bin/globaleaks -z -n
 
@@ -91,7 +90,7 @@ To build the documentation:
 
 .. code:: sh
 
-  cd GlobaLeaks/documentation
+  cd globaleaks-whistleblowing-software/documentation
   pip install -r requirements.txt
   make html
 
@@ -99,7 +98,7 @@ To edit the docs with hot-reload functionality:
 
 .. code:: sh
 
-  cd GlobaLeaks/documentation
+  cd globaleaks-whistleblowing-software/documentation
   python3 -m venv env
   source env/bin/activate
   pip install -r requirements.txt

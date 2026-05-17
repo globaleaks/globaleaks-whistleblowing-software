@@ -60,7 +60,7 @@
     "rxjs": "7.8.2"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "0.2003.26",
+    "@angular-devkit/architect": "0.2102.11",
     "@angular-devkit/build-angular": "20.3.26",
     "@angular-devkit/core": "20.3.26",
     "@angular/cli": "20.3.26",
