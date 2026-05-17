@@ -3,6 +3,7 @@ import hashlib
 
 from io import BytesIO as StringIO
 
+from twisted import version as _twisted_version
 from twisted.internet import address
 from twisted.logger import ILogObserver, Logger
 from twisted.mail._cred import CramMD5ClientAuthenticator
@@ -52,11 +53,24 @@ def mock_CramMD5ClientAuthenticator_challengeResponse(self, secret, chal):
     return self.user + b' ' + response.encode('ascii')
 
 
+def mock_HTTPChannel_finishRequestBody(self, data):
+    # Backport CVE-2024-41671 (GHSA-c8m8-j448-xjx7) from Twisted 24.7.0.
+    # In affected versions (<= 24.3.0) allContentReceived() was invoked
+    # before the body was appended to the buffer, which under HTTP/1.1
+    # pipelining could cause responses to be returned out of order.
+    # Swapping the two calls makes the response order deterministic.
+    self._dataBuffer.append(data)
+    self.allContentReceived()
+
+
 Request.getClientIP = mock_Request_getClientIP
 Request.gotLength = mock_Request_gotLength
 Request.parseCookies = null_function
 Request.redirect = mock_Request_redirect
 Request.write = mock_Request_write
+
+if (_twisted_version.major, _twisted_version.minor) < (24, 7):
+    HTTPChannel._finishRequestBody = mock_HTTPChannel_finishRequestBody
 
 CramMD5ClientAuthenticator.challengeResponse = mock_CramMD5ClientAuthenticator_challengeResponse
 
