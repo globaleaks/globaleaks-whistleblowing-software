@@ -11,7 +11,6 @@ import {ConfirmationWithPasswordComponent} from "@app/shared/modals/confirmation
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
-import {ClipboardService} from "ngx-clipboard";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NewUser} from "@app/models/admin/new-user";
@@ -40,7 +39,6 @@ export class UtilsService {
   private appDataService = inject(AppDataService);
   private cryptoService = inject(CryptoService);
   private translateService = inject(TranslateService);
-  private clipboardService = inject(ClipboardService);
   private http = inject(HttpClient);
   private httpService = inject(HttpService);
   private modalService = inject(NgbModal);
@@ -275,7 +273,7 @@ export class UtilsService {
   }
 
   copyToClipboard(data: string) {
-    this.clipboardService.copyFromContent(data);
+    navigator.clipboard.writeText(data);
   }
 
   getSubmissionStatusText(status: string,substatus:string, submission_statuses: Status[]) {
