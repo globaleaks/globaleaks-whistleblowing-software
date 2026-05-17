@@ -260,9 +260,12 @@ Additionally, a set of rules is applied to each request type to limit potential 
 
 On the client
 +++++++++++++
-Each server output is strictly validated by the client at rendering time using the Angular component `ngSanitize.$sanitize <http://docs.angularjs.org/api/ngSanitize.$sanitize>`_.
+Each server output is strictly sanitized by the client at rendering time through Angular's built-in security model. The framework automatically applies context-aware sanitization to every value bound into the DOM via interpolation, property bindings, attribute bindings, and the ``[innerHTML]`` directive. Sanitization is performed by Angular's `DomSanitizer <https://angular.dev/api/platform-browser/DomSanitizer>`__ service according to the binding's `SecurityContext
+<https://angular.dev/api/core/SecurityContext>`__ (``HTML``, ``STYLE``, ``URL``, ``RESOURCE_URL``, ``SCRIPT``), stripping or escaping any
+untrusted construct before it can reach the DOM.
 
-Few configurations accepts Markdown input and every input is strictly validated stripping every HTML tag with `DOMPurify <https://github.com/cure53/DOMPurify>`_
+A few configurations additionally accept Markdown input; in those cases every input is strictly validated by stripping any HTML construct using
+`DOMPurify <https://github.com/cure53/DOMPurify>`__, registered as a Trusted Types policy so that its output integrates cleanly with the application's CSP.
 
 Form autocomplete off
 ---------------------
