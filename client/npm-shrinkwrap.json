@@ -59,7 +59,7 @@
         "rxjs": "7.8.2"
       },
       "devDependencies": {
-        "@angular-devkit/architect": "0.2003.26",
+        "@angular-devkit/architect": "0.2102.11",
         "@angular-devkit/build-angular": "20.3.26",
         "@angular-devkit/core": "20.3.26",
         "@angular/cli": "20.3.26",
@@ -298,19 +298,50 @@
       }
     },
     "node_modules/@angular-devkit/architect": {
-      "version": "0.2003.26",
-      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
-      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "version": "0.2102.11",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2102.11.tgz",
+      "integrity": "sha512-t7J8aaUho1mXjiIecPNX5/rjXeV8j8ZCGY5tD3ic5kzKxPkbuYYcQpJLdzlmBcN+wDgCmNdo8ySvItvU0m58lg==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "@angular-devkit/core": "20.3.26",
+        "@angular-devkit/core": "21.2.11",
         "rxjs": "7.8.2"
+      },
+      "bin": {
+        "architect": "bin/cli.js"
       },
       "engines": {
         "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
         "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
         "yarn": ">= 1.13.0"
+      }
+    },
+    "node_modules/@angular-devkit/architect/node_modules/@angular-devkit/core": {
+      "version": "21.2.11",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/core/-/core-21.2.11.tgz",
+      "integrity": "sha512-kfMNh5X2hOdyr0uNFaaHUJR3OVr4oH2+UhI+FsTu7gqogdgYlHAVHhHAFulfDgtAEOiqpeSQF9RhQnCJl+/LXA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "ajv": "8.18.0",
+        "ajv-formats": "3.0.1",
+        "jsonc-parser": "3.3.1",
+        "picomatch": "4.0.4",
+        "rxjs": "7.8.2",
+        "source-map": "0.7.6"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
+      },
+      "peerDependencies": {
+        "chokidar": "^5.0.0"
+      },
+      "peerDependenciesMeta": {
+        "chokidar": {
+          "optional": true
+        }
       }
     },
     "node_modules/@angular-devkit/build-angular": {
@@ -446,6 +477,22 @@
         }
       }
     },
+    "node_modules/@angular-devkit/build-angular/node_modules/@angular-devkit/architect": {
+      "version": "0.2003.26",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
+      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@angular-devkit/core": "20.3.26",
+        "rxjs": "7.8.2"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
+      }
+    },
     "node_modules/@angular-devkit/build-angular/node_modules/less": {
       "version": "4.4.0",
       "dev": true,
@@ -529,6 +576,22 @@
         "webpack-dev-server": "^5.0.2"
       }
     },
+    "node_modules/@angular-devkit/build-webpack/node_modules/@angular-devkit/architect": {
+      "version": "0.2003.26",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
+      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@angular-devkit/core": "20.3.26",
+        "rxjs": "7.8.2"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
+      }
+    },
     "node_modules/@angular-devkit/core": {
       "version": "20.3.26",
       "resolved": "https://registry.npmjs.org/@angular-devkit/core/-/core-20.3.26.tgz",
@@ -587,6 +650,22 @@
       "peerDependencies": {
         "eslint": "^8.57.0 || ^9.0.0",
         "typescript": "*"
+      }
+    },
+    "node_modules/@angular-eslint/builder/node_modules/@angular-devkit/architect": {
+      "version": "0.2003.26",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
+      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@angular-devkit/core": "20.3.26",
+        "rxjs": "7.8.2"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
       }
     },
     "node_modules/@angular-eslint/bundled-angular-compiler": {
@@ -777,6 +856,22 @@
         }
       }
     },
+    "node_modules/@angular/build/node_modules/@angular-devkit/architect": {
+      "version": "0.2003.26",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
+      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@angular-devkit/core": "20.3.26",
+        "rxjs": "7.8.2"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
+      }
+    },
     "node_modules/@angular/cli": {
       "version": "20.3.26",
       "resolved": "https://registry.npmjs.org/@angular/cli/-/cli-20.3.26.tgz",
@@ -805,6 +900,22 @@
       },
       "bin": {
         "ng": "bin/ng.js"
+      },
+      "engines": {
+        "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
+        "npm": "^6.11.0 || ^7.5.6 || >=8.0.0",
+        "yarn": ">= 1.13.0"
+      }
+    },
+    "node_modules/@angular/cli/node_modules/@angular-devkit/architect": {
+      "version": "0.2003.26",
+      "resolved": "https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2003.26.tgz",
+      "integrity": "sha512-osaUGwmGhxHkc59t8Hy2tamzdonkSkz4Hi8CfpBGUuyRJiTFVck+MpOkrKYS0Ok1EFTTEYJI/x+obIKxud0oAA==",
+      "dev": true,
+      "license": "MIT",
+      "dependencies": {
+        "@angular-devkit/core": "20.3.26",
+        "rxjs": "7.8.2"
       },
       "engines": {
         "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
