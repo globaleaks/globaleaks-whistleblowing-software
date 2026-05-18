@@ -70,7 +70,6 @@
     "@cypress/schematic": "5.0.0",
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@lodder/grunt-postcss": "3.1.1",
-    "@types/dompurify": "3.2.0",
     "@types/flowjs__flow.js": "2.13.3",
     "@types/qrcode": "1.5.6",
     "@typescript-eslint/types": "8.59.3",
