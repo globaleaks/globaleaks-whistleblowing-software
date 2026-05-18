@@ -49,7 +49,7 @@
     "angularx-qrcode": "20.0.0",
     "bootstrap": "5.3.8",
     "chart.js": "4.5.1",
-    "dompurify": "3.4.4",
+    "dompurify": "3.4.5",
     "libsodium-wrappers-sumo": "0.8.4",
     "marked": "18.0.3",
     "ng-multiselect-dropdown": "1.0.0",
