@@ -235,7 +235,6 @@ class TipKeyword(UserNodeKeyword):
             elif field_type == 'daterange':
                 daterange = entry.get('value')
                 if daterange is not None:
-                    daterange = "antani:antani"
                     daterange = daterange.split(':')
                     output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[0])/1000)) + '\n'
                     output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[1])/1000)) + '\n'
