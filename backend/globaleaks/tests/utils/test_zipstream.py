@@ -7,6 +7,8 @@ from zipfile import ZipFile
 from globaleaks.tests import helpers
 from globaleaks.utils.zipstream import ZipStream
 
+_THIS_FILE = os.path.abspath(__file__)
+
 
 class TestZipStream(helpers.TestGL):
     @inlineCallbacks
@@ -16,8 +18,8 @@ class TestZipStream(helpers.TestGL):
         self.unicode_seq = ''.join(chr(x) for x in range(0x400, 0x40A))
 
         self.files = [
-          {'name': __file__, 'fo': open(os.path.abspath(__file__), 'rb')},
-          {'name': __file__, 'path': os.path.abspath(__file__)},
+          {'name': _THIS_FILE, 'fo': open(_THIS_FILE, 'rb')},
+          {'name': _THIS_FILE, 'path': _THIS_FILE},
           {'name': self.unicode_seq, 'fo': BytesIO(self.unicode_seq.encode())}
         ]
 
@@ -37,4 +39,4 @@ class TestZipStream(helpers.TestGL):
                 if ff.filename == self.unicode_seq:
                     self.assertTrue(ff.file_size == len(self.unicode_seq.encode()))
                 else:
-                    self.assertTrue(ff.file_size == os.stat(os.path.abspath(__file__)).st_size)
+                    self.assertTrue(ff.file_size == os.stat(_THIS_FILE).st_size)
