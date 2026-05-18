@@ -12,7 +12,7 @@ pip3 install coverage
 pip3 install -r requirements/requirements.txt.$(lsb_release -cs)
 
 cd $GITHUB_WORKSPACE/client  # to install frontend dependencies
-npm install -d
+npm ci
 ./node_modules/grunt/bin/grunt build_for_testing_and_instrument
 
 cd $GITHUB_WORKSPACE/backend && coverage run -m twisted.trial globaleaks.tests
