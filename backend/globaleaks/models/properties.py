@@ -7,7 +7,7 @@ from sqlalchemy.types import Boolean, DateTime, Integer, LargeBinary, UnicodeTex
 
 try:
     from sqlalchemy.orm import declarative_base, declared_attr
-except:
+except ImportError:
     from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 from globaleaks.utils.utility import uuid4

@@ -69,7 +69,7 @@ class Tor(Service):
             from txtorcon.onion import EphemeralOnionService
             onion_service = EphemeralOnionService.create(reactor, config, [hs_loc], private_key=key)
             return onion_service.addCallbacks(init_callback)  # pylint: disable=no-member
-        except:
+        except ImportError:
             from txtorcon.torconfig import EphemeralHiddenService
             onion_service = EphemeralHiddenService(hs_loc, key)
             return onion_service.add_to_tor(self.tor_conn.protocol).addCallbacks(init_callback)  # pylint: disable=no-member

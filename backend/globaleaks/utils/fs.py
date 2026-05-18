@@ -93,12 +93,14 @@ def read_file(p):
     try:
         with io.open(p, 'r', encoding='utf-8') as f:
             return f.read().rstrip("\n")
-    except:
+    except (OSError, UnicodeDecodeError):
+        # OSError: missing/unreadable file. UnicodeDecodeError: invalid UTF-8 bytes.
         return ""
 
 
 def read_json_file(p):
     try:
         return json.loads(read_file(p))
-    except:
+    except (ValueError, TypeError):
+        # ValueError covers json.JSONDecodeError (its parent class).
         return {}

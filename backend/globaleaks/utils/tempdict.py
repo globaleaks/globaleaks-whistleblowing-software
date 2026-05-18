@@ -1,4 +1,5 @@
 from twisted.internet import reactor
+from twisted.internet.error import AlreadyCalled, AlreadyCancelled
 
 
 class TempDict(dict):
@@ -19,7 +20,8 @@ class TempDict(dict):
         if value:
             try:
                 value.expireCall.cancel()  # pylint: disable=no-member
-            except:
+            except (AlreadyCalled, AlreadyCancelled):
+                # The only exceptions DelayedCall.cancel() can raise (per Twisted docs).
                 pass
 
             if hasattr(value, 'expireCallback') and value.expireCallback:
@@ -29,7 +31,8 @@ class TempDict(dict):
         if value and value.expireCall is not None:
             try:
                 value.expireCall.reset(self.timeout)
-            except:
+            except (AlreadyCalled, AlreadyCancelled):
+                # Same as DelayedCall.cancel(): these are the only documented raises.
                 pass
 
     def get(self, key):

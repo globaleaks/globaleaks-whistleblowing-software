@@ -56,7 +56,10 @@ class Job(task.LoopingCall):
             try:
                 if self.active is not None:
                     self.end()
-            except:
+            except Exception:
+                # Best-effort cleanup: swallow application errors so that
+                # shutdown completes, but let KeyboardInterrupt/SystemExit
+                # propagate (bare 'except:' would have suppressed those too).
                 pass
 
     def begin(self):
