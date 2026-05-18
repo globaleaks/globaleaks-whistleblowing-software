@@ -15,12 +15,12 @@ jobs:
       contents: read
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
 
       - name: Cache npm dependencies
-        uses: actions/cache@v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('client/npm-shrinkwrap.json') }}
@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Cache pip dependencies
-        uses: actions/cache@v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
