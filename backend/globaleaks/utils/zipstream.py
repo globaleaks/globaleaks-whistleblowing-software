@@ -312,7 +312,9 @@ class ZipStream(object):
                     with open(f['path'], "rb") as fo:
                         for data in self.zip_fo(fo, f['name']):
                             yield data
-            except:
+            except Exception:
+                # Per-entry resilience: skip a single unreadable/corrupt file
+                # rather than aborting the whole archive download.
                 pass
 
         yield self.archive_footer()

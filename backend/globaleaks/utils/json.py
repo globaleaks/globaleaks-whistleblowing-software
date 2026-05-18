@@ -3,7 +3,7 @@ import json
 
 try:
     from sqlalchemy.engine import row
-except:
+except ImportError:
     row = None
 
 from globaleaks.utils.utility import datetime_to_ISO8601

@@ -245,7 +245,10 @@ class TipKeyword(UserNodeKeyword):
                 output = self.dump_fields(output, field['children'], entry, indent_n)
             else:
                 output += indent_text(entry.get('value', ''), indent_n) + '\n'
-        except:
+        except (KeyError, TypeError, AttributeError, ValueError):
+            # KeyError/TypeError/AttributeError: malformed field or answer dict.
+            # ValueError: the 'daterange' branch (currently with a placeholder
+            # string) can fail in int()/datetime.fromtimestamp().
             pass
 
         return output + '\n'
@@ -656,7 +659,9 @@ class Templating(object):
         if 'user' in data and data['user']['pgp_key_public']:
             try:
                 body = PGPContext(data['user']['pgp_key_public']).encrypt_message(body)
-            except:
+            except Exception:
+                # Security: if PGP encryption fails for ANY reason, drop the body.
+                # Falling back to plaintext would defeat the recipient's PGP key.
                 body = ""
 
         return subject, body

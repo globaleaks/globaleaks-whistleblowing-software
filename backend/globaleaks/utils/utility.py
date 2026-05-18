@@ -13,12 +13,15 @@ from twisted.internet.defer import Deferred
 
 def get_distribution_codename():
     try:
-        with open("/etc/os-release", "r") as fd:
+        with open("/etc/os-release", "r", encoding="utf-8") as fd:
             for line in fd:
                 key, value = line.split("=")
                 if key == "VERSION_CODENAME":
                     return value.strip().strip("\"")
-    except:
+    except (OSError, ValueError):
+        # OSError: file missing or unreadable
+        # ValueError: a malformed (e.g. empty / comment-only) line unpacks to !=2 items;
+        # the os-release(5) spec permits such lines.
         pass
 
     return ""

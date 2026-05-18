@@ -140,7 +140,9 @@ class SNIMap(object):
     def selectContext(self, connection):
         try:
             common_name = connection.get_servername().decode().lower()
-        except:
+        except (AttributeError, UnicodeDecodeError):
+            # AttributeError: get_servername() returned None (no SNI).
+            # UnicodeDecodeError: server_name not valid UTF-8.
             common_name = '127.0.0.1'
 
         context_factory = self.contexts_by_hostname.get(common_name)
