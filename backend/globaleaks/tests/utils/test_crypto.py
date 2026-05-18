@@ -1,6 +1,8 @@
 import filecmp
 import os
+import pyotp
 import secrets
+import struct
 
 from nacl.encoding import Base64Encoder
 from nacl.secret import SecretBox
@@ -235,3 +237,99 @@ class TestCryptoUtils(helpers.TestGL):
         with self.assertRaises(Exception):
             self._stream_decrypt(prv, enc, dec)
 
+    def test_generateRandomKey_is_64_hex_chars(self):
+        k = crypto.generateRandomKey()
+        self.assertEqual(len(k), 64)
+        int(k, 16)  # raises if not hex
+
+    def test_generateRandomKey_unique(self):
+        self.assertNotEqual(crypto.generateRandomKey(), crypto.generateRandomKey())
+
+    def test_generateRandomPassword_length_and_classes(self):
+        N = 20
+        pwd = crypto.generateRandomPassword(N)
+        self.assertEqual(len(pwd), N)
+        self.assertTrue(any(c.islower() for c in pwd))
+        self.assertTrue(any(c.isupper() for c in pwd))
+        self.assertTrue(any(c.isdigit() for c in pwd))
+        self.assertTrue(any(c in "!?@#+-/*=" for c in pwd))
+
+    # ---------- totpVerify ----------
+
+    def test_totpVerify_accepts_valid_token(self):
+        secret = pyotp.random_base32()
+        token = pyotp.TOTP(secret).now()
+        # Should not raise
+        self.assertIsNone(crypto.totpVerify(secret, token))
+
+    def test_totpVerify_rejects_invalid_token(self):
+        secret = pyotp.random_base32()
+        with self.assertRaises(Exception):
+            crypto.totpVerify(secret, "000000")
+
+    # ---------- _GCE small helpers ----------
+
+    def test_check_equality_match_and_mismatch(self):
+        self.assertTrue(crypto.GCE.check_equality("hello", "hello"))
+        self.assertTrue(crypto.GCE.check_equality(b"hello", "hello"))
+        self.assertFalse(crypto.GCE.check_equality("hello", "world"))
+
+    def test_generate_receipt_format(self):
+        r = crypto.GCE.generate_receipt()
+        self.assertEqual(len(r), 16)
+        self.assertTrue(r.isdigit())
+
+    def test_generate_salt_random(self):
+        # 16-byte salt base64-encoded ⇒ 24 chars
+        s1 = crypto.GCE.generate_salt()
+        s2 = crypto.GCE.generate_salt()
+        self.assertEqual(len(s1), 24)
+        self.assertNotEqual(s1, s2)
+
+    def test_generate_salt_seeded_is_deterministic(self):
+        """With a seed the salt is deterministic (used for stable derivations)."""
+        a = crypto.GCE.generate_salt('whoami@example.org')
+        b = crypto.GCE.generate_salt('whoami@example.org')
+        c = crypto.GCE.generate_salt('different@example.org')
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, c)
+
+    # ---------- asymmetric roundtrip (no DB needed) ----------
+
+    def test_asymmetric_encrypt_decrypt_roundtrip(self):
+        prv, pub = crypto.GCE.generate_keypair()
+        ct = crypto.GCE.asymmetric_encrypt(pub, b'top secret')
+        pt = crypto.GCE.asymmetric_decrypt(prv, ct)
+        self.assertEqual(pt, b'top secret')
+
+    # ---------- symmetric error branches ----------
+
+    def test_symmetric_encrypt_rejects_invalid_key(self):
+        """A non-32-byte, non-base64 key triggers ValueError."""
+        with self.assertRaises(ValueError):
+            crypto.GCE.symmetric_encrypt(b'too short', b'msg')
+
+    def test_symmetric_decrypt_rejects_invalid_key(self):
+        with self.assertRaises(ValueError):
+            crypto.GCE.symmetric_decrypt(b'too short', b'\x00' * 40)
+
+    def test_symmetric_accepts_base64_key(self):
+        """A 32-byte raw key passed as base64 string must be decoded internally."""
+        raw_key = crypto.GCE.generate_key()
+        b64_key = Base64Encoder.encode(raw_key)  # 44 bytes b64
+        ct = crypto.GCE.symmetric_encrypt(b64_key, b'message')
+        pt = crypto.GCE.symmetric_decrypt(b64_key, ct)
+        self.assertEqual(pt, b'message')
+
+    # ---------- _strip_message_padding edge cases ----------
+
+    def test_strip_message_padding_too_short(self):
+        """data < 2 bytes is returned unchanged."""
+        self.assertEqual(crypto._GCE._strip_message_padding(b''), b'')
+        self.assertEqual(crypto._GCE._strip_message_padding(b'\x01'), b'\x01')
+
+    def test_strip_message_padding_invalid_padlen_returned_unchanged(self):
+        """If pad_len > len(data)-2, the data is left untouched (legacy fallback)."""
+        # pad_len = 0xFFFF (huge) but only 3 bytes total: must NOT strip
+        data = b'\x00' + struct.pack('>H', 0xFFFF)
+        self.assertEqual(crypto._GCE._strip_message_padding(data), data)
