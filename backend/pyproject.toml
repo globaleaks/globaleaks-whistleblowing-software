@@ -20,6 +20,64 @@ classifiers = [
 [tool.pybuild]
 interpreter = "python3"
 
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+extend-exclude = [
+    "globaleaks/tests/data",
+    "globaleaks/db/migrations",
+]
+
+[tool.ruff.lint]
+select = [
+    "B",      # flake8-bugbear
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "I",      # isort
+    "INT",    # flake8-gettext (useful: you have extensive i18n)
+    "PIE",    # flake8-pie
+    "PL",     # pylint port (replaces the old .pylintrc)
+    "RET",    # flake8-return
+    "S",      # flake8-bandit
+    "SIM",    # flake8-simplify
+    "UP",     # pyupgrade
+    "W",      # pycodestyle warnings
+    "ASYNC",  # async/Deferred bug patterns (useful with Twisted)
+    "RUF100", # useless # noqa
+]
+
+ignore = [
+    # complexity: too many historical violations, tackle separately
+    "PLR0912", "PLR0913", "PLR0915", "PLR0911",
+    # magic value comparison: too many false positives on config constants
+    "PLR2004",
+    # incompatible with sqlalchemy column comparisons
+    "E712",
+    # B904: raise from inside except — useful but many existing violations
+    "B904",
+    # superfluous-else-return: stylistic, hurts readability for some
+    "RET505", "RET506",
+    # hardcoded password false positives (config keys, well-known constants)
+    "S105", "S106",
+    # bind 0.0.0.0: required for onion services
+    "S104",
+    # subprocess: used deliberately in specific spots
+    "S603", "S607",
+    # contextlib.suppress vs try/except: stylistic
+    "SIM105",
+    # ternary: stylistic
+    "SIM108",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"globaleaks/tests/**" = [
+    "S101",         # assert: ok in tests
+    "S105", "S106", # hardcoded passwords in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["globaleaks"]
+
 # Metadata dynamically loaded from the globaleaks package
 [tool.setuptools.dynamic]
 version = { attr = "globaleaks.__version__" }
