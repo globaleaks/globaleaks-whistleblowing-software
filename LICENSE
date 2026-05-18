@@ -1,21 +1,3 @@
--------------------------------------------------------------------------------
-Copyright (c) 2011-2026 - GlobaLeaks
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-Below is a full copy of the GNU Affero General Public License v3 along with
-additional terms allowed under section 7 of the AGPLv3.
--------------------------------------------------------------------------------
-                               AGPLv3 LICENSE
--------------------------------------------------------------------------------
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
@@ -635,6 +617,7 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
+
             How to Apply These Terms to Your New Programs
 
   If you develop a new program, and you want it to be of the greatest
