@@ -25,6 +25,8 @@ env:
 jobs:
   build_and_test:
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
     strategy:
       matrix:
         distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bionic", "bookworm", "bullseye", "focal", "jammy", "noble", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}

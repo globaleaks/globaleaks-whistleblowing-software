@@ -11,6 +11,8 @@ env:
 jobs:
   run_tests:
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6.0.2
