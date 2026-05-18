@@ -16,6 +16,35 @@ ExecStop=/etc/init.d/globaleaks stop
 ExecReload=/etc/init.d/globaleaks reload
 PIDFile=/run/globaleaks/globaleaks.pid
 
+# --- hardening (conservative set) ---
+# Filesystem isolation
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/globaleaks /run/globaleaks /dev/shm/globaleaks /var/log/globaleaks
+
+# Device isolation (keeps /dev/null, /dev/urandom, /dev/zero, /dev/random)
+PrivateDevices=yes
+
+# Kernel surface reduction
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+
+# Privilege gain prevention
+NoNewPrivileges=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+
+# Capability bound: matches the `capability` lines in
+# debian/apparmor/usr.bin.globaleaks
+CapabilityBoundingSet=CAP_SETGID CAP_SETUID CAP_FSETID CAP_FOWNER CAP_CHOWN CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_SYS_TTY_CONFIG CAP_NET_BIND_SERVICE
+AmbientCapabilities=
+
+# Restrictive default file mode
+UMask=0027
+
 [Install]
 WantedBy=multi-user.target
 Alias=globaleaks.service
