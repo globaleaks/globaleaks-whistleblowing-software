@@ -74,7 +74,7 @@ class TestORM(helpers.TestGL):
             self.assertEqual(result[0], 1)  # ON = 1
 
             result = conn.execute(text("PRAGMA journal_mode")).fetchone()
-            self.assertEqual(result[0].upper(), "WAL")
+            self.assertEqual(result[0].upper(), "DELETE")
 
             result = conn.execute(text("PRAGMA synchronous")).fetchone()
             self.assertEqual(result[0], 2)  # FULL = 2
