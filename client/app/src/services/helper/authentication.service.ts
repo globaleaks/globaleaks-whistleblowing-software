@@ -162,6 +162,7 @@ export class AuthenticationService {
               if (password) {
                 this.appDataService.receipt = password;
                 this.titleService.setPage("tippage");
+                this.router.navigate(['/']);
               } else if (this.session.properties.operator_session) {
                 this.router.navigate(['/']);
               }
