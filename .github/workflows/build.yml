@@ -6,12 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       target_distribution:
-        description: 'Target distribution (bionic, bookworm, bullseye, focal, jammy, noble, trixie)'
+        description: 'Target distribution (bookworm, bullseye, focal, jammy, noble, trixie)'
         required: false
         default: trixie
         type: choice
         options:
-          - bionic
           - bookworm
           - bullseye
           - focal
@@ -29,7 +28,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bionic", "bookworm", "bullseye", "focal", "jammy", "noble", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "focal", "jammy", "noble", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
