@@ -52,7 +52,7 @@ locale_dirs = ['locale/']
 locale_dir = os.path.join(os.path.dirname(__file__), locale_dirs[0])
 gettext.bindtextdomain('sphinx', locale_dir)
 gettext.textdomain('sphinx')
-gettext_compact = False 
+gettext_compact = 'sphinx'
 
 exclude_patterns = ['_build']
 show_authors = False
