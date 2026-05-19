@@ -67,18 +67,18 @@ def srm(absolutefpath, iterations_number=1):
 
 def directory_traversal_check(trusted_absolute_prefix, untrusted_path):
     """
-    Check that an 'untrusted_path' matches a 'trusted_absolute_path' prefix
+    Ensure that ``untrusted_path`` is contained within ``trusted_absolute_prefix``.
 
-    :param trusted_absolute_prefix: A prefix of the sandbox
-    :param untrusted_path:  The untrasted path
+    :param trusted_absolute_prefix: absolute path of the sandbox root
+    :param untrusted_path: path derived (directly or indirectly) from user input
+    :raises errors.DirectoryTraversalError: if ``untrusted_path`` escapes the sandbox
     """
-    untrusted_path = os.path.abspath(untrusted_path)
-    trusted_absolute_prefix = os.path.abspath(trusted_absolute_prefix)
+    trusted_absolute_prefix = os.path.realpath(trusted_absolute_prefix)
+    untrusted_path = os.path.realpath(untrusted_path)
 
-    if trusted_absolute_prefix != os.path.commonprefix([trusted_absolute_prefix, untrusted_path]):
+    if os.path.commonpath([trusted_absolute_prefix, untrusted_path]) != trusted_absolute_prefix:
         log.err("Blocked file operation for: (prefix, attempted_path) : ('%s', '%s')",
                 trusted_absolute_prefix, untrusted_path)
-
         raise errors.DirectoryTraversalError
 
 
