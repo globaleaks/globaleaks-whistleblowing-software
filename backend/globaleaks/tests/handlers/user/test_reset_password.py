@@ -5,6 +5,7 @@ from globaleaks import models
 from globaleaks.rest import errors
 from globaleaks.state import State
 from globaleaks.tests import helpers
+from globaleaks.utils.crypto import sha256
 
 
 class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
@@ -28,8 +29,12 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     def test_put(self):
         # Use a valid 64-character hex token format
         valid_reset_token = 'a' * 64
+        token_path = os.path.abspath(os.path.join(
+            State.settings.ramdisk_path,
+            sha256(valid_reset_token).decode()
+        ))
 
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, valid_reset_token)), "w") as f:
+        with open(token_path, "w") as f:
             f.write(self.dummyReceiver_1['id'])
 
         # Wrong token (valid format but non-existent)

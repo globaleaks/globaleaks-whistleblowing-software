@@ -53,7 +53,7 @@ def change_password(session, tid, user_session, password):
 
     reset_token = user_session.properties.get('reset_token')
     if reset_token:
-        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(reset_token).decode()))
         directory_traversal_check(State.settings.ramdisk_path, filepath)
         srm(filepath)
         del user_session.properties['reset_token']

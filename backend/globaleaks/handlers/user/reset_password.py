@@ -14,7 +14,7 @@ from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
 from globaleaks.sessions import Sessions
 from globaleaks.state import State
-from globaleaks.utils.crypto import generateRandomKey, GCE
+from globaleaks.utils.crypto import generateRandomKey, GCE, sha256
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.utility import datetime_null
 
@@ -36,7 +36,8 @@ def db_generate_password_reset_token(session, user):
     user_desc = user_serialize_user(session, user, user.language)
 
     try:
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "wb") as f:
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(filepath, "wb") as f:
             f.write(user.id.encode())
     except:
         pass
@@ -109,7 +110,7 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
     prv_key = ''
 
     try:
-        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(reset_token).decode()))
         directory_traversal_check(State.settings.ramdisk_path, filepath)
         with open(filepath, "r") as f:
             token = f.read()
