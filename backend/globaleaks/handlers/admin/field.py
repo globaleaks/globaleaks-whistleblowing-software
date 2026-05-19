@@ -167,17 +167,32 @@ def check_field_association(session, tid, request):
     :param tid: The tenant ID
     :param request: The request data to be verified
     """
-    if request.get('fieldgroup_id', '') and session.query(models.Field).filter(models.Field.id == request['fieldgroup_id'],
-                                                                               models.Field.tid != tid).count():
+    if request.get('fieldgroup_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['fieldgroup_id'],
+            models.Field.tid != tid).count():
         raise errors.InputValidationError
 
-    if request.get('template_id', '') and session.query(models.Field).filter(models.Field.id == request['template_id'],
-                                                                             not_(models.Field.tid.in_({1, tid}))).count():
+    if request.get('template_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['template_id'],
+            not_(models.Field.tid.in_({1, tid}))).count():
         raise errors.InputValidationError
 
-    if request.get('step_id', '') and session.query(models.Step).filter(models.Step.id == request['step_id'],
-                                                                        models.Questionnaire.id == models.Step.questionnaire_id,
-                                                                         not_(models.Questionnaire.tid.in_({1, tid}))).count():
+    if request.get('template_override_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['template_override_id'],
+            not_(models.Field.tid.in_({1, tid}))).count():
+        raise errors.InputValidationError
+
+    if request.get('step_id', '') and session.query(models.Step).filter(
+            models.Step.id == request['step_id'],
+            models.Questionnaire.id == models.Step.questionnaire_id,
+            models.Questionnaire.tid != tid).count():
+        raise errors.InputValidationError
+
+    option_ids = [t['option'] for t in request.get('triggered_by_options', []) if t.get('option')]
+    if option_ids and session.query(models.FieldOption).filter(
+            models.FieldOption.id.in_(option_ids),
+            models.FieldOption.field_id == models.Field.id,
+            models.Field.tid != tid).count():
         raise errors.InputValidationError
 
     if request.get('fieldgroup_id', ''):
