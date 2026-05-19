@@ -65,7 +65,7 @@ def get_engine(db_uri=None, foreign_keys=True, orm_lockdown=True):
 
     @event.listens_for(engine, "connect")
     def do_connect(conn, connection_record):
-        conn.execute('PRAGMA journal_mode=WAL')
+        conn.execute('PRAGMA journal_mode=DELETE')
         conn.execute('PRAGMA synchronous=FULL')
         conn.execute('PRAGMA cache_size=-32000')
         conn.execute('PRAGMA trusted_schema=OFF')
