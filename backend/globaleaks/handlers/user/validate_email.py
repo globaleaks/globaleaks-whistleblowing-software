@@ -6,15 +6,16 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import tw
+from globaleaks.utils.crypto import sha256
 from globaleaks.utils.utility import datetime_null
 
 
 def db_validate_address_change(session, validation_token):
     """Retrieves a user given a mail change validation token"""
+    token_hash = sha256(validation_token).decode()
     user = session.query(models.User).filter(
-        models.User.change_email_token == validation_token
+        models.User.change_email_token == token_hash
     ).one_or_none()
-
     if user is None:
         return False
 

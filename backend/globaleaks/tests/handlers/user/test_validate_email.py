@@ -2,18 +2,17 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin import user
-from globaleaks.handlers.user import validate_email
+from globaleaks.handlers.user import db_set_email_validation_token, validate_email
 from globaleaks.orm import db_get, transact, tw
 from globaleaks.tests import helpers
+from globaleaks.utils.crypto import sha256
 from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def set_email_token(session, user_id, validation_token, email):
+def set_email_validation_token(session, user_id, validation_token, email):
     user = db_get(session, models.User, models.User.id == user_id)
-    user.change_email_date = datetime_now()
-    user.change_email_token = validation_token
-    user.change_email_address = email
+    db_set_email_validation_token(user, email, validation_token)
 
 
 class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
@@ -22,7 +21,7 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_get_success(self):
         handler = self.request()
-        yield set_email_token(
+        yield set_email_validation_token(
             self.dummyReceiver_1['id'],
             u"token",
             u"test@changeemail.com"
@@ -39,7 +38,7 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_get_failure(self):
         handler = self.request()
-        yield set_email_token(
+        yield set_email_validation_token(
             self.dummyReceiver_1['id'],
             u"token",
             u"test@changeemail.com"
