@@ -8,8 +8,8 @@ sudo apt install -y tor
 cd $GITHUB_WORKSPACE/backend  # to install backend dependencies
 python3 -mvenv env
 source env/bin/activate
-pip3 install coverage
-pip3 install -r requirements/requirements.txt.$(lsb_release -cs)
+pip3 install --require-hashes -r requirements/requirements.txt.dev
+pip3 install --require-hashes -r requirements/requirements.txt.$(lsb_release -cs)
 
 cd $GITHUB_WORKSPACE/client  # to install frontend dependencies
 npm ci
