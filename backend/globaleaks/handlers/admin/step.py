@@ -20,6 +20,12 @@ def db_create_step(session, tid, request, language):
     """
     fill_localized_keys(request, models.Step.localized_keys, language)
 
+    # Authorize: the questionnaire must belong to the requesting tenant
+    db_get(session,
+           models.Questionnaire,
+           (models.Questionnaire.id == request['questionnaire_id'],
+            models.Questionnaire.tid == tid))
+
     step = db_add(session, models.Step, request)
 
     for trigger in request.get('triggered_by_options', []):
