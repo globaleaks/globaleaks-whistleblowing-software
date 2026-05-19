@@ -162,7 +162,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     context, questionnaire = db_get(session,
                                     (models.Context, models.Questionnaire),
-                                    (models.Context.id == request['context_id'],
+                                    (models.Context.tid == tid,
+                                     models.Context.id == request['context_id'],
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     answers = request['answers']
