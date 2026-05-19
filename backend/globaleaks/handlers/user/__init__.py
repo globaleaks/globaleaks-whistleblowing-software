@@ -8,6 +8,7 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import generateRandomKey
 from globaleaks.utils.pgp import PGPContext
+from globaleaks.utils.crypto import sha256
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 import globaleaks.handlers.user.validate_email
@@ -111,6 +112,12 @@ def get_user(session, tid, user_id, language):
 
     return user_serialize_user(session, user, language)
 
+def db_set_email_validation_token(user, email, validation_token):
+    user.change_email_date = datetime_now()
+    user.change_email_token = sha256(validation_token).decode()
+    user.change_email_address = email
+
+
 
 def db_user_update_user(session, tid, user_session, request):
     """
@@ -136,9 +143,10 @@ def db_user_update_user(session, tid, user_session, request):
 
     # If the email address changed, send a validation email
     if request['mail_address'] != user.mail_address:
+        token = generateRandomKey()
         user.change_email_address = request['mail_address']
         user.change_email_date = datetime_now()
-        user.change_email_token = generateRandomKey()
+        user.change_email_token = sha256(token).decode()
 
         user_desc = user_serialize_user(session, user, user.language)
 
@@ -148,7 +156,7 @@ def db_user_update_user(session, tid, user_session, request):
             'type': 'email_validation',
             'user': user_desc,
             'new_email_address': request['mail_address'],
-            'validation_token': user.change_email_token,
+            'validation_token': token,
             'node': db_admin_serialize_node(session, tid, user.language),
             'notification': db_get_notification(session, tid, user.language)
         }
