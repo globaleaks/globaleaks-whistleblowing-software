@@ -227,7 +227,8 @@ def set_tmp_key(user_session, user, token, user_cc=''):
     key = Base64Encoder.encode(GCE.symmetric_encrypt(key, user_cc))
 
     try:
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "ab") as f:
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(filepath, "ab") as f:
             f.write(b":")
             f.write(key)
     except:
