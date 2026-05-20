@@ -1,3 +1,5 @@
+from sqlalchemy.sql.expression import not_
+
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
@@ -106,6 +108,26 @@ def get_context(session, tid, context_id, language):
     return admin_serialize_context(session, context, language)
 
 
+def check_context_questionnaire_association(session, tid, request):
+    """
+    Ensure the questionnaire ids referenced by a context request belong to the
+    requesting tenant (or to the platform-wide tenant 1).
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param request: The request data to be verified
+    """
+    for key in ('questionnaire_id', 'additional_questionnaire_id'):
+        qid = request.get(key, '')
+        if not qid:
+            continue
+
+        if session.query(models.Questionnaire).filter(
+                models.Questionnaire.id == qid,
+                not_(models.Questionnaire.tid.in_({1, tid}))).count():
+            raise errors.InputValidationError
+
+
 def fill_context_request(tid, request, language):
     """
     An utility function for correcting requests for context configuration
@@ -141,6 +163,8 @@ def db_create_context(session, tid, user_session, request, language):
     :return: The created context
     """
     request = fill_context_request(tid, request, language)
+
+    check_context_questionnaire_association(session, tid, request)
 
     context = db_add(session, models.Context, request)
 
@@ -178,6 +202,8 @@ def db_update_context(session, tid, context, request, language):
     :return: The updated context
     """
     request = fill_context_request(tid, request, language)
+
+    check_context_questionnaire_association(session, tid, request)
 
     context.update(request)
 
