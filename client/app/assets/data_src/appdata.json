@@ -8,12 +8,5 @@
       "en": "Select a reporting channel:"
     }
   },
-  "templates" : {
-    "admin_password_change_mail_template": {
-      "en": "Dear {RecipientName},\n\nThis is to inform you that the password for your account ({Username}) on {NodeName} has been changed by an administrator.\n\nIf you did not authorize this change, please contact your platform administrator immediately.\n\nKind regards,\n{NodeName}"
-    },
-    "admin_password_change_mail_title": {
-      "en": "Your password has been changed - {NodeName}"
-    }
-  }
+  "templates" : {}
 }
