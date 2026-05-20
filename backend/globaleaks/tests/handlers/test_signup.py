@@ -1,3 +1,5 @@
+import re
+
 from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers import signup
@@ -9,7 +11,12 @@ from globaleaks.tests import helpers
 
 @transact
 def get_signup_token(session):
-    return session.query(models.Subscriber.activation_token).first()[0]
+    # The raw activation token is delivered via email only (the DB stores
+    # the SHA-256 of the token). Extract it back from the scheduled mail.
+    mail = session.query(models.Mail) \
+                  .order_by(models.Mail.creation_date.desc()).first()
+    match = re.search(r'activation\?token=([A-Za-z0-9]+)', mail.body)
+    return match.group(1)
 
 
 class TestSignup(helpers.TestHandler):

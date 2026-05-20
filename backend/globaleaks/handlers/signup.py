@@ -12,7 +12,7 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_del, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
-from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, GCE
+from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, sha256, GCE
 
 
 @transact
@@ -32,7 +32,8 @@ def signup(session, request, language):
     if request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
         raise errors.ForbiddenOperation
 
-    request['activation_token'] = generateRandomKey()
+    activation_token = generateRandomKey()
+    request['activation_token'] = sha256(activation_token).decode()
     request['language'] = language
 
     request['organization_tax_code'] = request['organization_tax_code'] or None
@@ -69,6 +70,8 @@ def signup(session, request, language):
     # platform has been added.
 
     signup_dict = serializers.serialize_signup(signup)
+    # Use the raw token only for the activation email; the database stores the hash
+    signup_dict['activation_token'] = activation_token
 
     # Email 1 - Activation Link
     template_vars = {
@@ -108,8 +111,9 @@ def signup_activation(session, token, hostname, language):
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
+    token_hash = sha256(token).decode()
     ret = session.query(models.Subscriber, models.Tenant) \
-                 .filter(models.Subscriber.activation_token == token,
+                 .filter(models.Subscriber.activation_token == token_hash,
                          models.Tenant.id == models.Subscriber.tid).one_or_none()
 
     if ret is None:
