@@ -64,7 +64,7 @@ textarea:focus {
   font-size: 0.8rem;
   max-height: 40em;
   max-width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #browser-not-supported {
