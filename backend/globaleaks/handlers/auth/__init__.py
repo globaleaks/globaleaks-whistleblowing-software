@@ -21,8 +21,6 @@ from globaleaks.utils.utility import datetime_now, uuid4
 
 
 def db_login_failure(session, tid, whistleblower=False):
-    Settings.failed_login_attempts[tid] = Settings.failed_login_attempts.get(tid, 0) + 1
-
     db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure')
 
     raise errors.InvalidAuthentication

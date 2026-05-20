@@ -9,7 +9,6 @@ from globaleaks.jobs import anomalies, \
                             periodic_hourly, \
                             periodic_minutely, \
                             pgp_check, \
-                            session_management, \
                             update_check
 
 jobs_list = [
@@ -24,6 +23,5 @@ jobs_list = [
     periodic_hourly.PeriodicHourly,
     periodic_minutely.PeriodicMinutely,
     pgp_check.PGPCheck,
-    session_management.SessionManagement,
     update_check.UpdateCheck,
 ]
