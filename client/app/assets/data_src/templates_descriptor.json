@@ -107,6 +107,32 @@
     "{FreeMemory}",
     "{TotalMemory}"
   ],
+  "admin_password_change_mail_template":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}",
+    "{RecipientName}",
+    "{Username}"
+  ],
+  "admin_password_change_mail_title":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}",
+    "{RecipientName}",
+    "{Username}"
+  ],
   "admin_pgp_alert_mail_template":[
     "{NodeName}",
     "{TorSite}",
