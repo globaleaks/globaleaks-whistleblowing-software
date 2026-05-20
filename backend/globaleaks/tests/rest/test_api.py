@@ -15,7 +15,7 @@ class TestAPI(TestGL):
 
         self.api = api.APIResourceWrapper()
 
-        yield tw(db_update_enabled_languages, 1, ['en', 'ar', 'it'], 'en')
+        yield tw(db_update_enabled_languages, 1, ['en', 'ar', 'it', 'pt_PT'], 'en')
         yield refresh_tenant_cache()
 
     def test_resolve_handler(self):
@@ -59,8 +59,8 @@ class TestAPI(TestGL):
         self.assertEqual(self.api.detect_language(request), 'ar')
 
     def test_get_with_accept_language_header_2(self):
-        request = forge_request(headers={'Accept-Language': 'en-US,en;it;q=0.6'})
-        self.assertEqual(self.api.detect_language(request), 'en')
+        request = forge_request(headers={'Accept-Language': 'pt-PT,en;it;q=0.6'})
+        self.assertEqual(self.api.detect_language(request), 'pt_PT')
 
     def test_get_with_accept_language_header_3(self):
         request = forge_request(headers={'Accept-Language': 'antani1,antani2;q=0.8,antani3;q=0.6'})

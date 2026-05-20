@@ -179,14 +179,13 @@ default_regexp = re.compile(r'/([a-zA-Z0-9_\-\/\.\@]*)')
 
 @lru_cache(maxsize=128)
 def expand_language(lang: str):
-    parts = lang.split('-')
+    parts = lang.split('_')
     return [
-        '-'.join(parts[:i])
+        '_'.join(parts[:i])
         for i in range(len(parts), 0, -1)
     ]
 
-
-@lru_cache(maxsize=1000)
+@lru_cache(maxsize=512)
 def parse_accept_language(raw_header: str) -> List[str]:
     """
     Parse Accept-Language according to RFC.
@@ -199,7 +198,7 @@ def parse_accept_language(raw_header: str) -> List[str]:
 
     for index, item in enumerate(raw_header.split(',')):
         parts = item.strip().split(';')
-        lang = parts[0].lower()
+        lang = parts[0].replace('-', '_')
 
         if not lang:
             continue
