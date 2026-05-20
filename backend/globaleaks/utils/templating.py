@@ -613,6 +613,7 @@ supported_template_types = {
     'account_activation': AccountActivationKeyword,
     'password_reset_validation': PasswordResetValidationKeyword,
     'user_credentials': UserCredentials,
+    'admin_password_change': UserNodeKeyword,
     'identity_access_request': IdentityAccessRequestKeyword,
     'identity_access_authorized': TipKeyword,
     'identity_access_denied': TipKeyword
