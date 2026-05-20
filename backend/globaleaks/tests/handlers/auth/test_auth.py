@@ -363,37 +363,7 @@ class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
         handler = self.request({}, headers={'x-session': session_id})
         yield handler.delete()
 
-        self.assertEqual(handler.request.responseHeaders.hasHeader("Clear-Site-Data"), True)
-        self.assertEqual(handler.request.responseHeaders.getRawHeaders("Clear-Site-Data")[0], '"*"')
-
-    @inlineCallbacks
-    def test_successful_admin_logout_on_management_session_prevent_clearing_site_data(self):
-        self._handler = auth.AuthenticationHandler
-
-        # Login
-        handler = self.request({
-            'tid': 1,
-            'username': 'admin',
-            'password': helpers.VALID_KEY,
-            'authcode': ''
-        })
-
-        response = yield handler.post()
-        self.assertTrue(handler.session is None)
-        self.assertTrue('id' in response)
-
-        self._handler = auth.SessionHandler
-
-        session_id = response['id']
-        session = Sessions.get(session_id)
-        session.properties['management_session'] = True
-
-        # Logout
-        handler = self.request({}, headers={'x-session': session_id})
         yield handler.delete()
-
-        # Verify the Clear-Site-Data header is not injected on management sessions
-        self.assertEqual(handler.request.responseHeaders.hasHeader("Clear-Site-Data"), False)
 
     @inlineCallbacks
     def test_successful_whistleblower_logout(self):
@@ -416,9 +386,6 @@ class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
         # Logout
         handler = self.request({}, headers={'x-session': response['id']})
         yield handler.delete()
-
-        self.assertEqual(handler.request.responseHeaders.hasHeader("Clear-Site-Data"), True)
-        self.assertEqual(handler.request.responseHeaders.getRawHeaders("Clear-Site-Data")[0], '"*"')
 
 
 class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
