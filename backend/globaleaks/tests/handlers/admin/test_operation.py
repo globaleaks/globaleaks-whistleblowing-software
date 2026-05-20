@@ -80,10 +80,15 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     def test_admin_test_mail(self):
         return self._test_operation_handler('test_mail')
 
+    @defer.inlineCallbacks
     def test_admin_set_user_password(self):
-        return self._test_operation_handler('set_user_password',
+        yield self.test_model_count(models.Mail, 0)
+
+        yield self._test_operation_handler('set_user_password',
                                            {'user_id': self.dummyReceiver_1['id'],
                                             'password': helpers.VALID_KEY})
+
+        yield self.test_model_count(models.Mail, 1)
 
     def test_admin_disable_2fa(self):
         return self._test_operation_handler('disable_2fa',

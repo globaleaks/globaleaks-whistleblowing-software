@@ -8,7 +8,7 @@ from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.handlers.user import get_user, serialize_user
+from globaleaks.handlers.user import get_user, user_serialize_user
 from globaleaks.handlers.user.operation import disable_2fa
 from globaleaks.models import Config, InternalTip, User
 from globaleaks.models.config import db_set_config_variable, ConfigFactory, ConfigL10NFactory
@@ -208,7 +208,7 @@ def db_set_user_password(session, tid, user_session, user_id, key):
 
     db_log(session, tid=tid, type='change_password', user_id=user_session.user_id, object_id=user_id)
 
-    user_desc = serialize_user(session, user, user.language)
+    user_desc = user_serialize_user(session, user, user.language)
 
     template_vars = {
         'type': 'admin_password_change',
