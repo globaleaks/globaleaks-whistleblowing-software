@@ -51,7 +51,7 @@
     "chart.js": "4.5.1",
     "dompurify": "3.4.5",
     "libsodium-wrappers-sumo": "0.8.4",
-    "marked": "18.0.3",
+    "marked": "18.0.4",
     "ng-multiselect-dropdown": "1.0.0",
     "ng2-charts": "9.0.0",
     "ngx-markdown": "20.1.0",
@@ -60,7 +60,7 @@
     "rxjs": "7.8.2"
   },
   "devDependencies": {
-    "@angular-devkit/architect": "0.2102.11",
+    "@angular-devkit/architect": "0.2003.26",
     "@angular-devkit/build-angular": "20.3.26",
     "@angular-devkit/core": "20.3.26",
     "@angular/cli": "20.3.26",
@@ -72,8 +72,8 @@
     "@lodder/grunt-postcss": "3.1.1",
     "@types/flowjs__flow.js": "2.13.3",
     "@types/qrcode": "1.5.6",
-    "@typescript-eslint/types": "8.59.3",
-    "@typescript-eslint/utils": "8.59.3",
+    "@typescript-eslint/types": "8.59.4",
+    "@typescript-eslint/utils": "8.59.4",
     "angular-eslint": "20.7.0",
     "axe-core": "4.11.4",
     "cssnano": "7.1.9",
@@ -94,15 +94,15 @@
     "npm-check-updates": "22.2.0",
     "nyc": "18.0.0",
     "patch-package": "8.0.1",
-    "postcss": "8.5.14",
+    "postcss": "8.5.15",
     "postcss-rtlcss": "6.0.0",
     "postinstall-postinstall": "2.1.0",
-    "stylelint": "17.11.1",
+    "stylelint": "17.12.0",
     "stylelint-config-standard": "40.0.0",
     "superagent": "10.3.0",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.59.3",
-    "yauzl": "3.3.0"
+    "typescript-eslint": "8.59.4",
+    "yauzl": "3.3.1"
   }
 }
