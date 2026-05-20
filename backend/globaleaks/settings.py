@@ -41,10 +41,6 @@ class SettingsClass(object, metaclass=Singleton):
 
         self.accept_submissions = True
 
-        # statistical, referred to latest period
-        # and resetted by session_management sched
-        self.failed_login_attempts = {}
-
         self.onionservice = None
 
         # SOCKS default
