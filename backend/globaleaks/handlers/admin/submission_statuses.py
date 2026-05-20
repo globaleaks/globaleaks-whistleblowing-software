@@ -107,6 +107,12 @@ def db_create_submission_substatus(session, tid, status_id, request, language):
     :param language: The language of the request
     :return: The serialized descriptor of the created submission status
     """
+    # Authorize: the parent status must belong to the requesting tenant
+    db_get(session,
+           models.SubmissionStatus,
+           (models.SubmissionStatus.id == status_id,
+            models.SubmissionStatus.tid == tid))
+
     substatus_obj = models.SubmissionSubStatus()
     substatus_obj.tid = tid
     substatus_obj.submissionstatus_id = status_id
