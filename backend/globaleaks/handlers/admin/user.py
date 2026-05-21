@@ -2,6 +2,8 @@ from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.admin.node import db_admin_serialize_node
+from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import parse_pgp_options, \
@@ -150,7 +152,13 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     user = db_get_user(session, tid, user_id)
     user.can_redact_information = request['can_redact_information']
     user.can_mask_information = request['can_mask_information']
-    if request['mail_address'] != user.mail_address:
+
+    # Capture security-relevant state before update() overwrites it
+    old_email = user.mail_address
+    old_notification = user.notification
+    old_enabled = user.enabled
+
+    if request['mail_address'] != old_email:
         user.change_email_token = None
         user.change_email_address = ''
         user.change_email_date = datetime_null()
@@ -163,6 +171,25 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     parse_pgp_options(user, request)
 
     user.update(request)
+
+    changed_settings = []
+    if request['mail_address'] != old_email:
+        changed_settings.append('email')
+    if old_notification and not request['notification']:
+        changed_settings.append('notifications: disabled')
+    if old_enabled and not request['enabled']:
+        changed_settings.append('account: disabled')
+
+    if changed_settings:
+        user_desc = user_serialize_user(session, user, language)
+        template_vars = {
+            'type': 'admin_security_alert',
+            'user': user_desc,
+            'node': db_admin_serialize_node(session, tid, language),
+            'notification': db_get_notification(session, tid, language),
+            'changed_settings': changed_settings,
+        }
+        State.format_and_send_mail(session, tid, old_email, template_vars)
 
     return user_serialize_user(session, user, language)
 
