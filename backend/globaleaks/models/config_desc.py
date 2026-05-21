@@ -391,6 +391,8 @@ ConfigL10NFilters = {
         'admin_anomaly_mail_title',
         'admin_pgp_alert_mail_template',
         'admin_pgp_alert_mail_title',
+        'admin_security_alert_mail_template',
+        'admin_security_alert_mail_title',
         'admin_signup_alert_mail_template',
         'admin_signup_alert_mail_title',
         'admin_test_mail_template',
