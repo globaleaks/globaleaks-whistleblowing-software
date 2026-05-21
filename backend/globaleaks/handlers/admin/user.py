@@ -121,6 +121,7 @@ def db_delete_user(session, tid, user_session, user_id):
     deleted_language = user_to_be_deleted.language
     deleted_name = user_to_be_deleted.name
     deleted_username = user_to_be_deleted.username
+    deleted_pgp_key_public = user_to_be_deleted.pgp_key_public
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
@@ -131,7 +132,7 @@ def db_delete_user(session, tid, user_session, user_id):
         'username': deleted_username,
         'mail_address': deleted_email,
         'language': deleted_language,
-        'pgp_key_public': user_to_be_deleted.pgp_key_public,
+        'pgp_key_public': deleted_pgp_key_public,
     }
     template_vars = {
         'type': 'admin_security_alert',
