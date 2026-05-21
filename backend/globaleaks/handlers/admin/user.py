@@ -180,8 +180,9 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     if old_enabled and not request['enabled']:
         changed_settings.append('account: disabled')
 
+    user_desc = user_serialize_user(session, user, language)
+
     if changed_settings:
-        user_desc = user_serialize_user(session, user, language)
         template_vars = {
             'type': 'admin_security_alert',
             'user': user_desc,
@@ -191,7 +192,7 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
         }
         State.format_and_send_mail(session, tid, old_email, template_vars)
 
-    return user_serialize_user(session, user, language)
+    return user_desc
 
 
 def db_get_users(session, tid, role=None, language=None):
