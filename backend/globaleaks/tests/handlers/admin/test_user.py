@@ -1,5 +1,4 @@
 from twisted.internet import defer
-from twisted.internet.defer import returnValue
 
 from globaleaks import models
 from globaleaks.handlers.admin import user
