@@ -1,3 +1,5 @@
+from twisted.internet import defer
+
 from globaleaks import models
 from globaleaks.handlers.admin import user
 from globaleaks.tests import helpers
@@ -94,3 +96,86 @@ class TestCustodianInstance(TestAdminInstance):
             'language': 'en'
         }
     }
+
+
+class TestAdminSecurityAlertOnUserUpdate(helpers.TestHandlerWithPopulatedDB):
+    _handler = user.UserInstance
+
+    def get_dummy_request(self):
+        return dict(self.dummyReceiver_1)
+
+    @defer.inlineCallbacks
+    def test_email_change_sends_notification(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        request_data = self.get_dummy_request()
+        request_data['mail_address'] = 'new-email@example.com'
+
+        handler = self.request(request_data, role='admin', user_id=self.dummyReceiver_1['id'])
+        yield handler.put(self.dummyReceiver_1['id'])
+
+        yield self.test_model_count(models.Mail, 1)
+
+    @defer.inlineCallbacks
+    def test_notification_disabled_sends_notification(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        request_data = self.get_dummy_request()
+        request_data['notification'] = False
+
+        handler = self.request(request_data, role='admin', user_id=self.dummyReceiver_1['id'])
+        yield handler.put(self.dummyReceiver_1['id'])
+
+        yield self.test_model_count(models.Mail, 1)
+
+    @defer.inlineCallbacks
+    def test_account_disabled_sends_notification(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        request_data = self.get_dummy_request()
+        request_data['enabled'] = False
+
+        handler = self.request(request_data, role='admin', user_id=self.dummyReceiver_1['id'])
+        yield handler.put(self.dummyReceiver_1['id'])
+
+        yield self.test_model_count(models.Mail, 1)
+
+    @defer.inlineCallbacks
+    def test_multiple_changes_send_single_notification(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        request_data = self.get_dummy_request()
+        request_data['mail_address'] = 'another@example.com'
+        request_data['notification'] = False
+
+        handler = self.request(request_data, role='admin', user_id=self.dummyReceiver_1['id'])
+        yield handler.put(self.dummyReceiver_1['id'])
+
+        # Two changes in one PUT → exactly one mail
+        yield self.test_model_count(models.Mail, 1)
+
+    @defer.inlineCallbacks
+    def test_no_notification_when_nothing_security_relevant_changed(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        request_data = self.get_dummy_request()
+        # name change only — not security-relevant, should not trigger mail
+        request_data['name'] = 'New Name'
+
+        handler = self.request(request_data, role='admin', user_id=self.dummyReceiver_1['id'])
+        yield handler.put(self.dummyReceiver_1['id'])
+
+        yield self.test_model_count(models.Mail, 0)
+
+
+class TestAdminSecurityAlertOnUserDelete(helpers.TestHandlerWithPopulatedDB):
+    _handler = user.UserInstance
+
+    @defer.inlineCallbacks
+    def test_deletion_sends_notification(self):
+        yield self.test_model_count(models.Mail, 0)
+
+        handler = self.request({}, role='admin')
+        yield handler.delete(self.dummyReceiver_1['id'])
+
+        yield self.test_model_count(models.Mail, 1)
