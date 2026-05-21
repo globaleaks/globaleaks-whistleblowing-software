@@ -1,0 +1,10 @@
+Dear {RecipientName},
+
+This is to inform you that the following settings on your account at {Site} have been reconfigured by an administrator:
+
+{ChangedSettings}
+
+If you did not authorize these changes, please contact your platform administrator immediately.
+
+Kind regards,
+{NodeName}

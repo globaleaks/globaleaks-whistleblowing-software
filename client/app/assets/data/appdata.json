@@ -1068,6 +1068,12 @@
       "zh_HK": "PGP 金鑰到期提醒",
       "zh_TW": "PGP 金鑰到期警示"
     },
+    "admin_security_alert_mail_template": {
+      "en": "Dear {RecipientName},\n\nThis is to inform you that the following settings on your account at {Site} have been reconfigured by an administrator:\n\n{ChangedSettings}\n\nIf you did not authorize these changes, please contact your platform administrator immediately.\n\nKind regards,\n{NodeName}"
+    },
+    "admin_security_alert_mail_title": {
+      "en": "Security alert: account settings changed"
+    },
     "admin_signup_alert_mail_template": {
       "am": "ውድ {RecipientName},\n\nአዲስ መረጃ መስጫ ድረገጽ ተመዝግቧል፡፡\n\nየተመዘገበበት ቀን፡-\nድረገጽ፡ {Url}\nስም፡- {Name}\nኢሜይል፡- {Email}\n\nየመሳርያ ስርኣቱ በ---- በራሱ ይተጠፋል\n{ExpirationDate}\n\nከትህትና ጋር\n\n{NodeName}",
       "ar": "عزيزي {RecipientName},\n\nموقع جديد لكشف الفساد تم إنشائه.\n\nبيانات التسجيل:\nالموقع: {Url}\nالاسم: {Name}\nالبريد الإلكتروني: {Email}\n\nسيتم حذف المنصة تلقائيا في:\n{ExpirationDate}\n\nأطيب التحيّات،\n\n{NodeName}",
