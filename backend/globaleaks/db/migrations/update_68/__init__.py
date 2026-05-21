@@ -1,7 +1,7 @@
 # -*- coding: UTF-8
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, DateTime, Integer, UnicodeText
 from globaleaks.utils.utility import datetime_now
 
 class Subscriber_v_67(Model):

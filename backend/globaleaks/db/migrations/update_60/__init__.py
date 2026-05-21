@@ -1,8 +1,7 @@
 # -*- coding: UTF-8
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Boolean, Column, DateTime, Integer, UnicodeText, uuid4
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 

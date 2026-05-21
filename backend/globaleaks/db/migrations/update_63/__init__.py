@@ -2,7 +2,7 @@
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, DateTime, Integer, UnicodeText
 from globaleaks.utils.utility import datetime_now
 
 
