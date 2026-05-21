@@ -585,7 +585,7 @@ class AdminSecurityAlertKeyword(UserNodeKeyword):
     data_keys = UserNodeKeyword.data_keys + ['changed_settings']
 
     def ChangedSettings(self):
-        return '\n'.join('- ' + s for s in self.data['changed_settings'])
+        return '\n'.join('- ' + str(s) for s in self.data['changed_settings'])
 
 
 class IdentityAccessRequestKeyword(UserNodeKeyword):
