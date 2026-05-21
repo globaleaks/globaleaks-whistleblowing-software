@@ -102,7 +102,7 @@ def toggle_escrow(session, tid, user_session):
         if tid == 1:
             session.query(models.User).update({'crypto_escrow_bkp1_key': ''}, synchronize_session=False)
         else:
-            session.query(models.User).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
+            session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
 
         session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_prv_key': ''}, synchronize_session=False)
 
