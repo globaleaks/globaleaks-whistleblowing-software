@@ -110,14 +110,37 @@ def db_delete_user(session, tid, user_session, user_id):
     user_to_be_deleted = db_get(session, models.User, (models.User.tid == tid, models.User.id == user_id))
 
     if user_session.user_id == user_id:
-        # Prevent users to delete themeselves
+        # Prevent users to delete themselves
         raise errors.ForbiddenOperation
     elif user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
 
+    # Capture email and language before the row is deleted
+    deleted_email = user_to_be_deleted.mail_address
+    deleted_language = user_to_be_deleted.language
+    deleted_name = user_to_be_deleted.name
+    deleted_username = user_to_be_deleted.username
+
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
+
+    # user_serialize_user cannot be called after deletion — build minimal data for template
+    user_desc = {
+        'name': deleted_name,
+        'username': deleted_username,
+        'mail_address': deleted_email,
+        'language': deleted_language,
+        'pgp_key_public': user_to_be_deleted.pgp_key_public,
+    }
+    template_vars = {
+        'type': 'admin_security_alert',
+        'user': user_desc,
+        'node': db_admin_serialize_node(session, tid, deleted_language),
+        'notification': db_get_notification(session, tid, deleted_language),
+        'changed_settings': ['account: deleted'],
+    }
+    State.format_and_send_mail(session, tid, deleted_email, template_vars)
 
 
 @transact
