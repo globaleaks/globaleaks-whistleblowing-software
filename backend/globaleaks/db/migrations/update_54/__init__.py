@@ -6,10 +6,8 @@ from nacl.encoding import Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.handlers.admin.file import special_files
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, Integer, UnicodeText, uuid4
 from globaleaks.state import State
-from globaleaks.utils.utility import uuid4
 
 
 class File_v_53(Model):

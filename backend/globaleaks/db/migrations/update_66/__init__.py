@@ -4,7 +4,7 @@ from datetime import timedelta
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.utils.onion import generate_onion_service_v3
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, Integer, JSON, UnicodeText, uuid4
 
 
 class SubmissionSubStatus_v_65(Model):

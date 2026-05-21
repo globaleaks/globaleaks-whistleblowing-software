@@ -7,7 +7,7 @@ from nacl.encoding import Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.models.enums import _Enum, EnumUserRole
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText, uuid4
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.tls import gen_selfsigned_certificate

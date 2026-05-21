@@ -1,7 +1,7 @@
 # -*- coding: UTF-8
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumUserRole
+from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText, uuid4
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.utils.utility import datetime_now, datetime_null
 
