@@ -135,6 +135,34 @@
     "{Username}",
     "{PGPKeyInfoList}"
   ],
+  "admin_security_alert_mail_template":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}",
+    "{RecipientName}",
+    "{Username}",
+    "{ChangedSettings}"
+  ],
+  "admin_security_alert_mail_title":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}",
+    "{RecipientName}",
+    "{Username}",
+    "{ChangedSettings}"
+  ],
   "admin_signup_alert_mail_template":[
     "{NodeName}",
     "{TorSite}",
