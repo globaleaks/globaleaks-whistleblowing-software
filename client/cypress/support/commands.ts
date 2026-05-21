@@ -153,6 +153,9 @@ Cypress.Commands.add("login_whistleblower", (receipt) => {
 
 Cypress.Commands.add("logout", () => {
   cy.get('#LogoutLink').should('be.visible').click();
+  cy.url().should((url) => {
+    expect(url.includes("#/login") || url.startsWith("about:blank")).to.be.true;
+  });
 });
 
 Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin) => {
