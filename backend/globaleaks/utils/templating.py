@@ -580,6 +580,14 @@ class PasswordResetValidationKeyword(UserNodeKeyword):
         return '/#/password/reset?token=' + self.data['reset_token']
 
 
+class AdminSecurityAlertKeyword(UserNodeKeyword):
+    keyword_list = UserNodeKeyword.keyword_list + ['{ChangedSettings}']
+    data_keys = UserNodeKeyword.data_keys + ['changed_settings']
+
+    def ChangedSettings(self):
+        return '\n'.join('- ' + s for s in self.data['changed_settings'])
+
+
 class IdentityAccessRequestKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + identity_access_request_keywords
     data_keys = UserNodeKeyword.data_keys + ['iar', 'tip', 'user']
@@ -605,6 +613,7 @@ supported_template_types = {
     'export_comment': ExportMessageKeyword,
     'admin_anomaly': AnomalyKeyword,
     'admin_test': UserNodeKeyword,
+    'admin_security_alert': AdminSecurityAlertKeyword,
     'https_certificate_expiration': CertificateExprKeyword,
     'https_certificate_renewal_failure': CertificateExprKeyword,
     'software_update_available': SoftwareUpdateKeyword,
