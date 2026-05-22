@@ -104,8 +104,6 @@ No cookies
 ----------
 The system does not use cookies or any persistent local storage mechanisms for authentication or session handling.
 
-Session information is stored exclusively in temporary, in-memory browser storage scoped to a single tab via Session Storage. `Session Storage <https://developer.mozilla.org/en-US/docs/Web/API/Window/sessionStorage>`_. This storage is automatically cleared when the browser tab is closed, the session expires, or the user logs out. No authentication or session data is ever persisted across browser restarts or shared between tabs.
-
 This design prioritizes user privacy and significantly reduces the risk of Cross-Site Request Forgery (CSRF) attacks by eliminating the use of cookies and the need for additional CSRF tokens.
 
 Session management
