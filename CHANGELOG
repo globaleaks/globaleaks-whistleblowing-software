@@ -1,3 +1,33 @@
+Changes in version 5.0.94
+    Add support for Ubuntu 26.04 (#4822)
+    Deprecate support for Ubuntu Bionic and Debian Bullseye
+    Implement security enhancements following auditors suggestions:
+    - Hash password reset, email change, and signup activation tokens at rest
+    - Minimize in-memory lifetime of cleartext whistleblower receipt
+    - Avoid local session storage for the user session
+    - Ensure secure_delete is enabled per-connection
+    - Enforce tenant isolation
+    - Use os.path.commonpath in directory_traversal_check to prevent sibling-prefix bypass
+    - Harden globaleaks.service with systemd sandboxing directives
+    - Pin development dependencies and GitHub Actions to commit SHAs
+    - Backport patch for CVE-2024-41671
+    Improve voice recorder anonymization intelligibility and effectiveness:
+    - Fix duplicate audio node connections causing +6dB signal boost
+    - Fix envelope LPF bypassed in the signal chain
+    - Raise envelope LPF cutoff from 20Hz to 60Hz to preserve consonant transients
+    - Use filtered noise carriers above 4kHz for natural fricative reproduction
+    - Replace linear pitch shifting with bilinear frequency warping for stronger anonymization
+    - Add runtime audio format detection (WebM vs MP4) for Safari/iOS compatibility
+    Replace ngx-clipboard with native Clipboard API
+    Revise Accept-Language header parsing
+    Implement notification of report update when a a recipient upload a file (#4816)
+    Fix whistleblower receipt login not opening the report when used from /submission (#4833)
+    Fix failure on sending PGP encrypted support emails
+    Fix daterange rendering broken by leftover placeholder
+    Avoid scrolling on disclaimer when not needed
+    Deprecate usage of Clear-Site-Data header preferring clientside cleaning
+    Bump angular to 21 and other dependencies to their latest stable versions
+
 Changes in version 5.0.93
     Implement security enhancements following auditors suggestions:
     - Enhance isolation checks for tenant boundaries
