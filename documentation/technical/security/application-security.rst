@@ -350,6 +350,25 @@ The GlobaLeaks backend uses the SQLite `trusted_schema <https://www.sqlite.org/s
 
   PRAGMA trusted_schema = OFF
 
+In addition, the backend enables SQLite's `defensive mode <https://www.sqlite.org/c3ref/c_dbconfig_defensive.html>`__, which disables interfaces that would otherwise allow ordinary SQL to corrupt or alter the database in surprising ways:
+::
+
+  SQLITE_DBCONFIG_DEFENSIVE = ON
+
+To further reduce the attack surface available through SQL, the backend disables double-quoted string literals in both DDL and DML statements, ensuring that any identifier accidentally double-quoted in a query is rejected rather than silently reinterpreted as a string:
+::
+
+  PRAGMA dqs_ddl = 0
+  PRAGMA dqs_dml = 0
+
+Disabled SQL features
+---------------------
+The GlobaLeaks backend disables SQLite features that are not used by the application and that could otherwise be abused as execution sinks in case of a SQL injection:
+::
+
+  SQLITE_DBCONFIG_ENABLE_TRIGGER = OFF
+  SQLITE_DBCONFIG_ENABLE_VIEW    = OFF
+
 Limited database functionalities
 --------------------------------
 The GlobaLeaks backend restricts SQLite functionalities to only those necessary for running the application, reducing the potential for exploitation in case of SQL injection attacks.
@@ -357,7 +376,7 @@ The GlobaLeaks backend restricts SQLite functionalities to only those necessary 
 This is implemented using the ```conn.set_authorizer``` API and a strict authorizer callback that authorizes only a limited set of SQL instructions:
 ::
 
-  SQLITE_FUNCTION: count, lower, min, max
+  SQLITE_FUNCTION: count, length, lower, min, max, substr
   SQLITE_INSERT
   SQLITE_READ
   SQLITE_SELECT
