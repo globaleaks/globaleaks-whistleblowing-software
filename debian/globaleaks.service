@@ -16,6 +16,8 @@ ExecStop=/etc/init.d/globaleaks stop
 ExecReload=/etc/init.d/globaleaks reload
 PIDFile=/run/globaleaks/globaleaks.pid
 
+MemorySwapMax=0
+
 [Install]
 WantedBy=multi-user.target
 Alias=globaleaks.service
