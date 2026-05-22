@@ -209,13 +209,6 @@ To prevent or limit forensic traces left on devices used by whistleblowers and i
 
   Cache-Control: no-store
 
-Clear-Site-Data
-+++++++++++++++
-To ensure that all locally stored data associated with a user session—including cookies, storage, cache, and execution contexts—is deleted upon logout, the platform uses the [Clear-Site-Data](https://www.w3.org/TR/clear-site-data/) HTTP header with the wildcard configuration "*". This mitigates risks of sensitive information persisting on client devices, including data unintentionally stored by third-party libraries or retained by browser mechanisms such as the back-forward cache (bfcache).
-::
-
-  Clear-Site-Data: "*"
-
 Crawlers policy
 ---------------
 For security reasons, the backend instructs crawlers to avoid caching and indexing of the application and uses the ``robots.txt`` file to allow crawling only of the home page. Indexing the home page is considered best practice to promote the platform's existence and facilitate access for potential whistleblowers.
