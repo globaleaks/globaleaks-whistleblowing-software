@@ -89,7 +89,7 @@ describe("globaleaks process", function () {
     cy.get('#comment-0').should('contain', comment);
 
     // Change the expiration date
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_actions_option_postpone", "#tip-action-postpone");
     cy.get("#tip-action-postpone").click();
@@ -146,7 +146,7 @@ describe("globaleaks process", function () {
     cy.get("#modal-action-cancel").click();
 
     // Mask information
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions_option_mask", "#tip-action-mask");
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
 
@@ -163,11 +163,11 @@ describe("globaleaks process", function () {
     });
     cy.get("#save_masking").click();
 
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.takeScreenshot("recipient/report_after_masking", "#ReportAnswers");
 
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
     cy.get("#edit-question").should('be.visible').first().click();
     cy.get('textarea[name="controlElement"]').should('be.visible').then((textarea: any) => {
@@ -177,11 +177,11 @@ describe("globaleaks process", function () {
     });
     cy.get("#save_masking").click();
 
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.get('[id="tip-action-mask"]').should('be.visible').click();
 
     // Download
-    cy.get('#exportDropdown').click();
+    cy.get('#exportDropdownButton').click();
     cy.takeScreenshot("recipient/menu_export", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_export_option_download", "#tip-action-export");
     cy.takeScreenshot("recipient/menu_export_option_print", "#tip-action-print");
@@ -191,18 +191,18 @@ describe("globaleaks process", function () {
     });
 
     // Close and reopen
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions_option_change_status", "#tip-action-change-status");
     cy.get("#tip-action-change-status").click();
     cy.takeScreenshot("recipient/modal_change_status", ".modal-dialog");
     cy.get('#assignSubmissionStatus').select(2);
     cy.get("#modal-action-ok").click();
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.get("#tip-action-reopen").click();
     cy.get("#modal-action-ok").click();
 
     // Grant access to Recipient3
-    cy.get('#usersDropdown').click();
+    cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users_option_grant_access", "#tip-action-grant-access");
     cy.get("#tip-action-grant-access").should('be.visible').click();
     cy.takeScreenshot("recipient/modal_grant_access", ".modal-dialog");
@@ -220,7 +220,7 @@ describe("globaleaks process", function () {
     cy.get("#tip-0").first().click();
 
     // Revoke access to Recipient2
-    cy.get('#usersDropdown').click();
+    cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_users_option_revoke_access", "#tip-action-revoke-access");
     cy.get("#tip-action-revoke-access").should('be.visible').click();
@@ -232,7 +232,7 @@ describe("globaleaks process", function () {
     cy.get("#modal-action-ok").click();
 
     // Delete report
-    cy.get('#actionsDropdown').click();
+    cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions_option_delete_report", "#tip-action-delete-report");
     cy.get("#tip-action-delete-report").should('be.visible').click();
     cy.takeScreenshot("recipient/modal_delete_report", ".modal-dialog");
@@ -243,7 +243,7 @@ describe("globaleaks process", function () {
     cy.get("#tip-0").first().click();
 
     // Transfer access to Recipient3
-    cy.get('#usersDropdown').click();
+    cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users_option_transfer_access", "#tip-action-transfer-access");
     cy.get("#tip-action-transfer-access").should('be.visible').click();
     cy.takeScreenshot("recipient/modal_transfer_access", ".modal-dialog");
