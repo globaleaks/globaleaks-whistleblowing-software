@@ -226,11 +226,12 @@ class StateClass(ObjectDict, metaclass=Singleton):
         for mail_address, pgp_key_public in delivery_list:
             body = text
 
-            # Opportunisticly encrypt the mail body. NOTE that mails will go out
-            # unencrypted if one address in the list does not have a public key set.
+            # Opportunisticly encrypt the mail body.
+            # NOTE that mails will go out unencrypted if one address in
+            #      the list does not have a public key set.
             if pgp_key_public:
                 try:
-                    body = PGPContext(pgp_key_public).encrypt_message(mail_body)
+                    body = PGPContext(pgp_key_public).encrypt_message(body)
                 except:
                     continue
 
