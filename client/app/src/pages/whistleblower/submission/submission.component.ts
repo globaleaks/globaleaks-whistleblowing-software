@@ -1,4 +1,4 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, EventEmitter, OnInit, Output, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
 import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
@@ -53,6 +53,7 @@ export class SubmissionComponent implements OnInit {
 
   @ViewChild("submissionForm") public submissionForm: NgForm;
   @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
+  @Output() receiptGenerated = new EventEmitter<string>();
 
   _navigation = -1;
   answers: Answers = {};
@@ -307,20 +308,21 @@ export class SubmissionComponent implements OnInit {
 
       clearInterval(intervalId);
 
-      this.authenticationService.session.receipt = this.cryptoService.generateReceipt();
+      const receipt = this.cryptoService.generateReceipt();
 
       const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': "" /* whistleblower */ })));
 
       if (res.type == 'key') {
         this.appDataService.updateShowLoadingPanel(true);
-        this.submission.submission.receipt = await this.cryptoService.hashArgon2(this.authenticationService.session.receipt, res.salt);
+        this.submission.submission.receipt = await this.cryptoService.hashArgon2(receipt, res.salt);
         this.appDataService.updateShowLoadingPanel(false);
       } else {
-        this.submission.submission.receipt = this.authenticationService.session.receipt;
+        this.submission.submission.receipt = receipt;
       }
 
       this.submission.submit().subscribe({
         next: (response) => {
+          this.receiptGenerated.emit(receipt);
           this.router.navigate(["/"]).then();
           this.titleService.setPage("receiptpage");
         }
