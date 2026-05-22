@@ -20,7 +20,6 @@ export class AppDataService {
   connection: { tor: any };
   languages_enabled_selector: any[];
   ctx: string;
-  receipt: string;
   score: number;
   receivers_by_id: any = {};
   submissionStatuses: any[];
