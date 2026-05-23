@@ -113,7 +113,7 @@ class _StreamingEncryptionObject(object):
 
     PADDING_FRACTION = 0.05
     PADDING_MIN = 8
-    PADDING_MAX = 65536
+    PADDING_MAX = 65535
 
     def __init__(self, mode: str, user_key: Union[bytes, str], filepath: str) -> None:
         self.mode = mode
