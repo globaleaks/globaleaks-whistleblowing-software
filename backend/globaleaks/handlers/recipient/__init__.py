@@ -8,9 +8,7 @@ from sqlalchemy.sql.expression import distinct, func, and_, or_
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access
-from globaleaks.orm import db_get, db_log, transact
-from globaleaks.rest import requests, errors
+from globaleaks.orm import transact
 from globaleaks.utils.crypto import GCE
 
 import globaleaks.handlers.recipient.export
@@ -141,59 +139,6 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
     return list(dict_ret.values())
 
 
-@transact
-def perform_tips_operation(session, tid, user_id, user_cc, operation, args):
-    """
-    Transaction for performing operation on submissions (grant/revoke)
-
-    :param session: An ORM session
-    :param tid: A tenant ID
-    :param user_id: A recipient ID
-    :param user_cc: A recipient crypto key
-    :param operation: An operation command (grant/revoke)
-    :param args: The operation arguments
-    """
-    log_data = {
-        'recipient_id': args['receiver']
-    }
-
-    receiver = db_get(session, models.User, models.User.id == user_id)
-
-    result = session.query(models.InternalTip, models.ReceiverTip) \
-                                 .filter(models.ReceiverTip.receiver_id == user_id,
-                                         models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                         models.InternalTip.id.in_(args['rtips']))
-
-    if operation == 'grant' and receiver.can_grant_access_to_reports:
-        notified = False
-        for itip, rtip in result:
-           new_receiver, _ = db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, args['receiver'])
-           if new_receiver:
-                db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id, data=log_data)
-
-                if not notified:
-                    db_notify_grant_access(session, new_receiver)
-                    notified = True
-
-    elif operation == 'revoke' and receiver.can_grant_access_to_reports:
-        for itip, _ in result:
-            if db_revoke_tip_access(session, tid, user_id, itip, args['receiver']):
-                db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
-
-    elif operation == 'transfer' and receiver.can_transfer_access_to_reports:
-        for itip, _ in result:
-            new_receiver, _ = db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, args['receiver'])
-            if new_receiver:
-                db_revoke_tip_access(session, tid, user, itip, user_id)
-                db_log(session, tid=tid, type='transfer_access', user_id=user_id, object_id=itip.id, data=log_data)
-                if not notified:
-                    db_notify_grant_access(session, new_receiver)
-                    notified = True
-
-    else:
-        raise errors.ForbiddenOperation
-
-
 class TipsCollection(BaseHandler):
     """
 
@@ -207,19 +152,3 @@ class TipsCollection(BaseHandler):
                                 self.session.cc,
                                 self.request.language,
                                 self.request.args)
-
-
-class Operations(BaseHandler):
-    """
-    Handler that enables to issue operations on submissions
-    """
-    check_roles = 'receiver'
-
-    def put(self):
-        request = self.validate_request(self.request.content.read(), requests.OpsDesc)
-
-        return perform_tips_operation(self.request.tid,
-                                      self.session.user_id,
-                                      self.session.cc,
-                                      request['operation'],
-                                      request['args'])
