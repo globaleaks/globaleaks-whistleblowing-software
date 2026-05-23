@@ -88,7 +88,7 @@ fi
 
 # Fetch and checkout the ref (branch or tag)
 git fetch --depth=1 origin "$TAG"
-git checkout "$TAG" 2>/dev/null || git checkout "tags/$TAG"
+git checkout FETCH_HEAD
 
 if [ $TESTING -eq 1 ]; then
   cd client && npm ci && ./node_modules/grunt/bin/grunt build_for_testing
