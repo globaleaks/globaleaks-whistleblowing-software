@@ -37,9 +37,9 @@ export class CryptoService {
   }
 
   generateReceipt(): string {
-    const array = new Uint8Array(16); // Create a byte array of length 16
-    window.crypto.getRandomValues(array); // Fill it with secure random values
-    return Array.from(array, byte => (byte % 10).toString()).join('');
+    const array = new Uint32Array(16);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, n => (n % 10).toString()).join('');
   }
 
   str2Uint8Array(str: string): Uint8Array {
