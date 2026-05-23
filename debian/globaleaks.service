@@ -17,6 +17,16 @@ ExecReload=/etc/init.d/globaleaks reload
 PIDFile=/run/globaleaks/globaleaks.pid
 
 MemorySwapMax=0
+NoNewPrivileges=yes
+SystemCallArchitectures=native
+LockPersonality=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+ReadWritePaths=/var/globaleaks
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target
