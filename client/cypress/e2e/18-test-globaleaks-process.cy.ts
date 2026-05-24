@@ -320,7 +320,8 @@ describe("globaleaks process", function () {
   it("should request for identity (second time)", () => {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
-    cy.get("#tip-0").first().click();
+    cy.waitForUrl("/#/recipient/reports");
+    cy.get("#tip-0").should('be.visible').first().click();
     cy.takeScreenshot("recipient/identity_post_denial", "#Identity");
     cy.get("#identity_access_request").click();
     cy.get('textarea[name="request_motivation"]').type("This is the motivation text.");
@@ -338,7 +339,8 @@ describe("globaleaks process", function () {
   it("should request for identity (second time)", () => {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
-    cy.get("#tip-0").first().click();
+    cy.waitForUrl("/#/recipient/reports");
+    cy.get("#tip-0").should('be.visible').first().click();
     cy.takeScreenshot("recipient/identity_post_authorization", "#Identity");
     cy.logout();
   });
