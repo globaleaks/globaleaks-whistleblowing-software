@@ -13,12 +13,10 @@ purge() {
 case "$1" in
   "remove")
     remove
-    break
     ;;
   "purge")
     remove
     purge
-    break;
     ;;
 esac
 
