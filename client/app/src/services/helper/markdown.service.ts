@@ -9,10 +9,10 @@ export class MarkdownRendererService {
 
   getCustomRenderer(): Renderer {
     const renderer = new Renderer();
-    const defaultLink = renderer.link.bind(renderer);
+    const defaultLink = Renderer.prototype.link;
 
-    renderer.link = function (token) {
-      const html = defaultLink(token);
+    renderer.link = function (token: any) {
+      const html = defaultLink.call(this, token);
       return html.startsWith('<a ')
         ? '<a target="_blank" rel="noopener noreferrer" ' + html.slice(3)
         : html;
