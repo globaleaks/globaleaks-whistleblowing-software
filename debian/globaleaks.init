@@ -17,6 +17,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=$(basename $(readlink -nf $0))
 
 DAEMON=/usr/bin/globaleaks
+DESC="GlobaLeaks daemon"
 SCRIPTNAME=$0
 WAITFORDAEMON=60
 
