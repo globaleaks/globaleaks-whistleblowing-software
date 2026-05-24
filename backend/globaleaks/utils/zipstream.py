@@ -47,11 +47,10 @@ class ZipInfo(object):
         null_byte = filename.find(chr(0))
         if null_byte >= 0:
             filename = filename[0:null_byte]
-        # This is used to ensure paths in generated ZIP files always use
-        # forward slashes as the directory separator, as required by the
-        # ZIP format specification.
-        if os.sep != "/" and os.sep in filename:
-            filename = filename.replace(os.sep, "/")
+        # Normalize all path separators to forward slash and strip
+        # directory-traversal sequences to prevent Zip Slip attacks.
+        filename = filename.replace('\\', '/')
+        filename = '/'.join(p for p in filename.split('/') if p not in ('', '.', '..'))
 
         self.filename = filename         # Normalized file name
         self.date_time = date_time       # year, month, day, hour, min, sec
