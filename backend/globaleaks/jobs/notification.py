@@ -174,7 +174,14 @@ class MailGenerator(object):
                                     models.WhistleblowerFile.new.is_(True)) \
                           .order_by(models.InternalFile.creation_date)
 
-        for user, rtip, itip, obj in itertools.chain(results1, results2, results3):
+        results4 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.ReceiverFile) \
+                          .filter(models.User.id == models.ReceiverTip.receiver_id,
+                                  models.ReceiverTip.internaltip_id == models.ReceiverFile.internaltip_id,
+                                  models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                  models.ReceiverFile.new.is_(True)) \
+                          .order_by(models.ReceiverFile.creation_date)
+
+        for user, rtip, itip, obj in itertools.chain(results1, results2, results3, results4):
             tid = user.tid
 
             if (tid in silent_tids) or \
@@ -182,7 +189,9 @@ class MailGenerator(object):
                 rtip.last_notification > rtip.last_access or \
                 (isinstance(obj, models.Comment) and \
                  (obj.author_id == user.id or
-                  obj.visibility == models.EnumVisibility.personal.name)):
+                  obj.visibility == models.EnumVisibility.personal.name)) or \
+                (isinstance(obj, models.ReceiverFile) and \
+                 obj.author_id == user.id):
                 obj.new = False
                 continue
 
