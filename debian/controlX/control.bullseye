@@ -17,6 +17,7 @@ Standards-Version: 4.6.1
 
 Package: globaleaks
 Architecture: all
+Pre-Depends: ${misc:Pre-Depends}
 Depends:
   ${misc:Depends},
   ${python3:Depends},
