@@ -39,9 +39,7 @@ export class UserComponent {
   }
 
   onChangeLanguage() {
-    sessionStorage.setItem("language", this.translationService.language);
-
-    window.location.reload();
+    this.translationService.setLanguage(this.translationService.language);
   }
 
   onQueryParameterChangeListener() {

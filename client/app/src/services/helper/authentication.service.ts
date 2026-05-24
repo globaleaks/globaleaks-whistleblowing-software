@@ -34,17 +34,6 @@ export class AuthenticationService {
   requireAuthCode = false;
   loginData: LoginDataRef = new LoginDataRef();
 
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    this.session = window.sessionStorage.getItem("session");
-    if (typeof this.session === "string") {
-      this.session = JSON.parse(this.session);
-    }
-  }
-
   public reset() {
     this.loginInProgress = false;
     this.requireAuthCode = false;
@@ -55,7 +44,6 @@ export class AuthenticationService {
     const role = this.session ? this.session.role : 'recipient';
 
     this.session = null;
-    window.sessionStorage.clear();
 
     if (role === "whistleblower") {
       window.location.replace("about:blank");
@@ -66,7 +54,6 @@ export class AuthenticationService {
 
   setSession(response: Session) {
     this.session = response;
-    window.sessionStorage.setItem("session", JSON.stringify(this.session));
   }
 
   resetPassword(username: string) {
