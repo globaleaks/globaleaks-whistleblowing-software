@@ -68,6 +68,7 @@ def get_engine(db_uri=None, foreign_keys=True, orm_lockdown=True):
         conn.execute('PRAGMA journal_mode=DELETE')
         conn.execute('PRAGMA synchronous=FULL')
         conn.execute('PRAGMA cache_size=-32000')
+        conn.execute('PRAGMA secure_delete=ON')
         conn.execute('PRAGMA trusted_schema=OFF')
         conn.execute('PRAGMA temp_store=MEMORY')
         conn.execute('PRAGMA dqs_ddl=0')

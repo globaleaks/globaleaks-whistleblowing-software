@@ -58,12 +58,15 @@ class TestORM(helpers.TestGL):
         yield self.assertRaises(sqlalchemy.exc.DatabaseError, session.execute, sqlalchemy.text("DROP TABLE Tenant"))
 
     def test_do_connect_pragmas_values(self):
-        # Test that verifies that the PRAGMA configurations are efeectively applied
+        # Test that verifies that the PRAGMA configurations are effectively applied
         dstpath = os.path.join(Settings.working_path, 'globaleaks.db')
         engine = get_engine(db_uri="sqlite:////" + dstpath, foreign_keys=True, orm_lockdown=False)
 
         # Connect to the database
         with engine.connect() as conn:
+            result = conn.execute(text("PRAGMA secure_delete")).fetchone()
+            self.assertEqual(result[0], 1)  # ON = 1
+
             result = conn.execute(text("PRAGMA temp_store")).fetchone()
             self.assertEqual(result[0], 2)  # MEMORY = 2
 
