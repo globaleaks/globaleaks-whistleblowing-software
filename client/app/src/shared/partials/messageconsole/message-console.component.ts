@@ -1,4 +1,4 @@
-import {AfterViewChecked, Component, inject} from "@angular/core";
+import {AfterViewChecked, ChangeDetectorRef, Component, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 
@@ -12,6 +12,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [TranslateModule, TranslatorPipe]
 })
 export class MessageConsoleComponent implements AfterViewChecked {
+  private cdr = inject(ChangeDetectorRef);
   appDataService = inject(AppDataService);
 
   private timeoutId: any;
@@ -28,6 +29,7 @@ export class MessageConsoleComponent implements AfterViewChecked {
       this.timeoutRunning = true;
       this.timeoutId = setTimeout(() => {
         this.dismissError();
+        this.cdr.markForCheck();
       }, 3000);
     }
   }

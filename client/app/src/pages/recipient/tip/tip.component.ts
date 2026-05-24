@@ -160,6 +160,7 @@ export class TipComponent implements OnInit {
           component: this.tab3
         },
       ];
+      this.cdr.markForCheck();
     });
   }
 

@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -28,6 +28,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [FormsModule, NgClass, DatePipe, TranslateModule, TranslatorPipe]
 })
 export class PreferenceTab1Component implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   protected appConfigService = inject(AppConfigService);
   private translateService = inject(TranslateService);
   private httpService = inject(HttpService);
@@ -57,6 +58,7 @@ export class PreferenceTab1Component implements OnInit {
     this.role = this.role ? this.translateService.instant(this.role) : '';
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
+      this.cdr.markForCheck();
     }, 150);
   }
 
