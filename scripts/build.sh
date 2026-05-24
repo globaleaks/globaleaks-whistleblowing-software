@@ -8,6 +8,7 @@ TAG="stable"
 LOCAL_ENV=0
 NOSIGN=0
 PUSH=0
+TESTING=0
 
 usage() {
   echo "GlobaLeaks Build Script"
@@ -90,7 +91,7 @@ fi
 git fetch --depth=1 origin "$TAG"
 git checkout FETCH_HEAD
 
-if [ "${TESTING:-0}" -eq 1 ]; then
+if [ "$TESTING" -eq 1 ]; then
   cd client && npm ci && ./node_modules/grunt/bin/grunt build_for_testing
 else
   cd client && npm ci -d && ./node_modules/grunt/bin/grunt build
@@ -127,13 +128,6 @@ done
 
 if [ $PUSH -eq 1 ]; then
   for TARGET in $TARGETS; do
-
-    BUILDDIR="GLRelease-$TARGET"
-
-    cp -r $BUILDSRC $BUILDDIR
-
-    dput globaleaks globaleaks*changes
-
-    cd ../../
+    dput globaleaks "build/$TARGET/"globaleaks_*_amd64.changes
   done
 fi
