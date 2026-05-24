@@ -16,7 +16,7 @@ export class ReceiptValidatorDirective implements Validator {
 
   @HostListener("keyup", ["$event"])
   @HostListener("paste", ["$event"])
-  @HostListener("keydown", ["$event"]) onKeyDown(e: KeyboardEvent) {
+  @HostListener("keydown", ["$event"]) onKeyDown(e: Event) {
     const input = e.target as HTMLInputElement;
     input.value = this.current_val;
   }
