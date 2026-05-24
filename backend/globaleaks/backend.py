@@ -107,8 +107,8 @@ class Service(service.Service):
 
     @defer.inlineCallbacks
     def stopService(self):
-        yield self.state.orm_tp.stop()
         yield self.stop_jobs()
+        yield self.state.orm_tp.stop()
 
 
 try:
