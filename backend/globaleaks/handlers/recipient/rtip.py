@@ -23,6 +23,7 @@ from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
+from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
@@ -647,7 +648,7 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
 
     session.add(new_file)
 
-    return serializers.serialize_rfile(session, new_file)
+    return serializers.serialize_rfile(session, new_file), itip.crypto_tip_pub_key
 
 
 def db_get_rtip(session, tid, user_id, itip_id, language):
@@ -1304,6 +1305,27 @@ class WhistleblowerFileDownload(BaseHandler):
         yield self.write_file_as_download(name, filelocation, pgp_key)
 
 
+def write_rfile_to_disk(uploaded_file, crypto_key):
+    sf = uploaded_file['body']
+    dst = os.path.abspath(os.path.join(Settings.attachments_path, uploaded_file['filename']))
+    if crypto_key:
+        with sf.open('r') as src, \
+             GCE.streaming_encryption_open('ENCRYPT', crypto_key, dst) as seo:
+            while True:
+                chunk = src.read(65536)
+                if not chunk:
+                    break
+                seo.encrypt_chunk(chunk, 0)
+            seo.encrypt_chunk(b'', 1)
+    else:
+        with sf.open('r') as src, open(dst, 'wb') as out:
+            while True:
+                chunk = src.read(65536)
+                if not chunk:
+                    break
+                out.write(chunk)
+
+
 class ReceiverFileUpload(BaseHandler):
     """
     Receiver interface to upload a file intended for the whistleblower
@@ -1311,8 +1333,11 @@ class ReceiverFileUpload(BaseHandler):
     check_roles = 'receiver'
     upload_handler = True
 
+    @inlineCallbacks
     def post(self, itip_id):
-        return register_rfile_on_db(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
+        result, crypto_key = yield register_rfile_on_db(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
+        deferToThread(write_rfile_to_disk, self.uploaded_file, crypto_key)
+        returnValue(result)
 
 
 class ReceiverFileDownload(BaseHandler):

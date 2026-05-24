@@ -28,7 +28,6 @@ def file_delivery(session):
                              .filter(models.InternalFile.new.is_(True),
                                      models.InternalTip.id == models.InternalFile.internaltip_id) \
                              .order_by(models.InternalFile.creation_date) \
-                             .limit(20) \
                              .all()
 
     # Extract InternalFile IDs for batch query
@@ -68,19 +67,6 @@ def file_delivery(session):
             whistleblowerfile.new = not ifile.creation_date == itip.creation_date
 
             session.add(whistleblowerfile)
-
-    for rfile, itip in session.query(models.ReceiverFile, models.InternalTip)\
-                               .filter(models.ReceiverFile.new.is_(True),
-                                       models.ReceiverFile.internaltip_id == models.InternalTip.id) \
-                               .order_by(models.ReceiverFile.creation_date) \
-                               .limit(20):
-        rfile.new = False
-
-        files_map[rfile.id] = {
-            'key': itip.crypto_tip_pub_key,
-            'src': rfile.id,
-            'dst': os.path.abspath(os.path.join(Settings.attachments_path, rfile.id)),
-        }
 
     return files_map
 
