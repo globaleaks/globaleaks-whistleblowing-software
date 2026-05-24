@@ -36,7 +36,6 @@ Depends:
   python3-packaging,
   python3-priority,
   python3-pyotp,
-  python3-six,
   python3-sqlalchemy,
   python3-twisted,
   python3-txtorcon,
