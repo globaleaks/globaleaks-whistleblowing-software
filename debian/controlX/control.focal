@@ -3,7 +3,7 @@ Maintainer: Giovanni Pellerano <giovanni.pellerano@globaleaks.org>
 Section: web
 Priority: optional
 Build-Depends:
-  debhelper(>=10),
+  debhelper-compat (= 12),
   devscripts,
   dh-apparmor,
   dh-python,
