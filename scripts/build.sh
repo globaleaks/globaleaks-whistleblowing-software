@@ -90,7 +90,7 @@ fi
 git fetch --depth=1 origin "$TAG"
 git checkout FETCH_HEAD
 
-if [ $TESTING -eq 1 ]; then
+if [ "${TESTING:-0}" -eq 1 ]; then
   cd client && npm ci && ./node_modules/grunt/bin/grunt build_for_testing
 else
   cd client && npm ci -d && ./node_modules/grunt/bin/grunt build
