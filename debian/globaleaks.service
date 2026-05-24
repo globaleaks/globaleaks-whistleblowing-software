@@ -1,5 +1,5 @@
 [Unit]
-Description=LSB: Start the GlobaLeaks server.
+Description=GlobaLeaks Whistleblowing Software
 After=remote-fs.target
 After=network-online.target
 After=nss-lookup.target
@@ -30,4 +30,3 @@ UMask=0027
 
 [Install]
 WantedBy=multi-user.target
-Alias=globaleaks.service
