@@ -38,8 +38,9 @@ export class UserComponent {
     this.onQueryParameterChangeListener();
   }
 
-  onChangeLanguage() {
-    this.translationService.setLanguage(this.translationService.language);
+  onChangeLanguage(language: string) {
+    this.translationService.setLanguage(language);
+    this.appConfigService.reload();
   }
 
   onQueryParameterChangeListener() {

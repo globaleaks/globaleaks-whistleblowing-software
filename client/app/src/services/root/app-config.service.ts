@@ -166,4 +166,13 @@ export class AppConfigService {
   reinit(languageInit = true) {
     this.localInitialization(languageInit);
   }
+
+  reload() {
+    this.localInitialization(true, () => {
+      const url = this.router.url;
+      this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
+        this.router.navigateByUrl(url);
+      });
+    });
+  }
 }
