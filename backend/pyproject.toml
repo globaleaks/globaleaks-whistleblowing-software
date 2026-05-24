@@ -87,9 +87,5 @@ dependencies = {file = ["requirements.txt"]}
 where = ["."]
 include = ["globaleaks*"]
 
-# Ensure non-Python files (e.g., templates, config files) are included
-[tool.setuptools.package-data]
-globaleaks = ["**/*"]
-
 [tool.setuptools.data-files]
 "bin" = ["bin/globaleaks", "bin/gl-admin"]
