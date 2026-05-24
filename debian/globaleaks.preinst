@@ -4,9 +4,9 @@ set -e
 
 #DEBHELPER#
 
-set +e
-systemctl mask tor
-set -e
+# Disable the system tor service; GlobaLeaks manages its own tor instance
+systemctl disable tor 2>/dev/null || true
+systemctl stop tor 2>/dev/null || true
 
 if [ "$1" = "upgrade" ]; then
   service globaleaks stop || true
