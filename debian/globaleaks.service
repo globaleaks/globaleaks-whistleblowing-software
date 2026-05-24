@@ -15,6 +15,8 @@ ExecStart=/etc/init.d/globaleaks start
 ExecStop=/etc/init.d/globaleaks stop
 ExecReload=/etc/init.d/globaleaks reload
 PIDFile=/run/globaleaks/globaleaks.pid
+RuntimeDirectory=globaleaks
+RuntimeDirectoryMode=0700
 
 MemorySwapMax=0
 NoNewPrivileges=yes

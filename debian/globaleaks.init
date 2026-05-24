@@ -139,12 +139,14 @@ network_sandboxing_stop()
 globaleaks_start()
 {
     if [ ! -d "/run/globaleaks" ]; then
-        mkdir -m 700 /run/globaleaks && chown $USERNAME:$USERNAME /run/globaleaks
+        mkdir -m 700 /run/globaleaks
     fi
+    chown $USERNAME:$USERNAME /run/globaleaks
 
     if [ ! -d "/dev/shm/globaleaks" ]; then
-        mkdir -m 700 /dev/shm/globaleaks && chown $USERNAME:$USERNAME /dev/shm/globaleaks
+        mkdir -m 700 /dev/shm/globaleaks
     fi
+    chown $USERNAME:$USERNAME /dev/shm/globaleaks
 
     ARGS="--ip=${LISTENING_IP}
           --working-path=${WORKING_DIR}"
