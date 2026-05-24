@@ -60,10 +60,10 @@ echo "Checking preliminary GlobaLeaks Build requirements"
 for REQ in git npm debuild brotli
 do
   if which $REQ >/dev/null; then
-    echo " + $REQ requirement meet"
+    echo " + $REQ requirement met"
   else
     ERR=$((ERR+1))
-    echo " - $REQ requirement not meet"
+    echo " - $REQ requirement not met"
   fi
 done
 
