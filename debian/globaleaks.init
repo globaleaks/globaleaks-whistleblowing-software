@@ -34,7 +34,7 @@ if test -e "/usr/share/globaleaks/default" ; then
 fi
 
 REACHABLE_VIA_WEB=1
-if [[ -f /var/globaleaks/globaleaks.db && "$(gl-admin getvar reachable_via_web 2>1&)" == "False" ]]; then
+if [[ -f /var/globaleaks/globaleaks.db && "$(gl-admin getvar reachable_via_web 2>&1)" == "False" ]]; then
     REACHABLE_VIA_WEB=0
 fi
 
