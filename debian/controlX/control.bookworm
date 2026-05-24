@@ -17,7 +17,7 @@ Standards-Version: 4.6.1
 
 Package: globaleaks
 Architecture: all
-Pre-Depends: ${misc:Pre-Depends}
+Pre-Depends: ${misc:Pre-Depends}, init-system-helpers (>= 1.54~)
 Depends:
   ${misc:Depends},
   ${python3:Depends},
