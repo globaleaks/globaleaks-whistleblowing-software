@@ -10,7 +10,7 @@ export const recipientRoutes: Routes = [
     pathMatch: "full",
     data: {pageTitle: "Home"},
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
   },
   {
@@ -18,7 +18,7 @@ export const recipientRoutes: Routes = [
     loadComponent: () => import('@app/pages/recipient/home/home.component').then(m => m.HomeComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver,
     },
     data: {pageTitle: "Home"},
   },
@@ -45,7 +45,7 @@ export const recipientRoutes: Routes = [
     loadComponent: () => import('@app/shared/partials/preferences/preferences.component').then(m => m.PreferencesComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Preferences"},
   }

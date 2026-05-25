@@ -1,6 +1,5 @@
 import {Routes} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
 export const analystRoutes: Routes = [
   {
@@ -14,7 +13,7 @@ export const analystRoutes: Routes = [
     loadComponent: () => import('@app/pages/analyst/home/home.component').then(m => m.HomeComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Home"},
   },
@@ -32,7 +31,7 @@ export const analystRoutes: Routes = [
     loadComponent: () => import('@app/shared/partials/preferences/preferences.component').then(m => m.PreferencesComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Preferences"},
   }
