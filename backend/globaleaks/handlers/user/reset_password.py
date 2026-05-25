@@ -167,6 +167,9 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
 
     db_log(session, tid=user.tid, type='login', user_id=user.id)
 
+    # Note: the token is not invalidated intentionally;
+    #       it is required to preserve validity till actuall password reset
+
     return {'status': 'success', 'token': user_session.id}
 
 
