@@ -9,7 +9,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import transact
+from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.templating import Templating
@@ -96,6 +96,11 @@ def update_identityaccessrequest(session, tid, user_id, identityaccessrequest_id
         iar.reply_user_id = user_id
         iar.reply = request['reply']
         iar.reply_motivation = request['reply_motivation']
+
+        if request['reply'] == 'authorized':
+            db_log(session, tid=tid, type='authorize_identity_access', user_id=user_id, object_id=itip.id)
+        elif request['reply'] == 'denied':
+            db_log(session, tid=tid, type='deny_identity_access', user_id=user_id, object_id=itip.id)
 
         db_create_identity_access_reply_notifications(session, itip, iar)
 

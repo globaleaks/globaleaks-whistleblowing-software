@@ -983,6 +983,8 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
     session.add(iar)
     session.flush()
 
+    db_log(session, tid=tid, type='request_identity_access', user_id=user_id, object_id=itip.id)
+
     custodians = 0
     for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.enabled == True):
         iarc = models.IdentityAccessRequestCustodian()
@@ -996,6 +998,7 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
         iar.reply_date = datetime_now()
         iar.reply_user_id = user_id
         iar.reply = 'authorized'
+        db_log(session, tid=tid, type='authorize_identity_access', user_id=user_id, object_id=itip.id)
 
     db_create_identityaccessrequest_notifications(session, itip, rtip, iar)
 
