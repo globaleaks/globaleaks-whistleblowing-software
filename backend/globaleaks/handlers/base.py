@@ -92,7 +92,7 @@ def db_confirmation_check(session, tid, user_id, secret):
         if len(user.hash) == 64:
             hash = sha256(Base64Encoder.decode(secret.encode())).decode()
         else:
-            hash = GCE.hash_password(secret, user.salt)
+            _, hash = GCE.calculate_key_and_hash(secret, user.salt)
 
         if not GCE.check_equality(hash, user.hash):
             raise errors.InvalidAuthentication
