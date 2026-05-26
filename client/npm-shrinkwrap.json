@@ -9981,9 +9981,9 @@
       }
     },
     "node_modules/brace-expansion": {
-      "version": "5.0.5",
-      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.5.tgz",
-      "integrity": "sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ==",
+      "version": "5.0.6",
+      "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.6.tgz",
+      "integrity": "sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
@@ -12457,11 +12457,13 @@
       }
     },
     "node_modules/express-rate-limit": {
-      "version": "8.3.1",
+      "version": "8.5.2",
+      "resolved": "https://registry.npmjs.org/express-rate-limit/-/express-rate-limit-8.5.2.tgz",
+      "integrity": "sha512-5Kb34ipNX694DH48vN9irak1Qx30nb0PLYHXfJgw4YEjiC3ZEmZJhwOp+VfiCYwFzvFTdB9QkArYS5kXa2cx2A==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "ip-address": "10.1.0"
+        "ip-address": "^10.2.0"
       },
       "engines": {
         "node": ">= 16"
@@ -12593,7 +12595,9 @@
       "license": "MIT"
     },
     "node_modules/fast-uri": {
-      "version": "3.1.0",
+      "version": "3.1.2",
+      "resolved": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.2.tgz",
+      "integrity": "sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==",
       "dev": true,
       "funding": [
         {
@@ -13929,9 +13933,9 @@
       }
     },
     "node_modules/hono": {
-      "version": "4.12.14",
-      "resolved": "https://registry.npmjs.org/hono/-/hono-4.12.14.tgz",
-      "integrity": "sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==",
+      "version": "4.12.23",
+      "resolved": "https://registry.npmjs.org/hono/-/hono-4.12.23.tgz",
+      "integrity": "sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==",
       "dev": true,
       "license": "MIT",
       "engines": {
@@ -14407,7 +14411,9 @@
       }
     },
     "node_modules/ip-address": {
-      "version": "10.1.0",
+      "version": "10.2.0",
+      "resolved": "https://registry.npmjs.org/ip-address/-/ip-address-10.2.0.tgz",
+      "integrity": "sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==",
       "dev": true,
       "license": "MIT",
       "engines": {
@@ -21251,7 +21257,9 @@
       }
     },
     "node_modules/systeminformation": {
-      "version": "5.31.4",
+      "version": "5.31.6",
+      "resolved": "https://registry.npmjs.org/systeminformation/-/systeminformation-5.31.6.tgz",
+      "integrity": "sha512-Uv2b2uGGM6ns+26czgW2cYRabYdnswM0ddSOOlryHOaelzsmDSet1iM/NT7VOYxW8x/BW+HkY+b1Ve2pLTSGSA==",
       "dev": true,
       "license": "MIT",
       "os": [
