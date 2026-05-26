@@ -91,7 +91,7 @@ def delete_file_if_existing(session, tid, id_or_name):
 
 
 class FileInstance(BaseHandler):
-    check_roles = 'user'
+    check_roles = {'admin', 'receiver'}
     invalidate_cache = True
     upload_handler = True
 
@@ -161,10 +161,13 @@ class FileInstance(BaseHandler):
 
 
 class FileCollection(BaseHandler):
-    check_roles = 'user'
+    check_roles = {'admin', 'receiver'}
 
     def get(self):
         """
         Return the list of files and their info
         """
+        if self.session.role != 'admin' and not self.session.has_permission('can_edit_general_settings'):
+            raise errors.InvalidAuthentication
+
         return get_files(self.request.tid)
