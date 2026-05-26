@@ -100,8 +100,6 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
           if(error.error){
             if (error.error["error_code"] === 10) {
               this.authenticationService.deleteSession();
-              this.authenticationService.reset();
-              this.authenticationService.loginRedirect();
             } else if (error.error["error_code"] === 6 && this.authenticationService.session) {
               if (this.authenticationService.session.role !== "whistleblower") {
                 location.pathname = this.authenticationService.session.homepage;

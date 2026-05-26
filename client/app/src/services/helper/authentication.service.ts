@@ -48,7 +48,8 @@ export class AuthenticationService {
     if (role === "whistleblower") {
       window.location.replace("about:blank");
     } else {
-      this.loginRedirect();
+      window.location.hash = "/login";
+      window.location.reload();
     }
   };
 
@@ -247,11 +248,4 @@ export class AuthenticationService {
     );
   };
 
-  loginRedirect() {
-    const source_path = location.pathname;
-
-    if (source_path !== "/login") {
-      this.router.navigateByUrl("/login").then();
-    }
-  };
 }
