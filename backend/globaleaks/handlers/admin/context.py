@@ -250,6 +250,20 @@ def order_elements(session, tid, ids, *args, **kwargs):
         id_dict[ctx_id].order = i
 
 
+@transact
+def delete_context(session, tid, context_id):
+    context = db_get(session,
+                     models.Context,
+                     (models.Context.tid == tid,
+                      models.Context.id == context_id))
+
+    # TODO: After release 5.1.0 it will be possible to delete this code
+    if session.query(models.InternalTip).filter(models.InternalTip.context_id == context_id).count():
+        raise errors.ForbiddenOperation
+
+    session.delete(context)
+
+
 class ContextsCollection(OperationHandler):
     check_roles = 'admin'
     invalidate_cache = True
@@ -298,7 +312,4 @@ class ContextInstance(BaseHandler):
         """
         Delete the specified context.
         """
-        return tw(db_del,
-                  models.Context,
-                  (models.Context.tid == self.request.tid,
-                   models.Context.id == context_id))
+        return delete_context(self.request.tid, context_id)
