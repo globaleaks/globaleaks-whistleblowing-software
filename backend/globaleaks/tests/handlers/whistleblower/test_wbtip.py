@@ -4,6 +4,8 @@ from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.tests import helpers
+from globaleaks.tests.helpers import VALID_SALT
+from globaleaks.utils.crypto import GCE
 
 
 class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
@@ -102,6 +104,11 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
         old_receipt = self.dummySubmission['receipt']
         new_receipt = '1234123412341234'
 
+        if self.clientside_hashing:
+            new_receipt_for_server = GCE.derive_key(new_receipt, VALID_SALT)
+        else:
+            new_receipt_for_server = new_receipt
+
         # 1. Verify the old receipt works
         self._handler = auth.ReceiptAuthHandler
 
@@ -115,23 +122,21 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
         # 2. Change the receipt
         self._handler = wbtip.Operations
 
-        session_properties = {
-            'new_receipt': new_receipt
-        }
-
         body = {
           'operation': 'change_receipt',
-          'args': {}
+          'args': {
+              'receipt': new_receipt_for_server
+          }
         }
 
         wbtip_desc = (yield self.get_wbtips())[0]
-        handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'], properties=session_properties)
+        handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
         yield handler.put()
 
         # 3. Verify the new receipt works
         self._handler = auth.ReceiptAuthHandler
         handler = self.request({
-            'receipt': new_receipt
+            'receipt': new_receipt_for_server
         })
 
         response = yield handler.post()

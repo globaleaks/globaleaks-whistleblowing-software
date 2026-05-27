@@ -125,8 +125,8 @@ export class AuthenticationService {
 
             this.setSession(response);
 
-            if (response && response && response.properties && response.properties.new_receipt) {
-              const receipt = response.properties.new_receipt;
+            if (response && response.properties && response.properties.receipt_change_needed) {
+              const receipt = this.cryptoService.generateReceipt();
               const formattedReceipt = this.formatReceipt(receipt);
 
               const modalRef = this.modalService.open(OtkcAccessComponent,{backdrop: 'static', keyboard: false});
@@ -134,10 +134,17 @@ export class AuthenticationService {
                 receipt: receipt,
                 formatted_receipt: formattedReceipt
               };
-              modalRef.componentInstance.confirmFunction = () => {
+              modalRef.componentInstance.confirmFunction = async () => {
+                const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': ''})));
+                let newReceipt: string;
+                if (res.type === 'key') {
+                  newReceipt = await this.cryptoService.hashArgon2(receipt, res.salt);
+                } else {
+                  newReceipt = receipt;
+                }
                 this.http.put('api/whistleblower/operations', {
                   operation: 'change_receipt',
-                  args: {}
+                  args: {receipt: newReceipt}
                   }).subscribe(() => {
                   this.titleService.setPage('tippage');
                   modalRef.close();

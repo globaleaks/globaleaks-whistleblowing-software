@@ -70,7 +70,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key)
 
     if itip.receipt_change_needed:
-        session.properties["new_receipt"] = GCE.generate_receipt()
+        session.properties["receipt_change_needed"] = True
 
     return session
 

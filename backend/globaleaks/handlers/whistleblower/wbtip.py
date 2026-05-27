@@ -18,7 +18,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE
+from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -152,17 +152,19 @@ def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
     if itip is None:
         return
 
-    tid = itip.tid
+    if len(receipt) == 44:
+        key = Base64Encoder.decode(receipt.encode())
+        itip.receipt_hash = sha256(key).decode()
+    else:
+        tid = itip.tid
+        key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, State.tenants[tid].cache.receipt_salt)
 
-    # update receipt
-    wb_key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, State.tenants[tid].cache.receipt_salt)
     itip.receipt_change_needed = receipt_change_needed
 
     if cc is None:
         return
 
-    # update private keys
-    itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, cc))
+    itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
 
 class Operations(BaseHandler):
@@ -176,8 +178,12 @@ class Operations(BaseHandler):
         if request["operation"] != "change_receipt":
             raise errors.InputValidationError("Invalid command")
 
+        receipt = request["args"].get("receipt", "")
+        if not receipt:
+            raise errors.InputValidationError("Missing receipt")
+
         return change_receipt(self.session.user_id, self.session.cc,
-                              self.session.properties["new_receipt"],
+                              receipt,
                               "operator_session" in self.session.properties)
 
 

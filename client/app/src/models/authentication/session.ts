@@ -15,7 +15,7 @@ export class Session {
 
 export interface Properties {
   management_session: any
-  new_receipt: string;
+  receipt_change_needed: boolean;
 }
 
 export class SessionRefresh {
