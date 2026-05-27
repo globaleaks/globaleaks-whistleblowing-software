@@ -342,13 +342,13 @@ class ConfigHandler(BaseHandler):
         return tw(db_serialize_https_config_summary, self.request.tid)
 
     def post(self):
-        tw(db_try_to_enable_https, self.request.tid)
+        return tw(db_try_to_enable_https, self.request.tid)
 
     def put(self):
-        tw(db_disable_https, self.request.tid)
+        return tw(db_disable_https, self.request.tid)
 
     def delete(self):
-        tw(db_reset_https_config, self.request.tid)
+        return tw(db_reset_https_config, self.request.tid)
 
 
 class CSRHandler(BaseHandler):
