@@ -769,9 +769,12 @@ def db_postpone_expiration(session, itip, expiration_date):
         min_date = itip.expiration_date
 
     # Enable to postpone but not after max(365, 2 time the policy)
-    max_date = time.time() + (max(365, 2 * policy) + 1) * 86400
-    max_date = max_date - max_date % 86400
-    max_date = datetime.fromtimestamp(max_date)
+    if policy <= 0:
+        max_date = datetime_never()
+    else:
+        max_date = time.time() + (max(365, 2 * policy) + 1) * 86400
+        max_date = max_date - max_date % 86400
+        max_date = datetime.fromtimestamp(max_date)
 
     if expiration_date <= min_date:
         expiration_date = min_date

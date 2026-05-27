@@ -454,6 +454,14 @@ export class UtilsService {
     return date;
   }
 
+  getMaxPostponeDate(ttl: number): Date {
+    if (ttl <= 0) {
+      return new Date(datetime_never);
+    } else {
+      return this.getPostponeDate(Math.max(365, ttl * 2));
+    }
+  }
+
   update(node: nodeResolverModel) {
     return this.httpService.requestUpdateAdminNodeResource(node);
   }
