@@ -30,6 +30,8 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+const datetime_never = new Date(3000, 0, 1).getTime();
+
 @Injectable({
   providedIn: "root"
 })
@@ -319,7 +321,7 @@ export class UtilsService {
 
   isNever(time: string) {
     const date = new Date(time);
-    return date.getTime() >= 32503680000000;
+    return date.getTime() >= datetime_never;
   }
 
   deleteFromList(list:  Record<string, Field>[], elem: Record<string, Field>) {
