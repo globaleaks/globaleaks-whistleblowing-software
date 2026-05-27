@@ -762,7 +762,7 @@ def db_postpone_expiration(session, itip, expiration_date):
     expiration_date = datetime.fromtimestamp(expiration_date)
 
     # Enable to anticipate but not before 90 days since current day
-    min_date = time.time() + 91 * 86400
+    min_date = time.time() + 90 * 86400
     min_date = min_date - min_date % 86400
     min_date = datetime.fromtimestamp(min_date)
     if itip.expiration_date <= min_date:

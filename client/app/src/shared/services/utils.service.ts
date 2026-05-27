@@ -443,7 +443,7 @@ export class UtilsService {
   getMinPostponeDate(currentExpirationDate: string) {
     const currDate = new Date(currentExpirationDate);
     const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 91);
+    minDate.setDate(minDate.getDate() + 90);
     return currDate > minDate ? minDate : currDate;
   }
 
