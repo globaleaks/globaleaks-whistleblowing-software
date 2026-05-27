@@ -1,12 +1,12 @@
 import re
-import random
+import secrets
 import string
 
 INVISIBLE_CHARS = ['\u200b', '\u200c', '\u200d', '\ufeff']
 DEFANGED_SEQS = ['[://]', '[:/]', '[:]', '[@]', '[.]']
 
 def _random_placeholder(length=12):
-    return '__DEFANG_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length)) + '__'
+    return '__DEFANG_' + ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length)) + '__'
 
 def defang(text: str) -> str:
     """
