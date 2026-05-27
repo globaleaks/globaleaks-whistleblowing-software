@@ -161,10 +161,8 @@ def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
 
     itip.receipt_change_needed = receipt_change_needed
 
-    if cc is None:
-        return
-
-    itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
+    if cc:
+        itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
 
 class Operations(BaseHandler):
