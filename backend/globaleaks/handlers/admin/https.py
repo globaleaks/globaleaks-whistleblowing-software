@@ -7,7 +7,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import transact, tw
+from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.settings import Settings
 from globaleaks.state import State
@@ -145,7 +145,7 @@ def db_serialize_https_config_summary(session, tid):
     }
 
 
-def db_try_to_enable_https(session, tid):
+def db_try_to_enable_https(session, tid, user_id):
     config = ConfigFactory(session, tid)
 
     cv = tls.ChainValidator()
@@ -160,15 +160,19 @@ def db_try_to_enable_https(session, tid):
     State.tenants[tid].cache.https_enabled = True
     State.snimap.load(tid, tls_config)
 
+    db_log(session, tid=tid, type='enable_https', user_id=user_id)
 
-def db_disable_https(session, tid):
+
+def db_disable_https(session, tid, user_id):
     config = ConfigFactory(session, tid)
     config.set_val('https_enabled', False)
     State.snimap.unload(tid)
     State.tenants[tid].cache.https_enabled = False
 
+    db_log(session, tid=tid, type='disable_https', user_id=user_id)
 
-def db_reset_https_config(session, tid):
+
+def db_reset_https_config(session, tid, user_id):
     config = ConfigFactory(session, tid)
     config.set_val('https_enabled', False)
     config.set_val('https_key', '')
@@ -182,6 +186,8 @@ def db_reset_https_config(session, tid):
     State.snimap.unload(tid)
 
     State.snimap.load(tid, db_load_tls_config(session, tid))
+
+    db_log(session, tid=tid, type='reset_https_config', user_id=user_id)
 
 
 class FileResource(object):
@@ -304,8 +310,10 @@ class FileHandler(BaseHandler):
 
         return self.mapped_resources[name]
 
+    @inlineCallbacks
     def delete(self, name):
-        return self.get_res_or_raise(name).delete_file(self.request.tid)
+        yield self.get_res_or_raise(name).delete_file(self.request.tid)
+        yield tw(db_log, tid=self.request.tid, type='delete_tls_cert', user_id=self.session.user_id, data={'name': name})
 
     @inlineCallbacks
     def post(self, name):
@@ -324,11 +332,15 @@ class FileHandler(BaseHandler):
         if not ok:
             raise errors.InputValidationError
 
+        yield tw(db_log, tid=self.request.tid, type='upload_tls_cert', user_id=self.session.user_id, data={'name': name})
+
     @inlineCallbacks
     def put(self, name):
         file_res_cls = self.get_res_or_raise(name)
 
         yield file_res_cls.perform_action(self.request.tid)
+
+        yield tw(db_log, tid=self.request.tid, type='upload_tls_cert', user_id=self.session.user_id, data={'name': name})
 
     def get(self, name):
         return self.get_res_or_raise(name).get_file(self.request.tid)
@@ -342,13 +354,13 @@ class ConfigHandler(BaseHandler):
         return tw(db_serialize_https_config_summary, self.request.tid)
 
     def post(self):
-        return tw(db_try_to_enable_https, self.request.tid)
+        return tw(db_try_to_enable_https, self.request.tid, self.session.user_id)
 
     def put(self):
-        return tw(db_disable_https, self.request.tid)
+        return tw(db_disable_https, self.request.tid, self.session.user_id)
 
     def delete(self):
-        return tw(db_reset_https_config, self.request.tid)
+        return tw(db_reset_https_config, self.request.tid, self.session.user_id)
 
 
 class CSRHandler(BaseHandler):
@@ -389,8 +401,10 @@ class AcmeHandler(BaseHandler):
     check_roles = 'admin'
     root_tenant_or_management_only = True
 
+    @inlineCallbacks
     def post(self):
-        return tw(db_acme_cert_request, self.request.tid)
+        yield tw(db_acme_cert_request, self.request.tid)
+        yield tw(db_log, tid=self.request.tid, type='request_acme_cert', user_id=self.session.user_id)
 
 
 class AcmeChallengeHandler(BaseHandler):

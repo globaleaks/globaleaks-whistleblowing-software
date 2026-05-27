@@ -2,7 +2,7 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import tw
+from globaleaks.orm import db_log, tw
 from globaleaks.rest import requests
 from globaleaks.utils.ip import parse_csv_ip_ranges_to_ip_networks
 
@@ -34,6 +34,8 @@ def db_update_network(session, tid, user_session, request):
             parse_csv_ip_ranges_to_ip_networks(request['ip_filter_' + k])
 
     ConfigFactory(session, tid).update('admin_network', request)
+
+    db_log(session, tid=tid, type='update_network', user_id=user_session.user_id)
 
     return db_admin_serialize_network(session, tid)
 

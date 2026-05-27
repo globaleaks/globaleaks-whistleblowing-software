@@ -23,8 +23,9 @@ from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def enable_encryption(session, tid):
+def enable_encryption(session, tid, user_id):
     ConfigFactory(session, tid).set_val('encryption', True)
+    db_log(session, tid=tid, type='enable_encryption', user_id=user_id)
 
 
 @transact
@@ -109,6 +110,8 @@ def toggle_escrow(session, tid, user_session):
         config.set_val('crypto_escrow_pub_key', '')
         config.set_val('crypto_escrow_prv_key', '')
 
+    db_log(session, tid=tid, type='toggle_escrow', user_id=user_session.user_id)
+
 
 @transact
 def toggle_user_escrow(session, tid, user_session, user_id):
@@ -136,6 +139,8 @@ def toggle_user_escrow(session, tid, user_session, user_id):
         user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
     else:
         user.crypto_escrow_prv_key = ''
+
+    db_log(session, tid=tid, type='toggle_user_escrow', user_id=user_session.user_id, object_id=user_id)
 
 
 @transact
@@ -174,13 +179,15 @@ def db_reset_smtp_settings(session, tid):
 
 
 @transact
-def reset_smtp_settings(session, tid):
-    return db_reset_smtp_settings(session, tid)
+def reset_smtp_settings(session, tid, user_id):
+    db_reset_smtp_settings(session, tid)
+    db_log(session, tid=tid, type='reset_smtp_settings', user_id=user_id)
 
 
 @transact
-def reset_templates(session, tid):
+def reset_templates(session, tid, user_id):
     ConfigL10NFactory(session, tid).reset('notification', load_appdata())
+    db_log(session, tid=tid, type='reset_templates', user_id=user_id)
 
 
 def db_set_user_password(session, tid, user_session, user_id, key):
@@ -270,10 +277,10 @@ class AdminOperationHandler(OperationHandler):
     ]
 
     def enable_encryption(self, req_args, *args, **kwargs):
-        return enable_encryption(self.request.tid)
+        return enable_encryption(self.request.tid, self.session.user_id)
 
     def reset_smtp_settings(self, req_args, *args, **kwargs):
-        return reset_smtp_settings(self.request.tid)
+        return reset_smtp_settings(self.request.tid, self.session.user_id)
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
@@ -308,6 +315,8 @@ class AdminOperationHandler(OperationHandler):
         if self.state.tor:
             yield self.state.tor.load_onion_service(self.request.tid, hostname, key)
 
+        yield tw(db_log, tid=self.request.tid, type='reset_onion_key', user_id=self.session.user_id)
+
         returnValue({
             'onionservice': hostname
         })
@@ -322,6 +331,8 @@ class AdminOperationHandler(OperationHandler):
         yield check_hostname(self.request.tid, req_args['value'])
         yield tw(db_set_config_variable, self.request.tid, 'hostname', req_args['value'])
         self.state.tenants[self.request.tid].cache.hostname = req_args['value']
+
+        yield tw(db_log, tid=self.request.tid, type='set_hostname', user_id=self.session.user_id)
 
     @inlineCallbacks
     def test_mail(self, req_args, *args, **kwargs):
@@ -356,7 +367,7 @@ class AdminOperationHandler(OperationHandler):
         return disable_user_permission_file_upload(self.request.tid, self.session)
 
     def reset_templates(self, req_args):
-        return reset_templates(self.request.tid)
+        return reset_templates(self.request.tid, self.session.user_id)
 
     def operation_descriptors(self):
         return {

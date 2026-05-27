@@ -6,7 +6,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models import EnabledLanguage
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
-from globaleaks.orm import db_del, tw
+from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
 from globaleaks.utils.log import log
@@ -110,6 +110,8 @@ def db_update_node(session, tid, user_session, request, language):
 
     if tid == 1:
         log.setloglevel(config.get_val('log_level'))
+
+    db_log(session, tid=tid, type='update_node', user_id=user_session.user_id)
 
     return db_admin_serialize_node(session, tid, language)
 
