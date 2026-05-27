@@ -27,6 +27,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {BodyDomObserverService} from "@app/shared/services/body-dom-observer.service";
 import {Keepalive} from "@ng-idle/keepalive";
+import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import DOMPurify from 'dompurify';
 
 registerLocales();
@@ -67,6 +68,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   private httpService = inject(HttpService);
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
+  private wbTipResolver = inject(WbTipResolver);
 
   showSidebar = true;
   isNavCollapsed = true;
@@ -147,6 +149,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   handleKeyDown(event: KeyboardEvent): void {
     if (event.key === 'F5') {
       event.preventDefault();
+      // Drop the cached whistleblower tip so the resolver refetches it on reload;
+      // recipient routes refetch on their own (component ngOnInit) and ignore this.
+      this.wbTipResolver.dataModel = undefined;
       this.utilsService.reloadCurrentRoute();
     }
   }

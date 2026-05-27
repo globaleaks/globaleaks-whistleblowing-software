@@ -3,6 +3,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {Observable, of} from "rxjs";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {HttpService} from "@app/shared/services/http.service";
+import {AppDataService} from "@app/app-data.service";
 import {map} from "rxjs/operators";
 
 @Injectable({
@@ -11,9 +12,10 @@ import {map} from "rxjs/operators";
 export class WbTipResolver {
   private authenticationService = inject(AuthenticationService);
   private httpService = inject(HttpService);
+  private appDataService = inject(AppDataService);
 
 
-  dataModel: WbTipData;
+  dataModel?: WbTipData;
 
   reload(callback: () => void) {
     this.httpService.whistleBlowerTip().subscribe(
@@ -26,7 +28,7 @@ export class WbTipResolver {
 
   resolve(): Observable<boolean> {
 
-    if (!this.dataModel && this.authenticationService.session && this.authenticationService.session.role === "whistleblower") {
+    if (!this.dataModel && this.authenticationService.session && this.authenticationService.session.role === "whistleblower" && (!this.authenticationService.session.properties.operator_session || this.appDataService.page === "tippage")) {
       return this.httpService.whistleBlowerTip().pipe(
         map((response: WbTipData) => {
           this.dataModel = response;

@@ -154,8 +154,13 @@ export class AuthenticationService {
             }
 
             if (this.session.role === "whistleblower") {
-              if (password || this.session.properties.operator_session) {
+              if (password) {
+                // A receipt was provided: a real tip exists, whether this is a
+                // plain whistleblower or a recipient operating on its behalf.
                 this.titleService.setPage("tippage");
+                this.router.navigate(['/']);
+              } else if (this.session.properties.operator_session) {
+                // Operator switch without a receipt: no tip yet, stay off tippage.
                 this.router.navigate(['/']);
               }
             } else {
