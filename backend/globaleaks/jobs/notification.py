@@ -187,6 +187,7 @@ class MailGenerator(object):
             if (tid in silent_tids) or \
                 rtips_ids.get(rtip.id, False) or \
                 rtip.last_notification > rtip.last_access or \
+                (isinstance(obj, models.ReceiverTip) and itip.operator_id == user.id) or \
                 (isinstance(obj, (models.Comment, models.ReceiverFile)) and \
                  (obj.author_id == user.id or
                   obj.visibility == models.EnumVisibility.personal.name)):
