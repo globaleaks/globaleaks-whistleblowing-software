@@ -87,7 +87,10 @@ export class UtilsService {
   isUploading(uploads?: any) {
     if (uploads) {
       for (const key in uploads) {
-        if (uploads[key].flowFile && uploads[key].flowFile.isUploading()) {
+        const flow = uploads[key]?.flowJs ?? uploads[key];
+        // Gate on !isComplete() rather than flow.isUploading(): a chunk in a pending/reading
+        // state reports no upload in progress yet still hasn't reached the server (issue #4841).
+        if (flow && Array.isArray(flow.files) && flow.files.some((file: FlowFile) => !file.isComplete())) {
           return true;
         }
       }
@@ -98,9 +101,12 @@ export class UtilsService {
   resumeFileUploads(uploads: any) {
     if (uploads) {
       for (const key in uploads) {
-        if (uploads[key] && uploads[key].flowJs) {
-          uploads[key].flowJs.upload();
-        }
+        // Resolve the same way isUploading does: regular uploads expose the Flow under .flowJs,
+        // while the voice recorder stores a raw Flow directly. Without this fallback the voice
+        // upload is never started, yet isUploading still sees its files incomplete, leaving the
+        // additional-questionnaire submit stuck in the "uploading" state.
+        const flow = uploads[key]?.flowJs ?? uploads[key];
+        flow?.upload();
       }
     }
   }

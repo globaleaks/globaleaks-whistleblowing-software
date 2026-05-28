@@ -207,16 +207,7 @@ export class SubmissionComponent implements OnInit {
   };
 
   uploading() {
-    let uploading = false;
-    if (this.uploads && this.done) {
-      for (const key in this.uploads) {
-        if (this.uploads[key].flowJs && this.uploads[key].flowJs.isUploading()) {
-          uploading = true;
-        }
-      }
-    }
-
-    return uploading;
+    return this.done && this.utilsService.isUploading(this.uploads);
   }
 
   calculateEstimatedTime() {
@@ -290,43 +281,38 @@ export class SubmissionComponent implements OnInit {
     this.utilsService.resumeFileUploads(this.uploads);
     this.done = true;
 
-    const intervalId = setInterval(async () => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
-
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
-      }
-
+    const intervalId = setInterval(() => {
       if (this.uploading()) {
         return;
       }
 
       clearInterval(intervalId);
 
-      const receipt = this.cryptoService.generateReceipt();
-
-      const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': "" /* whistleblower */ })));
-
-      if (res.type == 'key') {
-        this.appDataService.updateShowLoadingPanel(true);
-        this.submission.submission.receipt = await this.cryptoService.hashArgon2(receipt, res.salt);
-        this.appDataService.updateShowLoadingPanel(false);
-      } else {
-        this.submission.submission.receipt = receipt;
-      }
-
-      this.authenticationService.session.receipt = receipt;
-
-      this.submission.submit().subscribe({
-        next: (response) => {
-          this.router.navigate(["/"]).then();
-          this.titleService.setPage("receiptpage");
-        }
-      });
+      void this.finalizeSubmission();
     }, 1000);
+  }
+
+  private async finalizeSubmission() {
+    const receipt = this.cryptoService.generateReceipt();
+
+    const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': "" /* whistleblower */ })));
+
+    if (res.type == 'key') {
+      this.appDataService.updateShowLoadingPanel(true);
+      this.submission.submission.receipt = await this.cryptoService.hashArgon2(receipt, res.salt);
+      this.appDataService.updateShowLoadingPanel(false);
+    } else {
+      this.submission.submission.receipt = receipt;
+    }
+
+    this.authenticationService.session.receipt = receipt;
+
+    this.submission.submit().subscribe({
+      next: () => {
+        this.router.navigate(["/"]).then();
+        this.titleService.setPage("receiptpage");
+      }
+    });
   }
 
   runValidation() {

@@ -137,42 +137,43 @@ export class TippageComponent implements OnInit {
   }
 
   calculateEstimatedTime() {
-    let time = 0;
-    for (const key in this.uploads) {
-      if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-        time = time + this.uploads[key].flowFile.timeRemaining();
+    let timeRemaining = 0;
+    if (this.uploads) {
+      for (const key in this.uploads) {
+        const flow = this.uploads[key]?.flowJs ?? this.uploads[key];
+        if (flow) {
+          timeRemaining += flow.timeRemaining();
+        }
       }
     }
-    return time;
+    if (!isFinite(timeRemaining)) {
+      timeRemaining = 0;
+    }
+    return timeRemaining;
   }
 
   calculateProgress() {
     let progress = 0;
-    let totalFiles = 0;
-    for (const key in this.uploads) {
-      if (this.uploads[key].flowFile) {
-        progress = progress + this.uploads[key].flowFile.timeRemaining();
-        totalFiles += 1;
+    if (this.uploads) {
+      for (const key in this.uploads) {
+        const flow = this.uploads[key]?.flowJs ?? this.uploads[key];
+        if (flow) {
+          progress += flow.progress();
+        }
       }
     }
-    if (totalFiles === 0) {
-      return 0;
+    if (!isFinite(progress)) {
+      progress = 0;
     }
-
-    return (100 - (progress / totalFiles) * 100);
+    return progress;
   }
 
   provideIdentityInformation(_: { param1: string, param2: Answers }) {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
-
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
+      if (this.utilsService.isUploading(this.uploads)) {
+        return;
       }
 
       this.httpService.whistleBlowerIdentityUpdate({

@@ -91,16 +91,7 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   };
 
   uploading() {
-    let uploading = false;
-    if (this.uploads && this.done) {
-      for (const key in this.uploads) {
-        if (this.uploads[key].flowJs && this.uploads[key].flowJs.isUploading()) {
-          uploading = true;
-        }
-      }
-    }
-
-    return uploading;
+    return this.done && this.utilsService.isUploading(this.uploads);
   }
 
   calculateEstimatedTime() {
@@ -172,13 +163,6 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
-      }
       this.fieldUtilitiesService.onAnswersUpdate(this);
 
       if (this.uploading()) {
