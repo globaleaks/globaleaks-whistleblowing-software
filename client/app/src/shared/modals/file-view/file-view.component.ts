@@ -40,15 +40,18 @@ export class FileViewComponent implements OnInit {
     const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
     this.utilsService.view(this.authenticationService, url + this.args.file.id, this.args.file.type, (blob: Blob) => {
       this.args.loaded = true;
-      window.addEventListener("message", () => {
-        const data = {
+      const onReady = (event: MessageEvent) => {
+        const iframeElement = this.viewerFrame.nativeElement;
+        if (event.source !== iframeElement.contentWindow || event.data !== "ready") {
+          return;
+        }
+        window.removeEventListener("message", onReady);
+        iframeElement.contentWindow.postMessage({
           tag: this.getFileTag(this.args.file.type),
           blob: blob
-        };
-        const iframeElement = this.viewerFrame.nativeElement;
-        iframeElement.contentWindow.postMessage(data, "*");
-
-      }, {once: true});
+        }, "*");
+      };
+      window.addEventListener("message", onReady);
       this.cdr.markForCheck();
     });
   }

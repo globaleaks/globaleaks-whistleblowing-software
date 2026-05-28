@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
 
-import * as pdfjsLib from 'pdfjs-dist/build/pdf.min.mjs';
-import * as pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.min.mjs';
+import * as pdfWorker from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs';
 
-import { GlobalWorkerOptions } from 'pdfjs-dist';
+const { GlobalWorkerOptions } = pdfjsLib;
 const workerBlob = new Blob([pdfWorker], { type: 'application/javascript' });
 const workerBlobUrl = URL.createObjectURL(workerBlob);
 GlobalWorkerOptions.workerSrc = workerBlobUrl;
@@ -21,6 +21,11 @@ let pageCount = 0;
 
 
 function receiveMessage(event) {
+  if (event.source !== window.parent) {
+    return;
+  }
+  window.removeEventListener("message", receiveMessage);
+
   const url = URL.createObjectURL(event.data.blob);
 
   if (event.data.tag === "pdf") {
@@ -120,8 +125,8 @@ window.addEventListener(
       return;
     };
 
+    window.addEventListener("message", receiveMessage);
     window.parent.postMessage("ready", "*");
-    window.addEventListener("message", receiveMessage, {once: true});
   },
   true
 );
