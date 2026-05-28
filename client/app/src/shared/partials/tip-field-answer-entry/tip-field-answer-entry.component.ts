@@ -64,6 +64,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
     }
   }
 
+  hasAudioFile(reference_id: string): boolean {
+    return this.tipService.tip.wbfiles.some((wbfile: WbFile) => wbfile.reference_id === reference_id);
+  }
+
   loadAudioFile(reference_id: string): void {
     for (const wbfile of this.tipService.tip.wbfiles) {
       if (wbfile.reference_id !== reference_id) {

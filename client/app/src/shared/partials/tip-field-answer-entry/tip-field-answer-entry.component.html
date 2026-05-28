@@ -23,12 +23,14 @@
       </div>
     }
     @case ('voice') {
-      @if (!iframeUrl) {
-        <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field.id)" type="button"><i class="fas fa-play"></i></button>
-      } @else {
-        <div class="audio-player-wrapper">
-          <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
-        </div>
+      @if (hasAudioFile(field.id)) {
+        @if (!iframeUrl) {
+          <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field.id)" type="button"><i class="fas fa-play"></i></button>
+        } @else {
+          <div class="audio-player-wrapper">
+            <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+          </div>
+        }
       }
     }
     @case ('selectbox') {
