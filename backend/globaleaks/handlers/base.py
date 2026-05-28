@@ -382,8 +382,22 @@ class BaseHandler(object):
             log.err("File upload request rejected: file too big", tid=self.request.tid)
             raise errors.FileTooBig(max_file_size)
 
+        chunk_number = int(self.request.args[b'flowChunkNumber'][0])
+
         with f.open('w') as f:
+            # Chunks are uploaded strictly in order (simultaneousUploads: 1). Anything that
+            # is not the next expected chunk is a re-send of one already received (its
+            # response was lost, e.g. on a connection the server closed after its idle
+            # timeout): acknowledge it with the regular 201 without rewriting or
+            # re-finalizing. Rewriting would duplicate bytes and desync the ChaCha20
+            # keystream, while re-finalizing the last chunk would attach the file twice.
+            # process_file_upload runs synchronously on the reactor thread, so this
+            # check-and-write needs no lock.
+            if chunk_number != f.written_chunks + 1:
+                return None
+
             f.write(self.request.args[b'file'][0])
+            f.written_chunks += 1
 
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return None

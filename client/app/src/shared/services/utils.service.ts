@@ -32,6 +32,11 @@ import {FileViewComponent} from "@app/shared/modals/file-view/file-view.componen
 import {CryptoService} from "@app/shared/services/crypto.service";
 const datetime_never = new Date(3000, 0, 1).getTime();
 
+// Every real HTTP status (100..599): used as flow.js permanentErrors so that chunk
+// uploads are retried only on a dropped connection (XHR status 0, outside this range)
+// and never on an application reply.
+const HTTP_STATUS_CODES = Array.from({length: 500}, (_, i) => 100 + i);
+
 @Injectable({
   providedIn: "root"
 })
@@ -785,7 +790,16 @@ export class UtilsService {
       forceChunkSize: true,
       simultaneousUploads: 1,
       testChunks: false,
-      permanentErrors:[500, 501],
+      // Retry chunks only when the connection itself is interrupted, never on an
+      // application response. Any real HTTP reply has a status in 100..599; a dropped
+      // connection surfaces as XHR status 0. Listing the whole HTTP range as permanent
+      // makes every server reply terminal (fail fast: a 403 rate-limit, a 413 too-big and
+      // the like are not retried), while status 0 stays retryable. The backend writes each
+      // chunk at most once, so a re-sent chunk is safe. successStatuses is evaluated before
+      // permanentErrors, so 2xx replies still count as success.
+      permanentErrors: HTTP_STATUS_CODES,
+      maxChunkRetries: 5,
+      chunkRetryInterval: 2000,
       speedSmoothingFactor:0.01,
       allowDuplicateUploads:false,
       singleFile:false,

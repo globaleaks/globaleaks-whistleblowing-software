@@ -21,6 +21,7 @@ class SecureTemporaryFile:
         """
         filename = filename or str(uuid.uuid4())
         self.mode = None
+        self.written_chunks = 0
         self.filepath = os.path.join(filesdir, filename)
         self.cipher = Cipher(ChaCha20(os.urandom(32), os.urandom(16)), mode=None, backend=default_backend())
 
