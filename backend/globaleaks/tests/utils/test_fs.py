@@ -19,20 +19,20 @@ class TestFilesystemUtilities(helpers.TestGL):
         fs.directory_traversal_check(Settings.files_path, valid_access)
 
     def test_directory_traversal_check_sibling_suffix_blocked(self):
-        # /…/files vs /…/files-evil/x — il caso classico del bug commonprefix.
+        # /…/files vs /…/files-evil/x: the classic commonprefix bug case.
         evil = Settings.files_path + "-evil/x"
         self.assertRaises(errors.DirectoryTraversalError,
                           fs.directory_traversal_check, Settings.files_path, evil)
 
     def test_directory_traversal_check_sibling_no_separator_blocked(self):
-        # /…/files vs /…/filesomething — varianti senza un carattere separatore.
+        # /…/files vs /…/filesomething: variants without a separator character.
         evil = Settings.files_path + "something"
         self.assertRaises(errors.DirectoryTraversalError,
                           fs.directory_traversal_check, Settings.files_path, evil)
 
     def test_directory_traversal_check_nested_sibling_blocked(self):
-        # /a/b come trusted, /a/bc/x come untrusted: sibling con prefisso parziale
-        # su un componente più profondo.
+        # /a/b as trusted, /a/bc/x as untrusted: a sibling with a partial prefix
+        # on a deeper path component.
         base = os.path.join(Settings.files_path, "sub")
         evil = os.path.join(Settings.files_path, "subother", "x")
         self.assertRaises(errors.DirectoryTraversalError,
