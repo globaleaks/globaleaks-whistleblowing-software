@@ -105,8 +105,8 @@ echo "Detected OS: $DISTRO - $DISTRO_CODENAME"
 
 last_command "check_distro"
 
-if echo "$DISTRO_CODENAME" | grep -vqE "^(trixie|noble)$" ; then
-  echo "WARNING: The recommended up-to-date platforms are Debian 13 (Trixie) and Ubuntu 24.04 (Noble)"
+if echo "$DISTRO_CODENAME" | grep -vqE "^(trixie|resolute)$" ; then
+  echo "WARNING: The recommended up-to-date platforms are Debian 13 (Trixie) and Ubuntu 26.04 (Resolute)"
   echo "WARNING: Use one of these platforms to ensure best stability and security"
 
   prompt_for_continuation
