@@ -51,13 +51,6 @@
         <span>{{ 'Size:' | translate }}</span>
         <span>{{ wbFile.size | byteFmt:2 }}</span>
       </span>
-
-      @if (ctx === 'rtip') {
-        <span class="px-1">
-          <span>{{ 'Number of downloads' | translate }}</span>:
-          <span>{{ wbFile.downloads }}</span>
-        </span>
-      }
     </div>
 
     @if (wbFile.description) {
