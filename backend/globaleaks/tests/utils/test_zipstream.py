@@ -18,7 +18,7 @@ class TestZipStream(helpers.TestGL):
         self.unicode_seq = ''.join(chr(x) for x in range(0x400, 0x40A))
 
         self.files = [
-          {'name': _THIS_FILE, 'fo': open(_THIS_FILE, 'rb')},
+          {'name': _THIS_FILE, 'fo': open(_THIS_FILE, 'rb')},  # noqa: SIM115 - handle consumed by the zipstream fixture
           {'name': _THIS_FILE, 'path': _THIS_FILE},
           {'name': self.unicode_seq, 'fo': BytesIO(self.unicode_seq.encode())}
         ]

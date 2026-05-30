@@ -32,7 +32,7 @@ class TestSitemapHandlerHandler(helpers.TestHandler):
         self.assertEqual(handler.request.code, 200)
 
         # Validate that the generated XML is well-formatted
-        ET.fromstring(data)
+        ET.fromstring(data)  # noqa: S314 - parsing the server's own generated sitemap (trusted data) in a test
 
         # Check that the XML declaration is correct
         self.assertTrue(data.startswith("<?xml version='1.0' encoding='UTF-8' ?>"))

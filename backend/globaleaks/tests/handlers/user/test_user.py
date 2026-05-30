@@ -117,7 +117,7 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
         self.assertFailure(handler.put(), errors.InvalidTwoFactorAuthCode)
 
         # Attempt enrolling for 2FA with a valid token
-        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())
+        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())  # noqa: S303 - SHA1 mandated by the TOTP standard (RFC 6238)
         current_token = totp.generate(time.time()).decode()
 
         data_request = {
@@ -149,10 +149,10 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
 class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = UserOperationHandler
 
-    def _test_operation_handler(self, operation, args={}):
+    def _test_operation_handler(self, operation, args=None):
         data_request = {
             'operation': operation,
-            'args': args
+            'args': args if args is not None else {}
         }
 
         return self.request(data_request, role='receiver').put()

@@ -340,7 +340,7 @@ class BaseHandler(object):
         if pgp_key:
             filename += '.pgp'
             _fp = fp
-            fp = NamedTemporaryFile()
+            fp = NamedTemporaryFile()  # noqa: SIM115 - handle is returned to serve_file for streaming
             PGPContext(pgp_key).encrypt_file(_fp, fp.name)
 
         self.request.setHeader(b'Content-Type', 'application/octet-stream')
@@ -449,4 +449,4 @@ class BaseHandler(object):
         if self.request.execution_time.seconds > self.handler_exec_time_threshold:
             err_tup = ("Handler [%s] exceeded execution threshold (of %d secs) with an execution time of %.2f seconds",
                        self.name, self.handler_exec_time_threshold, self.request.execution_time.seconds)
-            log.err(tid=self.request.tid, *err_tup)
+            log.err(*err_tup, tid=self.request.tid)

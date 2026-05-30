@@ -48,10 +48,10 @@ class TestAdminResetSubmissions(helpers.TestHandlerWithPopulatedDB):
 class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler
 
-    def _test_operation_handler(self, operation, args={}, tid=1):
+    def _test_operation_handler(self, operation, args=None, tid=1):
         data_request = {
             'operation': operation,
-            'args': args
+            'args': args if args is not None else {}
         }
 
         handler = self.request(data_request, role='admin', tid=tid)

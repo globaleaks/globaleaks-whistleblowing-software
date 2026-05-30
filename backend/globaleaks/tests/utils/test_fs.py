@@ -41,10 +41,9 @@ class TestFilesystemUtilities(helpers.TestGL):
     def test_srm(self):
         path = os.path.join(Settings.working_path, "antani.txt")
 
-        f = open(path, "wb")
-        f.seek((10 * 1024 * 1024) - 1)
-        f.write(b"\0")
-        f.close()
+        with open(path, "wb") as f:
+            f.seek((10 * 1024 * 1024) - 1)
+            f.write(b"\0")
 
         self.assertTrue(os.path.isfile(path))
 

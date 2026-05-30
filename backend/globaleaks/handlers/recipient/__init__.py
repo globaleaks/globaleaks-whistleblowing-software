@@ -15,7 +15,7 @@ import globaleaks.handlers.recipient.export
 
 
 @transact
-def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
+def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
     """
     Return list of submissions received by the specified receiver
 
@@ -26,6 +26,8 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args={}):
     :param language: The language to be used during data serialization
     :return: A list of submissions descriptors
     """
+    if args is None:
+        args = {}
 
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))

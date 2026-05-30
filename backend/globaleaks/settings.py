@@ -33,7 +33,7 @@ class SettingsClass(object, metaclass=Singleton):
         self.backend_script = os.path.abspath(os.path.join(self.src_path, 'globaleaks/backend.py'))
 
         self.pidfile_path = '/run/globaleaks/globaleaks.pid'
-        self.ramdisk_path = '/dev/shm/globaleaks'
+        self.ramdisk_path = '/dev/shm/globaleaks'  # noqa: S108 - dedicated tmpfs ramdisk path, not a shared temp file
         self.working_path = '/var/globaleaks'
         self.client_path = None
 

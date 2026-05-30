@@ -198,7 +198,7 @@ class transact(object):
                     if retries >= _ORM_TRANSACTION_RETRIES:
                         raise Exception("Transaction failed with too many retries")
 
-                    time.sleep(0.2 * random.uniform(1, 2 ** retries))
+                    time.sleep(0.2 * random.uniform(1, 2 ** retries))  # noqa: S311 - non-crypto backoff jitter
                 except:
                     session.rollback()
                     raise

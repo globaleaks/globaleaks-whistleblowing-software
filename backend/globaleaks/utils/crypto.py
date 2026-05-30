@@ -127,7 +127,7 @@ class _StreamingEncryptionObject(object):
         self.use_secretstream = False
         self.version: Optional[int] = None
 
-        self.fd = open(filepath, 'wb' if mode == 'ENCRYPT' else 'rb')
+        self.fd = open(filepath, 'wb' if mode == 'ENCRYPT' else 'rb')  # noqa: SIM115 - long-lived handle for streaming (de)cryption, closed explicitly
         if mode == 'ENCRYPT':
             self._init_encrypt()
         else:

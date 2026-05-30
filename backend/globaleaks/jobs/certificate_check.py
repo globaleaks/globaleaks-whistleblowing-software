@@ -62,7 +62,7 @@ class CertificateCheck(DailyJob):
     def operation(self):
         # Randomize the execution of certificates checks and renewals
         # https://letsencrypt.org/docs/faq/#why-should-my-let-s-encrypt-acme-client-run-at-a-random-time
-        yield deferred_sleep(random.randint(1, 3) * 3600 + random.randint(900, 2700))
+        yield deferred_sleep(random.randint(1, 3) * 3600 + random.randint(900, 2700))  # noqa: S311 - non-crypto renewal-time randomization per Let's Encrypt guidance
 
         # Update start time in relation to delayed daily random start
         self.start_time = int(time.time() * 1000)
