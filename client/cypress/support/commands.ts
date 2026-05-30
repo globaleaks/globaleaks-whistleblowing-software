@@ -225,7 +225,7 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     if (locator) {
       cy.viewport(1280, 1024);
       cy.wait(50);
-      return cy.get(locator).screenshot("../" + filename, {overwrite: true});
+      return cy.get(locator).should("be.visible").screenshot("../" + filename, {overwrite: true});
     }
 
     cy.wait(50);
