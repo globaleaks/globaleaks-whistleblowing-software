@@ -600,6 +600,7 @@ class APIResourceWrapper(Resource):
         request.setHeader(b"Cross-Origin-Embedder-Policy", "require-corp")
         request.setHeader(b"Cross-Origin-Opener-Policy", "same-origin")
         request.setHeader(b"Cross-Origin-Resource-Policy", "same-origin")
+        request.setHeader(b"Origin-Agent-Cluster", "?1")
 
         # Default CSP Policy with reporting of any violation
         request.setHeader(b'Content-Security-Policy',

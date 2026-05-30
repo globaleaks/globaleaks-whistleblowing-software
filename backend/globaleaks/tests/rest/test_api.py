@@ -83,6 +83,7 @@ class TestAPI(TestGL):
             'Cross-Origin-Embedder-Policy': 'require-corp',
             'Cross-Origin-Opener-Policy': 'same-origin',
             'Cross-Origin-Resource-Policy': 'same-origin',
+            'Origin-Agent-Cluster': '?1',
             'Permissions-Policy': 'accelerometer=(),'
                                   'ambient-light-sensor=(),'
                                   'bluetooth=(),'

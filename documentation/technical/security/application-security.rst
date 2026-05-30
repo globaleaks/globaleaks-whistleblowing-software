@@ -174,6 +174,13 @@ The backend implements the following `Cross-Origin-Resource-Policy (CORP) <https
 
   Cross-Origin-Resource-Policy: same-origin
 
+Origin-Agent-Cluster
+++++++++++++++++++++
+The backend requests origin-keyed agent clustering by means of the `Origin-Agent-Cluster <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Origin-Agent-Cluster>`__ header, so that the application is isolated in its own agent cluster instead of being grouped with other same-site origins. This provides defense in depth against cross-origin information-leak attacks of the Spectre class, complementing the Cross-Origin isolation policies described above:
+::
+
+  Origin-Agent-Cluster: ?1
+
 Permissions-Policy
 ++++++++++++++++++
 The backend implements the following Permissions-Policy header configuration to limit the possible de-anonymization of the user by disabling dangerous browser features:
