@@ -121,7 +121,8 @@ class TestAPI(TestGL):
             'Referrer-Policy': 'no-referrer',
             'Server': 'GlobaLeaks',
             'X-Content-Type-Options': 'nosniff',
-            'X-Check-Tor': 'False'
+            'X-Check-Tor': 'False',
+            'X-Frame-Options': 'deny'
         }
 
         server_headers = copy.copy(default_server_headers)

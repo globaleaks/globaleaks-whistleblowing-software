@@ -202,6 +202,13 @@ To avoid automatic MIME type detection by the browser when setting the Content-T
 
   X-Content-Type-Options: nosniff
 
+X-Frame-Options
++++++++++++++++
+As an additional defense in depth against clickjacking, the backend sets the ``X-Frame-Options`` header to ``deny``. On modern browsers framing is already prevented by the ``frame-ancestors 'none'`` directive of the Content Security Policy, which supersedes this header; ``X-Frame-Options`` is retained only as a redundant safeguard.
+::
+
+  X-Frame-Options: deny
+
 Cache-Control
 +++++++++++++
 To prevent or limit forensic traces left on devices used by whistleblowers and in devices involved in communication with the platform, as specified in section ``3. Storing Responses in Caches`` of `RFC 7234 <https://tools.ietf.org/html/rfc7234>`__, the platform uses the ``Cache-Control`` HTTP header with the configuration ``no-store`` to instruct clients and possible network proxies to disable any form of data caching.
