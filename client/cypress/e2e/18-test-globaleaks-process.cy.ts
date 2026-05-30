@@ -203,6 +203,7 @@ describe("globaleaks process", function () {
 
     // Grant access to Recipient3
     cy.get('#usersDropdownButton').click();
+    cy.takeScreenshot("recipient/menu_users", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_users_option_grant_access", "#tip-action-grant-access");
     cy.get("#tip-action-grant-access").should('be.visible').click();
     cy.takeScreenshot("recipient/modal_grant_access", ".modal-dialog");
