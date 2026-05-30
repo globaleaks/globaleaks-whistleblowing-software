@@ -54,8 +54,8 @@ The system enforces complex passwords by implementing a custom algorithm necessa
 
 Passwords are scored at three levels: `Strong`, `Acceptable`, and `Insecure`.
 
-* Strong: A strong password should include capital letters, lowercase letters, numbers, and symbols, be at least 12 characters long, and contain a variety of at least 10 different characters.
-* Acceptable: An acceptable password should include at least 3 different types of characters from capital letters, lowercase letters, numbers, and symbols, be at least 10 characters long, and contain a variety of at least 7 different characters.
+* Strong: A strong password should include capital letters, lowercase letters, numbers, and symbols, be at least 14 characters long, and contain a variety of at least 12 different characters.
+* Acceptable: An acceptable password should include capital letters, lowercase letters, numbers, and symbols, be at least 12 characters long, and contain a variety of at least 10 different characters.
 * Insecure: Passwords ranked below the strong or acceptable levels are marked as insecure and are not accepted by the system.
 
 We encourage each end user to use `KeePassXC <https://keepassxc.org>`_ to generate and retain strong, unique passphrases.
@@ -70,7 +70,7 @@ We recommend using `FreeOTP <https://freeotp.github.io/>`_, available `for Andro
 
 Slowdown on failed login attempts
 ---------------------------------
-The system identifies multiple failed login attempts and implements a slowdown procedure, requiring an authenticating client to wait up to 42 seconds to complete an authentication.
+The system identifies multiple failed login attempts and implements a slowdown procedure, requiring an authenticating client to wait up to 60 seconds to complete an authentication.
 
 This feature is intended to slow down potential attacks, requiring more resources in terms of time, computation, and memory.
 
@@ -140,8 +140,10 @@ Content-Security-Policy
 The backend implements a strict `Content Security Policy (CSP) <https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP>`_ preventing any interaction with third-party resources and restricting execution of code by means of `Trusted Types <https://www.w3.org/TR/trusted-types/>`_.
 ::
 
-  Content-Security-Policy: base-uri 'none'; connect-src 'self'; default-src 'none'; font-src 'self'; form-action 'none'; frame-ancestors 'none'; frame-src 'self'; img-src 'self' media-src 'self'; script-src 'self'; style-src 'self'; trusted-types angular angular#bundler default dompurify; require-trusted-types-for 'script'; report-to csp-endpoint;
+  Content-Security-Policy: base-uri 'none'; connect-src 'self'; default-src 'none'; font-src 'self'; form-action 'none'; frame-ancestors 'none'; frame-src 'self'; img-src 'self'; media-src 'self'; script-src 'self'; style-src 'self' 'nonce-{random}'; trusted-types angular angular#bundler dompurify default; require-trusted-types-for 'script'; report-to csp-endpoint
   Reporting-Endpoints: csp-endpoint="/api/report"
+
+The ``style-src`` directive is bound to a per-response cryptographic ``nonce``, so that only the stylesheet emitted by the application is allowed to execute, following the standard CSP nonce-based approach.
 
 Specific policies are implemented in adherence to the principle of least privilege.
 
