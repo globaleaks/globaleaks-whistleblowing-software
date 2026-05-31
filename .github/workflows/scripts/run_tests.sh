@@ -32,4 +32,5 @@ sleep 3
 
 cd $GITHUB_WORKSPACE/backend && coverage lcov -o $GITHUB_WORKSPACE/backend/lcov.info
 sed -i 's|SF:globaleaks/|SF:backend/globaleaks/|g' $GITHUB_WORKSPACE/backend/lcov.info
-sed -i 's|SF:dist/|SF:client/|g' $GITHUB_WORKSPACE/client/cypress/coverage/lcov.info
+# Keep only our own client sources (app/**) and make their paths repository-root relative.
+awk -i inplace '/^SF:/{keep=sub(/^SF:(\.\/)?(dist\/)?app\//,"SF:client/app/")} keep && !/^TN:/' $GITHUB_WORKSPACE/client/cypress/coverage/lcov.info
