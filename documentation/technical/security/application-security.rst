@@ -385,6 +385,7 @@ The GlobaLeaks backend restricts SQLite functionalities to only those necessary 
 This is implemented using the ```conn.set_authorizer``` API and a strict authorizer callback that authorizes only a limited set of SQL instructions:
 ::
 
+  SQLITE_DELETE
   SQLITE_FUNCTION: count, length, lower, min, max, substr
   SQLITE_INSERT
   SQLITE_READ
