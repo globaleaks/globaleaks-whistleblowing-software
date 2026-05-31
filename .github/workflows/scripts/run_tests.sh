@@ -32,5 +32,10 @@ sleep 3
 
 cd $GITHUB_WORKSPACE/backend && coverage lcov -o $GITHUB_WORKSPACE/backend/lcov.info
 sed -i 's|SF:globaleaks/|SF:backend/globaleaks/|g' $GITHUB_WORKSPACE/backend/lcov.info
+bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Python -r $GITHUB_WORKSPACE/backend/lcov.info --partial
+
 # Keep only our own client sources (app/**) and make their paths repository-root relative.
 awk -i inplace '/^SF:/{keep=sub(/^SF:(\.\/)?(dist\/)?app\//,"SF:client/app/")} keep && !/^TN:/' $GITHUB_WORKSPACE/client/cypress/coverage/lcov.info
+bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l TypeScript -r $GITHUB_WORKSPACE/client/cypress/coverage/lcov.info --partial
+
+bash <(curl -Ls https://coverage.codacy.com/get.sh) final
