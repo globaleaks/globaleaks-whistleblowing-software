@@ -331,7 +331,7 @@ class MigrationScript(MigrationBase):
 
         try:
             shutil.rmtree(os.path.abspath(os.path.join(Settings.working_path, 'scripts')))
-        except:
+        except Exception:
             pass
 
         for iar, itip in self.session_new.query(self.model_to['IdentityAccessRequest'], self.model_to['InternalTip']) \

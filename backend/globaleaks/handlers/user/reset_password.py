@@ -39,7 +39,7 @@ def db_generate_password_reset_token(session, user):
         filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
         with open(filepath, "wb") as f:
             f.write(user.id.encode())
-    except:
+    except Exception:
         pass
 
     template_vars = {
@@ -115,7 +115,7 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         with open(filepath, "r") as f:
             token = f.read()
             user_id = token.split(":")[0]
-    except:
+    except Exception:
         return {'status': 'invalid_reset_token_provided'}
 
     user = session.query(models.User).filter(models.User.id == user_id).one_or_none()
@@ -127,7 +127,7 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         try:
             try:
                 prv_key = token.split(":")[1]
-            except:
+            except Exception:
                 pass
 
             if prv_key:
@@ -137,13 +137,13 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                 recovery_key = recovery_key.replace('-', '').upper() + '===='
                 recovery_key = Base32Encoder.decode(recovery_key.encode())
                 prv_key = GCE.symmetric_decrypt(recovery_key, Base64Encoder.decode(user.crypto_bkp_key))
-        except:
+        except Exception:
             return {'status': 'require_recovery_key'}
 
     if user.two_factor_secret:
         try:
             State.totp_verify(user.two_factor_secret, auth_code)
-        except:
+        except Exception:
             return {'status': 'require_two_factor_authentication'}
 
     # Special condition where the user is accessing for the first time via a reset

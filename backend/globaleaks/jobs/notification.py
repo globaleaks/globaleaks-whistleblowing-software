@@ -135,7 +135,7 @@ class MailGenerator(object):
             try:
                 data['user'] = user_serialize_user(session, user, user.language)
                 self.process_mail_creation(session, user.tid, data)
-            except:
+            except Exception:
                 pass
 
     @transact
@@ -209,7 +209,7 @@ class MailGenerator(object):
                 data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
 
                 self.process_mail_creation(session, tid, data)
-            except:
+            except Exception:
                 pass
 
         if now < datetime.fromtimestamp(timestamp_daily_notifications) + timedelta(1):
@@ -232,7 +232,7 @@ class MailGenerator(object):
             try:
                 data['user'] = user_serialize_user(session, user, user.language)
                 self.process_mail_creation(session, user.tid, data)
-            except:
+            except Exception:
                 pass
 
 

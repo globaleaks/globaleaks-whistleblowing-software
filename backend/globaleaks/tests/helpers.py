@@ -132,7 +132,7 @@ class FakeThreadPool(object):
         success = True
         try:
             result = func(*args, **kw)
-        except:
+        except Exception:
             result = Failure()
             success = False
 

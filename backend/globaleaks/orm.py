@@ -199,7 +199,7 @@ class transact(object):
                         raise Exception("Transaction failed with too many retries")
 
                     time.sleep(0.2 * random.uniform(1, 2 ** retries))  # noqa: S311 - non-crypto backoff jitter
-                except:
+                except Exception:
                     session.rollback()
                     raise
                 else:

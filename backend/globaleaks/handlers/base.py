@@ -140,7 +140,7 @@ class BaseHandler(object):
                 self.token = self.state.tokens.validate(token)
                 if self.token.session is not None:
                     session = self.token.session
-            except:
+            except Exception:
                 return
 
         # Check session header
@@ -169,7 +169,7 @@ class BaseHandler(object):
             try:
                 int(value)
                 return True
-            except:
+            except Exception:
                 return False
 
         if python_type == bool:
@@ -235,7 +235,7 @@ class BaseHandler(object):
         if not isinstance(request, (dict, list)):
             try:
                 request = json.loads(request)
-            except:
+            except Exception:
                 raise errors.InputValidationError
 
         if isinstance(request_template, dict):

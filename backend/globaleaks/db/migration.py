@@ -146,7 +146,7 @@ def perform_data_update(db_file):
             db_log(session, tid=1, type='version_update', user_id='system', data={'from': original_version, 'to': __version__})
 
         session.commit()
-    except:
+    except Exception:
         session.rollback()
         raise
     finally:
@@ -254,7 +254,7 @@ def perform_migration(version):
             version += 1
 
         perform_data_update(new_db_file)
-    except:
+    except Exception:
         raise
     else:
         # in case of success first copy the new migrated db, then as last action delete the original db file

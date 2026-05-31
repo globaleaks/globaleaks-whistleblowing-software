@@ -1300,7 +1300,7 @@ class WhistleblowerFileDownload(BaseHandler):
             try:
                 # First attempt
                 filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
-            except:
+            except Exception:
                 # Second attempt
                 if not tip_prv_key2:
                     raise
@@ -1367,7 +1367,7 @@ class ReceiverFileDownload(BaseHandler):
                                            models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id,
                                            models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                            models.InternalTip.tid == tid))
-        except:
+        except Exception:
             raise errors.ResourceNotFound
         else:
             return rfile.name, rfile.id, rtip.crypto_tip_prv_key, pgp_key

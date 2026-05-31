@@ -232,7 +232,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
             if pgp_key_public:
                 try:
                     body = PGPContext(pgp_key_public).encrypt_message(body)
-                except:
+                except Exception:
                     continue
 
             # avoid waiting for the notification to send and instead rely on threads to handle it
@@ -309,7 +309,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         try:
             totpVerify(secret, token)
-        except:
+        except Exception:
             raise errors.InvalidTwoFactorAuthCode
 
         # Register last used valid token

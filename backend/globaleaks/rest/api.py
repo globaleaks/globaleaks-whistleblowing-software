@@ -444,7 +444,7 @@ class APIResourceWrapper(Resource):
                         if tid is not None:
                             request.tid = tid
                             request.path = rest
-            except:
+            except Exception:
                 pass
 
         if request.path == b'/':

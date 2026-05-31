@@ -32,7 +32,7 @@ class SecureTemporaryFile:
         """
         try:
             return os.stat(self.filepath).st_size
-        except:
+        except Exception:
             return 0
 
     def open(self, mode='r'):

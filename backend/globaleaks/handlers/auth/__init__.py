@@ -43,7 +43,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
         else:
             salt = ConfigFactory(session, tid).get_val('receipt_salt')
             key, hash = GCE.calculate_key_and_hash(receipt, salt)
-    except:
+    except Exception:
         db_login_failure(session, tid, 0)
 
     itip = session.query(InternalTip) \
@@ -110,7 +110,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
             hash = sha256(key).decode()
         else:
             key, hash = GCE.calculate_key_and_hash(password, user.salt)
-    except:
+    except Exception:
         db_login_failure(session, tid, 0)
 
     if not password or not GCE.check_equality(hash, user.hash):
@@ -286,7 +286,7 @@ class SessionHandler(BaseHandler):
         try:
             self.session.token.validate(request['token'].encode().split(b":")[1])
             Sessions.reset_timeout(self.session)
-        except:
+        except Exception:
             pass
         else:
             self.session.token = self.state.tokens.new(self.request.tid)

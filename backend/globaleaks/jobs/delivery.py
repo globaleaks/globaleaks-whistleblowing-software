@@ -116,5 +116,5 @@ class Delivery(LoopingJob):
                     write_encrypted_file(file['key'], sf, file['dst'])
                 else:
                     write_plaintext_file(sf, file['dst'])
-            except:
+            except Exception:
                 pass

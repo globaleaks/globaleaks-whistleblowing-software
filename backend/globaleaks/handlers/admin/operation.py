@@ -238,7 +238,7 @@ def set_tmp_key(user_session, user, token, user_cc=''):
         with open(filepath, "ab") as f:
             f.write(b":")
             f.write(key)
-    except:
+    except Exception:
         pass
 
 

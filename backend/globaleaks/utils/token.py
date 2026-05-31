@@ -26,7 +26,7 @@ class Token(object):
         try:
             if not Base64Encoder.decode(GCE.argon2id(self.id + answer, self.salt, 1, 1 << 20))[31] == 0:
                 raise errors.InternalServerError("TokenFailure: Invalid Token")
-        except:
+        except Exception:
             raise errors.InternalServerError("TokenFailure: Invalid token")
 
 
@@ -53,7 +53,7 @@ class TokenList(TempDict):
             key, answer = answer.split(b":")
             token = self.pop(key)
             token.validate(answer)
-        except:
+        except Exception:
             raise errors.InternalServerError("TokenFailure: Invalid token")
 
         return token

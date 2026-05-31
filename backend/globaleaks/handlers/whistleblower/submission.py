@@ -59,13 +59,13 @@ def decrypt_tip(user_key, tip_prv_key, tip):
         if tip['iar']['request_motivation']:
             try:
                 tip['iar']['request_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['request_motivation'])).decode()
-            except:
+            except Exception:
                 pass
 
         if tip['iar']['reply_motivation']:
             try:
                 tip['iar']['reply_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['reply_motivation'])).decode()
-            except:
+            except Exception:
                 pass
 
     for x in tip['comments']:
