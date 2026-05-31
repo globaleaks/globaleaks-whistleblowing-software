@@ -76,7 +76,7 @@ function receiveMessage(event) {
 
 
 function createPdfViewer(url) {
-  pdfjsLib.getDocument(url).promise.then((pdfDoc_) => {
+  pdfjsLib.getDocument({ url }).promise.then((pdfDoc_) => {
     pdfDoc = pdfDoc_;
     pageCount = pdfDoc.numPages;
     pdfControlPageCount.textContent = pageCount;
