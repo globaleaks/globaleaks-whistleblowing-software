@@ -150,7 +150,7 @@ class TestAPI(TestGL):
                 returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
 
                 if headerName == 'Content-Security-Policy':
-                    expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")
+                    expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")  # noqa: PLW2901
                 self.assertEqual(returnedHeaderValue, expectedHeaderValue)
 
         server_headers = copy.copy(default_server_headers)

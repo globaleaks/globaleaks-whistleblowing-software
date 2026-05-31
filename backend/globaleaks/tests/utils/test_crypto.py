@@ -5,6 +5,7 @@ import secrets
 import struct
 
 from nacl.encoding import Base64Encoder
+from nacl.exceptions import CryptoError
 from nacl.secret import SecretBox
 from nacl.utils import random as nacl_random
 
@@ -208,7 +209,7 @@ class TestCryptoUtils(helpers.TestGL):
 
         dec = os.path.join(Settings.tmp_path, "v2trunc_dec")
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self._stream_decrypt(prv, enc, dec)
 
     def test_streaming_v2_corrupt_ciphertext_fails(self):
@@ -234,7 +235,7 @@ class TestCryptoUtils(helpers.TestGL):
 
         dec = os.path.join(Settings.tmp_path, "v2corr_dec")
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(CryptoError):
             self._stream_decrypt(prv, enc, dec)
 
     def test_generateRandomKey_is_64_hex_chars(self):
@@ -264,7 +265,7 @@ class TestCryptoUtils(helpers.TestGL):
 
     def test_totpVerify_rejects_invalid_token(self):
         secret = pyotp.random_base32()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             crypto.totpVerify(secret, "000000")
 
     # ---------- _GCE small helpers ----------

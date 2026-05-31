@@ -42,6 +42,6 @@ class TestRunAcmeReg(TestCase):
 
             s = cert.get_notAfter()
             date = letsencrypt.convert_asn1_date(s)
-            self.assertEquals(date.year, tc['year'])
-            self.assertEquals(date.month, tc['month'])
-            self.assertEquals(date.day, tc['day'])
+            self.assertEqual(date.year, tc['year'])
+            self.assertEqual(date.month, tc['month'])
+            self.assertEqual(date.day, tc['day'])

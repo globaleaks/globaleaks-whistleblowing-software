@@ -90,7 +90,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                                     models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
                                             .group_by(models.ReceiverTip.id):
-        answers = answers.answers
+        answers = answers.answers  # noqa: PLW2901
         label = itip.label
         accessible = rtip.receiver_id == receiver_id
         if itip.crypto_tip_pub_key and accessible:
@@ -99,10 +99,10 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
             if label:
                 label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
 
-            answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
+            answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())  # noqa: PLW2901
         elif itip.crypto_tip_pub_key:
             # remove useless and unusable crypted data
-            answers = ""
+            answers = ""  # noqa: PLW2901
             label = ""
 
         if data is None:

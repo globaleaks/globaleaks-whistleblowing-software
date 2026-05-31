@@ -204,7 +204,7 @@ def parse_accept_language(raw_header: str) -> List[str]:
 
         q = 1.0
         for param in parts[1:]:
-            param = param.strip()
+            param = param.strip()  # noqa: PLW2901
             if param.startswith('q='):
                 try:
                     q = float(param[2:])
@@ -294,10 +294,10 @@ class APIResourceWrapper(Resource):
                         decorators.decorate_method(handler, m)
 
             if not regexp.startswith("^"):
-                regexp = "^" + regexp
+                regexp = "^" + regexp  # noqa: PLW2901
 
             if not regexp.endswith("$"):
-                regexp += "$"
+                regexp += "$"  # noqa: PLW2901
 
             compiled = re.compile(regexp)
             self.registry.insert(prefix, compiled, handler)

@@ -8,7 +8,7 @@ from globaleaks.utils import fs
 
 class TestFilesystemUtilities(helpers.TestGL):
     def test_directory_traversal_failure_on_relative_trusted_path_must_fail(self):
-        self.assertRaises(Exception, fs.directory_traversal_check, 'invalid/relative/trusted/path', "valid.txt")
+        self.assertRaises(errors.DirectoryTraversalError, fs.directory_traversal_check, 'invalid/relative/trusted/path', "valid.txt")
 
     def test_directory_traversal_check_blocked(self):
         self.assertRaises(errors.DirectoryTraversalError, fs.directory_traversal_check, Settings.files_path,

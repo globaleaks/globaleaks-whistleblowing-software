@@ -101,7 +101,7 @@ def generateRandomPassword(N: int) -> str:
 def totpVerify(secret: str, token: str) -> None:
     # RFC 6238: step size 30 sec; valid_window = 1; total size of the window: 1.30 sec
     if not pyotp.TOTP(secret).verify(token, valid_window=1):
-        raise Exception
+        raise ValueError("Invalid TOTP token")
 
 
 class _StreamingEncryptionObject(object):
