@@ -171,7 +171,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     receivers = []
-    for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(request['receivers'])):
+    for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(request['receivers']), models.User.role == 'receiver'):
         if crypto_is_available:
             if r.crypto_pub_key:
                 # This is the regular condition of systems setup on Globaleaks 4
