@@ -31,7 +31,7 @@ export class WbFilesComponent implements OnInit {
   }
 
   deleteWBFile(wbFile: RFile) {
-    if (this.authenticationService.session.role === "receiver") {
+    if (this.authenticationService.session?.role === "receiver") {
       this.httpService.deleteDBFile(wbFile.id).subscribe
       (
         {
@@ -52,7 +52,7 @@ export class WbFilesComponent implements OnInit {
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
             (ans) => {
-              if (this.authenticationService.session.role === "receiver") {
+              if (this.authenticationService.session?.role === "receiver") {
                 window.open("api/recipient/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
               } else {
                 window.open("api/whistleblower/wbtip/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);

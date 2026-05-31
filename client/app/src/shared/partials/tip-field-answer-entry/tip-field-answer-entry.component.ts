@@ -53,10 +53,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   wbfile:WbFile;
 
   ngOnInit(): void {
-    if (this.authenticationService.session.role === "whistleblower") {
+    if (this.authenticationService.session?.role === "whistleblower") {
       this.tipService = this.wbTipService;
     }
-    if(this.authenticationService.session.role === "receiver") {
+    if(this.authenticationService.session?.role === "receiver") {
       this.tipService = this.rTipService;
     }
     if(this.tipService.tip){
@@ -108,7 +108,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   }
 
   private getApiUrl(id: string): string {
-    const role = this.authenticationService.session.role;
+    const role = this.authenticationService.session?.role;
     return role === 'whistleblower' ?
       `api/whistleblower/wbtip/wbfiles/${id}` :
       `api/recipient/wbfiles/${id}`;
