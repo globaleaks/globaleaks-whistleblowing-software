@@ -67,6 +67,10 @@ ignore = [
     "SIM105",
     # ternary: stylistic
     "SIM108",
+    # line-too-long: enforced by formatter instead
+    "E501",
+    # unsorted-imports: too noisy on existing code
+    "I001",
 ]
 
 [tool.ruff.lint.per-file-ignores]
