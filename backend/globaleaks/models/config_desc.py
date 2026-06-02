@@ -156,8 +156,9 @@ ConfigDescriptor = {
     'antivirus_clamd_port': Int(default=3310),
     'forwarding_enabled': Bool(default=False),
     'backup_enabled': Bool(default=False),
-    'backup_time': Unicode(default='2:00'),
-    'backup_path': Unicode(default='/var/backup/')
+    'backup_time': Unicode(default='02:00'),
+    'backup_period': Int(default=24),
+    'backup_retention': Int(default=7)
 }
 
 
@@ -245,8 +246,9 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'backup_path',
         'backup_time',
+        'backup_period',
+        'backup_retention',
         'antivirus_enabled',
         'backup_enabled',
         'antivirus_clamd_ip',
@@ -315,8 +317,9 @@ ConfigFilters = {
         'unread_reminder_time',
         'forwarding_enabled',
         'proxy_idp_enabled',
-        'backup_path',
         'backup_enabled',
+        'backup_period',
+        'backup_retention',
         'backup_time',
         'antivirus_enabled',
         'antivirus_clamd_ip',
@@ -424,8 +427,7 @@ ConfigFilters = {
         'name',
         'onionservice',
         'subdomain',
-        'rootdomain',
-        'uuid'
+        'rootdomain'
     ]
 }
 

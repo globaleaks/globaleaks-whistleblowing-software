@@ -5,7 +5,7 @@ from twisted.internet import task, defer, reactor
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.log import log
 from globaleaks.utils.utility import datetime_now
-
+from twisted.internet.defer import inlineCallbacks, returnValue
 
 TRACK_LAST_N_EXECUTIONS = 10
 
@@ -27,16 +27,29 @@ class Job(task.LoopingCall):
 
         self.clock = reactor
 
+        self._scheduled_call = None
+        self.schedule()
+
+    def schedule(self):
+        # (Re)arm the next run using the current get_delay()/interval. Calling
+        # this again (e.g. after a configuration change) cancels any pending
+        # start so the job is never armed twice.
+        if self._scheduled_call is not None and self._scheduled_call.active():
+            self._scheduled_call.cancel()
+
         delay = self.get_delay()
         delay = delay if delay > 0 else 0
-        self.clock.callLater(delay, self.start, self.interval)
+        self._scheduled_call = self.clock.callLater(delay, self.start, self.interval)
+        self.state.jobs_status[self.name] = {"status": "pending", "execution_time": 0}
 
     def start(self, interval):
         task.LoopingCall.start(self, interval)
+        self.state.jobs_status[self.name]["status"] = "running"
 
     def stop(self):
         if self.running:
             task.LoopingCall.stop(self)
+            self.state.jobs_status[self.name]["status"] = "stopped"
 
         return self.active if self.active is not None else defer.succeed(None)
 
@@ -84,6 +97,8 @@ class Job(task.LoopingCall):
 
         self.active.callback(None)
         self.active = None
+        self.state.jobs_status[self.name]["execution_time"] = round((end_time - self.start_time) / 1000, 2)
+        self.state.jobs_status[self.name]["status"] = "idle" if self.running else "stopped"
 
     def operation(self):
         return
@@ -95,6 +110,7 @@ class Job(task.LoopingCall):
         log.err("Exception while running %s" % self.name)
         log.exception(excep)
         extract_exception_traceback_and_schedule_email(excep)
+        self.state.jobs_status[self.name]["status"] = "failed"
 
 
 class LoopingJob(Job):
@@ -114,6 +130,14 @@ class LoopingJob(Job):
         log.exception(excep)
         extract_exception_traceback_and_schedule_email(excep)
 
+
+class PeriodJob(LoopingJob):
+    interval = 3600
+    monitor_interval = 5 * 60
+
+    def get_delay(self):
+        current_time = datetime_now()
+        return 3600 - (current_time.minute * 60) - current_time.second
 
 class MinutelyJob(LoopingJob):
     interval = 60
@@ -179,3 +203,46 @@ class JobsMonitor(LoopingJob):
 
         if error_msg:
             self.state.schedule_exception_email(1, error_msg)
+
+def get_job_instance_by_name(name):
+    for job in State.jobs:
+        if job.name == name:
+            return job
+    return None
+
+
+@inlineCallbacks
+def start_job(name):
+    job = get_job_instance_by_name(name)
+    if job and not job.running:
+        yield job.start(job.interval)
+        State.jobs_status[name]["status"] = "running"
+        returnValue(True)
+    returnValue(False)
+
+
+@inlineCallbacks
+def stop_job(name):
+    job = get_job_instance_by_name(name)
+    if job and job.running:
+        yield job.stop()
+        State.jobs_status[name]["status"] = "stopped"
+        returnValue(True)
+    returnValue(False)
+
+
+def reschedule_job(name):
+    # Re-arm a job so that a configuration change affecting its schedule
+    # (e.g. the backup time/period) is picked up: the looping is stopped and
+    # the next run is recomputed via get_delay(). The in-flight run, if any, is
+    # left to complete on its own (its deferred is intentionally not awaited)
+    # so callers are never blocked by a long-running operation.
+    job = get_job_instance_by_name(name)
+    if job is None:
+        return False
+
+    if job.running:
+        job.stop()
+
+    job.schedule()
+    return True

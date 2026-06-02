@@ -1,10 +1,26 @@
 from globaleaks import models
 from globaleaks.handlers.admin.operation import AdminOperationHandler
 from globaleaks.jobs import delivery
+from globaleaks.models.config import ConfigFactory
+from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 from twisted.internet import defer
+
+
+@transact
+def set_backup_config(session, tid, values):
+    config = ConfigFactory(session, tid)
+    for var_name, value in values.items():
+        config.set_val(var_name, value)
+
+
+@transact
+def get_backup_config(session, tid):
+    config = ConfigFactory(session, tid)
+    return {var_name: config.get_val(var_name)
+            for var_name in ('backup_enabled', 'backup_time', 'backup_period', 'backup_retention')}
 
 
 class TestAdminPasswordReset(helpers.TestHandlerWithPopulatedDB):
@@ -130,3 +146,26 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
 
     def test_admin_enable_user_permission_file_upload(self):
         return self._test_operation_handler('enable_user_permission_file_upload')
+
+    @defer.inlineCallbacks
+    def test_admin_reset_backups(self):
+        yield set_backup_config(1, {
+            'backup_enabled': True,
+            'backup_time': '10:00',
+            'backup_period': 12,
+            'backup_retention': 30
+        })
+
+        yield self._test_operation_handler('reset_backups')
+
+        config = yield get_backup_config(1)
+        self.assertEqual(config, {
+            'backup_enabled': False,
+            'backup_time': '02:00',
+            'backup_period': 24,
+            'backup_retention': 7
+        })
+
+    def test_admin_reset_backups_forbidden_on_secondary_tenant(self):
+        return self.assertFailure(self._test_operation_handler('reset_backups', tid=2),
+                                  errors.ForbiddenOperation)

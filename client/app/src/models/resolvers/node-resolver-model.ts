@@ -78,4 +78,9 @@ export class nodeResolverModel {
   profile:boolean;
   is_profile:boolean;
   tid: number;
+  backup_enabled: boolean;
+  backup_time: string;
+  backup_period: number;
+  backup_retention: number;
+  backup_job_status: string;
 }

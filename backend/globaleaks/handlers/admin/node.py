@@ -1,3 +1,4 @@
+from globaleaks.state import State
 from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
@@ -144,6 +145,12 @@ class NodeInstance(BaseHandler):
                        self.request.language,
                        config_desc=config[0])
         ret["is_profile"] = True if self.request.tid > 1000001 else False
+
+        if ret.get("backup_enabled"):
+            backup_job = State.jobs_status.get("Backup", None)
+            if backup_job:
+                ret["backup_job_status"] = backup_job["status"]
+
         returnValue(ret)
 
     @inlineCallbacks
@@ -161,5 +168,22 @@ class NodeInstance(BaseHandler):
                        self.session,
                        request,
                        self.request.language)
+
+        # Backup is a global (tenant 1) feature: keep the Backup job lifecycle
+        # in sync with its configuration so that disabling it actually stops the
+        # running job rather than leaving it looping as a no-op.
+        if self.request.tid == 1 and 'backup_enabled' in request:
+            # Imported lazily: the jobs package imports this module at load time.
+            from globaleaks.jobs.job import reschedule_job, stop_job
+            if request['backup_enabled']:
+                # Re-arm rather than start: the job is already running since
+                # startup, so this is what makes a changed backup time/period
+                # actually take effect (get_delay is recomputed).
+                reschedule_job("Backup")
+                backup_job = State.jobs_status.get("Backup", None)
+                if backup_job:
+                    ret["backup_job_status"] = backup_job["status"]
+            else:
+                yield stop_job("Backup")
 
         returnValue(ret)

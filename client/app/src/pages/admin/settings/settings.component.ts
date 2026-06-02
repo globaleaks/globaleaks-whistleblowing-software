@@ -12,12 +12,13 @@ import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, Ng
 import {NgTemplateOutlet} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
+import {Tab6Component} from "@app/pages/admin/settings/tab6/tab6.component";
 
 @Component({
     selector: "src-admin-settings",
     templateUrl: "./settings.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, Tab1Component, Tab2Component, Tab3Component, Tab4Component, Tab5Component, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, Tab1Component, Tab2Component, Tab3Component, Tab4Component, Tab5Component, Tab6Component, TranslatorPipe, TranslateModule]
 })
 export class AdminSettingsComponent implements AfterViewInit {
   protected node = inject(NodeResolver);
@@ -29,6 +30,7 @@ export class AdminSettingsComponent implements AfterViewInit {
   @ViewChild("tab3") tab3!: TemplateRef<Tab3Component>;
   @ViewChild("tab4") tab4!: TemplateRef<Tab4Component>;
   @ViewChild("tab5") tab5!: TemplateRef<Tab5Component>;
+  @ViewChild("tab6") tab6!: TemplateRef<Tab6Component>;
   tabs: Tab[];
   nodeData: NodeResolver;
   active: string;
@@ -66,6 +68,11 @@ export class AdminSettingsComponent implements AfterViewInit {
             id:"advanced",
             title: "Advanced",
             component: this.tab5
+          },
+          {
+            id:"backup",
+            title: "Backup",
+            component: this.tab6
           }
         ]);
       }

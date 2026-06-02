@@ -11,6 +11,7 @@ import secrets
 from functools import lru_cache
 from typing import List, Tuple
 
+from globaleaks import jobs
 from sqlalchemy.orm.exc import NoResultFound
 
 from twisted.internet import defer
@@ -141,6 +142,7 @@ api_spec = [
     ('/api/admin/auditlog/debug', admin.auditlog.DebugLog),
     ('/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
     ('/api/admin/auditlog/tips', admin.auditlog.TipsCollection),
+    ('/api/admin/backup/list', jobs.backup.BackupList),
     ('/api/admin/l10n/', admin.l10n.AdminL10NHandler, r'/api/admin/l10n/(' + '|'.join(LANGUAGES_SUPPORTED_CODES) + ')'),
     ('/api/admin/config', admin.operation.AdminOperationHandler),
     ('/api/admin/config/csr/gen', admin.https.CSRHandler),

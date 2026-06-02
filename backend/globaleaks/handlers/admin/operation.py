@@ -10,7 +10,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa
 from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_set_config_variable, ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import db_set_config_variable, get_default, ConfigDescriptor, ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
 from globaleaks.state import State
@@ -65,6 +65,25 @@ def reset_submissions(session, tid, user_id):
     db_del(session, InternalTip, InternalTip.tid == tid)
 
     db_log(session, tid=tid, type='reset_reports', user_id=user_id)
+
+
+@transact
+def reset_backups(session, tid, user_id):
+    """
+    Transaction to reset the backup configuration of the specified tenant
+
+    Every backup variable is restored to its default (disabling the feature),
+    so the snapshots deletion that follows starts from a clean configuration.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The id of the user resetting the backups
+    """
+    config = ConfigFactory(session, tid)
+    for var_name in ('backup_enabled', 'backup_time', 'backup_period', 'backup_retention'):
+        config.set_val(var_name, get_default(ConfigDescriptor[var_name].default))
+
+    db_log(session, tid=tid, type='reset_backups', user_id=user_id)
 
 
 @transact
@@ -248,7 +267,8 @@ class AdminOperationHandler(OperationHandler):
         'toggle_escrow',
         'toggle_user_escrow',
         'enable_user_permission_file_upload',
-        'reset_submissions'
+        'reset_submissions',
+        'reset_backups'
     ]
 
     def enable_encryption(self, req_args, *args, **kwargs):
@@ -293,6 +313,28 @@ class AdminOperationHandler(OperationHandler):
 
     def reset_submissions(self, req_args, *args, **kwargs):
         return reset_submissions(self.request.tid, self.session.user_id)
+
+    @inlineCallbacks
+    def reset_backups(self, req_args, *args, **kwargs):
+        # Backup is a global (tenant 1) feature: the backups directory is owned
+        # by the root tenant only, so the reset is allowed there only.
+        if self.request.tid != 1:
+            raise errors.ForbiddenOperation
+
+        # Imported lazily: globaleaks.jobs pulls in handlers that import back into
+        # this module (admin.operation), so a top-level import here would create a
+        # circular import at startup.
+        from globaleaks.jobs.backup import reset_backups_threaded
+        from globaleaks.jobs.job import stop_job
+
+        # Stop the running job first so no backup runs against the directory
+        # while it is being cleared, then restore the default configuration
+        # (which disables the feature) and finally drop every published backup.
+        yield stop_job('Backup')
+
+        yield reset_backups(1, self.session.user_id)
+
+        yield reset_backups_threaded(State.settings.backups_snapshots_path)
 
     @inlineCallbacks
     def set_hostname(self, req_args, *args, **kwargs):
@@ -345,6 +387,7 @@ class AdminOperationHandler(OperationHandler):
             'disable_2fa': AdminOperationHandler.disable_2fa,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
             'reset_submissions': AdminOperationHandler.reset_submissions,
+            'reset_backups': AdminOperationHandler.reset_backups,
             'set_user_password': AdminOperationHandler.set_user_password,
             'send_password_reset_email': AdminOperationHandler.send_password_reset_email,
             'set_hostname': AdminOperationHandler.set_hostname,

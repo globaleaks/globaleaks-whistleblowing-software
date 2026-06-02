@@ -526,8 +526,8 @@ export class UtilsService {
     return this.runOperation("api/admin/config", operation, args, refresh);
   }
 
-  deleteDialog() {
-    return this.openConfirmableModalDialogReport("", "").subscribe();
+  deleteDialog(operation: string = "reset_submissions") {
+    return this.openConfirmableModalDialogReport("", "", operation).subscribe();
   }
 
 
@@ -539,7 +539,8 @@ export class UtilsService {
       "toggle_escrow",
       "toggle_user_escrow",
       "enable_user_permission_file_upload",
-      "reset_submissions"
+      "reset_submissions",
+      "reset_backups"
     ];
 
     if (!args) {
@@ -598,7 +599,7 @@ export class UtilsService {
     });
   }
 
-  openConfirmableModalDialogReport(arg: string, scope: any): Observable<string> {
+  openConfirmableModalDialogReport(arg: string, scope: any, operation: string = "reset_submissions"): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
@@ -606,17 +607,17 @@ export class UtilsService {
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        this.openPasswordConfirmableDialog(arg, scope);
+        this.openPasswordConfirmableDialog(arg, scope, operation);
       };
     });
   }
 
-  openPasswordConfirmableDialog(arg: string, scope: any){
-    return this.runAdminOperation("reset_submissions", {}, true).subscribe({
+  openPasswordConfirmableDialog(arg: string, scope: any, operation: string = "reset_submissions"){
+    return this.runAdminOperation(operation, {}, true).subscribe({
       next: (_) => {
       },
       error: (_) => {
-        this.openPasswordConfirmableDialog(arg, scope)
+        this.openPasswordConfirmableDialog(arg, scope, operation)
       }
     });
   }

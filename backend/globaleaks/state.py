@@ -77,6 +77,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
         self.jobs = []
         self.jobs_monitor = None
+        self.jobs_status = {}
         self.services = []
         self.tor = None
 
@@ -147,6 +148,9 @@ class StateClass(ObjectDict, metaclass=Singleton):
                         self.settings.attachments_path,
                         self.settings.ramdisk_path,
                         self.settings.tmp_path,
+                        self.settings.backups_path,
+                        self.settings.backups_tmp_path,
+                        self.settings.backups_snapshots_path,
                         self.settings.log_path]:
             self.create_directory(dirpath)
 

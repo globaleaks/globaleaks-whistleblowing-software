@@ -262,7 +262,11 @@ AdminNodeDesc = {
     'custom_support_url': url_regexp_or_empty,
     'pgp': bool,
     'user_privacy_policy_text': str,
-    'user_privacy_policy_url': str
+    'user_privacy_policy_url': str,
+    'backup_enabled': bool,
+    'backup_time': str,
+    'backup_period': int,
+    'backup_retention': int,
 }
 
 AdminNetworkDesc = {
