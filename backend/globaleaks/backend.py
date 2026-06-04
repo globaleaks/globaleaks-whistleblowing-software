@@ -40,6 +40,9 @@ class Site(server.Site):
     def _openLogFile(self, path):
         return openLogFile(path, Settings.log_file_size, Settings.num_log_files)
 
+    def acceptableProtocols(self):
+        return [b"http/1.1"]   # limit supported protocols to http/1.1
+
 
 class Service(service.Service):
     _shutdown = False
