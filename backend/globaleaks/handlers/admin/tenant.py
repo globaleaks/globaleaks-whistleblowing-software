@@ -234,6 +234,7 @@ def db_wizard(session, tid, hostname, request):
 
         if not request['skip_recipient_account_creation']:
             receiver_user.can_edit_general_settings = True
+            receiver_user.can_mask_information = False
 
             # Set the recipient name equal to the node name
             receiver_user.name = receiver_user.public_name = request['node_name']
