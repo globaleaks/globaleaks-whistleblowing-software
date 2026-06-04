@@ -1,3 +1,7 @@
+Changes in version 5.0.95
+    Fix incompatibility with iOS ()
+    Bump client dependenciesto their latest stable versions
+
 Changes in version 5.0.94
     Add support for Ubuntu 26.04 (#4822)
     Deprecate support for Ubuntu Bionic and Debian Bullseye
