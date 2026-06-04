@@ -20,7 +20,8 @@ user_permissions = ObjectDict({
     'can_grant_access_to_reports': False,
     'can_mask_information': True,
     'can_redact_information': False,
-    'can_transfer_access_to_reports': False
+    'can_transfer_access_to_reports': False,
+    'can_forward_reports': False
 })
 
 

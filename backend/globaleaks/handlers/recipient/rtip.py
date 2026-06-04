@@ -19,7 +19,8 @@ from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
-from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
+from globaleaks.handlers.whistleblower.submission import db_create_receivertip, \
+                                                         decrypt_tip
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import serialize_user
 from globaleaks.models import UserProfile, serializers
@@ -595,13 +596,18 @@ def db_access_rtip(session, tid, user_id, itip_id):
     :param itip_id: the requested rtip ID
     :return: A model requested
     """
-    return db_get(session,
-                  (models.User, models.ReceiverTip, models.InternalTip),
-                  (models.User.id == user_id,
-                   models.InternalTip.id == itip_id,
-                   models.ReceiverTip.receiver_id == models.User.id,
-                   models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                   models.InternalTip.tid.in_({tid, State.tenants[tid].cache.ptid})))
+    user, rtip, itip = db_get(session,
+                              (models.User, models.ReceiverTip, models.InternalTip),
+                              (models.User.id == user_id,
+                               models.User.tid == tid,
+                               models.InternalTip.id == itip_id,
+                               models.ReceiverTip.receiver_id == models.User.id,
+                               models.ReceiverTip.internaltip_id == models.InternalTip.id))
+
+    if itip.type == 'forward-request' and tid != 1:
+        raise errors.ForbiddenOperation
+
+    return user, rtip, itip
 
 
 def db_access_rfile(session, tid, user_id, rfile_id):
@@ -693,7 +699,12 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
 
     db_log(session, tid=tid, type='access_report', user_id=user_id, object_id=itip.id)
 
-    return serializers.serialize_rtip(session, itip, rtip, language), Base64Encoder.decode(rtip.crypto_tip_prv_key)
+    report = serializers.serialize_rtip(session, itip, rtip, language)
+    if itip.type in ('submission', 'forward'):
+        from globaleaks.handlers.recipient import forward
+        report['allow_forward'] = forward.db_can_forward_report(session, tid, itip)
+
+    return report, Base64Encoder.decode(rtip.crypto_tip_prv_key)
 
 
 @transact
@@ -766,6 +777,36 @@ def db_delete_itip(session, itip_id):
     db_del(session, models.InternalTip, models.InternalTip.id == itip_id)
 
 
+def db_get_forward_source_tid(session, itip):
+    data = session.query(models.InternalTipData) \
+                  .filter(models.InternalTipData.internaltip_id == itip.id,
+                          models.InternalTipData.key == 'forwarded_from') \
+                  .one_or_none()
+    if data is None:
+        return None
+
+    try:
+        return int(data.value.get('source_tid'))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def db_enforce_delete_permission_on_forward_type(tid, itip):
+    if itip.type in ('forward-request', 'forward') and tid != 1:
+        raise errors.ForbiddenOperation
+
+
+def db_enforce_expiration_permission_on_forward_type(session, tid, itip):
+    if itip.type not in ('forward-request', 'forward'):
+        return
+
+    if tid != 1:
+        raise errors.ForbiddenOperation
+
+    if itip.type == 'forward' and db_get_forward_source_tid(session, itip) == 1:
+        raise errors.ForbiddenOperation
+
+
 def db_postpone_expiration(session, itip, expiration_date):
     """
     Transaction for postponing the expiration of a submission
@@ -834,6 +875,8 @@ def delete_rtip(session, tid, user_session, itip_id):
     if not user_session.permissions.can_delete_submission:
         raise errors.ForbiddenOperation
 
+    db_enforce_delete_permission_on_forward_type(tid, itip)
+
     db_delete_itip(session, itip.id)
 
     db_log(session, tid=tid, type='delete_report', user_id=user_session.user_id, object_id=itip.id)
@@ -880,6 +923,8 @@ def postpone_expiration(session, tid, user_session, itip_id, expiration_date):
     if not user_session.permissions.can_postpone_expiration:
         raise errors.ForbiddenOperation
 
+    db_enforce_expiration_permission_on_forward_type(session, tid, itip)
+
     prev_expiration_date, curr_expiration_date = db_postpone_expiration(session, itip, expiration_date)
 
     log_data = {
@@ -920,6 +965,62 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     :param value: A value to be assigned to the property
     """
     _, _, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    if key == 'allow_forward':
+        if tid != 1 or itip.type != 'forward-request':
+            raise errors.ForbiddenOperation
+
+        forward_request = session.query(models.InternalTipData) \
+                                 .filter(models.InternalTipData.internaltip_id == itip.id,
+                                         models.InternalTipData.key == 'forward_request') \
+                                 .one_or_none()
+        if forward_request is None:
+            raise errors.InputValidationError("Missing forward request metadata")
+
+        try:
+            source_tid = int(forward_request.value.get('source_tid'))
+        except (TypeError, ValueError):
+            raise errors.InputValidationError("Invalid forward request source")
+
+        now = datetime_now()
+        itip.allow_forward = False
+        if value:
+            itip.type = 'submission'
+        itip.update_date = now
+
+        source_internaltip_id = forward_request.value.get('source_internaltip_id')
+        if source_internaltip_id:
+            source_itip = session.query(models.InternalTip) \
+                                 .filter(models.InternalTip.tid == source_tid,
+                                         models.InternalTip.id == source_internaltip_id,
+                                         models.InternalTip.type == 'submission') \
+                                 .one_or_none()
+            if source_itip is None:
+                raise errors.InputValidationError("Invalid forward request source")
+
+            source_itip.update_date = now
+            source_object_id = source_itip.id
+            source_log_data = {
+                'authorizing_tid': tid,
+                'forward_request_internaltip_id': itip.id
+            }
+        else:
+            source_object_id = itip.id
+            source_log_data = {
+                'authorizing_tid': tid,
+                'forward_request_internaltip_id': itip.id,
+                'request_authorized': True
+            }
+
+        root_log_data = {'source_tid': source_tid}
+        if source_internaltip_id:
+            root_log_data['source_internaltip_id'] = source_internaltip_id
+
+        db_log(session, tid=tid, type='report_forward_request_authorized',
+               user_id=user_id, object_id=itip.id, data=root_log_data)
+        db_log(session, tid=source_tid, type='report_forward_request_authorized',
+               user_id=None, object_id=source_object_id, data=source_log_data)
+        return
 
     if itip.crypto_tip_pub_key and value and key in ['label']:
         value = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, value))
@@ -1167,7 +1268,7 @@ class RTipRedactionCollection(BaseHandler):
 
         tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'], self.request.language)
 
-        if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
+        if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
 
         redaction = yield update_redaction(self.request.tid, self.session, redaction_id, data, tip)
@@ -1187,7 +1288,7 @@ class RTipInstance(OperationHandler):
 
         tip = yield serializers.process_logs(tip, tip['id'])
 
-        if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
+        if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
 
         tip = yield redact_report(self.session, tip)

@@ -280,6 +280,10 @@
                 <input class="form-check-input" name="can_transfer_access_to_reports" [(ngModel)]="user.profile.permissions.can_transfer_access_to_reports" type="checkbox" [disabled]="user.id !== user.profile_id" />
                 <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to transfer reports to other users' | translate }}</label>
              </div>
+              <div class="form-group">
+                <input class="form-check-input" name="can_forward_reports" [(ngModel)]="user.profile.permissions.can_forward_reports" type="checkbox" [disabled]="user.id !== user.profile_id" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to forward reports' | translate }}</label>
+             </div>
            </div>
          </div>
         }

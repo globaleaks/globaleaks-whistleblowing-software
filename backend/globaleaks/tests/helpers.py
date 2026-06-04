@@ -276,6 +276,7 @@ class MockDict:
             'can_edit_general_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
+            'can_forward_reports': True,
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,

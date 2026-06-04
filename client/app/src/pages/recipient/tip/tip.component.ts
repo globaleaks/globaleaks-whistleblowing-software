@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
 import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
@@ -31,7 +31,7 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
-import {NgClass, NgTemplateOutlet} from "@angular/common";
+import {DatePipe, NgClass, NgTemplateOutlet} from "@angular/common";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
 import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
@@ -41,6 +41,8 @@ import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../s
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {ForwardReportComponent} from "@app/shared/modals/forward-report/forward-report.component";
+import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 
 
 @Component({
@@ -50,6 +52,8 @@ import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-l
     imports: [
       FormsModule,
       NgClass,
+      DatePipe,
+      RouterLink,
       TipInfoComponent,
       TipReceiverListComponent,
       TipQuestionnaireAnswersComponent,
@@ -107,12 +111,16 @@ export class TipComponent implements OnInit {
   submission: any;
 
   ngOnInit() {
-    this.loadTipData();
-    this.cdr.detectChanges();
+    this.activatedRoute.paramMap.subscribe(params => {
+      const tipId = params.get("tip_id");
+      if (tipId && tipId !== this.tip_id) {
+        this.loadTipData(tipId);
+      }
+    });
   }
 
-  loadTipData() {
-    this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
+  loadTipData(tipId: string | null = this.activatedRoute.snapshot.paramMap.get("tip_id")) {
+    this.tip_id = tipId;
     this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
@@ -125,9 +133,7 @@ export class TipComponent implements OnInit {
           this.tip = this.RTipService.tip;
           this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
 
-          this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {
-            this.tip.tip_id = params["tip_id"];
-          });
+          this.tip.tip_id = this.activatedRoute.snapshot.queryParamMap.get("tip_id") || "";
 
           this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
           this.score = this.tip.score;
@@ -162,6 +168,38 @@ export class TipComponent implements OnInit {
         },
       ];
     });
+  }
+
+  isForwardManagedReport() {
+    return this.tip?.type === "forward-request" || this.tip?.type === "forward";
+  }
+
+  isForwardFromRootTenant() {
+    return Number(this.tip?.data?.forwarded_from?.source_tid) === 1;
+  }
+
+  canEditExpiration() {
+    if (!this.tip?.context || !this.preferencesService.dataModel.profile.permissions.can_postpone_expiration) {
+      return false;
+    }
+
+    if (!this.isForwardManagedReport()) {
+      return true;
+    }
+
+    if (this.preferencesService.dataModel.tid !== 1) {
+      return false;
+    }
+
+    return this.tip.type !== "forward" || !this.isForwardFromRootTenant();
+  }
+
+  canDeleteReport() {
+    if (!this.preferencesService.dataModel.profile.permissions.can_delete_submission) {
+      return false;
+    }
+
+    return !this.isForwardManagedReport() || this.preferencesService.dataModel.tid === 1;
   }
 
   updateLabel(label: string) {
@@ -267,6 +305,47 @@ export class TipComponent implements OnInit {
         }
       }
     );
+  }
+
+  openForwardModal() {
+    this.http.get(`api/recipient/rtips/${this.tip.id}/forward`).subscribe((response: any) => {
+      const modalRef = this.modalService.open(ForwardReportComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false
+      });
+      modalRef.componentInstance.tipId = this.tip.id;
+      modalRef.componentInstance.tenants = response.tenants;
+      modalRef.componentInstance.questionnaire = response.questionnaire;
+      modalRef.result.then(
+        () => this.reload(),
+        () => {}
+      );
+    });
+  }
+
+  authorizeForward() {
+    const modalRef = this.modalService.open(ConfirmationComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
+    });
+    modalRef.componentInstance.title = "Authorize forward";
+    modalRef.componentInstance.message = "By confirming, this forward request will become a normal report.";
+    modalRef.componentInstance.confirmLabel = "Authorize";
+    modalRef.componentInstance.confirmFunction = () => {
+      const req = {
+        operation: "set",
+        args: {
+          key: "allow_forward",
+          value: true
+        }
+      };
+
+      this.http.put(`api/recipient/rtips/${this.tip.id}`, req).subscribe(() => {
+        this.reload();
+      });
+    };
   }
 
   openModalChangeState(){

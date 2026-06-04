@@ -1,6 +1,7 @@
 export class contextResolverModel {
   id: string;
   hidden: boolean;
+  is_forward_channel: boolean;
   tip_timetolive: number;
   tip_reminder: number;
   select_all_receivers: boolean;

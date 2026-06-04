@@ -130,7 +130,8 @@ SubmissionDesc = {
     'identity_provided': bool,
     'answers': dict,
     'score': int,
-    'receipt': str
+    'receipt': str,
+    'forward_request': dict
 }
 
 AdminUserProfileDesc = {
@@ -187,6 +188,11 @@ UserUserDesc = {
 CommentDesc = {
     'content': str,
     'visibility': str
+}
+
+ForwardReportDesc = {
+    'target_tid': int,
+    'answers': dict
 }
 
 OpsDesc = {
@@ -262,7 +268,15 @@ AdminNodeDesc = {
     'custom_support_url': url_regexp_or_empty,
     'pgp': bool,
     'user_privacy_policy_text': str,
-    'user_privacy_policy_url': str
+    'user_privacy_policy_url': str,
+    'enable_forward_in': bool,
+    'enable_forward_out': bool,
+    'accept_forwarding': bool,
+    'accept_forwarding_from': list,
+    'accepts_requests_of_forward_from': list,
+    'send_forwarding': list,
+    'send_forwarding_request': list,
+    'forward_filter': list,
 }
 
 AdminNetworkDesc = {

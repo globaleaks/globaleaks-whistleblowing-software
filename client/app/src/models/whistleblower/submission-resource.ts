@@ -8,4 +8,5 @@ export class submissionResourceModel {
   answer: 0;
   score: 0;
   receipt: string;
+  forward_request: Record<string, any> = {};
 }

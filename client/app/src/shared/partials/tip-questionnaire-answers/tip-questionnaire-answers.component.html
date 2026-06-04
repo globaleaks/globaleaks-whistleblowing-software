@@ -22,7 +22,7 @@
           }
           @for (step of questionnaire.steps | orderBy:'order'; track step; let questionare_steps = $index) {
             <div>
-              @if (questionnaire.steps.length > 1 && tipService.tip.context.show_steps_navigation_interface && step.enabled) {
+              @if (questionnaire.steps.length > 1 && $any(tipService.tip.context)?.show_steps_navigation_interface && step.enabled) {
                 <dt id="step={{questionare_steps}}">
                   <span>{{'Step'|translate}}</span>
                   <span>{{questionare_steps + 1}}: {{step.label}}</span>

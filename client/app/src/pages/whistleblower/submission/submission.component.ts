@@ -83,6 +83,10 @@ export class SubmissionComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
       this.appDataService.context_id = params.get('context') || this.appDataService.context_id;
+      this.submission.submission.forward_request = {
+        source_tid: params.get('source_tid'),
+        source_tip_id: params.get('source_tip')
+      };
       this.initializeSubmission();
     });
   }

@@ -19,6 +19,7 @@ import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {ForwardReportComponent} from "@app/shared/modals/forward-report/forward-report.component";
 
 @Component({
     selector: "src-tips",
@@ -59,6 +60,8 @@ export class TipsComponent implements OnInit {
   channelDropdownVisible = false;
   statusDropdownVisible = false;
   scoreDropdownVisible = false;
+  forwardRequestAvailable = false;
+  forwardRequestOptions: any = null;
   index: number;
   date: { year: number; month: number };
   reportDatePicker = false;
@@ -80,6 +83,7 @@ export class TipsComponent implements OnInit {
     } else {
       this.filteredTips = this.RTips.dataModel;
       this.processTips();
+      this.loadForwardRequestOptions();
     }
   }
 
@@ -151,6 +155,64 @@ export class TipsComponent implements OnInit {
         }
       },
     );
+  }
+
+  canRequestForward() {
+    return this.forwardRequestAvailable;
+  }
+
+  private loadForwardRequestOptions() {
+    if (this.preferencesService.dataModel.tid === 1 ||
+        !this.preferencesService.dataModel.profile.permissions.can_forward_reports) {
+      this.forwardRequestAvailable = false;
+      this.forwardRequestOptions = null;
+      return;
+    }
+
+    this.http.get('api/recipient/rtips/forward-request').subscribe({
+      next: (response: any) => {
+        this.forwardRequestAvailable = response.available !== false;
+        this.forwardRequestOptions = this.forwardRequestAvailable ? response : null;
+      },
+      error: () => {
+        this.forwardRequestAvailable = false;
+        this.forwardRequestOptions = null;
+      }
+    });
+  }
+
+  requestForward() {
+    const openModal = (response: any) => {
+      const modalRef = this.modalService.open(ForwardReportComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false
+      });
+      modalRef.componentInstance.tenants = response.tenants;
+      modalRef.componentInstance.questionnaire = response.questionnaire;
+      modalRef.componentInstance.endpoint = "forward-request";
+      modalRef.componentInstance.title = "Request Forward";
+      modalRef.componentInstance.navigateOnSuccess = false;
+      modalRef.componentInstance.showTenantSelector = false;
+      modalRef.result.then(
+        () => {
+          this.forwardRequestAvailable = false;
+          this.forwardRequestOptions = null;
+          this.reload();
+        },
+        () => {}
+      );
+    };
+
+    if (this.forwardRequestOptions) {
+      openModal(this.forwardRequestOptions);
+    } else {
+      this.http.get('api/recipient/rtips/forward-request').subscribe((response: any) => {
+        if (response.available !== false) {
+          openModal(response);
+        }
+      });
+    }
   }
 
   processTips() {

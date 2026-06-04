@@ -16,13 +16,12 @@ import {NgClass} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe, FilterPipe]
+    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe]
 })
 export class ContextEditorComponent implements OnInit {
   private http = inject(HttpClient);
@@ -105,6 +104,16 @@ export class ContextEditorComponent implements OnInit {
 
   toggleSelect(): void {
     this.showSelect = true;
+  }
+
+  selectableReceivers(): User[] {
+    const receivers = this.usersData.filter(user => user.role === "receiver");
+
+    if (!this.contextResolver.is_forward_channel) {
+      return receivers;
+    }
+
+    return receivers.filter(user => user.profile?.permissions?.can_forward_reports);
   }
 
   moveReceiver(rec: User): void {

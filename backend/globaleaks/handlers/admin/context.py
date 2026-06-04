@@ -2,8 +2,31 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_add, db_del, db_get, transact, tw
 from globaleaks.rest import requests, errors
+
+FORWARD_REQUEST_QUESTIONNAIRE_ID = 'forward_request'
+
+
+def db_forward_receivers_query(session, tid):
+    return session.query(models.User.id) \
+                  .join(models.UserProfilePermission,
+                        models.UserProfilePermission.profile_id == models.User.profile_id) \
+                  .filter(models.User.tid == tid,
+                          models.User.enabled == True,
+                          models.User.role == 'receiver',
+                          models.UserProfilePermission.permission == 'can_forward_reports')
+
+
+def db_filter_forward_receiver_ids(session, tid, receiver_ids):
+    if not receiver_ids:
+        return []
+
+    allowed_ids = {r[0] for r in db_forward_receivers_query(session, tid)
+                                      .filter(models.User.id.in_(receiver_ids))}
+
+    return [receiver_id for receiver_id in receiver_ids if receiver_id in allowed_ids]
 
 
 def admin_serialize_context(session, context, language):
@@ -15,15 +38,27 @@ def admin_serialize_context(session, context, language):
     :param language: the language in which to localize data.
     :return: a dictionary representing the serialization of the context.
     """
+    tenant_config = ConfigFactory(session, context.tid)
+    forward_channel_ids = {
+        tenant_config.get_val('forward_channel'),
+        tenant_config.get_val('forward_request_channel')
+    }
+    is_forward_channel = context.id in forward_channel_ids
+
     receivers = [r[0] for r in session.query(models.ReceiverContext.receiver_id)
                                       .filter(models.ReceiverContext.context_id == context.id)
                                       .order_by(models.ReceiverContext.order)]
+
+    if is_forward_channel:
+        context.hidden = True
+        receivers = db_filter_forward_receiver_ids(session, context.tid, receivers)
 
     picture = session.query(models.File).filter(models.File.name == context.id).one_or_none() is not None
 
     ret = {
         'id': context.id,
         'hidden': context.hidden,
+        'is_forward_channel': is_forward_channel,
         'tip_timetolive': context.tip_timetolive,
         'tip_reminder': context.tip_reminder,
         'select_all_receivers': context.select_all_receivers,
@@ -171,7 +206,30 @@ def db_update_context(session, tid, context, request, language):
     :param language: The request language
     :return: The updated context
     """
+    tenant_config = ConfigFactory(session, tid)
+    forward_channel_ids = {
+        tenant_config.get_val('forward_channel'),
+        tenant_config.get_val('forward_request_channel')
+    }
+
+    if context.id in forward_channel_ids:
+        request = fill_context_request(tid, request, language)
+        context.hidden = True
+        context.questionnaire_id = FORWARD_REQUEST_QUESTIONNAIRE_ID \
+            if context.id == tenant_config.get_val('forward_request_channel') else \
+            ConfigFactory(session, 1).get_val('forward_questionnaire')
+        context.additional_questionnaire_id = ''
+        context.tip_timetolive = request['tip_timetolive']
+        request['receivers'] = db_filter_forward_receiver_ids(session, tid, request['receivers'])
+        db_associate_context_receivers(session, context, request['receivers'])
+        return context
+
     request = fill_context_request(tid, request, language)
+
+    forward_questionnaire_id = ConfigFactory(session, 1).get_val('forward_questionnaire')
+    if request['questionnaire_id'] == forward_questionnaire_id or \
+       request['additional_questionnaire_id'] == forward_questionnaire_id:
+        raise errors.ForbiddenOperation
 
     context.update(request)
 
@@ -266,6 +324,11 @@ class ContextInstance(BaseHandler):
         """
         Delete the specified context.
         """
+        tenant_config = ConfigFactory(self.session, self.request.tid)
+        if context_id in {tenant_config.get_val('forward_channel'),
+                          tenant_config.get_val('forward_request_channel')}:
+            raise errors.ForbiddenOperation
+
         return tw(db_del,
                   models.Context,
                   (models.Context.tid == self.request.tid,

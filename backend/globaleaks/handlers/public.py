@@ -11,7 +11,7 @@ from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
 
 
-default_questionnaires = ['default']
+default_questionnaires = ['default', 'forward']
 default_questions = ['whistleblower_identity']
 
 trigger_map = {
@@ -299,6 +299,11 @@ def serialize_context(session, context, language, data=None):
     :param language: The language to be used during serialization
     :param data: The dictionary of prefetched resources
     """
+    tenant_config = ConfigFactory(session, context.tid)
+    if context.id in {tenant_config.get_val('forward_channel'),
+                      tenant_config.get_val('forward_request_channel')}:
+        context.hidden = True
+
     ret = {
         'id': context.id,
         'hidden': context.hidden,

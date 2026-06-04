@@ -11,6 +11,13 @@
             class="btn btn-outline-secondary">
             <i class="fas fa-file-pen"></i>
           </button>
+
+          @if (canRequestForward()) {
+            <button id="tip-action-request-forward" type="button" (click)="requestForward()" ngbTooltip="{{'Request Forward' | translate}}" [attr.aria-label]="'Request Forward' | translate"
+              class="btn btn-outline-secondary">
+              <i class="fas fa-share"></i>
+            </button>
+          }
         </div>
 
         <div class="d-flex align-items-center gap-1">

@@ -48,6 +48,18 @@
     </div>
     <div class="form-group">
       <label>
+        <input class="form-check-input" name="node.dataModel.enable_forward_in" [(ngModel)]="nodeResolver.dataModel.enable_forward_in" type="checkbox"/>
+        <span>{{ 'Forward (Incoming)' | translate }}</span>
+      </label>
+    </div>
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="node.dataModel.enable_forward_out" [(ngModel)]="nodeResolver.dataModel.enable_forward_out" type="checkbox"/>
+        <span>{{ 'Forward (Outgoing)' | translate }}</span>
+      </label>
+    </div>
+    <div class="form-group">
+      <label>
         <input class="form-check-input" name="node.dataModel.allow_indexing" [(ngModel)]="nodeResolver.dataModel.allow_indexing" type="checkbox" />
         <span>{{ 'Enable search engines indexing' | translate }}</span>
       </label>

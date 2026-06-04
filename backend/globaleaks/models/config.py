@@ -10,7 +10,7 @@ from globaleaks.utils.onion import generate_onion_service_v3
 
 # List of variables that on creation are set with the value
 # they have on the root tenant
-inherit_from_root_tenant = ['default_questionnaire']
+inherit_from_root_tenant = ['default_questionnaire', 'forward_questionnaire']
 
 root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
 

@@ -18,6 +18,9 @@ export interface rtipResolverModel {
   label: string;
   updated: boolean;
   context_id: string;
+  type: string;
+  allow_forward: boolean;
+  can_request_forward: boolean;
   tor: boolean;
   questionnaire: any;
   answers: Answers;

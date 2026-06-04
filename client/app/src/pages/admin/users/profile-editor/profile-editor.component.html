@@ -119,6 +119,10 @@
               <input class="form-check-input" name="can_transfer_access_to_reports" [(ngModel)]="profile.permissions.can_transfer_access_to_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
               <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to transfer reports to other profiles' | translate }}</label>
             </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_forward_reports" [(ngModel)]="profile.permissions.can_forward_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to forward reports' | translate }}</label>
+            </div>
           </div>
         </div>
       }

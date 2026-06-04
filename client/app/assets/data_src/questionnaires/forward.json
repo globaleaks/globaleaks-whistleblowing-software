@@ -1,0 +1,747 @@
+{
+  "id": "forward",
+  "editable": true,
+  "name": "Forward",
+  "steps": [
+    {
+      "id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+      "questionnaire_id": "forward",
+      "order": 0,
+      "triggered_by_score": 0,
+      "triggered_by_options": [],
+      "children": [
+        {
+          "id": "4a0782bd-4723-57d5-892a-2e4f607a22f1",
+          "instance": "instance",
+          "editable": true,
+          "type": "inputbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "6e0bd137-2271-5656-8626-c909003002a8",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "7c096421-f5b3-5798-86b9-8231d8aea55a",
+              "name": "max_len",
+              "type": "int",
+              "value": "100"
+            },
+            "input_validation": {
+              "id": "1d123922-35fb-57ae-a6a9-39714e64554c",
+              "name": "input_validation",
+              "type": "unicode",
+              "value": "none"
+            },
+            "regexp": {
+              "id": "2caa8206-b3cd-59e1-b61f-06bb8b28faa0",
+              "name": "regexp",
+              "type": "unicode",
+              "value": ""
+            }
+          },
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Please summarize your report in a few words."
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "9271d46f-7135-54ce-aaf2-131bcfe5bf48",
+          "instance": "instance",
+          "editable": true,
+          "type": "textarea",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "a354f761-074c-5588-8240-dd827e7f66f2",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "96bd7bac-83af-5a60-bcb6-1cbc71b77a60",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 1,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Describe your report in detail."
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "5737a2b1-896a-5c7c-9fa7-fc5c498b3089",
+          "instance": "instance",
+          "editable": true,
+          "type": "inputbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "7ed66f15-df5c-507d-87f0-5c4b16c38f67",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "21162ec9-7f7b-5f03-ba05-5cc76d7ef102",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 2,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Where did the facts happen?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "b98bcd6f-872c-5f93-a3d8-d947529b5224",
+          "instance": "instance",
+          "editable": true,
+          "type": "inputbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "9da1c874-ba6f-503d-a02b-45d0f485d889",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "ed3ab40f-c04f-5bfb-8667-b6407f090f73",
+              "name": "max_len",
+              "type": "int",
+              "value": "100"
+            },
+            "input_validation": {
+              "id": "c5770f81-7857-537f-9f1b-b3a42c2aa0b6",
+              "name": "input_validation",
+              "type": "unicode",
+              "value": "none"
+            },
+            "regexp": {
+              "id": "fe3860e8-057a-5475-94e4-fb0c86127b76",
+              "name": "regexp",
+              "type": "unicode",
+              "value": ""
+            }
+          },
+          "x": 1,
+          "y": 2,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "When did the facts happen?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "8da98f50-8bfd-5d26-94ca-0bea95eccdb6",
+          "instance": "instance",
+          "editable": true,
+          "type": "selectbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "display_alphabetically": {
+              "id": "258993ab-2b8a-57b2-be99-84386b3b07ce",
+              "name": "display_alphabetically",
+              "type": "bool",
+              "value": false
+            }
+          },
+          "x": 0,
+          "y": 3,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [
+            {
+              "id": "ba3390f5-b87b-58da-a584-0ab2356fa9e6",
+              "order": 0,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "I'm a victim"
+              }
+            },
+            {
+              "id": "3e8399e8-26ba-5675-b0a7-076121555ed9",
+              "order": 1,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "I'm involved in the facts"
+              }
+            },
+            {
+              "id": "7fbd1938-53f7-5698-86d2-31deca0c8ff6",
+              "order": 2,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "I witnessed the facts in person"
+              }
+            },
+            {
+              "id": "5392fd85-105b-517e-8117-773b97207d07",
+              "order": 3,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "I was personally told by a direct witness"
+              }
+            },
+            {
+              "id": "91c2e525-7981-55b2-bcdb-d49cf53a9f7d",
+              "order": 4,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "It is a rumor I heard"
+              }
+            }
+          ],
+          "children": [],
+          "label": {
+            "en": "How are you involved in the reported facts?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "a2fdbd06-d314-59d2-9558-d853525334d1",
+          "instance": "instance",
+          "editable": true,
+          "type": "selectbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "display_alphabetically": {
+              "id": "0aa9a725-954c-5fb0-92ef-b006564d5ee3",
+              "name": "display_alphabetically",
+              "type": "bool",
+              "value": false
+            }
+          },
+          "x": 0,
+          "y": 4,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [
+            {
+              "id": "5d525d46-b087-5936-a61c-c878bf72f607",
+              "order": 0,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "Yes"
+              }
+            },
+            {
+              "id": "5ca42921-729b-5634-a7c0-94af222ef39f",
+              "order": 1,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "No"
+              }
+            }
+          ],
+          "children": [],
+          "label": {
+            "en": "Do you have evidence to support your report?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "35df2d3f-f9e8-5f64-8ad3-26b6e873847c",
+          "instance": "instance",
+          "editable": true,
+          "type": "fileupload",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": true,
+          "required": false,
+          "preview": false,
+          "attrs": {},
+          "x": 0,
+          "y": 5,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [
+            {
+              "field": "a2fdbd06-d314-59d2-9558-d853525334d1",
+              "option": "5d525d46-b087-5936-a61c-c878bf72f607",
+              "sufficient": true
+            }
+          ],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Please attach the evidence to support your report."
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "66befe93-74b5-5410-9c55-3c8b025dbb94",
+          "instance": "instance",
+          "editable": true,
+          "type": "textarea",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "b535f048-8924-5b92-abee-f7e64b715416",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "645084a0-bcb7-50ad-941e-aa0588d5e96a",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 6,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [
+            {
+              "field": "a2fdbd06-d314-59d2-9558-d853525334d1",
+              "option": "5d525d46-b087-5936-a61c-c878bf72f607",
+              "sufficient": true
+            }
+          ],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Please describe the evidence in detail."
+          },
+          "description": {
+            "en": "A thorough description of the submitted evidence enhances our ability to evaluate claims and investigate. Please take care to reference significant portions of any videos, images or documents submitted."
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "a8b7cca8-99cb-584a-8ec5-45c6a6bd6558",
+          "instance": "instance",
+          "editable": true,
+          "type": "selectbox",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "display_alphabetically": {
+              "id": "16aefbb3-21de-5176-832d-35ae2cc735a3",
+              "name": "display_alphabetically",
+              "type": "bool",
+              "value": false
+            }
+          },
+          "x": 0,
+          "y": 7,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [
+            {
+              "id": "b78a55e6-910a-5f19-8f15-927a1cd4f3b1",
+              "order": 0,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "Yes"
+              }
+            },
+            {
+              "id": "6b306120-cb39-5a9d-bd8e-2dd24c157fb1",
+              "order": 1,
+              "block_submission": false,
+              "score_points": 0,
+              "score_type": "addition",
+              "trigger_receiver": [],
+              "hint1": {
+                "en": ""
+              },
+              "hint2": {
+                "en": ""
+              },
+              "label": {
+                "en": "No"
+              }
+            }
+          ],
+          "children": [],
+          "label": {
+            "en": "Have you reported the facts to other organizations and/or individuals?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "0e77e645-8c25-5cd1-ad6f-f5b6168a9d1d",
+          "instance": "instance",
+          "editable": true,
+          "type": "textarea",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "8c4a7aba-f3c0-5cd8-8b4b-1c0ce8959fad",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "ef18f306-3ef8-523d-a769-987e15500058",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 8,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [
+            {
+              "field": "a8b7cca8-99cb-584a-8ec5-45c6a6bd6558",
+              "option": "b78a55e6-910a-5f19-8f15-927a1cd4f3b1",
+              "sufficient": true
+            }
+          ],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Please list the organizations and/or individuals you have informed about these facts."
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "e93e2eca-851a-534e-af0b-2ddd2672478a",
+          "instance": "instance",
+          "editable": true,
+          "type": "textarea",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "0798a8a4-238b-5541-8b88-4080238c00cd",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "2a039d67-52f3-5cac-b050-acb96b4aac3b",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 9,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [
+            {
+              "field": "a8b7cca8-99cb-584a-8ec5-45c6a6bd6558",
+              "option": "b78a55e6-910a-5f19-8f15-927a1cd4f3b1",
+              "sufficient": true
+            }
+          ],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "Have these organizations investigated your claims? If so, what was the outcome?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        },
+        {
+          "id": "d5a21d74-d290-5bac-a275-c96fd6499495",
+          "instance": "instance",
+          "editable": true,
+          "type": "textarea",
+          "template_id": "",
+          "template_override_id": "",
+          "step_id": "7276be85-5550-565f-b44d-f3e1d0d4e69a",
+          "fieldgroup_id": "",
+          "multi_entry": false,
+          "required": true,
+          "preview": false,
+          "attrs": {
+            "min_len": {
+              "id": "62e5bc84-1509-5c6f-b99d-11ae07c6ae85",
+              "name": "min_len",
+              "type": "int",
+              "value": "0"
+            },
+            "max_len": {
+              "id": "9f1dc3dc-e11f-5637-a328-e50e1c5a7f48",
+              "name": "max_len",
+              "type": "int",
+              "value": "2000"
+            }
+          },
+          "x": 0,
+          "y": 10,
+          "width": 0,
+          "triggered_by_score": 0,
+          "triggered_by_options": [],
+          "options": [],
+          "children": [],
+          "label": {
+            "en": "What is the outcome you want to achieve with our support?"
+          },
+          "description": {
+            "en": ""
+          },
+          "hint": {
+            "en": ""
+          },
+          "placeholder": {
+            "en": ""
+          }
+        }
+      ],
+      "label": {
+        "en": ""
+      },
+      "description": {
+        "en": ""
+      }
+    }
+  ]
+}

@@ -14,6 +14,9 @@ export class ConfirmationComponent {
   private activeModal = inject(NgbActiveModal);
 
   @Input() arg: string;
+  @Input() title = "Are you sure?";
+  @Input() message = "";
+  @Input() confirmLabel = "Yes";
 
   confirmFunction: (secret: string) => void;
 

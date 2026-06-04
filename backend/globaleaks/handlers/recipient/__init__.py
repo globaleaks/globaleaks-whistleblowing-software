@@ -7,6 +7,7 @@ from nacl.encoding import Base64Encoder
 from sqlalchemy.sql.expression import distinct, func, and_, or_
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.recipient.forward
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -74,6 +75,8 @@ def get_receivertips(session, tid, user_session, language, args={}):
     ]
 
     dict_ret = dict()
+    can_request_forward = globaleaks.handlers.recipient.forward.db_can_request_forward(session, tid)
+
     # Fetch rtip, internaltip and associated questionnaire schema
     for rtip, itip, answers, data in session.query(models.ReceiverTip,
                                                    models.InternalTip,
@@ -90,6 +93,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                                     models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
                                             .group_by(models.ReceiverTip.id):
+        if itip.type == 'forward-request' and tid != 1:
+            continue
+
         answers = answers.answers
         label = itip.label
         accessible = rtip.receiver_id == user_id
@@ -104,6 +110,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
             # remove useless and unusable crypted data
             answers = ""
             label = ""
+
+        allow_forward = itip.allow_forward or \
+            globaleaks.handlers.recipient.forward.db_can_forward_report(session, tid, itip)
 
         if data is None:
             subscription = 0
@@ -126,6 +135,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'label': label,
                 'updated': rtip.last_access < itip.update_date,
                 'context_id': itip.context_id,
+                'type': itip.type,
+                'allow_forward': allow_forward,
+                'can_request_forward': can_request_forward,
                 'tor': itip.tor,
                 'answers': answers,
                 'score': itip.score,

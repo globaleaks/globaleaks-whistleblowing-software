@@ -83,8 +83,11 @@ api_spec = [
     # Receiver Handlers
     ('/api/recipient/operations', recipient.Operations),
     ('/api/recipient/rtips', recipient.TipsCollection),
+    ('/api/recipient/rtips/forward-request', recipient.forward.RTipsForwardRequest),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
     ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp  + r'/auditlog'),
+    ('/api/recipient/rtips', recipient.forward.RTipForward, r'/api/recipient/rtips/' + uuid_regexp + r'/forward'),
+    ('/api/recipient/rtips', recipient.forward.RTipForwardRequest, r'/api/recipient/rtips/' + uuid_regexp + r'/forward-request'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),

@@ -43,6 +43,7 @@ export interface Step {
 export class questionnaireResolverModel {
   id: string;
   editable: boolean;
+  is_forward_questionnaire: boolean;
   name: string;
   key: string;
   steps: Step[];

@@ -5,13 +5,11 @@ import {Constants} from "@app/shared/constants/constants";
 import {EnableEncryptionComponent} from "@app/shared/modals/enable-encryption/enable-encryption.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {User} from "@app/models/resolvers/user-resolver-model";
-import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {NgClass} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
@@ -30,11 +28,9 @@ export class Tab5Component implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   protected preferenceResolver = inject(PreferenceResolver);
   private usersResolver = inject(UsersResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
 
   @Input() contentForm: NgForm;
   userData: User[] = [];
-  questionnaireData: questionnaireResolverModel[];
   routeReload = false;
 
   protected readonly Constants = Constants;
@@ -42,8 +38,6 @@ export class Tab5Component implements OnInit {
   ngOnInit(): void {
     this.userData = this.usersResolver.dataModel;
     this.filterUserData();
-
-    this.questionnaireData = this.questionnairesResolver.dataModel;
   }
 
   filterUserData(): void {
@@ -90,4 +84,3 @@ export class Tab5Component implements OnInit {
     this.routeReload = true;
   }
 }
-

@@ -3,8 +3,9 @@ from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.models import fill_localized_keys
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_add, db_del, db_get, transact, tw
-from globaleaks.rest import requests
+from globaleaks.rest import errors, requests
 from globaleaks.utils.utility import uuid4
 from globaleaks.state import State
 
@@ -27,8 +28,29 @@ def db_get_questionnaires(session, tid, language):
     if ptid:
         tenant_ids.add(ptid)
 
+    root_forward_questionnaire_id = ConfigFactory(session, 1).get_val('forward_questionnaire')
+    system_forward_questionnaire_ids = {root_forward_questionnaire_id, 'forward_request'}
+    hidden_forward_questionnaire_ids = set()
+    for tenant_id in tenant_ids:
+        forward_questionnaire_id = ConfigFactory(session, tenant_id).get_val('forward_questionnaire')
+        if forward_questionnaire_id and forward_questionnaire_id != root_forward_questionnaire_id:
+            hidden_forward_questionnaire_ids.add(forward_questionnaire_id)
+
+    ret = []
     questionnaires = session.query(models.Questionnaire).filter(models.Questionnaire.tid.in_(tenant_ids))
-    return [serialize_questionnaire(session, tid, questionnaire, language) for questionnaire in questionnaires]
+    for questionnaire in questionnaires:
+        if questionnaire.id in hidden_forward_questionnaire_ids:
+            continue
+
+        serialized = serialize_questionnaire(session, tid, questionnaire, language)
+        if questionnaire.id in system_forward_questionnaire_ids:
+            serialized['editable'] = False
+            serialized['is_forward_questionnaire'] = True
+        else:
+            serialized['is_forward_questionnaire'] = False
+        ret.append(serialized)
+
+    return ret
 
 
 def db_get_questionnaire(session, tid, questionnaire_id, language, serialize_templates=False):
@@ -90,6 +112,9 @@ def db_update_questionnaire(session, tid, questionnaire_id, request, language):
                            models.Questionnaire,
                            (models.Questionnaire.tid == tid,
                             models.Questionnaire.id == questionnaire_id))
+
+    if questionnaire.id == ConfigFactory(session, 1).get_val('forward_questionnaire'):
+        raise errors.ForbiddenOperation
 
     fill_localized_keys(request, models.Questionnaire.localized_keys, language)
 
@@ -302,6 +327,9 @@ class QuestionnaireInstance(BaseHandler):
         """
         Delete the specified questionnaire.
         """
+        if questionnaire_id == ConfigFactory(self.session, 1).get_val('forward_questionnaire'):
+            raise errors.ForbiddenOperation
+
         return tw(db_del,
                   models.Questionnaire,
                   (models.Questionnaire.tid == self.request.tid,

@@ -64,12 +64,10 @@
                 <i class="fas fa-gear"></i>
               </button>
               <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdownButton">
-                @if (!tip || tip.context) {
-                  @if (!tip || preferencesService.dataModel.profile.permissions.can_postpone_expiration) {
+                @if (canEditExpiration()) {
                     <button id="tip-action-postpone" class="dropdown-item" type="button" (click)="tipPostpone()" [attr.aria-label]="'Edit the expiration date' | translate">
                       <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
                     </button>
-                  }
                 }
                 @if ((preferencesService.dataModel.profile.permissions.can_redact_information || preferencesService.dataModel.profile.permissions.can_mask_information)) {
                   <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}" [attr.aria-label]="'Mask' | translate">
@@ -81,12 +79,22 @@
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
+                @if (preferencesService.dataModel.profile.permissions.can_forward_reports && (tip.type === 'submission' || tip.type === 'forward') && tip.allow_forward) {
+                  <button id="tip-action-forward" class="dropdown-item" type="button" (click)="openForwardModal()" [attr.aria-label]="'Forward' | translate">
+                    <i class="fas fa-share me-2"></i>{{'Forward' | translate}}
+                  </button>
+                }
+                @if (preferencesService.dataModel.tid === 1 && preferencesService.dataModel.profile.permissions.can_forward_reports && tip.type === 'forward-request' && !tip.allow_forward) {
+                  <button id="tip-action-authorize-forward" class="dropdown-item" type="button" (click)="authorizeForward()" [attr.aria-label]="'Authorize forward' | translate">
+                    <i class="fas fa-check me-2"></i>{{'Authorize forward' | translate}}
+                  </button>
+                }
                 @if (tip.status === 'closed') {
                   <button id="tip-action-reopen" class="dropdown-item" type="button" (click)="openModalReopen()" [attr.aria-label]="'Reopen' | translate">
                     <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
                   </button>
                 }
-                @if (preferencesService.dataModel.profile.permissions.can_delete_submission) {
+                @if (canDeleteReport()) {
                   <button id="tip-action-delete-report" class="dropdown-item text-danger" type="button" (click)="tipDelete()" [attr.aria-label]="'Delete' | translate">
                     <i class="fas fa-trash me-2"></i>{{'Delete' | translate}}
                   </button>
@@ -163,6 +171,33 @@
         </div>
       }
     </div>
+    @if (tip && tip.forwards && tip.forwards.length) {
+      <div class="row">
+        <div class="col-md-12">
+          <h5>{{ 'Forwards' | translate }}</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>{{ 'Date' | translate }}</th>
+                <th>{{ 'Tenant' | translate }}</th>
+                <th>{{ 'Report' | translate }}</th>
+                <th>{{ 'Status' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (forward of tip.forwards; track forward) {
+                <tr>
+                  <td>{{ forward.creation_date | date:'short' }}</td>
+                  <td>{{ forward.target_tid }}</td>
+                  <td><a [routerLink]="['/reports', forward.id]">#{{ forward.progressive }}</a></td>
+                  <td>{{ forward.status | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
     <div class="row">
       <div class="col-md-12">
         <src-tip-files-receiver id="ReportAttachments" [redactMode]="redactMode"></src-tip-files-receiver>
