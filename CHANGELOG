@@ -1,5 +1,5 @@
 Changes in version 5.0.95
-    Fix incompatibility with iOS ()
+    Fix incompatibility with iOS (#4841)
     Bump client dependenciesto their latest stable versions
 
 Changes in version 5.0.94
