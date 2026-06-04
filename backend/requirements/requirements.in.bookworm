@@ -1,11 +1,9 @@
 acme==2.1.0
 brotli==1.0.9
 cryptography==38.0.4
-h2==4.1.0
 idna==3.3
 josepy==1.13.0
 packaging==23.0
-priority==2.0.0
 pyopenSSL==23.0.0
 pynacl==1.5.0
 pyotp==2.6.0

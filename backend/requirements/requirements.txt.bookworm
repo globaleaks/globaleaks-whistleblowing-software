@@ -420,18 +420,6 @@ greenlet==3.5.0 \
     --hash=sha256:f8c30c2225f40dd76c50790f0eb3b5c7c18431efb299e2782083e1981feed243 \
     --hash=sha256:fa94cb2288681e3a11645958f1871d48ee9211bd2f66628fdace505927d6e564
     # via sqlalchemy
-h2==4.1.0 \
-    --hash=sha256:03a46bcf682256c95b5fd9e9a99c1323584c3eec6440d379b9903d709476bc6d \
-    --hash=sha256:a83aca08fbe7aacb79fec788c9c0bac936343560ed9ec18b82a13a12c28d2abb
-    # via -r scripts/../backend/requirements/requirements.in.bookworm
-hpack==4.1.0 \
-    --hash=sha256:157ac792668d995c657d93111f46b4535ed114f0c9c8d672271bbec7eae1b496 \
-    --hash=sha256:ec5eca154f7056aa06f196a557655c5b009b382873ac8d1e66e79e87535f1dca
-    # via h2
-hyperframe==6.1.0 \
-    --hash=sha256:b03380493a519fce58ea5af42e4a42317bf9bd425596f7a0835ffce80f1a42e5 \
-    --hash=sha256:f630908a00854a7adeabd6382b43923a4c4cd4b821fcb527e6ab9e15382a3b08
-    # via h2
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
     --hash=sha256:e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4
@@ -462,10 +450,6 @@ packaging==23.0 \
     # via
     #   -r scripts/../backend/requirements/requirements.in.bookworm
     #   incremental
-priority==2.0.0 \
-    --hash=sha256:6f8eefce5f3ad59baf2c080a664037bb4725cd0a790d53d59ab4059288faf6aa \
-    --hash=sha256:c965d54f1b8d0d0b19479db3924c7c36cf672dbf2aec92d43fbdaf4492ba18c0
-    # via -r scripts/../backend/requirements/requirements.in.bookworm
 pyasn1==0.6.3 \
     --hash=sha256:697a8ecd6d98891189184ca1fa05d1bb00e2f84b5977c481452050549c8a72cf \
     --hash=sha256:a80184d120f0864a52a073acc6fc642847d0be408e7c7252f31390c0f4eadcde

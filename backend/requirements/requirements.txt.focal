@@ -308,18 +308,6 @@ cryptography==2.8 \
     #   josepy
     #   pyopenssl
     #   service-identity
-h2==3.1.1 \
-    --hash=sha256:ac377fcf586314ef3177bfd90c12c7826ab0840edeb03f0f24f511858326049e \
-    --hash=sha256:b8a32bd282594424c0ac55845377eea13fa54fe4a8db012f3a198ed923dc3ab4
-    # via -r scripts/../backend/requirements/requirements.in.focal
-hpack==3.0.0 \
-    --hash=sha256:0edd79eda27a53ba5be2dfabf3b15780928a0dff6eb0c60a3d6767720e970c89 \
-    --hash=sha256:8eec9c1f4bfae3408a3f30500261f7e6a65912dc138526ea054f9ad98892e9d2
-    # via h2
-hyperframe==5.2.0 \
-    --hash=sha256:5187962cb16dcc078f23cb5a4b110098d546c3f41ff2d4038a9896893bbd0b40 \
-    --hash=sha256:a9f5c17f2cc3c719b917c4f33ed1c61bd1f8dfac4b1bd23b7c80b3400971b41f
-    # via h2
 hyperlink==21.0.0 \
     --hash=sha256:427af957daa58bc909471c6c40f74c5450fa123dd093fc53efd2e91d2705a56b \
     --hash=sha256:e6b14c37ecb73e89c77d78cdb4c2cc8f3fb59a885c5b3f819ff4ed80f25af1b4
@@ -354,10 +342,6 @@ packaging==20.3 \
     # via
     #   -r scripts/../backend/requirements/requirements.in.focal
     #   incremental
-priority==1.3.0 \
-    --hash=sha256:6bc1961a6d7fcacbfc337769f1a382c8e746566aaa365e78047abe9f66b2ffbe \
-    --hash=sha256:be4fcb94b5e37cdeb40af5533afe6dd603bd665fe9c8b3052610fc1001d5d1eb
-    # via -r scripts/../backend/requirements/requirements.in.focal
 pyasn1==0.6.3 \
     --hash=sha256:697a8ecd6d98891189184ca1fa05d1bb00e2f84b5977c481452050549c8a72cf \
     --hash=sha256:a80184d120f0864a52a073acc6fc642847d0be408e7c7252f31390c0f4eadcde
