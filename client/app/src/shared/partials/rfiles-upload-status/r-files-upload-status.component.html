@@ -7,13 +7,27 @@
 <div id="FileUpoloadsInfo">
   @if (estimatedTime && uploading) {
     <div>
-      <span>{{'Estimated upload time:'|translate}}</span>
+      <span>{{'Estimated upload time:'|translate}} </span>
+      
       @if (isFinite(estimatedTime)) {
-        <span>{{estimatedTime}}</span>
+        @if (getFormattedTime(estimatedTime); as timeObj) {
+          @if (timeObj.days > 0) {
+            <span>{{timeObj.days}} {{'days'|translate}} </span>
+          }
+          @if (timeObj.hours > 0) {
+            <span>{{timeObj.hours}} {{'hours'|translate}} </span>
+          }
+          @if (timeObj.minutes > 0) {
+            <span>{{timeObj.minutes}} {{'minutes'|translate}} </span>
+          }
+          @if (timeObj.seconds > 0 || (timeObj.days === 0 && timeObj.hours === 0 && timeObj.minutes === 0)) {
+            <span>{{timeObj.seconds}} {{'seconds'|translate}}</span>
+          }
+        }
       }
-      <span>{{'seconds'|translate}}</span>
+      
       @if (progress) {
-        <div class="progress progress-striped;active">
+        <div class="progress progress-striped active">
           <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
         </div>
       }
