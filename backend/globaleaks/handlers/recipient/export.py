@@ -146,8 +146,6 @@ def create_pdf_report(input_text, data):
 def prepare_tip_export(user_session, tip_export):
     tip_export['tip']['rfiles'] = list(filter(lambda x: x['visibility'] != 'personal', tip_export['tip']['rfiles']))
 
-    files = tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
-
     if tip_export['crypto_tip_prv_key']:
         tip_export['tip'] = yield deferToThread(decrypt_tip, user_session.cc, tip_export['crypto_tip_prv_key'], tip_export['tip'])
 
@@ -175,6 +173,8 @@ def prepare_tip_export(user_session, tip_export):
             file_dict['key'] = tip_prv_key
             file_dict['path'] = filelocation
             del filelocation
+
+    files = tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
 
     for file_dict in tip_export['tip'].pop('wbfiles'):
         file_dict['name'] = 'files/' + file_dict['name']

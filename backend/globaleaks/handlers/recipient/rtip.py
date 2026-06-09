@@ -737,6 +737,10 @@ def redact_report(session, user_id, report, enforce=False):
         if comment['id'] in redactions_by_reference_id:
             comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
 
+    if enforce:
+        masked_ifile_ids = {r.reference_id for r in redactions if r.entry == '0'}
+        report['wbfiles'] = [f for f in report['wbfiles'] if f['ifile_id'] not in masked_ifile_ids]
+
     return report
 
 
