@@ -143,10 +143,16 @@ globaleaks_start()
     fi
     chown $USERNAME:$USERNAME /run/globaleaks
 
-    if [ ! -d "/dev/shm/globaleaks" ]; then
-        mkdir -m 700 /dev/shm/globaleaks
+    # /dev/shm is world-writable, so a local user could pre-create
+    # /dev/shm/globaleaks as a symlink and trick a root-run chown into
+    # following it. Recreate it atomically as the service user instead:
+    # mkdir fails on any pre-existing entry, and no privileged chown ever
+    # touches the path.
+    rm -rf /dev/shm/globaleaks
+    if ! runuser -u "$USERNAME" -- mkdir -m 700 /dev/shm/globaleaks; then
+        log_failure_msg "Refusing to start: /dev/shm/globaleaks could not be created safely"
+        exit 1
     fi
-    chown $USERNAME:$USERNAME /dev/shm/globaleaks
 
     ARGS=( "--ip=${LISTENING_IP}" "--working-path=${WORKING_DIR}" )
 
