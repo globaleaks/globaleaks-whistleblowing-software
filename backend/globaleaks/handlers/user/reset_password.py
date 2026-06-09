@@ -65,7 +65,7 @@ def generate_password_reset_token_by_user_id(session, tid, user_id):
     :param user_id: The user id of the user for which issue a password reset
     :return:
     """
-    user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_id).one_or_none()
+    user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_id, models.User.enabled.is_(True)).one_or_none()
     if user is not None:
         db_generate_password_reset_token(session, user)
 
@@ -85,6 +85,7 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
     users = session.query(models.User).filter(
       or_(func.lower(models.User.username) == username_or_email.lower(),
           func.lower(models.User.mail_address) == username_or_email.lower()),
+      models.User.enabled.is_(True),
       models.User.tid == tid
     ).distinct()
 
@@ -118,7 +119,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
     except Exception:
         return {'status': 'invalid_reset_token_provided'}
 
-    user = session.query(models.User).filter(models.User.id == user_id).one_or_none()
+    user = session.query(models.User).filter(models.User.id == user_id,
+                                             models.User.enabled.is_(True)).one_or_none()
     if user is None:
         return {'status': 'invalid_reset_token_provided'}
 

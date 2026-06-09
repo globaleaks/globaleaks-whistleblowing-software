@@ -765,6 +765,10 @@ class TestGL(unittest.TestCase):
         return [{'id': rfile.id} for rfile in session.query(models.ReceiverFile)
                                                        .filter(models.ReceiverFile.internaltip_id == wbtip_id)]
 
+    @transact
+    def set_user_enabled(self, session, user_id, enabled):
+        session.query(models.User).filter(models.User.id == user_id).one().enabled = enabled
+
     def db_test_model_count(self, session, model, n):
         self.assertEqual(session.query(model).count(), n)
 
