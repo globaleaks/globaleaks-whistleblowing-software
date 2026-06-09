@@ -174,3 +174,23 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
 
     def test_user_accepted_privacy_policy(self):
         return self._test_operation_handler('accepted_privacy_policy')
+
+    @inlineCallbacks
+    def test_reset_token_session_restricted_to_change_password(self):
+        reset_token = 'a' * 64
+        properties = {'reset_token': reset_token}
+
+        # An operation other than the password change is not dispatched
+        handler = self.request({'operation': 'get_users_names', 'args': {}},
+                               role='receiver', properties=properties)
+        handler.request.path = b'/api/user/operations'
+        self.assertIsNone((yield handler.put()))
+
+        # The password change itself remains available
+        self.write_reset_token(reset_token, self.dummyReceiver_1['id'])
+
+        new_key = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
+        handler = self.request({'operation': 'change_password', 'args': {'password': new_key}},
+                               role='receiver', properties=properties)
+        handler.request.path = b'/api/user/operations'
+        yield handler.put()

@@ -187,6 +187,10 @@ class UserOperationHandler(OperationHandler):
                                        self.session.user_id)
 
     def operation_descriptors(self):
+        if self.session.properties.get('reset_token'):
+            # A session created from a password reset token may only change the password
+            return {'change_password': UserOperationHandler.change_password}
+
         return {
             'change_password': UserOperationHandler.change_password,
             'get_users_names': UserOperationHandler.get_users_names,
