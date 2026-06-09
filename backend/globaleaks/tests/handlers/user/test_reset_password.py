@@ -1,11 +1,8 @@
-import os
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.rest import errors
-from globaleaks.state import State
 from globaleaks.tests import helpers
-from globaleaks.utils.crypto import sha256
 
 
 class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
@@ -29,13 +26,7 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     def test_put(self):
         # Use a valid 64-character hex token format
         valid_reset_token = 'a' * 64
-        token_path = os.path.abspath(os.path.join(
-            State.settings.ramdisk_path,
-            sha256(valid_reset_token).decode()
-        ))
-
-        with open(token_path, "w") as f:
-            f.write(self.dummyReceiver_1['id'])
+        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
 
         # Wrong token (valid format but non-existent)
         handler = self.request({'reset_token': 'b' * 64, 'recovery_key': '', 'auth_code': ''})
@@ -56,6 +47,35 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request({'reset_token': valid_reset_token, 'recovery_key': helpers.USER_REC_KEY_PLAIN, 'auth_code': ''})
         ret = yield handler.put()
         self.assertEqual(ret['status'], 'success')
+
+    @inlineCallbacks
+    def test_post_disabled_user(self):
+        # Disabled users must not be eligible for password reset token issuance
+        yield self.set_user_enabled(self.dummyReceiver_1['id'], False)
+
+        data_request = {
+            'username': self.dummyReceiver_1['username']
+        }
+
+        handler = self.request(data_request)
+
+        yield handler.post()
+
+        # No mail must have been created for a disabled user
+        yield self.test_model_count(models.Mail, 0)
+
+    @inlineCallbacks
+    def test_put_disabled_user(self):
+        # A reset token issued for an account that is later disabled must not
+        # validate nor create a session
+        yield self.set_user_enabled(self.dummyReceiver_1['id'], False)
+
+        valid_reset_token = 'a' * 64
+        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
+
+        handler = self.request({'reset_token': valid_reset_token, 'recovery_key': helpers.USER_REC_KEY_PLAIN, 'auth_code': ''})
+        ret = yield handler.put()
+        self.assertEqual(ret['status'], 'invalid_reset_token_provided')
 
     def test_put_rejects_invalid_token_format(self):
         """Test that reset tokens not matching the expected hex format are rejected"""

@@ -765,6 +765,10 @@ class TestGL(unittest.TestCase):
         return [{'id': rfile.id} for rfile in session.query(models.ReceiverFile)
                                                        .filter(models.ReceiverFile.internaltip_id == wbtip_id)]
 
+    @transact
+    def set_user_enabled(self, session, user_id, enabled):
+        session.query(models.User).filter(models.User.id == user_id).one().enabled = enabled
+
     def db_test_model_count(self, session, model, n):
         self.assertEqual(session.query(model).count(), n)
 
@@ -775,6 +779,12 @@ class TestGL(unittest.TestCase):
     @transact
     def get_model_count(self, session, model):
         return session.query(model).count()
+
+    def write_reset_token(self, token, user_id):
+        """Seed a password-reset token on the ramdisk as the backend expects it."""
+        token_path = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(token_path, "w") as f:
+            f.write(user_id)
 
 
 class TestGLWithPopulatedDB(TestGL):
