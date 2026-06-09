@@ -8,23 +8,15 @@ if [ ! $(id -u) = 0 ]; then
 fi
 
 function DO () {
-  CMD="$1"
-
-  if [ -z "$2" ]; then
-    EXPECTED_RET=0
-  else
-    EXPECTED_RET=$2
-  fi
-
-  echo -n "Running: \"$CMD\"... "
-  eval $CMD &>${LOGFILE}
+  echo -n "Running: \"$*\"... "
+  "$@" &>"${LOGFILE}"
 
   STATUS=$?
 
-  last_command $CMD
+  last_command "$*"
   last_status $STATUS
 
-  if [ "$STATUS" -ne "$EXPECTED_RET" ]; then
+  if [ "$STATUS" -ne 0 ]; then
     echo "FAIL"
     echo "Ouch! The installation failed."
     echo "COMBINED STDOUT/STDERR OUTPUT OF FAILED COMMAND:"
@@ -99,6 +91,12 @@ while getopts "ynv:h" opt; do
   esac
 done
 
+# restrict VERSION to the Debian package version character set
+if [[ $VERSION ]] && ! echo "$VERSION" | grep -qE '^[0-9][A-Za-z0-9.+:~-]*$'; then
+  echo "Error: invalid version format"
+  exit 1
+fi
+
 echo -e "Running the GlobaLeaks installation...\nIn case of failure please report encountered issues to the ticketing system at: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues\n"
 
 echo "Detected OS: $DISTRO - $DISTRO_CODENAME"
@@ -113,18 +111,18 @@ if echo "$DISTRO_CODENAME" | grep -vqE "^(trixie|resolute)$" ; then
 fi
 
 # align apt cache to up-to-date state on configured repositories
-DO "apt -y update"
+DO apt -y update
 
 if [ ! -f /etc/timezone ]; then
   echo "Etc/UTC" > /etc/timezone
 fi
 
-DO "apt install -y tzdata"
-DO "dpkg-reconfigure -f noninteractive tzdata"
-DO "apt -y install gnupg net-tools curl"
+DO apt install -y tzdata
+DO dpkg-reconfigure -f noninteractive tzdata
+DO apt -y install gnupg net-tools curl
 
 if [[ "$DISTRO_CODENAME" != "trixie" ]]; then
-  DO "apt -y install software-properties-common"
+  DO apt -y install software-properties-common
 fi
 
 # The supported platforms are experimentally more than only Ubuntu as
@@ -146,12 +144,12 @@ curl -sS https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor -o /etc/apt/t
 echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
 echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] https://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
 
-DO "apt update -y"
+DO apt update -y
 
 if [[ $VERSION ]]; then
-  DO "apt install -y --no-install-recommends python3-munkres globaleaks=$VERSION"
+  DO apt install -y --no-install-recommends python3-munkres "globaleaks=$VERSION"
 else
-  DO "apt install -y --no-install-recommends python3-munkres globaleaks"
+  DO apt install -y --no-install-recommends python3-munkres globaleaks
 fi
 
 echo "GlobaLeaks installation completed successfully."
