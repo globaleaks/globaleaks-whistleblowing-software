@@ -535,6 +535,13 @@ class APIResourceWrapper(Resource):
 
         if self.handler.upload_handler and method == 'post':
             try:
+                # Enforce the same session/token and role checks that gate the
+                # decorated handler method before processing any upload body, so
+                # that unauthenticated or unauthorized requests cannot allocate
+                # and fill temporary files.
+                decorators.check_session_or_token(self.handler)
+                decorators.check_authentication(self.handler, self.handler.check_roles)
+
                 self.handler.process_file_upload()
             except Exception as e:
                 self.handle_exception(e, request)

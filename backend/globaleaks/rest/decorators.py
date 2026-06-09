@@ -18,12 +18,35 @@ def has_session_or_token(self):
     return self.token or self.session
 
 
+def check_session_or_token(self):
+    # Ensures a token or a session is included in the request
+    if self.request.path not in BYPASS_PATHS and not has_session_or_token(self):
+        raise errors.InternalServerError("Invalid request: No token and no session")
+
+
+def check_authentication(self, roles):
+    # Performs role checks on the user session
+    if isinstance(roles, str):
+        roles = {roles}
+    else:
+        roles = set(roles)
+
+    if 'any' in roles:
+        return
+
+    if self.session and self.session.tid == self.request.tid:
+        if 'user' in roles and self.session.role in USERS_ROLES:
+            return
+        if self.session.role in roles:
+            return
+
+    raise errors.NotAuthenticated
+
+
 def decorator_require_session_or_token(f):
     # Decorator that ensures a token or a session is included in the request
     def wrapper(self, *args, **kwargs):
-        if self.request.path not in BYPASS_PATHS and not has_session_or_token(self):
-            raise errors.InternalServerError("Invalid request: No token and no session")
-
+        check_session_or_token(self)
         return f(self, *args, **kwargs)
 
     return wrapper
@@ -32,16 +55,8 @@ def decorator_require_session_or_token(f):
 def decorator_authentication(f, roles):
     # Decorator that performs role checks on the user session
     def wrapper(self, *args, **kwargs):
-        user_roles = set(roles)  # Convert roles to set
-        if 'any' in user_roles:
-            return f(self, *args, **kwargs)
-        if self.session and self.session.tid == self.request.tid:
-            if 'user' in user_roles and self.session.role in USERS_ROLES:
-                return f(self, *args, **kwargs)
-            if self.session.role in user_roles:
-                return f(self, *args, **kwargs)
-
-        raise errors.NotAuthenticated
+        check_authentication(self, roles)
+        return f(self, *args, **kwargs)
 
     return wrapper
 
