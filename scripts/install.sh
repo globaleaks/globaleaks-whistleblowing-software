@@ -140,22 +140,18 @@ if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm|bullseye|focal|jammy|noble|re
   DISTRO_CODENAME="trixie"
 fi
 
-if [ -f /tmp/globaleaks.deb ]; then
-  dpkg -i /tmp/globaleaks.deb || apt --fix-broken install -y
+echo "Adding GlobaLeaks PGP key to trusted APT keys"
+curl -sS https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/globaleaks.gpg
+
+echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] https://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
+
+DO "apt update -y"
+
+if [[ $VERSION ]]; then
+  DO "apt install -y --no-install-recommends python3-munkres globaleaks=$VERSION"
 else
-  echo "Adding GlobaLeaks PGP key to trusted APT keys"
-  curl -sS https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/globaleaks.gpg
-
-  echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
-  echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] https://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
-
-  DO "apt update -y"
-
-  if [[ $VERSION ]]; then
-    DO "apt install -y --no-install-recommends python3-munkres globaleaks=$VERSION"
-  else
-    DO "apt install -y --no-install-recommends python3-munkres globaleaks"
-  fi
+  DO "apt install -y --no-install-recommends python3-munkres globaleaks"
 fi
 
 echo "GlobaLeaks installation completed successfully."
