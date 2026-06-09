@@ -22,9 +22,10 @@ class FakeRequest:
 
 
 class FakeSession:
-    def __init__(self, role="user", tid=1):
+    def __init__(self, role="user", tid=1, properties=None):
         self.role = role
         self.tid = tid
+        self.properties = properties if properties is not None else {}
 
 
 class FakeHandler:
@@ -93,6 +94,35 @@ class TestDecorators(unittest.TestCase):
             decorated_func(self.handler)
 
         self.handler.session.role = "admin"
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_reset_token_confined(self):
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver",
+                                           properties={"reset_token": "x"})
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        # While the reset token is held every other endpoint is forbidden
+        self.handler.request.path = b"/api/recipient/rtips"
+        with self.assertRaises(errors.ForbiddenOperation):
+            decorated_func(self.handler)
+
+        # The endpoints needed to complete the password change stay reachable
+        for path in (b"/api/user/preferences",
+                     b"/api/user/operations",
+                     b"/api/auth/session"):
+            self.handler.request.path = path
+            self.assertEqual(decorated_func(self.handler), "Authorized")
+
+        # Once the reset token is cleared the session regains full access
+        self.handler.session.properties = {}
+        self.handler.request.path = b"/api/recipient/rtips"
         self.assertEqual(decorated_func(self.handler), "Authorized")
 
     @defer.inlineCallbacks
