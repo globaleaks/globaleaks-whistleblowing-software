@@ -48,13 +48,13 @@ class TestAdminResetSubmissions(helpers.TestHandlerWithPopulatedDB):
 class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler
 
-    def _test_operation_handler(self, operation, args=None, tid=1):
+    def _test_operation_handler(self, operation, args=None, tid=1, properties=None):
         data_request = {
             'operation': operation,
             'args': args if args is not None else {}
         }
 
-        handler = self.request(data_request, role='admin', tid=tid)
+        handler = self.request(data_request, role='admin', tid=tid, properties=properties)
 
         return handler.put()
 
@@ -66,6 +66,20 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         return self.assertFailure(self._test_operation_handler('set_hostname',
                                                                {'value': 'www.gov.il'}),
                                   errors.InputValidationError),
+
+    def test_admin_set_hostname_invalid_because_subdomain_of_other_tenant(self):
+        # The hostname derived from the subdomain of tenant 2 is reserved
+        return self.assertFailure(self._test_operation_handler('set_hostname',
+                                                               {'value': 'tenant-2.example.org'}),
+                                  errors.InputValidationError)
+
+    def test_admin_set_hostname_invalid_because_ending_with_root_tenant_hostname(self):
+        # The root tenant hostname is a forbidden ending for secondary tenants
+        return self.assertFailure(self._test_operation_handler('set_hostname',
+                                                               {'value': 'sub.www.state.gov'},
+                                                               tid=2,
+                                                               properties={'management_session': True}),
+                                  errors.InputValidationError)
 
     def test_admin_set_hostname_invalid_because_onion(self):
         return self.assertFailure(self._test_operation_handler('set_hostname',

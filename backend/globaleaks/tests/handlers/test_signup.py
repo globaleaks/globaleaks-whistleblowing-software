@@ -3,6 +3,7 @@ import re
 from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers import signup
+from globaleaks.handlers.admin import tenant
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
@@ -32,6 +33,18 @@ class TestSignup(helpers.TestHandler):
 
         handler = self.request(self.dummySignup)
         yield handler.post()
+
+    @inlineCallbacks
+    def test_post_rejects_existing_tenant_subdomain(self):
+        yield tw(db_set_config_variable, 1, 'enable_signup', True)
+
+        # An administrator-created tenant already owns the requested subdomain
+        yield tenant.create({'active': True, 'mode': 'default',
+                             'name': 'victim', 'subdomain': self.dummySignup['subdomain']})
+
+        # A public signup must not be able to hijack the same subdomain
+        handler = self.request(self.dummySignup)
+        yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
 
 
 class TestSignupActivation(helpers.TestHandler):
