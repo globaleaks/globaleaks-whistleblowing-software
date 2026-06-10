@@ -2,6 +2,7 @@ import os
 
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.threads import deferToThread
 
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
@@ -113,8 +114,8 @@ class Delivery(LoopingJob):
                 sf = self.state.get_tmp_file_by_name(file['src'])
 
                 if file['key']:
-                    write_encrypted_file(file['key'], sf, file['dst'])
+                    yield deferToThread(write_encrypted_file, file['key'], sf, file['dst'])
                 else:
-                    write_plaintext_file(sf, file['dst'])
+                    yield deferToThread(write_plaintext_file, sf, file['dst'])
             except Exception:
                 pass
