@@ -151,26 +151,18 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.create_directory(dirpath)
 
     def bind_tcp_ports(self):
-        # Allocate local ports
-        for port in self.settings.bind_local_ports:
-            sock, fail = reserve_tcp_socket('127.0.0.1', port)
-            if fail is not None:
-                log.err("Could not reserve socket for %s (error: %s)",
-                        fail.args[0], fail.args[1])
-                continue
+        # Every configured port is required; abort startup if any bind fails
+        # so the service never runs with a partial listener set and the init
+        # script does not leave firewall redirects pointing at a port we lost.
+        binds = [('127.0.0.1', port) for port in self.settings.bind_local_ports] + \
+                [(self.settings.bind_address, port) for port in self.settings.bind_remote_ports]
 
-            if port == 8443:
-                self.https_socks += [sock]
-            else:
-                self.http_socks += [sock]
-
-        # Allocate remote ports
-        for port in self.settings.bind_remote_ports:
-            sock, fail = reserve_tcp_socket(self.settings.bind_address, port)
+        for address, port in binds:
+            sock, fail = reserve_tcp_socket(address, port)
             if fail is not None:
-                log.err("Could not reserve socket for %s (error: %s)",
-                        fail.args[0], fail.args[1])
-                continue
+                log.err("Could not reserve socket for %s:%s (error: %s)",
+                        address, port, fail)
+                raise fail
 
             if port == 8443:
                 self.https_socks += [sock]

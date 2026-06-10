@@ -221,7 +221,11 @@ case "$1" in
 
     network_sandboxing_start
 
+    # Roll back the firewall redirects if startup fails, so public 80/443
+    # traffic is never left pointing at ports GlobaLeaks did not claim.
+    trap 'network_sandboxing_stop' EXIT
     globaleaks_start
+    trap - EXIT
 
     ;;
   stop)
