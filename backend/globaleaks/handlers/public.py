@@ -532,7 +532,8 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
                             .filter(models.Questionnaire.tid.in_({1, tid}),
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,
                                         models.Context.additional_questionnaire_id == models.Questionnaire.id),
-                                    models.Context.tid == tid)
+                                    models.Context.tid == tid,
+                                    models.Context.hidden.is_(False))
 
     return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates) for questionnaire in questionnaires]
 
@@ -546,11 +547,64 @@ def db_get_contexts(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of contexts descriptors
     """
-    contexts = session.query(models.Context).filter(models.Context.tid == tid)
+    contexts = session.query(models.Context).filter(models.Context.tid == tid,
+                                                    models.Context.hidden.is_(False))
 
     data = db_prepare_contexts_serialization(session, contexts)
 
     return [serialize_context(session, context, language, data) for context in contexts]
+
+
+def db_get_context_questionnaires(session, tid, context, language):
+    """
+    Transaction that serialize the questionnaires referenced by a single context
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param context: The context whose questionnaires are to be serialized
+    :param language: The language to be used for the serialization
+    :return: A list of questionnaire descriptors
+    """
+    ids = {context.questionnaire_id, context.additional_questionnaire_id}
+    ids.discard(None)
+
+    questionnaires = session.query(models.Questionnaire) \
+                            .filter(models.Questionnaire.tid.in_({1, tid}),
+                                    models.Questionnaire.id.in_(ids))
+
+    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True) for questionnaire in questionnaires]
+
+
+def db_get_context(session, tid, context_id, language):
+    """
+    Transaction that serialize a single context addressed by its identifier.
+
+    Possession of the context identifier acts as the capability granting access
+    to contexts marked as hidden, that are intentionally excluded from the
+    public context listing.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param context_id: The identifier of the context to be retrieved
+    :param language: The language to be used for the serialization
+    :return: A descriptor bundling the context and its questionnaires
+    """
+    context = db_get(session,
+                     models.Context,
+                     (models.Context.tid == tid,
+                      models.Context.id == context_id))
+
+    data = db_prepare_contexts_serialization(session, [context])
+
+    return {
+        'context': serialize_context(session, context, language, data),
+        'questionnaires': db_get_context_questionnaires(session, tid, context, language)
+    }
+
+
+@transact
+def get_context(session, tid, context_id, language):
+    return db_get_context(session, tid, context_id, language)
 
 
 def db_get_receivers(session, tid, language):
@@ -601,3 +655,20 @@ class PublicResource(BaseHandler):
         Get the public resource
         """
         return get_public_resources(self.request.tid, self.request.language)
+
+
+class ContextInstance(BaseHandler):
+    """
+    Handler serving a single context addressed by its identifier.
+
+    Knowledge of the context identifier is the capability required to access
+    contexts that are hidden from the public context listing.
+    """
+    check_roles = 'any'
+    cache_resource = True
+
+    def get(self, context_id):
+        """
+        Get a single context by its identifier
+        """
+        return get_context(self.request.tid, context_id, self.request.language)

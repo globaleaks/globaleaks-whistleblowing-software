@@ -49,6 +49,10 @@ export class HttpService {
     return this.httpClient.get<Root>("api/public", {observe: "response"});
   }
 
+  getPublicContextResource(id: string): Observable<{ context: any, questionnaires: any[] }> {
+    return this.httpClient.get<{ context: any, questionnaires: any[] }>("api/public/contexts/" + id);
+  }
+
   requestAuthTokenLogin(param: string): Observable<Session> {
     return this.httpClient.post<Session>("api/auth/tokenauth", param);
   }

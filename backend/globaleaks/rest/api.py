@@ -57,6 +57,7 @@ COMPILED_RE_TID_SUB = re.compile(br'^/t/([0-9a-z-]+)(/.*)$')
 api_spec = [
     ('/api/health', health.HealthStatusHandler),
     ('/api/public', public.PublicResource),
+    ('/api/public/contexts', public.ContextInstance, r'/api/public/contexts/' + uuid_regexp),
     ('/api/report', report.ReportHandler),
     ('/api/support', support.SupportHandler),
     ('/api/wizard', wizard.Wizard),

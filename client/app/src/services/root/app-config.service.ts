@@ -10,6 +10,8 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {NgZone} from "@angular/core";
+import {Observable, forkJoin, of} from "rxjs";
+import {map} from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -62,21 +64,11 @@ export class AppConfigService {
         this.appDataService.submission_statuses_by_id = this.utilsService.array_to_map(this.appDataService.public.submission_statuses);
 
         for (const [key] of Object.entries(this.appDataService.questionnaires_by_id)) {
-          this.fieldUtilitiesService.parseQuestionnaire(this.appDataService.questionnaires_by_id[key], {
-            fields: [],
-            fields_by_id: {},
-            options_by_id: {}
-          });
-          this.appDataService.questionnaires_by_id[key].steps = this.appDataService.questionnaires_by_id[key].steps.sort((a: {
-            order: number;
-          }, b: { order: number; }) => a.order > b.order);
+          this.registerQuestionnaire(this.appDataService.questionnaires_by_id[key]);
         }
 
         for (const [key] of Object.entries(this.appDataService.contexts_by_id)) {
-          this.appDataService.contexts_by_id[key].questionnaire = this.appDataService.questionnaires_by_id[this.appDataService.contexts_by_id[key].questionnaire_id];
-          if (this.appDataService.contexts_by_id[key].additional_questionnaire_id) {
-            this.appDataService.contexts_by_id[key].additional_questionnaire = this.appDataService.questionnaires_by_id[this.appDataService.contexts_by_id[key].additional_questionnaire_id];
-          }
+          this.linkContextQuestionnaires(this.appDataService.contexts_by_id[key]);
         }
 
         this.appDataService.connection = {
@@ -161,6 +153,52 @@ export class AppConfigService {
       route = route.firstChild;
     }
     return route;
+  }
+
+  private registerQuestionnaire(questionnaire: any) {
+    this.fieldUtilitiesService.parseQuestionnaire(questionnaire, {
+      fields: [],
+      fields_by_id: {},
+      options_by_id: {}
+    });
+    questionnaire.steps = questionnaire.steps.sort((a: { order: number; }, b: { order: number; }) => a.order > b.order);
+    this.appDataService.questionnaires_by_id[questionnaire.id] = questionnaire;
+  }
+
+  private linkContextQuestionnaires(context: any) {
+    context.questionnaire = this.appDataService.questionnaires_by_id[context.questionnaire_id];
+    if (context.additional_questionnaire_id) {
+      context.additional_questionnaire = this.appDataService.questionnaires_by_id[context.additional_questionnaire_id];
+    }
+  }
+
+  loadContext(id: string): Observable<any> {
+    const existing = this.appDataService.contexts_by_id[id];
+    if (existing) {
+      return of(existing);
+    }
+
+    return this.httpService.getPublicContextResource(id).pipe(
+      map(data => {
+        for (const questionnaire of data.questionnaires) {
+          this.registerQuestionnaire(questionnaire);
+        }
+
+        this.linkContextQuestionnaires(data.context);
+        this.appDataService.contexts_by_id[data.context.id] = data.context;
+
+        return data.context;
+      })
+    );
+  }
+
+  loadContexts(ids: string[]): Observable<any[]> {
+    const missing = Array.from(new Set(ids)).filter(id => id && !this.appDataService.contexts_by_id[id]);
+    if (missing.length === 0) {
+      return of([]);
+    }
+
+    return forkJoin(missing.map(id => this.loadContext(id)));
   }
 
   reinit(languageInit = true) {

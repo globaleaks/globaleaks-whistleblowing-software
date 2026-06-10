@@ -79,7 +79,11 @@ export class TipsComponent implements OnInit {
       this.router.navigate(["/recipient/home"]).then();
     } else {
       this.filteredTips = this.RTips.dataModel;
-      this.processTips();
+      // Reports may reference contexts that are hidden from the public listing;
+      // resolve any missing ones so their metadata is available for display.
+      this.appConfigServices.loadContexts(this.RTips.dataModel.map(tip => tip.context_id)).subscribe(() => {
+        this.processTips();
+      });
     }
   }
 
