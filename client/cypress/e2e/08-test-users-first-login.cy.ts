@@ -60,10 +60,11 @@ describe("Recipient2 first login", () => {
     cy.url().should("include", "/recipient/home");
     cy.get("#PreferencesLink").click();
     cy.get(".password").click();
-    cy.get('[name="changePasswordArgs.current"]').type(Cypress.env("user_password"));
     cy.get('[name="changePasswordArgs.password"]').type(Cypress.env("init_password"));
     cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("init_password"));
     cy.get('button[name="submit"]').click();
+    cy.get("[name='secret']").type(Cypress.env("user_password"));
+    cy.get("#confirm").click();
     cy.logout();
   });
 });
