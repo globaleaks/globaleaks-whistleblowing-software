@@ -60,7 +60,7 @@ def check_db(d):
 def default_backup_path():
     t = datetime.now().strftime("%y_%m_%d")
     name = "globaleaks_backup_{}.tar.gz".format(t)
-    return os.path.join("/tmp", name)
+    return os.path.join(os.getcwd(), name)
 
 
 def get_gl_pid():
