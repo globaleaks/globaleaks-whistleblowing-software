@@ -69,8 +69,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
 
     session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key)
 
-    if itip.receipt_change_needed:
-        session.properties["receipt_change_needed"] = True
+    session.properties["receipt_change_needed"] = itip.receipt_change_needed
 
     return session
 
@@ -147,8 +146,8 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key)
 
-    if user.role == 'receiver' and user.can_edit_general_settings:
-        session.permissions['can_edit_general_settings'] = True
+    session.properties['password_change_needed'] = user.password_change_needed
+    session.permissions['can_edit_general_settings'] = user.role == 'receiver' and user.can_edit_general_settings
 
     return session
 

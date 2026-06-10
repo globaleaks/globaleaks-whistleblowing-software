@@ -461,6 +461,10 @@ def check_confirmation(self):
     return
 
 
+# Most handler tests do not exercise the confirmation of sensitive operations;
+# the check is replaced with a no-op and restored via self.patch() by the
+# tests that verify it.
+BaseHandler.real_check_confirmation = BaseHandler.check_confirmation
 BaseHandler.check_confirmation = check_confirmation
 
 

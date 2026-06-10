@@ -58,6 +58,10 @@ def change_password(session, tid, user_session, password):
         srm(filepath)
         del user_session.properties['reset_token']
 
+    # Once the forced/reset change is performed the session is no longer exempt
+    # from confirmation: a subsequent voluntary change must prove the credential.
+    user_session.properties.pop('password_change_needed', None)
+
     db_log(session, tid=tid, type='change_password', user_id=user.id, object_id=user.id)
 
     user_session.cc = cc
@@ -152,10 +156,17 @@ def accepted_privacy_policy(session, tid, user_id):
 class UserOperationHandler(OperationHandler):
     check_roles = 'user'
 
-    require_confirmation = [
-        'disable_2fa',
-        'get_recovery_key'
-    ]
+    @property
+    def require_confirmation(self):
+        # A voluntary password change requires confirmation of the current
+        # credential; the forced and reset flows (flagged on the session) are
+        # exempt, as the user does not know the current password.
+        ops = ['disable_2fa', 'get_recovery_key']
+
+        if not self.session.properties.get('password_change_needed'):
+            ops.append('change_password')
+
+        return ops
 
     def change_password(self, req_args, *args, **kwargs):
         return change_password(self.session.user_tid,
