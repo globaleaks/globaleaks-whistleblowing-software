@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {AppConfigService} from "@app/services/root/app-config.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {ActivatedRoute} from "@angular/router";
@@ -30,6 +31,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 })
 export class TippageComponent implements OnInit {
   private fieldUtilities = inject(FieldUtilitiesService);
+  private appConfigService = inject(AppConfigService);
   private wbTipResolver = inject(WbTipResolver);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   protected utilsService = inject(UtilsService);
@@ -54,29 +56,37 @@ export class TippageComponent implements OnInit {
   ngOnInit() {
     const wpTip = this.wbTipResolver.dataModel;
     if (wpTip) {
-      this.wbTipService.initialize(wpTip);
-      this.tip = this.wbTipService.tip;
-      this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
-      this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
-
-      this.activatedRoute.queryParams.subscribe(params => {
-        this.tip.tip_id = params["tip_id"];
+      // The report's context may be hidden from the public listing; resolve it
+      // on demand so its metadata is available for display.
+      this.appConfigService.loadContext(wpTip.context_id).subscribe(() => {
+        this.initializeTip(wpTip);
       });
-
-      this.fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
-      this.tip.context = this.appDataService.contexts_by_id[this.tip.context_id];
-
-      this.tip.receivers_by_id = this.utilsService.array_to_map(this.tip.receivers);
-      this.score = this.tip.score;
-      this.ctx = "wbtip";
-      this.preprocessTipAnswers(this.tip);
-
-      this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-      if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
-        this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0].key;
-      }
     } else {
       this.utilsService.reloadCurrentRoute();
+    }
+  }
+
+  private initializeTip(wpTip: WbTipData) {
+    this.wbTipService.initialize(wpTip);
+    this.tip = this.wbTipService.tip;
+    this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
+    this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.tip.tip_id = params["tip_id"];
+    });
+
+    this.fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
+    this.tip.context = this.appDataService.contexts_by_id[this.tip.context_id];
+
+    this.tip.receivers_by_id = this.utilsService.array_to_map(this.tip.receivers);
+    this.score = this.tip.score;
+    this.ctx = "wbtip";
+    this.preprocessTipAnswers(this.tip);
+
+    this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
+    if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
+      this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0].key;
     }
   }
 

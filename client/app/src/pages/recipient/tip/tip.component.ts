@@ -120,24 +120,28 @@ export class TipComponent implements OnInit {
       {
         next: (response: RecieverTipData) => {
           this.loading = false;
-          this.RTipService.initialize(response);
-          this.tip = this.RTipService.tip;
-          this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
+          // The report may reference a context hidden from the public listing;
+          // resolve it on demand so its metadata is available for display.
+          this.appConfigServices.loadContext(response.context_id).subscribe(() => {
+            this.RTipService.initialize(response);
+            this.tip = this.RTipService.tip;
+            this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
 
-          this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {
-            this.tip.tip_id = params["tip_id"];
-          });
+            this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {
+              this.tip.tip_id = params["tip_id"];
+            });
 
-          this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
-          this.score = this.tip.score;
-          this.ctx = "rtip";
-          this.showEditLabelInput = this.tip.label === "";
-          this.preprocessTipAnswers(this.tip);
-          this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-          setTimeout(() => {
-              this.initNavBar();
+            this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
+            this.score = this.tip.score;
+            this.ctx = "rtip";
+            this.showEditLabelInput = this.tip.label === "";
+            this.preprocessTipAnswers(this.tip);
+            this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
+            setTimeout(() => {
+                this.initNavBar();
+            });
+            this.cdr.markForCheck();
           });
-          this.cdr.markForCheck();
         }
       }
     );

@@ -135,18 +135,19 @@ export class SubmissionComponent implements OnInit {
   }
 
   initializeSubmission() {
-    let context = null;
-
     this.selectable_contexts = this.appDataService.public.contexts.filter(context => !context.hidden);
 
     if (this.appDataService.context_id) {
-      context = this.appDataService.public.contexts.find(context => context.id === this.appDataService.context_id);
+      // A context identifier addresses a specific context, possibly one that is
+      // hidden from the public listing. Resolve it on demand: knowledge of the
+      // identifier is the capability granting access to such contexts.
+      this.appConfigService.loadContext(this.appDataService.context_id).subscribe(context => {
+        if (context) {
+          this.prepareSubmission(context);
+        }
+      });
     } else if (this.selectable_contexts.length === 1) {
-      context = this.selectable_contexts[0];
-    }
-
-    if (context) {
-      this.prepareSubmission(context);
+      this.prepareSubmission(this.selectable_contexts[0]);
     }
   }
 
