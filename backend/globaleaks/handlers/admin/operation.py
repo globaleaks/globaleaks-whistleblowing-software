@@ -33,16 +33,33 @@ def check_hostname(session, tid, hostname):
     """
     Ensure the hostname does not collide across tenants or include an origin that it shouldn't.
 
+    A hostname matching another tenant's hostname or subdomain is rejected,
+    and on secondary tenants the root tenant hostname is a forbidden ending.
+
     :param session: An ORM session
     :param tid: A tenant id
     :param hostname: The hostname to be evaluated
     """
-    forbidden_endings = ('onion', 'localhost')
+    forbidden_endings = ['onion', 'localhost']
+
+    if tid != 1:
+        root_hostname = ConfigFactory(session, 1).get_val('hostname')
+        if root_hostname:
+            forbidden_endings.append(root_hostname)
+
     existing_hostnames = {h.value for h in session.query(Config)
                                                   .filter(Config.tid != tid,
                                                           Config.var_name == 'hostname')}
 
-    if hostname and (hostname.endswith(forbidden_endings) or hostname in existing_hostnames):
+    existing_subdomains = {s.value for s in session.query(Config)
+                                                   .filter(Config.tid != tid,
+                                                           Config.var_name == 'subdomain')}
+
+    existing_subdomains.discard('')
+
+    if hostname and (hostname.endswith(tuple(forbidden_endings)) or
+                     hostname in existing_hostnames or
+                     hostname.split('.')[0] in existing_subdomains):
         raise errors.InputValidationError('Hostname contains a forbidden origin or is already reserved')
 
 

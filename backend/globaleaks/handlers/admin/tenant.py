@@ -1,5 +1,6 @@
 # -*- coding: UTF-8
 from nacl.encoding import Base64Encoder
+from sqlalchemy import and_, func, or_
 
 from globaleaks import models
 from globaleaks.db.appdata import load_appdata, db_load_defaults
@@ -31,6 +32,51 @@ def db_initialize_tenant_submission_statuses(session, tid):
         session.add(models.SubmissionStatus(s))
 
 
+def db_subdomain_in_use(session, subdomain, excluded_tids=None):
+    """
+    Return whether the given subdomain is already taken by an existing tenant,
+    either as its configured subdomain or as the leading label of its hostname.
+
+    :param session: An ORM session
+    :param subdomain: The subdomain to look up
+    :param excluded_tids: An optional iterable of tenant ids to ignore
+    :return: True if the subdomain is already in use, False otherwise
+    """
+    if not subdomain:
+        return False
+
+    # Config.value stores JSON, so string values are quoted; substr is used
+    # because the ORM SQL authorizer does not permit LIKE
+    hostname_prefix = '"' + subdomain + '.'
+
+    query = session.query(models.Config.tid).filter(
+        or_(and_(models.Config.var_name == 'subdomain',
+                 models.Config.value == subdomain),
+            and_(models.Config.var_name == 'hostname',
+                 func.substr(models.Config.value, 1, len(hostname_prefix)) == hostname_prefix)))
+
+    if excluded_tids:
+        query = query.filter(models.Config.tid.notin_(list(excluded_tids)))
+
+    return session.query(query.exists()).scalar()
+
+
+def db_set_tenant_config(session, tid, desc):
+    """
+    Set the tenant settings shared by the creation and update paths,
+    enforcing global subdomain uniqueness.
+
+    :param session: An ORM session
+    :param tid: The tenant ID being configured
+    :param desc: A descriptor providing 'mode', 'name' and 'subdomain'
+    """
+    if db_subdomain_in_use(session, desc['subdomain'], excluded_tids=[tid]):
+        raise errors.ForbiddenOperation
+
+    for var in ['mode', 'name', 'subdomain']:
+        db_set_config_variable(session, tid, var, desc[var])
+
+
 def db_create(session, desc):
     t = models.Tenant()
 
@@ -56,8 +102,7 @@ def db_create(session, desc):
         db_set_config_variable(session, 1, 'https_selfsigned_key', key)
         db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
 
-    for var in ['mode', 'name', 'subdomain']:
-        db_set_config_variable(session, t.id, var, desc[var])
+    db_set_tenant_config(session, t.id, desc)
 
     models.config.add_new_lang(session, t.id, language, appdata)
 
@@ -255,8 +300,7 @@ def update(session, tid, request):
     if request['subdomain'] + "." + root_tenant_config.get_val('rootdomain') == root_tenant_config.get_val('hostname'):
         raise errors.ForbiddenOperation
 
-    for var in ['mode', 'name', 'subdomain']:
-        db_set_config_variable(session, tid, var, request[var])
+    db_set_tenant_config(session, tid, request)
 
     return serializers.serialize_tenant(session, t)
 
