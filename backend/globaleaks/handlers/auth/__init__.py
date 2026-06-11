@@ -265,6 +265,10 @@ class ReceiptAuthHandler(BaseHandler):
 
         if operator_id:
             session.properties["operator_session"] = self.session.user_id
+
+        if self.session and self.session.role == 'whistleblower':
+            # The new session replaces the presented one so that a single
+            # whistleblower session cannot be used to accumulate others
             del Sessions[self.session.id]
 
         returnValue(session.serialize())

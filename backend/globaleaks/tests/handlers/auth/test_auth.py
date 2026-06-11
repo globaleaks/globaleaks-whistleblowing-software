@@ -323,6 +323,27 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
         yield wbtip_handler.get()
 
 
+    @inlineCallbacks
+    def test_empty_receipt_login_replaces_presented_session(self):
+        """
+        Asserts that a whistleblower session used to request a new
+        submission session is consumed instead of accumulating
+        """
+        handler = self.request({'receipt': ''})
+        handler.request.client_using_tor = True
+        response = yield handler.post()
+        first_id = response['id']
+
+        handler = self.request({'receipt': ''}, headers={'x-session': first_id})
+        handler.request.client_using_tor = True
+        response = yield handler.post()
+        second_id = response['id']
+
+        self.assertNotEqual(first_id, second_id)
+        self.assertTrue(Sessions.get(first_id) is None)
+        self.assertTrue(Sessions.get(second_id) is not None)
+
+
 class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_successful_admin_session_setup_renewal_and_logout(self):
