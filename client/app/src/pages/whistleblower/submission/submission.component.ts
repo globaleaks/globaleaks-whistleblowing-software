@@ -198,7 +198,7 @@ export class SubmissionComponent implements OnInit {
     if (this.questionnaire) {
 
       for (let i = 0; i < this.questionnaire.steps.length; i++) {
-        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.score, this.submission.submission.identity_provided, false)) {
+        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.submission.submission.identity_provided, false)) {
           last_enabled = i;
         }
       }

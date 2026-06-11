@@ -710,7 +710,6 @@ class TestGL(unittest.TestCase):
             'context_id': context_id,
             'receivers': context['receivers'],
             'identity_provided': False,
-            'score': 0,
             'answers': answers,
             'receipt': receipt
         })
@@ -914,7 +913,6 @@ class TestGLWithPopulatedDB(TestGL):
         self.dummySubmission['receivers'] = self.dummyContext['receivers']
         self.dummySubmission['identity_provided'] = False
         self.dummySubmission['answers'] = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
-        self.dummySubmission['score'] = 0
         self.dummySubmission['receipt'] = receipt
 
         itip_id = yield create_submission(1, self.dummySubmission, session, True, False)

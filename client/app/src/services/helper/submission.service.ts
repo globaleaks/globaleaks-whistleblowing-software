@@ -85,7 +85,6 @@ export class SubmissionService {
       identity_provided: this.submission.identity_provided,
       answers: this.submission.answers,
       answer: this.submission.answer,
-      score: this.submission.score,
       receipt: this.submission.receipt
     };
 

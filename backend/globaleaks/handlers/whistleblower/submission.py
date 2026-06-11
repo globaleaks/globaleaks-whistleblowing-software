@@ -143,6 +143,61 @@ def db_archive_questionnaire_schema(session, questionnaire):
     return hash
 
 
+def db_evaluate_answers_score(context, steps, answers):
+    """
+    Compute the submission score from the submitted answers and the
+    authoritative questionnaire schema.
+
+    The score must be derived server-side and never be trusted from the
+    client request: option score weights are not exposed on the public API
+    and the computation is performed exclusively here.
+    """
+    points = {'sum': 0, 'mul': 1}
+
+    def evaluate(field, entry):
+        if not isinstance(entry, dict):
+            return
+
+        field_type = field['type']
+
+        if field_type in ('selectbox', 'multichoice'):
+            for option in field.get('options', []):
+                if entry.get('value') == option['id']:
+                    if option['score_type'] == 'addition':
+                        points['sum'] += option['score_points']
+                    elif option['score_type'] == 'multiplier':
+                        points['mul'] *= option['score_points']
+        elif field_type == 'checkbox':
+            for option in field.get('options', []):
+                if entry.get(option['id']):
+                    if option['score_type'] == 'addition':
+                        points['sum'] += option['score_points']
+                    elif option['score_type'] == 'multiplier':
+                        points['mul'] *= option['score_points']
+        elif field_type == 'fieldgroup':
+            for child in field.get('children', []):
+                child_answers = entry.get(child['id'], [])
+                if isinstance(child_answers, list):
+                    for child_entry in child_answers:
+                        evaluate(child, child_entry)
+
+    for step in steps:
+        for field in step['children']:
+            field_answers = answers.get(field['id'], [])
+            if isinstance(field_answers, list):
+                for entry in field_answers:
+                    evaluate(field, entry)
+
+    score = points['sum'] * points['mul']
+
+    if score < context.score_threshold_medium:
+        return 0
+    elif score < context.score_threshold_high:
+        return 1
+
+    return 2
+
+
 def db_create_receivertip(session, receiver, internaltip, tip_key):
     """
     Create a receiver tip for the specified receiver
@@ -210,8 +265,11 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     if context.tip_reminder > 0:
         itip.reminder_date = get_expiration(context.tip_reminder)
 
-    # Evaluate the score level
-    itip.score = request['score']
+    # Evaluate the score level from the submitted answers using the
+    # authoritative questionnaire schema. The score is computed server-side
+    # and the client-supplied value, if any, is ignored.
+    if State.tenants[tid].cache.enable_scoring_system:
+        itip.score = db_evaluate_answers_score(context, steps, answers)
 
     itip.tor = client_using_tor
     itip.mobile = client_using_mobile
