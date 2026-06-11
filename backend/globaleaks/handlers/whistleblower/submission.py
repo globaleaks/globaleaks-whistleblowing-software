@@ -8,6 +8,7 @@ from nacl.public import PrivateKey
 
 from globaleaks import models
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaire
+from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
@@ -284,13 +285,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     if whistleblower_identity is not None:
         itip.enable_whistleblower_identity = True
 
-    receipt = request['receipt']
-
-    if len(receipt) == 44:
-        key = Base64Encoder.decode(receipt.encode())
-        itip.receipt_hash = sha256(key).decode()
-    else:
-        key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, State.tenants[tid].cache.receipt_salt)
+    key = db_set_receipt_hash(session, tid, itip, request['receipt'])
 
     session.add(itip)
     session.flush()

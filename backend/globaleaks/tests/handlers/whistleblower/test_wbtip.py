@@ -145,3 +145,4 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
 
 class TestOperationChangeReceiptServersideHashing(TestOperationChangeReceipt):
     clientside_hashing = False
+    wb_legacy_receipt_seed = True

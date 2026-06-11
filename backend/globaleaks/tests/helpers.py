@@ -796,6 +796,9 @@ class TestGLWithPopulatedDB(TestGL):
     population_of_attachments = 2
     population_of_tenants = 3
 
+    # Seed a legacy report so the tenant starts in server-side hashing mode.
+    wb_legacy_receipt_seed = False
+
     @inlineCallbacks
     def setUp(self):
         yield TestGL.setUp(self)
@@ -884,6 +887,23 @@ class TestGLWithPopulatedDB(TestGL):
             yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
             yield self.set_hostnames(i)
 
+        if self.wb_legacy_receipt_seed:
+            yield self.mock_whistleblower_legacy_receipt_mode()
+
+    @transact
+    def mock_whistleblower_legacy_receipt_mode(self, session):
+        itip = models.InternalTip()
+        itip.tid = 1
+        itip.context_id = self.dummyContext['id']
+        itip.progressive = -1
+        _, itip.receipt_hash = GCE.calculate_key_and_hash(GCE.generate_receipt(), VALID_SALT)
+        session.add(itip)
+
+    @transact
+    def clear_whistleblower_legacy_receipt_seed(self, session):
+        # Drop the seed once real server-hashed reports keep the tenant in mode.
+        session.query(models.InternalTip).filter(models.InternalTip.progressive == -1).delete()
+
     @transact
     def add_whistleblower_identity_field_to_step(self, session, step_id):
         wbf = session.query(models.Field).filter(models.Field.id == 'whistleblower_identity', models.Field.tid == 1).one()
@@ -940,6 +960,9 @@ class TestGLWithPopulatedDB(TestGL):
         self.perform_submission_uploads(session.id)
         yield self.perform_submission_actions(session.id)
 
+        if self.wb_legacy_receipt_seed:
+            yield self.clear_whistleblower_legacy_receipt_seed()
+
     @inlineCallbacks
     def perform_full_submission_actions(self):
         """Populates the DB with tips, comments, and files"""
@@ -947,6 +970,9 @@ class TestGLWithPopulatedDB(TestGL):
             session = self.perform_submission_start()
             self.perform_submission_uploads(session.id)
             yield self.perform_submission_actions(session.id)
+
+        if self.wb_legacy_receipt_seed:
+            yield self.clear_whistleblower_legacy_receipt_seed()
 
         yield self.perform_post_submission_actions()
 

@@ -20,6 +20,32 @@ from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.utility import datetime_now, uuid4
 
 
+def db_receipt_auth_is_legacy(session, tid):
+    # Legacy server-hashed mode while any pre-key receipt_hash (length < 64) remains.
+    return session.query(exists().where(and_(InternalTip.tid == tid,
+                                              func.length(InternalTip.receipt_hash) < 64))).scalar()
+
+
+def db_set_receipt_hash(session, tid, itip, receipt):
+    # In key mode the receipt must be the client-derived 32-byte key; rejecting
+    # any other format prevents a submission from downgrading the tenant mode.
+    if not db_receipt_auth_is_legacy(session, tid):
+        try:
+            key = Base64Encoder.decode(receipt.encode())
+        except Exception:
+            raise errors.InputValidationError
+
+        if len(key) != 32:
+            raise errors.InputValidationError
+
+        itip.receipt_hash = sha256(key).decode()
+    else:
+        salt = ConfigFactory(session, tid).get_val('receipt_salt')
+        key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, salt)
+
+    return key
+
+
 def db_login_failure(session, tid, whistleblower=False, user_id=None):
     db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure', user_id=user_id)
 
@@ -37,7 +63,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
     :return: Returns a user session in case of success
     """
     try:
-        if not session.query(exists().where(and_(InternalTip.tid == tid, func.length(InternalTip.receipt_hash) < 64))).scalar():
+        if not db_receipt_auth_is_legacy(session, tid):
             key = Base64Encoder.decode(receipt.encode())
             hash = sha256(key).decode()
         else:
@@ -157,7 +183,7 @@ def get_auth_type(session, tid, username):
     salt = ConfigFactory(session, tid).get_val('receipt_salt')
 
     if not username: # whistleblower
-        if not session.query(exists().where(and_(InternalTip.tid == tid, func.length(InternalTip.receipt_hash) < 64))).scalar():
+        if not db_receipt_auth_is_legacy(session, tid):
             return {'type': 'key', 'salt': salt}
 
     else:

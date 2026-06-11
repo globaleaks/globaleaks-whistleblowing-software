@@ -138,6 +138,22 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
 
         self.assertTrue('data' in wbtip_desc)
 
+    @inlineCallbacks
+    def test_submission_cannot_downgrade_tenant_receipt_auth_mode(self):
+        # A key-mode tenant must reject a receipt that is not the client-derived key.
+        if not self.clientside_hashing:
+            return
+
+        self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
+
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc['receipt'] = '1234123412341234'
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+        self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
+
 
 class TestSubmissionServersideHashing(TestSubmission):
     clientside_hashing = False
+    wb_legacy_receipt_seed = True
