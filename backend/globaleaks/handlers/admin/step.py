@@ -50,6 +50,12 @@ def db_update_step(session, tid, step_id, request, language):
     :param language: the language of the step definition dict
     :return: a serialization of the object
     """
+    # Authorize: the target questionnaire must belong to the requesting tenant
+    db_get(session,
+           models.Questionnaire,
+           (models.Questionnaire.id == request['questionnaire_id'],
+            models.Questionnaire.tid == tid))
+
     step = db_get(session,
                          models.Step,
                          (models.Step.id == step_id,
