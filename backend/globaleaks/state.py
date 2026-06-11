@@ -150,12 +150,38 @@ class StateClass(ObjectDict, metaclass=Singleton):
                         self.settings.log_path]:
             self.create_directory(dirpath)
 
+    def db_get_reachable_via_web(self):
+        # Binding happens at startup, before the configuration cache is loaded,
+        # so the value is read here with a short-lived ORM session using an
+        # explicit database uri, as done by the other early-startup database
+        # accesses. The default (True) is assumed when the database is not yet
+        # present so that a fresh installation keeps listening publicly.
+        from globaleaks.models.config import ConfigFactory
+
+        db_file = os.path.join(self.settings.working_path, 'globaleaks.db')
+        if not os.path.exists(db_file):
+            return True
+
+        session = orm.get_session(orm.make_db_uri(db_file))
+        try:
+            return ConfigFactory(session, 1).get_val('reachable_via_web')
+        except Exception:
+            return True
+        finally:
+            session.close()
+
     def bind_tcp_ports(self):
+        # The remote listeners are exposed on the public address only when the
+        # platform is configured to be reachable without Tor; otherwise they are
+        # bound to the loopback interface so that the high ports cannot be
+        # reached directly from the network and the platform stays Tor-only.
+        remote_address = self.settings.bind_address if self.db_get_reachable_via_web() else '127.0.0.1'
+
         # Every configured port is required; abort startup if any bind fails
         # so the service never runs with a partial listener set and the init
         # script does not leave firewall redirects pointing at a port we lost.
         binds = [('127.0.0.1', port) for port in self.settings.bind_local_ports] + \
-                [(self.settings.bind_address, port) for port in self.settings.bind_remote_ports]
+                [(remote_address, port) for port in self.settings.bind_remote_ports]
 
         for address, port in binds:
             sock, fail = reserve_tcp_socket(address, port)
