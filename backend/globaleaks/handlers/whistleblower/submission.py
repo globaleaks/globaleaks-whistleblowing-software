@@ -1,4 +1,5 @@
 # Handlerse dealing with submission interface
+import copy
 import json
 import re
 
@@ -144,6 +145,47 @@ def db_archive_questionnaire_schema(session, questionnaire):
     return hash
 
 
+def iterate_answers(steps, answers):
+    """
+    Iterate the submitted answers against the authoritative questionnaire
+    schema yielding (field, entry) pairs and recursing into fieldgroups.
+    """
+    def iterate_field(field, entries):
+        if not isinstance(entries, list):
+            return
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+
+            yield field, entry
+
+            if field['type'] == 'fieldgroup':
+                for child in field.get('children', []):
+                    yield from iterate_field(child, entry.get(child['id'], []))
+
+    for step in steps:
+        for field in step['children']:
+            yield from iterate_field(field, answers.get(field['id'], []))
+
+
+def evaluate_selected_options(field, entry):
+    """
+    Yield the options of a field that result selected by an answer entry
+    """
+    if field['type'] not in ('checkbox', 'selectbox', 'multichoice'):
+        return
+
+    for option in field.get('options', []):
+        if field['type'] == 'checkbox':
+            selected = bool(entry.get(option['id']))
+        else:
+            selected = entry.get('value') == option['id']
+
+        if selected:
+            yield option
+
+
 def db_evaluate_answers_score(context, steps, answers):
     """
     Compute the submission score from the submitted answers and the
@@ -155,39 +197,12 @@ def db_evaluate_answers_score(context, steps, answers):
     """
     points = {'sum': 0, 'mul': 1}
 
-    def evaluate(field, entry):
-        if not isinstance(entry, dict):
-            return
-
-        field_type = field['type']
-
-        if field_type in ('selectbox', 'multichoice'):
-            for option in field.get('options', []):
-                if entry.get('value') == option['id']:
-                    if option['score_type'] == 'addition':
-                        points['sum'] += option['score_points']
-                    elif option['score_type'] == 'multiplier':
-                        points['mul'] *= option['score_points']
-        elif field_type == 'checkbox':
-            for option in field.get('options', []):
-                if entry.get(option['id']):
-                    if option['score_type'] == 'addition':
-                        points['sum'] += option['score_points']
-                    elif option['score_type'] == 'multiplier':
-                        points['mul'] *= option['score_points']
-        elif field_type == 'fieldgroup':
-            for child in field.get('children', []):
-                child_answers = entry.get(child['id'], [])
-                if isinstance(child_answers, list):
-                    for child_entry in child_answers:
-                        evaluate(child, child_entry)
-
-    for step in steps:
-        for field in step['children']:
-            field_answers = answers.get(field['id'], [])
-            if isinstance(field_answers, list):
-                for entry in field_answers:
-                    evaluate(field, entry)
+    for field, entry in iterate_answers(steps, answers):
+        for option in evaluate_selected_options(field, entry):
+            if option['score_type'] == 'addition':
+                points['sum'] += option['score_points']
+            elif option['score_type'] == 'multiplier':
+                points['mul'] *= option['score_points']
 
     score = points['sum'] * points['mul']
 
@@ -197,6 +212,169 @@ def db_evaluate_answers_score(context, steps, answers):
         return 1
 
     return 2
+
+
+_UNDEFINED = object()
+
+
+def find_answers_field(answers, field_id):
+    """
+    Server-side port of the client FieldUtilitiesService.findField: return the
+    first answer entry of the field identified by field_id, searching the whole
+    answers tree, or _UNDEFINED when the field carries no answer.
+    """
+    for key, value in answers.items():
+        if not isinstance(value, list) or not value:
+            if key == field_id:
+                return _UNDEFINED
+            continue
+
+        if key == field_id:
+            return value[0]
+
+        if isinstance(value[0], dict):
+            r = find_answers_field(value[0], field_id)
+            if r is not _UNDEFINED:
+                return r
+
+    return _UNDEFINED
+
+
+def is_field_triggered(parent_enabled, field, answers, identity_provided, part_of_identity):
+    """
+    Server-side port of the client FieldUtilitiesService.isFieldTriggered:
+    determine whether a field is enabled given the submitted answers and the
+    option triggers configured on the questionnaire schema.
+    """
+    if parent_enabled is not None and not parent_enabled:
+        return False
+
+    if part_of_identity and not identity_provided:
+        return False
+
+    triggers = field.get('triggered_by_options') or []
+    if not triggers:
+        return True
+
+    count = 0
+    for trigger in triggers:
+        answers_field = find_answers_field(answers, trigger['field'])
+        if answers_field is _UNDEFINED or not isinstance(answers_field, dict):
+            continue
+
+        option = trigger['option']
+        if answers_field.get('value') == option or answers_field.get(option):
+            if trigger.get('sufficient'):
+                return True
+            count += 1
+
+    return count == len(triggers)
+
+
+def evaluate_receivers_override(steps, answers, identity_provided):
+    """
+    Server-side port of the recipients override computed by the client in
+    FieldUtilitiesService.updateAnswers: traverse the enabled fields in schema
+    order and return the trigger_receiver list of the last selected option that
+    declares one, or None when no override is triggered.
+
+    A triggered override replaces the recipients selection entirely, taking
+    precedence over the context configuration including mandatory recipients;
+    replicating the client algorithm exactly ensures that the selection the
+    client would have submitted is the only one the backend accepts. Mirroring
+    the client, the answers of fields that are not enabled are cleared as the
+    traversal proceeds so that they cannot trigger downstream fields.
+    """
+    # Work on a copy: the traversal clears disabled fields like the client and
+    # the original answers are still needed for scoring and storage.
+    answers = copy.deepcopy(answers)
+
+    override = {'value': None}
+
+    def walk(parent_enabled, fields, local_answers, part_of_identity):
+        for field in fields:
+            enabled = is_field_triggered(parent_enabled, field, answers, identity_provided, part_of_identity)
+
+            if not enabled and field['id'] in local_answers:
+                local_answers[field['id']] = [{}]
+
+            entries = local_answers.get(field['id'])
+            if not isinstance(entries, list) or not entries:
+                entries = [{}]
+
+            child_part = part_of_identity or field.get('template_id') == 'whistleblower_identity'
+
+            for entry in entries:
+                if isinstance(entry, dict):
+                    walk(enabled, field.get('children', []), entry, child_part)
+
+            if not enabled:
+                continue
+
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+
+                for option in evaluate_selected_options(field, entry):
+                    if option.get('trigger_receiver'):
+                        override['value'] = option['trigger_receiver']
+
+    for step in steps:
+        step_enabled = is_field_triggered(None, step, answers, identity_provided, False)
+        walk(step_enabled, step['children'], answers, step.get('template_id') == 'whistleblower_identity')
+
+    return override['value']
+
+
+def db_validate_submission_receivers(session, context, steps, answers, identity_provided, requested_receivers):
+    """
+    Enforce server-side the recipients selection policy configured on the
+    context, an invariant otherwise enforced only by the official client:
+
+    - a questionnaire option may trigger a recipients override that replaces
+      any other selection policy: the selection must then be exactly and only
+      the recipients triggered by the answers;
+    - otherwise the selected recipients must be configured on the context;
+    - recipients flagged as forcefully selected must always be included;
+    - when recipients selection is disabled, the selection must match the set
+      the client selects by default: all the recipients configured on the
+      context when select_all_receivers is set, otherwise only the recipients
+      flagged as forcefully selected.
+    """
+    override = evaluate_receivers_override(steps, answers, identity_provided)
+    if override is not None:
+        if requested_receivers != set(override):
+            raise errors.InputValidationError("The selected recipients do not match the recipients triggered by the answers")
+        return
+
+    context_receivers = set()
+    mandatory_receivers = set()
+
+    for receiver_id, forcefully_selected in session.query(models.ReceiverContext.receiver_id, models.User.forcefully_selected) \
+                                                   .filter(models.ReceiverContext.context_id == context.id,
+                                                           models.User.id == models.ReceiverContext.receiver_id,
+                                                           models.User.role == 'receiver'):
+        context_receivers.add(receiver_id)
+        if forcefully_selected:
+            mandatory_receivers.add(receiver_id)
+
+    if not context.allow_recipients_selection:
+        # Mirror the client: with selection disabled the recipients are the ones
+        # selected by default, i.e. all the context recipients when
+        # select_all_receivers is set and only the mandatory ones otherwise.
+        expected_receivers = context_receivers if context.select_all_receivers else mandatory_receivers
+        if requested_receivers != expected_receivers:
+            raise errors.InputValidationError("The selected recipients do not match the recipients configured on the context")
+        return
+
+    if not requested_receivers.issubset(context_receivers):
+        raise errors.InputValidationError("The selected recipients are not configured on the context")
+
+    if not mandatory_receivers.issubset(requested_receivers):
+        raise errors.InputValidationError("The selected recipients do not include the mandatory recipients")
+
+    if 0 < context.maximum_selectable_receivers < len(requested_receivers):
+        raise errors.InputValidationError("The number of recipients selected exceed the configured limit")
 
 
 def db_create_receivertip(session, receiver, internaltip, tip_key):
@@ -232,6 +410,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
+    db_validate_submission_receivers(session, context, steps, answers, request['identity_provided'], set(request['receivers']))
+
     receivers = []
     for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(request['receivers']), models.User.role == 'receiver'):
         if crypto_is_available:
@@ -253,9 +433,6 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     if not receivers:
         raise errors.InputValidationError("Unable to deliver the submission to at least one recipient")
-
-    if 0 < context.maximum_selectable_receivers < len(request['receivers']):
-        raise errors.InputValidationError("The number of recipients selected exceed the configured limit")
 
     itip = models.InternalTip()
     itip.tid = tid

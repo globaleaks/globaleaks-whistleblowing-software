@@ -38,6 +38,29 @@ def get_receipt_hash(session, itip_id):
 
 
 @transact
+def set_context_selection_policy(session, context_id, allow_recipients_selection):
+    context = session.query(models.Context).filter(models.Context.id == context_id).one()
+    context.allow_recipients_selection = allow_recipients_selection
+    context.select_all_receivers = not allow_recipients_selection
+
+
+@transact
+def set_context_select_all_receivers(session, context_id, value):
+    session.query(models.Context).filter(models.Context.id == context_id).one().select_all_receivers = value
+
+
+@transact
+def set_receiver_forcefully_selected(session, user_id, value):
+    session.query(models.User).filter(models.User.id == user_id).one().forcefully_selected = value
+
+
+@transact
+def validate_submission_receivers(session, context_id, steps, answers, requested_receivers):
+    context = session.query(models.Context).filter(models.Context.id == context_id).one()
+    submission.db_validate_submission_receivers(session, context, steps, answers, False, requested_receivers)
+
+
+@transact
 def get_internaltip_score(session):
     return session.query(models.InternalTip.score) \
                   .filter(models.InternalTip.tid == 1) \
@@ -82,6 +105,149 @@ def scoring_steps():
             }
         ]
     }]
+
+
+def trigger_steps(triggered, triggered2=None):
+    return [{
+        'children': [
+            {
+                'id': 'f-select',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-trigger', 'trigger_receiver': triggered},
+                    {'id': 'opt-plain', 'trigger_receiver': []},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-select-2',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-trigger-2', 'trigger_receiver': triggered2 or []},
+                ],
+                'children': []
+            }
+        ]
+    }]
+
+
+def gated_trigger_steps(triggered):
+    # f-gated is enabled only when opt-gate is selected on f-gate
+    return [{
+        'children': [
+            {
+                'id': 'f-gate',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-gate', 'trigger_receiver': []},
+                    {'id': 'opt-other', 'trigger_receiver': []},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-gated',
+                'type': 'selectbox',
+                'triggered_by_options': [{'field': 'f-gate', 'option': 'opt-gate', 'sufficient': True}],
+                'options': [
+                    {'id': 'opt-gated-trigger', 'trigger_receiver': triggered},
+                ],
+                'children': []
+            }
+        ]
+    }]
+
+
+def chained_trigger_steps(triggered):
+    # f-c (carrying the trigger_receiver) is enabled only through f-b, which is
+    # itself enabled only when opt-a1 is selected on f-a
+    return [{
+        'children': [
+            {
+                'id': 'f-a',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-a1', 'trigger_receiver': []},
+                    {'id': 'opt-a2', 'trigger_receiver': []},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-b',
+                'type': 'selectbox',
+                'triggered_by_options': [{'field': 'f-a', 'option': 'opt-a1', 'sufficient': True}],
+                'options': [
+                    {'id': 'opt-b1', 'trigger_receiver': []},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-c',
+                'type': 'selectbox',
+                'triggered_by_options': [{'field': 'f-b', 'option': 'opt-b1', 'sufficient': True}],
+                'options': [
+                    {'id': 'opt-c-trigger', 'trigger_receiver': triggered},
+                ],
+                'children': []
+            }
+        ]
+    }]
+
+
+class TestReceiversOverrideEvaluation(unittest.TestCase):
+    def test_no_selected_trigger_option_yields_no_override(self):
+        steps = trigger_steps(['r1', 'r2'])
+        self.assertIsNone(submission.evaluate_receivers_override(steps, {}, False))
+        self.assertIsNone(submission.evaluate_receivers_override(steps, {'f-select': [{'value': 'opt-plain'}]}, False))
+
+    def test_selected_trigger_option_yields_override(self):
+        steps = trigger_steps(['r1', 'r2'])
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r1', 'r2'])
+
+    def test_last_selected_trigger_option_wins(self):
+        # The override matches the client: the last selected option that
+        # declares a trigger_receiver replaces the previous one
+        steps = trigger_steps(['r1'], ['r2', 'r3'])
+        answers = {'f-select': [{'value': 'opt-trigger'}], 'f-select-2': [{'value': 'opt-trigger-2'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r2', 'r3'])
+
+    def test_trigger_option_on_disabled_field_is_ignored(self):
+        # A trigger option selected on a field that is not enabled by its own
+        # triggering conditions must not produce an override
+        steps = gated_trigger_steps(['r1'])
+        answers = {'f-gate': [{'value': 'opt-other'}], 'f-gated': [{'value': 'opt-gated-trigger'}]}
+        self.assertIsNone(submission.evaluate_receivers_override(steps, answers, False))
+
+        # When the gating option is selected the field becomes enabled and the
+        # override is produced
+        answers = {'f-gate': [{'value': 'opt-gate'}], 'f-gated': [{'value': 'opt-gated-trigger'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r1'])
+
+    def test_trigger_through_disabled_source_field_is_ignored(self):
+        # A modified client cannot smuggle an override by selecting the trigger
+        # option of an intermediate field that is itself not enabled: the client
+        # clears disabled fields before evaluating downstream triggers
+        steps = chained_trigger_steps(['r1'])
+
+        smuggled = {'f-a': [{'value': 'opt-a2'}],
+                    'f-b': [{'value': 'opt-b1'}],
+                    'f-c': [{'value': 'opt-c-trigger'}]}
+        self.assertIsNone(submission.evaluate_receivers_override(steps, smuggled, False))
+
+        legit = {'f-a': [{'value': 'opt-a1'}],
+                 'f-b': [{'value': 'opt-b1'}],
+                 'f-c': [{'value': 'opt-c-trigger'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, legit, False), ['r1'])
+
+    def test_evaluation_does_not_mutate_answers(self):
+        steps = chained_trigger_steps(['r1'])
+        answers = {'f-a': [{'value': 'opt-a2'}], 'f-b': [{'value': 'opt-b1'}]}
+        submission.evaluate_receivers_override(steps, answers, False)
+        self.assertEqual(answers, {'f-a': [{'value': 'opt-a2'}], 'f-b': [{'value': 'opt-b1'}]})
 
 
 class TestServersideScore(unittest.TestCase):
@@ -137,6 +303,93 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.submission_desc['receivers'] = []
         handler = self.request(self.submission_desc, role='whistleblower')
         self.assertFailure(handler.post(), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_create_submission_with_recipients_subset_rejected_when_selection_disabled(self):
+        # The dummy context disables recipients selection: the backend must
+        # reject a client-supplied subset of the configured recipients.
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc['receivers'] = [self.dummyReceiver_1['id']]
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_create_submission_with_recipient_not_configured_on_the_context_rejected(self):
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc['receivers'].append('00000000-0000-0000-0000-000000000000')
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_create_submission_must_include_mandatory_recipients_when_selection_allowed(self):
+        yield set_context_selection_policy(self.dummyContext['id'], True)
+        yield set_receiver_forcefully_selected(self.dummyReceiver_2['id'], False)
+
+        # A selection omitting the mandatory recipient is rejected
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc['receivers'] = [self.dummyReceiver_2['id']]
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+        # A selection omitting an optional recipient is accepted
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc['receivers'] = [self.dummyReceiver_1['id']]
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield handler.post()
+
+    @inlineCallbacks
+    def test_selection_disabled_with_select_all_requires_the_full_set(self):
+        # allow_recipients_selection=False + select_all_receivers=True (the
+        # dummy context default): the client selects every configured recipient,
+        # so the backend accepts exactly the full set and rejects a subset.
+        yield validate_submission_receivers(self.dummyContext['id'], [], {},
+                                            {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']})
+
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
+                                                               {self.dummyReceiver_1['id']}),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_selection_disabled_without_select_all_requires_only_mandatory(self):
+        # allow_recipients_selection=False + select_all_receivers=False: the
+        # client pre-selects only the forcefully selected recipients, so the
+        # backend must accept exactly that set and reject the full one that the
+        # client would never submit in this configuration.
+        yield set_context_select_all_receivers(self.dummyContext['id'], False)
+        yield set_receiver_forcefully_selected(self.dummyReceiver_2['id'], False)
+
+        # Only the mandatory recipient is accepted
+        yield validate_submission_receivers(self.dummyContext['id'], [], {},
+                                            {self.dummyReceiver_1['id']})
+
+        # The full set, that the client would not submit, is rejected
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
+                                                               {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']}),
+                                 errors.InputValidationError)
+
+        # An empty selection, omitting the mandatory recipient, is rejected
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {}, set()),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_triggered_recipients_override_takes_precedence(self):
+        steps = trigger_steps([self.dummyReceiver_2['id']])
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+
+        # The triggered override derogates both the mandatory recipients
+        # and the disabled recipients selection configured on the context
+        yield validate_submission_receivers(self.dummyContext['id'], steps, answers,
+                                            {self.dummyReceiver_2['id']})
+
+        # A selection not matching the triggered override is rejected, both
+        # when missing a triggered recipient and when adding an extra one
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], steps, answers,
+                                                               {self.dummyReceiver_1['id']}),
+                                 errors.InputValidationError)
+
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], steps, answers,
+                                                               {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']}),
+                                 errors.InputValidationError)
 
     @inlineCallbacks
     def test_create_simple_submission(self):
