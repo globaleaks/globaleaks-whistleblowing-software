@@ -212,6 +212,12 @@ def db_create_receivertip(session, receiver, internaltip, tip_key):
 
 
 def db_create_submission(session, tid, request, user_session, client_using_tor, client_using_mobile):
+    # Re-evaluate the intake gates at finalization time so that an already
+    # issued submission session cannot complete a report after submissions
+    # have been administratively disabled or stopped by the low-disk lockout.
+    if not State.accept_submissions or State.tenants[tid].cache['disable_submissions']:
+        raise errors.SubmissionDisabled
+
     encryption = db_get(session, models.Config, (models.Config.tid == tid, models.Config.var_name == 'encryption'))
 
     crypto_is_available = State.tenants[tid].cache.encryption
