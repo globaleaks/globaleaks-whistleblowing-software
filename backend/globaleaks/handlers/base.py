@@ -304,7 +304,22 @@ class BaseHandler(object):
 
         secret = decodeString(self.request.headers.get(b'x-confirmation', b''))
 
-        sync_confirmation_check(self.session.user_tid, user_id, secret)
+        try:
+            sync_confirmation_check(self.session.user_tid, user_id, secret)
+        except (errors.InvalidAuthentication, errors.InvalidTwoFactorAuthCode):
+            # Count consecutive failed confirmations and drop the session once
+            # the budget is exhausted: this prevents a session-holding attacker
+            # from brute forcing the six-digit TOTP or the password used to
+            # authorize sensitive operations (e.g. disable_2fa, get_recovery_key).
+            failures = self.session.properties.get('confirmation_failures', 0) + 1
+            if failures >= 5:
+                Sessions.revoke(self.session.tid, self.session.user_id)
+            else:
+                self.session.properties['confirmation_failures'] = failures
+
+            raise
+
+        self.session.properties.pop('confirmation_failures', None)
 
     def open_file(self, filepath):
         self.check_file_presence(filepath)
