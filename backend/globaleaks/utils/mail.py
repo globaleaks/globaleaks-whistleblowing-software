@@ -7,12 +7,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from twisted.internet import reactor, defer
+from twisted.internet._sslverify import ClientTLSOptions
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.mail.smtp import messageid, ESMTPSenderFactory
 from twisted.protocols import tls
 
 from globaleaks.utils.socks import SOCKS5ClientEndpoint
-from globaleaks.utils.tls import TLSClientContextFactory
+from globaleaks.utils.tls import new_tls_client_context
 from globaleaks.utils.log import log
 
 
@@ -71,7 +72,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
         log.debug('Sending email to %s using SMTP server [%s:%d] [%s]',
                   to_address, smtp_host, smtp_port, security, tid=tid)
 
-        context_factory = TLSClientContextFactory()
+        context_factory = ClientTLSOptions(smtp_host, new_tls_client_context())
         smtp_deferred = defer.Deferred()
 
         factory = ESMTPSenderFactory(
