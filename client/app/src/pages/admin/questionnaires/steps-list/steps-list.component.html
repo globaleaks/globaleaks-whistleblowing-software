@@ -51,16 +51,6 @@
         </div>
       </div>
       <div class="row">
-        @if (nodeResolver.dataModel.enable_scoring_system) {
-          <div class="form-group col-md-12">
-            <label for="step-trigger-score-{{step.id}}">{{ 'Triggered by score:' | translate }}</label>
-            <select id="step-trigger-score-{{step.id}}" name="step.triggered_by_score" class="form-select-custom" [(ngModel)]="step.triggered_by_score">
-              <option value="0">{{ 'Low' | translate }}</option>
-              <option value="1">{{ 'Medium' | translate }}</option>
-              <option value="2">{{ 'High' | translate }}</option>
-            </select>
-          </div>
-        }
         <div class="form-group col-md-12">
           <label>
             <span>{{ 'Trigger conditions' | translate }}</span>

@@ -93,7 +93,7 @@ export class TippageComponent implements OnInit {
   filterNotTriggeredField(parent: any, field: any, answers: Answers | WhistleblowerIdentity, partOfIdentityQuestion: boolean) {
     let i;
     partOfIdentityQuestion = partOfIdentityQuestion || (parent && parent.template_id === 'whistleblower_identity');
-    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.score, this.submission.submission.identity_provided, partOfIdentityQuestion)) {
+    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.submission.submission.identity_provided, partOfIdentityQuestion)) {
       for (i = 0; i < field.children.length; i++) {
         this.filterNotTriggeredField(field, field.children[i], answers, partOfIdentityQuestion);
       }
@@ -109,7 +109,7 @@ export class TippageComponent implements OnInit {
 
       for (i = 0; i < this.questionnaire.steps.length; i++) {
         step = this.questionnaire.steps[i];
-        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.tip.score, this.submission.submission.identity_provided, false)) {
+        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.submission.submission.identity_provided, false)) {
           for (j = 0; j < step.children.length; j++) {
             this.filterNotTriggeredField(step, step.children[j], this.questionnaire.answers, false);
           }

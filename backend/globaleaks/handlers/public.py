@@ -320,22 +320,27 @@ def serialize_context(session, context, language, data=None):
     return get_localized_values(ret, context, context.localized_keys, language)
 
 
-def serialize_field_option(option, language):
+def serialize_field_option(option, language, include_scoring=True):
     """
     Serialize a field option.
 
     :param option: The option to be serialized
     :param language: The language to be used during serialization
+    :param include_scoring: Whether to include the option scoring weights;
+        these are kept out of the public questionnaire as the score is
+        computed exclusively server-side
     :return: The serialized resource
     """
     ret = {
         'id': option.id,
         'order': option.order,
         'block_submission': option.block_submission,
-        'score_points': option.score_points,
-        'score_type': option.score_type,
         'trigger_receiver': option.trigger_receiver
     }
+
+    if include_scoring:
+        ret['score_points'] = option.score_points
+        ret['score_type'] = option.score_type
 
     return get_localized_values(ret, option, option.localized_keys, language)
 
@@ -365,7 +370,7 @@ def serialize_field_attr(attr, language):
     return ret
 
 
-def serialize_field(session, tid, field, language, data=None, serialize_templates=False):
+def serialize_field(session, tid, field, language, data=None, serialize_templates=False, include_scoring=True):
     """
     Serialize a field
 
@@ -375,6 +380,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
     :param language: The language to be used during serialization
     :param data: The dictionary of prefetched resources
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     if data is None:
@@ -403,7 +409,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
 
     children = []
     if field.instance != 'reference' or serialize_templates:
-        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates) for f in data['fields'].get(f_to_serialize.id, [])]
+        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates, include_scoring=include_scoring) for f in data['fields'].get(f_to_serialize.id, [])]
         children.sort(key=lambda f: (f['y'], f['x']))
 
     # Enable voice features if questions of type voice are enabled
@@ -425,16 +431,15 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'x': field.x,
         'y': field.y,
         'width': field.width,
-        'triggered_by_score': field.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'field', field.id),
-        'options': [serialize_field_option(o, language) for o in data['options'].get(f_to_serialize.id, [])],
+        'options': [serialize_field_option(o, language, include_scoring) for o in data['options'].get(f_to_serialize.id, [])],
         'children': children
     }
 
     return get_localized_values(ret, f_to_serialize, f_to_serialize.localized_keys, language)
 
 
-def serialize_step(session, tid, step, language, serialize_templates=False):
+def serialize_step(session, tid, step, language, serialize_templates=False, include_scoring=True):
     """
     Serialize a step.
 
@@ -443,20 +448,20 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
     :param step: The option to be serialized
     :param language: The language to be used during serialization
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     children = session.query(models.Field).filter(models.Field.step_id == step.id)
 
     data = db_prepare_fields_serialization(session, children)
 
-    children = [serialize_field(session, tid, f, language, data, serialize_templates) for f in children]
+    children = [serialize_field(session, tid, f, language, data, serialize_templates, include_scoring) for f in children]
     children.sort(key=lambda f: (f['y'], f['x']))
 
     ret = {
         'id': step.id,
         'questionnaire_id': step.questionnaire_id,
         'order': step.order,
-        'triggered_by_score': step.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'step', step.id),
         'children': children
     }
@@ -464,7 +469,7 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
     return get_localized_values(ret, step, step.localized_keys, language)
 
 
-def serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=False):
+def serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=False, include_scoring=True):
     """
     Serialize a questionnaire.
 
@@ -473,6 +478,7 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
     :param questionnaire: A questionnaire model
     :param language: The language to be used during serialization
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     steps = session.query(models.Step).filter(models.Step.questionnaire_id == models.Questionnaire.id,
@@ -483,7 +489,7 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
         'id': questionnaire.id,
         'editable': questionnaire.id not in default_questionnaires and questionnaire.tid == tid,
         'name': questionnaire.name,
-        'steps': [serialize_step(session, tid, s, language, serialize_templates=serialize_templates) for s in steps]
+        'steps': [serialize_step(session, tid, s, language, serialize_templates=serialize_templates, include_scoring=include_scoring) for s in steps]
     }
 
     return get_localized_values(ret, questionnaire, questionnaire.localized_keys, language)
@@ -535,7 +541,7 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
                                     models.Context.tid == tid,
                                     models.Context.hidden.is_(False))
 
-    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates) for questionnaire in questionnaires]
+    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates, include_scoring=False) for questionnaire in questionnaires]
 
 
 def db_get_contexts(session, tid, language):
@@ -572,7 +578,7 @@ def db_get_context_questionnaires(session, tid, context, language):
                             .filter(models.Questionnaire.tid.in_({1, tid}),
                                     models.Questionnaire.id.in_(ids))
 
-    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True) for questionnaire in questionnaires]
+    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True, include_scoring=False) for questionnaire in questionnaires]
 
 
 def db_get_context(session, tid, context_id, language):

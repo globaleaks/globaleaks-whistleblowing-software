@@ -122,7 +122,6 @@ SubmissionDesc = {
     'receivers': [uuid_regexp],
     'identity_provided': bool,
     'answers': dict,
-    'score': int,
     'receipt': str
 }
 
@@ -327,7 +326,6 @@ AdminFieldDesc = {
     'attrs': dict,
     'options': [AdminFieldOptionDesc],
     'children': list,
-    'triggered_by_score': int,
     'triggered_by_options': list
 }
 
@@ -343,7 +341,6 @@ AdminStepDesc = {
     'children': [AdminFieldDesc],
     'questionnaire_id': key_regexp_or_empty,
     'order': int,
-    'triggered_by_score': int,
     'triggered_by_options': list
 }
 
