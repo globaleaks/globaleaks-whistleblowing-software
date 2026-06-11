@@ -11,6 +11,7 @@ from globaleaks.orm import get_engine, get_session, make_db_uri, transact, trans
 from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
 from globaleaks.utils import fs
+from globaleaks.utils.crypto import generateRandomKey
 from globaleaks.utils.log import log
 from globaleaks.utils.objectdict import ObjectDict
 
@@ -102,6 +103,8 @@ def update_db():
 
         sync_clean_untracked_files()
 
+        sync_fix_receipt_auth_downgrade()
+
     except Exception as exception:
         log.err('Failure: %s', exception)
         log.err('Verbose exception traceback:')
@@ -149,6 +152,30 @@ def sync_clean_untracked_files(session):
                 fs.srm(file_to_remove)
             except OSError:
                 log.err('Failed to remove untracked file', file_to_remove)
+
+
+def db_fix_receipt_auth_downgrade(session):
+    """
+    Normalize tenants with mixed receipt hash formats to the client-derived format
+
+    :param session: An ORM session
+    """
+    mixed_tids = session.query(models.InternalTip.tid) \
+                        .group_by(models.InternalTip.tid) \
+                        .having(sqlalchemy.and_(sqlalchemy.func.max(sqlalchemy.func.length(models.InternalTip.receipt_hash)) >= 64,
+                                                sqlalchemy.func.min(sqlalchemy.func.length(models.InternalTip.receipt_hash)) < 64)) \
+                        .subquery()
+
+    for itip in session.query(models.InternalTip) \
+                       .filter(models.InternalTip.tid.in_(session.query(mixed_tids.c.tid)),
+                               sqlalchemy.func.length(models.InternalTip.receipt_hash) < 64):
+        log.err('Neutralizing receipt-auth downgrade report: tid=%d id=%s', itip.tid, itip.id)
+        itip.receipt_hash = generateRandomKey()
+
+
+@transact_sync
+def sync_fix_receipt_auth_downgrade(session):
+    db_fix_receipt_auth_downgrade(session)
 
 
 @transact_sync
