@@ -113,7 +113,29 @@ def decorator_rate_limit(f):
         client_ip = get_ip_identity(self.request.client_ip).encode()
         tid = str(self.request.tid).encode()
         path = self.request.path
-        if self.session:
+        if path in (b'/api/auth/authentication', b'/api/auth/tokenauth', b'/api/auth/receiptauth'):
+            # Login endpoints are throttled regardless of any presented session:
+            # a session must not exempt the caller from the login thresholds
+            # (e.g. minting unlimited submission sessions via empty receipts)
+            delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
+                                          root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
+                                          60)
+
+            delay = delay or \
+                    State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
+                                          root_tenant.cache.threshold_logins_per_minute_per_ip,
+                                          60)
+
+            delay = delay or \
+                    State.RateLimit.check(b"logins_per_minute_per_tenant:" + tid,
+                                          root_tenant.cache.threshold_logins_per_minute_per_tenant,
+                                          60)
+
+            delay = delay or \
+                    State.RateLimit.check(b"logins_per_minute_per_system",
+                                          root_tenant.cache.threshold_logins_per_minute_per_system,
+                                          60)
+        elif self.session:
             user_id = self.session.user_id.encode()
 
             if self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
@@ -150,26 +172,6 @@ def decorator_rate_limit(f):
                                 State.RateLimit.check(b"operations_per_hour_per_report:" + user_id,
                                                       root_tenant.cache.threshold_operations_per_hour_per_report,
                                                       3600)
-        else:
-            if self.request.path in [b'/api/auth/authentication', b'/api/auth/receiptauth', b'/api/auth/authentication']:
-                delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_ip,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_tenant:" + tid,
-                                              root_tenant.cache.threshold_logins_per_minute_per_tenant,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_system",
-                                              root_tenant.cache.threshold_logins_per_minute_per_system,
-                                              60)
 
         if block:
             raise errors.ForbiddenOperation()

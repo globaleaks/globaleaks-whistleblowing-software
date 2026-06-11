@@ -174,6 +174,26 @@ class TestDecorators(unittest.TestCase):
         result = yield test_func(self.handler)
         self.assertEqual(result, "Passed")
 
+    def test_decorator_rate_limit_login_throttled_with_session(self):
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="whistleblower")
+        self.handler.session.user_id = uuid4()
+        self.handler.token = None
+        self.handler.request = FakeRequest(path=b"/api/auth/receiptauth")
+
+        rate_limit_mock = MagicMock()
+        rate_limit_mock.check.return_value = 0
+        State.RateLimit = rate_limit_mock
+
+        @decorator_rate_limit
+        def test_func(self): return "Passed"
+
+        self.assertEqual(test_func(self.handler), "Passed")
+
+        # Holding a session must not exempt login endpoints from login throttling
+        checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
+        self.assertTrue(any(key.startswith(b"logins_per_minute") for key in checked_keys))
+
     def test_decorator_rate_limit_whistleblower_blocked(self):
         self.handler = FakeHandler()
         self.handler.session = FakeSession()
