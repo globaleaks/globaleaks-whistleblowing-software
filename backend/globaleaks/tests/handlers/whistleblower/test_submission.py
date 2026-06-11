@@ -4,12 +4,37 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
+from globaleaks.db import db_fix_receipt_auth_downgrade
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import submission, wbtip
 from globaleaks.jobs import delivery
 from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+from globaleaks.utils.crypto import GCE
+
+
+@transact
+def inject_legacy_receipt_report(session, context_id):
+    itip = models.InternalTip()
+    itip.tid = 1
+    itip.context_id = context_id
+    itip.progressive = 9999
+    _, itip.receipt_hash = GCE.calculate_key_and_hash('1234123412341234', helpers.VALID_SALT)
+    session.add(itip)
+    session.flush()
+    return itip.id
+
+
+@transact
+def run_fix_receipt_auth_downgrade(session):
+    db_fix_receipt_auth_downgrade(session)
+
+
+@transact
+def get_receipt_hash(session, itip_id):
+    return session.query(models.InternalTip.receipt_hash) \
+                  .filter(models.InternalTip.id == itip_id).one()[0]
 
 
 @transact
@@ -152,6 +177,28 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 
         self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
+
+    @inlineCallbacks
+    def test_fix_receipt_auth_downgrade_restores_key_mode(self):
+        if not self.clientside_hashing:
+            return
+
+        yield self.perform_full_submission_actions()
+        receipt = self.dummySubmission['receipt']
+
+        # A legacy-format report switches the tenant to password mode
+        malicious_id = yield inject_legacy_receipt_report(self.dummyContext['id'])
+        self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'password')
+        yield self.assertFailure(auth.login_whistleblower(1, receipt, True),
+                                 errors.InvalidAuthentication)
+
+        yield run_fix_receipt_auth_downgrade()
+
+        # The fix restores key mode and access to the existing report
+        self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
+        session = yield auth.login_whistleblower(1, receipt, True)
+        self.assertTrue(session is not None)
+        self.assertEqual(len((yield get_receipt_hash(malicious_id))), 64)
 
 
 class TestSubmissionServersideHashing(TestSubmission):
