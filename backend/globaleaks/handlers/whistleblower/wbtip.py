@@ -9,6 +9,7 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_set_internaltip_answers, db_get_questionnaire, \
@@ -18,7 +19,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE, sha256
+from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -152,12 +153,7 @@ def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
     if itip is None:
         return
 
-    if len(receipt) == 44:
-        key = Base64Encoder.decode(receipt.encode())
-        itip.receipt_hash = sha256(key).decode()
-    else:
-        tid = itip.tid
-        key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, State.tenants[tid].cache.receipt_salt)
+    key = db_set_receipt_hash(session, itip.tid, itip, receipt)
 
     itip.receipt_change_needed = receipt_change_needed
 
