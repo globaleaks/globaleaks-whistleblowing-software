@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import threading
 import traceback
 
 from acme.errors import ValidationError
@@ -97,6 +98,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.tokens = TokenList(60)
         self.TempKeys = TempDict(3600 * 72)
         self.TwoFactorTokens = TempDict(120)
+        self.TwoFactorTokensLock = threading.Lock()
         self.TempUploadFiles = TempDict(3600)
         self.RateLimit = RateLimit(10000)
 
@@ -320,18 +322,23 @@ class StateClass(ObjectDict, metaclass=Singleton):
             def __init__(self, token):
                self.token = token
 
-        # Check token reuse
-        previous_token = self.TwoFactorTokens.get(secret)
-        if previous_token and previous_token.token == token:
-            raise errors.InvalidTwoFactorAuthCode
+        # The reuse check and the registration of the accepted token must be
+        # atomic: the function runs concurrently on the ORM threads and two
+        # parallel logins carrying the same code could otherwise both pass the
+        # reuse check before either registers the code.
+        with self.TwoFactorTokensLock:
+            # Check token reuse
+            previous_token = self.TwoFactorTokens.get(secret)
+            if previous_token and previous_token.token == token:
+                raise errors.InvalidTwoFactorAuthCode
 
-        try:
-            totpVerify(secret, token)
-        except Exception:
-            raise errors.InvalidTwoFactorAuthCode
+            try:
+                totpVerify(secret, token)
+            except Exception:
+                raise errors.InvalidTwoFactorAuthCode
 
-        # Register last used valid token
-        self.TwoFactorTokens[secret] = UsedToken(token)
+            # Register last used valid token
+            self.TwoFactorTokens[secret] = UsedToken(token)
 
 
 def mail_exception_handler(etype, value, tback):
