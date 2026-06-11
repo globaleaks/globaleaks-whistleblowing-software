@@ -164,6 +164,26 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue('data' in wbtip_desc)
 
     @inlineCallbacks
+    def test_existing_session_cannot_finalize_when_submissions_disabled(self):
+        # An existing submission session must not be able to finalize a report
+        # once intake has been disabled, either administratively or by the
+        # low-disk lockout that flips State.accept_submissions to False.
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        handler = self.request(self.submission_desc, role='whistleblower')
+
+        self.state.accept_submissions = False
+        try:
+            yield self.assertFailure(handler.post(), errors.SubmissionDisabled)
+        finally:
+            self.state.accept_submissions = True
+
+        self.state.tenants[1].cache['disable_submissions'] = True
+        try:
+            yield self.assertFailure(handler.post(), errors.SubmissionDisabled)
+        finally:
+            self.state.tenants[1].cache['disable_submissions'] = False
+
+    @inlineCallbacks
     def test_submission_cannot_downgrade_tenant_receipt_auth_mode(self):
         # A key-mode tenant must reject a receipt that is not the client-derived key.
         if not self.clientside_hashing:
