@@ -254,7 +254,7 @@ class TokenAuthHandler(BaseHandler):
         if session is None:
             yield tw(db_login_failure, self.request.tid, 0)
 
-        connection_check(self.request.tid, session.role,
+        connection_check(session.tid, session.role,
                          self.request.client_ip, self.request.client_using_tor)
 
         session = Sessions.regenerate(session)
