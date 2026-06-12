@@ -177,7 +177,9 @@ def transfer_tip_access(session, tid, user_id, user_cc, itip_id, receiver_id):
 
     new_receiver, _ = db_grant_tip_access(session, tid, user, user_cc, itip, rtip, receiver_id)
     if new_receiver:
-        db_revoke_tip_access(session, tid, user, itip, user_id)
+        if not db_revoke_tip_access(session, tid, user, itip, user_id):
+            raise errors.ForbiddenOperation
+
         db_notify_grant_access(session, new_receiver)
         db_log(session, tid=tid, type='transfer_access', user_id=user_id, object_id=itip.id, data=log_data)
 
