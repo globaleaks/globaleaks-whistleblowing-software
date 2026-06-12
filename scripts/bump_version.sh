@@ -4,7 +4,7 @@
 # with new version as the first argument
 set -e
 
-if [[ "$1" != "" ]]; then
+if [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 	echo "Updating version to v$1"
 
 	ROOTDIR=$(pwd)
@@ -27,6 +27,6 @@ if [[ "$1" != "" ]]; then
 
         git commit -a -m "Bump to version $1"
 else
-	echo -e "Please specify a version"
+	echo -e "Please specify a valid version (expected format: X.Y.Z)"
 	exit 1
 fi
