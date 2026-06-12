@@ -773,8 +773,9 @@ class _ReceiverTip(Model):
 
     @declared_attr
     def __table_args__(self):
-        return (ForeignKeyConstraint(['receiver_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
-                ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
+        return (UniqueConstraint('internaltip_id', 'receiver_id'),
+                ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['receiver_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
 
 
 class _Redaction(Model):
