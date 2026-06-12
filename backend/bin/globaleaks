@@ -82,6 +82,11 @@ if options.version:
     sys.exit(0)
 
 
+if os.geteuid() == 0:
+    print("This program must not be run as root")
+    sys.exit(1)
+
+
 Settings.load_cmdline_options(options)
 
 
