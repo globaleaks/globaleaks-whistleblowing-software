@@ -307,14 +307,29 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
 
 def redact_content(content, ranges, character='0x2588'):
     result = list(content)
+    length = len(result)
+    mask = chr(int(character[2:], 16))
 
-    ranges = sorted(ranges, key=lambda x: x['start'])
-
+    normalized = []
     for r in ranges:
-        start, end = r.get('start', 0), r.get('end', 0) + 1
+        start, end = r.get('start', 0), r.get('end', 0)
+
+        # Ignore ranges that are not expressed as plain integers (e.g. floats,
+        # None or the '-inf'/'inf' sentinels used for file redactions) and clamp
+        # the bounds to the actual content length so that a stored range can
+        # never drive an allocation larger than the content itself.
+        if isinstance(start, bool) or isinstance(end, bool) or \
+                not isinstance(start, int) or not isinstance(end, int):
+            continue
+
+        start = max(0, min(start, length))
+        end = max(0, min(end + 1, length))
 
         if start < end:
-            result[start:end] = chr(int(character[2:], 16)) * (end - start)
+            normalized.append((start, end))
+
+    for start, end in sorted(normalized):
+        result[start:end] = mask * (end - start)
 
     return ''.join(result)
 
