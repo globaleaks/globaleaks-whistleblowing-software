@@ -250,6 +250,41 @@ class TestDecorators(unittest.TestCase):
         checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
         self.assertTrue(any(key.startswith(b"logins_per_minute") for key in checked_keys))
 
+    def test_decorator_rate_limit_support_throttled_without_session(self):
+        self.handler = FakeHandler()
+        self.handler.session = None
+        self.handler.token = "x"
+        self.handler.request = FakeRequest(path=b"/api/support")
+
+        rate_limit_mock = MagicMock()
+        rate_limit_mock.check.return_value = 0
+        State.RateLimit = rate_limit_mock
+
+        @decorator_rate_limit
+        def test_func(self): return "Passed"
+
+        # A token-only support request must consume the support buckets
+        self.assertEqual(test_func(self.handler), "Passed")
+
+        checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
+        self.assertTrue(any(key.startswith(b"support_per_hour") for key in checked_keys))
+
+    def test_decorator_rate_limit_support_blocked(self):
+        self.handler = FakeHandler()
+        self.handler.session = None
+        self.handler.token = "x"
+        self.handler.request = FakeRequest(path=b"/api/support")
+
+        rate_limit_mock = MagicMock()
+        rate_limit_mock.check.return_value = 1
+        State.RateLimit = rate_limit_mock
+
+        @decorator_rate_limit
+        def test_func(self): return "Should not run"
+
+        with self.assertRaises(errors.ForbiddenOperation):
+            test_func(self.handler)
+
     def test_decorator_rate_limit_whistleblower_blocked(self):
         self.handler = FakeHandler()
         self.handler.session = FakeSession()
