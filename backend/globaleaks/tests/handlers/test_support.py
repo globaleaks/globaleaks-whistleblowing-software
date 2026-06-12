@@ -1,5 +1,6 @@
 from globaleaks import models
 from globaleaks.handlers import support
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
 
@@ -34,3 +35,15 @@ class TestSupportHandler(helpers.TestHandlerWithPopulatedDB):
         yield handler.post()
         self.assertEqual(handler.request.code, 200)
         yield self.test_model_count(models.Mail, 1)
+
+    @inlineCallbacks
+    def test_post_text_too_long(self):
+        request = {
+            'mail_address': 'giovanni.pellerano@globaleaks.org',
+            'text': 'x' * (support.SUPPORT_TEXT_MAX_LENGTH + 1)
+        }
+
+        yield self.test_model_count(models.Mail, 0)
+        handler = self.request(request)
+        yield self.assertRaises(errors.InputValidationError, handler.post)
+        yield self.test_model_count(models.Mail, 0)
