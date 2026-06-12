@@ -7,15 +7,6 @@ profile usr.bin.globaleaks flags=(attach_disconnected) {
     #include <abstractions/python>
     #include <abstractions/tor>
 
-    capability setgid,
-    capability setuid,
-    capability fsetid,
-    capability fowner,
-    capability chown,
-    capability dac_override,
-    capability dac_read_search,
-    capability sys_tty_config,
-
     /etc/ r,
     /etc/os-release r,
     /etc/mime.types r,
