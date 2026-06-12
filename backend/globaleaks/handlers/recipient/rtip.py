@@ -239,6 +239,18 @@ def db_update_submission_status(session, tid, user_id, itip, status_id, substatu
     if status_id == 'new':
         return
 
+    db_get(session,
+           models.SubmissionStatus,
+           (models.SubmissionStatus.tid == tid,
+            models.SubmissionStatus.id == status_id))
+
+    if substatus_id:
+        db_get(session,
+               models.SubmissionSubStatus,
+               (models.SubmissionSubStatus.tid == tid,
+                models.SubmissionSubStatus.submissionstatus_id == status_id,
+                models.SubmissionSubStatus.id == substatus_id))
+
     report_close_request = itip.status != "closed" and status_id == "closed"
     report_reopen_request = itip.status == "closed" and status_id == "opened"
 
