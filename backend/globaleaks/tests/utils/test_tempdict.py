@@ -30,3 +30,29 @@ class TestTempDict(helpers.TestGL):
         self.assertEqual(len(xxx), 0)
 
         self.assertEqual(TestObject.callbacks_count, timeout)
+
+    def test_max_size(self):
+        max_size = 10
+
+        xxx = TempDict(timeout=1337, max_size=max_size)
+
+        # A bare value (no expireCallback) keeps eviction from touching the
+        # shared TestObject counter; timer cancellation is asserted via the
+        # reactor below instead.
+        class Value:
+            pass
+
+        # Insert well beyond the cap; the store must never exceed max_size.
+        for x in range(1, 3 * max_size + 1):
+            xxx[x] = Value()
+            self.assertLessEqual(len(xxx), max_size)
+
+        self.assertEqual(len(xxx), max_size)
+
+        # The most recent max_size entries are retained; the oldest are evicted.
+        self.assertEqual(sorted(xxx.keys()),
+                         list(range(2 * max_size + 1, 3 * max_size + 1)))
+
+        # Evicted entries' expiration timers are cancelled rather than leaked:
+        # the reactor holds exactly one pending delayed call per live entry.
+        self.assertEqual(len(self.test_reactor.getDelayedCalls()), max_size)

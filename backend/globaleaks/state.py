@@ -95,7 +95,12 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.orm_tp = None
         self.set_orm_tp(ThreadPool(4, 16))
 
-        self.tokens = TokenList(60)
+        # Cap the proof-of-work token store: tokens are public and unauthenticated
+        # to issue, so a hard ceiling bounds memory and the reactor's delayed-call
+        # queue regardless of request volume or attacker distribution. The cap is
+        # far above any legitimate concurrent issuance (60s lifetime) so normal
+        # operation never evicts a live token.
+        self.tokens = TokenList(60, 100000)
         self.TempKeys = TempDict(3600 * 72)
         self.TwoFactorTokens = TempDict(120)
         self.TwoFactorTokensLock = threading.Lock()
