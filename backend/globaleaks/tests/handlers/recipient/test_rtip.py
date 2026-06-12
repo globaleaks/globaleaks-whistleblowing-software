@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
 from twisted.internet.defer import inlineCallbacks
+from twisted.trial import unittest
 
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
@@ -518,6 +519,26 @@ class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
+
+
+class TestRedactContent(unittest.TestCase):
+    def test_inclusive_range(self):
+        self.assertEqual(rtip.redact_content('hello', [{'start': 1, 'end': 3}], '0x2591'), 'h░░░o')
+
+    def test_oversized_range_is_bounded_to_content_length(self):
+        # A type-valid but oversized range must not allocate more than the content length
+        out = rtip.redact_content('x', [{'start': 0, 'end': 1000000000}], '0x2591')
+        self.assertEqual(out, '░')
+
+    def test_non_integer_ranges_are_ignored(self):
+        for ranges in ([{'start': 1.5, 'end': 3.5}],
+                       [{'start': None, 'end': None}],
+                       [{'start': '-inf', 'end': 'inf'}],
+                       [{'start': True, 'end': False}]):
+            self.assertEqual(rtip.redact_content('hello', ranges, '0x2591'), 'hello')
+
+    def test_negative_start_is_clamped(self):
+        self.assertEqual(rtip.redact_content('hello', [{'start': -5, 'end': 1}], '0x2591'), '░░llo')
 
 
 class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
