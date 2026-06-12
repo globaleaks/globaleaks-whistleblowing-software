@@ -122,7 +122,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
     def get_agent(self):
         if 1 not in self.tenants or self.tenants[1].cache.anonymize_outgoing_connections:
-            return get_tor_agent(self.settings.socks_port)
+            return get_tor_agent(self.settings.socks_socket)
 
         return get_web_agent()
 
@@ -241,7 +241,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
                         self.tenants[tid].cache.name + ' - ' + subject,
                         body,
                         self.tenants[1].cache.anonymize_outgoing_connections,
-                        self.settings.socks_port)
+                        self.settings.socks_socket)
 
     def schedule_support_email(self, tid, text):
         subject = "Support request"

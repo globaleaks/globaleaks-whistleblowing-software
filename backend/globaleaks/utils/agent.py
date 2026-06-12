@@ -1,20 +1,21 @@
 from globaleaks.utils.socks import SOCKS5Agent
 
 from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.endpoints import UNIXClientEndpoint
 from twisted.web.client import Agent, readBody
 
 
-def get_tor_agent(socks_port=9999):
+def get_tor_agent(socks_socket):
     """
-    An HTTP agent that uses SOCKS5 to proxy all requests through the socks_port
+    An HTTP agent that uses SOCKS5 to proxy all requests through the socks_socket
 
-    It is implicitly understood that the socks_port points to the locally
-    configured tor daemon
-    :param socks_port: the sock port
-    :return: an initialized agent using the specificed sock config
+    The SOCKS listener is exposed by the locally launched tor daemon as a
+    unix-domain socket protected by filesystem permissions, so that no other
+    local process can impersonate it by pre-binding a fixed TCP port.
+    :param socks_socket: the path of the tor SOCKS unix-domain socket
+    :return: an initialized agent using the specified socks config
     """
-    torServerEndpoint = TCP4ClientEndpoint(reactor, b"127.0.0.1", socks_port)
+    torServerEndpoint = UNIXClientEndpoint(reactor, socks_socket)
 
     return SOCKS5Agent(reactor, proxyEndpoint=torServerEndpoint)
 

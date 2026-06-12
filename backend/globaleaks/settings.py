@@ -43,9 +43,6 @@ class SettingsClass(object, metaclass=Singleton):
 
         self.onionservice = None
 
-        # SOCKS default
-        self.socks_port = 9999
-
         self.rsa_key_bits = 4096
         self.csr_sign_bits = 512
 
@@ -82,6 +79,7 @@ class SettingsClass(object, metaclass=Singleton):
         self.attachments_path = os.path.abspath(os.path.join(self.working_path, 'attachments'))
         self.tmp_path = os.path.abspath(os.path.join(self.working_path, 'tmp'))
         self.tor_control = os.path.abspath(os.path.join(self.tmp_path, 'tor_control'))
+        self.socks_socket = os.path.abspath(os.path.join(self.tmp_path, 'tor_socks'))
 
         self.db_file_path = os.path.abspath(os.path.join(self.working_path, 'globaleaks.db'))
 
