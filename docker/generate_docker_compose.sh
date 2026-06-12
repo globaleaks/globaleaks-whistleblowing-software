@@ -52,6 +52,14 @@ services:
     restart: unless-stopped
     container_name: globaleaks
     network_mode: bridge
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /run/globaleaks:mode=1777
+      - /tmp:mode=1777
     volumes:
       - globaleaks:/var/globaleaks:rw
     ports:
