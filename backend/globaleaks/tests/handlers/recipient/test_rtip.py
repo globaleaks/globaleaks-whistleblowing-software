@@ -6,9 +6,22 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_never, datetime_now
+
+
+@transact
+def create_substatus(session, submissionstatus_id):
+    substatus = models.SubmissionSubStatus()
+    substatus.tid = 1
+    substatus.submissionstatus_id = submissionstatus_id
+    substatus.label = {'en': 'Test'}
+    substatus.order = 0
+    session.add(substatus)
+    session.flush()
+    return substatus.id
 
 
 class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
@@ -313,6 +326,49 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
             self.assertEqual(rtip_desc['status'], 'opened')
+
+    @inlineCallbacks
+    def test_update_status_with_invalid_values(self):
+        opened_substatus_id = yield create_substatus('opened')
+        closed_substatus_id = yield create_substatus('closed')
+
+        rtip_descs = yield self.get_rtips()
+
+        for rtip_desc in rtip_descs:
+            for args in [{'status': 'unexistent_status', 'substatus': ''},
+                         {'status': 'closed', 'substatus': 'unexistent_substatus'},
+                         {'status': 'closed', 'substatus': opened_substatus_id}]:
+                args['motivation'] = ''
+                operation = {
+                  'operation': 'update_status',
+                  'args': args
+                }
+
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                yield self.assertFailure(handler.put(rtip_desc['id']), NoResultFound)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertNotEqual(rtip_desc['status'], 'closed')
+
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'update_status',
+              'args': {
+                'status': 'closed',
+                'substatus': closed_substatus_id,
+                'motivation': ''
+              }
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.put(rtip_desc['id'])
+            self.assertEqual(handler.request.code, 200)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertEqual(rtip_desc['status'], 'closed')
+            self.assertEqual(rtip_desc['substatus'], closed_substatus_id)
 
     def test_mark_important(self):
         return self.switch_enabler('important')
