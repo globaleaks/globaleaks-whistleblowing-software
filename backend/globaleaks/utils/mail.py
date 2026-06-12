@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 
 from twisted.internet import reactor, defer
 from twisted.internet._sslverify import ClientTLSOptions
-from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.endpoints import TCP4ClientEndpoint, UNIXClientEndpoint
 from twisted.mail.smtp import messageid, ESMTPSenderFactory
 from twisted.protocols import tls
 
@@ -40,7 +40,7 @@ def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail
     return BytesIO(multipart.as_bytes())  # pylint: disable=no-member
 
 
-def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_port=9999):
+def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_socket=None):
     """
     Send an email using SMTPS/SMTP+TLS and maybe torify the connection.
 
@@ -57,7 +57,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
     :param subject: A mail subject
     :param body: A mail body
     :param anonymize: A boolean to enable anonymous mail connection
-    :param socks_port: A socks port to be used for the mail connection
+    :param socks_socket: The path of the tor SOCKS unix-domain socket
     :return: A deferred resource resolving at the end of the connection
     """
     try:
@@ -92,7 +92,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
             factory = tls.TLSMemoryBIOFactory(context_factory, True, factory)
 
         if anonymize:
-            socksProxy = TCP4ClientEndpoint(reactor, "127.0.0.1", socks_port, timeout=timeout)
+            socksProxy = UNIXClientEndpoint(reactor, socks_socket, timeout=timeout)
             endpoint = SOCKS5ClientEndpoint(smtp_host.encode('utf-8'), smtp_port, socksProxy)
         else:
             endpoint = TCP4ClientEndpoint(reactor, smtp_host, smtp_port, timeout=timeout)
