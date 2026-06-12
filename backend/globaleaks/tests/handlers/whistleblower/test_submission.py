@@ -245,6 +245,94 @@ class TestReceiversOverrideEvaluation(unittest.TestCase):
         self.assertEqual(answers, {'f-a': [{'value': 'opt-a2'}], 'f-b': [{'value': 'opt-b1'}]})
 
 
+# Field ids shaped like the UUIDs the answers validation acts upon
+F_GROUP = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+F_CHILD = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+F_LEAF = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
+F_UNKNOWN = 'dddddddd-dddd-dddd-dddd-dddddddddddd'
+
+
+def schema_with_fieldgroup():
+    # A questionnaire with a top-level input field and a fieldgroup carrying a
+    # single leaf child; the fieldgroup is the only place a nested field id is
+    # allowed to map to a list of entries.
+    return [{
+        'children': [
+            {'id': F_LEAF, 'type': 'inputbox', 'children': []},
+            {
+                'id': F_GROUP,
+                'type': 'fieldgroup',
+                'children': [
+                    {'id': F_CHILD, 'type': 'inputbox', 'children': []}
+                ]
+            }
+        ]
+    }]
+
+
+class TestAnswersSchemaValidation(unittest.TestCase):
+    def test_conformant_answers_are_accepted(self):
+        steps = schema_with_fieldgroup()
+        answers = {
+            F_LEAF: [{'value': 'x'}],
+            F_GROUP: [{F_CHILD: [{'value': 'y'}]}]
+        }
+        # No exception expected
+        submission.db_validate_submission_answers(steps, answers)
+
+    def test_leaf_answer_data_is_left_untouched(self):
+        # Non-list entry attributes (value, transient UI flags, checkbox option
+        # ids mapping to strings) are not recursion targets and must pass.
+        steps = schema_with_fieldgroup()
+        answers = {
+            F_LEAF: [{'value': 'x', 'required_status': False, F_UNKNOWN: 'True'}]
+        }
+        submission.db_validate_submission_answers(steps, answers)
+
+    def test_unknown_top_level_field_is_rejected(self):
+        steps = schema_with_fieldgroup()
+        answers = {F_UNKNOWN: [{'value': 'x'}]}
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers, steps, answers)
+
+    def test_nested_field_not_in_fieldgroup_is_rejected(self):
+        # A field id nested where the schema does not define it as a child
+        steps = schema_with_fieldgroup()
+        answers = {F_GROUP: [{F_UNKNOWN: [{'value': 'x'}]}]}
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers, steps, answers)
+
+    def test_nested_list_under_a_leaf_field_is_rejected(self):
+        # A leaf field has no children: smuggling a nested field-id list into
+        # its entry must be rejected.
+        steps = schema_with_fieldgroup()
+        answers = {F_LEAF: [{F_CHILD: [{'value': 'x'}]}]}
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers, steps, answers)
+
+    def test_deeply_nested_answers_are_rejected(self):
+        # The denial-of-service payload: a field id recursively nested far
+        # beyond the recursion limit. The validation, driven by the schema,
+        # rejects it at the first level without recursing.
+        steps = schema_with_fieldgroup()
+        entry = {}
+        cur = entry
+        for _ in range(3000):
+            child = {}
+            cur[F_GROUP] = [child]
+            cur = child
+        answers = {F_GROUP: [entry]}
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers, steps, answers)
+
+    def test_non_uuid_keys_and_non_list_values_are_ignored(self):
+        # Keys that are not field-id shaped, or that do not carry a list, are
+        # never recursed into by the readers and are intentionally not policed.
+        steps = schema_with_fieldgroup()
+        answers = {F_LEAF: [{'not-a-uuid': [{'value': 'x'}], 'value': 'y'}]}
+        submission.db_validate_submission_answers(steps, answers)
+
+
 class TestServersideScore(unittest.TestCase):
     context = SimpleNamespace(score_threshold_medium=10, score_threshold_high=50)
 
@@ -312,6 +400,24 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
     def test_create_submission_with_recipient_not_configured_on_the_context_rejected(self):
         self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
         self.submission_desc['receivers'].append('00000000-0000-0000-0000-000000000000')
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_create_submission_with_deeply_nested_answers_rejected(self):
+        # A modified client cannot persist answers nested beyond the
+        # questionnaire schema: such a report would later exhaust the recursion
+        # limit when an assigned recipient opens or exports it.
+        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+
+        nested = {}
+        cur = nested
+        for _ in range(3000):
+            child = {}
+            cur['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'] = [child]
+            cur = child
+
+        self.submission_desc['answers'] = nested
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 
