@@ -1086,6 +1086,24 @@ def create_redaction(session, tid, user_id, data):
     if not user.can_mask_information:
         return
 
+    reference_id = data.get('reference_id')
+
+    # A redaction must reference content belonging to its own report. File and
+    # comment references are globally-unique row ids, so reject any reference_id
+    # that resolves to another report's object. Answer and identity references
+    # are questionnaire field keys (shared across reports that use the same
+    # questionnaire, e.g. the default one), so there is no per-report row to
+    # validate here; they are instead confined by the report-scoped redaction
+    # loading at consumption time (see redact_report).
+    if reference_id and \
+            (session.query(models.InternalFile)
+                    .filter(models.InternalFile.id == reference_id,
+                            models.InternalFile.internaltip_id != itip.id).first() or
+             session.query(models.Comment)
+                    .filter(models.Comment.id == reference_id,
+                            models.Comment.internaltip_id != itip.id).first()):
+        raise errors.InputValidationError
+
     mask_content = {}
     if itip.crypto_tip_pub_key:
         if isinstance(data, dict):
@@ -1298,7 +1316,9 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.WhistleblowerFile.id == file_id))
 
         redaction = session.query(models.Redaction) \
-                           .filter(models.Redaction.reference_id == ifile.id, models.Redaction.entry == '0').one_or_none()
+                           .filter(models.Redaction.internaltip_id == ifile.internaltip_id,
+                                   models.Redaction.reference_id == ifile.id,
+                                   models.Redaction.entry == '0').one_or_none()
 
         if redaction is not None and \
                 not user.can_mask_information and \
