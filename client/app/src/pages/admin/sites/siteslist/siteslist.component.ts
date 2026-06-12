@@ -60,7 +60,7 @@ export class SiteslistComponent {
     $event.stopPropagation();
 
     this.httpService.requestTenantSwitch("api/auth/tenantauthswitch/" + tid).subscribe(res => {
-      window.open(res.redirect);
+      window.open(res.redirect, "_blank", "noopener");
     });
   }
 
@@ -87,6 +87,6 @@ export class SiteslistComponent {
   }
 
   viewTenant(tenant: tenantResolverModel) {
-    window.open(`/t/${tenant.uuid}/#/`);
+    window.open(`/t/${tenant.uuid}/#/`, "_blank", "noopener");
   }
 }
