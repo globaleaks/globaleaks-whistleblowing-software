@@ -1361,7 +1361,12 @@ class WhistleblowerFileDownload(BaseHandler):
                 files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key2))
                 filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
 
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        if pgp_key:
+            # PGP wrapping encrypts the whole file; serialize it per user so a
+            # recipient cannot run several of these CPU-heavy downloads at once.
+            yield self.serialize_download(self.write_file_as_download, name, filelocation, pgp_key)
+        else:
+            yield self.write_file_as_download(name, filelocation, pgp_key)
 
 
 def write_rfile_to_disk(uploaded_file, crypto_key):
@@ -1439,7 +1444,12 @@ class ReceiverFileDownload(BaseHandler):
             name = GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(name.encode())).decode()
             filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
 
-        yield self.write_file_as_download(name, filelocation, pgp_key)
+        if pgp_key:
+            # PGP wrapping encrypts the whole file; serialize it per user so a
+            # recipient cannot run several of these CPU-heavy downloads at once.
+            yield self.serialize_download(self.write_file_as_download, name, filelocation, pgp_key)
+        else:
+            yield self.write_file_as_download(name, filelocation, pgp_key)
 
     def delete(self, file_id):
         """

@@ -325,7 +325,11 @@ class ZipStreamProducer(object):
     def __init__(self, handler, zipstreamObject):
         self.finish = Deferred()
         self.handler = handler
-        self.zipstreamObject = zipstreamObject
+        # Hold a single iterator so that successive resumeProducing() calls
+        # resume the archive where the previous chunk left off. Iterating the
+        # ZipStream object directly would create a fresh generator each call,
+        # restarting from the first file and never terminating.
+        self.zipstreamIterator = iter(zipstreamObject)
 
     def start(self):
         self.handler.request.registerProducer(self, False)
@@ -351,11 +355,11 @@ class ZipStreamProducer(object):
         chunk = []
         chunk_size = 0
 
-        for data in self.zipstreamObject:
+        for data in self.zipstreamIterator:
             if data:
                 chunk_size += len(data)
                 chunk.append(data)
                 if chunk_size >= abstract.FileDescriptor.bufferSize:
-                    return b''.join(chunk)
+                    break
 
         return b''.join(chunk)

@@ -23,7 +23,7 @@ from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, msdos_encode
-from globaleaks.utils.zipstream import ZipStream
+from globaleaks.utils.zipstream import ZipStream, ZipStreamProducer
 
 
 try:
@@ -201,8 +201,14 @@ class ExportHandler(BaseHandler):
     check_roles = 'receiver'
     handler_exec_time_threshold = 3600
 
-    @inlineCallbacks
     def get(self, itip_id):
+        # Serialize exports per user (shared with PGP-wrapped attachment
+        # downloads): at most one heavy download per user runs at a time, the
+        # rest queue rather than being rejected.
+        return self.serialize_download(self._export, itip_id)
+
+    @inlineCallbacks
+    def _export(self, itip_id):
         pgp_key, tip_export = yield get_tip_export(self.request.tid,
                                                    self.session.user_id,
                                                    itip_id,
@@ -214,11 +220,30 @@ class ExportHandler(BaseHandler):
 
         zipstream = ZipStream(files)
 
-        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+        if pgp_key:
+            # PGP wrapping needs the complete archive before it can be
+            # encrypted, so the archive is assembled to a temporary file first.
+            # Both the build (decrypt + compress + re-encrypt to disk) and the
+            # subsequent PGP encryption are CPU/disk-heavy, so they run off the
+            # reactor thread; a large export cannot stall the single-threaded
+            # event loop.
+            stf = SecureTemporaryFile(self.state.settings.tmp_path)
 
-        with stf.open('w') as f:
-            for x in zipstream:
-                f.write(x)
+            def build_archive():
+                with stf.open('w') as f:
+                    for x in zipstream:
+                        f.write(x)
 
-        with stf.open('r') as f:
-            yield self.write_file_as_download(filename, f, pgp_key)
+            yield deferToThread(build_archive)
+
+            with stf.open('r') as f:
+                yield self.write_file_as_download(filename, f, pgp_key)
+        else:
+            # Without PGP the archive is streamed straight to the client through
+            # a back-pressure-aware producer that yields to the reactor between
+            # chunks, so neither memory nor a single contiguous block of reactor
+            # time grows with the archive size.
+            self.request.setHeader(b'Content-Type', b'application/octet-stream')
+            self.request.setHeader(b'Content-Disposition',
+                                   b'attachment; filename="' + filename.encode() + b'"')
+            yield ZipStreamProducer(self, zipstream).start()
