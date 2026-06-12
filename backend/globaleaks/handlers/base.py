@@ -9,6 +9,8 @@ from tempfile import NamedTemporaryFile
 
 from nacl.encoding import Base64Encoder
 from twisted.internet import abstract
+from twisted.internet.defer import DeferredLock, inlineCallbacks, maybeDeferred
+from twisted.internet.threads import deferToThread
 from twisted.protocols.basic import FileSender
 
 from globaleaks.utils.ip import get_ip_identity
@@ -355,14 +357,45 @@ class BaseHandler(object):
         if pgp_key:
             filename += '.pgp'
             _fp = fp
-            fp = NamedTemporaryFile()  # noqa: SIM115 - handle is returned to serve_file for streaming
-            PGPContext(pgp_key).encrypt_file(_fp, fp.name)
+            out = NamedTemporaryFile()  # noqa: SIM115 - handle is returned to serve_file for streaming
+            # PGP encryption of a whole file is CPU-heavy; run it off the
+            # reactor thread so large downloads/exports cannot stall the
+            # single-threaded event loop. The response is served once the
+            # encryption completes.
+            d = deferToThread(PGPContext(pgp_key).encrypt_file, _fp, out.name)
+            d.addCallback(lambda _: self._serve_download(filename, out))
+            return d
 
+        return self._serve_download(filename, fp)
+
+    def _serve_download(self, filename, fp):
         self.request.setHeader(b'Content-Type', 'application/octet-stream')
         self.request.setHeader(b'Content-Disposition',
                                'attachment; filename="%s"' % filename)
 
         return serve_file(self.request, fp)
+
+    @inlineCallbacks
+    def serialize_download(self, fn, *args):
+        # Serialize CPU-heavy downloads per user (report exports and PGP-wrapped
+        # attachment downloads): a user runs at most one at a time and the rest
+        # queue rather than being rejected, so a single user cannot multiply the
+        # decrypt/compress/encrypt cost. The lock is dropped once idle so
+        # download_locks stays bounded.
+        key = self.session.user_id
+        lock = self.state.download_locks.get(key)
+        if lock is None:
+            lock = DeferredLock()
+            self.state.download_locks[key] = lock
+
+        yield lock.acquire()
+        try:
+            ret = yield maybeDeferred(fn, *args)
+            return ret
+        finally:
+            lock.release()
+            if not lock.locked and not lock.waiting:
+                self.state.download_locks.pop(key, None)
 
     def process_file_upload(self):
         if b'flowFilename' not in self.request.args:

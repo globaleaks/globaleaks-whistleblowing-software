@@ -1,7 +1,8 @@
 import time
 from datetime import datetime
 from sqlalchemy.orm.exc import NoResultFound
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet import reactor, task
+from twisted.internet.defer import DeferredLock, inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
@@ -628,6 +629,41 @@ class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
                 handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
                 yield handler.get(wbfile_id)
                 self.assertNotEqual(handler.request.getResponseBody(), '')
+
+    @inlineCallbacks
+    def test_pgp_download_serialized_per_user(self):
+        # The recipient has a PGP key (pgp_configuration='ALL'), so the download
+        # is PGP-wrapped and must be serialized per user: while one is in flight
+        # a second waits its turn rather than running in parallel, and the lock
+        # is dropped once idle.
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+
+        rtip_descs = yield self.get_rtips()
+        rtip_desc = rtip_descs[0]
+        receiver_id = rtip_desc['receiver_id']
+        wbfile_ids = yield self.get_wbfiles(rtip_desc['rtip_id'])
+
+        self.assertEqual(self.state.download_locks, {})
+
+        # Hold the receiver's lock to stand in for an in-flight heavy download.
+        lock = DeferredLock()
+        self.state.download_locks[receiver_id] = lock
+        yield lock.acquire()
+
+        handler = self.request(role='receiver', user_id=receiver_id)
+        d = handler.get(wbfile_ids[0])
+
+        # With the lock held, the PGP download must park rather than complete.
+        yield task.deferLater(reactor, 0.5)
+        self.assertFalse(d.called)
+
+        # Releasing the lock lets the queued download finish and the lock is
+        # then removed from the mapping.
+        lock.release()
+        yield d
+        self.assertNotEqual(handler.request.getResponseBody(), b'')
+        self.assertEqual(self.state.download_locks, {})
 
 
 class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):

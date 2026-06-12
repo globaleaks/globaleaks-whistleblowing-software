@@ -101,6 +101,13 @@ class StateClass(ObjectDict, metaclass=Singleton):
         # far above any legitimate concurrent issuance (60s lifetime) so normal
         # operation never evicts a live token.
         self.tokens = TokenList(60, 100000)
+
+        # Per-user serialization of CPU-heavy downloads: report exports and
+        # PGP-wrapped attachment downloads. Rather than rejecting concurrent
+        # requests, a per-user lock makes a recipient's heavy downloads run one
+        # at a time, queueing the rest. Locks are created on demand and dropped
+        # once idle to keep the mapping bounded. See BaseHandler.serialize_download.
+        self.download_locks = {}
         self.TempKeys = TempDict(3600 * 72)
         self.TwoFactorTokens = TempDict(120)
         self.TwoFactorTokensLock = threading.Lock()
