@@ -429,3 +429,34 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
 
         response = yield handler.post()
         self.assertTrue('id' in response)
+
+    @inlineCallbacks
+    def test_session_use_enforces_tenant_connection_policy(self):
+        # Every authenticated request must honour the session-owning tenant's
+        # connection policy, not only the login/redemption step.
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+
+        State.tenants[1].cache['https_receiver'] = True
+        user_handler = self.request({}, headers={'x-session': session.id},
+                                        handler_cls=UserInstance)
+        yield user_handler.get()
+
+        State.tenants[1].cache['https_receiver'] = False
+        user_handler = self.request({}, headers={'x-session': session.id},
+                                        handler_cls=UserInstance)
+        yield self.assertRaises(errors.TorNetworkRequired, user_handler.get)
+
+    @inlineCallbacks
+    def test_redemption_enforces_session_tenant_connection_policy(self):
+        # A session bound to tenant 2 must be validated against tenant 2's
+        # connection policy even when redeemed through a more permissive tenant.
+        session = Sessions.new(2, self.dummyReceiver_1['id'], 2, 'receiver')
+
+        State.tenants[1].cache['https_receiver'] = True
+        State.tenants[2].cache['https_receiver'] = False
+
+        handler = self.request({
+            'authtoken': session.id,
+        })
+
+        yield self.assertFailure(handler.post(), errors.TorNetworkRequired)

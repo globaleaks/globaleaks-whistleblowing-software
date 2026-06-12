@@ -10,10 +10,11 @@ from globaleaks.utils.utility import uuid4
 
 
 class FakeRequest:
-    def __init__(self, tid=1, path=b"/test", client_ip="127.0.0.1", language="en"):
+    def __init__(self, tid=1, path=b"/test", language="en", client_ip="127.0.0.1", client_using_tor=True):
         self.tid = tid
         self.path = path
         self.client_ip = client_ip
+        self.client_using_tor = client_using_tor
         self.language = language  # Add this line
         self.responseHeaders = MagicMock()
 
@@ -47,6 +48,9 @@ class TestDecorators(unittest.TestCase):
         self.sleep_patch.start()
 
         root_tenant = MagicMock()
+        # connection_check (run by decorator_authentication) reads connection
+        # policy via cache.get; default to a permissive policy for these tests
+        root_tenant.cache.get.return_value = False
         root_tenant.cache.threshold_reports_per_hour_per_system = 50
         root_tenant.cache.threshold_reports_per_hour_per_tenant = 10
         root_tenant.cache.threshold_reports_per_hour_per_ip = 10
@@ -123,6 +127,58 @@ class TestDecorators(unittest.TestCase):
         # Once the reset token is cleared the session regains full access
         self.handler.session.properties = {}
         self.handler.request.path = b"/api/recipient/rtips"
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_enforces_tor_policy(self):
+        # A session whose role is restricted to Tor must be rejected per-request
+        # when presented over a non-Tor connection, even though the session was
+        # authorized once at login.
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver")
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        State.tenants[1].cache.get.side_effect = \
+            lambda key, default=None: {'https_receiver': False}.get(key, False)
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        self.handler.request.client_using_tor = False
+        with self.assertRaises(errors.TorNetworkRequired):
+            decorated_func(self.handler)
+
+        # Over Tor the same session is authorized
+        self.handler.request.client_using_tor = True
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_enforces_ip_filter(self):
+        # A session whose role is IP-filtered must be rejected per-request when
+        # presented from an address outside the configured range.
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver")
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        policy = {'ip_filter_receiver_enable': True,
+                  'ip_filter_receiver': '192.0.2.0/24',
+                  'https_receiver': True}
+        State.tenants[1].cache.get.side_effect = \
+            lambda key, default=None: policy.get(key, False)
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        self.handler.request.client_ip = "198.51.100.5"
+        with self.assertRaises(errors.AccessLocationInvalid):
+            decorated_func(self.handler)
+
+        # From an allowed address the same session is authorized
+        self.handler.request.client_ip = "192.0.2.10"
         self.assertEqual(decorated_func(self.handler), "Authorized")
 
     @defer.inlineCallbacks
