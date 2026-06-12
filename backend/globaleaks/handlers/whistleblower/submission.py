@@ -371,6 +371,66 @@ def db_validate_submission_receivers(session, context, steps, answers, identity_
         raise errors.InputValidationError("The number of recipients selected exceed the configured limit")
 
 
+def db_validate_submission_answers(steps, answers):
+    """
+    Enforce that the submitted answers conform to the authoritative
+    questionnaire schema, an invariant otherwise enforced only by the official
+    client.
+
+    The validation polices the exact surface that the recursive helpers
+    operating on the stored answers descend into (see index_answers): a key
+    shaped like a field id (a UUID) whose value is a list of answer entries. In
+    a schema-conformant submission this pattern occurs only for the children of
+    a fieldgroup, so the traversal is driven by the schema and rejects any
+    nested field the questionnaire does not define at that position. This bounds
+    the answers nesting to the depth configured by the administrator and
+    prevents a modified client from persisting arbitrarily deep answers that
+    would later exhaust the recursion limit when recipients open or export the
+    report.
+
+    Leaf answer data (the 'value' of an input field, the selected options of a
+    checkbox, and any other non-list entry attribute) is intentionally left
+    untouched: it is never recursed into and its content validation is out of
+    scope here, consistently with the rest of the submission pipeline.
+    """
+    def validate_entries(field, entries):
+        if not isinstance(entries, list):
+            raise errors.InputValidationError("Invalid answers structure")
+
+        children = {}
+        if field['type'] == 'fieldgroup':
+            children = {child['id']: child for child in field.get('children', [])}
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                raise errors.InputValidationError("Invalid answers structure")
+
+            for key, value in entry.items():
+                # Only keys shaped like a field id and carrying a list of
+                # entries are recursed into by the helpers reading the answers;
+                # anything else is leaf answer data and is left untouched.
+                if not isinstance(value, list) or not re.match(requests.uuid_regexp, key):
+                    continue
+
+                child = children.get(key)
+                if child is None:
+                    raise errors.InputValidationError("Unexpected nested field in answers")
+
+                validate_entries(child, value)
+
+    schema_fields = {field['id']: field for step in steps for field in step['children']}
+
+    for key, value in answers.items():
+        if not isinstance(value, list) or not re.match(requests.uuid_regexp, key):
+            continue
+
+        field = schema_fields.get(key)
+        if field is None:
+            raise errors.InputValidationError("Unexpected field in answers")
+
+        validate_entries(field, value)
+
+
 def db_create_receivertip(session, receiver, internaltip, tip_key):
     """
     Create a receiver tip for the specified receiver
@@ -403,6 +463,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     answers = request['answers']
     steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
+
+    db_validate_submission_answers(steps, answers)
 
     db_validate_submission_receivers(session, context, steps, answers, request['identity_provided'], set(request['receivers']))
 
