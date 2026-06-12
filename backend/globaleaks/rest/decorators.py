@@ -123,14 +123,15 @@ def decorator_rate_limit(f):
             # Login endpoints are throttled regardless of any presented session:
             # a session must not exempt the caller from the login thresholds
             # (e.g. minting unlimited submission sessions via empty receipts)
-            delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                          root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
-                                          60)
+            if not self.request.client_using_tor:
+                delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
+                                              root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
+                                              60)
 
-            delay = delay or \
-                    State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
-                                          root_tenant.cache.threshold_logins_per_minute_per_ip,
-                                          60)
+                delay = delay or \
+                        State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
+                                              root_tenant.cache.threshold_logins_per_minute_per_ip,
+                                              60)
 
             delay = delay or \
                     State.RateLimit.check(b"logins_per_minute_per_tenant:" + tid,
@@ -145,14 +146,15 @@ def decorator_rate_limit(f):
             # Support requests are throttled regardless of any presented
             # session or token: a token-only caller must not be able to
             # enqueue unbounded administrator notification mail.
-            block = State.RateLimit.check(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                          root_tenant.cache.threshold_support_per_hour_per_tenant_per_ip,
-                                          3600) > 0
+            if not self.request.client_using_tor:
+                block = State.RateLimit.check(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                                              root_tenant.cache.threshold_support_per_hour_per_tenant_per_ip,
+                                              3600) > 0
 
-            block = block or \
-                    State.RateLimit.check(b"support_per_hour_per_ip:" + client_ip,
-                                          root_tenant.cache.threshold_support_per_hour_per_ip,
-                                          3600) > 0
+                block = block or \
+                        State.RateLimit.check(b"support_per_hour_per_ip:" + client_ip,
+                                              root_tenant.cache.threshold_support_per_hour_per_ip,
+                                              3600) > 0
 
             block = block or \
                     State.RateLimit.check(b"support_per_hour_per_tenant:" + tid,
@@ -173,10 +175,11 @@ def decorator_rate_limit(f):
                                                   root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
                                                   3600) > 0
 
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_ip:" + tid + b":" + client_ip,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_ip,
-                                                  3600) > 0
+                    if not self.request.client_using_tor:
+                        block = block or \
+                                State.RateLimit.check(b"reports_per_hour_per_ip:" + tid + b":" + client_ip,
+                                                      root_tenant.cache.threshold_reports_per_hour_per_ip,
+                                                      3600) > 0
                     block = block or \
                             State.RateLimit.check(b"reports_per_hour_per_tenant:" + tid,
                                                   root_tenant.cache.threshold_reports_per_hour_per_tenant,
