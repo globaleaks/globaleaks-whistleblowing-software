@@ -3,6 +3,7 @@ from twisted.internet import defer
 from twisted.internet.threads import deferToThread
 
 from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.handlers.base import connection_check
 from globaleaks.rest import errors
 from globaleaks.rest.cache import Cache
 from globaleaks.state import State
@@ -46,9 +47,14 @@ def check_authentication(self, roles):
            self.request.path not in PASSWORD_CHANGE_PATHS:
             raise errors.ForbiddenOperation
 
-        if 'user' in roles and self.session.role in USERS_ROLES:
-            return
-        if self.session.role in roles:
+        if ('user' in roles and self.session.role in USERS_ROLES) or \
+           self.session.role in roles:
+            # Enforce the session-owning tenant's connection policy on every
+            # authenticated request, so that a session cannot be used from a
+            # network or transport (e.g. non-Tor) that the tenant rejects,
+            # regardless of how or where the session was originally minted.
+            connection_check(self.session.tid, self.session.role,
+                             self.request.client_ip, self.request.client_using_tor)
             return
 
     raise errors.NotAuthenticated
