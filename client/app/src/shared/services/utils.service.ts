@@ -734,9 +734,20 @@ export class UtilsService {
           cell = JSON.stringify(cell);
         }
 
-        // Escape commas, quotes, and newlines
-        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
-          return `"${cell.replace(/"/g, '""')}"`;
+        if (typeof cell === 'string') {
+          // Neutralize spreadsheet formula injection by prefixing values that
+          // a spreadsheet would otherwise interpret as a formula
+          if (/^[=+\-@\t\r]/.test(cell)) {
+            cell = "'" + cell;
+          }
+
+          // Escape commas, quotes, and record separators (LF and CR): an
+          // unquoted CR is treated as a record separator by spreadsheet
+          // applications and would otherwise split the field into a new row
+          // whose first cell could be an unneutralized formula.
+          if (cell.includes(',') || cell.includes('"') || cell.includes('\n') || cell.includes('\r')) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
         }
 
         return cell ?? ''; // Fallback to empty string
