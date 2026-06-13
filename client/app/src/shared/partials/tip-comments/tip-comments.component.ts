@@ -63,6 +63,14 @@ export class TipCommentsComponent {
   }
 
   maskContent(id: string, index: string, value: string) {
-    return this.maskService.maskingContent(id,index,value,this.tipService.tip)
+    // The masker reads the real content; the masked rendering is shown to
+    // them only while editing the masking (redact mode).
+    if (!this.redactMode &&
+        (this.preferenceResolver.dataModel?.can_mask_information ||
+         this.preferenceResolver.dataModel?.can_redact_information)) {
+      return value;
+    }
+
+    return this.maskService.maskingContent(id, index, value, this.tipService.tip);
   }
 }

@@ -2,6 +2,7 @@ import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
 import {NgClass} from "@angular/common";
@@ -25,10 +26,12 @@ export class TipUploadWbFileComponent {
   private authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
+  protected tipService = inject(ReceiverTipService);
 
   @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
   @Input() tip: RecieverTipData;
   @Input() key: string;
+  @Input() redactMode = false;
   @Output() updated = new EventEmitter<string>();
   collapsed = false;
   file_upload_description = "";
