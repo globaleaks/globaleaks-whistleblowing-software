@@ -8,7 +8,9 @@ from twisted.internet import address
 from twisted.logger import ILogObserver, Logger
 from twisted.mail._cred import CramMD5ClientAuthenticator
 from twisted.python import log
+from twisted.web import http_headers
 from twisted.web.http import HTTPChannel, Request
+from twisted.web.http_headers import Headers
 
 from zope.interface import implementer
 
@@ -62,6 +64,27 @@ def mock_HTTPChannel_finishRequestBody(self, data):
     self.allContentReceived()
 
 
+def _sanitize_linear_whitespace(value):
+    # Backport of twisted.web.http_headers._sanitizeLinearWhitespace (21.2.0).
+    # Collapses CR/LF (and the other line boundaries splitlines() recognizes)
+    # into a single space so a client-controlled header value cannot inject
+    # additional response headers (CWE-113 / response splitting).
+    if isinstance(value, str):
+        return " ".join(value.splitlines())
+
+    return b" ".join(value.splitlines())
+
+
+_orig_Headers_setRawHeaders = Headers.setRawHeaders
+def mock_Headers_setRawHeaders(self, name, values):
+    return _orig_Headers_setRawHeaders(self, name, [_sanitize_linear_whitespace(v) for v in values])
+
+
+_orig_Headers_addRawHeader = Headers.addRawHeader
+def mock_Headers_addRawHeader(self, name, value):
+    return _orig_Headers_addRawHeader(self, name, _sanitize_linear_whitespace(value))
+
+
 Request.getClientIP = mock_Request_getClientIP
 Request.gotLength = mock_Request_gotLength
 Request.parseCookies = null_function
@@ -70,6 +93,10 @@ Request.write = mock_Request_write
 
 if (_twisted_version.major, _twisted_version.minor) < (24, 7):
     HTTPChannel._finishRequestBody = mock_HTTPChannel_finishRequestBody
+
+if not hasattr(http_headers, "_sanitizeLinearWhitespace"):
+    Headers.setRawHeaders = mock_Headers_setRawHeaders
+    Headers.addRawHeader = mock_Headers_addRawHeader
 
 CramMD5ClientAuthenticator.challengeResponse = mock_CramMD5ClientAuthenticator_challengeResponse
 
