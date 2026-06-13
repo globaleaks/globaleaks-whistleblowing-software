@@ -8,11 +8,10 @@ from globaleaks.utils.utility import uuid4
 
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek=''):
+    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek=False):
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
-          'ek': ek,
           'expireCall': None
         })
 
@@ -22,6 +21,7 @@ class Session(dict):
             'user_tid': user_tid,
             'username': '',
             'role': user_role,
+            'ek': ek,
             'files': [],
             'token': State.tokens.new(tid),
             'properties': {},
@@ -47,13 +47,11 @@ class Session(dict):
         key = bytes.fromhex(self.id)
         session.id = sha256(self.id)
         session.cc = GCE.symmetric_encrypt(key, self.cc)
-        session.ek = GCE.symmetric_encrypt(key, self.ek)
         return session
 
     def decrypt(self, key):
         key = bytes.fromhex(key)
         self.cc = GCE.symmetric_decrypt(key, self.cc)
-        self.ek = GCE.symmetric_decrypt(key, self.ek)
 
     def getTime(self):
         return self.expireCall.getTime() if self.expireCall else 0

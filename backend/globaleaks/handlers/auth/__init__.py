@@ -170,7 +170,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 
-    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key)
+    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key != '')
 
     session.properties['password_change_needed'] = user.password_change_needed
     session.permissions['can_edit_general_settings'] = user.role == 'receiver' and user.can_edit_general_settings
@@ -371,7 +371,7 @@ class OperatorAuthSwitchHandler(BaseHandler):
                                self.session.user_tid,
                                "whistleblower",
                                self.session.cc,
-                               self.session.ek)
+                               False)
 
         session.properties['operator_session'] = self.session.user_id
 
