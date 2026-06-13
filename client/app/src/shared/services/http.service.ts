@@ -22,7 +22,7 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
 import {Root, Status, Substatus} from "@app/models/app/public-model";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {Session, SessionRefresh} from "@app/models/authentication/session";
-import {RFile, Comment} from "@app/models/app/shared-public-model";
+import {Comment} from "@app/models/app/shared-public-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {TokenResponse} from "@app/models/authentication/token-response";
 import {tipsResolverModel} from "@app/models/resolvers/tips-resolver-model";
@@ -90,10 +90,6 @@ export class HttpService {
     reply_motivation: string
   }> {
     return this.httpClient.put<{ reply: string, reply_motivation: string }>(url, data);
-  }
-
-  deleteDBFile(id: string): Observable<RFile> {
-    return this.httpClient.delete<RFile>("api/recipient/rfiles/" + id);
   }
 
   requestOperations(data: { operation: string, args: Record<string, string> }, header?: HttpHeaders): Observable<{

@@ -181,6 +181,28 @@ class Operations(BaseHandler):
                               "operator_session" in self.session.properties)
 
 
+@transact
+def db_get_masked_file_ids(session, itip_id):
+    """
+    Return the reference ids of the files masked on a report.
+
+    :param session: An ORM session
+    :param itip_id: The internaltip id of the report
+    :return: A list of masked file reference ids
+    """
+    return [r.reference_id for r in
+            session.query(models.Redaction)
+                   .filter(models.Redaction.internaltip_id == itip_id,
+                           models.Redaction.entry == '0')]
+
+
+def db_file_is_masked(session, itip_id, file_id):
+    return session.query(models.Redaction) \
+                  .filter(models.Redaction.internaltip_id == itip_id,
+                          models.Redaction.reference_id == file_id,
+                          models.Redaction.entry == '0').count() > 0
+
+
 class WBTipInstance(BaseHandler):
     """
     This interface expose the Whistleblower Tip.
@@ -189,12 +211,19 @@ class WBTipInstance(BaseHandler):
 
     @inlineCallbacks
     def get(self):
+        # Local import to avoid a circular import with recipient.rtip.
+        from globaleaks.handlers.recipient.rtip import mask_report_files
+
         tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
 
         tip = yield serializers.process_logs(tip, tip['id'])
 
         if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
+
+        masked_ids = yield db_get_masked_file_ids(self.session.user_id)
+        if masked_ids:
+            mask_report_files(tip, set(masked_ids))
 
         returnValue(tip)
 
@@ -226,6 +255,10 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalFile.internaltip_id == models.InternalTip.id,
                               models.InternalTip.id == user_id,
                               models.InternalTip.tid == tid))
+
+        if db_file_is_masked(session, ifile.internaltip_id, ifile.id):
+            raise errors.ForbiddenOperation
+
         log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key
@@ -263,6 +296,9 @@ class ReceiverFileDownload(BaseHandler):
 
         if not wbtip:
             raise errors.ResourceNotFound
+
+        if db_file_is_masked(session, rfile.internaltip_id, rfile.id):
+            raise errors.ForbiddenOperation
 
         if rfile.access_date == datetime_null():
             rfile.access_date = datetime_now()

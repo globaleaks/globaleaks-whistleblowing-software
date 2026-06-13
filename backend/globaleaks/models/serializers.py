@@ -146,6 +146,7 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
+        'masked': False,
         'error': error
     }
 
@@ -170,6 +171,7 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
+        'masked': False,
         'error': error
     }
 
@@ -192,6 +194,7 @@ def serialize_rfile(session, rfile):
         'type': rfile.content_type,
         'description': rfile.description,
         'visibility': rfile.visibility,
+        'masked': False,
         'error': error
     }
 

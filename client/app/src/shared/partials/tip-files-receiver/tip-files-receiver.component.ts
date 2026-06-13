@@ -45,6 +45,27 @@ export class TipFilesReceiverComponent implements OnInit {
     return data;
   }
 
+  displayName(file: WbFile): string {
+    // Privileged recipients receive the real name from the server; cover it
+    // with the same placeholder used elsewhere while outside the masking editor.
+    if (this.maskService.isMasked(file.ifile_id, this.tipService.tip) && !this.redactMode &&
+        (this.preferenceResolver.dataModel?.can_mask_information ||
+         this.preferenceResolver.dataModel?.can_redact_information)) {
+      return String.fromCharCode(0x2591).repeat(file.name.length);
+    }
+
+    return file.name;
+  }
+
+  canAccessFile(file: WbFile): boolean {
+    // The content is reachable when the file is not masked, or when a
+    // privileged recipient views it inside the masking editor (redact mode).
+    return !this.maskService.isMasked(file.ifile_id, this.tipService.tip) ||
+      (this.redactMode &&
+        (this.preferenceResolver.dataModel?.can_mask_information ||
+         this.preferenceResolver.dataModel?.can_redact_information));
+  }
+
   redactFileOperation(operation: string, content_type: string, file: any, tip_id: string) {
     const redactionData:RedactionData= {
       reference_id: file.ifile_id,
