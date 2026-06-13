@@ -249,8 +249,25 @@ case "$1" in
     sleep 1
     $0 start
     ;;
+  firewall-start)
+    network_sandboxing_start
+    ;;
+  firewall-stop)
+    network_sandboxing_stop
+    ;;
+  exec)
+    if [ "${APPARMOR_SANDBOXING}" -eq "1" ]; then
+        if ! command -v aa-status >/dev/null 2>&1 || ! aa-status --enabled ; then
+            log_failure_msg "GlobaLeaks Apparmor Sandboxing Failure: requires apparmor"
+            exit 78
+        fi
+        exec aa-exec --profile=usr.bin.globaleaks -- "$DAEMON" -n --ip="${LISTENING_IP}" --working-path="${WORKING_DIR}"
+    else
+        exec "$DAEMON" -n --ip="${LISTENING_IP}" --working-path="${WORKING_DIR}"
+    fi
+    ;;
   *)
-    log_action_msg "Usage: $0 {start|stop|restart|reload|force-reload|status}" >&2
+    log_action_msg "Usage: $0 {start|stop|restart|reload|force-reload|status|firewall-start|firewall-stop|exec}" >&2
     exit 1
     ;;
 esac
