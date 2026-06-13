@@ -362,6 +362,70 @@ class TestServersideScore(unittest.TestCase):
         self.assertEqual(self.evaluate({'f-select': ['not-a-dict']}), 0)
 
 
+def block_submission_steps():
+    return [{
+        'children': [
+            {
+                'id': 'f-select',
+                'type': 'selectbox',
+                'options': [
+                    {'id': 'opt-plain', 'block_submission': False},
+                    {'id': 'opt-block', 'block_submission': True},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-check',
+                'type': 'checkbox',
+                'options': [
+                    {'id': 'opt-chk-block', 'block_submission': True},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-group',
+                'type': 'fieldgroup',
+                'options': [],
+                'children': [
+                    {
+                        'id': 'f-nested',
+                        'type': 'selectbox',
+                        'options': [
+                            {'id': 'opt-nested-block', 'block_submission': True},
+                        ],
+                        'children': []
+                    }
+                ]
+            }
+        ]
+    }]
+
+
+class TestBlockSubmissionEvaluation(unittest.TestCase):
+    def evaluate(self, answers):
+        return submission.db_evaluate_block_submission(block_submission_steps(), answers)
+
+    def test_no_answers_do_not_block(self):
+        self.assertFalse(self.evaluate({}))
+
+    def test_non_blocking_option_does_not_block(self):
+        self.assertFalse(self.evaluate({'f-select': [{'value': 'opt-plain'}]}))
+
+    def test_selectbox_blocking_option_blocks(self):
+        self.assertTrue(self.evaluate({'f-select': [{'value': 'opt-block'}]}))
+
+    def test_checkbox_blocking_option_blocks(self):
+        self.assertTrue(self.evaluate({'f-check': [{'opt-chk-block': True}]}))
+
+    def test_blocking_option_nested_in_fieldgroup_blocks(self):
+        answers = {'f-group': [{'f-nested': [{'value': 'opt-nested-block'}]}]}
+        self.assertTrue(self.evaluate(answers))
+
+    def test_malformed_answers_do_not_block(self):
+        self.assertFalse(self.evaluate({'f-select': 'not-a-list'}))
+        self.assertFalse(self.evaluate({'f-select': ['not-a-dict']}))
+
+
 class TestSubmission(helpers.TestHandlerWithPopulatedDB):
     _handler = submission.SubmissionInstance
 
