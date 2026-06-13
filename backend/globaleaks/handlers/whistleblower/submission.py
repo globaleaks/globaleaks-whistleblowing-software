@@ -214,6 +214,22 @@ def db_evaluate_answers_score(context, steps, answers):
     return 2
 
 
+def db_evaluate_block_submission(steps, answers):
+    """
+    Return whether the submitted answers select an option that the
+    questionnaire marks as blocking. Such options are screening choices that
+    must abort the submission; the official client refuses to finalize, but the
+    invariant must be enforced server-side as well so that a modified client
+    cannot complete a submission the administrator configured to be blocked.
+    """
+    for field, entry in iterate_answers(steps, answers):
+        for option in evaluate_selected_options(field, entry):
+            if option.get('block_submission'):
+                return True
+
+    return False
+
+
 _UNDEFINED = object()
 
 
@@ -471,6 +487,9 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     db_validate_submission_answers(steps, answers)
+
+    if db_evaluate_block_submission(steps, answers):
+        raise errors.SubmissionDisabled
 
     db_validate_submission_receivers(session, context, steps, answers, request['identity_provided'], set(request['receivers']))
 
