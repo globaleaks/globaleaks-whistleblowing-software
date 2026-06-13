@@ -10,6 +10,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.models import fill_localized_keys
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
+from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
@@ -115,6 +116,11 @@ def db_delete_user(session, tid, user_session, user_id):
         raise errors.ForbiddenOperation
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
+
+    # Revoke the deleted user's active sessions (self-deletion is already
+    # prevented above, so this never affects the operator's own session).
+    Sessions.revoke(tid, user_id)
+
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
 
 
@@ -163,6 +169,12 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     parse_pgp_options(user, request)
 
     user.update(request)
+
+    # Revoke the target user's active sessions so that the reconfiguration
+    # (e.g. account disabling or role change) takes effect immediately rather
+    # than after idle session expiration; never revoke the operator's own.
+    if user_session.user_id != user_id:
+        Sessions.revoke(tid, user_id)
 
     return user_serialize_user(session, user, language)
 
