@@ -20,8 +20,8 @@ from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.utility import datetime_now, uuid4
 
 
-def db_login_failure(session, tid, whistleblower=False):
-    db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure')
+def db_login_failure(session, tid, whistleblower=False, user_id=None):
+    db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure', user_id=user_id)
 
     raise errors.InvalidAuthentication
 
@@ -111,10 +111,10 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
         else:
             key, hash = GCE.calculate_key_and_hash(password, user.salt)
     except Exception:
-        db_login_failure(session, tid, 0)
+        db_login_failure(session, tid, 0, user_id=user.id)
 
     if not password or not GCE.check_equality(hash, user.hash):
-        db_login_failure(session, tid, 0)
+        db_login_failure(session, tid, 0, user_id=user.id)
 
     if user.two_factor_secret:
         if authcode == '':
