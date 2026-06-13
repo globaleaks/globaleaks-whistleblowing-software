@@ -87,6 +87,21 @@ def reset_submissions(session, tid, user_id):
     db_log(session, tid=tid, type='reset_reports', user_id=user_id)
 
 
+def db_get_session_escrow_key(session, user_session):
+    """
+    Load and decrypt the operator's escrow private key on demand.
+
+    The session only records whether the operator has escrow access (ek); the
+    key itself is reloaded from the operator's record and decrypted with the
+    session crypto key when actually needed.
+    """
+    operator = db_get(session, models.User,
+                      (models.User.id == user_session.user_id,
+                       models.User.tid == user_session.user_tid))
+
+    return GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(operator.crypto_escrow_prv_key))
+
+
 @transact
 def toggle_escrow(session, tid, user_session):
     root_config = ConfigFactory(session, 1)
@@ -101,8 +116,8 @@ def toggle_escrow(session, tid, user_session):
         config.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
 
         if user.tid == tid:
-            user_session.ek = user.crypto_escrow_prv_key
             user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
+            user_session.ek = True
 
         crypto_escrow_bkp_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, user_session.cc))
 
@@ -149,7 +164,7 @@ def toggle_user_escrow(session, tid, user_session, user_id):
         return
 
     if not user.crypto_escrow_prv_key:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1 and tid != 1:
             crypto_escrow_prv_key = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(ConfigFactory(session, tid).get_val('crypto_escrow_prv_key')))
@@ -218,7 +233,7 @@ def db_set_user_password(session, tid, user_session, user_id, key):
     key = Base64Encoder.decode(key.encode())
 
     if user.crypto_pub_key and user_session.ek:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1:
             user_cc = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(user.crypto_escrow_bkp1_key))
@@ -244,9 +259,9 @@ def set_user_password(session, tid, user_session, user_id, password):
   return db_set_user_password(session, tid, user_session, user_id, password)
 
 
-def set_tmp_key(user_session, user, token, user_cc=''):
+def set_tmp_key(session, user_session, user, token, user_cc=''):
     if not user_cc:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1:
             user_cc = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(user.crypto_escrow_bkp1_key))
@@ -273,7 +288,7 @@ def db_admin_generate_password_reset_token(session, tid, user_session, user_id, 
     token = db_generate_password_reset_token(session, user)
 
     if user.crypto_pub_key and (user_cc or user_session.ek):
-        set_tmp_key(user_session, user, token, user_cc)
+        set_tmp_key(session, user_session, user, token, user_cc)
 
 
 @transact
