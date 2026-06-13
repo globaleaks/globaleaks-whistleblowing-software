@@ -166,6 +166,28 @@ def decorator_rate_limit(f):
                                           root_tenant.cache.threshold_support_per_hour_per_system,
                                           3600) > 0
 
+        elif path == b'/api/signup':
+            # Signup is public and allocates persistent tenant state plus
+            # administrator notification mail: a token-only caller must not be
+            # able to register unbounded tenants. Signup is served only on the
+            # root tenant, so per-IP limits are enforced (skipped on Tor, where
+            # the client IP is not meaningful) together with a per-system
+            # backstop that also bounds Tor traffic.
+            if not self.request.client_using_tor:
+                block = State.RateLimit.check(b"signups_per_minute_per_ip:" + client_ip,
+                                              root_tenant.cache.threshold_signups_per_minute_per_ip,
+                                              60) > 0
+
+                block = block or \
+                        State.RateLimit.check(b"signups_per_hour_per_ip:" + client_ip,
+                                              root_tenant.cache.threshold_signups_per_hour_per_ip,
+                                              3600) > 0
+
+            block = block or \
+                    State.RateLimit.check(b"signups_per_hour_per_system",
+                                          root_tenant.cache.threshold_signups_per_hour_per_system,
+                                          3600) > 0
+
         elif self.session:
             user_id = self.session.user_id.encode()
 
