@@ -174,9 +174,9 @@ def decorate_method(h, method):
                 f = decorator_cache_invalidate(f)
 
     if method in ['delete', 'post', 'put']:
-        f = decorator_require_session_or_token(f)
         if State.settings.enable_rate_limiting:
             f = decorator_rate_limit(f)
+        f = decorator_require_session_or_token(f)
 
     f = decorator_authentication(f, roles)
 
