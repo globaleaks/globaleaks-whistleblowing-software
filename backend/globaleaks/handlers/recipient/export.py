@@ -15,7 +15,7 @@ from globaleaks.handlers.recipient.rtip import db_update_submission_status, reda
 from globaleaks.handlers.whistleblower.submission import decrypt_tip
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import transact
+from globaleaks.orm import db_log, transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
@@ -114,6 +114,8 @@ def get_tip_export(session, tid, user_id, itip_id, language):
 
     if itip.status == 'new':
         db_update_submission_status(session, tid, user_id, itip, 'opened', None)
+
+    db_log(session, tid=tid, type='export_report', user_id=user_id, object_id=itip.id)
 
     return user.pgp_key_public, serialize_rtip_export(session, user, itip, rtip, context, language)
 
