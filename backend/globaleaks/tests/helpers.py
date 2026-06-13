@@ -71,8 +71,6 @@ USER_BKP_KEY, USER_REC_KEY = GCE.generate_recovery_key(USER_PRV_KEY)
 USER_REC_KEY_PLAIN = GCE.asymmetric_decrypt(USER_PRV_KEY, Base64Encoder.decode(USER_REC_KEY))
 USER_REC_KEY_PLAIN = Base32Encoder.encode(USER_REC_KEY_PLAIN).replace(b'=', b'').decode('utf-8')
 
-USER_ESCROW_PRV_KEY = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
-
 GCE_orig_generate_key = GCE.generate_key
 GCE_orig_generate_keypair = GCE.generate_keypair
 
@@ -1044,7 +1042,7 @@ class TestHandler(TestGLWithPopulatedDB):
             if role == 'whistleblower' and user_id == None:
                 session = initialize_submission_session(1)
             else:
-                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '')
+                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, role == 'admin')
 
             if permissions:
                 session.permissions = permissions

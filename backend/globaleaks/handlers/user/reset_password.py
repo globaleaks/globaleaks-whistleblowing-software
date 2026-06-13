@@ -90,6 +90,10 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
     ).distinct()
 
     for user in users:
+        if State.settings.enable_rate_limiting and \
+           State.RateLimit.check(b"password_resets_per_hour_per_user:" + user.id.encode(), 5, 3600) > 0:
+            continue
+
         db_generate_password_reset_token(session, user)
 
     return {'redirect': '/login/passwordreset/requested'}
@@ -163,7 +167,7 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                                 user.tid,
                                 user.role,
                                 prv_key,
-                                user.crypto_escrow_prv_key)
+                                user.crypto_escrow_prv_key != '')
 
     user_session.properties['reset_token'] = reset_token
     user_session.properties['password_change_needed'] = True

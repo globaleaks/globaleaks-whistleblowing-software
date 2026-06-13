@@ -90,7 +90,7 @@ def db_create_user(session, tid, user_session, request, language):
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
 
         if user_session and token:
-            set_tmp_key(user_session, user, token, cc)
+            set_tmp_key(session, user_session, user, token, cc)
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:
         return user
