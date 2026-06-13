@@ -1125,6 +1125,15 @@ def create_redaction(session, tid, user_id, data):
     session.add(redaction)
     session.flush()
 
+    log_data = {
+        'old_temporary_redaction': [],
+        'new_temporary_redaction': redaction.temporary_redaction,
+        'old_permanent_redaction': [],
+        'new_permanent_redaction': redaction.permanent_redaction,
+    }
+
+    db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
+
     return serializers.serialize_redaction(session, redaction)
 
 
@@ -1166,6 +1175,15 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
             if len(redaction.temporary_redaction) == 1 and \
                     redaction.temporary_redaction[0].get('start', False) == '-inf' and \
                     redaction.temporary_redaction[0].get('end', False) == 'inf':
+                log_data = {
+                    'old_temporary_redaction': redaction.temporary_redaction,
+                    'new_temporary_redaction': [],
+                    'old_permanent_redaction': redaction.permanent_redaction,
+                    'new_permanent_redaction': [],
+                }
+
+                db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
+
                 delete_wbfile(session, tid, user_id, redaction.reference_id)
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
