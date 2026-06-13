@@ -146,6 +146,7 @@ export interface WbFile {
   size: number;
   type: string;
   reference_id: string;
+  masked: boolean;
   error: boolean;
 }
 
@@ -157,6 +158,7 @@ export interface RFile {
   type: string;
   description: string;
   visibility: string;
+  masked: boolean;
   error: boolean;
   author: string;
   downloads: number;

@@ -22,6 +22,13 @@ def mask_receiverfile(session, itip_id, rfile_id):
     session.add(redaction)
 
 
+@transact
+def set_redaction_privileges(session, user_id, value):
+    user = session.query(models.User).get(user_id)
+    user.can_mask_information = value
+    user.can_redact_information = value
+
+
 class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
     _handler = None
 
@@ -63,11 +70,20 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
                 handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
                 yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
 
-        # No recipient can download them either, not even one entitled to mask
-        # or redact (the populated recipient holds both permissions).
+        # A recipient entitled to mask/redact keeps access to the masked file
+        # (the populated recipient holds both permissions).
         self._handler = rtip.ReceiverFileDownload
         rtips_desc = yield self.get_rtips()
         for rtip_desc in rtips_desc:
+            for rfile_desc in rtip_desc['rfiles']:
+                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+                yield handler.get(rfile_desc['id'])
+                self.assertTrue(handler.request.getResponseBody())
+
+        # A recipient without the permission cannot download the masked file.
+        rtips_desc = yield self.get_rtips()
+        for rtip_desc in rtips_desc:
+            yield set_redaction_privileges(rtip_desc['receiver_id'], False)
             for rfile_desc in rtip_desc['rfiles']:
                 handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
                 yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)

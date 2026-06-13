@@ -2,7 +2,7 @@ import io
 import zipfile
 
 from globaleaks import models
-from globaleaks.handlers.recipient import export
+from globaleaks.handlers.recipient import export, rtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
@@ -120,6 +120,36 @@ class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
 
         names = yield self.export_zip_names(itip_id, self.dummyReceiver_2['id'])
         self.assertFalse(any(n.startswith('files/') for n in names))
+
+    @inlineCallbacks
+    def test_export_never_includes_masked_rfiles(self):
+        # A masked recipient file is listed in the report but its content must
+        # never be exported.
+        rtips_desc = yield self.get_rtips()
+        itip_id = rtips_desc[0]['id']
+        receiver_id = rtips_desc[0]['receiver_id']
+
+        # The recipient attaches a public file to the report.
+        self._handler = rtip.ReceiverFileUpload
+        attachment = self.get_dummy_attachment()
+        handler = self.request(role='receiver', user_id=receiver_id, attachment=attachment)
+        yield handler.post(itip_id)
+        self._handler = export.ExportHandler
+
+        rtips_desc = yield self.get_rtips()
+        rfiles = rtips_desc[0]['rfiles']
+        self.assertTrue(len(rfiles) > 0)
+
+        # Before masking the file is part of the export.
+        names = yield self.export_zip_names(itip_id, receiver_id)
+        self.assertTrue(any(n.startswith('files_attached_from_recipients/') for n in names))
+
+        # Once masked the file content must not be exported anymore.
+        for rfile in rfiles:
+            yield mask_internalfile(itip_id, rfile['id'])
+
+        names = yield self.export_zip_names(itip_id, receiver_id)
+        self.assertFalse(any(n.startswith('files_attached_from_recipients/') for n in names))
 
 
 class TestExportHandlerPGP(helpers.TestHandlerWithPopulatedDB):

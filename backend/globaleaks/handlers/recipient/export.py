@@ -151,8 +151,11 @@ def prepare_tip_export(user_session, tip_export):
     if tip_export['crypto_tip_prv_key']:
         tip_export['tip'] = yield deferToThread(decrypt_tip, user_session.cc, tip_export['crypto_tip_prv_key'], tip_export['tip'])
 
-        tip_export['tip'] = yield redact_report(user_session.user_id, tip_export['tip'], True)
+    # Flag masked files (and mask redacted text) before assembling the archive
+    # so that masked content is never exported, regardless of encryption.
+    tip_export['tip'] = yield redact_report(user_session.user_id, tip_export['tip'])
 
+    if tip_export['crypto_tip_prv_key']:
         for file_dict in tip_export['tip']['wbfiles']:
             if tip_export['deprecated_crypto_files_prv_key']:
                 files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['deprecated_crypto_files_prv_key'])
@@ -176,14 +179,20 @@ def prepare_tip_export(user_session, tip_export):
             file_dict['path'] = filelocation
             del filelocation
 
-    files = tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
+    # Masked files are listed in the report but their content is never exported.
+    files = [f for f in tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
+             if not f.get('masked')]
 
     for file_dict in tip_export['tip'].pop('wbfiles'):
+        if file_dict.get('masked'):
+            continue
         file_dict['name'] = 'files/' + file_dict['name']
         if file_dict.get('status', '') == 'encrypted':
             file_dict['name'] += '.pgp'
 
     for file_dict in tip_export['tip'].pop('rfiles'):
+        if file_dict.get('masked'):
+            continue
         file_dict['name'] = 'files_attached_from_recipients/' + file_dict['name']
 
     tip_export['comments'] = tip_export['tip']['comments']

@@ -742,23 +742,28 @@ def redact_answers(answers, redactions):
                 redact_answers(answer, redactions)
 
 
-def mask_report_files(report, masked_ids):
+def mask_report_files(report, masked_ids, hide_name=True):
     """
-    Mask the name of the files that are referenced by an active masking and
-    flag them as masked so that the client renders a placeholder and the file
-    content is never disclosed to the viewer.
+    Flag as masked the files referenced by an active masking so that the client
+    renders a placeholder and download/export of their content is blocked. The
+    file name is hidden from viewers not entitled to mask/redact (and the
+    whistleblower); recipients holding the permission keep seeing it, otherwise
+    they could not tell what has been masked nor decide to unmask it.
 
     :param report: A serialized (and decrypted) report
     :param masked_ids: The set of file reference ids that are masked
+    :param hide_name: Whether the file name must be masked as well
     """
     for f in report.get('wbfiles', []):
         if f.get('ifile_id', f.get('id')) in masked_ids:
-            f['name'] = chr(0x2591) * len(f['name'])
+            if hide_name:
+                f['name'] = chr(0x2591) * len(f['name'])
             f['masked'] = True
 
     for f in report.get('rfiles', []):
         if f.get('id') in masked_ids:
-            f['name'] = chr(0x2591) * len(f['name'])
+            if hide_name:
+                f['name'] = chr(0x2591) * len(f['name'])
             f['masked'] = True
 
 
@@ -793,7 +798,7 @@ def redact_report(session, user_id, report):
             if comment['id'] in redactions_by_reference_id:
                 comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
 
-    mask_report_files(report, {r.reference_id for r in redactions if r.entry == '0'})
+    mask_report_files(report, {r.reference_id for r in redactions if r.entry == '0'}, hide_name=not privileged)
 
     return report
 
@@ -1372,7 +1377,12 @@ class WhistleblowerFileDownload(BaseHandler):
                                    models.Redaction.reference_id == ifile.id,
                                    models.Redaction.entry == '0').one_or_none()
 
-        if redaction is not None:
+        # The masker keeps access to the content; only recipients without the
+        # masking/redaction permission are denied (the whistleblower is denied
+        # in its own handler, having no such permission).
+        if redaction is not None and \
+                not user.can_mask_information and \
+                not user.can_redact_information:
             raise errors.ForbiddenOperation
 
         if wbfile.access_date == datetime_null():
@@ -1485,7 +1495,12 @@ class ReceiverFileDownload(BaseHandler):
                                    models.Redaction.reference_id == rfile.id,
                                    models.Redaction.entry == '0').one_or_none()
 
-        if redaction is not None:
+        # The masker keeps access to the content; only recipients without the
+        # masking/redaction permission are denied (the whistleblower is denied
+        # in its own handler, having no such permission).
+        if redaction is not None and \
+                not user.can_mask_information and \
+                not user.can_redact_information:
             raise errors.ForbiddenOperation
 
         return rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public
