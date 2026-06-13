@@ -61,6 +61,103 @@ jobs:
           COMMIT_HASH=$(git rev-parse HEAD)
           ./scripts/build.sh -d $TARGET_DISTRIBUTION -t $COMMIT_HASH -n -l -z
 
+      - name: Boot real systemd and verify the globaleaks.service unit
+        run: |
+          set -euxo pipefail
+          DEB=$(ls build/${TARGET_DISTRIBUTION}/globaleaks_*.deb | head -1)
+          echo "Testing package under systemd: $DEB"
+          case "$TARGET_DISTRIBUTION" in
+            bookworm|bullseye|trixie) IMAGE="debian:${TARGET_DISTRIBUTION}" ;;
+            *)                        IMAGE="ubuntu:${TARGET_DISTRIBUTION}" ;;
+          esac
+
+          # Build a systemd-enabled image of the target distribution.
+          # The CI service container deliberately runs without systemd, so the
+          # .service unit (privilege drop, ExecStartPre firewall, AppArmor) is
+          # otherwise never exercised; this job covers exactly that path.
+          mkdir -p systemd-test
+          cp "$DEB" systemd-test/globaleaks.deb
+          {
+            echo "FROM ${IMAGE}"
+            echo "ENV DEBIAN_FRONTEND=noninteractive container=docker"
+            echo "RUN apt-get update -q && apt-get install -y --no-install-recommends systemd systemd-sysv iptables && apt-get clean"
+            echo "COPY globaleaks.deb /tmp/globaleaks.deb"
+            echo "STOPSIGNAL SIGRTMIN+3"
+            echo 'CMD ["/sbin/init"]'
+          } > systemd-test/Dockerfile
+          docker build -t gl-systemd-test systemd-test
+
+          # Boot systemd as PID 1 (privileged so the firewall/AppArmor paths run)
+          docker run -d --name gl-systemd --privileged --cgroupns=host \
+            -v /sys/fs/cgroup:/sys/fs/cgroup:rw --tmpfs /run --tmpfs /run/lock \
+            gl-systemd-test
+
+          # Wait for the system manager to come up
+          for i in $(seq 1 30); do
+            state=$(docker exec gl-systemd systemctl is-system-running 2>/dev/null || true)
+            case "$state" in running|degraded) break ;; esac
+            sleep 2
+          done
+          docker exec gl-systemd systemctl is-system-running || true
+
+          # Install the freshly built package (Depends pulled from the distro repos)
+          docker exec gl-systemd bash -c "apt-get update -q && apt-get install -y /tmp/globaleaks.deb"
+
+          # Fail-closed: with the default config (APPARMOR_SANDBOXING=1) but AppArmor
+          # not yet available in this container, the daemon must never run unconfined.
+          # Type=simple reports the start job done as soon as the wrapper is exec'd, so
+          # assert on the settled state instead: the apparmor guard exits 78 and
+          # RestartPreventExitStatus=78 stops systemd from restarting, leaving the unit
+          # cleanly 'failed' (rather than flapping forever on a permanent misconfig).
+          docker exec gl-systemd systemctl start globaleaks || true
+          sleep 5
+          if docker exec gl-systemd systemctl is-active --quiet globaleaks; then
+            echo "ERROR: service active without AppArmor (fail-open regression)"; exit 1
+          fi
+          test "$(docker exec gl-systemd systemctl show -p ExecMainStatus --value globaleaks)" = "78"
+          docker exec gl-systemd systemctl reset-failed globaleaks || true
+          echo "Fail-closed verified: unit settled to 'failed' (exit 78) without AppArmor"
+
+          # A real host mounts securityfs and loads AppArmor profiles at boot via
+          # apparmor.service; systemd skips both inside a container (container=docker),
+          # so reproduce them here to exercise the fail-closed confined start path.
+          docker exec gl-systemd mount -t securityfs securityfs /sys/kernel/security
+          docker exec gl-systemd apparmor_parser -r -W /etc/apparmor.d/usr.bin.globaleaks
+
+          # Start the unit and capture diagnostics
+          docker exec gl-systemd systemctl start globaleaks
+          sleep 5
+          docker exec gl-systemd systemctl --no-pager --full status globaleaks || true
+          docker exec gl-systemd journalctl -u globaleaks --no-pager | tail -n 60 || true
+
+          # Assertions: exactly what CI did not cover before
+          # 1) the unit is active
+          docker exec gl-systemd systemctl is-active --quiet globaleaks
+          # 2) the daemon runs as the unprivileged 'globaleaks' user (privilege drop via User=)
+          MAINPID=$(docker exec gl-systemd systemctl show -p MainPID --value globaleaks)
+          OWNER=$(docker exec gl-systemd stat -c %U "/proc/$MAINPID")
+          echo "globaleaks MainPID=$MAINPID owner=$OWNER"
+          test "$OWNER" = "globaleaks"
+          # 3) the root-only firewall ran via the privileged ExecStartPre
+          docker exec gl-systemd iptables -t nat -S | grep -q globaleaks
+          # 4) the daemon is actually confined by the AppArmor profile (fail-closed start)
+          docker exec gl-systemd cat "/proc/$MAINPID/attr/current" | grep -q '^usr.bin.globaleaks'
+          echo "Native unit verified: daemon unprivileged + firewall applied + AppArmor confined ($(docker exec gl-systemd cat /proc/$MAINPID/attr/current))"
+
+          # Verify the admin opt-out: APPARMOR_SANDBOXING=0 lets the daemon start
+          # unconfined inside system containers without AppArmor (LXC/LXD/Proxmox).
+          docker exec gl-systemd bash -c "echo 'APPARMOR_SANDBOXING=0' > /etc/default/globaleaks"
+          docker exec gl-systemd systemctl restart globaleaks
+          sleep 5
+          docker exec gl-systemd systemctl is-active --quiet globaleaks
+          OPTOUT_PID=$(docker exec gl-systemd systemctl show -p MainPID --value globaleaks)
+          test "$(docker exec gl-systemd cat /proc/$OPTOUT_PID/attr/current | tr -d '\n')" = "unconfined"
+          echo "AppArmor opt-out verified: daemon starts unconfined with APPARMOR_SANDBOXING=0"
+
+      - name: Cleanup systemd boot test
+        if: always()
+        run: docker rm -f gl-systemd 2>/dev/null || true
+
       - name: Build and start Docker container
         run: |
           ./docker/generate_docker_compose.sh $TARGET_DISTRIBUTION > ./docker/docker-compose.yml
