@@ -14,8 +14,10 @@ Usage: bump_gitactions_version.sh [OPTIONS]
 Pins every `uses: owner/repo@<ref>` in .github/workflows/*.yml to a 40-char
 commit SHA, with `# <tag>` as a trailing comment.
 
+The script prompts for a GitHub token without echoing it. Leave the prompt
+empty to fall back to $GITHUB_TOKEN/$GH_TOKEN, or to run anonymously.
+
 Options:
-  --token <PAT>   GitHub token (else read from $GITHUB_TOKEN, else anonymous)
   --upgrade       Bump to the latest stable tag before pinning
   --dry-run       Show what would change, don't write files
   --dir <PATH>    Workflows directory (default: .github/workflows)
@@ -26,7 +28,6 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --token)        GITHUB_TOKEN="$2"; shift 2 ;;
         --upgrade)      UPGRADE_TAGS=1; shift ;;
         --dry-run)      DRY_RUN=1; shift ;;
         --dir)          WORKFLOWS_DIR="$2"; shift 2 ;;
@@ -36,7 +37,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-: "${GITHUB_TOKEN:=${GH_TOKEN:-}}"
+# Read the token without echoing it, so it never lands in argv, shell history,
+# terminal logs, or CI logs. An empty answer falls back to the environment.
+read -rsp "GitHub token (leave empty to skip): " token_input < /dev/tty || token_input=""
+echo
+GITHUB_TOKEN="${token_input:-${GITHUB_TOKEN:-${GH_TOKEN:-}}}"
+unset token_input
 
 command -v jq   >/dev/null || { echo "ERROR: jq is not installed. apt/brew install jq" >&2; exit 2; }
 command -v curl >/dev/null || { echo "ERROR: curl is not installed" >&2; exit 2; }
@@ -78,7 +84,7 @@ resolve_sha() {
         403|429)
             msg=$(echo "$body" | jq -r '.message // empty' 2>/dev/null)
             if [[ "$msg" == *"rate limit"* ]] || [[ "$msg" == *"API rate"* ]]; then
-                echo "    ✗ GitHub API rate limit hit. Pass --token <PAT> or export GITHUB_TOKEN." >&2
+                echo "    ✗ GitHub API rate limit hit. Re-run and provide a token at the prompt." >&2
                 rm -f "$body_file"; return 2
             fi
             echo "    ✗ HTTP $http_code — $msg" >&2
@@ -146,7 +152,7 @@ latest_tag() {
 
 echo "Starting GitHub Actions pinning..."
 [ $DRY_RUN -eq 1 ]     && echo "  (dry-run mode — no files will be written)"
-[ -z "$GITHUB_TOKEN" ] && echo "  ⚠ anonymous mode — 60 req/h rate limit. Pass --token to raise it."
+[ -z "$GITHUB_TOKEN" ] && echo "  ⚠ anonymous mode — 60 req/h rate limit. Provide a token to raise it."
 echo
 
 TOTAL=0
