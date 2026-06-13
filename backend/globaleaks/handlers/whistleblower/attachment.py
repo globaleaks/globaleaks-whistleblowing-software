@@ -5,7 +5,7 @@ from nacl.encoding import Base64Encoder
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.orm import transact
+from globaleaks.orm import db_log, transact
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now
 
@@ -47,6 +47,8 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
         new_file.creation_date = itip.creation_date
 
     session.add(new_file)
+
+    db_log(session, tid=tid, type='whistleblower_upload_file', user_id=internaltip_id, object_id=new_file.id, data={'internaltip_id': internaltip_id})
 
     return serializers.serialize_ifile(session, new_file)
 
