@@ -679,6 +679,8 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
 
     session.add(new_file)
 
+    db_log(session, tid=tid, type='upload_file', user_id=user_id, object_id=new_file.id, data={'internaltip_id': itip.id})
+
     return serializers.serialize_rfile(session, new_file), itip.crypto_tip_pub_key
 
 

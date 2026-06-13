@@ -189,6 +189,7 @@ def serialize_rfile(session, rfile):
     return {
         'id': rfile.id,
         'creation_date': rfile.creation_date,
+        'author_id': rfile.author_id,
         'name': rfile.name,
         'size': rfile.size,
         'type': rfile.content_type,
