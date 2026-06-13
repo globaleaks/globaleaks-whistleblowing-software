@@ -734,9 +734,17 @@ export class UtilsService {
           cell = JSON.stringify(cell);
         }
 
-        // Escape commas, quotes, and newlines
-        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
-          return `"${cell.replace(/"/g, '""')}"`;
+        if (typeof cell === 'string') {
+          // Neutralize spreadsheet formula injection by prefixing values that
+          // a spreadsheet would otherwise interpret as a formula
+          if (/^[=+\-@\t\r]/.test(cell)) {
+            cell = "'" + cell;
+          }
+
+          // Escape commas, quotes, and newlines
+          if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
         }
 
         return cell ?? ''; // Fallback to empty string
