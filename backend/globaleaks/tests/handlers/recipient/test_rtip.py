@@ -26,6 +26,13 @@ def create_substatus(session, submissionstatus_id):
     return substatus.id
 
 
+@transact
+def remove_receivertip(session, itip_id, receiver_id):
+    session.query(models.ReceiverTip) \
+           .filter(models.ReceiverTip.internaltip_id == itip_id,
+                   models.ReceiverTip.receiver_id == receiver_id).delete()
+
+
 class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.RTipInstance
 
@@ -455,9 +462,24 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     def test_delete_existent_tip_by_existent_and_logged_but_wrong_receiver(self):
         rtip_descs = yield self.get_rtips()
 
-        for rtip_desc in rtip_descs:
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield self.assertFailure(handler.delete(u"unexistent_tip"), NoResultFound)
+        # Drop receiver2's access to the report so it becomes a report the
+        # receiver is logged in but not entitled to.
+        itip_id = rtip_descs[0]['id']
+        yield remove_receivertip(itip_id, self.dummyReceiver_2['id'])
+
+        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        yield self.assertFailure(handler.delete(itip_id), NoResultFound)
+
+    @inlineCallbacks
+    def test_get_existent_tip_by_existent_and_logged_but_wrong_receiver(self):
+        rtip_descs = yield self.get_rtips()
+
+        # A receiver without a ReceiverTip on the report cannot read it.
+        itip_id = rtip_descs[0]['id']
+        yield remove_receivertip(itip_id, self.dummyReceiver_2['id'])
+
+        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        yield self.assertFailure(handler.get(itip_id), NoResultFound)
 
     @inlineCallbacks
     def test_set_reminder_and_reset_upon_close(self):
