@@ -448,6 +448,10 @@ class APIResourceWrapper(Resource):
             except Exception:
                 pass
 
+        if request.path == b'/index.html':
+            request.redirect(b'/')
+            return b''
+
         if request.path == b'/':
             request.path = b'/index.html'
 
