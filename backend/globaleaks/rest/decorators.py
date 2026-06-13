@@ -171,15 +171,16 @@ def decorator_rate_limit(f):
 
             if self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
                 if self.request.path == b'/api/whistleblower/submission':
-                    block = State.RateLimit.check(b"reports_per_hour_per_tenant_per_ip:" + tid,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
-                                                  3600) > 0
-
                     if not self.request.client_using_tor:
+                        block = State.RateLimit.check(b"reports_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                                                      root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
+                                                      3600) > 0
+
                         block = block or \
-                                State.RateLimit.check(b"reports_per_hour_per_ip:" + tid + b":" + client_ip,
+                                State.RateLimit.check(b"reports_per_hour_per_ip:" + client_ip,
                                                       root_tenant.cache.threshold_reports_per_hour_per_ip,
                                                       3600) > 0
+
                     block = block or \
                             State.RateLimit.check(b"reports_per_hour_per_tenant:" + tid,
                                                   root_tenant.cache.threshold_reports_per_hour_per_tenant,
