@@ -7,6 +7,8 @@ import string
 import struct
 import threading
 
+from contextlib import nullcontext
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import constant_time, hashes
 
@@ -343,8 +345,18 @@ class _GCE(object):
         password = _convert_to_bytes(password)
         salt = _convert_to_bytes(salt)
 
-        with lock:
-            salt_dec = Base64Encoder.decode(salt)
+        salt_dec = Base64Encoder.decode(salt)
+
+        # The global lock serializes the memory-hard KDFs (login and key
+        # derivation, 128MiB each) so that concurrent requests cannot pile up
+        # their allocations and exhaust memory. The proof-of-work token verify
+        # uses a tiny 1MiB cost and runs on the reactor thread: it must not
+        # contend on that lock, otherwise an in-flight password KDF held in the
+        # thread pool would stall the single-threaded event loop for its whole
+        # duration. libsodium's kdf is itself thread-safe, so the cheap path is
+        # safe to run unlocked.
+        ctx = lock if memlimit > (1 << 20) else nullcontext()
+        with ctx:
             hashv = argon2id.kdf(
                 32,
                 password,
@@ -352,7 +364,8 @@ class _GCE(object):
                 opslimit=opslimit,
                 memlimit=memlimit
             )
-            return Base64Encoder.encode(hashv).decode()
+
+        return Base64Encoder.encode(hashv).decode()
 
     @staticmethod
     def derive_key(password: Union[bytes, str], salt: str) -> bytes:
