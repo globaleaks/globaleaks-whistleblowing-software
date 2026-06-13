@@ -14,6 +14,7 @@ from globaleaks.models import Config, InternalTip, User
 from globaleaks.models.config import db_set_config_variable, ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
+from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, sha256
@@ -229,6 +230,11 @@ def db_set_user_password(session, tid, user_session, user_id, key):
     user.hash = sha256(key)
     user.password_change_date = datetime_now()
     user.password_change_needed = True
+
+    # Drop the target user's active sessions: a credential change must not leave
+    # previously authenticated sessions usable; never revoke the operator's own.
+    if user_session.user_id != user_id:
+        Sessions.revoke(tid, user_id)
 
     db_log(session, tid=tid, type='change_password', user_id=user_session.user_id, object_id=user_id)
 
