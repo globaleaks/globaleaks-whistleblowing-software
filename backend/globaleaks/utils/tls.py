@@ -34,6 +34,16 @@ TLS_CIPHER_LIST = b'TLS13-AES-256-GCM-SHA384:' \
                   b'ECDHE-ECDSA-AES128-GCM-SHA256:' \
                   b'ECDHE-RSA-AES128-GCM-SHA256'
 
+TLS_SIGALGS_LIST = b'ECDSA+SHA256:' \
+                   b'ECDSA+SHA384:' \
+                   b'ECDSA+SHA512:' \
+                   b'RSA-PSS+SHA256:' \
+                   b'RSA-PSS+SHA384:' \
+                   b'RSA-PSS+SHA512:' \
+                   b'RSA+SHA256:' \
+                   b'RSA+SHA384:' \
+                   b'RSA+SHA512'
+
 
 trustRoot = ssl.platformTrust()
 
@@ -207,6 +217,11 @@ def new_tls_server_context():
     ctx.set_session_cache_mode(SSL.SESS_CACHE_SERVER)
 
     ctx.set_cipher_list(TLS_CIPHER_LIST)
+
+    # Restrict the hash functions usable for the key exchange signature to
+    # SHA-256, SHA-384 and SHA-512, excluding SHA-224 and SHA-1 that are
+    # otherwise enabled by the OpenSSL defaults on TLS 1.2.
+    _lib.SSL_CTX_set1_sigalgs_list(ctx._context, TLS_SIGALGS_LIST)  # pylint: disable=no-member
 
     return ctx
 

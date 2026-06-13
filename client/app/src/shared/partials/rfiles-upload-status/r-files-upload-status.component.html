@@ -1,20 +1,30 @@
 @if (uploading) {
-  <span>{{'Uploading files…'|translate}}</span>
+  <span>{{ 'upload.uploading_files' | translate }}</span>
 }
-@if (!uploading && progress==100) {
-  <span>{{'Upload completed successfully!'|translate}}</span>
+
+@if (!uploading && progress === 100) {
+  <span>{{ 'upload.upload_completed_successfully' | translate }}</span>
 }
+
 <div id="FileUpoloadsInfo">
-  @if (estimatedTime && uploading) {
+  @if (estimatedTime !== undefined && uploading) {
     <div>
-      <span>{{'Estimated upload time:'|translate}}</span>
-      @if (isFinite(estimatedTime)) {
-        <span>{{estimatedTime}}</span>
+      @if (getFormattedTime(estimatedTime); as timeObj) {
+        <span>
+          {{ 'upload.estimated_upload_time' | translate:{
+            value: timeObj.value,
+            unit: (('upload.units.' + timeObj.unit) | translate)
+          } }}
+        </span>
       }
-      <span>{{'seconds'|translate}}</span>
-      @if (progress) {
-        <div class="progress progress-striped;active">
-          <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
+
+      @if (progress !== undefined) {
+        <div class="progress progress-striped active">
+          <div 
+            class="progress-bar" 
+            role="progressbar" 
+            [ngStyle]="{ width: progress * 105 + '%' }">
+          </div>
         </div>
       }
     </div>
