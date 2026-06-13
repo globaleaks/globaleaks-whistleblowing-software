@@ -45,10 +45,10 @@ while getopts "d:t:nph:lz" opt; do
   esac
 done
 
-if ! [[ $TARGETS =~ $DISTRIBUTION ]] && [[ $DISTRIBUTION != 'all' ]]; then
- usage
- exit 1
-fi
+case "$DISTRIBUTION" in
+  bookworm|bullseye|focal|jammy|noble|resolute|trixie|all) ;;
+  *) usage; exit 1 ;;
+esac
 
 if [ "$DISTRIBUTION" != 'all' ]; then
   TARGETS=$DISTRIBUTION
