@@ -29,7 +29,10 @@ def mock_Request_getClientIP(self):
 
 
 def mock_Request_gotLength(self, length):
-    if length is not None and length > 2 * 1024 * 1024:
+    # length is None only for Transfer-Encoding: chunked requests, which the
+    # application never issues; rejecting them keeps the size cap below from
+    # being bypassed by a body streamed without a declared Content-Length.
+    if length is None or length > 2 * 1024 * 1024:
         raise InputValidationError("Request exceeding max size of 2MB")
 
     self.content = StringIO()
