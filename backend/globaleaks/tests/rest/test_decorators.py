@@ -285,6 +285,44 @@ class TestDecorators(unittest.TestCase):
         with self.assertRaises(errors.ForbiddenOperation):
             test_func(self.handler)
 
+    def test_decorator_rate_limit_signup_buckets(self):
+        # Every signup bucket is exercised independently: tripping any single
+        # bucket must block the request. The per-IP buckets are skipped on Tor
+        # (where the client IP is not meaningful) while the per-system backstop
+        # applies regardless of the transport.
+        buckets = [
+            (b"signups_per_minute_per_ip", True),
+            (b"signups_per_hour_per_ip", True),
+            (b"signups_per_hour_per_system", False),
+        ]
+
+        for bucket, skipped_on_tor in buckets:
+            for client_using_tor in (False, True):
+                with self.subTest(bucket=bucket, tor=client_using_tor):
+                    self.handler = FakeHandler()
+                    self.handler.session = None
+                    self.handler.token = "x"
+                    self.handler.request = FakeRequest(path=b"/api/signup",
+                                                       client_using_tor=client_using_tor)
+
+                    rate_limit_mock = MagicMock()
+                    rate_limit_mock.check.side_effect = \
+                        lambda key, *_, b=bucket: 1 if key.startswith(b) else 0
+                    State.RateLimit = rate_limit_mock
+
+                    @decorator_rate_limit
+                    def test_func(self): return "Passed"
+
+                    checked = lambda: [c.args[0] for c in rate_limit_mock.check.call_args_list]
+
+                    if client_using_tor and skipped_on_tor:
+                        # The bucket is not consulted on Tor, so the request passes
+                        self.assertEqual(test_func(self.handler), "Passed")
+                        self.assertFalse(any(k.startswith(bucket) for k in checked()))
+                    else:
+                        with self.assertRaises(errors.ForbiddenOperation):
+                            test_func(self.handler)
+
     def test_decorator_rate_limit_whistleblower_blocked(self):
         self.handler = FakeHandler()
         self.handler.session = FakeSession()
