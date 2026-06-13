@@ -1,7 +1,7 @@
 import json
 
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.rest.errors import InputValidationError
+from globaleaks.rest.errors import FileTooBig, InputValidationError
 from globaleaks.tests import helpers
 
 class BaseHandlerMock(BaseHandler):
@@ -10,6 +10,35 @@ class BaseHandlerMock(BaseHandler):
 
 class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
     _handler = BaseHandlerMock
+
+    def _upload_args(self, total_size, chunk=b'x', identifier=b'testfile',
+                     chunk_number=b'1', total_chunks=b'2'):
+        return {
+            b'flowFilename': [b'test.txt'],
+            b'flowTotalSize': [str(total_size).encode()],
+            b'flowIdentifier': [identifier],
+            b'flowChunkNumber': [chunk_number],
+            b'flowTotalChunks': [total_chunks],
+            b'file': [chunk],
+        }
+
+    def test_process_file_upload_rejects_size_above_limit(self):
+        # A file just under (max + 1) MiB previously slipped through because the
+        # size was floor-divided to whole MiB before comparison; it must now be
+        # rejected against the byte-exact limit.
+        handler = self.request(handler_cls=BaseHandlerMock)
+        self.state.tenants[1].cache.maximum_filesize = 1
+        handler.request.args = self._upload_args(total_size=2 * 1024 * 1024 - 1,
+                                                 identifier=b'oversized')
+        self.assertRaises(FileTooBig, handler.process_file_upload)
+
+    def test_process_file_upload_accepts_size_at_limit(self):
+        # A file exactly at the configured limit must still be accepted.
+        handler = self.request(handler_cls=BaseHandlerMock)
+        self.state.tenants[1].cache.maximum_filesize = 1
+        handler.request.args = self._upload_args(total_size=1024 * 1024,
+                                                 identifier=b'atlimit')
+        self.assertIsNone(handler.process_file_upload())
 
     def test_validate_request_valid1(self):
         dummy_message = {'spam': 'ham', 'firstd': {3: 4}, 'fields': "CIAOCIAO", 'nest': [{1: 2, 3: 4}]}

@@ -374,11 +374,12 @@ class BaseHandler(object):
         f = self.state.TempUploadFiles[file_id]
 
         max_file_size = self.state.tenants[self.request.tid].cache.maximum_filesize
+        max_file_size_bytes = max_file_size * 1024 * 1024
 
         chunk_size = len(self.request.args[b'file'][0])
-        if (chunk_size // (1024 * 1024) > max_file_size or
-            total_file_size // (1024 * 1024) > max_file_size or
-            f.size // (1024 * 1024) > max_file_size):
+        if (chunk_size > max_file_size_bytes or
+            total_file_size > max_file_size_bytes or
+            f.size + chunk_size > max_file_size_bytes):
             log.err("File upload request rejected: file too big", tid=self.request.tid)
             raise errors.FileTooBig(max_file_size)
 
