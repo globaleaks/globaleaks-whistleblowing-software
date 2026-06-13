@@ -21,3 +21,4 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
         for idx in range(len(rtips)):
             self.assertEqual(rtips[idx]['file_count'], 2)
             self.assertEqual(rtips[idx]['comment_count'], 2)
+            self.assertEqual(rtips[idx]['receiver_count'], 2)
