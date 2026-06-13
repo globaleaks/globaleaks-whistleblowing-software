@@ -1,11 +1,25 @@
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.orm import transact
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 file_content = b'Hello World'
+
+
+@transact
+def mask_receiverfile(session, itip_id, rfile_id):
+    redaction = models.Redaction()
+    redaction.reference_id = rfile_id
+    redaction.entry = '0'
+    redaction.internaltip_id = itip_id
+    redaction.temporary_redaction = [{'start': '-inf', 'end': 'inf'}]
+    redaction.permanent_redaction = []
+    session.add(redaction)
 
 
 class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
@@ -24,6 +38,7 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
 
         yield Delivery().run()
 
+        # The whistleblower can download recipient files until they are masked.
         self._handler = wbtip.ReceiverFileDownload
         wbtips_desc = yield self.get_wbtips()
         for wbtip_desc in wbtips_desc:
@@ -33,17 +48,52 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
                 yield handler.get(rfile_desc['id'])
                 self.assertEqual(handler.request.getResponseBody(), file_content)
 
-        self._handler = rtip.ReceiverFileDownload
+        # A recipient masks every recipient file.
         rtips_desc = yield self.get_rtips()
-        deleted_rfiles_ids = []
         for rtip_desc in rtips_desc:
             for rfile_desc in rtip_desc['rfiles']:
-                if rfile_desc['id'] not in deleted_rfiles_ids:
-                    handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-                    yield handler.delete(rfile_desc['id'])
-                    deleted_rfiles_ids.append(rfile_desc['id'])
+                yield mask_receiverfile(rtip_desc['id'], rfile_desc['id'])
 
-        # check that the files are effectively gone from the db
+        # The whistleblower can no longer download the masked files.
+        self._handler = wbtip.ReceiverFileDownload
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            rfiles_desc = yield self.get_rfiles(wbtip_desc['id'])
+            for rfile_desc in rfiles_desc:
+                handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+                yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+
+        # No recipient can download them either, not even one entitled to mask
+        # or redact (the populated recipient holds both permissions).
+        self._handler = rtip.ReceiverFileDownload
         rtips_desc = yield self.get_rtips()
         for rtip_desc in rtips_desc:
-            self.assertEqual(len(rtip_desc['rfiles']), 0)
+            for rfile_desc in rtip_desc['rfiles']:
+                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+                yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+
+    @inlineCallbacks
+    def test_personal_rfile_not_accessible_to_other_recipients(self):
+        yield self.perform_full_submission_actions()
+
+        # Receiver1 uploads a recipient file marked personal on a shared report.
+        self._handler = rtip.ReceiverFileUpload
+        rtips_desc = yield self.get_rtips()
+        rtip_desc = rtips_desc[0]
+        attachment = self.get_dummy_attachment(content=file_content)
+        attachment['visibility'] = b'personal'
+        handler = self.request(role='receiver', user_id=self.dummyReceiver_1['id'], attachment=attachment)
+        yield handler.post(rtip_desc['id'])
+
+        rtips_desc = yield self.get_rtips()
+        rfile_id = rtips_desc[0]['rfiles'][0]['id']
+
+        # The author can download their own personal file.
+        self._handler = rtip.ReceiverFileDownload
+        handler = self.request(role='receiver', user_id=self.dummyReceiver_1['id'])
+        yield handler.get(rfile_id)
+        self.assertTrue(handler.request.getResponseBody())
+
+        # Another recipient on the same report cannot, even knowing its UUID.
+        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        yield self.assertFailure(handler.get(rfile_id), errors.ResourceNotFound)
