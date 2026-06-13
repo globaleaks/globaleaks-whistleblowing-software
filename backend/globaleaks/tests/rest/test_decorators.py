@@ -250,97 +250,82 @@ class TestDecorators(unittest.TestCase):
         checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
         self.assertTrue(any(key.startswith(b"logins_per_minute") for key in checked_keys))
 
-    def test_decorator_rate_limit_support_throttled_without_session(self):
-        self.handler = FakeHandler()
-        self.handler.session = None
-        self.handler.token = "x"
-        self.handler.request = FakeRequest(path=b"/api/support")
+    # Contract for every endpoint throttled by decorator_rate_limit: the buckets
+    # it must consult, whether each is skipped on Tor (per-IP buckets, where the
+    # client IP is shared and not meaningful), and the effect of tripping a
+    # bucket ('block' -> ForbiddenOperation, 'delay' -> deferred execution).
+    RATE_LIMIT_CONTRACT = [
+        {"paths": [b"/api/auth/authentication",
+                   b"/api/auth/tokenauth",
+                   b"/api/auth/receiptauth"],
+         "role": None, "action": "delay",
+         "buckets": [(b"logins_per_minute_per_tenant_per_ip", True),
+                     (b"logins_per_minute_per_ip", True),
+                     (b"logins_per_minute_per_tenant", False),
+                     (b"logins_per_minute_per_system", False)]},
+        {"paths": [b"/api/support"],
+         "role": None, "action": "block",
+         "buckets": [(b"support_per_hour_per_tenant_per_ip", True),
+                     (b"support_per_hour_per_ip", True),
+                     (b"support_per_hour_per_tenant", False),
+                     (b"support_per_hour_per_system", False)]},
+        {"paths": [b"/api/signup"],
+         "role": None, "action": "block",
+         "buckets": [(b"signups_per_minute_per_ip", True),
+                     (b"signups_per_hour_per_ip", True),
+                     (b"signups_per_hour_per_system", False)]},
+        {"paths": [b"/api/whistleblower/submission"],
+         "role": "whistleblower", "action": "block",
+         "buckets": [(b"reports_per_hour_per_tenant_per_ip", True),
+                     (b"reports_per_hour_per_ip", True),
+                     (b"reports_per_hour_per_tenant", False),
+                     (b"reports_per_hour_per_system", False)]},
+        {"paths": [b"/api/whistleblower/operations"],
+         "role": "whistleblower", "action": "delay",
+         "buckets": [(b"operations_per_second_per_report", False),
+                     (b"operations_per_minute_per_report", False),
+                     (b"operations_per_hour_per_report", False)]},
+    ]
 
-        rate_limit_mock = MagicMock()
-        rate_limit_mock.check.return_value = 0
-        State.RateLimit = rate_limit_mock
+    def test_decorator_rate_limit_contract(self):
+        # Each bucket is tripped in isolation, on and off Tor, so the test fails
+        # if an endpoint loses its limiting, swaps block for delay, or stops
+        # honouring the Tor skip on its per-IP buckets.
+        for endpoint in self.RATE_LIMIT_CONTRACT:
+            for path in endpoint["paths"]:
+                for bucket, skipped_on_tor in endpoint["buckets"]:
+                    for tor in (False, True):
+                        with self.subTest(path=path, bucket=bucket, tor=tor):
+                            self.handler = FakeHandler()
+                            self.handler.token = "x"
+                            self.handler.request = FakeRequest(path=path, client_using_tor=tor)
+                            if endpoint["role"]:
+                                self.handler.session = FakeSession(role=endpoint["role"])
+                                self.handler.session.user_id = uuid4()
+                            else:
+                                self.handler.session = None
 
-        @decorator_rate_limit
-        def test_func(self): return "Passed"
+                            rate_limit_mock = MagicMock()
+                            rate_limit_mock.check.side_effect = \
+                                lambda key, *_, b=bucket: 1 if key.startswith(b) else 0
+                            State.RateLimit = rate_limit_mock
 
-        # A token-only support request must consume the support buckets
-        self.assertEqual(test_func(self.handler), "Passed")
+                            @decorator_rate_limit
+                            def test_func(self): return "Passed"
 
-        checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
-        self.assertTrue(any(key.startswith(b"support_per_hour") for key in checked_keys))
+                            checked = lambda: [c.args[0] for c in rate_limit_mock.check.call_args_list]
 
-    def test_decorator_rate_limit_support_blocked(self):
-        self.handler = FakeHandler()
-        self.handler.session = None
-        self.handler.token = "x"
-        self.handler.request = FakeRequest(path=b"/api/support")
+                            if tor and skipped_on_tor:
+                                # the per-IP bucket must not be consulted over Tor
+                                self.assertEqual(test_func(self.handler), "Passed")
+                                self.assertFalse(any(k.startswith(bucket) for k in checked()))
+                                continue
 
-        rate_limit_mock = MagicMock()
-        rate_limit_mock.check.return_value = 1
-        State.RateLimit = rate_limit_mock
+                            if endpoint["action"] == "block":
+                                with self.assertRaises(errors.ForbiddenOperation):
+                                    test_func(self.handler)
+                            else:
+                                self.assertEqual(self.successResultOf(test_func(self.handler)), "Passed")
 
-        @decorator_rate_limit
-        def test_func(self): return "Should not run"
-
-        with self.assertRaises(errors.ForbiddenOperation):
-            test_func(self.handler)
-
-    def test_decorator_rate_limit_signup_buckets(self):
-        # Every signup bucket is exercised independently: tripping any single
-        # bucket must block the request. The per-IP buckets are skipped on Tor
-        # (where the client IP is not meaningful) while the per-system backstop
-        # applies regardless of the transport.
-        buckets = [
-            (b"signups_per_minute_per_ip", True),
-            (b"signups_per_hour_per_ip", True),
-            (b"signups_per_hour_per_system", False),
-        ]
-
-        for bucket, skipped_on_tor in buckets:
-            for client_using_tor in (False, True):
-                with self.subTest(bucket=bucket, tor=client_using_tor):
-                    self.handler = FakeHandler()
-                    self.handler.session = None
-                    self.handler.token = "x"
-                    self.handler.request = FakeRequest(path=b"/api/signup",
-                                                       client_using_tor=client_using_tor)
-
-                    rate_limit_mock = MagicMock()
-                    rate_limit_mock.check.side_effect = \
-                        lambda key, *_, b=bucket: 1 if key.startswith(b) else 0
-                    State.RateLimit = rate_limit_mock
-
-                    @decorator_rate_limit
-                    def test_func(self): return "Passed"
-
-                    checked = lambda: [c.args[0] for c in rate_limit_mock.check.call_args_list]
-
-                    if client_using_tor and skipped_on_tor:
-                        # The bucket is not consulted on Tor, so the request passes
-                        self.assertEqual(test_func(self.handler), "Passed")
-                        self.assertFalse(any(k.startswith(bucket) for k in checked()))
-                    else:
-                        with self.assertRaises(errors.ForbiddenOperation):
-                            test_func(self.handler)
-
-    def test_decorator_rate_limit_whistleblower_blocked(self):
-        self.handler = FakeHandler()
-        self.handler.session = FakeSession()
-        self.handler.token = None
-        self.handler.request = FakeRequest()
-
-        self.handler.session.role = "whistleblower"
-        self.handler.session.user_id = uuid4()
-        self.handler.request.tid = 1
-        self.handler.request.path = b"/api/whistleblower/submission"
-
-        # Patch RateLimit to simulate rate limit block
-        rate_limit_mock = MagicMock()
-        rate_limit_mock.check.side_effect = [True]
-        State.RateLimit = rate_limit_mock
-
-        @decorator_rate_limit
-        def test_func(self): return "Should not run"
-
-        with self.assertRaises(errors.ForbiddenOperation):
-            test_func(self.handler)
+                            # the tripped bucket must have been consulted
+                            self.assertTrue(any(k.startswith(bucket) for k in checked()))
