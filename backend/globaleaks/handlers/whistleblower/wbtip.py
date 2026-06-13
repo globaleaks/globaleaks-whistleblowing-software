@@ -16,12 +16,11 @@ from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_archive_questionnaire_schema, db_set_internaltip_data
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import db_get, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null
 
@@ -67,6 +66,8 @@ def db_get_wbtip(session, itip_id, language):
     itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
 
     itip.last_access = datetime_now()
+
+    db_log(session, tid=itip.tid, type='whistleblower_access_report', user_id=itip_id, object_id=itip.id)
 
     return serializers.serialize_wbtip(session, itip, language), Base64Encoder.decode(itip.crypto_tip_prv_key)
 
@@ -259,7 +260,7 @@ class WhistleblowerFileDownload(BaseHandler):
         if db_file_is_masked(session, ifile.internaltip_id, ifile.id):
             raise errors.ForbiddenOperation
 
-        log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
+        db_log(session, tid=tid, type='whistleblower_access_file', user_id=user_id, object_id=ifile.id, data={'internaltip_id': ifile.internaltip_id})
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key
 
@@ -303,8 +304,7 @@ class ReceiverFileDownload(BaseHandler):
         if rfile.access_date == datetime_null():
             rfile.access_date = datetime_now()
 
-        log.debug("Download of file %s by whistleblower %s",
-                  rfile.id, self.session.user_id)
+        db_log(session, tid=tid, type='whistleblower_access_file', user_id=self.session.user_id, object_id=rfile.id, data={'internaltip_id': rfile.internaltip_id})
 
         return rfile.name, rfile.id, Base64Encoder.decode(wbtip.crypto_tip_prv_key), ''
 

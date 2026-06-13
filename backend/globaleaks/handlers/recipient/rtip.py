@@ -28,7 +28,6 @@ from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
@@ -1388,8 +1387,7 @@ class WhistleblowerFileDownload(BaseHandler):
         if wbfile.access_date == datetime_null():
             wbfile.access_date = datetime_now()
 
-        log.debug("Download of file %s by receiver %s" %
-                  (wbfile.internalfile_id, rtip.receiver_id))
+        db_log(session, tid=tid, type='access_file', user_id=user_id, object_id=wbfile.id, data={'internaltip_id': ifile.internaltip_id})
 
         return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public
 
@@ -1502,6 +1500,8 @@ class ReceiverFileDownload(BaseHandler):
                 not user.can_mask_information and \
                 not user.can_redact_information:
             raise errors.ForbiddenOperation
+
+        db_log(session, tid=tid, type='access_file', user_id=user_id, object_id=rfile.id, data={'internaltip_id': rfile.internaltip_id})
 
         return rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public
 
