@@ -160,7 +160,7 @@ export interface RFile {
   visibility: string;
   masked: boolean;
   error: boolean;
-  author: string;
+  author_id: string;
   downloads: number;
 }
 
