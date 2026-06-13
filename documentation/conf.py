@@ -4,8 +4,10 @@
 #
 import gettext
 import glob
+import hashlib
 import os
 import pathlib
+import re
 import shutil
 import sys
 
@@ -137,9 +139,25 @@ def fa_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     return [node, html_node], []
 
 
+def update_install_hash(app, docname, source):
+    # Keep the install.sh checksum published in the installation guide in sync
+    # with the actual script at build time.
+    if docname != 'setup/installation':
+        return
+
+    install_script = os.path.join(base_dir, '..', 'scripts', 'install.sh')
+    with open(install_script, 'rb') as f:
+        digest = hashlib.sha256(f.read()).hexdigest()
+
+    source[0], n = re.subn(r'[0-9a-f]{64}(\s+install\.sh)', digest + r'\1', source[0])
+    if n != 1:
+        raise ValueError("install.sh checksum placeholder not found in setup/installation")
+
+
 def setup(app):
     # register our local :fa: role
     roles.register_local_role('fa', fa_role)
+    app.connect('source-read', update_install_hash)
     translation = gettext.translation('sphinx', localedir=locale_dir, languages=[app.config.language], fallback=True)
     document_title = translation.gettext('Documentation')
     app.config.latex_documents = [(master_doc, 'GlobaLeaks.tex', document_title, '', 'manual'),]

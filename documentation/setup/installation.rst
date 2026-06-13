@@ -11,8 +11,13 @@ To install, run the following commands:
 .. code:: sh
 
   wget https://deb.globaleaks.org/install.sh
+  echo "0000000000000000000000000000000000000000000000000000000000000000  install.sh" | sha256sum -c
   chmod +x install.sh
   ./install.sh
+
+The ``sha256sum -c`` step verifies the integrity of the downloaded script
+against the checksum published in this guide before running it as root.
+It prints ``install.sh: OK`` on success and fails otherwise.
 
 To install using Docker, run the following commands:
 
