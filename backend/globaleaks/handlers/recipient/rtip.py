@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 
 from nacl.encoding import Base64Encoder
+from sqlalchemy import or_
 from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -741,34 +742,58 @@ def redact_answers(answers, redactions):
                 redact_answers(answer, redactions)
 
 
+def mask_report_files(report, masked_ids):
+    """
+    Mask the name of the files that are referenced by an active masking and
+    flag them as masked so that the client renders a placeholder and the file
+    content is never disclosed to the viewer.
+
+    :param report: A serialized (and decrypted) report
+    :param masked_ids: The set of file reference ids that are masked
+    """
+    for f in report.get('wbfiles', []):
+        if f.get('ifile_id', f.get('id')) in masked_ids:
+            f['name'] = chr(0x2591) * len(f['name'])
+            f['masked'] = True
+
+    for f in report.get('rfiles', []):
+        if f.get('id') in masked_ids:
+            f['name'] = chr(0x2591) * len(f['name'])
+            f['masked'] = True
+
+
 @transact
-def redact_report(session, user_id, report, enforce=False):
+def redact_report(session, user_id, report):
     user = session.query(models.User).get(user_id)
 
     redactions = session.query(models.Redaction).filter(models.Redaction.internaltip_id == report['id']).all()
 
-    if not enforce and \
-            (user.can_mask_information or \
-             user.can_redact_information or \
-             not len(redactions)):
+    if not len(redactions):
         return report
 
-    redactions_by_reference_id = {}
-    for redaction in redactions:
-        if redaction.reference_id not in redactions_by_reference_id:
-            redactions_by_reference_id[redaction.reference_id] = []
-        redactions_by_reference_id[redaction.reference_id].append(redaction)
+    # Text content (answers and comments) is masked only for viewers without
+    # the masking/redaction permission (recipients without it and the
+    # whistleblower, who has no user record); privileged recipients need to
+    # read it to moderate. The content of a masked file is instead never
+    # downloadable by anyone, so masked files are flagged and their name is
+    # hidden for everyone.
+    privileged = user is not None and (user.can_mask_information or user.can_redact_information)
 
-    for q in report['questionnaires']:
-        redact_answers(q['answers'], redactions)
+    if not privileged:
+        redactions_by_reference_id = {}
+        for redaction in redactions:
+            if redaction.reference_id not in redactions_by_reference_id:
+                redactions_by_reference_id[redaction.reference_id] = []
+            redactions_by_reference_id[redaction.reference_id].append(redaction)
 
-    for comment in report['comments']:
-        if comment['id'] in redactions_by_reference_id:
-            comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
+        for q in report['questionnaires']:
+            redact_answers(q['answers'], redactions)
 
-    if enforce:
-        masked_ifile_ids = {r.reference_id for r in redactions if r.entry == '0'}
-        report['wbfiles'] = [f for f in report['wbfiles'] if f['ifile_id'] not in masked_ifile_ids]
+        for comment in report['comments']:
+            if comment['id'] in redactions_by_reference_id:
+                comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
+
+    mask_report_files(report, {r.reference_id for r in redactions if r.entry == '0'})
 
     return report
 
@@ -1101,6 +1126,9 @@ def create_redaction(session, tid, user_id, data):
             (session.query(models.InternalFile)
                     .filter(models.InternalFile.id == reference_id,
                             models.InternalFile.internaltip_id != itip.id).first() or
+             session.query(models.ReceiverFile)
+                    .filter(models.ReceiverFile.id == reference_id,
+                            models.ReceiverFile.internaltip_id != itip.id).first() or
              session.query(models.Comment)
                     .filter(models.Comment.id == reference_id,
                             models.Comment.internaltip_id != itip.id).first()):
@@ -1184,15 +1212,19 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
 
                 db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
 
-                delete_wbfile(session, tid, user_id, redaction.reference_id)
+                if session.query(models.ReceiverFile) \
+                          .filter(models.ReceiverFile.id == redaction.reference_id).count():
+                    delete_rfile(session, tid, user_id, redaction.reference_id)
+                else:
+                    delete_wbfile(session, tid, user_id, redaction.reference_id)
+
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
             db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
 
-@transact
 def delete_rfile(session, tid, user_id, file_id):
     """
-    Transation for deleting a rfile
+    Transaction for deleting a rfile
     :param session: An ORM session
     :param tid: A tenant ID
     :param user_id: The user ID of the user performing the operation
@@ -1340,9 +1372,7 @@ class WhistleblowerFileDownload(BaseHandler):
                                    models.Redaction.reference_id == ifile.id,
                                    models.Redaction.entry == '0').one_or_none()
 
-        if redaction is not None and \
-                not user.can_mask_information and \
-                not user.can_redact_information:
+        if redaction is not None:
             raise errors.ForbiddenOperation
 
         if wbfile.access_date == datetime_null():
@@ -1435,20 +1465,30 @@ class ReceiverFileDownload(BaseHandler):
     @transact
     def download_rfile(self, session, tid, user_id, file_id):
         try:
-            rfile, rtip, pgp_key = db_get(session,
-                                          (models.ReceiverFile,
-                                           models.ReceiverTip,
-                                           models.User.pgp_key_public),
-                                          (models.User.id == user_id,
-                                           models.User.id == models.ReceiverTip.receiver_id,
-                                           models.ReceiverFile.id == file_id,
-                                           models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id,
-                                           models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                           models.InternalTip.tid == tid))
+            user, rfile, rtip = db_get(session,
+                                       (models.User,
+                                        models.ReceiverFile,
+                                        models.ReceiverTip),
+                                       (models.User.id == user_id,
+                                        models.User.id == models.ReceiverTip.receiver_id,
+                                        models.ReceiverFile.id == file_id,
+                                        models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id,
+                                        models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                        models.InternalTip.tid == tid,
+                                        or_(models.ReceiverFile.visibility != 2,
+                                            models.ReceiverFile.author_id == user_id)))
         except Exception:
             raise errors.ResourceNotFound
-        else:
-            return rfile.name, rfile.id, rtip.crypto_tip_prv_key, pgp_key
+
+        redaction = session.query(models.Redaction) \
+                           .filter(models.Redaction.internaltip_id == rfile.internaltip_id,
+                                   models.Redaction.reference_id == rfile.id,
+                                   models.Redaction.entry == '0').one_or_none()
+
+        if redaction is not None:
+            raise errors.ForbiddenOperation
+
+        return rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public
 
     @inlineCallbacks
     def get(self, rfile_id):
@@ -1470,12 +1510,6 @@ class ReceiverFileDownload(BaseHandler):
             yield self.serialize_download(self.write_file_as_download, name, filelocation, pgp_key)
         else:
             yield self.write_file_as_download(name, filelocation, pgp_key)
-
-    def delete(self, file_id):
-        """
-        This interface allow the recipient to set the description of a ReceiverFile
-        """
-        return delete_rfile(self.request.tid, self.session.user_id, file_id)
 
 
 class IdentityAccessRequestsCollection(BaseHandler):
