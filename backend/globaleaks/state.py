@@ -179,8 +179,9 @@ class StateClass(ObjectDict, metaclass=Singleton):
         session = orm.get_session(orm.make_db_uri(db_file))
         try:
             return ConfigFactory(session, 1).get_val('reachable_via_web')
-        except Exception:
-            return True
+        except Exception as excep:
+            log.err("Could not read reachable_via_web; assuming Tor-only: %s", excep)
+            return False
         finally:
             session.close()
 
