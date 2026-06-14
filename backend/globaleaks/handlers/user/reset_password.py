@@ -90,8 +90,7 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
     ).distinct()
 
     for user in users:
-        if State.settings.enable_rate_limiting and \
-           State.RateLimit.check(b"password_resets_per_hour_per_user:" + user.id.encode(), 5, 3600) > 0:
+        if State.RateLimit.check(b"password_resets_per_hour_per_user:" + user.id.encode(), 5, 3600) > 0:
             continue
 
         db_generate_password_reset_token(session, user)
