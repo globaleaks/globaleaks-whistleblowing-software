@@ -13,6 +13,7 @@ from globaleaks.orm import db_del, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
 from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, sha256, GCE
+from globaleaks.utils.log import log
 
 
 @transact
@@ -84,7 +85,16 @@ def signup(session, request, language):
     State.format_and_send_mail(session, 1, signup.email, template_vars)
 
     # Email 2 - Admin Notification
+    notif = State.tenants[1].cache.notification
+    if notif and not notif.enable_admin_notification_emails:
+        return
+
     for user_desc in db_get_users(session, 1, 'admin'):
+        # Do not generate emails if the user has disabled notifications
+        if not user_desc['notification']:
+            log.debug("Discarding emails for %s due to user's preference.", user_desc['id'])
+            continue
+
         template_vars = {
             'type': 'admin_signup_alert',
             'node': db_admin_serialize_node(session, 1, user_desc['language']),

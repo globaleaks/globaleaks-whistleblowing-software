@@ -46,9 +46,9 @@ class MailGenerator(object):
         user_id = data['user']['id']
         language = data['user']['language']
 
-        # Do not generate emails if the receiver has disabled notifications
+        # Do not generate emails if the user has disabled notifications
         if not data['user']['notification'] or ('tip' in data and not data['tip']['enable_notifications']):
-            log.debug("Discarding emails for %s due to receiver's preference.", user_id)
+            log.debug("Discarding emails for %s due to user's preference.", user_id)
             return
 
         data['node'] = self.serialize_config(session, 'node', tid, language)
@@ -124,7 +124,7 @@ class MailGenerator(object):
             return
 
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
-                                                      not_(models.User.id.in_(silent_tids)),
+                                                      not_(models.User.tid.in_(silent_tids)),
                                                       models.User.reminder_date < now - timedelta(reminder_time),
                                                       models.ReceiverTip.last_access < models.InternalTip.update_date,
                                                       models.ReceiverTip.internaltip_id == models.InternalTip.id,
@@ -223,7 +223,7 @@ class MailGenerator(object):
         self.db_generate_email_for_unread_reports(session, now, silent_tids)
 
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
-                                                      not_(models.User.id.in_(silent_tids)),
+                                                      not_(models.User.tid.in_(silent_tids)),
                                                       models.ReceiverTip.internaltip_id == models.InternalTip.id,
                                                       models.InternalTip.reminder_date < now).distinct():
 

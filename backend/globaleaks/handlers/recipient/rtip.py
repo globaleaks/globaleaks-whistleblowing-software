@@ -39,6 +39,10 @@ def db_notify_grant_access(session, user):
     :param session: An ORM session
     :param user: A user to which send the notification
     """
+    notif = State.tenants[user.tid].cache.notification
+    if (notif and not notif.enable_receiver_notification_emails) or not user.notification:
+        return
+
     data = {
         'type': 'tip_access'
     }
@@ -1000,6 +1004,10 @@ def db_create_identityaccessrequest_notifications(session, itip, rtip, iar):
     :param rtip: A rtip ID of the rtip involved in the request
     :param iar: A identity access request model
     """
+    notif = State.tenants[itip.tid].cache.notification
+    if notif and not notif.enable_custodian_notification_emails:
+        return
+
     for user in session.query(models.User).filter(models.User.role == 'custodian',
                                                   models.User.tid == itip.tid,
                                                   models.User.notification.is_(True)):

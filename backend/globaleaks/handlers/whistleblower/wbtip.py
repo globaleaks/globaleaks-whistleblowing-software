@@ -32,6 +32,10 @@ def db_notify_report_update(session, user, rtip, itip):
     :param rtip: A rtip ORM object
     :param itip: A itip ORM object
     """
+    notif = State.tenants[user.tid].cache.notification
+    if (notif and not notif.enable_receiver_notification_emails) or not user.notification or not rtip.enable_notifications:
+        return
+
     data = {
       'type': 'tip_update',
       'user': user_serialize_user(session, user, user.language),
