@@ -150,7 +150,7 @@ def init_state():
     orm.set_thread_pool(FakeThreadPool())
 
     State.settings.enable_api_cache = False
-    State.settings.enable_rate_limiting = False
+    State.RateLimit.enabled = False
 
     State.tenants[1] = TenantState()
     State.tenants[1].cache.hostname = 'www.globaleaks.org'
