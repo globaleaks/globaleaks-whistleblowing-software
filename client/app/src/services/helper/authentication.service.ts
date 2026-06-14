@@ -167,6 +167,14 @@ export class AuthenticationService {
               if (!callback) {
                 this.reset();
 
+                if (this.session.properties.password_change_needed) {
+                  // A confined session must reach the forced page directly: the
+                  // role landing route runs sibling resolvers that the backend
+                  // now rejects, which would otherwise tear down the session.
+                  this.router.navigate(['/action/forcedpasswordchange']).then();
+                } else if (this.session.properties.require_two_factor) {
+                  this.router.navigate(['/action/forcedtwofactor']).then();
+                } else {
                 let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || undefined;
                 redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
                 redirect = decodeURIComponent(redirect);
@@ -183,6 +191,7 @@ export class AuthenticationService {
                     queryParams: this.activatedRoute.snapshot.queryParams,
                     queryParamsHandling: "merge"
                   }).then();
+                }
                 }
               }
             }
