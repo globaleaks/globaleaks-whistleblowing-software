@@ -98,11 +98,6 @@ class MailGenerator(object):
                 'earliest_expiration_date': earliest_expiration_date
             }
 
-            # Do not generate emails if the receiver has disabled notifications
-            if not data['user']['notification']:
-                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
-                 return
-
             if data['node']['mode'] == 'default':
                 data['notification'] = db_get_notification(session, tid, user.language)
             else:
@@ -124,7 +119,7 @@ class MailGenerator(object):
             return
 
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
-                                                      not_(models.User.id.in_(silent_tids)),
+                                                      not_(models.User.tid.in_(silent_tids)),
                                                       models.User.reminder_date < now - timedelta(reminder_time),
                                                       models.ReceiverTip.last_access < models.InternalTip.update_date,
                                                       models.ReceiverTip.internaltip_id == models.InternalTip.id,
@@ -223,7 +218,7 @@ class MailGenerator(object):
         self.db_generate_email_for_unread_reports(session, now, silent_tids)
 
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
-                                                      not_(models.User.id.in_(silent_tids)),
+                                                      not_(models.User.tid.in_(silent_tids)),
                                                       models.ReceiverTip.internaltip_id == models.InternalTip.id,
                                                       models.InternalTip.reminder_date < now).distinct():
 

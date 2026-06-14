@@ -16,6 +16,10 @@ from globaleaks.utils.templating import Templating
 
 @transact
 def generate_admin_alert_mail(session, tid, alert):
+    notif = State.tenants[tid].cache.notification
+    if notif and not notif.enable_admin_notification_emails:
+        return
+
     for user_desc in db_get_users(session, tid, 'admin'):
         user_language = user_desc['language']
 

@@ -30,6 +30,10 @@ class PGPCheck(DailyJob):
     monitor_interval = 5 * 60
 
     def prepare_admin_pgp_alerts(self, session, tid, expired_or_expiring):
+        notif = self.state.tenants[tid].cache.notification
+        if notif and not notif.enable_admin_notification_emails:
+            return
+
         for user_desc in db_get_users(session, tid, 'admin'):
             user_language = user_desc['language']
 
@@ -46,6 +50,9 @@ class PGPCheck(DailyJob):
             db_schedule_email(session, tid, data['user']['mail_address'], subject, body)
 
     def prepare_user_pgp_alerts(self, session, tid, user_desc):
+        if not user_desc['notification']:
+            return
+
         user_language = user_desc['language']
 
         data = {
@@ -76,9 +83,6 @@ class PGPCheck(DailyJob):
         for tid, expired_or_expiring in tenant_expiry_map.items():
             for user_desc in expired_or_expiring:
                 self.prepare_user_pgp_alerts(session, tid, user_desc)
-
-            if self.state.tenants[tid].cache.notification.enable_notification_emails_admin:
-                continue
 
             if expired_or_expiring:
                 self.prepare_admin_pgp_alerts(session, tid, expired_or_expiring)
