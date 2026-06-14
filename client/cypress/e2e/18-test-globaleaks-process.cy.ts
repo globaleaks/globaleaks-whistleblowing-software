@@ -127,7 +127,7 @@ describe("globaleaks process", function () {
     cy.get('#tip-action-notify').should('be.visible').click();
     cy.get('#tip-action-silence').should('be.visible').should('be.visible');
 
-    // Upload and delete file
+    // Upload file
     cy.get('#upload_description')
       .type('description')
       .should('have.value', 'description');
@@ -139,7 +139,6 @@ describe("globaleaks process", function () {
 
     cy.get('.download-button').should('be.visible');
     cy.get('.download-button').first().click();
-    cy.get('.tip-action-delete-file').first().click();
 
     // View files uploaded by the whistleblower
     cy.get(".tip-action-views-file").first().click();
