@@ -23,16 +23,24 @@ def fieldtree_ancestors(session, field_id):
         yield fieldtree_ancestors(session, field.fieldgroup_id)
 
 
-def db_create_option_trigger(session, option_id, type, object_id, sufficient):
+def db_create_option_trigger(session, tid, option_id, type, object_id, sufficient):
     """
     Transaction for creating an option trigger
 
     :param session: An ORM session
+    :param tid: The tenant ID
     :param option_id: The option id
     :param type: The trigger type
     :param object_id: The object to be connected to the trigger
     :param sufficient: A boolean indicating if the condition is sufficient
     """
+    # Authorize: the referenced option must belong to the requesting tenant
+    db_get(session,
+           models.FieldOption,
+           (models.FieldOption.id == option_id,
+            models.FieldOption.field_id == models.Field.id,
+            models.Field.tid == tid))
+
     o = trigger_map[type]()
     o.option_id = option_id
     o.object_id = object_id
@@ -239,7 +247,7 @@ def db_create_field(session, tid, request, language):
         db_update_fieldoptions(session, field.id, options, language)
 
         for trigger in request.get('triggered_by_options', []):
-            db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
+            db_create_option_trigger(session, tid, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
     else:
         if request['template_id'] == 'whistleblower_identity':
             if request.get('step_id', '') == '':
@@ -322,7 +330,7 @@ def db_update_field(session, tid, field_id, request, language):
     db_reset_option_triggers(session, 'field', field.id)
 
     for trigger in request.get('triggered_by_options', []):
-        db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
+        db_create_option_trigger(session, tid, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
 
     if field.instance != 'reference':
         db_update_fieldoptions(session, field.id, request['options'], language)
