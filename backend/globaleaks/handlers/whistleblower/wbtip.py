@@ -12,8 +12,8 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
-    db_set_internaltip_answers, db_get_questionnaire, \
-    db_archive_questionnaire_schema, db_set_internaltip_data
+    db_set_internaltip_answers, db_archive_questionnaire_schema, \
+    db_set_internaltip_data, db_validate_answers
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_log, transact
@@ -108,11 +108,16 @@ def create_comment(session, tid, user_id, content):
 
 @transact
 def update_identity_information(session, tid, user_id, identity_field_id, wbi, language):
-    itip = db_get(session,
-                  models.InternalTip,
-                  (models.InternalTip.id == user_id,
-                   models.InternalTip.status != 'closed',
-                   models.InternalTip.tid == tid))
+    itip, context = session.query(models.InternalTip, models.Context) \
+                           .filter(models.InternalTip.id == user_id,
+                                   models.InternalTip.status != 'closed',
+                                   models.InternalTip.tid == tid,
+                                   models.Context.id == models.InternalTip.context_id).one()
+
+    # The identity answers are the entry of the whistleblower identity field,
+    # so they are validated exactly as the initial submission validates the
+    # field entries.
+    db_validate_answers(session, tid, context.questionnaire_id, {identity_field_id: [wbi]})
 
     if itip.crypto_tip_pub_key:
         wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
@@ -137,7 +142,7 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
     if not context.additional_questionnaire_id:
         return
 
-    steps = db_get_questionnaire(session, tid, context.additional_questionnaire_id, None)['steps']
+    steps = db_validate_answers(session, tid, context.additional_questionnaire_id, answers)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     if itip.crypto_tip_pub_key:

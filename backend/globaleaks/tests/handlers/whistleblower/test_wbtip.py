@@ -1,8 +1,11 @@
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks import models
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.orm import transact
+from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.tests.helpers import VALID_SALT
 from globaleaks.utils.crypto import GCE
@@ -72,17 +75,24 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         yield self.perform_full_submission_actions()
 
+    @transact
+    def get_whistleblower_identity_field_id(self, session, context_id):
+        context = session.query(models.Context) \
+                         .filter(models.Context.id == context_id).one()
+
+        field = session.query(models.Field) \
+                       .filter(models.Field.template_id == 'whistleblower_identity',
+                               models.Field.step_id == models.Step.id,
+                               models.Step.questionnaire_id == context.questionnaire_id).one()
+
+        return field.id
+
     @inlineCallbacks
-    def test_put(self):
-        # FIXME:
-        #  The current test simply update a not existing field rising the code coverage
-        #  and testing that all goes well even if a wrong id is provided or the feature
-        #  is not enable.
-        #
-        #  As improval we should load effectively a whistleblower_identity_field on the
-        #  context and validate the update.
+    def test_post(self):
+        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummyContext['id'])
+
         body = {
-          'identity_field_id': 'b1f82a33-8df1-43d2-b36f-da53f0000000',
+          'identity_field_id': identity_field_id,
           'identity_field_answers': {}
         }
 
@@ -91,6 +101,71 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
 
             yield handler.post()
+
+    @inlineCallbacks
+    def test_post_with_deeply_nested_answers_rejected(self):
+        # A modified client cannot persist identity answers nested beyond the
+        # questionnaire schema: such a report would later exhaust the recursion
+        # limit when an assigned recipient opens, exports or redacts it.
+        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummyContext['id'])
+
+        body = {
+          'identity_field_id': identity_field_id,
+          'identity_field_answers': helpers.forge_nested_answers(identity_field_id)
+        }
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+            yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+
+class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
+    _handler = wbtip.WBTipAdditionalQuestionnaire
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        # Enable an additional questionnaire on the context reusing the main
+        # questionnaire schema so that the fill-form endpoint stores answers.
+        yield self.set_additional_questionnaire(self.dummyContext['id'],
+                                                self.dummyContext['questionnaire_id'])
+
+    @transact
+    def set_additional_questionnaire(self, session, context_id, questionnaire_id):
+        session.query(models.Context) \
+               .filter(models.Context.id == context_id) \
+               .update({'additional_questionnaire_id': questionnaire_id})
+
+    @inlineCallbacks
+    def test_post(self):
+        answers = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
+
+        body = {
+          'cmd': 'fill',
+          'answers': answers
+        }
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+            yield handler.post()
+
+    @inlineCallbacks
+    def test_post_with_deeply_nested_answers_rejected(self):
+        # A modified client cannot persist answers nested beyond the
+        # questionnaire schema: such a report would later exhaust the recursion
+        # limit when an assigned recipient opens, exports or redacts it.
+        body = {
+          'cmd': 'fill',
+          'answers': helpers.forge_nested_answers('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
+        }
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+            yield self.assertFailure(handler.post(), errors.InputValidationError)
 
 
 class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
