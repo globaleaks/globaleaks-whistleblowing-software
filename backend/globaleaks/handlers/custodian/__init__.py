@@ -11,6 +11,7 @@ from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
+from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now
@@ -49,9 +50,14 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
     :param itip: A itip ID of the tip involved in the request
     :param iar: A identity access request model
     """
+    notif = State.tenants[itip.tid].cache.notification
+    if notif and not notif.enable_receiver_notification_emails:
+        return
+
     for user, rtip in session.query(models.User, models.ReceiverTip) \
                              .filter(models.User.id == models.ReceiverTip.receiver_id,
                                      models.ReceiverTip.internaltip_id == itip.id,
+                                     models.ReceiverTip.enable_notifications.is_(True),
                                      models.User.notification.is_(True)):
         context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
 

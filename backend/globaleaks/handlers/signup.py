@@ -84,6 +84,10 @@ def signup(session, request, language):
     State.format_and_send_mail(session, 1, signup.email, template_vars)
 
     # Email 2 - Admin Notification
+    notif = State.tenants[1].cache.notification
+    if notif and not notif.enable_admin_notification_emails:
+        return
+
     for user_desc in db_get_users(session, 1, 'admin'):
         template_vars = {
             'type': 'admin_signup_alert',

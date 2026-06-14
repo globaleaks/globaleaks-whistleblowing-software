@@ -32,6 +32,10 @@ class CertificateCheck(DailyJob):
 
     @transact
     def certificate_mail_creation(self, session, mail_type, tid, expiration_date):
+        notif = self.state.tenants[tid].cache.notification
+        if notif and not notif.enable_admin_notification_emails:
+            return
+
         for user_desc in db_get_users(session, tid, 'admin'):
             if not user_desc['notification']:
                 continue
