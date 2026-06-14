@@ -24,23 +24,25 @@ WAITFORDAEMON=60
 ##################################################################
 # GLobaLeaks configuration is read with the following order:
 # 1) /usr/share/globaleaks/default
-# 2) web configuration
-# 3) /etc/default/globaleaks
+# 2) /etc/default/globaleaks
+# 3) web configuration
 
 # The /etc/default/globaleaks is the place where one can force
 # settings that could not be overridden from the configuration
-# that can be issued from the web interface
+# that can be issued from the web interface; it is sourced before
+# the web reachability check so that the check runs against the
+# working directory actually used by the daemon.
 if test -e "/usr/share/globaleaks/default" ; then
     . "/usr/share/globaleaks/default"
 fi
 
-REACHABLE_VIA_WEB=1
-if [[ -f /var/globaleaks/globaleaks.db && "$(gl-admin getvar reachable_via_web 2>&1)" == "False" ]]; then
-    REACHABLE_VIA_WEB=0
-fi
-
 if test -e "/etc/default/globaleaks" ; then
     . "/etc/default/globaleaks"
+fi
+
+REACHABLE_VIA_WEB=1
+if [[ -f "${WORKING_DIR}/globaleaks.db" && "$(gl-admin getvar reachable_via_web --workdir "${WORKING_DIR}" 2>&1)" == "False" ]]; then
+    REACHABLE_VIA_WEB=0
 fi
 
 ##################################################################
