@@ -478,15 +478,7 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         # questionnaire schema: such a report would later exhaust the recursion
         # limit when an assigned recipient opens or exports it.
         self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
-
-        nested = {}
-        cur = nested
-        for _ in range(3000):
-            child = {}
-            cur['aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'] = [child]
-            cur = child
-
-        self.submission_desc['answers'] = nested
+        self.submission_desc['answers'] = helpers.forge_nested_answers('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 

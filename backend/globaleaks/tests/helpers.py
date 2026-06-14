@@ -170,6 +170,22 @@ def get_token():
     return TOKEN_ANSWER
 
 
+def forge_nested_answers(field_id, depth=3000):
+    """
+    Build an answers payload where field_id is recursively nested `depth`
+    times: the denial-of-service shape that, once persisted, exhausts the
+    recursion limit when a recipient opens, exports or redacts the report.
+    """
+    answers = {}
+    cur = answers
+    for _ in range(depth):
+        child = {}
+        cur[field_id] = [child]
+        cur = child
+
+    return answers
+
+
 def get_dummy_step():
     return {
         'id': '',

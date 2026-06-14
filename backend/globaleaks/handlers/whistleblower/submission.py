@@ -453,6 +453,23 @@ def db_validate_submission_answers(steps, answers):
         validate_entries(field, value)
 
 
+def db_validate_answers(session, tid, questionnaire_id, answers):
+    """
+    Load the authoritative questionnaire schema, with templates serialized so
+    that fieldgroup children are present, and enforce that the submitted
+    answers conform to it (see db_validate_submission_answers). The schema
+    steps are returned for further server-side processing.
+
+    This is the single entry point shared by the submission and the
+    whistleblower tip endpoints that persist answers, so that the bound on the
+    answers nesting depth is enforced identically everywhere and cannot be
+    forgotten on a code path a modified client could reach.
+    """
+    steps = db_get_questionnaire(session, tid, questionnaire_id, None, True)['steps']
+    db_validate_submission_answers(steps, answers)
+    return steps
+
+
 def db_create_receivertip(session, receiver, internaltip, tip_key):
     """
     Create a receiver tip for the specified receiver
@@ -483,10 +500,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     answers = request['answers']
-    steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
+    steps = db_validate_answers(session, tid, questionnaire.id, answers)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
-
-    db_validate_submission_answers(steps, answers)
 
     if db_evaluate_block_submission(steps, answers):
         raise errors.SubmissionDisabled
