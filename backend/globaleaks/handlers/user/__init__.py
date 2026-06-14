@@ -3,7 +3,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
 from globaleaks.orm import db_get, transact
-from globaleaks.rest import requests
+from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import generateRandomKey
@@ -143,8 +143,13 @@ def db_user_update_user(session, tid, user_session, request):
         user.name = request['name']
         user.public_name = request['public_name'] or request['name']
 
-        # If the email address changed, send a validation email
+        # If the email address changes, send a validation email
         if request['mail_address'] != user.mail_address:
+
+            # Allow up to 3 changes within an hour
+            if State.RateLimit.check(b"email_validations_per_hour_per_user:" + user.id.encode(), 3, 3600) > 0:
+                raise errors.ForbiddenOperation
+
             token = generateRandomKey()
             user.change_email_address = request['mail_address']
             user.change_email_date = datetime_now()
