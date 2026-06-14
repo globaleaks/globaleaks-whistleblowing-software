@@ -149,6 +149,17 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
         try:
             State.totp_verify(user.two_factor_secret, auth_code)
         except Exception:
+            # Bound brute forcing of the second factor against a compromised
+            # reset token: invalidate the token after repeated failed codes so
+            # that further guessing requires issuing a new reset token.
+            if State.RateLimit.check(b"password_reset_failures_per_token:" + sha256(reset_token), 5, 3600) > 0:
+                try:
+                    os.unlink(filepath)
+                except Exception:
+                    pass
+
+                return {'status': 'invalid_reset_token_provided'}
+
             return {'status': 'require_two_factor_authentication'}
 
     # Special condition where the user is accessing for the first time via a reset
