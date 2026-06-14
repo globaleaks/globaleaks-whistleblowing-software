@@ -100,8 +100,8 @@ class MailGenerator(object):
 
             # Do not generate emails if the receiver has disabled notifications
             if not data['user']['notification']:
-                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
-                 return
+                log.debug("Discarding emails for %s due to receiver's preference.", user.id)
+                continue
 
             if data['node']['mode'] == 'default':
                 data['notification'] = db_get_notification(session, tid, user.language)
@@ -150,7 +150,7 @@ class MailGenerator(object):
 
         for tid in self.state.tenants:
             cache = self.state.tenants[tid].cache
-            if cache.notification and cache.enable_notification_emails_recipient:
+            if cache.notification and not cache.notification.enable_receiver_notification_emails:
                 silent_tids.append(tid)
 
         results1 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.ReceiverTip) \
