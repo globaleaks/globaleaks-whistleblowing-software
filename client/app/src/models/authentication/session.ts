@@ -16,6 +16,8 @@ export class Session {
 export interface Properties {
   management_session: any
   receipt_change_needed: boolean;
+  password_change_needed: boolean;
+  require_two_factor: boolean;
 }
 
 export class SessionRefresh {

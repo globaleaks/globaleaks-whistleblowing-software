@@ -173,6 +173,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key != '')
 
     session.properties['password_change_needed'] = user.password_change_needed
+    session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
     session.permissions['can_edit_general_settings'] = user.role == 'receiver' and user.can_edit_general_settings
 
     return session

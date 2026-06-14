@@ -129,6 +129,64 @@ class TestDecorators(unittest.TestCase):
         self.handler.request.path = b"/api/recipient/rtips"
         self.assertEqual(decorated_func(self.handler), "Authorized")
 
+    def test_decorator_authentication_password_change_confined(self):
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver",
+                                           properties={"password_change_needed": True})
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        # While the forced password change is pending every other endpoint is forbidden
+        self.handler.request.path = b"/api/recipient/rtips"
+        with self.assertRaises(errors.ForbiddenOperation):
+            decorated_func(self.handler)
+
+        # The endpoints needed to complete the password change stay reachable
+        for path in (b"/api/user/preferences",
+                     b"/api/user/operations",
+                     b"/api/auth/session"):
+            self.handler.request.path = path
+            self.assertEqual(decorated_func(self.handler), "Authorized")
+
+        # Once the password change is completed the session regains full access
+        self.handler.session.properties = {}
+        self.handler.request.path = b"/api/recipient/rtips"
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_require_two_factor_confined(self):
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver",
+                                           properties={"require_two_factor": True})
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        # While the mandatory 2fa enrollment is pending every other endpoint is forbidden
+        self.handler.request.path = b"/api/recipient/rtips"
+        with self.assertRaises(errors.ForbiddenOperation):
+            decorated_func(self.handler)
+
+        # The endpoints needed to complete the enrollment stay reachable
+        for path in (b"/api/user/preferences",
+                     b"/api/user/operations",
+                     b"/api/auth/session"):
+            self.handler.request.path = path
+            self.assertEqual(decorated_func(self.handler), "Authorized")
+
+        # Once the enrollment is completed the session regains full access
+        self.handler.session.properties = {}
+        self.handler.request.path = b"/api/recipient/rtips"
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
     def test_decorator_authentication_enforces_tor_policy(self):
         # A session whose role is restricted to Tor must be rejected per-request
         # when presented over a non-Tor connection, even though the session was
