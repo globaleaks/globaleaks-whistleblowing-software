@@ -15,12 +15,13 @@ from globaleaks.utils.utility import deferred_sleep
 USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
 
-# A session that still holds a password reset token has authenticated only via
-# that emailed token and not via a password. Until the password change completes
-# such a session may only read its own preferences, perform the change and log
-# out. The operations endpoint is further restricted to the change_password
-# operation by UserOperationHandler.
-PASSWORD_CHANGE_PATHS = {b"/api/user/preferences", b"/api/user/operations", b"/api/auth/session"}
+# A session pending a mandatory step (reset-token password change, forced
+# password change, password-age expiry, or mandatory two-factor enrollment) is
+# confined to this minimal set of endpoints: read its own preferences, perform
+# the change/enrollment through operations, and refresh or close the session.
+# The operations endpoint is further restricted to the allowed operation by
+# UserOperationHandler.
+ENFORCED_LIMITED_APIS = {b"/api/user/preferences", b"/api/user/operations", b"/api/auth/session"}
 
 def has_session_or_token(self):
     return self.token or self.session
@@ -43,8 +44,10 @@ def check_authentication(self, roles):
         return
 
     if self.session and self.session.tid == self.request.tid:
-        if self.session.properties.get('reset_token') and \
-           self.request.path not in PASSWORD_CHANGE_PATHS:
+        if (self.session.properties.get('reset_token') or
+            self.session.properties.get('password_change_needed') or
+            self.session.properties.get('require_two_factor')) and \
+           self.request.path not in ENFORCED_LIMITED_APIS:
             raise errors.ForbiddenOperation
 
         if ('user' in roles and self.session.role in USERS_ROLES) or \

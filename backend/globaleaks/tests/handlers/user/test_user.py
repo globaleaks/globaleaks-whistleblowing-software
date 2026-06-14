@@ -162,7 +162,9 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
             'args': args if args is not None else {}
         }
 
-        return self.request(data_request, role='receiver', headers=headers, properties=properties).put()
+        handler = self.request(data_request, role='receiver', headers=headers, properties=properties)
+        handler.request.path = b'/api/user/operations'
+        return handler.put()
 
     @inlineCallbacks
     def test_user_change_password(self):
