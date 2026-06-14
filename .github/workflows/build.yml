@@ -81,7 +81,7 @@ jobs:
             echo "FROM ${IMAGE}"
             echo "ENV DEBIAN_FRONTEND=noninteractive container=docker"
             echo "RUN apt-get update -q && apt-get install -y --no-install-recommends systemd systemd-sysv iptables && apt-get clean"
-            echo "COPY globaleaks.deb /tmp/globaleaks.deb"
+            echo "COPY globaleaks.deb /opt/globaleaks.deb"
             echo "STOPSIGNAL SIGRTMIN+3"
             echo 'CMD ["/sbin/init"]'
           } > systemd-test/Dockerfile
@@ -101,7 +101,7 @@ jobs:
           docker exec gl-systemd systemctl is-system-running || true
 
           # Install the freshly built package (Depends pulled from the distro repos)
-          docker exec gl-systemd bash -c "apt-get update -q && apt-get install -y /tmp/globaleaks.deb"
+          docker exec gl-systemd bash -c "apt-get update -q && apt-get install -y /opt/globaleaks.deb"
 
           # Fail-closed: with the default config (APPARMOR_SANDBOXING=1) but AppArmor
           # not yet available in this container, the daemon must never run unconfined.
