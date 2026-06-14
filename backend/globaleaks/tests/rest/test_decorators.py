@@ -100,34 +100,42 @@ class TestDecorators(unittest.TestCase):
         self.handler.session.role = "admin"
         self.assertEqual(decorated_func(self.handler), "Authorized")
 
-    def test_decorator_authentication_reset_token_confined(self):
-        self.handler = FakeHandler()
-        self.handler.session = FakeSession(role="receiver",
-                                           properties={"reset_token": "x"})
-        self.handler.token = None
-        self.handler.request = FakeRequest()
+    def test_decorator_authentication_confined_sessions(self):
+        # A session held in a constrained state (pending reset-token use, forced
+        # password change or mandatory 2fa enrollment) may reach only the
+        # endpoints needed to complete that step; every other endpoint is
+        # forbidden until the constraining property is cleared.
+        for confining_property in ({"reset_token": "x"},
+                                   {"password_change_needed": True},
+                                   {"require_two_factor": True}):
+            with self.subTest(properties=confining_property):
+                self.handler = FakeHandler()
+                self.handler.session = FakeSession(role="receiver",
+                                                   properties=confining_property)
+                self.handler.token = None
+                self.handler.request = FakeRequest()
 
-        def test_func(self):
-            return "Authorized"
+                def test_func(self):
+                    return "Authorized"
 
-        decorated_func = decorator_authentication(test_func, ["receiver"])
+                decorated_func = decorator_authentication(test_func, ["receiver"])
 
-        # While the reset token is held every other endpoint is forbidden
-        self.handler.request.path = b"/api/recipient/rtips"
-        with self.assertRaises(errors.ForbiddenOperation):
-            decorated_func(self.handler)
+                # While the session is confined every other endpoint is forbidden
+                self.handler.request.path = b"/api/recipient/rtips"
+                with self.assertRaises(errors.ForbiddenOperation):
+                    decorated_func(self.handler)
 
-        # The endpoints needed to complete the password change stay reachable
-        for path in (b"/api/user/preferences",
-                     b"/api/user/operations",
-                     b"/api/auth/session"):
-            self.handler.request.path = path
-            self.assertEqual(decorated_func(self.handler), "Authorized")
+                # The endpoints needed to complete the step stay reachable
+                for path in (b"/api/user/preferences",
+                             b"/api/user/operations",
+                             b"/api/auth/session"):
+                    self.handler.request.path = path
+                    self.assertEqual(decorated_func(self.handler), "Authorized")
 
-        # Once the reset token is cleared the session regains full access
-        self.handler.session.properties = {}
-        self.handler.request.path = b"/api/recipient/rtips"
-        self.assertEqual(decorated_func(self.handler), "Authorized")
+                # Once the constraint is cleared the session regains full access
+                self.handler.session.properties = {}
+                self.handler.request.path = b"/api/recipient/rtips"
+                self.assertEqual(decorated_func(self.handler), "Authorized")
 
     def test_decorator_authentication_enforces_tor_policy(self):
         # A session whose role is restricted to Tor must be rejected per-request

@@ -182,11 +182,17 @@ class UserOperationHandler(OperationHandler):
                                 self.session.cc)
 
     def enable_2fa(self, req_args, *args, **kwargs):
-        return enable_2fa(self.session.user_tid,
-                          self.session.user_id,
-                          self.session.user_id,
-                          req_args['secret'],
-                          req_args['token'])
+        d = enable_2fa(self.session.user_tid,
+                       self.session.user_id,
+                       self.session.user_id,
+                       req_args['secret'],
+                       req_args['token'])
+
+        def clear_require_two_factor(_):
+            self.session.properties.pop('require_two_factor', None)
+
+        d.addCallback(clear_require_two_factor)
+        return d
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.session.user_tid,
@@ -198,9 +204,14 @@ class UserOperationHandler(OperationHandler):
                                        self.session.user_id)
 
     def operation_descriptors(self):
-        if self.session.properties.get('reset_token'):
-            # A session created from a password reset token may only change the password
+        if self.session.properties.get('reset_token') or \
+           self.session.properties.get('password_change_needed'):
+            # A session pending a forced/reset password change may only change the password
             return {'change_password': UserOperationHandler.change_password}
+
+        if self.session.properties.get('require_two_factor'):
+            # A session pending mandatory two-factor enrollment may only enable 2fa
+            return {'enable_2fa': UserOperationHandler.enable_2fa}
 
         return {
             'change_password': UserOperationHandler.change_password,
