@@ -14,8 +14,13 @@ if ! id -u globaleaks >/dev/null 2>&1; then
           globaleaks
 fi
 
-if [ ! -d "/var/globaleaks" ]; then
-    mkdir -m 700 /var/globaleaks && chown globaleaks:globaleaks /var/globaleaks
+if [ -L "/var/globaleaks" ]; then
+    echo "Error: /var/globaleaks is a symbolic link; refusing to proceed." >&2
+    exit 1
 fi
+
+mkdir -p /var/globaleaks
+chown globaleaks:globaleaks /var/globaleaks
+chmod 700 /var/globaleaks
 
 #DEBHELPER#
