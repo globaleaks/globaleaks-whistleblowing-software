@@ -150,7 +150,7 @@ class MailGenerator(object):
 
         for tid in self.state.tenants:
             cache = self.state.tenants[tid].cache
-            if cache.notification and cache.enable_notification_emails_recipient:
+            if cache.notification and not cache.notification.enable_receiver_notification_emails:
                 silent_tids.append(tid)
 
         results1 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.ReceiverTip) \
