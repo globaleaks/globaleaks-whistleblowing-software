@@ -138,6 +138,15 @@ class BaseHandler(object):
             token = token_arg[0]
 
         if token:
+            # Throttle token validation per client IP before the proof-of-work
+            # verification so that a burst of invalid redemptions cannot
+            # monopolize the reactor with synchronous Argon2 work. Tor clients
+            # share an exit identity and are excluded to avoid penalizing them.
+            if State.settings.enable_rate_limiting and \
+               not self.request.client_using_tor and \
+               State.RateLimit.check(b"token_validations_per_minute_per_ip:" + get_ip_identity(self.request.client_ip).encode(), 100, 60) > 0:
+                return
+
             try:
                 self.token = self.state.tokens.validate(token)
                 if self.token.session is not None:
