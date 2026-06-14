@@ -71,7 +71,8 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         response = yield handler.get()
         response['name'] = "Test Name"
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+                               permissions={'can_edit_general_settings': True})
 
         response = yield handler.put()
         self.assertEqual(response['name'], 'Test Name')
@@ -84,7 +85,8 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change1@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+                               permissions={'can_edit_general_settings': True})
         response = yield handler.put()
 
         self.assertNotEqual(response['mail_address'], email)
@@ -92,7 +94,8 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change2@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+                               permissions={'can_edit_general_settings': True})
         response = yield handler.put()
 
         self.assertEqual(response['change_email_address'], email)
