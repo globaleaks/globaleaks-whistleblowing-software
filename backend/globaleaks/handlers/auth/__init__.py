@@ -127,8 +127,6 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if not user:
         db_login_failure(session, tid, 0)
 
-    connection_check(tid, user.role, client_ip, client_using_tor)
-
     try:
         if len(user.hash) == 64:
             key = Base64Encoder.decode(password.encode())
@@ -140,6 +138,8 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     if not password or not GCE.check_equality(hash, user.hash):
         db_login_failure(session, tid, 0, user_id=user.id)
+
+    connection_check(tid, user.role, client_ip, client_using_tor)
 
     if user.two_factor_secret:
         if authcode == '':
