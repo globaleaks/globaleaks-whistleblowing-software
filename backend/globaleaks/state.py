@@ -144,7 +144,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         log.debug("Creating directory: %s", path)
 
         try:
-            os.mkdir(path)
+            os.mkdir(path, 0o700)
         except OSError as excep:
             log.debug("Error in creating directory: %s (%s)",
                       path, excep.strerror)
