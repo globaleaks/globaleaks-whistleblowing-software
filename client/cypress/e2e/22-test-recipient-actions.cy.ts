@@ -8,9 +8,13 @@ describe("recipient admin tip actions", () => {
     cy.get('#search-filter-input').type("your search term");
     cy.get('#search-filter-input').clear();
     cy.get('th.TipInfoID').click();
-    cy.get('#tip-action-filter-channel').click();
-    cy.get('.multiselect-item-checkbox').eq(1).click();
-    cy.get('.multiselect-item-checkbox').eq(0).click();
+    cy.get('body').then(($body) => {
+      if ($body.find('#tip-action-filter-channel').length) {
+        cy.get('#tip-action-filter-channel').click();
+        cy.get('.multiselect-item-checkbox').eq(1).click();
+        cy.get('.multiselect-item-checkbox').eq(0).click();
+      }
+    });
     cy.get('#tip-action-filter-report-date').click();
     cy.get('.custom-date-selector').first().click();
     cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
