@@ -54,6 +54,10 @@ def evaluate_update_notification(session, state, latest_version):
     if parse_version(__version__) != parse_version(stored_latest):
         return
 
+    notif = state.tenants[1].cache.notification
+    if notif and not notif.enable_admin_notification_emails:
+        return
+
     for user_desc in db_get_users(session, 1, 'admin'):
         if not user_desc['notification']:
             continue
