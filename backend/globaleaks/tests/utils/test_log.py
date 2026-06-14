@@ -47,7 +47,11 @@ class TestLogObserver(unittest.TestCase):
         output_buff = StringIO()
 
         observer = log.LogObserver(output_buff)
-        observer.start()
+
+        # Use a private publisher so that stray events from other tests on the
+        # global twisted log cannot pollute output_buff and race the assertions.
+        publisher = twlog.LogPublisher()
+        publisher.addObserver(observer.emit)
 
         # Manually emit logs
         e1 = {'time': 100000, 'message': 'x', 'system': 'ut'}
@@ -57,10 +61,10 @@ class TestLogObserver(unittest.TestCase):
         e2 = {'time': 100001, 'message': 'x', 'system': 'ut', 'failure': f}
         observer.emit(e2)
 
-        twlog.err("error")
+        # Emit a log through twisted's interface (mirrors twlog.err("error"))
+        publisher.msg(repr("error"), isError=1)
 
-        # Emit logs through twisted's interface. Import is required now b/c of stdout hack
-        observer.stop()
+        publisher.removeObserver(observer.emit)
 
         s = output_buff.getvalue()
         # A bit of a mess, but this is the format we are expecting.
