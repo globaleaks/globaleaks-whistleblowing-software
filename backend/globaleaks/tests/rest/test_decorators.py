@@ -38,7 +38,7 @@ class FakeHandler:
 
 class TestDecorators(unittest.TestCase):
     def setUp(self):
-        State.settings.enable_rate_limiting = True
+        State.RateLimit.enabled = True
 
         # Patch deferred_sleep to immediately succeed (fake no wait)
         self.sleep_patch = patch(
