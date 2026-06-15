@@ -31,6 +31,7 @@ export class QuestionnairesListComponent {
   @Input() questionnaires: questionnaireResolverModel[];
   @Input() editQuestionnaire: NgForm;
   @Output() deleted = new EventEmitter<string>();
+  @Output() duplicated = new EventEmitter<void>();
   editing = false;
 
   toggleEditing(questionnaire: questionnaireResolverModel) {
@@ -52,7 +53,7 @@ export class QuestionnairesListComponent {
     modalRef.componentInstance.questionnaire = questionnaire;
     modalRef.componentInstance.operation = "duplicate";
     modalRef.componentInstance.confirmFunction = () => {
-        this.utilsService.reloadComponent();
+        this.duplicated.emit();
     }
     return modalRef.result;
   }
