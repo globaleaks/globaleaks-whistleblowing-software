@@ -45,6 +45,11 @@ def set_context_selection_policy(session, context_id, allow_recipients_selection
 
 
 @transact
+def set_context_select_all_receivers(session, context_id, value):
+    session.query(models.Context).filter(models.Context.id == context_id).one().select_all_receivers = value
+
+
+@transact
 def set_receiver_forcefully_selected(session, user_id, value):
     session.query(models.User).filter(models.User.id == user_id).one().forcefully_selected = value
 
@@ -493,6 +498,40 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.submission_desc['receivers'] = [self.dummyReceiver_1['id']]
         handler = self.request(self.submission_desc, role='whistleblower')
         yield handler.post()
+
+    @inlineCallbacks
+    def test_selection_disabled_with_select_all_requires_the_full_set(self):
+        # allow_recipients_selection=False + select_all_receivers=True (the
+        # dummy context default): the client selects every configured recipient,
+        # so the backend accepts exactly the full set and rejects a subset.
+        yield validate_submission_receivers(self.dummyContext['id'], [], {},
+                                            {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']})
+
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
+                                                               {self.dummyReceiver_1['id']}),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_selection_disabled_without_select_all_requires_only_mandatory(self):
+        # allow_recipients_selection=False + select_all_receivers=False: the
+        # client pre-selects only the forcefully selected recipients, so the
+        # backend must accept exactly that set and reject the full one that the
+        # client would never submit in this configuration.
+        yield set_context_select_all_receivers(self.dummyContext['id'], False)
+        yield set_receiver_forcefully_selected(self.dummyReceiver_2['id'], False)
+
+        # Only the mandatory recipient is accepted
+        yield validate_submission_receivers(self.dummyContext['id'], [], {},
+                                            {self.dummyReceiver_1['id']})
+
+        # The full set, that the client would not submit, is rejected
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
+                                                               {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']}),
+                                 errors.InputValidationError)
+
+        # An empty selection, omitting the mandatory recipient, is rejected
+        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {}, set()),
+                                 errors.InputValidationError)
 
     @inlineCallbacks
     def test_triggered_recipients_override_takes_precedence(self):

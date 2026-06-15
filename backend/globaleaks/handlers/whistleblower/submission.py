@@ -352,8 +352,10 @@ def db_validate_submission_receivers(session, context, steps, answers, identity_
       the recipients triggered by the answers;
     - otherwise the selected recipients must be configured on the context;
     - recipients flagged as forcefully selected must always be included;
-    - when recipients selection is disabled, the selection must match the
-      full set of recipients configured on the context.
+    - when recipients selection is disabled, the selection must match the set
+      the client selects by default: all the recipients configured on the
+      context when select_all_receivers is set, otherwise only the recipients
+      flagged as forcefully selected.
     """
     override = evaluate_receivers_override(steps, answers, identity_provided)
     if override is not None:
@@ -373,7 +375,11 @@ def db_validate_submission_receivers(session, context, steps, answers, identity_
             mandatory_receivers.add(receiver_id)
 
     if not context.allow_recipients_selection:
-        if requested_receivers != context_receivers:
+        # Mirror the client: with selection disabled the recipients are the ones
+        # selected by default, i.e. all the context recipients when
+        # select_all_receivers is set and only the mandatory ones otherwise.
+        expected_receivers = context_receivers if context.select_all_receivers else mandatory_receivers
+        if requested_receivers != expected_receivers:
             raise errors.InputValidationError("The selected recipients do not match the recipients configured on the context")
         return
 
