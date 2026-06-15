@@ -23,6 +23,30 @@ class TestStaticFileHandler(helpers.TestHandler):
         # Ensure it's HTML and the nonce was injected
         self.assertIn('nonce="secureNonce123"', body)
 
+    @inlineCallbacks
+    def test_get_index_ltr_language(self):
+        handler = self.request()
+        handler.request.language = 'en'
+
+        yield handler.get('')
+
+        body = handler.request.getResponseBody().decode()
+
+        self.assertIn('lang="en"', body)
+        self.assertIn('dir="ltr"', body)
+
+    @inlineCallbacks
+    def test_get_index_rtl_language(self):
+        handler = self.request()
+        handler.request.language = 'ar'
+
+        yield handler.get('')
+
+        body = handler.request.getResponseBody().decode()
+
+        self.assertIn('lang="ar"', body)
+        self.assertIn('dir="rtl"', body)
+
     def test_get_unexistent(self):
         handler = self.request()
         return self.assertRaises(errors.ResourceNotFound, handler.get, 'unexistent')

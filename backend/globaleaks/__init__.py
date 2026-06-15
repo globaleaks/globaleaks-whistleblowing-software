@@ -103,11 +103,23 @@ LANGUAGES_SUPPORTED = [
     {'code': 'zh_TW', 'name': 'Traditional Chinese (Taiwan)', 'native': '\u7e41\u9ad4\u4e2d\u6587 (\u4e2d\u570b\u9999\u6e2f\u7279\u5225\u884c\u653f\u5340)'}
 ]
 
+# Languages written right-to-left
+LANGUAGES_RTL = {'ar', 'dv', 'fa', 'fa_AF', 'he', 'ps', 'ug', 'ur'}
+
+# Annotate each supported language with its writing direction ('ltr' or 'rtl')
+for _lang in LANGUAGES_SUPPORTED:
+    _lang['direction'] = 'rtl' if _lang['code'] in LANGUAGES_RTL else 'ltr'
+
 # Sorting the list of dict using the key 'code'
 LANGUAGES_SUPPORTED.sort(key=operator.itemgetter('name'))
 
 # Creating LANGUAGES_SUPPORTED_CODES form the ordered LANGUAGES_SUPPORTED
 LANGUAGES_SUPPORTED_CODES = {i['code'] for i in LANGUAGES_SUPPORTED}
+
+
+def get_language_direction(code):
+    """Return the writing direction ('rtl' or 'ltr') for a language code."""
+    return 'rtl' if code in LANGUAGES_RTL else 'ltr'
 
 # Versioning for exported questionnaire's
 QUESTIONNAIRE_EXPORT_VERSION = '0.0.1'
