@@ -314,5 +314,6 @@ export class FieldsComponent implements OnInit {
 
   onUpdate() {
     this.children = [...this.children];
+    this.updated.emit();
   }
 }
