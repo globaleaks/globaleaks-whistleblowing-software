@@ -396,9 +396,11 @@
                   <div class="form-group">
                     <label for="field-new-trigger-field-{{field.id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
                     <select id="field-new-trigger-field-{{field.id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
-                      @for (field of parsedFields.fields; track field) {
-                        <option [value]="field.id">{{field.label}}
-                        </option>
+                      @for (triggerField of parsedFields.fields; track triggerField) {
+                        @if (triggerField.id !== field.id) {
+                          <option [value]="triggerField.id">{{triggerField.label}}
+                          </option>
+                        }
                       }
                     </select>
                   </div>
@@ -539,12 +541,12 @@
                   <div class="row">
                     @if (showAddQuestion) {
                       <div class="col-md-12">
-                        <src-add-field [step]="field" [type]="'field'"></src-add-field>
+                        <src-add-field [step]="field" [type]="'field'" (added)="onUpdate()"></src-add-field>
                       </div>
                     }
                     @if (showAddQuestionFromTemplate) {
                       <div class="col-md-12">
-                        <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field" [type]="'field'"></src-add-field-from-template>
+                        <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field" [type]="'field'" (added)="onUpdate()"></src-add-field-from-template>
                       </div>
                     }
                   </div>

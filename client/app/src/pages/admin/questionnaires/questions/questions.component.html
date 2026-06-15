@@ -26,7 +26,7 @@
     <ng-template #content let-item="item" let-index="index">
       <div id="field-{{index}}" class="fieldBox">
         <form #editField="ngForm">
-          <src-fields [editField]="editField" [type]="'template'" [field]="item" [fields]="fields" (deleted)="onDelete($event)"></src-fields>
+          <src-fields [editField]="editField" [type]="'template'" [field]="item" [fields]="fields" [parsedFields]="parsedFields[item.id]" (updated)="parseFields()" (deleted)="onDelete($event)"></src-fields>
         </form>
       </div>
     </ng-template>
