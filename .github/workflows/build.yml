@@ -275,7 +275,7 @@ jobs:
           fi
           echo "🧪 Running Cypress tests on port 8443..."
           # Run Cypress tests and capture exit code
-          if npx cypress run --browser chrome --config baseUrl="https://127.0.0.1:8443"; then
+          if npx cypress run --browser chromium --config baseUrl="https://127.0.0.1:8443"; then
             echo "✅ Cypress tests passed"
             test_results+=("CYPRESS_PASS")
           else
