@@ -333,9 +333,6 @@ module.exports = function(grunt) {
       build: {
         command: "npx ng build --configuration=production"
       },
-      build_for_testing: {
-        command: "npx ng build --configuration=testing"
-      },
       instrument: {
         command: "nyc instrument dist --in-place"
       },
@@ -1005,7 +1002,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask("build", ["clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
 
-  grunt.registerTask("build_for_testing", ["clean", "shell:build_for_testing", "package", "shell:brotli_compress", "clean:tmp"]);
-
-  grunt.registerTask("build_for_testing_and_instrument", ["clean", "shell:build_for_testing", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build_and_instrument", ["clean", "shell:build", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
 };
