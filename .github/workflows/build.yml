@@ -59,7 +59,7 @@ jobs:
           echo "Building packages"
           # Run the build script with local environment flag
           COMMIT_HASH=$(git rev-parse HEAD)
-          ./scripts/build.sh -d $TARGET_DISTRIBUTION -t $COMMIT_HASH -n -l -z
+          ./scripts/build.sh -d $TARGET_DISTRIBUTION -t $COMMIT_HASH -n -l
 
       - name: Boot real systemd and verify the globaleaks.service unit
         run: |

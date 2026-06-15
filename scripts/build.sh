@@ -8,7 +8,6 @@ TAG="stable"
 LOCAL_ENV=0
 NOSIGN=0
 PUSH=0
-TESTING=0
 
 usage() {
   echo "GlobaLeaks Build Script"
@@ -32,8 +31,6 @@ while getopts "d:t:nph:lz" opt; do
     p) PUSH=1
     ;;
     l) LOCAL_ENV=1
-    ;;
-    z) TESTING=1
     ;;
     h)
         usage
@@ -91,11 +88,7 @@ fi
 git fetch --depth=1 origin "$TAG"
 git checkout FETCH_HEAD
 
-if [ "$TESTING" -eq 1 ]; then
-  cd client && npm ci && ./node_modules/grunt/bin/grunt build_for_testing
-else
-  cd client && npm ci -d && ./node_modules/grunt/bin/grunt build
-fi
+cd client && npm ci -d && ./node_modules/grunt/bin/grunt build
 
 cd $ROOTDIR
 
