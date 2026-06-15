@@ -43,6 +43,10 @@ export class StepsListComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.recompute();
+  }
+
+  recompute(): void {
     this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire, {
       fields: [],
       fields_by_id: {},
