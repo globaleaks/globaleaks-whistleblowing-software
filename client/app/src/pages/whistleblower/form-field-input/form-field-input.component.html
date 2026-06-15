@@ -123,7 +123,9 @@
             }
             @case ('tos') {
               <div tabindex="0" role="region" [attr.aria-label]="field.label | translate">
-                <markdown class="form-group tos-text" [data]="field.attrs.text.value | stripHtml"></markdown>
+                @if (field.attrs.text.value) {
+                  <markdown class="form-group tos-text" [data]="field.attrs.text.value | stripHtml"></markdown>
+                }
                 @if (field.attrs.attachment.value) {
                   <div>
                     <a [href]="field.attrs.attachment_url.value" target="_blank">{{field.attrs.attachment_text.value}}</a>
