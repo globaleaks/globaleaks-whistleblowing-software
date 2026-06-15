@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Step} from "@app/models/resolvers/questionnaire-model";
@@ -25,6 +25,7 @@ export class StepComponent implements OnInit {
 
   @Input() step: Step;
   @Input() parsedFields: ParsedFields;
+  @Output() updated = new EventEmitter<void>();
   showAddQuestion = false;
   showAddQuestionFromTemplate = false;
   fieldTemplatesData: fieldtemplatesResolverModel[] = [];
@@ -50,13 +51,16 @@ export class StepComponent implements OnInit {
   onAdd() {
     this.showAddQuestion = false;
     this.showAddQuestionFromTemplate = false;
+    this.updated.emit();
   }
 
   onDelete(id: string) {
     this.step.children = this.step.children.filter(i => i.id !== id);
+    this.updated.emit();
   }
 
   onUpdate() {
     this.step.children = [...this.step.children];
+    this.updated.emit();
   }
 }

@@ -107,7 +107,7 @@
           }
         </div>
       </div>
-      <src-step [step]="step" [parsedFields]="parsedFields"></src-step>
+      <src-step [step]="step" [parsedFields]="parsedFields" (updated)="recompute()"></src-step>
     </div>
   }
 </div>
