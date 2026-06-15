@@ -4,7 +4,7 @@ describe("Recipient first login", () => {
     cy.get('input[name="changePasswordArgs.password"]').should('be.visible');
     cy.takeScreenshot("user/password_change_on_first_login");
     cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
-    cy.get('input[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.waitForUrl("/recipient/home");
 
@@ -53,17 +53,17 @@ describe("Recipient first login", () => {
 describe("Recipient2 first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_receiver("Recipient2", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').type(Cypress.env("user_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
 
     cy.url().should("include", "/recipient/home");
     cy.get("#PreferencesLink").click();
     cy.get(".password").click();
-    cy.get('[name="changePasswordArgs.password"]').type(Cypress.env("init_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("init_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("init_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("init_password"));
     cy.get('button[name="submit"]').click();
-    cy.get("[name='secret']").type(Cypress.env("user_password"));
+    cy.get("[name='secret']").should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get("#confirm").click();
     cy.logout();
   });
@@ -72,8 +72,8 @@ describe("Recipient2 first login", () => {
 describe("Custodian first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_custodian("Custodian", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/custodian/home");
     cy.logout();
@@ -83,8 +83,8 @@ describe("Custodian first login", () => {
 describe("Admin2 first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_custodian("Admin2", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').type(Cypress.env("user_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/admin/home");
     cy.logout();
@@ -94,8 +94,8 @@ describe("Admin2 first login", () => {
 describe("Analyst first login", () => {
   it("should require password change upon successful authentication", () => {
     cy.login_analyst("Analyst", Cypress.env("init_password"), "#/login", true);
-    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password"));
+    cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/analyst/home");
     cy.logout();
