@@ -116,7 +116,7 @@ export class FieldsComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         return this.httpService.requestDeleteAdminQuestionareField(arg.id).subscribe(() => {
-          this.deleted.emit(this.field.id);
+          this.deleted.emit(arg.id);
         });
       };
     });
