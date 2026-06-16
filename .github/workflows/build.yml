@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       target_distribution:
-        description: 'Target distribution (bookworm, bullseye, focal, jammy, noble, trixie)'
+        description: 'Target distribution (bookworm, bullseye, focal, jammy, noble, resolute, trixie)'
         required: false
         default: trixie
         type: choice
@@ -16,6 +16,7 @@ on:
           - focal
           - jammy
           - noble
+          - resolute
           - trixie
 # Declare default permissions as read only.
 permissions: read-all
@@ -28,7 +29,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "focal", "jammy", "noble", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "focal", "jammy", "noble", "resolute", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
