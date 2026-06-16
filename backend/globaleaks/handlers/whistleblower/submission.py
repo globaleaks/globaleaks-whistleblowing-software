@@ -3,6 +3,8 @@ import copy
 import json
 import re
 
+from datetime import datetime
+
 from nacl.encoding import Base64Encoder
 from nacl.public import PrivateKey
 
@@ -393,27 +395,161 @@ def db_validate_submission_receivers(session, context, steps, answers, identity_
         raise errors.InputValidationError("The number of recipients selected exceed the configured limit")
 
 
+# Fixed input_validation patterns the client applies to inputbox answers
+# (see client Constants / FieldUtilitiesService.getValidator). They mirror the
+# client regexps so that an answer the official client accepts is accepted here
+# too. The administrator-defined 'custom' regexp is intentionally not enforced
+# server-side: it is arbitrary, attacker-supplied input would be matched against
+# it, and a poorly written pattern would expose the server to catastrophic
+# backtracking (ReDoS); its enforcement stays a client-side convenience.
+input_validation_patterns = {
+    'email': r'^[\w+-.]{1,100}@[\w+-.]{1,100}\.[A-Za-z]{2,}$',
+    'number': r'^\d+$',
+    'phonenumber': r'^[+]?\d+$',
+}
+
+
+def db_validate_field_entry(field, entry):
+    """
+    Enforce the per-field constraints the official client applies to a single
+    answer entry so that a modified client cannot persist an answer the
+    questionnaire does not allow:
+
+    - text fields (inputbox, textarea) must respect the minimum and maximum
+      length configured on the field, and an inputbox additionally honours the
+      configured input_validation format (email, number, phonenumber);
+    - choice fields (selectbox, multichoice, checkbox) may only select options
+      that the questionnaire actually defines on the field;
+    - date and daterange answers must be well formed so that the recipient-side
+      code reading them (templating/export) cannot be fed a malformed value;
+    - a tos acceptance is a boolean flag.
+
+    Mirroring the client's validators, the constraints are enforced only when an
+    answer is actually provided: an empty value is left to the (conditional)
+    required-field policy, which is out of scope here. Field types that carry no
+    questionnaire-constrained leaf value (fileupload, voice, whose content flows
+    through the attachments pipeline) are left untouched, consistently with the
+    rest of the submission pipeline.
+    """
+    field_type = field['type']
+
+    if field_type in ('inputbox', 'textarea'):
+        value = entry.get('value', '')
+        if value:
+            if not isinstance(value, str):
+                raise errors.InputValidationError("Invalid answer value")
+
+            attrs = field.get('attrs', {})
+
+            try:
+                min_len = int(attrs.get('min_len', {}).get('value'))
+            except (TypeError, ValueError):
+                min_len = 0
+
+            try:
+                max_len = int(attrs.get('max_len', {}).get('value'))
+            except (TypeError, ValueError):
+                max_len = 4096
+
+            if len(value) < min_len:
+                raise errors.InputValidationError("Answer is shorter than the minimum allowed length")
+
+            if 0 <= max_len < len(value):
+                raise errors.InputValidationError("Answer exceeds the maximum allowed length")
+
+            if field_type == 'inputbox':
+                input_validation = attrs.get('input_validation', {}).get('value')
+                pattern = input_validation_patterns.get(input_validation)
+                if pattern is not None and not re.match(pattern, value):
+                    raise errors.InputValidationError("Answer does not match the required format")
+
+    elif field_type in ('selectbox', 'multichoice'):
+        value = entry.get('value', '')
+        if value:
+            option_ids = {option['id'] for option in field.get('options', [])}
+            if not isinstance(value, str) or value not in option_ids:
+                raise errors.InputValidationError("Selected option does not exist")
+
+    elif field_type == 'checkbox':
+        # Checkbox selections are stored as option_id -> flag pairs; any key
+        # shaped like an option id must reference an option defined on the field.
+        option_ids = {option['id'] for option in field.get('options', [])}
+        for key in entry:
+            if re.match(requests.uuid_regexp, key) and key not in option_ids:
+                raise errors.InputValidationError("Selected option does not exist")
+
+    elif field_type == 'date':
+        # A date answer is the ISO 8601 datetime string produced by the client;
+        # require it to be parseable exactly as the recipient-side reader does
+        # (see ISO8601_to_day_str) so a malformed value cannot break the export.
+        value = entry.get('value', '')
+        if value:
+            if not isinstance(value, str):
+                raise errors.InputValidationError("Invalid date value")
+
+            try:
+                datetime(year=int(value[0:4]),
+                         month=int(value[5:7]),
+                         day=int(value[8:10]),
+                         hour=int(value[11:13]),
+                         minute=int(value[14:16]),
+                         second=int(value[17:19]))
+            except (TypeError, ValueError):
+                raise errors.InputValidationError("Invalid date value")
+
+    elif field_type == 'daterange':
+        # A daterange answer is a 'start:end' pair of millisecond timestamps;
+        # require both to be parseable (as the recipient-side reader does) and
+        # ordered, rejecting any value that would later raise on export.
+        value = entry.get('value', '')
+        if value:
+            if not isinstance(value, str):
+                raise errors.InputValidationError("Invalid date range value")
+
+            parts = value.split(':')
+            if len(parts) != 2:
+                raise errors.InputValidationError("Invalid date range value")
+
+            try:
+                start = int(parts[0])
+                end = int(parts[1])
+                datetime.fromtimestamp(start / 1000)
+                datetime.fromtimestamp(end / 1000)
+            except (TypeError, ValueError, OverflowError, OSError):
+                raise errors.InputValidationError("Invalid date range value")
+
+            if start > end:
+                raise errors.InputValidationError("Invalid date range value")
+
+    elif field_type == 'tos':
+        # A terms-of-service acceptance is stored as a boolean flag.
+        value = entry.get('value', '')
+        if value != '' and not isinstance(value, bool):
+            raise errors.InputValidationError("Invalid answer value")
+
+
 def db_validate_submission_answers(steps, answers):
     """
     Enforce that the submitted answers conform to the authoritative
     questionnaire schema, an invariant otherwise enforced only by the official
-    client.
+    client. The traversal is driven by the schema so that the submitted answers
+    map one-to-one onto the questionnaire the administrator configured.
 
-    The validation polices the exact surface that the recursive helpers
-    operating on the stored answers descend into (see index_answers): a key
-    shaped like a field id (a UUID) whose value is a list of answer entries. In
-    a schema-conformant submission this pattern occurs only for the children of
-    a fieldgroup, so the traversal is driven by the schema and rejects any
-    nested field the questionnaire does not define at that position. This bounds
-    the answers nesting to the depth configured by the administrator and
+    The structural validation polices the exact surface that the recursive
+    helpers operating on the stored answers descend into (see index_answers): a
+    key shaped like a field id (a UUID) whose value is a list of answer entries.
+    In a schema-conformant submission this pattern occurs only for the children
+    of a fieldgroup, so the traversal rejects any field the questionnaire does
+    not define at that position (a question that does not exist). This also
+    bounds the answers nesting to the depth configured by the administrator and
     prevents a modified client from persisting arbitrarily deep answers that
     would later exhaust the recursion limit when recipients open or export the
     report.
 
-    Leaf answer data (the 'value' of an input field, the selected options of a
-    checkbox, and any other non-list entry attribute) is intentionally left
-    untouched: it is never recursed into and its content validation is out of
-    scope here, consistently with the rest of the submission pipeline.
+    Each entry is additionally validated against the constraints of its field
+    (see db_validate_field_entry) so that oversized or malformed text answers,
+    selections of options the questionnaire does not define, and ill-formed
+    date/daterange/tos values are rejected as well.
     """
     def validate_entries(field, entries):
         if not isinstance(entries, list):
@@ -427,10 +563,12 @@ def db_validate_submission_answers(steps, answers):
             if not isinstance(entry, dict):
                 raise errors.InputValidationError("Invalid answers structure")
 
+            db_validate_field_entry(field, entry)
+
             for key, value in entry.items():
                 # Only keys shaped like a field id and carrying a list of
                 # entries are recursed into by the helpers reading the answers;
-                # anything else is leaf answer data and is left untouched.
+                # anything else is leaf answer data validated above.
                 if not isinstance(value, list) or not re.match(requests.uuid_regexp, key):
                     continue
 
