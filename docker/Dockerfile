@@ -9,7 +9,7 @@ ARG DISTRIBUTION=trixie
 
 FROM --platform=linux/amd64 ${BASE_IMAGE}
 
-ADD https://deb.globaleaks.org/install.sh /tmp/install.sh
+ADD https://deb.globaleaks.org/install.sh /opt/install.sh
 
 # Redeclare build arguments to make them available after FROM
 ARG DISTRIBUTION=trixie
@@ -17,17 +17,17 @@ ARG DISTRIBUTION=trixie
 # Set environment for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-COPY files/* /tmp/
+COPY files/* /opt/
 
 RUN groupadd -r globaleaks --gid=1000 && useradd -r -d /var/globaleaks -g globaleaks --uid=1000 globaleaks
 
 RUN apt-get update -q && \
     apt-get dist-upgrade -y && \
     apt-get install -y --no-install-recommends lsb-release && \
-    chmod +x /tmp/install.sh && \
-    /tmp/install.sh && \
+    chmod +x /opt/install.sh && \
+    if [ -f /opt/globaleaks.deb ]; then /opt/install.sh -p; else /opt/install.sh; fi && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/*
+    rm -rf /var/lib/apt/lists/* /opt/install.sh /opt/globaleaks.deb /opt/placeholder
 
 RUN mkdir -p /run/globaleaks && chown -R globaleaks:globaleaks /run/globaleaks
 
