@@ -96,6 +96,8 @@ def get_recovery_key(session, tid, user_id, user_cc):
 
     user.clicked_recovery_key = True
 
+    db_log(session, tid=tid, type='access_recovery_key', user_id=user.id)
+
     return Base32Encoder.encode(GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(user.crypto_rec_key.encode()))).replace(b'=', b'')
 
 
