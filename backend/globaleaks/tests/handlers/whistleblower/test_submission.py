@@ -338,6 +338,152 @@ class TestAnswersSchemaValidation(unittest.TestCase):
         submission.db_validate_submission_answers(steps, answers)
 
 
+# Field and option ids shaped like the UUIDs the answers validation acts upon
+F_TEXT = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+F_SELECT = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+F_CHECK = '99999999-9999-9999-9999-999999999999'
+F_EMAIL = '88888888-8888-8888-8888-888888888888'
+F_DATE = '77777777-7777-7777-7777-777777777777'
+F_DATERANGE = '66666666-6666-6666-6666-666666666666'
+F_TOS = '55555555-5555-5555-5555-555555555555'
+OPT_A = '11111111-1111-1111-1111-111111111111'
+OPT_B = '22222222-2222-2222-2222-222222222222'
+OPT_UNKNOWN = '33333333-3333-3333-3333-333333333333'
+
+
+def schema_with_constraints():
+    # A questionnaire mixing a length-bounded text field, an input-validated
+    # text field, the three kinds of choice fields and the date/daterange/tos
+    # fields, used to exercise the per-field answer validation.
+    options = [{'id': OPT_A}, {'id': OPT_B}]
+    return [{
+        'children': [
+            {'id': F_TEXT, 'type': 'inputbox', 'children': [],
+             'attrs': {'min_len': {'value': '2'}, 'max_len': {'value': '5'}}},
+            {'id': F_EMAIL, 'type': 'inputbox', 'children': [],
+             'attrs': {'input_validation': {'value': 'email'}}},
+            {'id': F_SELECT, 'type': 'selectbox', 'children': [], 'options': options},
+            {'id': F_CHECK, 'type': 'checkbox', 'children': [], 'options': options},
+            {'id': F_DATE, 'type': 'date', 'children': [], 'attrs': {}},
+            {'id': F_DATERANGE, 'type': 'daterange', 'children': [], 'attrs': {}},
+            {'id': F_TOS, 'type': 'tos', 'children': [], 'attrs': {}},
+        ]
+    }]
+
+
+class TestAnswersConstraintsValidation(unittest.TestCase):
+    def test_text_within_length_bounds_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_TEXT: [{'value': 'hello'}]})
+
+    def test_text_exceeding_max_len_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_TEXT: [{'value': 'too-long'}]})
+
+    def test_text_shorter_than_min_len_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_TEXT: [{'value': 'a'}]})
+
+    def test_empty_text_is_accepted_regardless_of_min_len(self):
+        # Mirroring the client, an empty answer bypasses the length bounds: its
+        # presence is governed by the conditional required-field policy.
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_TEXT: [{'value': ''}]})
+
+    def test_non_string_text_value_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_TEXT: [{'value': ['x']}]})
+
+    def test_existing_selectbox_option_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_SELECT: [{'value': OPT_A}]})
+
+    def test_unselected_selectbox_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_SELECT: [{'value': ''}]})
+
+    def test_inexistent_selectbox_option_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_SELECT: [{'value': OPT_UNKNOWN}]})
+
+    def test_existing_checkbox_options_are_accepted(self):
+        steps = schema_with_constraints()
+        answers = {F_CHECK: [{OPT_A: True, OPT_B: False, 'required_status': False}]}
+        submission.db_validate_submission_answers(steps, answers)
+
+    def test_inexistent_checkbox_option_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_CHECK: [{OPT_UNKNOWN: True}]})
+
+    def test_valid_email_input_validation_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_EMAIL: [{'value': 'wb@example.com'}]})
+
+    def test_invalid_email_input_validation_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_EMAIL: [{'value': 'not-an-email'}]})
+
+    def test_valid_date_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_DATE: [{'value': '2026-06-17T00:00:00.000Z'}]})
+
+    def test_malformed_date_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_DATE: [{'value': '2026-13-40T00:00:00.000Z'}]})
+
+    def test_non_string_date_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_DATE: [{'value': 12345}]})
+
+    def test_valid_daterange_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_DATERANGE: [{'value': '1000000000000:2000000000000'}]})
+
+    def test_inverted_daterange_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_DATERANGE: [{'value': '2000000000000:1000000000000'}]})
+
+    def test_malformed_daterange_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_DATERANGE: [{'value': 'notanumber:2000000000000'}]})
+
+    def test_daterange_with_wrong_arity_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_DATERANGE: [{'value': '1000000000000'}]})
+
+    def test_boolean_tos_is_accepted(self):
+        steps = schema_with_constraints()
+        submission.db_validate_submission_answers(steps, {F_TOS: [{'value': True}]})
+
+    def test_non_boolean_tos_is_rejected(self):
+        steps = schema_with_constraints()
+        self.assertRaises(errors.InputValidationError,
+                          submission.db_validate_submission_answers,
+                          steps, {F_TOS: [{'value': 'accepted'}]})
+
+
 class TestServersideScore(unittest.TestCase):
     context = SimpleNamespace(score_threshold_medium=10, score_threshold_high=50)
 
