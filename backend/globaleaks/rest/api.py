@@ -522,42 +522,46 @@ class APIResourceWrapper(Resource):
         f = getattr(handler, method)
         groups = match.groups()
 
-        self.handler = handler(State, request)
+        # The instance is bound to a local: APIResourceWrapper is a single
+        # shared (isLeaf) Resource, so storing it on self would be overwritten
+        # by any concurrent in-flight request before this request's deferred
+        # callbacks run. The conclude callbacks below close over this local.
+        h = handler(State, request)
 
         request.setResponseCode(self.method_map[method])
 
-        if self.handler.root_tenant_only and \
+        if h.root_tenant_only and \
                 request.tid != 1:
             self.handle_exception(errors.ForbiddenOperation, request)
             return b''
 
-        if self.handler.root_tenant_or_management_only and \
+        if h.root_tenant_or_management_only and \
                 request.tid != 1 and \
-                  (not self.handler.session or
-                   not self.handler.session.properties.get('management_session', False)):
+                  (not h.session or
+                   not h.session.properties.get('management_session', False)):
             self.handle_exception(errors.ForbiddenOperation, request)
             return b''
 
-        if self.handler.upload_handler and method == 'post':
+        if h.upload_handler and method == 'post':
             try:
                 # Enforce the same session/token and role checks that gate the
                 # decorated handler method before processing any upload body, so
                 # that unauthenticated or unauthorized requests cannot allocate
                 # and fill temporary files.
-                decorators.check_session_or_token(self.handler)
-                decorators.check_authentication(self.handler, self.handler.check_roles)
+                decorators.check_session_or_token(h)
+                decorators.check_authentication(h, h.check_roles)
 
-                self.handler.process_file_upload()
+                h.process_file_upload()
             except Exception as e:
                 self.handle_exception(e, request)
                 return b''
 
-            if self.handler.uploaded_file is None:
+            if h.uploaded_file is None:
                 return b''
 
         @defer.inlineCallbacks
         def concludeHandlerFailure(err):
-            yield self.handler.check_execution_time()
+            yield h.check_execution_time()
             self.handle_exception(err, request)
 
             if request.finished:
@@ -572,7 +576,7 @@ class APIResourceWrapper(Resource):
 
             :param ret: A `dict`, `list`, `str`, `None` or something unexpected
             """
-            yield self.handler.check_execution_time()
+            yield h.check_execution_time()
 
             if request.finished:
                 return
@@ -589,7 +593,7 @@ class APIResourceWrapper(Resource):
 
             request.finish()
 
-        d = defer.maybeDeferred(f, self.handler, *groups).addCallbacks(concludeHandlerSuccess, concludeHandlerFailure)
+        d = defer.maybeDeferred(f, h, *groups).addCallbacks(concludeHandlerSuccess, concludeHandlerFailure)
 
         def _finish(_ret):
             request.finished = True
