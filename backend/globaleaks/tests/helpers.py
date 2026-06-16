@@ -672,11 +672,11 @@ class TestGL(unittest.TestCase):
         elif field_type == 'selectbox' or field_type == 'multichoice':
             value = {'value': field['options'][0]['id']}
         elif field_type == 'date':
-            value = {'value': datetime_now()}
+            value = {'value': datetime_now().isoformat()}
         elif field_type == 'daterange':
             value = {'value': '1741734000000:1742425200000'}
         elif field_type == 'tos':
-            value = {'value': 'True'}
+            value = {'value': True}
         elif field_type == 'fileupload' or field_type == 'voice':
             pass
         elif field_type == 'fieldgroup':
@@ -684,7 +684,14 @@ class TestGL(unittest.TestCase):
             for child in field['children']:
                 self.fill_random_field_recursively(value, child)
         else:
-            value = {'value': ''.join(chr(x) for x in range(0x400, 0x4FF))}
+            text = ''.join(chr(x) for x in range(0x400, 0x4FF))
+            try:
+                max_len = int(field.get('attrs', {}).get('max_len', {}).get('value'))
+            except (TypeError, ValueError):
+                max_len = -1
+            if 0 <= max_len < len(text):
+                text = text[:max_len]
+            value = {'value': text}
 
         answers[field['id']] = [value]
 
