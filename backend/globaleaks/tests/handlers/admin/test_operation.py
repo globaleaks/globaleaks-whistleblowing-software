@@ -1,5 +1,8 @@
+import base64
+
 from globaleaks import models
 from globaleaks.handlers.admin.operation import AdminOperationHandler
+from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -48,13 +51,13 @@ class TestAdminResetSubmissions(helpers.TestHandlerWithPopulatedDB):
 class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler
 
-    def _test_operation_handler(self, operation, args=None, tid=1, properties=None):
+    def _test_operation_handler(self, operation, args=None, tid=1, properties=None, headers=None):
         data_request = {
             'operation': operation,
             'args': args if args is not None else {}
         }
 
-        handler = self.request(data_request, role='admin', tid=tid, properties=properties)
+        handler = self.request(data_request, role='admin', tid=tid, properties=properties, headers=headers)
 
         return handler.put()
 
@@ -95,17 +98,52 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         return self._test_operation_handler('test_mail')
 
     def test_admin_set_user_password(self):
+        # Setting a user's password is a sensitive operation that requires the
+        # operator to confirm with their own credential (password or 2FA).
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = base64.b64encode(helpers.VALID_KEY.encode('utf-16-le')).decode()
+
         return self._test_operation_handler('set_user_password',
                                            {'user_id': self.dummyReceiver_1['id'],
-                                            'password': helpers.VALID_KEY})
+                                            'password': helpers.VALID_KEY},
+                                           headers={'x-confirmation': confirmation})
+
+    def test_admin_set_user_password_requires_confirmation(self):
+        # Without a valid confirmation of the operator's credential the
+        # operation must be rejected.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        self.assertRaises(errors.InvalidAuthentication,
+                          self._test_operation_handler,
+                          'set_user_password',
+                          {'user_id': self.dummyReceiver_1['id'],
+                           'password': helpers.VALID_KEY})
 
     def test_admin_disable_2fa(self):
         return self._test_operation_handler('disable_2fa',
                                            {'value': self.dummyReceiver_1['id']})
 
     def test_admin_send_password_reset_email(self):
+        # Issuing a password reset link is a sensitive operation that requires
+        # the operator to confirm with their own credential (password or 2FA).
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = base64.b64encode(helpers.VALID_KEY.encode('utf-16-le')).decode()
+
         return self._test_operation_handler('send_password_reset_email',
-                                           {'value': self.dummyReceiver_1['id']})
+                                           {'value': self.dummyReceiver_1['id']},
+                                           headers={'x-confirmation': confirmation})
+
+    def test_admin_send_password_reset_email_requires_confirmation(self):
+        # Without a valid confirmation of the operator's credential the
+        # operation must be rejected.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        self.assertRaises(errors.InvalidAuthentication,
+                          self._test_operation_handler,
+                          'send_password_reset_email',
+                          {'value': self.dummyReceiver_1['id']})
 
     def test_admin_reset_smtp_settings(self):
         return self._test_operation_handler('reset_smtp_settings')
