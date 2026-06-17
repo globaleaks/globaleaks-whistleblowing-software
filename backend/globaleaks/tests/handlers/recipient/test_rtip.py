@@ -1,5 +1,7 @@
 import time
 from datetime import datetime
+from types import SimpleNamespace
+from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
 from twisted.internet import reactor, task
 from twisted.internet.defer import DeferredLock, inlineCallbacks
@@ -564,6 +566,70 @@ class TestRedactContent(unittest.TestCase):
         self.assertEqual(rtip.redact_content('hello', [{'start': -5, 'end': 1}], '0x2591'), '░░llo')
 
 
+class TestRedactionHelpers(unittest.TestCase):
+    def test_validate_ranges(self):
+        current = [{'start': 0, 'end': 10}]
+        # A new range fully contained in the current mask is accepted
+        self.assertTrue(rtip.validate_ranges(current, [{'start': 2, 'end': 5}]))
+        # A new range exceeding the current mask is rejected
+        self.assertFalse(rtip.validate_ranges(current, [{'start': 5, 'end': 15}]))
+
+    def test_merge_and_sort_ranges(self):
+        self.assertEqual(rtip.merge_and_sort_ranges([], []), [])
+        # Adjacent ranges in list2 are coalesced, then disjoint ranges stay split
+        self.assertEqual(rtip.merge_and_sort_ranges([{'start': 0, 'end': 2}],
+                                                    [{'start': 4, 'end': 6}, {'start': 7, 'end': 9}]),
+                         [{'start': 0, 'end': 2}, {'start': 4, 'end': 9}])
+        # Overlapping ranges across the two lists are merged into one
+        self.assertEqual(rtip.merge_and_sort_ranges([{'start': 0, 'end': 5}],
+                                                    [{'start': 3, 'end': 8}]),
+                         [{'start': 0, 'end': 8}])
+
+    def test_get_new_temporary_redaction(self):
+        # Redacting the middle of a temporary range splits it in two
+        self.assertEqual(rtip.get_new_temporary_redaction([{'start': 0, 'end': 10}],
+                                                          [{'start': 3, 'end': 5}]),
+                         [{'start': 0, 'end': 2}, {'start': 6, 'end': 10}])
+        # A non-overlapping redaction leaves the temporary range untouched
+        self.assertEqual(rtip.get_new_temporary_redaction([{'start': 0, 'end': 2}],
+                                                          [{'start': 5, 'end': 7}]),
+                         [{'start': 0, 'end': 2}])
+
+    def test_db_redact_answers(self):
+        key = str(uuid4())
+        answers = {key: [{'index': '0', 'value': 'hello'}]}
+        redaction = SimpleNamespace(reference_id=key, entry='0',
+                                    permanent_redaction=[{'start': 1, 'end': 3}])
+        rtip.db_redact_answers(answers, redaction)
+        self.assertEqual(answers[key][0]['value'], 'h███o')
+
+    def test_db_redact_answers_recurses_and_skips_non_uuid_keys(self):
+        outer, inner = str(uuid4()), str(uuid4())
+        answers = {
+            'not-a-uuid': 'ignored',
+            outer: [{'index': '0', inner: [{'index': '0-0', 'value': 'secret'}]}]
+        }
+        redaction = SimpleNamespace(reference_id=inner, entry='0-0',
+                                    permanent_redaction=[{'start': 0, 'end': 5}])
+        rtip.db_redact_answers(answers, redaction)
+        self.assertEqual(answers[outer][0][inner][0]['value'], '██████')
+
+    def test_db_redact_whistleblower_identities(self):
+        key, group, leaf = str(uuid4()), str(uuid4()), str(uuid4())
+        identities = {
+            'enabled': True,  # boolean entries must be skipped
+            key: [{'value': 'secret'}],
+            group: [{leaf: [{'value': 'nested'}]}]
+        }
+        rtip.db_redact_whistleblower_identities(identities,
+            SimpleNamespace(reference_id=key, permanent_redaction=[{'start': 0, 'end': 5}]))
+        self.assertEqual(identities[key][0]['value'], '██████')
+        # The recursion reaches values nested under a group field
+        rtip.db_redact_whistleblower_identities(identities,
+            SimpleNamespace(reference_id=leaf, permanent_redaction=[{'start': 0, 'end': 5}]))
+        self.assertEqual(identities[group][0][leaf][0]['value'], '██████')
+
+
 class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.RTipRedactionCollection
 
@@ -634,6 +700,93 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
 
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.put(rtip_desc['redactions'][0]['id'])
+
+    @transact
+    def get_answer_field_id(self, session):
+        # The step-level inputbox is a top-level questionnaire answer entry
+        # (index '0'), so it can be redacted via the 'answer' content type.
+        field = session.query(models.Field) \
+                       .filter(models.Field.type == 'inputbox',
+                               models.Field.step_id != '').first()
+        return field.id
+
+    @inlineCallbacks
+    def post_redaction(self, rtip_desc, reference_id, temporary_redaction):
+        body = {
+            'internaltip_id': rtip_desc['id'],
+            'reference_id': reference_id,
+            'entry': '0',
+            'permanent_redaction': '',
+            'temporary_redaction': temporary_redaction
+        }
+
+        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.post()
+
+    @inlineCallbacks
+    def put_redaction(self, rtip_desc, redaction_id, content_type, reference_id,
+                      permanent_redaction, temporary_redaction):
+        body = {
+            'id': redaction_id,
+            'operation': 'redact',
+            'content_type': content_type,
+            'internaltip_id': rtip_desc['id'],
+            'reference_id': reference_id,
+            'entry': '0',
+            'permanent_redaction': permanent_redaction,
+            'temporary_redaction': temporary_redaction
+        }
+
+        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(redaction_id)
+
+    @inlineCallbacks
+    def test_redact_answer(self):
+        field_id = yield self.get_answer_field_id()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.post_redaction(rtip_desc, field_id, [{'start': 0, 'end': 10}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.put_redaction(rtip_desc, rtip_desc['redactions'][0]['id'],
+                                     'answer', field_id,
+                                     [{'start': 0, 'end': 3}], [{'start': 0, 'end': 10}])
+
+    @inlineCallbacks
+    def test_redact_comment(self):
+        rtip_descs = yield self.get_rtips()
+        comment_ids = {}
+        for rtip_desc in rtip_descs:
+            comment = yield rtip.create_comment(1, rtip_desc['receiver_id'],
+                                                rtip_desc['id'], 'sensitive comment')
+            comment_ids[rtip_desc['id']] = comment['id']
+            yield self.post_redaction(rtip_desc, comment['id'], [{'start': 0, 'end': 16}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.put_redaction(rtip_desc, rtip_desc['redactions'][0]['id'],
+                                     'comment', comment_ids[rtip_desc['id']],
+                                     [{'start': 0, 'end': 5}], [{'start': 0, 'end': 16}])
+
+    @inlineCallbacks
+    def test_redact_file(self):
+        yield Delivery().run()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            wbfile_ids = yield self.get_wbfiles(rtip_desc['rtip_id'])
+            # The 'file' redaction path triggers deletion of the referenced file
+            # and is keyed by the sentinel temporary range [-inf, inf].
+            yield self.post_redaction(rtip_desc, wbfile_ids[0],
+                                      [{'start': '-inf', 'end': 'inf'}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            redaction = rtip_desc['redactions'][0]
+            yield self.put_redaction(rtip_desc, redaction['id'], 'file',
+                                     redaction['reference_id'], [], [{'start': '-inf', 'end': 'inf'}])
 
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
