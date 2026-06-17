@@ -22,7 +22,7 @@ export class ConfirmationWithPasswordComponent {
 
   secret: string;
 
-  confirmFunction: (secret: string) => void;
+  confirmFunction: (secret: string) => void | Promise<void>;
 
   dismiss() {
     this.activeModal.dismiss();
@@ -37,8 +37,13 @@ export class ConfirmationWithPasswordComponent {
       this.appDataService.updateShowLoadingPanel(false);
     }
 
-    this.confirmFunction(secret);
-
-    return this.activeModal.close(secret);
+    try {
+      await this.confirmFunction(secret);
+      this.activeModal.close(secret);
+    } catch {
+      // The confirmation was rejected (e.g. wrong password): keep the modal
+      // open and let the operator try again.
+      this.secret = "";
+    }
   }
 }

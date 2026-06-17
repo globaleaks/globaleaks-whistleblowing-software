@@ -15,16 +15,22 @@ export class ConfirmationWith2faComponent {
 
   secret: string;
 
-  confirmFunction: (secret: string) => void;
+  confirmFunction: (secret: string) => void | Promise<void>;
   close: () => void;
 
   dismiss() {
     this.activeModal.close();
   }
 
-  confirm() {
-    this.confirmFunction(this.secret);
-    this.activeModal.close(this.secret);
+  async confirm() {
+    try {
+      await this.confirmFunction(this.secret);
+      this.activeModal.close(this.secret);
+    } catch {
+      // The confirmation was rejected (e.g. wrong code): keep the modal open
+      // and let the operator try again.
+      this.secret = "";
+    }
   }
 
 }

@@ -113,32 +113,11 @@
                     <span>{{ 'Send reset link' | translate }}</span>
                   }
                 </span>
-                <span class="btn btn-outline-secondary" (click)="user.newpassword = !user.newpassword">
+                <span class="btn btn-outline-secondary" id="set_password" (click)="setPassword(user)">
                   <i class="fas fa-pen-to-square"></i>
-                  <span id="set_password">{{ 'Set password' | translate }}</span>
+                  <span>{{ 'Reset password' | translate }}</span>
                 </span>
               </div>
-              @if (user.newpassword) {
-                <div class="form-group">
-                  <input class="d-none" type="password" name="disable-autocomplete" />
-                  <span class="input-group">
-                    <label for="user-password-input" class="visually-hidden">{{ 'Password' | translate }}</label>
-                    <input id="user-password-input" name="password" class="form-control" [(ngModel)]="setPasswordArgs.password" #password="ngModel" type="password" (passwordStrengthChange)="onPasswordStrengthChange($event)" [ngClass]="{'is-invalid': setPasswordArgs.password && (!password?.errors?.['passwordStrengthValidator'] && !password?.valid)}" autocomplete="off" passwordStrengthValidator />
-                    <span class="input-group-append">
-                      <button id="setPasswordButton" class="btn btn-primary rounded-start-0 m-0" (click)="setPassword(setPasswordArgs)">
-                        <i class="fas fa-tag"></i>
-                        <span id="set_password">{{ 'Set password' | translate }}</span>
-                      </button>
-                    </span>
-                  </span>
-                  @if (passwordStrengthScore>0) {
-                    <src-password-meter [passwordStrengthScore]="passwordStrengthScore"></src-password-meter>
-                  }
-                  @if (passwordStrengthScore && passwordStrengthScore < 2) {
-                    <div class="text-danger">{{ 'The chosen password is too weak. A valid password should be at least 12 characters long and contain a variety of characters including at least a lowercase character, a capital character, a number and a special character.' | translate }}</div>
-                  }
-                </div>
-              }
             </div>
           }
           <div class="form-group">
