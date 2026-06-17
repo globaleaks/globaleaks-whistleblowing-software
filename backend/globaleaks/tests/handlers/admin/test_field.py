@@ -1,7 +1,7 @@
 
 from globaleaks import models
 from globaleaks.handlers import admin
-from globaleaks.handlers.admin.field import create_field, delete_field
+from globaleaks.handlers.admin.field import check_field_association, create_field, delete_field
 from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -11,6 +11,18 @@ from twisted.internet.defer import inlineCallbacks
 @transact
 def get_id_of_first_step_of_questionnaire(session, questionnaire_id):
     return session.query(models.Step).filter(models.Step.questionnaire_id == questionnaire_id)[0].id
+
+
+@transact
+def run_check_field_association(session, tid, request):
+    check_field_association(session, tid, request)
+
+
+@transact
+def force_fieldgroup(session, field_id, fieldgroup_id):
+    # corrupt the stored tree directly, bypassing the guard
+    field = session.query(models.Field).filter(models.Field.id == field_id).one()
+    field.fieldgroup_id = fieldgroup_id
 
 
 class TestFieldCreate(helpers.TestHandler):
@@ -200,3 +212,68 @@ class TestFieldTemplatesCollection(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.post()
         self.assertIn('id', response)
         self.assertNotEqual(response.get('options'), None)
+
+
+class TestCheckFieldAssociation(helpers.TestHandler):
+    _handler = admin.field.FieldInstance
+
+    @inlineCallbacks
+    def build_chain(self):
+        """
+        Build a field chain A -> B -> C (A is the top fieldgroup, B a fieldgroup
+        child of A, C a field child of B) and return their ids.
+        """
+        step_id = yield get_id_of_first_step_of_questionnaire('default')
+
+        values = helpers.get_dummy_field(type='fieldgroup')
+        values['instance'] = 'instance'
+        values['step_id'] = step_id
+        a = yield create_field(1, values, 'en')
+
+        values = helpers.get_dummy_field(type='fieldgroup')
+        values['instance'] = 'instance'
+        values['fieldgroup_id'] = a['id']
+        b = yield create_field(1, values, 'en')
+
+        values = helpers.get_dummy_field()
+        values['instance'] = 'instance'
+        values['fieldgroup_id'] = b['id']
+        c = yield create_field(1, values, 'en')
+
+        return a['id'], b['id'], c['id']
+
+    @inlineCallbacks
+    def test_rejects_cycle_at_any_depth(self):
+        """
+        Reparenting top fieldgroup A under its grandchild C would create a
+        cycle (A -> C -> B -> A) and must be rejected.
+        """
+        a, b, c = yield self.build_chain()
+
+        request = helpers.get_dummy_field()
+        request['id'] = a
+        request['fieldgroup_id'] = c
+
+        yield self.assertFailure(run_check_field_association(1, request),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_terminates_on_preexisting_cycle(self):
+        """
+        If the stored field tree already contains a cycle, the guard must still
+        terminate instead of hanging the worker thread.
+        """
+        a, b, c = yield self.build_chain()
+
+        # Corrupt the stored tree into a cycle A -> B -> A.
+        yield force_fieldgroup(a, b)
+
+        # Associating a brand-new field under A must terminate (and not raise,
+        # since the new field is not part of the existing cycle).
+        request = helpers.get_dummy_field()
+        request['id'] = 'new-field-id'
+        request['fieldgroup_id'] = a
+
+        yield run_check_field_association(1, request)
+
+    test_terminates_on_preexisting_cycle.timeout = 30
