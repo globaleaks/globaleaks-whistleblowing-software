@@ -42,6 +42,37 @@ export class CryptoService {
     return Array.from(array, n => (n % 10).toString()).join('');
   }
 
+  generatePassword(length = 16): string {
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const digits = "0123456789";
+    const special = "!@#$%^&*()-_=+[]";
+    // Guarantee at least one character from each class so that the generated
+    // password always satisfies the platform password strength requirements.
+    const required = [lower, upper, digits, special];
+    const all = lower + upper + digits + special;
+
+    length = Math.max(length, required.length);
+
+    const array = new Uint32Array(length);
+    window.crypto.getRandomValues(array);
+
+    const chars = Array.from(array, (n, i) => {
+      const set = i < required.length ? required[i] : all;
+      return set[n % set.length];
+    });
+
+    // Shuffle so the guaranteed characters are not always at the beginning.
+    const shuffle = new Uint32Array(length);
+    window.crypto.getRandomValues(shuffle);
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = shuffle[i] % (i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    return chars.join("");
+  }
+
   str2Uint8Array(str: string): Uint8Array {
     const result = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {

@@ -5,6 +5,7 @@ import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {PasswordSetComponent} from "@app/shared/modals/password-set/password-set.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -14,8 +15,6 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {NgClass, DatePipe} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
-import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
-import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
 
@@ -23,7 +22,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgbTooltipModule, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
+    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgClass, DatePipe, TranslatorPipe]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -41,9 +40,7 @@ export class UserEditorComponent implements OnInit {
   @Output() deleted = new EventEmitter<string>();
   @ViewChild("uploader") uploaderInput: ElementRef;
   editing = false;
-  setPasswordArgs: { user_id: string, password: string };
   changePasswordArgs: { password_change_needed: string };
-  passwordStrengthScore = 0;
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
   authenticationData: AuthenticationService;
@@ -63,10 +60,6 @@ export class UserEditorComponent implements OnInit {
     if (this.appDataService) {
       this.appServiceData = this.appDataService;
     }
-    this.setPasswordArgs = {
-      user_id: this.user.id,
-      password: ""
-    };
     this.changePasswordArgs = {
       password_change_needed: ""
     };
@@ -76,24 +69,30 @@ export class UserEditorComponent implements OnInit {
     this.editing = !this.editing;
   }
 
-  onPasswordStrengthChange(score: number) {
-    this.passwordStrengthScore = score;
-  }
-
   disable2FA(user: userResolverModel) {
     this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, false).subscribe(_ => {
       user.two_factor = false;
     });
   }
 
-  async setPassword(setPasswordArgs: { user_id: string, password: string }) {
-    this.appDataService.updateShowLoadingPanel(true);
-    setPasswordArgs.password = await this.cryptoService.hashArgon2(setPasswordArgs.password, this.user.salt);
-    this.appDataService.updateShowLoadingPanel(false);
+  async setPassword(user: userResolverModel) {
+    // Generate a random password on the client. The plaintext is shown to the
+    // administrator only after the change has been confirmed and applied so
+    // that it can be communicated to the user; only the derived hash is sent.
+    const password = this.cryptoService.generatePassword();
 
-    this.utilsService.runAdminOperation("set_user_password", setPasswordArgs, false).subscribe();
-    this.user.newpassword = false;
-    this.setPasswordArgs.password = "";
+    let hash: string;
+    this.appDataService.updateShowLoadingPanel(true);
+    try {
+      hash = await this.cryptoService.hashArgon2(password, user.salt);
+    } finally {
+      this.appDataService.updateShowLoadingPanel(false);
+    }
+
+    this.utilsService.runAdminOperation("set_user_password", {user_id: user.id, password: hash}, false).subscribe(() => {
+      const modalRef = this.modalService.open(PasswordSetComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+      modalRef.componentInstance.password = password;
+    });
   }
 
   saveUser(userData: userResolverModel) {

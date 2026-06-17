@@ -115,6 +115,9 @@ def enable_2fa(session, tid, user_id, obj_id, secret, token):
     """
     user = db_get_user(session, tid, obj_id)
 
+    if user.two_factor_secret:
+        raise errors.ForbiddenOperation
+
     try:
         State.totp_verify(secret, token)
     except Exception:

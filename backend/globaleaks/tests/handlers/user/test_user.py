@@ -150,6 +150,40 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
 
         yield handler.put()
 
+    @inlineCallbacks
+    def test_2fa_enable_fails_if_already_enabled(self):
+        totp_secret = 'B6IZ6BEH6BMWDBZ2ND7PGAQN2GIBVOVX'
+
+        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())  # noqa: S303 - SHA1 mandated by the TOTP standard (RFC 6238)
+
+        # Enroll for 2FA with a valid token
+        data_request = {
+            'operation': 'enable_2fa',
+            'args': {
+                'secret': totp_secret,
+                'token': totp.generate(time.time()).decode()
+            }
+        }
+
+        handler = self.request(data_request, role='receiver')
+
+        yield handler.put()
+
+        self.state.TwoFactorTokens.clear()
+
+        # Attempt enrolling for 2FA again must fail as 2FA is already enabled
+        data_request = {
+            'operation': 'enable_2fa',
+            'args': {
+                'secret': totp_secret,
+                'token': totp.generate(time.time()).decode()
+            }
+        }
+
+        handler = self.request(data_request, role='receiver')
+
+        yield self.assertFailure(handler.put(), errors.ForbiddenOperation)
+
 
 class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = UserOperationHandler
