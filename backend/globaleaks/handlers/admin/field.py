@@ -10,19 +10,6 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 
 
-def fieldtree_ancestors(session, field_id):
-    """
-    Transaction to extract the parents of a field
-
-    :param session: An ORM session
-    :param field_id: The field ID
-    """
-    field = session.query(models.Field).filter(models.Field.id == field_id).one_or_none()
-    if field.fieldgroup_id is not None:
-        yield field.fieldgroup_id
-        yield fieldtree_ancestors(session, field.fieldgroup_id)
-
-
 def db_create_option_trigger(session, tid, option_id, type, object_id, sufficient):
     """
     Transaction for creating an option trigger
@@ -204,9 +191,16 @@ def check_field_association(session, tid, request):
         raise errors.InputValidationError
 
     if request.get('fieldgroup_id', ''):
-        ancestors = set(fieldtree_ancestors(session, request['fieldgroup_id']))
-        if request['id'] == request['fieldgroup_id'] or request['id'] in ancestors:
-            raise errors.InputValidationError("Provided field association would cause recursion loop")
+        ancestor = request['fieldgroup_id']
+        seen = set()
+        while ancestor:
+            if ancestor == request['id']:
+                raise errors.InputValidationError("Provided field association would cause recursion loop")
+            if ancestor in seen:  # pre-existing cycle in stored data: stop, don't hang
+                break
+            seen.add(ancestor)
+            ancestor = session.query(models.Field.fieldgroup_id) \
+                              .filter(models.Field.id == ancestor).scalar()
 
 
 def db_get_field(session, tid, field_id, language=None, data=None, serialize_templates=False):
