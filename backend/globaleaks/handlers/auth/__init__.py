@@ -367,11 +367,13 @@ class OperatorAuthSwitchHandler(BaseHandler):
     check_roles = 'receiver'
 
     def get(self):
+        prv_key, _ = GCE.generate_keypair()
+
         session = Sessions.new(self.session.user_tid,
                                uuid4(),
                                self.session.user_tid,
                                "whistleblower",
-                               self.session.cc,
+                               prv_key,
                                False)
 
         session.properties['operator_session'] = self.session.user_id
