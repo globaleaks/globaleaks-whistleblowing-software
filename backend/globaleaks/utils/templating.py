@@ -245,10 +245,14 @@ class TipKeyword(UserNodeKeyword):
                 output = self.dump_fields(output, field['children'], entry, indent_n)
             else:
                 output += indent_text(entry.get('value', ''), indent_n) + '\n'
-        except (KeyError, TypeError, AttributeError, ValueError):
+        except (KeyError, TypeError, AttributeError, ValueError, OverflowError, OSError):
             # KeyError/TypeError/AttributeError: malformed field or answer dict.
-            # ValueError: the 'daterange' branch (currently with a placeholder
-            # string) can fail in int()/datetime.fromtimestamp().
+            # ValueError/OverflowError/OSError: the 'daterange' branch can fail in
+            # int()/datetime.fromtimestamp() on a malformed or out-of-range value
+            # (e.g. an oversized timestamp). Submission validation already rejects
+            # such values; this stays a defense-in-depth guard so a value that
+            # nonetheless reaches the export (e.g. legacy data) degrades gracefully
+            # instead of crashing the report export.
             pass
 
         return output + '\n'
