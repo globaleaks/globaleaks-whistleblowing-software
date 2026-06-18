@@ -148,8 +148,12 @@ def reset_password(args):
     user_salt = GCE.generate_salt()
     user_enc_key, user_hash = GCE.calculate_key_and_hash(password, user_salt)
 
+    # The operator authenticates as an administrator of the root tenant (tid 1):
+    # recovery relies on the root tenant escrow key, which is the only escrow key
+    # reachable from the CLI and the one the user account keys are backed up to
+    # (crypto_escrow_bkp1_key).
     QUERY = "SELECT id, salt, hash, crypto_prv_key, crypto_escrow_prv_key FROM user WHERE tid=? AND username=?"
-    c.execute(QUERY, (args.tid, admin_username))
+    c.execute(QUERY, (1, admin_username))
 
     admin_user = c.fetchone()
     if admin_user is None:
@@ -165,6 +169,7 @@ def reset_password(args):
 
     admin_enc_key = GCE.derive_key(admin_password.encode(), admin_salt)
 
+    admin_ek = None
     if admin_crypto_prv_key:
         try:
             admin_cc = GCE.symmetric_decrypt(admin_enc_key, Base64Encoder.decode(admin_crypto_prv_key))
@@ -172,9 +177,10 @@ def reset_password(args):
             print("Failed! Invalid password")
             sys.exit(1)
 
-        admin_ek = GCE.asymmetric_decrypt(admin_cc, Base64Encoder.decode(admin_crypto_escrow_prv_key))
+        if admin_crypto_escrow_prv_key:
+            admin_ek = GCE.asymmetric_decrypt(admin_cc, Base64Encoder.decode(admin_crypto_escrow_prv_key))
 
-    QUERY = "SELECT id, crypto_escrow_bkp1_key FROM user WHERE tid=? AND username=?;"
+    QUERY = "SELECT id, crypto_pub_key, crypto_escrow_bkp1_key FROM user WHERE tid=? AND username=?;"
     c.execute(QUERY, (args.tid, args.username))
 
     user = c.fetchone()
@@ -183,12 +189,25 @@ def reset_password(args):
         print("Failed! The user '{}' does not exist".format(args.username))
         sys.exit(1)
 
-    user_id, user_crypto_escrow_bkp1_key = user[0], user[1]
-    if user_crypto_escrow_bkp1_key:
+    user_id, user_crypto_pub_key, user_crypto_escrow_bkp1_key = user[0], user[1], user[2]
+
+    if user_crypto_escrow_bkp1_key and admin_ek is not None:
+        # The account key is recoverable from the root tenant escrow backup:
+        # re-wrap it under the new password.
         user_cc = GCE.asymmetric_decrypt(admin_ek, Base64Encoder.decode(user_crypto_escrow_bkp1_key))
         user_crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(user_enc_key, user_cc))
-    else:
+    elif not user_crypto_pub_key:
+        # The user has no encryption enabled: a plain password reset is safe.
         user_crypto_prv_key = ''
+    else:
+        # The user has encryption enabled but the operator holds no escrow key
+        # able to recover the account key. Overwriting crypto_prv_key here would
+        # irreversibly destroy the key and every report the user can decrypt, so
+        # refuse the reset instead of silently causing data loss.
+        print("Failed! The user '{}' has encryption enabled and the account key "
+              "cannot be recovered without access to the root tenant escrow key; "
+              "the password has not been reset to avoid permanent data loss".format(args.username))
+        sys.exit(1)
 
     QUERY = "UPDATE user SET salt=?, hash=?, crypto_prv_key=?, password_change_date=?, password_change_needed=? WHERE id=?;"
     c.execute(QUERY, (user_salt, user_hash, user_crypto_prv_key, datetime_now(), True, user_id))
