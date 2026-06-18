@@ -188,7 +188,7 @@ def parse_issuer_name(x509):
 
 def split_pem_chain(s):
     """Splits an ascii armored cert chain into a list of strings which could be valid certs"""
-    gex_str = r"-----BEGIN CERTIFICATE-----\r?.+?\r?-----END CERTIFICATE-----\r?\n?"
+    gex_str = r"-----BEGIN CERTIFICATE-----\r?[^-]+?\r?-----END CERTIFICATE-----\r?\n?"
     gex = re.compile(gex_str, re.DOTALL)
 
     try:
