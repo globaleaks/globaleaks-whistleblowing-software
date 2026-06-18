@@ -117,7 +117,7 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
     # The identity answers are the entry of the whistleblower identity field,
     # so they are validated exactly as the initial submission validates the
     # field entries.
-    db_validate_answers(session, tid, context.questionnaire_id, {identity_field_id: [wbi]})
+    db_validate_answers(session, tid, context.questionnaire_id, {identity_field_id: [wbi]}, True)
 
     if itip.crypto_tip_pub_key:
         wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
@@ -142,7 +142,7 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
     if not context.additional_questionnaire_id:
         return
 
-    steps = db_validate_answers(session, tid, context.additional_questionnaire_id, answers)
+    steps, _ = db_validate_answers(session, tid, context.additional_questionnaire_id, answers, True)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     if itip.crypto_tip_pub_key:
@@ -191,21 +191,6 @@ class Operations(BaseHandler):
                               "operator_session" in self.session.properties)
 
 
-@transact
-def db_get_masked_file_ids(session, itip_id):
-    """
-    Return the reference ids of the files masked on a report.
-
-    :param session: An ORM session
-    :param itip_id: The internaltip id of the report
-    :return: A list of masked file reference ids
-    """
-    return [r.reference_id for r in
-            session.query(models.Redaction)
-                   .filter(models.Redaction.internaltip_id == itip_id,
-                           models.Redaction.entry == '0')]
-
-
 def db_file_is_masked(session, itip_id, file_id):
     return session.query(models.Redaction) \
                   .filter(models.Redaction.internaltip_id == itip_id,
@@ -222,7 +207,7 @@ class WBTipInstance(BaseHandler):
     @inlineCallbacks
     def get(self):
         # Local import to avoid a circular import with recipient.rtip.
-        from globaleaks.handlers.recipient.rtip import mask_report_files
+        from globaleaks.handlers.recipient.rtip import redact_report
 
         tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
 
@@ -231,9 +216,7 @@ class WBTipInstance(BaseHandler):
         if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
 
-        masked_ids = yield db_get_masked_file_ids(self.session.user_id)
-        if masked_ids:
-            mask_report_files(tip, set(masked_ids))
+        tip = yield redact_report(self.session.user_id, tip)
 
         returnValue(tip)
 

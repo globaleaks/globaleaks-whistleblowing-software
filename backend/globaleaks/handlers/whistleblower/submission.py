@@ -196,6 +196,12 @@ def db_evaluate_answers_score(context, steps, answers):
     The score must be derived server-side and never be trusted from the
     client request: option score weights are not exposed on the public API
     and the computation is performed exclusively here.
+
+    The answers are expected to be already reconciled with the trigger logic
+    (see db_clear_disabled_answers) so that only the fields the conditional
+    questionnaire logic enables are counted, exactly as the client does before
+    submitting: counting a trigger-hidden field would let a modified client
+    forge the triage score.
     """
     points = {'sum': 0, 'mul': 1}
 
@@ -223,6 +229,11 @@ def db_evaluate_block_submission(steps, answers):
     must abort the submission; the official client refuses to finalize, but the
     invariant must be enforced server-side as well so that a modified client
     cannot complete a submission the administrator configured to be blocked.
+
+    The answers are expected to be already reconciled with the trigger logic
+    (see db_clear_disabled_answers) so that a blocking option belonging to a
+    field the questionnaire keeps hidden does not abort the submission, exactly
+    as the client only screens the fields it actually enables.
     """
     for field, entry in iterate_answers(steps, answers):
         for option in evaluate_selected_options(field, entry):
@@ -289,25 +300,23 @@ def is_field_triggered(parent_enabled, field, answers, identity_provided, part_o
     return count == len(triggers)
 
 
-def evaluate_receivers_override(steps, answers, identity_provided):
+def db_clear_disabled_answers(steps, answers, identity_provided):
     """
-    Server-side port of the recipients override computed by the client in
-    FieldUtilitiesService.updateAnswers: traverse the enabled fields in schema
-    order and return the trigger_receiver list of the last selected option that
-    declares one, or None when no override is triggered.
+    Return a deep copy of the submitted answers with the answers of the fields
+    disabled by the questionnaire trigger logic cleared, mirroring the client
+    FieldUtilitiesService.updateAnswers.
 
-    A triggered override replaces the recipients selection entirely, taking
-    precedence over the context configuration including mandatory recipients;
-    replicating the client algorithm exactly ensures that the selection the
-    client would have submitted is the only one the backend accepts. Mirroring
-    the client, the answers of fields that are not enabled are cleared as the
-    traversal proceeds so that they cannot trigger downstream fields.
+    Every server-side consumer that derives a decision from the answers (the
+    recipients override and the triage score) must consider only the fields the
+    conditional questionnaire logic actually enables, exactly as the official
+    client does before submitting. Operating on the raw answers would let a
+    modified client have a trigger-hidden field counted (e.g. selecting the
+    high-score option of a field the questionnaire keeps hidden to forge the
+    triage score). Clearing the disabled fields as the traversal proceeds also
+    ensures, like the client, that a disabled field cannot trigger downstream
+    fields.
     """
-    # Work on a copy: the traversal clears disabled fields like the client and
-    # the original answers are still needed for scoring and storage.
     answers = copy.deepcopy(answers)
-
-    override = {'value': None}
 
     def walk(parent_enabled, fields, local_answers, part_of_identity):
         for field in fields:
@@ -326,25 +335,42 @@ def evaluate_receivers_override(steps, answers, identity_provided):
                 if isinstance(entry, dict):
                     walk(enabled, field.get('children', []), entry, child_part)
 
-            if not enabled:
-                continue
-
-            for entry in entries:
-                if not isinstance(entry, dict):
-                    continue
-
-                for option in evaluate_selected_options(field, entry):
-                    if option.get('trigger_receiver'):
-                        override['value'] = option['trigger_receiver']
-
     for step in steps:
         step_enabled = is_field_triggered(None, step, answers, identity_provided, False)
         walk(step_enabled, step['children'], answers, step.get('template_id') == 'whistleblower_identity')
 
-    return override['value']
+    return answers
 
 
-def db_validate_submission_receivers(session, context, steps, answers, identity_provided, requested_receivers):
+def evaluate_receivers_override(steps, answers):
+    """
+    Server-side port of the recipients override computed by the client in
+    FieldUtilitiesService.updateAnswers: traverse the enabled fields in schema
+    order and return the trigger_receiver list of the last selected option that
+    declares one, or None when no override is triggered.
+
+    A triggered override replaces the recipients selection entirely, taking
+    precedence over the context configuration including mandatory recipients;
+    replicating the client algorithm exactly ensures that the selection the
+    client would have submitted is the only one the backend accepts.
+
+    The answers are expected to be already reconciled with the trigger logic
+    (see db_clear_disabled_answers), so a disabled field carries no selected
+    option and cannot contribute an override; iterating in schema order then
+    yields the same "last selected option wins" precedence as the client (only
+    fieldgroups have children, and they never carry scorable/override options).
+    """
+    override = None
+
+    for field, entry in iterate_answers(steps, answers):
+        for option in evaluate_selected_options(field, entry):
+            if option.get('trigger_receiver'):
+                override = option['trigger_receiver']
+
+    return override
+
+
+def db_validate_submission_receivers(session, context, steps, answers, requested_receivers):
     """
     Enforce server-side the recipients selection policy configured on the
     context, an invariant otherwise enforced only by the official client:
@@ -359,7 +385,7 @@ def db_validate_submission_receivers(session, context, steps, answers, identity_
       context when select_all_receivers is set, otherwise only the recipients
       flagged as forcefully selected.
     """
-    override = evaluate_receivers_override(steps, answers, identity_provided)
+    override = evaluate_receivers_override(steps, answers)
     if override is not None:
         if requested_receivers != set(override):
             raise errors.InputValidationError("The selected recipients do not match the recipients triggered by the answers")
@@ -591,28 +617,38 @@ def db_validate_submission_answers(steps, answers):
         validate_entries(field, value)
 
 
-def db_validate_answers(session, tid, questionnaire_id, answers):
+def db_validate_answers(session, tid, questionnaire_id, answers, identity_provided):
     """
     Load the authoritative questionnaire schema, with templates serialized so
     that fieldgroup children are present, and enforce that the submitted
     answers conform to it (see db_validate_submission_answers) and do not
     select an option the questionnaire marks as blocking (see
-    db_evaluate_block_submission). The schema steps are returned for further
-    server-side processing.
+    db_evaluate_block_submission). The schema steps and the answers reconciled
+    with the trigger logic are returned for further server-side processing.
 
     This is the single entry point shared by the submission and the
     whistleblower tip endpoints that persist answers, so that the bound on the
     answers nesting depth and the screening choices that must abort persistence
     are enforced identically everywhere and cannot be forgotten on a code path a
     modified client could reach.
+
+    The blocking-option check, like the recipients override and the triage
+    score, is evaluated on the answers reconciled with the trigger logic (see
+    db_clear_disabled_answers): a blocking option belonging to a field the
+    questionnaire keeps hidden must not abort the submission, exactly as the
+    official client only screens the fields it actually enables. The
+    reconciliation is performed once here and the result returned so that the
+    callers do not repeat it.
     """
     steps = db_get_questionnaire(session, tid, questionnaire_id, None, True)['steps']
     db_validate_submission_answers(steps, answers)
 
-    if db_evaluate_block_submission(steps, answers):
+    enabled_answers = db_clear_disabled_answers(steps, answers, identity_provided)
+
+    if db_evaluate_block_submission(steps, enabled_answers):
         raise errors.InputValidationError("Blocked")
 
-    return steps
+    return steps, enabled_answers
 
 
 def db_create_receivertip(session, receiver, internaltip, tip_key):
@@ -645,10 +681,16 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     answers = request['answers']
-    steps = db_validate_answers(session, tid, questionnaire.id, answers)
+    # The answers are validated and reconciled with the questionnaire trigger
+    # logic once (see db_validate_answers), mirroring the client: the blocking
+    # screening, the recipients override and the triage score are all derived
+    # from the fields the conditional logic actually enables, so a modified
+    # client cannot have a trigger-hidden field counted. The original answers are
+    # kept for storage (the whistleblower identity handling reads them).
+    steps, enabled_answers = db_validate_answers(session, tid, questionnaire.id, answers, request['identity_provided'])
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
-    db_validate_submission_receivers(session, context, steps, answers, request['identity_provided'], set(request['receivers']))
+    db_validate_submission_receivers(session, context, steps, enabled_answers, set(request['receivers']))
 
     receivers = []
     for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(request['receivers']), models.User.role == 'receiver'):
@@ -691,7 +733,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     # authoritative questionnaire schema. The score is computed server-side
     # and the client-supplied value, if any, is ignored.
     if State.tenants[tid].cache.enable_scoring_system:
-        itip.score = db_evaluate_answers_score(context, steps, answers)
+        itip.score = db_evaluate_answers_score(context, steps, enabled_answers)
 
     itip.tor = client_using_tor
     itip.mobile = client_using_mobile
