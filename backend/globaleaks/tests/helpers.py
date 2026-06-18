@@ -763,6 +763,22 @@ class TestGL(unittest.TestCase):
         return ret
 
     @transact
+    def add_redaction(self, session, itip_id, reference_id, temporary_redaction, entry='0'):
+        redaction = models.Redaction()
+        redaction.internaltip_id = itip_id
+        redaction.reference_id = reference_id
+        redaction.entry = entry
+        redaction.temporary_redaction = temporary_redaction
+        redaction.permanent_redaction = []
+        session.add(redaction)
+
+    @transact
+    def set_redaction_privileges(self, session, user_id, value):
+        user = session.query(models.User).get(user_id)
+        user.can_mask_information = value
+        user.can_redact_information = value
+
+    @transact
     def get_wbfiles(self, session, rtip_id):
         return [x[0] for x in session.query(models.WhistleblowerFile.id) \
                                      .filter(models.WhistleblowerFile.receivertip_id == rtip_id)]
