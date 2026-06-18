@@ -4,11 +4,12 @@ from types import SimpleNamespace
 from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
 from twisted.internet import reactor, task
-from twisted.internet.defer import DeferredLock, inlineCallbacks
+from twisted.internet.defer import DeferredLock, inlineCallbacks, returnValue
 from twisted.trial import unittest
 
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
+from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.orm import transact
 from globaleaks.rest import errors
@@ -571,6 +572,27 @@ class TestRedactContent(unittest.TestCase):
         for ranges in (None, 'abc', 123, [1, 2, 3], [None], [[0, 1]], ['x']):
             self.assertEqual(rtip.redact_content('hello', ranges, '0x2591'), 'hello')
 
+    def test_astral_chars_before_range_do_not_leak(self):
+        # The client measures selection offsets in UTF-16 code units; an astral
+        # character (U+10000+) before a redacted token must not shift the mask
+        # and leak the leading character(s) of the redacted value. This is not an
+        # emoji-only edge case: supplementary-plane CJK ideographs occur in
+        # ordinary personal and place names (here U+20BB7 '𠮷', the variant of
+        # '吉' used in the surname Yoshida), so the redacted PII can itself carry
+        # the astral character that triggers the leak.
+
+        # A redacted phone number after a name containing a supplementary-plane
+        # ideograph: '𠮷' = 2 UTF-16 units, '田' = 1, ': ' = 2 -> phone at 5..11.
+        content = '𠮷田: 5551234'
+        out = rtip.redact_content(content, [{'start': 5, 'end': 11}], '0x2588')
+        self.assertEqual(out, '𠮷田: ███████')
+
+        # The redacted name itself, with the astral character at its start:
+        # 'Source: ' = 8 units, then '𠮷田' spans units 8..10.
+        content = 'Source: 𠮷田 called'
+        out = rtip.redact_content(content, [{'start': 8, 'end': 10}], '0x2588')
+        self.assertEqual(out, 'Source: ███ called')
+
 
 class TestRedactionHelpers(unittest.TestCase):
     def test_validate_ranges(self):
@@ -793,6 +815,97 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
             redaction = rtip_desc['redactions'][0]
             yield self.put_redaction(rtip_desc, redaction['id'], 'file',
                                      redaction['reference_id'], [], [{'start': '-inf', 'end': 'inf'}])
+
+
+class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
+    """
+    A temporary (display-time) redaction over a comment or an answer must be
+    masked on every non-privileged read path -- a recipient lacking the
+    masking/redaction permission and the whistleblower -- while a privileged
+    recipient keeps reading the original content.
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def read_rtip(self, itip_id, receiver_id):
+        self._handler = rtip.RTipInstance
+        handler = self.request(role='receiver', user_id=receiver_id)
+        ret = yield handler.get(itip_id)
+        returnValue(ret)
+
+    @inlineCallbacks
+    def read_wbtip(self, itip_id):
+        self._handler = wbtip.WBTipInstance
+        handler = self.request(role='whistleblower', user_id=itip_id)
+        ret = yield handler.get()
+        returnValue(ret)
+
+    def find_redactable_answer(self, tip):
+        # A top-level questionnaire answer holding a non-empty string value,
+        # suitable for a text redaction.
+        for q in tip['questionnaires']:
+            for field_id, entries in q['answers'].items():
+                for entry in entries:
+                    value = entry.get('value')
+                    if isinstance(value, str) and value:
+                        return field_id, entry['index'], value
+        return None, None, None
+
+    def answer_value(self, tip, field_id, entry):
+        for q in tip['questionnaires']:
+            for a in q['answers'].get(field_id, []):
+                if a.get('index') == entry:
+                    return a.get('value')
+        return None
+
+    def comment_content(self, tip, comment_id):
+        for comment in tip['comments']:
+            if comment['id'] == comment_id:
+                return comment['content']
+        return None
+
+    @inlineCallbacks
+    def test_temporary_redaction_enforced_on_recipient_and_whistleblower_reads(self):
+        mask = chr(0x2591)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            itip_id = rtip_desc['id']
+            receiver_id = rtip_desc['receiver_id']
+
+            comment = yield rtip.create_comment(1, receiver_id, itip_id, 'SECRET comment')
+
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            field_id, entry, original_answer = self.find_redactable_answer(tip)
+            self.assertTrue(original_answer)
+
+            yield self.add_redaction(itip_id, comment['id'], [{'start': 0, 'end': 100}])
+            yield self.add_redaction(itip_id, field_id, [{'start': 0, 'end': 100}], entry)
+
+            # A privileged recipient reads the original content.
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            self.assertEqual(self.comment_content(tip, comment['id']), 'SECRET comment')
+            self.assertEqual(self.answer_value(tip, field_id, entry), original_answer)
+
+            # A recipient without the permission reads the masked content.
+            yield self.set_redaction_privileges(receiver_id, False)
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.answer_value(tip, field_id, entry))
+
+            # The whistleblower (no User record, hence non-privileged) reads the
+            # masked content too.
+            tip = yield self.read_wbtip(itip_id)
+            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.answer_value(tip, field_id, entry))
+
+            # Restore the permission for the next report iteration.
+            yield self.set_redaction_privileges(receiver_id, True)
 
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
