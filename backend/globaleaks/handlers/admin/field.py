@@ -10,6 +10,15 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 
 
+# Maximum supported fieldgroup nesting depth. Field trees are serialized
+# recursively (see serialize_field); without an upper bound an admin could
+# persist a chain deep enough to exhaust the interpreter recursion limit and
+# crash every serialization of the questionnaire (public submission render,
+# schema archival, admin export). Real questionnaires nest a couple of levels;
+# this bound stays well within that while remaining far below the recursion limit.
+MAX_FIELD_GROUP_NESTING = 3
+
+
 def db_create_option_trigger(session, tid, option_id, type, object_id, sufficient):
     """
     Transaction for creating an option trigger
@@ -199,6 +208,10 @@ def check_field_association(session, tid, request):
             if ancestor in seen:  # pre-existing cycle in stored data: stop, don't hang
                 break
             seen.add(ancestor)
+            # The new field sits one level below its ancestors; bound the chain
+            # so a deep field tree cannot crash the recursive serialization.
+            if len(seen) >= MAX_FIELD_GROUP_NESTING:
+                raise errors.InputValidationError("Provided field association would exceed the maximum nesting depth")
             ancestor = session.query(models.Field.fieldgroup_id) \
                               .filter(models.Field.id == ancestor).scalar()
 
