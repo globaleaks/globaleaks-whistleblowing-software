@@ -57,7 +57,8 @@ def set_receiver_forcefully_selected(session, user_id, value):
 @transact
 def validate_submission_receivers(session, context_id, steps, answers, requested_receivers):
     context = session.query(models.Context).filter(models.Context.id == context_id).one()
-    submission.db_validate_submission_receivers(session, context, steps, answers, False, requested_receivers)
+    enabled_answers = submission.db_clear_disabled_answers(steps, answers, False)
+    submission.db_validate_submission_receivers(session, context, steps, enabled_answers, requested_receivers)
 
 
 @transact
@@ -102,6 +103,34 @@ def scoring_steps():
                         'children': []
                     }
                 ]
+            }
+        ]
+    }]
+
+
+def gated_scoring_steps():
+    # f-high carries a high-score option but is enabled only when opt-gate is
+    # selected on f-gate; f-gate options carry no score.
+    return [{
+        'children': [
+            {
+                'id': 'f-gate',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-gate', 'score_type': 'addition', 'score_points': 0},
+                    {'id': 'opt-other', 'score_type': 'addition', 'score_points': 0},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-high',
+                'type': 'selectbox',
+                'triggered_by_options': [{'field': 'f-gate', 'option': 'opt-gate', 'sufficient': True}],
+                'options': [
+                    {'id': 'opt-high', 'score_type': 'addition', 'score_points': 100},
+                ],
+                'children': []
             }
         ]
     }]
@@ -198,34 +227,41 @@ def chained_trigger_steps(triggered):
 
 
 class TestReceiversOverrideEvaluation(unittest.TestCase):
+    def override_for(self, steps, answers):
+        # Mirror the production pipeline: the answers are first reconciled with
+        # the trigger logic (see db_create_submission) and the override is then
+        # derived from the enabled fields only.
+        enabled_answers = submission.db_clear_disabled_answers(steps, answers, False)
+        return submission.evaluate_receivers_override(steps, enabled_answers)
+
     def test_no_selected_trigger_option_yields_no_override(self):
         steps = trigger_steps(['r1', 'r2'])
-        self.assertIsNone(submission.evaluate_receivers_override(steps, {}, False))
-        self.assertIsNone(submission.evaluate_receivers_override(steps, {'f-select': [{'value': 'opt-plain'}]}, False))
+        self.assertIsNone(self.override_for(steps, {}))
+        self.assertIsNone(self.override_for(steps, {'f-select': [{'value': 'opt-plain'}]}))
 
     def test_selected_trigger_option_yields_override(self):
         steps = trigger_steps(['r1', 'r2'])
         answers = {'f-select': [{'value': 'opt-trigger'}]}
-        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r1', 'r2'])
+        self.assertEqual(self.override_for(steps, answers), ['r1', 'r2'])
 
     def test_last_selected_trigger_option_wins(self):
         # The override matches the client: the last selected option that
         # declares a trigger_receiver replaces the previous one
         steps = trigger_steps(['r1'], ['r2', 'r3'])
         answers = {'f-select': [{'value': 'opt-trigger'}], 'f-select-2': [{'value': 'opt-trigger-2'}]}
-        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r2', 'r3'])
+        self.assertEqual(self.override_for(steps, answers), ['r2', 'r3'])
 
     def test_trigger_option_on_disabled_field_is_ignored(self):
         # A trigger option selected on a field that is not enabled by its own
         # triggering conditions must not produce an override
         steps = gated_trigger_steps(['r1'])
         answers = {'f-gate': [{'value': 'opt-other'}], 'f-gated': [{'value': 'opt-gated-trigger'}]}
-        self.assertIsNone(submission.evaluate_receivers_override(steps, answers, False))
+        self.assertIsNone(self.override_for(steps, answers))
 
         # When the gating option is selected the field becomes enabled and the
         # override is produced
         answers = {'f-gate': [{'value': 'opt-gate'}], 'f-gated': [{'value': 'opt-gated-trigger'}]}
-        self.assertEqual(submission.evaluate_receivers_override(steps, answers, False), ['r1'])
+        self.assertEqual(self.override_for(steps, answers), ['r1'])
 
     def test_trigger_through_disabled_source_field_is_ignored(self):
         # A modified client cannot smuggle an override by selecting the trigger
@@ -236,17 +272,19 @@ class TestReceiversOverrideEvaluation(unittest.TestCase):
         smuggled = {'f-a': [{'value': 'opt-a2'}],
                     'f-b': [{'value': 'opt-b1'}],
                     'f-c': [{'value': 'opt-c-trigger'}]}
-        self.assertIsNone(submission.evaluate_receivers_override(steps, smuggled, False))
+        self.assertIsNone(self.override_for(steps, smuggled))
 
         legit = {'f-a': [{'value': 'opt-a1'}],
                  'f-b': [{'value': 'opt-b1'}],
                  'f-c': [{'value': 'opt-c-trigger'}]}
-        self.assertEqual(submission.evaluate_receivers_override(steps, legit, False), ['r1'])
+        self.assertEqual(self.override_for(steps, legit), ['r1'])
 
     def test_evaluation_does_not_mutate_answers(self):
+        # The reconciliation works on a copy: the original answers, still needed
+        # for storage, must be left untouched.
         steps = chained_trigger_steps(['r1'])
         answers = {'f-a': [{'value': 'opt-a2'}], 'f-b': [{'value': 'opt-b1'}]}
-        submission.evaluate_receivers_override(steps, answers, False)
+        self.override_for(steps, answers)
         self.assertEqual(answers, {'f-a': [{'value': 'opt-a2'}], 'f-b': [{'value': 'opt-b1'}]})
 
 
@@ -512,6 +550,27 @@ class TestServersideScore(unittest.TestCase):
         self.assertEqual(self.evaluate({'f-select': 'not-a-list'}), 0)
         self.assertEqual(self.evaluate({'f-select': ['not-a-dict']}), 0)
 
+    def evaluate_enabled(self, steps, answers):
+        # Mirror the production pipeline: the answers are reconciled with the
+        # trigger logic before being scored (see db_create_submission).
+        enabled_answers = submission.db_clear_disabled_answers(steps, answers, False)
+        return submission.db_evaluate_answers_score(self.context, steps, enabled_answers)
+
+    def test_trigger_hidden_field_is_not_scored(self):
+        # A modified client cannot forge the score by selecting the high-score
+        # option of a field the questionnaire keeps hidden: with the gating
+        # option unselected, f-high is disabled and must not be counted.
+        steps = gated_scoring_steps()
+        forged = {'f-gate': [{'value': 'opt-other'}], 'f-high': [{'value': 'opt-high'}]}
+        self.assertEqual(self.evaluate_enabled(steps, forged), 0)
+
+    def test_triggered_field_is_scored(self):
+        # When the gating option is selected the field is enabled and its
+        # high-score option is counted, reaching the high band.
+        steps = gated_scoring_steps()
+        legit = {'f-gate': [{'value': 'opt-gate'}], 'f-high': [{'value': 'opt-high'}]}
+        self.assertEqual(self.evaluate_enabled(steps, legit), 2)
+
 
 def block_submission_steps():
     return [{
@@ -552,6 +611,34 @@ def block_submission_steps():
     }]
 
 
+def gated_block_steps():
+    # f-blocking carries a blocking option but is enabled only when opt-gate is
+    # selected on f-gate.
+    return [{
+        'children': [
+            {
+                'id': 'f-gate',
+                'type': 'selectbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-gate', 'block_submission': False},
+                    {'id': 'opt-other', 'block_submission': False},
+                ],
+                'children': []
+            },
+            {
+                'id': 'f-blocking',
+                'type': 'selectbox',
+                'triggered_by_options': [{'field': 'f-gate', 'option': 'opt-gate', 'sufficient': True}],
+                'options': [
+                    {'id': 'opt-block', 'block_submission': True},
+                ],
+                'children': []
+            }
+        ]
+    }]
+
+
 class TestBlockSubmissionEvaluation(unittest.TestCase):
     def evaluate(self, answers):
         return submission.db_evaluate_block_submission(block_submission_steps(), answers)
@@ -575,6 +662,27 @@ class TestBlockSubmissionEvaluation(unittest.TestCase):
     def test_malformed_answers_do_not_block(self):
         self.assertFalse(self.evaluate({'f-select': 'not-a-list'}))
         self.assertFalse(self.evaluate({'f-select': ['not-a-dict']}))
+
+    def evaluate_enabled(self, steps, answers):
+        # Mirror the production pipeline: the blocking screening is evaluated on
+        # the answers reconciled with the trigger logic (see db_validate_answers).
+        enabled_answers = submission.db_clear_disabled_answers(steps, answers, False)
+        return submission.db_evaluate_block_submission(steps, enabled_answers)
+
+    def test_blocking_option_on_disabled_field_does_not_block(self):
+        # A blocking option selected on a field the questionnaire keeps hidden
+        # must not abort the submission, exactly as the client only screens the
+        # fields it actually enables.
+        steps = gated_block_steps()
+        answers = {'f-gate': [{'value': 'opt-other'}], 'f-blocking': [{'value': 'opt-block'}]}
+        self.assertFalse(self.evaluate_enabled(steps, answers))
+
+    def test_blocking_option_on_enabled_field_blocks(self):
+        # When the gating option is selected the field is enabled and its
+        # blocking option aborts the submission.
+        steps = gated_block_steps()
+        answers = {'f-gate': [{'value': 'opt-gate'}], 'f-blocking': [{'value': 'opt-block'}]}
+        self.assertTrue(self.evaluate_enabled(steps, answers))
 
 
 class TestSubmission(helpers.TestHandlerWithPopulatedDB):
