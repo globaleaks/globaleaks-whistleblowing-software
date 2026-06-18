@@ -1,3 +1,4 @@
+import inspect
 import ipaddress
 import re
 
@@ -227,6 +228,58 @@ def new_tls_server_context():
         raise Exception("Failed to set the TLS signature algorithms list")
 
     return ctx
+
+
+def client_tls_options(hostname, ctx):
+    """
+    Build an IOpenSSLClientConnectionCreator that performs SNI and server
+    hostname verification reusing the given OpenSSL context.
+
+    Twisted only exposes this functionality, applied to a caller-provided
+    context, through the private ``twisted.internet._sslverify.ClientTLSOptions``
+    class. The public ``twisted.internet.ssl.optionsForClientTLS`` builds its
+    own context and cannot reuse ``new_tls_client_context()``.
+
+    The constructor signature is NOT stable across Twisted releases:
+
+      * Twisted <= 25.5.0:  ``ClientTLSOptions(hostname, ctx)``
+        The context is passed directly; SNI and hostname verification are
+        wired through an info callback installed on the context.
+
+      * Twisted >= 26.4.0:  ``ClientTLSOptions(createConnection, hostname,
+        sendServerName=None)``
+        The context is no longer accepted directly; instead a
+        ``createConnection(tlsProtocol) -> OpenSSL.SSL.Connection`` callable is
+        passed, and SNI/verification are applied in ``clientConnectionForTLS``.
+
+    Both shapes are handled here by introspecting the constructor parameters,
+    so callers keep the stable ``(hostname, ctx)`` contract regardless of the
+    installed Twisted version (verified on 18.9.0, 20.3.0, 22.x, 24.x, 25.5.0
+    and 26.4.0).
+
+    :param hostname: The server hostname to verify (str, not bytes).
+    :param ctx: An OpenSSL.SSL.Context to use for new connections.
+    :return: An object usable as ESMTP/TLSMemoryBIOFactory contextFactory.
+    """
+    try:
+        from twisted.internet._sslverify import ClientTLSOptions
+    except ImportError as e:  # pragma: no cover
+        raise ImportError(
+            "twisted.internet._sslverify.ClientTLSOptions is unavailable in "
+            "this Twisted version; globaleaks.utils.tls.client_tls_options "
+            "needs to be updated to match the installed Twisted release."
+        ) from e
+
+    params = list(inspect.signature(ClientTLSOptions).parameters)
+
+    if "createConnection" in params:
+        # Twisted >= 26.4.0: supply a connection factory bound to our context.
+        # SNI and hostname verification are handled by ClientTLSOptions itself.
+        return ClientTLSOptions(lambda tlsProtocol: SSL.Connection(ctx, None),
+                                hostname)
+
+    # Twisted <= 25.5.0: the context is consumed directly.
+    return ClientTLSOptions(hostname, ctx)
 
 
 def new_tls_client_context():
