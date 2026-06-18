@@ -1,5 +1,7 @@
 LICENSE usr/share/globaleaks/
 CHANGELOG usr/share/globaleaks/
 backend/default usr/share/globaleaks
+debian/scripts/globaleaks-exec usr/lib/globaleaks
+debian/scripts/globaleaks-firewall usr/lib/globaleaks
 client/build/* usr/share/globaleaks/client
 debian/apparmor/usr.bin.globaleaks etc/apparmor.d/

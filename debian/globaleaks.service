@@ -17,9 +17,9 @@ KillMode=mixed
 EnvironmentFile=-/usr/share/globaleaks/default
 EnvironmentFile=-/etc/default/globaleaks
 
-ExecStartPre=+/etc/init.d/globaleaks firewall-start
-ExecStart=/etc/init.d/globaleaks exec
-ExecStopPost=+/etc/init.d/globaleaks firewall-stop
+ExecStartPre=+/usr/lib/globaleaks/globaleaks-firewall start
+ExecStart=/usr/lib/globaleaks/globaleaks-exec
+ExecStopPost=+/usr/lib/globaleaks/globaleaks-firewall stop
 
 RuntimeDirectory=globaleaks
 RuntimeDirectoryMode=0700

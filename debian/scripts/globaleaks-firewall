@@ -1,0 +1,79 @@
+#!/bin/sh
+# GlobaLeaks network sandboxing helper.
+#
+# Invoked by the systemd unit with full privileges as:
+#   firewall start | firewall stop
+#
+# Configuration (WORKING_DIR) is provided through the unit's EnvironmentFile
+# directives; this script does not source any configuration on its own.
+set -e
+
+WORKING_DIR="${WORKING_DIR:-/var/globaleaks}"
+
+require_iptables() {
+    if ! command -v iptables >/dev/null 2>&1 || ! command -v ip6tables >/dev/null 2>&1; then
+        echo "GlobaLeaks Network Sandboxing Failure: requires iptables" >&2
+        exit 1
+    fi
+}
+
+# Remove every rule carrying the "globaleaks" comment, leaving any
+# unrelated rules untouched.
+flush_rules() {
+    iptables-save  | grep -v "globaleaks" | iptables-restore
+    ip6tables-save | grep -v "globaleaks" | ip6tables-restore
+}
+
+# Returns success (0) when the platform must be reachable over the web.
+# The working directory is read explicitly so the check matches the database
+# the daemon will actually use.
+reachable_via_web() {
+    if [ -f "${WORKING_DIR}/globaleaks.db" ] && \
+       [ "$(gl-admin getvar reachable_via_web --workdir "${WORKING_DIR}" 2>&1)" = "False" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+start() {
+    require_iptables
+    flush_rules
+
+    if ! iptables -nvL -t nat >/dev/null 2>&1; then
+        echo "GlobaLeaks Network Sandboxing Failure: missing iptables nat support" >&2
+        return 0
+    fi
+
+    if ! iptables -nvL -t filter >/dev/null 2>&1; then
+        echo "GlobaLeaks Network Sandboxing Failure: missing iptables filter support" >&2
+        return 0
+    fi
+
+    if reachable_via_web; then
+        for cmd in iptables ip6tables; do
+            $cmd -m comment --comment "globaleaks" -t nat -A PREROUTING -p tcp --dport 80  -j REDIRECT --to-port 8080
+            $cmd -m comment --comment "globaleaks" -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
+            $cmd -m comment --comment "globaleaks" -t filter -A INPUT -p tcp --dport 8080 -j ACCEPT
+            $cmd -m comment --comment "globaleaks" -t filter -A INPUT -p tcp --dport 8443 -j ACCEPT
+        done
+    fi
+}
+
+stop() {
+    require_iptables
+    flush_rules
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}" >&2
+        exit 1
+        ;;
+esac

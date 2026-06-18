@@ -1,0 +1,47 @@
+#!/bin/sh
+# GlobaLeaks daemon launcher.
+#
+# Do not run manually: the privilege drop is performed by systemd
+# (User=globaleaks), so launching this script directly as root would start
+# the daemon as root.
+#
+# Invoked by the systemd unit as the unprivileged service user (no '+'
+# prefix on ExecStart). Configuration (LISTENING_IP, WORKING_DIR,
+# APPARMOR_SANDBOXING) is provided through the unit's EnvironmentFile
+# directives; this script does not source any configuration on its own.
+set -e
+
+DAEMON=/usr/bin/globaleaks
+RAMDISK=/dev/shm/globaleaks
+
+LISTENING_IP="${LISTENING_IP:-}"
+WORKING_DIR="${WORKING_DIR:-/var/globaleaks}"
+APPARMOR_SANDBOXING="${APPARMOR_SANDBOXING:-1}"
+
+# /dev/shm is world-writable, so recreate the ramdisk directory here while
+# running unprivileged: no privileged process ever touches the path, and
+# mkdir fails on any pre-existing entry (e.g. a symlink a local user may
+# have planted), in which case we refuse to start rather than follow it.
+#
+# NOTE: this guard is only required on systemd < 257, where PrivateTmp=
+# does not yet isolate /dev/shm and the directory is therefore shared with
+# every local user (Debian <= 12 bookworm, Ubuntu <= 24.04 noble). On
+# systemd >= 257 (Debian >= 13 trixie) the service gets a private /dev/shm
+# and this block is redundant but harmless; it can be dropped once support
+# for those older releases is no longer needed.
+rm -rf "$RAMDISK" 2>/dev/null || true
+if ! mkdir -m 700 "$RAMDISK"; then
+    echo "Refusing to start: $RAMDISK could not be created safely" >&2
+    exit 1
+fi
+
+if [ "${APPARMOR_SANDBOXING}" -eq 1 ]; then
+    if ! command -v aa-status >/dev/null 2>&1 || ! aa-status --enabled; then
+        echo "GlobaLeaks Apparmor Sandboxing Failure: requires apparmor" >&2
+        exit 78
+    fi
+
+    exec aa-exec --profile=usr.bin.globaleaks -- "$DAEMON" -n --ip="${LISTENING_IP}" --working-path="${WORKING_DIR}"
+fi
+
+exec "$DAEMON" -n --ip="${LISTENING_IP}" --working-path="${WORKING_DIR}"
