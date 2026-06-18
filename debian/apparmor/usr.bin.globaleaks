@@ -28,11 +28,8 @@ profile usr.bin.globaleaks flags=(attach_disconnected) {
     /var/globaleaks/ wr,
     /var/globaleaks/** lrwk,
 
-    /{run,dev}/shm/ r,
-    /{run,dev}/shm/globaleaks/ rwk,
-    /{run,dev}/shm/globaleaks/** lrwk,
-
-    /run/globaleaks/globaleaks.pid rw,
+    /run/globaleaks/ wr,
+    /run/globaleaks/** lrwk,
 
     owner /tmp/** rwkl,
     owner /var/tmp/** rwkl,

@@ -24,6 +24,10 @@ ExecStopPost=+/usr/lib/globaleaks/globaleaks-firewall stop
 
 RuntimeDirectory=globaleaks
 RuntimeDirectoryMode=0700
+# Keep /run/globaleaks across service stops and restarts so the RAM-backed
+# token spool (ramdisk_path) survives a reload; it is still wiped at reboot
+# since /run is a tmpfs, preserving the never-touch-disk property.
+RuntimeDirectoryPreserve=yes
 
 # Process
 NoNewPrivileges=yes
