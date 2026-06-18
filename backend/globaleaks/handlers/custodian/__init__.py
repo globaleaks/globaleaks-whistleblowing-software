@@ -7,6 +7,7 @@ from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
@@ -75,6 +76,8 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
             data['notification'] = db_get_notification(session, user.tid, user.language)
         else:
             data['notification'] = db_get_notification(session, 1, user.language)
+
+        data['submission_statuses'] = db_get_submission_statuses(session, user.tid, user.language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
