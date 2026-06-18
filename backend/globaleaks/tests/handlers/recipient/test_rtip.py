@@ -565,6 +565,12 @@ class TestRedactContent(unittest.TestCase):
     def test_negative_start_is_clamped(self):
         self.assertEqual(rtip.redact_content('hello', [{'start': -5, 'end': 1}], '0x2591'), '░░llo')
 
+    def test_non_mapping_ranges_are_ignored(self):
+        # The stored temporary_redaction comes from an unvalidated JSON column;
+        # a non-list container or non-dict element must not crash consumption.
+        for ranges in (None, 'abc', 123, [1, 2, 3], [None], [[0, 1]], ['x']):
+            self.assertEqual(rtip.redact_content('hello', ranges, '0x2591'), 'hello')
+
 
 class TestRedactionHelpers(unittest.TestCase):
     def test_validate_ranges(self):
