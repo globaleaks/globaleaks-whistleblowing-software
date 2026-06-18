@@ -317,7 +317,14 @@ def redact_content(content, ranges, character='0x2588'):
     mask = chr(int(character[2:], 16))
 
     normalized = []
-    for r in ranges:
+    for r in ranges if isinstance(ranges, list) else []:
+        # Ignore range elements that are not mappings: the stored value comes
+        # from a JSON column with no descriptor, so a malformed redaction could
+        # otherwise carry a non-dict element (e.g. an int, string or list) and
+        # crash this consumption path for every non-privileged co-recipient.
+        if not isinstance(r, dict):
+            continue
+
         start, end = r.get('start', 0), r.get('end', 0)
 
         # Ignore ranges that are not expressed as plain integers (e.g. floats,
