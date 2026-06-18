@@ -16,4 +16,7 @@ class SpecialRedirectHandler(BaseHandler):
     check_roles = 'any'
 
     def get(self, path):
+        if path not in url_map:
+            self.redirect('/')
+            return
         self.redirect(url_map[path])
