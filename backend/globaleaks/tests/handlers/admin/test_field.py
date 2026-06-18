@@ -2,10 +2,18 @@
 from globaleaks import models
 from globaleaks.handlers import admin
 from globaleaks.handlers.admin.field import check_field_association, create_field, delete_field
+from globaleaks.handlers.public import serialize_field
 from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
+
+
+@transact
+def serialize_field_with_templates(session, tid, field_id):
+    # Serialize a field expanding template references, as the public API does.
+    field = session.query(models.Field).filter(models.Field.id == field_id).one()
+    return serialize_field(session, tid, field, 'en', serialize_templates=True)
 
 
 @transact
@@ -14,8 +22,8 @@ def get_id_of_first_step_of_questionnaire(session, questionnaire_id):
 
 
 @transact
-def run_check_field_association(session, tid, request):
-    check_field_association(session, tid, request)
+def run_check_field_association(session, tid, request, field_id=None):
+    check_field_association(session, tid, request, field_id)
 
 
 @transact
@@ -277,3 +285,93 @@ class TestCheckFieldAssociation(helpers.TestHandler):
         yield run_check_field_association(1, request)
 
     test_terminates_on_preexisting_cycle.timeout = 30
+
+    @inlineCallbacks
+    def test_rejects_cycle_with_forged_empty_id(self):
+        """
+        On the update path the field identity is the URL field_id, not the
+        client-supplied request['id']. Sending an empty id while reparenting A
+        under its direct child B forms a short 2-node cycle that the depth
+        bound alone would not catch and must still be detected.
+        """
+        a, b, c = yield self.build_chain()
+
+        request = helpers.get_dummy_field()
+        request['id'] = ''
+        request['fieldgroup_id'] = b
+
+        yield self.assertFailure(run_check_field_association(1, request, a),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_rejects_reparenting_subtree_beyond_max_depth(self):
+        """
+        Reparenting the top fieldgroup A (which carries the subtree A -> B -> C)
+        under a fresh root would yield R -> A -> B -> C, exceeding the maximum
+        nesting depth, and must be rejected even though R's own chain is shallow.
+        """
+        a, b, c = yield self.build_chain()
+
+        step_id = yield get_id_of_first_step_of_questionnaire('default')
+        values = helpers.get_dummy_field(type='fieldgroup')
+        values['instance'] = 'instance'
+        values['step_id'] = step_id
+        r = yield create_field(1, values, 'en')
+
+        request = helpers.get_dummy_field()
+        request['id'] = ''
+        request['fieldgroup_id'] = r['id']
+
+        yield self.assertFailure(run_check_field_association(1, request, a),
+                                 errors.InputValidationError)
+
+
+class TestTemplateSerializationDepth(helpers.TestHandler):
+    @inlineCallbacks
+    def make_template(self):
+        values = helpers.get_dummy_field(type='fieldgroup')
+        values['instance'] = 'template'
+        template = yield create_field(1, values, 'en')
+        return template['id']
+
+    @inlineCallbacks
+    def add_reference(self, fieldgroup_id, template_id):
+        values = helpers.get_dummy_field()
+        values['instance'] = 'reference'
+        values['fieldgroup_id'] = fieldgroup_id
+        values['template_id'] = template_id
+        yield create_field(1, values, 'en')
+
+    @inlineCallbacks
+    def test_template_cycle_does_not_exhaust_recursion(self):
+        """
+        Two templates referencing each other via template_id form a cycle whose
+        nesting is invisible to the fieldgroup_id depth bound. Serializing them
+        with template expansion (as the public API does) must terminate instead
+        of recursing until the interpreter recursion limit crashes the worker.
+        """
+        t1 = yield self.make_template()
+        t2 = yield self.make_template()
+
+        yield self.add_reference(t1, t2)
+        yield self.add_reference(t2, t1)
+
+        # Must not raise RecursionError
+        yield serialize_field_with_templates(1, t1)
+
+    @inlineCallbacks
+    def test_deep_template_chain_does_not_exhaust_recursion(self):
+        """
+        A long chain of templates each referencing the next keeps every
+        fieldgroup_id chain shallow yet nests arbitrarily deep through
+        template_id; serialization must stay bounded.
+        """
+        top = yield self.make_template()
+        prev = top
+        for _ in range(200):
+            nxt = yield self.make_template()
+            yield self.add_reference(prev, nxt)
+            prev = nxt
+
+        # Must not raise RecursionError
+        yield serialize_field_with_templates(1, top)

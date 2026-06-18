@@ -14,6 +14,19 @@ from globaleaks.state import State
 default_questionnaires = ['default']
 default_questions = ['whistleblower_identity']
 
+# Hard cap on the field serialization recursion depth. Field trees are
+# serialized recursively (see serialize_field) and a reference field expands
+# the subtree of the template it points to via template_id; the effective depth
+# is therefore NOT bounded by the fieldgroup nesting limit enforced at write
+# time, which only follows fieldgroup_id. Chained or mutually-referencing
+# templates could otherwise drive serialize_field past the interpreter recursion
+# limit and crash every serialization, including the unauthenticated public API
+# (get_public_resources serializes questionnaires with serialize_templates=True).
+# This backstop bounds the recursion regardless of how the stored graph was
+# built (cycles and pre-existing data included) while staying well above any
+# realistic questionnaire depth.
+MAX_SERIALIZATION_DEPTH = 64
+
 trigger_map = {
     'field': models.FieldOptionTriggerField,
     'step': models.FieldOptionTriggerStep
@@ -212,11 +225,16 @@ def db_prepare_fields_serialization(session, fields):
             fields_ids.append(f.template_override_id)
 
     tmp = copy.deepcopy(fields_ids)
+    visited = set()
     while tmp:
         fs = session.query(models.Field).filter(models.Field.fieldgroup_id.in_(tmp))
 
         tmp = []
         for f in fs:
+            if f.id in visited:  # pre-existing cycle in stored data: stop, don't hang
+                continue
+            visited.add(f.id)
+
             tmp.append(f.id)
             if f.template_id is not None:
                 tmp.append(f.template_id)
@@ -370,7 +388,7 @@ def serialize_field_attr(attr, language):
     return ret
 
 
-def serialize_field(session, tid, field, language, data=None, serialize_templates=False, include_scoring=True):
+def serialize_field(session, tid, field, language, data=None, serialize_templates=False, include_scoring=True, depth=0):
     """
     Serialize a field
 
@@ -408,8 +426,11 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(f_to_serialize.type, {}).items()}
 
     children = []
-    if field.instance != 'reference' or serialize_templates:
-        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates, include_scoring=include_scoring) for f in data['fields'].get(f_to_serialize.id, [])]
+    if (field.instance != 'reference' or serialize_templates) and depth < MAX_SERIALIZATION_DEPTH:
+        # depth bounds the recursion across both fieldgroup_id and template_id
+        # nesting; beyond the cap children are dropped so that an abusive or
+        # cyclic template graph cannot exhaust the interpreter recursion limit.
+        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates, include_scoring=include_scoring, depth=depth + 1) for f in data['fields'].get(f_to_serialize.id, [])]
         children.sort(key=lambda f: (f['y'], f['x']))
 
     # Enable voice features if questions of type voice are enabled

@@ -10,6 +10,15 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 
 
+# Maximum supported fieldgroup nesting depth. Field trees are serialized
+# recursively (see serialize_field); without an upper bound an admin could
+# persist a chain deep enough to exhaust the interpreter recursion limit and
+# crash every serialization of the questionnaire (public submission render,
+# schema archival, admin export). Real questionnaires nest a couple of levels;
+# this bound stays well within that while remaining far below the recursion limit.
+MAX_FIELD_GROUP_NESTING = 3
+
+
 def db_create_option_trigger(session, tid, option_id, type, object_id, sufficient):
     """
     Transaction for creating an option trigger
@@ -154,13 +163,43 @@ def db_update_fieldattrs(session, field_id, field_attrs, language):
            .delete(synchronize_session=False)
 
 
-def check_field_association(session, tid, request):
+def db_field_subtree_height(session, tid, root_id, cap):
+    """
+    Return the height (number of levels, root included) of the field subtree
+    rooted at root_id, capped at cap + 1 and safe against pre-existing cycles.
+
+    A field with no children has height 1; an empty/None root has height 1.
+
+    :param session: The ORM session
+    :param tid: The tenant ID
+    :param root_id: The id of the subtree root
+    :param cap: The maximum height worth computing
+    """
+    if not root_id:
+        return 1
+
+    height = 0
+    visited = set()
+    level = {root_id}
+    while level and height <= cap:
+        height += 1
+        visited |= level
+        rows = session.query(models.Field.id).filter(
+            models.Field.tid == tid,
+            models.Field.fieldgroup_id.in_(level)).all()
+        level = {r[0] for r in rows if r[0] not in visited}
+
+    return height
+
+
+def check_field_association(session, tid, request, field_id=None):
     """
     Transaction to check consistency of field association
 
     :param session: The ORM session
     :param tid: The tenant ID
     :param request: The request data to be verified
+    :param field_id: The authoritative id of the field being updated, if any
     """
     if request.get('fieldgroup_id', '') and session.query(models.Field).filter(
             models.Field.id == request['fieldgroup_id'],
@@ -191,16 +230,33 @@ def check_field_association(session, tid, request):
         raise errors.InputValidationError
 
     if request.get('fieldgroup_id', ''):
+        # The authoritative identity of the field being (re)associated is the
+        # field_id from the URL on update; request['id'] may be empty or forged.
+        node_id = field_id or request.get('id', '')
+
+        # Walk the ancestor chain upward from the new parent, counting its depth
+        # and rejecting any association that would close a cycle back onto the
+        # field itself.
         ancestor = request['fieldgroup_id']
+        ancestors = 0
         seen = set()
         while ancestor:
-            if ancestor == request['id']:
+            if node_id and ancestor == node_id:
                 raise errors.InputValidationError("Provided field association would cause recursion loop")
             if ancestor in seen:  # pre-existing cycle in stored data: stop, don't hang
                 break
             seen.add(ancestor)
+            ancestors += 1
             ancestor = session.query(models.Field.fieldgroup_id) \
                               .filter(models.Field.id == ancestor).scalar()
+
+        # Re-parenting moves the field together with its whole descendant
+        # subtree; the resulting nesting is the depth above the new parent plus
+        # the height of that subtree. Bound it so a deep tree cannot crash the
+        # recursive serialization.
+        subtree_height = db_field_subtree_height(session, tid, node_id, MAX_FIELD_GROUP_NESTING)
+        if ancestors + subtree_height > MAX_FIELD_GROUP_NESTING:
+            raise errors.InputValidationError("Provided field association would exceed the maximum nesting depth")
 
 
 def db_get_field(session, tid, field_id, language=None, data=None, serialize_templates=False):
@@ -314,7 +370,7 @@ def db_update_field(session, tid, field_id, request, language):
                    (models.Field.tid == tid,
                     models.Field.id == field_id))
 
-    check_field_association(session, tid, request)
+    check_field_association(session, tid, request, field_id)
 
     fill_localized_keys(request, models.Field.localized_keys, language)
 
