@@ -14,8 +14,8 @@ def get_id_of_first_step_of_questionnaire(session, questionnaire_id):
 
 
 @transact
-def run_check_field_association(session, tid, request):
-    check_field_association(session, tid, request)
+def run_check_field_association(session, tid, request, field_id=None):
+    check_field_association(session, tid, request, field_id)
 
 
 @transact
@@ -277,3 +277,42 @@ class TestCheckFieldAssociation(helpers.TestHandler):
         yield run_check_field_association(1, request)
 
     test_terminates_on_preexisting_cycle.timeout = 30
+
+    @inlineCallbacks
+    def test_rejects_cycle_with_forged_empty_id(self):
+        """
+        On the update path the field identity is the URL field_id, not the
+        client-supplied request['id']. Sending an empty id while reparenting A
+        under its direct child B forms a short 2-node cycle that the depth
+        bound alone would not catch and must still be detected.
+        """
+        a, b, c = yield self.build_chain()
+
+        request = helpers.get_dummy_field()
+        request['id'] = ''
+        request['fieldgroup_id'] = b
+
+        yield self.assertFailure(run_check_field_association(1, request, a),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_rejects_reparenting_subtree_beyond_max_depth(self):
+        """
+        Reparenting the top fieldgroup A (which carries the subtree A -> B -> C)
+        under a fresh root would yield R -> A -> B -> C, exceeding the maximum
+        nesting depth, and must be rejected even though R's own chain is shallow.
+        """
+        a, b, c = yield self.build_chain()
+
+        step_id = yield get_id_of_first_step_of_questionnaire('default')
+        values = helpers.get_dummy_field(type='fieldgroup')
+        values['instance'] = 'instance'
+        values['step_id'] = step_id
+        r = yield create_field(1, values, 'en')
+
+        request = helpers.get_dummy_field()
+        request['id'] = ''
+        request['fieldgroup_id'] = r['id']
+
+        yield self.assertFailure(run_check_field_association(1, request, a),
+                                 errors.InputValidationError)

@@ -212,11 +212,16 @@ def db_prepare_fields_serialization(session, fields):
             fields_ids.append(f.template_override_id)
 
     tmp = copy.deepcopy(fields_ids)
+    visited = set()
     while tmp:
         fs = session.query(models.Field).filter(models.Field.fieldgroup_id.in_(tmp))
 
         tmp = []
         for f in fs:
+            if f.id in visited:  # pre-existing cycle in stored data: stop, don't hang
+                continue
+            visited.add(f.id)
+
             tmp.append(f.id)
             if f.template_id is not None:
                 tmp.append(f.template_id)
