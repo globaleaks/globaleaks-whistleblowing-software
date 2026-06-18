@@ -9,6 +9,7 @@ from twisted.internet import defer
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.jobs.job import LoopingJob
 from globaleaks.models import serializers
@@ -37,6 +38,8 @@ class MailGenerator(object):
                 cache_obj = db_admin_serialize_node(session, tid, language)
             elif key == 'notification':
                 cache_obj = db_get_notification(session, tid, language)
+            elif key == 'submission_statuses':
+                cache_obj = db_get_submission_statuses(session, tid, language)
 
             self.cache[cache_key] = cache_obj
 
@@ -57,6 +60,9 @@ class MailGenerator(object):
             data['notification'] = self.serialize_config(session, 'notification', tid, language)
         else:
             data['notification'] = self.serialize_config(session, 'notification', 1, language)
+
+        if 'tip' in data:
+            data['submission_statuses'] = self.serialize_config(session, 'submission_statuses', tid, language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
@@ -194,11 +200,6 @@ class MailGenerator(object):
                 obj.new = False
                 continue
 
-            obj.new = False
-            rtip.last_notification = now
-
-            rtips_ids[rtip.id] = True
-
             try:
                 if isinstance(obj, models.ReceiverTip):
                     data = {'type': 'tip'}
@@ -209,8 +210,16 @@ class MailGenerator(object):
                 data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
 
                 self.process_mail_creation(session, tid, data)
+
+                # Mark the report as notified only after the mail has been
+                # successfully created, so that a rendering failure leaves the
+                # report eligible for retry on the next run instead of being
+                # silently and permanently flagged as notified.
+                obj.new = False
+                rtip.last_notification = now
+                rtips_ids[rtip.id] = True
             except Exception:
-                pass
+                log.err("Unable to generate notification for report %s", rtip.id, tid=tid)
 
         if now < datetime.fromtimestamp(timestamp_daily_notifications) + timedelta(1):
             return
