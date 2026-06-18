@@ -16,6 +16,8 @@ export class PasswordSetComponent {
 
   @Input() password: string;
 
+  protected visible = false;
+
   dismiss() {
     this.activeModal.dismiss();
   }

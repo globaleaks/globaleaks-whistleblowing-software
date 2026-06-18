@@ -17,6 +17,8 @@ export class EncryptionRecoveryKeyComponent {
 
   @Input() erk: string;
 
+  protected visible = false;
+
   dismiss() {
     this.activeModal.dismiss();
   }
