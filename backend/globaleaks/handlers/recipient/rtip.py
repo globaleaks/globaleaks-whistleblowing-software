@@ -312,9 +312,16 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
 
 
 def redact_content(content, ranges, character='0x2588'):
-    result = list(content)
+    # The redaction ranges are produced by the client from
+    # textarea.selectionStart/selectionEnd, which are UTF-16 code-unit offsets.
+    # Operate on UTF-16 code units here too, otherwise any astral character
+    # (U+10000+, e.g. emoji) before a range would shift the applied mask and
+    # leak the leading character(s) of the redacted value (the redaction is
+    # destructive, so the mis-masked string becomes the only stored copy).
+    mask = chr(int(character[2:], 16)).encode('utf-16-le')
+    data = content.encode('utf-16-le')
+    result = [data[i:i + 2] for i in range(0, len(data), 2)]
     length = len(result)
-    mask = chr(int(character[2:], 16))
 
     normalized = []
     for r in ranges if isinstance(ranges, list) else []:
@@ -342,9 +349,9 @@ def redact_content(content, ranges, character='0x2588'):
             normalized.append((start, end))
 
     for start, end in sorted(normalized):
-        result[start:end] = mask * (end - start)
+        result[start:end] = [mask] * (end - start)
 
-    return ''.join(result)
+    return b''.join(result).decode('utf-16-le', 'replace')
 
 
 def db_redact_data(session, tid, user_id, redaction, temporary_redaction, permanent_redaction):
