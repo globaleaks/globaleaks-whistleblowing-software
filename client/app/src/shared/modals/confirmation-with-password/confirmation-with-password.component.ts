@@ -43,6 +43,9 @@ export class ConfirmationWithPasswordComponent {
     } catch {
       // The confirmation was rejected (e.g. wrong password): keep the modal
       // open and let the operator try again.
+    } finally {
+      // Clear the secret from the form after every attempt, whether the
+      // confirmation succeeded or failed, so it is not left in memory/UI.
       this.secret = "";
     }
   }
