@@ -1,5 +1,4 @@
 import {Component, OnInit, inject} from "@angular/core";
-import {HttpHeaders} from "@angular/common/http";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -36,61 +35,54 @@ export class PasswordChangeComponent implements OnInit {
   passwordStrengthScore = 0;
 
   changePasswordArgs = {
+    current: "",
     password: "",
     confirm: "",
   };
 
   async changePassword() {
+    let current = this.changePasswordArgs.current;
     let password = this.changePasswordArgs.password;
 
     if (this.preferencesService.dataModel.salt) {
       this.appDataService.updateShowLoadingPanel(true);
+      current = await this.cryptoService.hashArgon2(current, this.preferencesService.dataModel.salt);
       password = await this.cryptoService.hashArgon2(password, this.preferencesService.dataModel.salt);
       this.appDataService.updateShowLoadingPanel(false);
     }
 
     const data = {
       "operation": "change_password",
-      "args": {password}
+      "args": {
+        current_password: current,
+        new_password: password
+      }
     };
 
-    // Forced password changes (first login or password reset) do not require
-    // confirmation of the current credential; voluntary changes do.
-    if (this.preferencesService.dataModel.password_change_needed) {
-      this.submitChangePassword(data);
-    } else {
-      this.utilsService.getConfirmation().subscribe((secret: string) => {
-        const headers = new HttpHeaders({"X-Confirmation": this.utilsService.encodeString(secret)});
-        this.submitChangePassword(data, headers);
-      });
-    }
-  }
-
-  private submitChangePassword(data: { operation: string, args: Record<string, string> }, headers?: HttpHeaders) {
     const forced = this.preferencesService.dataModel.password_change_needed;
-    this.httpService.requestOperations(data, headers).subscribe(
+    this.httpService.requestOperations(data).subscribe(
       {
         next: _ => {
           this.preferencesService.dataModel.password_change_needed = false;
+          this.resetForm();
           if (forced) {
             // Forced password changes block the user on the change-password
             // screen, so redirect to the homepage once completed.
             this.router.navigate([this.authenticationService.session.homepage]).then();
-          } else {
-            // Voluntary changes happen within the preferences: stay on the
-            // page and just reset the form.
-            this.changePasswordArgs = {password: "", confirm: ""};
-            this.passwordStrengthScore = 0;
           }
         },
         error: (error) => {
-          this.passwordStrengthScore = 0;
+          this.resetForm();
           this.rootDataService.errorCodes = new ErrorCodes(error.error["error_message"], error.error["error_code"], error.error.arguments);
           this.appDataService.updateShowLoadingPanel(false);
-          return this.passwordStrengthScore;
         }
       }
     );
+  }
+
+  resetForm() {
+    this.changePasswordArgs = {current: "", password: "", confirm: ""};
+    this.passwordStrengthScore = 0;
   }
 
   ngOnInit() {

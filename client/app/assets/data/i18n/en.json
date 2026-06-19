@@ -398,6 +398,7 @@
   "The upload request exceeds the size limit": "The upload request exceeds the size limit",
   "Current password": "Current password",
   "New password": "New password",
+  "The current password is incorrect.": "The current password is incorrect.",
   "The new password must be different from the current one.": "The new password must be different from the current one.",
   "Type your new password again": "Type your new password again",
   "The two passwords do not match": "The two passwords do not match",
