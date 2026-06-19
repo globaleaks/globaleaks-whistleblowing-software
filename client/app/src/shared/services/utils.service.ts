@@ -267,7 +267,11 @@ export class UtilsService {
     return btoa(result);
   }
 
-  openSupportModal() {
+  openSupportModal(event?: Event) {
+    // The trigger is an anchor (kept as a link for accessibility tooling): with
+    // hash-based routing its default action would navigate to the homepage, so
+    // suppress it and only open the modal.
+    event?.preventDefault();
     if (this.appDataService.public.node.custom_support_url) {
       window.open(this.appDataService.public.node.custom_support_url, "_blank");
     } else {
@@ -506,9 +510,7 @@ export class UtilsService {
       "toggle_escrow",
       "toggle_user_escrow",
       "enable_user_permission_file_upload",
-      "reset_submissions",
-      "set_user_password",
-      "send_password_reset_email"
+      "reset_submissions"
     ];
 
     if (!args) {
@@ -521,43 +523,22 @@ export class UtilsService {
 
     if (requireConfirmation.indexOf(operation) !== -1) {
       return new Observable((observer) => {
-        let modalRef;
-
-        if (this.preferenceResolver.dataModel.two_factor) {
-          modalRef = this.modalService.open(ConfirmationWith2faComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
-        } else {
-          modalRef = this.modalService.open(ConfirmationWithPasswordComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
-        }
-
-        // The confirmFunction returns a promise so the confirmation modal stays
-        // open and re-prompts on a failed confirmation (the promise rejects),
-        // and only closes once the operation succeeds.
-        modalRef.componentInstance.confirmFunction = (secret: string) => {
+        this.getConfirmation().subscribe((secret: string) => {
           const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
 
-          return new Promise<void>((resolve, reject) => {
-            this.http.put(api, {"operation": operation, "args": args}, {headers}).subscribe({
+          this.http.put(api, {"operation": operation, "args": args}, {headers}).subscribe(  {
               next: (response) => {
-                observer.next(response);
-                observer.complete();
-                resolve();
                 if (refresh) {
                   this.reloadComponent();
                 }
+                observer.next(response)
               },
               error: (error) => {
-                const message = error?.error?.["error_message"];
-                if (message === "Authentication Failed" || message === "Two Factor authentication required") {
-                  // Reject so the confirmation modal stays open and re-prompts.
-                  reject(error);
-                } else {
-                  observer.error(error);
-                  resolve();
-                }
+                observer.error(error);
               }
-            });
-          });
-        };
+            }
+          )
+        });
       });
     } else {
       return this.http.put(api, {"operation": operation, "args": args}).pipe(
