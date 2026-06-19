@@ -97,7 +97,7 @@
               </div>
             }
             @if (editUser.form.get('email')?.errors?.['pattern']) {
-              <div class="text-danger"> Invalid email address </div>
+              <div class="text-danger">{{ 'Invalid email address' | translate }}</div>
             }
           </div>
           @if (getUserID() !== user.id) {
