@@ -26,7 +26,6 @@ Depends:
   apparmor-utils,
   haveged,
   iptables,
-  lsb-base,
   python3-acme,
   python3-brotli,
   python3-cryptography,
