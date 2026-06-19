@@ -2,7 +2,7 @@
 set -e
 
 echo "Running Build & Install"
-distro="$(lsb_release -cs)"
+distro="$(. /etc/os-release && echo "$VERSION_CODENAME")"
 
 cd /build/globaleaks-whistleblowing-software
 

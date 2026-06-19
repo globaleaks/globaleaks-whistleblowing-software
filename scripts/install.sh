@@ -34,9 +34,9 @@ ASSUMEYES=0
 
 DISTRO="unknown"
 DISTRO_CODENAME="unknown"
-if which lsb_release >/dev/null; then
-  DISTRO="$(lsb_release -is)"
-  DISTRO_CODENAME="$(lsb_release -cs)"
+if [ -f /etc/os-release ]; then
+  DISTRO="$(. /etc/os-release && echo "$ID")"
+  DISTRO_CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
 fi
 
 TMPDIR=$(mktemp -d)
