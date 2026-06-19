@@ -510,7 +510,9 @@ export class UtilsService {
       "toggle_escrow",
       "toggle_user_escrow",
       "enable_user_permission_file_upload",
-      "reset_submissions"
+      "reset_submissions",
+      "set_user_password",
+      "send_password_reset_email"
     ];
 
     if (!args) {
