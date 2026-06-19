@@ -7,7 +7,7 @@
     <label for="confirmation-2fa-input">
       <span>{{'Enter the two factor authentication code'|translate}}</span>
     </label>
-    <input id="confirmation-2fa-input" class="form-control" [class.is-invalid]="error" name="secret" [(ngModel)]="secret" (ngModelChange)="onInput()" type="text" size="6" maxlength="6" />
+    <input id="confirmation-2fa-input" class="form-control" [class.is-invalid]="error" name="secret" [(ngModel)]="secret" (ngModelChange)="onInput()" type="password" size="6" maxlength="6" />
   </div>
 </div>
 <div class="modal-footer">

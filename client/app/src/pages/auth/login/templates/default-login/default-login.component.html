@@ -34,7 +34,7 @@
     </div>
     <label for="default-login-2fa" class="visually-hidden">{{ 'Two factor authentication code' | translate }}</label>
     <div class="input-group">
-      <input id="default-login-2fa" name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
+      <input id="default-login-2fa" name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="password" size="6" maxlength="6" required />
       <div class="input-group-btn">
         <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator.invalid || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
           <i class="fas fa-right-to-bracket"></i>
