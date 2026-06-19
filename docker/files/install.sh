@@ -73,14 +73,11 @@ usage() {
   echo -e " -y assume yes"
   echo -e " -n disable autostart"
   echo -e " -v install a specific software version"
-  echo -e " -p install from the local package /opt/globaleaks.deb instead of the remote repository"
 }
 
-while getopts "ynpv:h" opt; do
+while getopts "ynv:h" opt; do
   case $opt in
     y) ASSUMEYES=1
-    ;;
-    p) PACKAGE="/opt/globaleaks.deb"
     ;;
     v) VERSION="$OPTARG"
     ;;
@@ -97,11 +94,6 @@ done
 # restrict VERSION to the Debian package version character set
 if [[ $VERSION ]] && ! echo "$VERSION" | grep -qE '^[0-9][A-Za-z0-9.+:~-]*$'; then
   echo "Error: invalid version format"
-  exit 1
-fi
-
-if [[ $PACKAGE ]] && [ ! -f "$PACKAGE" ]; then
-  echo "Error: local package not found: $PACKAGE"
   exit 1
 fi
 
@@ -146,23 +138,18 @@ if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm|bullseye|focal|jammy|noble|re
   DISTRO_CODENAME="trixie"
 fi
 
-if [[ $PACKAGE ]]; then
-  echo "Installing GlobaLeaks from the local package $PACKAGE ..."
-  DO apt install -y --no-install-recommends python3-munkres "$PACKAGE"
+echo "Adding GlobaLeaks PGP key to trusted APT keys"
+curl -sS https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/globaleaks.gpg
+
+echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] https://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
+
+DO apt update -y
+
+if [[ $VERSION ]]; then
+  DO apt install -y --no-install-recommends python3-munkres "globaleaks=$VERSION"
 else
-  echo "Adding GlobaLeaks PGP key to trusted APT keys"
-  curl -sS https://deb.globaleaks.org/globaleaks.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/globaleaks.gpg
-
-  echo "Updating GlobaLeaks apt source.list in /etc/apt/sources.list.d/globaleaks.list ..."
-  echo "deb [signed-by=/etc/apt/trusted.gpg.d/globaleaks.gpg] https://deb.globaleaks.org $DISTRO_CODENAME/" > /etc/apt/sources.list.d/globaleaks.list
-
-  DO apt update -y
-
-  if [[ $VERSION ]]; then
-    DO apt install -y --no-install-recommends python3-munkres "globaleaks=$VERSION"
-  else
-    DO apt install -y --no-install-recommends python3-munkres globaleaks
-  fi
+  DO apt install -y --no-install-recommends python3-munkres globaleaks
 fi
 
 echo "GlobaLeaks installation completed successfully."
