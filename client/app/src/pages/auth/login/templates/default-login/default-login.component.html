@@ -40,7 +40,7 @@
           <i class="fas fa-right-to-bracket"></i>
           <span>{{'Log in'|translate}}</span>
         </button>
-        <a class="btn" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}">
+        <a class="btn" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}">
           <i class="fas fa-life-ring"></i>
         </a>
       </div>

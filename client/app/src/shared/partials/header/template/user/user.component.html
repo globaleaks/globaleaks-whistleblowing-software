@@ -34,7 +34,7 @@
         }
         @if (authentication.session && authentication.session.role !== 'whistleblower') {
           <span id="SupportLinkBox">
-            <a id="SupportLink" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
+            <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
               <i class="fas fa-life-ring"></i>
             </a>
             <span class="text-separator">|</span>
