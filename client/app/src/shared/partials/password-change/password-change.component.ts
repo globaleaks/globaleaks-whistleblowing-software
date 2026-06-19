@@ -67,11 +67,21 @@ export class PasswordChangeComponent implements OnInit {
   }
 
   private submitChangePassword(data: { operation: string, args: Record<string, string> }, headers?: HttpHeaders) {
+    const forced = this.preferencesService.dataModel.password_change_needed;
     this.httpService.requestOperations(data, headers).subscribe(
       {
         next: _ => {
           this.preferencesService.dataModel.password_change_needed = false;
-          this.router.navigate([this.authenticationService.session.homepage]).then();
+          if (forced) {
+            // Forced password changes block the user on the change-password
+            // screen, so redirect to the homepage once completed.
+            this.router.navigate([this.authenticationService.session.homepage]).then();
+          } else {
+            // Voluntary changes happen within the preferences: stay on the
+            // page and just reset the form.
+            this.changePasswordArgs = {password: "", confirm: ""};
+            this.passwordStrengthScore = 0;
+          }
         },
         error: (error) => {
           this.passwordStrengthScore = 0;
