@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
@@ -19,13 +19,20 @@ export class ConfirmationWithPasswordComponent {
   private cryptoService = inject(CryptoService);
   private preferencesService = inject(PreferenceResolver);
   private appDataService = inject(AppDataService);
+  private cdr = inject(ChangeDetectorRef);
 
   secret: string;
+  error = false;
 
   confirmFunction: (secret: string) => void | Promise<void>;
 
   dismiss() {
     this.activeModal.dismiss();
+  }
+
+  onInput() {
+    // Clear the error marker as soon as the user starts editing the input.
+    this.error = false;
   }
 
   async confirm() {
@@ -42,11 +49,15 @@ export class ConfirmationWithPasswordComponent {
       this.activeModal.close(secret);
     } catch {
       // The confirmation was rejected (e.g. wrong password): keep the modal
-      // open and let the operator try again.
+      // open, flag the input as invalid and let the operator try again.
+      this.error = true;
     } finally {
       // Clear the secret from the form after every attempt, whether the
       // confirmation succeeded or failed, so it is not left in memory/UI.
       this.secret = "";
+      // The continuation runs outside change detection (zoneless): request a
+      // refresh so the cleared input and the error marker are rendered.
+      this.cdr.markForCheck();
     }
   }
 }
