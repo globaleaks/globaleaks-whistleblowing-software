@@ -1,4 +1,3 @@
-import base64
 import os
 import time
 
@@ -11,7 +10,6 @@ from nacl.encoding import Base32Encoder
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers import user
-from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user.operation import UserOperationHandler
 from globaleaks.rest import errors
 from globaleaks.state import State
@@ -190,66 +188,56 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
 class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = UserOperationHandler
 
-    def _test_operation_handler(self, operation, args=None, headers=None, properties=None):
+    def _test_operation_handler(self, operation, args=None, properties=None):
         data_request = {
             'operation': operation,
             'args': args if args is not None else {}
         }
 
-        handler = self.request(data_request, role='receiver', headers=headers, properties=properties)
+        handler = self.request(data_request, role='receiver', properties=properties)
         handler.request.path = b'/api/user/operations'
         return handler.put()
 
     @inlineCallbacks
     def test_user_change_password(self):
-        # The voluntary password change requires confirmation of the current
-        # credential; the confirmation is encoded as the client encodes it.
-        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
-
-        confirmation = base64.b64encode(helpers.VALID_KEY.encode('utf-16-le')).decode()
-
+        # A voluntary password change requires the current credential; reusing
+        # it as the new password is rejected.
         yield self.assertFailure(self._test_operation_handler('change_password',
-                                                              {'password': helpers.VALID_KEY},
-                                                              headers={'x-confirmation': confirmation}),
+                                                              {'current_password': helpers.VALID_KEY,
+                                                               'new_password': helpers.VALID_KEY}),
                                  errors.PasswordReuseError)
 
         NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
 
         yield self._test_operation_handler('change_password',
-                                           {'password': NEW_KEY},
-                                           headers={'x-confirmation': confirmation})
+                                           {'current_password': helpers.VALID_KEY,
+                                            'new_password': NEW_KEY})
 
+    @inlineCallbacks
     def test_user_change_password_requires_current_credential(self):
-        # A voluntary password change without a valid confirmation of the
-        # current credential must be rejected (CWE-620). The confirmation
-        # check is synchronous and raises before any deferred is created.
-        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
-
+        # A voluntary password change with a missing or wrong current credential
+        # must be rejected (CWE-620).
         NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
 
-        self.assertRaises(errors.InvalidAuthentication,
-                          self._test_operation_handler,
-                          'change_password', {'password': NEW_KEY})
+        yield self.assertFailure(self._test_operation_handler('change_password',
+                                                              {'new_password': NEW_KEY}),
+                                 errors.InvalidAuthentication)
 
         WRONG_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
-        wrong_confirmation = base64.b64encode(WRONG_KEY.encode('utf-16-le')).decode()
-        self.assertRaises(errors.InvalidAuthentication,
-                          self._test_operation_handler,
-                          'change_password', {'password': NEW_KEY},
-                          headers={'x-confirmation': wrong_confirmation})
+        yield self.assertFailure(self._test_operation_handler('change_password',
+                                                              {'current_password': WRONG_KEY,
+                                                               'new_password': NEW_KEY}),
+                                 errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_user_change_password_forced_skips_confirmation(self):
         # When a password change is forced (first login or password reset) the
-        # session is flagged and the confirmation of the current credential is
-        # not required, as the user may be recovering access through a reset
-        # token.
-        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
-
+        # session is flagged and the current credential is not required, as the
+        # user may be recovering access through a reset token.
         NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
 
         yield self._test_operation_handler('change_password',
-                                           {'password': NEW_KEY},
+                                           {'new_password': NEW_KEY},
                                            properties={'password_change_needed': True})
 
     def test_user_get_recovery_key(self):
@@ -279,7 +267,7 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
             f.write(self.dummyReceiver_1['id'])
 
         new_key = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
-        handler = self.request({'operation': 'change_password', 'args': {'password': new_key}},
+        handler = self.request({'operation': 'change_password', 'args': {'new_password': new_key}},
                                role='receiver', properties=properties)
         handler.request.path = b'/api/user/operations'
         yield handler.put()

@@ -15,12 +15,21 @@ from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def change_password(session, tid, user_session, password):
+def change_password(session, tid, user_session, new_password, current_password):
     user = db_get_user(session, tid, user_session.user_id)
 
     config = models.config.ConfigFactory(session, tid)
 
-    key = Base64Encoder.decode(password.encode())
+    # A voluntary password change must prove knowledge of the current
+    # credential; the forced and reset flows (flagged on the session) are
+    # exempt, as the user does not know the current password.
+    forced = user_session.properties.get('reset_token') or \
+             user_session.properties.get('password_change_needed')
+
+    if not forced and sha256(Base64Encoder.decode(current_password.encode())).decode() != user.hash:
+        raise errors.InvalidAuthentication
+
+    key = Base64Encoder.decode(new_password.encode())
     hash = sha256(key).decode()
 
     # Check that the new password is different form the current password
@@ -161,22 +170,16 @@ def accepted_privacy_policy(session, tid, user_id):
 class UserOperationHandler(OperationHandler):
     check_roles = 'user'
 
-    @property
-    def require_confirmation(self):
-        # A voluntary password change requires confirmation of the current
-        # credential; the forced and reset flows (flagged on the session) are
-        # exempt, as the user does not know the current password.
-        ops = ['disable_2fa', 'get_recovery_key']
-
-        if not self.session.properties.get('password_change_needed'):
-            ops.append('change_password')
-
-        return ops
+    require_confirmation = [
+        'disable_2fa',
+        'get_recovery_key'
+    ]
 
     def change_password(self, req_args, *args, **kwargs):
         return change_password(self.session.user_tid,
                                self.session,
-                               req_args['password'])
+                               req_args['new_password'],
+                               req_args.get('current_password', ''))
 
     def get_users_names(self, req_args, *args, **kwargs):
         return get_users_names(self.session.user_tid)
