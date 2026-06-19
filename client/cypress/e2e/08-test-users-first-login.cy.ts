@@ -86,11 +86,10 @@ describe("Recipient2 voluntary password change", () => {
     cy.login_receiver("Recipient2", password, "#/login", false);
     cy.get("#PreferencesLink").click();
     cy.get(".password").click();
+    cy.get('input[name="changePasswordArgs.current"]').should('be.visible').clear().type(password).should('have.value', password);
     cy.get('input[name="changePasswordArgs.password"]').should('be.visible').clear().type(Cypress.env("user_password")).should('have.value', Cypress.env("user_password"));
     cy.get('input[name="changePasswordArgs.confirm"]').should('be.visible').clear().type(Cypress.env("user_password")).should('have.value', Cypress.env("user_password"));
     cy.get('button[name="submit"]').should('be.enabled').click();
-    cy.get("[name='secret']").should('be.visible').clear().type(Cypress.env("user_password"));
-    cy.get("#confirm").click();
     cy.logout();
   });
 });
