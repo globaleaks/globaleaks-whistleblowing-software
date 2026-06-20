@@ -25,17 +25,39 @@ ExecStopPost=+/usr/lib/globaleaks/globaleaks-firewall stop
 RuntimeDirectory=globaleaks
 RuntimeDirectoryMode=0700
 
-MemorySwapMax=0
+# Process
 NoNewPrivileges=yes
-SystemCallArchitectures=native
 LockPersonality=yes
+MemorySwapMax=0
+UMask=0027
+CapabilityBoundingSet=
+
+# Filesystem
 ProtectSystem=strict
 ProtectHome=yes
+ReadWritePaths=/var/globaleaks
 PrivateTmp=yes
 PrivateDevices=yes
+
+# Kernel
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectControlGroups=yes
+ProtectProc=invisible
+RemoveIPC=yes
+
+# Namespaces
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+
+# Syscalls and sockets
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
-ReadWritePaths=/var/globaleaks
-UMask=0027
 
 [Install]
 WantedBy=multi-user.target
