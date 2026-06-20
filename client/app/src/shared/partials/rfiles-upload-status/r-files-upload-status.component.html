@@ -9,9 +9,9 @@
     <div>
       <span>{{'Estimated upload time:'|translate}}</span>
       @if (isFinite(estimatedTime)) {
-        <span>{{estimatedTime}}</span>
+        <span>{{getEstimatedTimeValue()}}</span>
       }
-      <span>{{'seconds'|translate}}</span>
+      <span>{{getEstimatedTimeUnit()|translate}}</span>
       @if (progress) {
         <div class="progress progress-striped;active">
           <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
