@@ -414,11 +414,7 @@ class BaseHandler(object):
 
         if file_id not in self.state.TempUploadFiles:
             if self.session and self.session.role == 'whistleblower':
-                tid = str(self.request.tid).encode()
-                path = self.request.path
                 user_id = self.session.user_id.encode()
-                client_ip = get_ip_identity(self.request.client_ip).encode()
-
                 block = State.RateLimit.check(b"attachments_per_hour_per_report:" + user_id,
                                               State.tenants[1].cache.threshold_attachments_per_hour_per_report,
                                               3600)

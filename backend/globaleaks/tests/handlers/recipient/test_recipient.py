@@ -1,8 +1,6 @@
 from twisted.internet.defer import inlineCallbacks
 
-from globaleaks import models
 from globaleaks.handlers import recipient
-from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 

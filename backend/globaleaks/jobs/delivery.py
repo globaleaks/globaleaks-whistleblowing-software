@@ -31,8 +31,6 @@ def file_delivery(session):
                              .order_by(models.InternalFile.creation_date) \
                              .all()
 
-    # Extract InternalFile IDs for batch query
-    ifile_ids = [ifile.id for ifile, _ in ifile_tip_pairs]
     itip_ids = {ifile.id: ifile.internaltip_id for ifile, _ in ifile_tip_pairs}
 
     # Fetch all ReceiverTips and Users in one query

@@ -5,8 +5,6 @@ from globaleaks.handlers.admin import user
 from globaleaks.handlers.user import db_set_email_validation_token, validate_email
 from globaleaks.orm import db_get, transact, tw
 from globaleaks.tests import helpers
-from globaleaks.utils.crypto import sha256
-from globaleaks.utils.utility import datetime_now
 
 
 @transact

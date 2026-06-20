@@ -14,7 +14,6 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import initialize_submission_session, Sessions
-from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.utility import datetime_now, uuid4
