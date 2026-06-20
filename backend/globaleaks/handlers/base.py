@@ -183,7 +183,7 @@ class BaseHandler(object):
                 return False
 
         if python_type == bool:
-            if value == 'true' or value == 'false':
+            if value in {'true', 'false'}:
                 return True
 
         return isinstance(value, python_type)

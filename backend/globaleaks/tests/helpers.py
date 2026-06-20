@@ -669,7 +669,7 @@ class TestGL(unittest.TestCase):
             value = {}
             for option in field['options']:
                 value[option['id']] = 'True'
-        elif field_type == 'selectbox' or field_type == 'multichoice':
+        elif field_type in {'selectbox', 'multichoice'}:
             value = {'value': field['options'][0]['id']}
         elif field_type == 'date':
             value = {'value': datetime_now().isoformat()}
@@ -677,7 +677,7 @@ class TestGL(unittest.TestCase):
             value = {'value': '1741734000000:1742425200000'}
         elif field_type == 'tos':
             value = {'value': True}
-        elif field_type == 'fileupload' or field_type == 'voice':
+        elif field_type in {'fileupload', 'voice'}:
             pass
         elif field_type == 'fieldgroup':
             value = {}
