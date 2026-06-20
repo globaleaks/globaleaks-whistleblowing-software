@@ -4,7 +4,6 @@ from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
-from globaleaks.models import EnabledLanguage
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
@@ -93,8 +92,6 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
-    root_config = ConfigFactory(session, 1)
-
     config = ConfigFactory(session, tid)
 
     config.update('node', request)

@@ -170,8 +170,6 @@ def db_wizard(session, tid, hostname, request):
     :param hostname: The hostname to be configured
     :param request: A user request
     """
-    admin_password = receiver_password = ''
-
     language = request['node_language']
 
     root_tenant_node = config.ConfigFactory(session, 1)

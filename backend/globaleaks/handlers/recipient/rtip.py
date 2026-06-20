@@ -1162,15 +1162,6 @@ def create_redaction(session, tid, user_id, data):
                             models.Comment.internaltip_id != itip.id).first()):
         raise errors.InputValidationError
 
-    mask_content = {}
-    if itip.crypto_tip_pub_key:
-        if isinstance(data, dict):
-            mask_content = data
-        else:
-            content_str = data.get('content', str(data))
-            content_bytes = content_str.encode()
-            mask_content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content_bytes)).decode()
-
     redaction = models.Redaction()
     redaction.id = data.get('id')
     redaction.reference_id = data.get('reference_id')
