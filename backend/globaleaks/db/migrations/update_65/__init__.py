@@ -329,10 +329,7 @@ class MigrationScript(MigrationBase):
             os.path.exists(srcpath) and shutil.move(srcpath, dstpath) and self.session_new.add(new_obj)
             self.entries_count['File'] += 1 if os.path.exists(dstpath) else 0
 
-        try:
-            shutil.rmtree(os.path.abspath(os.path.join(Settings.working_path, 'scripts')))
-        except Exception:
-            pass
+        shutil.rmtree(os.path.abspath(os.path.join(Settings.working_path, 'scripts')), ignore_errors=True)
 
         for iar, itip in self.session_new.query(self.model_to['IdentityAccessRequest'], self.model_to['InternalTip']) \
                                    .filter(self.model_to['IdentityAccessRequest'].internaltip_id == self.model_to['InternalTip'].id):

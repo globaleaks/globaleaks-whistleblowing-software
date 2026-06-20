@@ -265,7 +265,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
             if pgp_key_public:
                 try:
                     body = PGPContext(pgp_key_public).encrypt_message(body)
-                except Exception:
+                except Exception as e:
+                    log.err("Unable to encrypt the support request email body: %s", e, tid=tid)
                     continue
 
             # avoid waiting for the notification to send and instead rely on threads to handle it

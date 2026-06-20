@@ -1,4 +1,5 @@
 # Handlerse dealing with submission interface
+import contextlib
 import copy
 import json
 import re
@@ -6,6 +7,7 @@ import re
 from datetime import datetime
 
 from nacl.encoding import Base64Encoder
+from nacl.exceptions import CryptoError
 from nacl.public import PrivateKey
 
 
@@ -61,16 +63,12 @@ def decrypt_tip(user_key, tip_prv_key, tip):
 
     if 'iar' in tip:
         if tip['iar']['request_motivation']:
-            try:
+            with contextlib.suppress(CryptoError, ValueError):
                 tip['iar']['request_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['request_motivation'])).decode()
-            except Exception:
-                pass
 
         if tip['iar']['reply_motivation']:
-            try:
+            with contextlib.suppress(CryptoError, ValueError):
                 tip['iar']['reply_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['reply_motivation'])).decode()
-            except Exception:
-                pass
 
     for x in tip['comments']:
         if x['content']:
