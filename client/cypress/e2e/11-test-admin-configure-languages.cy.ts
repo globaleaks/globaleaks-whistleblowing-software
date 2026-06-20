@@ -31,8 +31,8 @@ describe("admin configure languages", () => {
     cy.waitForUrl("/#/admin/settings");
     cy.get('#LanguagePickerBox').should('be.visible').find('ng-select').last().click().get('ng-dropdown-panel').contains('Italiano').click();
     cy.waitForUrl("/#/admin/settings");
-    cy.get('[name="node.dataModel.header_title_homepage"]').should('be.visible').clear().type("TEXT1_IT");
-    cy.get('[name="node.dataModel.presentation"]').should('be.visible').clear().type("TEXT2_IT");
+    cy.get('[name="node.dataModel.header_title_homepage"]').should('be.visible').and('have.value', '').clear().type("TEXT1_IT").should('have.value', 'TEXT1_IT');
+    cy.get('[name="node.dataModel.presentation"]').should('be.visible').and('have.value', '').clear().type("TEXT2_IT").should('have.value', 'TEXT2_IT');
     cy.get('button.btn.btn-primary').eq(0).get("#save_settings").click();
 
     cy.logout();
@@ -66,8 +66,8 @@ describe("admin configure languages", () => {
     cy.get('#LanguagePickerBox').should('be.visible').find('ng-select').last().click().get('ng-dropdown-panel').contains('Italian').click();
     cy.visit("/#/admin/home");
     cy.visit("/#/admin/settings");
-    cy.get('[name="node.dataModel.header_title_homepage"]').should('be.visible').clear();
-    cy.get('[name="node.dataModel.presentation"]').should('be.visible').clear();
+    cy.get('[name="node.dataModel.header_title_homepage"]').should('be.visible').and('have.value', 'TEXT1_IT').clear().should('have.value', '');
+    cy.get('[name="node.dataModel.presentation"]').should('be.visible').and('have.value', 'TEXT2_IT').clear().should('have.value', '');
     cy.get('button.btn.btn-primary').eq(0).get("#save_settings").click();
 
     cy.logout();
