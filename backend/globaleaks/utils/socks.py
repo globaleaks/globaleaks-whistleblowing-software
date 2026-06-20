@@ -173,8 +173,10 @@ class SOCKS5Agent(object):
     endpointFactory = SOCKS5ClientEndpoint
     _tlsWrapper = TLSWrapClientEndpoint
 
-    def __init__(self, reactor, contextFactory=BrowserLikePolicyForHTTPS(),
+    def __init__(self, reactor, contextFactory=None,
                  connectTimeout=None, bindAddress=None, pool=None, proxyEndpoint=None, endpointArgs=None):
+        if contextFactory is None:
+            contextFactory = BrowserLikePolicyForHTTPS()
         if endpointArgs is None:
             endpointArgs = {}
         if not IPolicyForHTTPS.providedBy(contextFactory):
