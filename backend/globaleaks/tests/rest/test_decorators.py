@@ -371,7 +371,7 @@ class TestDecorators(unittest.TestCase):
                             @decorator_rate_limit
                             def test_func(self): return "Passed"
 
-                            checked = lambda: [c.args[0] for c in rate_limit_mock.check.call_args_list]
+                            checked = lambda m=rate_limit_mock: [c.args[0] for c in m.check.call_args_list]
 
                             if tor and skipped_on_tor:
                                 # the per-IP bucket must not be consulted over Tor
