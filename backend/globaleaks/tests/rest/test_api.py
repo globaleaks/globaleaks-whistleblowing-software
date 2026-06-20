@@ -142,16 +142,20 @@ class TestAPI(TestGL):
                                                     'require-trusted-types-for \'script\';' \
                                                     'report-to csp-endpoint'
 
-        for method, status_code in test_cases:
-            request = forge_request(uri=b"https://www.globaleaks.org/", method=method)
-            self.api.render(request)
-            self.assertEqual(request.responseCode, status_code)
-            for headerName, expectedHeaderValue in server_headers.items():
-                returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
+        # '/' and '/index.html' are both served as the entry point: '/index.html'
+        # is canonicalized to '/' and must not redirect.
+        for entrypoint in (b"https://www.globaleaks.org/", b"https://www.globaleaks.org/index.html"):
+            for method, status_code in test_cases:
+                request = forge_request(uri=entrypoint, method=method)
+                self.api.render(request)
+                self.assertEqual(request.responseCode, status_code)
+                self.assertEqual(request.path, b'/')
+                for headerName, expectedHeaderValue in server_headers.items():
+                    returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
 
-                if headerName == 'Content-Security-Policy':
-                    expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")  # noqa: PLW2901
-                self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+                    if headerName == 'Content-Security-Policy':
+                        expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")  # noqa: PLW2901
+                    self.assertEqual(returnedHeaderValue, expectedHeaderValue)
 
         server_headers = copy.copy(default_server_headers)
         server_headers['Content-Security-Policy'] = 'base-uri \'none\';' \
@@ -242,4 +246,4 @@ class TestAPI(TestGL):
         self.api.render(request)
         self.assertFalse(request.client_using_tor)
         self.assertEqual(request.responseCode, 302)
-        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://www.globaleaks.org/index.html')
+        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://www.globaleaks.org/')
