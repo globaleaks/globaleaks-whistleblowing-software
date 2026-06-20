@@ -12,7 +12,8 @@ Build-Depends:
   python3-setuptools
 Homepage: https://www.globaleaks.org/
 Vcs-Git: https://github.com/globaleaks/globaleaks-whistleblowing-software.git
-Standards-Version: 4.6.1
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
 
 Package: globaleaks
 Architecture: all
