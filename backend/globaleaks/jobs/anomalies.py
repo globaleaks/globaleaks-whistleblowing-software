@@ -49,15 +49,9 @@ def check_disk_space(free_workdir_bytes, total_workdir_bytes):
            free_disk_percentage <= State.tenants[1].cache.threshold_free_disk_percentage_high:
        alarm_level_disk = 1 # HIGH
        accept_submissions = False
-       info_msg = "free_disk_megabytes <= %d or free_disk_percentage <= %d" % \
-           (State.tenants[1].cache.threshold_free_disk_megabytes_high,
-            State.tenants[1].cache.threshold_free_disk_percentage_high)
     elif free_disk_megabytes <= State.tenants[1].cache.threshold_free_disk_megabytes_low or \
              free_disk_percentage <= State.tenants[1].cache.threshold_free_disk_percentage_low:
        alarm_level_disk = 2 # LOW
-       info_msg = "free_disk_megabytes <= %d or free_disk_percentage <= %d" % \
-           (State.tenants[1].cache.threshold_free_disk_megabytes_low,
-            State.tenants[1].cache.threshold_free_disk_percentage_low)
 
     if State.accept_submissions != accept_submissions:
         if accept_submissions:

@@ -4,7 +4,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
-from globaleaks.orm import db_add, db_del, db_get, transact, tw
+from globaleaks.orm import db_add, db_del, db_get, transact
 from globaleaks.rest import requests, errors
 
 

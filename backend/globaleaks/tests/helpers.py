@@ -966,7 +966,7 @@ class TestGLWithPopulatedDB(TestGL):
         self.dummySubmission['answers'] = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
         self.dummySubmission['receipt'] = receipt
 
-        itip_id = yield create_submission(1, self.dummySubmission, session, True, False)
+        yield create_submission(1, self.dummySubmission, session, True, False)
 
     @inlineCallbacks
     def perform_post_submission_actions(self):
@@ -1099,7 +1099,7 @@ class TestHandler(TestGLWithPopulatedDB):
                                 method=b'GET',
                                 tid=tid)
 
-        x = api.APIResourceWrapper()
+        api.APIResourceWrapper()
 
         if not getattr(handler_cls, 'decorated', False):
             for method in ['get', 'post', 'put', 'delete']:

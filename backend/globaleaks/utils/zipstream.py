@@ -5,7 +5,6 @@
 # that is initially derived from zipfile.py and then changed heavily for
 # our purpose (that's the reason why is not in third party)
 import binascii
-import os
 import struct
 import time
 import zlib

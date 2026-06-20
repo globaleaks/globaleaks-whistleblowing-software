@@ -16,4 +16,4 @@ class Test_Token(helpers.TestHandlerWithPopulatedDB):
 
         handler.request.client_using_tor = True
 
-        response = yield handler.post()
+        yield handler.post()
