@@ -512,7 +512,9 @@ Your report was successful.
 Your whistleblowing platform is almost ready!
 days
 file unavailable
+hours
 megabytes
+minutes
 percentage
 please enter a valid email address.
 please enter numbers only.
