@@ -300,12 +300,12 @@ class MigrationScript(MigrationBase):
 
         self.entries_count['Config'] += 2
 
-        m = self.model_from['Message']
-        i = self.model_from['InternalTip']
-        r = self.model_from['ReceiverTip']
-        for m, i, r in self.session_old.query(m, i, r) \
-                                       .filter(m.receivertip_id == r.id,
-                                               r.internaltip_id == i.id):
+        Message = self.model_from['Message']
+        InternalTip = self.model_from['InternalTip']
+        ReceiverTip = self.model_from['ReceiverTip']
+        for m, i, r in self.session_old.query(Message, InternalTip, ReceiverTip) \
+                                       .filter(Message.receivertip_id == ReceiverTip.id,
+                                               ReceiverTip.internaltip_id == InternalTip.id):
             new_obj = self.model_to['Comment']()
             for key in new_obj.__mapper__.column_attrs.keys():
                 if key == 'internaltip_id':
