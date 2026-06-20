@@ -23,8 +23,8 @@ class StaticFileHandler(BaseHandler):
         abspath = os.path.abspath(os.path.join(self.root, filename))
         directory_traversal_check(self.root, abspath)
 
-        if filename == 'index.html':
-            with open(abspath, 'rb') as f:
+        if filename == '':
+            with open(os.path.join(abspath, 'index.html'), 'rb') as f:
                 data = f.read()
                 data = data.replace(b'lang="en"', b'lang="' + self.request.language.encode() + b'"')
                 data = data.replace(b'dir="ltr"', b'dir="' + get_language_direction(self.request.language).encode() + b'"')
