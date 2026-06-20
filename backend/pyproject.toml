@@ -6,13 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "globaleaks"
 dynamic = ["version"]
 description = "Free and open-source whistleblowing software"
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.8"
 authors = [
     { name = "GlobaLeaks", email = "info@globaleaks.org" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
 ]
 
