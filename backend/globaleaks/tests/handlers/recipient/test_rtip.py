@@ -41,10 +41,12 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def setUp(self):
-        self.one_year_from_now_timestamp = time.time() + 365 * 86400
+        now = int(time.time())
+
+        self.one_year_from_now_timestamp = now + 365 * 86400
         self.one_year_from_now_datetime = datetime.fromtimestamp(self.one_year_from_now_timestamp)
 
-        self.two_year_from_now_timestamp = time.time() + 365 * 86400
+        self.two_year_from_now_timestamp = now + 2 * 365 * 86400
         self.two_year_from_now_datetime = datetime.fromtimestamp(self.two_year_from_now_timestamp)
 
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
