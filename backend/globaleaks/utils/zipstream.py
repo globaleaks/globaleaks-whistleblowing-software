@@ -5,6 +5,7 @@
 # that is initially derived from zipfile.py and then changed heavily for
 # our purpose (that's the reason why is not in third party)
 import binascii
+import contextlib
 import struct
 import time
 import zlib
@@ -297,7 +298,9 @@ class ZipStream(object):
 
     def __iter__(self):
         for f in self.files:
-            try:
+            # Per-entry resilience: skip a single unreadable/corrupt file
+            # rather than aborting the whole archive download.
+            with contextlib.suppress(Exception):
                 if 'key' in f:
                     with GCE.streaming_encryption_open('DECRYPT', f['key'], f['path']) as fo:
                         for data in self.zip_fo(fo, f['name']):
@@ -310,10 +313,6 @@ class ZipStream(object):
                     with open(f['path'], "rb") as fo:
                         for data in self.zip_fo(fo, f['name']):
                             yield data
-            except Exception:
-                # Per-entry resilience: skip a single unreadable/corrupt file
-                # rather than aborting the whole archive download.
-                pass
 
         yield self.archive_footer()
 

@@ -141,8 +141,8 @@ class MailGenerator(object):
             try:
                 data['user'] = user_serialize_user(session, user, user.language)
                 self.process_mail_creation(session, user.tid, data)
-            except Exception:
-                pass
+            except Exception as e:
+                log.err("Unable to generate a user notification: %s", e, tid=user.tid)
 
     @transact
     def generate(self, session):
@@ -241,8 +241,8 @@ class MailGenerator(object):
             try:
                 data['user'] = user_serialize_user(session, user, user.language)
                 self.process_mail_creation(session, user.tid, data)
-            except Exception:
-                pass
+            except Exception as e:
+                log.err("Unable to generate a user notification: %s", e, tid=user.tid)
 
 
 

@@ -115,5 +115,5 @@ class Delivery(LoopingJob):
                     yield deferToThread(write_encrypted_file, file['key'], sf, file['dst'])
                 else:
                     yield deferToThread(write_plaintext_file, sf, file['dst'])
-            except Exception:
-                pass
+            except Exception as e:
+                log.err("Unable to deliver a receiver file: %s", e)

@@ -90,5 +90,5 @@ class UpdateCheck(HourlyJob):
                 yield evaluate_update_notification(self.state, latest_version)
 
             log.debug('The newest version in the repository is: %s', latest_version)
-        except Exception:
-            pass
+        except Exception as e:
+            log.debug('Unable to fetch the latest version from the repository: %s', e)

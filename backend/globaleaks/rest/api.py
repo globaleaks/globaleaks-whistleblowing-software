@@ -3,6 +3,7 @@
 #
 #   This file defines the URI mapping for the GlobaLeaks API and its factory
 import base64
+import contextlib
 import inspect
 import json
 import re
@@ -367,9 +368,7 @@ class APIResourceWrapper(Resource):
 
         if isinstance(e, NoResultFound):
             e = errors.ResourceNotFound
-        elif isinstance(e, errors.GLException):
-            pass
-        else:
+        elif not isinstance(e, errors.GLException):
             e = errors.InternalServerError('Unexpected')
             e.tid = request.tid
             e.url = request.hostname + request.path
@@ -429,7 +428,7 @@ class APIResourceWrapper(Resource):
             request.tid = State.tenant_hostname_id_map.get(request.hostname)
 
         if request.tid == 1:
-            try:
+            with contextlib.suppress(Exception):
                 m = COMPILED_RE_TID_UUID.match(request.path)
                 if m:
                     tid_bytes, rest = m.groups()
@@ -445,8 +444,6 @@ class APIResourceWrapper(Resource):
                         if tid is not None:
                             request.tid = tid
                             request.path = rest
-            except Exception:
-                pass
 
         if request.path == b'/index.html':
             request.path = b'/'
