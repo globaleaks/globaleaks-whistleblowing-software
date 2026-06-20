@@ -14,8 +14,9 @@ class TestStaticFileHandler(helpers.TestHandler):
         # Mock the nonce used for this request
         handler.request.nonce = b'secureNonce123'
 
-        # Call the handler
-        yield handler.get('index.html')
+        # Call the handler: the empty filename maps to the '/' entry point,
+        # which serves index.html with the per-request substitutions applied.
+        yield handler.get('')
 
         # Get response body and decode
         body = handler.request.getResponseBody().decode()

@@ -449,11 +449,7 @@ class APIResourceWrapper(Resource):
                 pass
 
         if request.path == b'/index.html':
-            request.redirect(b'/')
-            return b''
-
-        if request.path == b'/':
-            request.path = b'/index.html'
+            request.path = b'/'
 
         if request.tid is None:
             # Tentative domain correction in relation to presence / absence of 'www.' prefix
@@ -630,7 +626,7 @@ class APIResourceWrapper(Resource):
                           b"report-to csp-endpoint")
 
         # CSP Policy on the entry point
-        if request.path == b'/index.html':
+        if request.path == b'/':
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
                               b"connect-src 'self';"
