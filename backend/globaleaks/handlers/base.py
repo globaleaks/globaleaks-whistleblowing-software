@@ -285,8 +285,8 @@ class BaseHandler(object):
                     log.err("Expected key: %s type validation failure", key)
                     raise errors.InputValidationError("Key (%s) double validation failure" % key)
 
-                if isinstance(request_template[key], (dict, list)) and request_template[key]:
-                    BaseHandler.validate_request(request[key], request_template[key])
+                if isinstance(value, (dict, list)) and value:
+                    BaseHandler.validate_request(request[key], value)
 
                 success_check += 1
 

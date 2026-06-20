@@ -30,8 +30,8 @@ class MigrationBase(object):
             if length != expected:
                 raise TypeError('Number of status mismatch for table {}, expected:{} actual:{}'.format(model_name, expected, length))
 
-            self.model_from[model_name] = migration_mapping[model_name][start_version - FIRST_DATABASE_VERSION_SUPPORTED]
-            self.model_to[model_name] = migration_mapping[model_name][start_version + 1 - FIRST_DATABASE_VERSION_SUPPORTED]
+            self.model_from[model_name] = model_history[start_version - FIRST_DATABASE_VERSION_SUPPORTED]
+            self.model_to[model_name] = model_history[start_version + 1 - FIRST_DATABASE_VERSION_SUPPORTED]
 
             if self.model_from[model_name] is None or self.model_to[model_name] is None:
                 self.entries_count[model_name] = 0
