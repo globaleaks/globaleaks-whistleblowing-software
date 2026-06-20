@@ -175,14 +175,14 @@ class BaseHandler(object):
         if value is None:
             return True
 
-        if python_type == int:
+        if python_type is int:
             try:
                 int(value)
                 return True
             except Exception:
                 return False
 
-        if python_type == bool:
+        if python_type is bool:
             if value in {'true', 'false'}:
                 return True
 
