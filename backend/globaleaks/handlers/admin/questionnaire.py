@@ -38,8 +38,6 @@ def db_create_questionnaire(session, tid, user_session, questionnaire_dict, lang
     questionnaire_dict['tid'] = tid
     q = db_add(session, models.Questionnaire, questionnaire_dict)
 
-    steps = questionnaire_dict.get('steps', [])
-
     for step in questionnaire_dict.get('steps', []):
         step['questionnaire_id'] = q.id
         db_create_step(session, tid, step, language)

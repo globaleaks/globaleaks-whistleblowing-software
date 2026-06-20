@@ -28,7 +28,6 @@ def get_latest_version(packages_file):
         match_version = re.search(r'^Version: (.+)$', entry, re.MULTILINE)
 
         if match_name and match_version:
-            package_name = match_name.group(1)
             package_version = parse_version(match_version.group(1))
 
             # Track the highest version encountered

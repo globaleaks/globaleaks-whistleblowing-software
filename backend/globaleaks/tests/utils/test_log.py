@@ -57,7 +57,7 @@ class TestLogObserver(unittest.TestCase):
         e1 = {'time': 100000, 'message': 'x', 'system': 'ut'}
         observer.emit(e1)
 
-        f = Failure(IOError('This is a mock failure'))
+        f = Failure(OSError('This is a mock failure'))
         e2 = {'time': 100001, 'message': 'x', 'system': 'ut', 'failure': f}
         observer.emit(e2)
 
