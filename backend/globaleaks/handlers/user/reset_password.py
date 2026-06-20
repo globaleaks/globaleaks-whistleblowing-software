@@ -1,3 +1,4 @@
+import contextlib
 import os
 from datetime import datetime
 
@@ -35,12 +36,10 @@ def db_generate_password_reset_token(session, user):
 
     user_desc = user_serialize_user(session, user, user.language)
 
-    try:
+    with contextlib.suppress(OSError):
         filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
         with open(filepath, "wb") as f:
             f.write(user.id.encode())
-    except Exception:
-        pass
 
     template_vars = {
         'type': template,
@@ -130,10 +129,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
     # If encryption is enabled require the recovery key
     if user.crypto_prv_key:
         try:
-            try:
-                prv_key = token.split(":")[1]
-            except Exception:
-                pass
+            parts = token.split(":")
+            prv_key = parts[1] if len(parts) > 1 else None
 
             if prv_key:
                 enc_key = Base64Encoder.decode(GCE.derive_key(reset_token, user.salt).encode())
@@ -153,10 +150,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
             # reset token: invalidate the token after repeated failed codes so
             # that further guessing requires issuing a new reset token.
             if State.RateLimit.check(b"password_reset_failures_per_token:" + sha256(reset_token), 5, 3600) > 0:
-                try:
+                with contextlib.suppress(OSError):
                     os.unlink(filepath)
-                except Exception:
-                    pass
 
                 return {'status': 'invalid_reset_token_provided'}
 

@@ -16,6 +16,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256
+from globaleaks.utils.log import log
 from globaleaks.utils.utility import datetime_now, uuid4
 
 
@@ -316,7 +317,7 @@ class SessionHandler(BaseHandler):
             self.session.token.validate(request['token'].encode().split(b":")[1])
             Sessions.reset_timeout(self.session)
         except Exception:
-            pass
+            log.debug("Session refresh: token validation failed; keeping the existing token")
         else:
             self.session.token = self.state.tokens.new(self.request.tid)
 

@@ -9,6 +9,7 @@
 #
 # code concept from https://github.com/habnabit/txsocksx
 
+import contextlib
 import struct
 
 from twisted.internet import defer, interfaces
@@ -89,10 +90,8 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self.transport.write(struct.pack("!BBBBB", 5, 1, 0, 3, len(self._host)) + self._host + struct.pack("!H", self._port))
         self.wrappedProtocol.makeConnection(self)
 
-        try:
+        with contextlib.suppress(defer.AlreadyCalledError):
             self._connectedDeferred.callback(self.wrappedProtocol)
-        except Exception:
-            pass
 
         self.state = 1
 
@@ -131,10 +130,7 @@ class SOCKS5ClientFactory(WrappingFactory):
         pass
 
     def unregisterProtocol(self, p):
-        try:
-            del self.protocols[p]
-        except Exception:
-            pass
+        self.protocols.pop(p, None)
 
     def _cancel(self, d):
         self.proto.sender.transport.abortConnection()

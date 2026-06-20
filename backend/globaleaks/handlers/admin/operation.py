@@ -1,3 +1,4 @@
+import contextlib
 import os
 from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks, returnValue
@@ -271,13 +272,11 @@ def set_tmp_key(session, user_session, user, token, user_cc=''):
     key = Base64Encoder.decode(GCE.derive_key(token, user.salt).encode())
     key = Base64Encoder.encode(GCE.symmetric_encrypt(key, user_cc))
 
-    try:
+    with contextlib.suppress(OSError):
         filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
         with open(filepath, "ab") as f:
             f.write(b":")
             f.write(key)
-    except Exception:
-        pass
 
 
 def db_admin_generate_password_reset_token(session, tid, user_session, user_id, user_cc=''):

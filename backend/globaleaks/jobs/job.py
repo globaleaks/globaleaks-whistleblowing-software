@@ -1,3 +1,4 @@
+import contextlib
 import time
 
 from twisted.internet import task, defer, reactor
@@ -53,14 +54,12 @@ class Job(task.LoopingCall):
 
         finally:
             # always call end, even if operation() or on_error() raises
-            try:
-                if self.active is not None:
+            # Best-effort cleanup: swallow application errors so that shutdown
+            # completes, while letting KeyboardInterrupt/SystemExit propagate
+            # (contextlib.suppress(Exception) does not catch those).
+            if self.active is not None:
+                with contextlib.suppress(Exception):
                     self.end()
-            except Exception:
-                # Best-effort cleanup: swallow application errors so that
-                # shutdown completes, but let KeyboardInterrupt/SystemExit
-                # propagate (bare 'except:' would have suppressed those too).
-                pass
 
     def begin(self):
         self.active = defer.Deferred()
