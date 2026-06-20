@@ -6,8 +6,11 @@ import copy
 from datetime import datetime
 
 from globaleaks.models import config_desc
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
+    EnumFieldOptionScoreType, EnumUserRole, EnumVisibility
+from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
+    Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
+    UniqueConstraint, declarative_base, declared_attr, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
 
