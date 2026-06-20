@@ -9,8 +9,7 @@ Build-Depends:
   dh-python,
   pybuild-plugin-pyproject,
   python3-all,
-  python3-setuptools,
-  python3-sphinx
+  python3-setuptools
 Homepage: https://www.globaleaks.org/
 Vcs-Git: https://github.com/globaleaks/globaleaks-whistleblowing-software.git
 Standards-Version: 4.6.1
