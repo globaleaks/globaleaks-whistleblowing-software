@@ -362,7 +362,7 @@ def mail_exception_handler(etype, value, tback):
     not in production release.
     """
     if isinstance(value, silenced_exceptions) or \
-        (etype is AssertionError and value.message == "Request closed"):
+        (etype is AssertionError and str(value) == "Request closed"):
         # we need to bypass email notification for some exception that:
         # 1) raise frequently or lie in a twisted bug;
         # 2) lack of useful stacktraces;
