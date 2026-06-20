@@ -4,6 +4,7 @@ After=remote-fs.target
 After=network-online.target
 After=nss-lookup.target
 After=time-sync.target
+Wants=network-online.target
 
 [Service]
 Type=simple
