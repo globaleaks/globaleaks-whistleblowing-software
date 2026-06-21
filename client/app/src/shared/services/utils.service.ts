@@ -524,24 +524,20 @@ export class UtilsService {
     }
 
     if (requireConfirmation.indexOf(operation) !== -1) {
-      return new Observable((observer) => {
-        this.getConfirmation().subscribe((secret: string) => {
-          const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
-
-          this.http.put(api, {"operation": operation, "args": args}, {headers}).subscribe(  {
-              next: (response) => {
-                if (refresh) {
-                  this.reloadComponent();
-                }
-                observer.next(response)
-              },
-              error: (error) => {
-                observer.error(error);
-              }
-            }
-          )
-        });
-      });
+      // The authorized request is performed from within the confirmation modal
+      // so that, if the confirmation secret is rejected, the modal stays open
+      // and the operator can retry instead of losing the dialog.
+      return this.getConfirmation((secret: string) => {
+        const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
+        return this.http.put(api, {"operation": operation, "args": args}, {headers});
+      }).pipe(
+        map((response) => {
+          if (refresh) {
+            this.reloadComponent();
+          }
+          return response;
+        })
+      );
     } else {
       return this.http.put(api, {"operation": operation, "args": args}).pipe(
         map((response) => {
@@ -554,7 +550,7 @@ export class UtilsService {
     }
   }
 
-  getConfirmation(): Observable<string> {
+  getConfirmation(performRequest: (secret: string) => Observable<any>): Observable<any> {
     return new Observable((observer) => {
       let modalRef;
 
@@ -564,10 +560,41 @@ export class UtilsService {
         modalRef = this.modalService.open(ConfirmationWithPasswordComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
       }
 
+      let response: any;
+      let confirmed = false;
+
+      // The modal awaits this promise and only closes when it resolves; a
+      // rejection keeps the modal open so the operator can correct the secret
+      // and try again.
       modalRef.componentInstance.confirmFunction = (secret: string) => {
-        observer.next(secret);
-        observer.complete();
+        return new Promise<void>((resolve, reject) => {
+          performRequest(secret).subscribe({
+            next: (res) => {
+              response = res;
+              confirmed = true;
+              resolve();
+            },
+            error: (error) => {
+              reject(error);
+            }
+          });
+        });
       };
+
+      // The downstream subscriber is notified only after the modal has closed:
+      // it emits the response on a confirmed request and simply completes when
+      // the operator dismisses the dialog.
+      modalRef.result.then(
+        () => {
+          if (confirmed) {
+            observer.next(response);
+          }
+          observer.complete();
+        },
+        () => {
+          observer.complete();
+        }
+      );
     });
   }
 
