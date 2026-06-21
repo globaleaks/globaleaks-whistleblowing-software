@@ -341,6 +341,7 @@ Require two factor authentication
 Reset
 Reset SMTP configuration
 Reset notification templates to default
+Reset password
 Reset reports
 Resource can only be accessed via the Tor network
 Resource not found
@@ -375,7 +376,6 @@ Send a test email to your email address.
 Send activation link
 Send reset link
 Set a reminder
-Set password
 Set the value to 0 to disable this feature.
 Set up encryption by providing a PGP public key
 Settings
