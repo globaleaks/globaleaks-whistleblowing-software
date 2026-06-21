@@ -152,6 +152,26 @@ import localeHyExtra from '@angular/common/locales/extra/hy';
 import localeKl from '@angular/common/locales/kl';
 import localeKlExtra from '@angular/common/locales/extra/kl';
 
+// Internally GlobaLeaks uses POSIX/gettext-style locale codes (e.g. 'pt_BR',
+// 'sr_RS@latin'). Browser-facing surfaces such as the HTML 'lang' attribute
+// require a BCP 47 language tag (e.g. 'pt-BR', 'sr-Latn-RS'). Most codes only
+// need '_' -> '-'; the POSIX '@modifier' codes map onto BCP 47 script/variant
+// subtags and are listed here. This must stay in sync with the backend
+// LANGUAGES_BCP47_OVERRIDES table.
+const BCP47_OVERRIDES: {[code: string]: string} = {
+  'ca@valencia': 'ca-valencia',
+  'sr_ME@latin': 'sr-Latn-ME',
+  'sr_RS@latin': 'sr-Latn-RS',
+  'ug@Latin': 'ug-Latn',
+  'ug@Cyrl': 'ug-Cyrl',
+};
+
+// Convert an internal POSIX/gettext locale code to a BCP 47 language tag.
+// Apply only at browser-facing boundaries where a valid BCP 47 tag is required.
+export function localeToBcp47(code: string): string {
+  return BCP47_OVERRIDES[code] ?? code.replace(/_/g, '-');
+}
+
 // Registering all locales using your original codes
 export function registerLocales(): void {
   registerLocaleData(localeAm, 'am', localeAmExtra);

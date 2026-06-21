@@ -1,7 +1,7 @@
 # Handler exposing application files
 import os
 
-from globaleaks import get_language_direction
+from globaleaks import get_language_direction, to_bcp47
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.utils.fs import directory_traversal_check
 
@@ -26,7 +26,7 @@ class StaticFileHandler(BaseHandler):
         if filename == '':
             with open(os.path.join(abspath, 'index.html'), 'rb') as f:
                 data = f.read()
-                data = data.replace(b'lang="en"', b'lang="' + self.request.language.encode() + b'"')
+                data = data.replace(b'lang="en"', b'lang="' + to_bcp47(self.request.language).encode() + b'"')
                 data = data.replace(b'dir="ltr"', b'dir="' + get_language_direction(self.request.language).encode() + b'"')
                 data = data.replace(b'randomCspNonce', self.request.nonce)
                 self.request.write(data)
