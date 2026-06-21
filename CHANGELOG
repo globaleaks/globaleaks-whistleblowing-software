@@ -1,3 +1,38 @@
+Changes in version 5.0.96
+    Implement security enhancements following auditors suggestions:
+    - Enforce tenant isolation and ownership across resources
+    - Validate submission answers, nesting depth and status transitions
+    - Enforce screening choices and intake gates on submissions
+    - Compute submission scoring and screening on the backend
+    - Enforce role network access policy on authenticated requests
+    - Enforce notification toggles across all mail paths
+    - Restrict editing of user identity fields to privileged users
+    - Restrict recipient files to their author
+    - Revoke sessions on admin update, password change and deletion
+    - Confine sessions pending forced password change or 2FA enrollment
+    - Require 2FA confirmation on voluntary password change
+    - Serialize TOTP one-time-use verification
+    - Rate-limit signup, support, password reset and email change
+    - Rate-limit proof-of-work and submission endpoints
+    - Rate-limit and sanitize CSP violation reports
+    - Skip per-IP rate limiting for Tor traffic
+    - Extend audit logging to file access, exports and redactions
+    - Mask recipient and whistleblower files through redaction
+    - Exclude masked files from report exports
+    - Verify the SMTP server certificate against the hostname
+    - Restrict the TLS handshake signature hashes
+    - Generate fresh ephemeral keypairs for assisted submissions
+    - Escape spreadsheet formula prefixes in CSV exports
+    - Harden systemd service, AppArmor profile and Docker containers
+    - Bind high ports to loopback on Tor-only platforms
+    - Fail closed to Tor-only when web reachability is unknown
+    - Mask two factor authentication and access code inputs
+    Improve notification rendering of the {TipStatus} keyword
+    Improve upload time estimate formatting
+    Fix questionnaire and question template lists not refreshing
+    Perform lint fixes thanks to Ruff inspector
+    Bump client dependencies to their latest stable versions
+
 Changes in version 5.0.95
     Fix incompatibility with iOS (#4841)
     Bump client dependenciesto their latest stable versions
