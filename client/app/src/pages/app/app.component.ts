@@ -20,7 +20,7 @@ import {AdminSidebarComponent} from "../admin/sidebar/sidebar.component";
 import {AnalystSidebarComponent} from "../analyst/sidebar/sidebar.component";
 import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component";
 import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
-import {registerLocales} from "@app/services/helper/locale-provider";
+import {registerLocales, localeToBcp47} from "@app/services/helper/locale-provider";
 import {mockEngine} from "@app/services/helper/mocks";
 import {DEFAULT_INTERRUPTSOURCES, Idle} from "@ng-idle/core";
 import {CryptoService} from "@app/shared/services/crypto.service";
@@ -82,7 +82,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
 
   watchLanguage() {
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      document.getElementsByTagName("html")[0].setAttribute("lang", this.translate.currentLang);
+      document.getElementsByTagName("html")[0].setAttribute("lang", localeToBcp47(this.translate.currentLang));
     });
   }
 

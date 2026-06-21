@@ -43,6 +43,7 @@ describe("Whistleblower Navigate Home Page in EN", () => {
   it("should see page properly internationalized", () => {
 
     cy.visit("/#/?lang=en");
+    cy.get('html').should('have.attr', 'lang', 'en');
     cy.get('div').should('not.contain', 'TEXT1_IT');
     cy.get('div').should('not.contain', 'TEXT2_IT');
   });
@@ -51,6 +52,7 @@ describe("Whistleblower Navigate Home Page in EN", () => {
 describe("Whistleblower Navigate Home Page in IT", () => {
   it("should see page properly internationalized", () => {
     cy.visit("/#/?lang=it");
+    cy.get('html').should('have.attr', 'lang', 'it');
     cy.contains("div", "TEXT1_IT").should("exist");
     cy.contains("div", "TEXT2_IT").should("exist");
   });
