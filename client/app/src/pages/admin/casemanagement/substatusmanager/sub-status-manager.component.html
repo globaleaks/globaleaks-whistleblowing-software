@@ -2,7 +2,7 @@
   <div ngForm="editsubmissionStatus" #editsubmissionStatus="ngForm">
     <div class="config-item">
       <div class="editorHeader row">
-        <span class="col-md-7" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">{{ submissionsStatus.label ? (submissionsStatus.label | translate) : '' }}</span>
+        <span id="status-{{submissionsStatus.id}}" class="col-md-7" (click)="toggleEditing(submissionsStatus); $event.stopPropagation();">{{ submissionsStatus.label ? (submissionsStatus.label | translate) : '' }}</span>
         <span class="col-md-5 clearfix">
           <span class="float-end">
             @if (isEditable(submissionsStatus) && !editing) {
