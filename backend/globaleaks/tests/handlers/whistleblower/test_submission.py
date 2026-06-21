@@ -708,7 +708,7 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
         self.submission_desc['receivers'] = []
         handler = self.request(self.submission_desc, role='whistleblower')
-        self.assertFailure(handler.post(), errors.InputValidationError)
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
 
     @inlineCallbacks
     def test_create_submission_with_recipients_subset_rejected_when_selection_disabled(self):
