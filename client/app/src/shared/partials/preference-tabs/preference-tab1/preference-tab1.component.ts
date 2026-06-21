@@ -82,7 +82,6 @@ export class PreferenceTab1Component implements OnInit {
 
       this.twoFactorAuthData.totp.secret = "";
       this.twoFactorAuthData.totp.qrcode_string = "";
-      this.twoFactorAuthData.totp.edit = false;
 
       this.modalService.open(Enable2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
 

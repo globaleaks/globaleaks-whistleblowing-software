@@ -1,10 +1,9 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule} from "@angular/forms";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
 import {QRCodeComponent} from 'angularx-qrcode';
-import {NgClass} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
@@ -13,25 +12,19 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "src-enable-2fa",
     templateUrl: "./enable-2fa.html",
     standalone: true,
-    imports: [QRCodeComponent, FormsModule, ReactiveFormsModule, NgbTooltipModule, NgClass, TranslateModule, TranslatorPipe]
+    imports: [QRCodeComponent, FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
 })
-export class Enable2fa implements OnInit{
+export class Enable2fa {
   protected utils = inject(UtilsService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private builder = inject(FormBuilder);
   protected twoFactorAuthData = inject(TwoFactorAuthData);
 
   symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   array = new Uint32Array(32);
-  OTPSecretForm: FormGroup;
 
   constructor() {
     this.initialization();
   }
-
-  ngOnInit() {
-    this.OTPSecretForm = this.builder.group({});
-  };
 
   initialization() {
     window.crypto.getRandomValues(this.array);

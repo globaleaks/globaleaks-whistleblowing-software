@@ -16,28 +16,10 @@
       <br />
       <div class="text-center">
         <qrcode ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
-        <form id="OTPSecretForm" [formGroup]="OTPSecretForm" class="form-inline">
-          <div class="form-group d-block mx-auto">
-            <label for="otp-secret-input" class="visually-hidden">{{'2FA'}}</label>
-            <div class="input-group">
-              <input id="otp-secret-input" [ngModelOptions]="{standalone: true}" [ngClass]="{'is-invalid': OTPSecretForm.invalid}" class="form-control" name="secret" (ngModelChange)="onSecretKeyChanged()" [(ngModel)]="twoFactorAuthData.totp.secret" [disabled]="!twoFactorAuthData.totp.edit" type="text" [minlength]="32" [maxLength]="32" maxlength="32" size="32" required />
-              @if (twoFactorAuthData.totp.edit) {
-                <span class="input-group-append" (click)="OTPSecretForm.valid && (twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit)" ngbTooltip="{{'Save' | translate}}">
-                  <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="OTPSecretForm.invalid" type="button" [attr.aria-label]="'Save' | translate">
-                    <i class="fas fa-floppy-disk"></i>
-                  </button>
-                </span>
-              }
-              @if (!twoFactorAuthData.totp.edit) {
-                <span class="input-group-append" (click)="twoFactorAuthData.totp.edit=!twoFactorAuthData.totp.edit" ngbTooltip="{{'Edit' | translate}}">
-                  <button class="btn btn-secondary rounded-start-0 m-0" [disabled]="twoFactorAuthData.totp.secret.length !== 32" type="button" [attr.aria-label]="'Edit' | translate">
-                    <i class="fas fa-pen-to-square"></i>
-                  </button>
-                </span>
-              }
-            </div>
-          </div>
-        </form>
+        <div class="form-group d-block mx-auto">
+          <label for="otp-secret-input" class="visually-hidden">{{'2FA'}}</label>
+          <input id="otp-secret-input" class="form-control mx-auto" name="secret" [ngModel]="twoFactorAuthData.totp.secret" [ngModelOptions]="{standalone: true}" type="text" size="32" readonly disabled />
+        </div>
       </div>
     </div>
   </div>
