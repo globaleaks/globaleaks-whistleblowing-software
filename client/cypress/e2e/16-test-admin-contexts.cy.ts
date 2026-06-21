@@ -58,7 +58,7 @@ describe("admin configure, add, and delete channels", () => {
     cy.get(".addSubmissionStatus").should("be.visible");
     cy.get('input[name="name"]').type("Test");
     cy.get("#add-btn").click();
-    cy.get(".config-section").contains("Closed").should("be.visible").click();
+    cy.get("#status-closed").should("be.visible").click();
     cy.get("#add-sub-status").click();
     cy.get('input[name="label"]').type("closed 1");
     cy.get("#add-submission-sub-status").click();
