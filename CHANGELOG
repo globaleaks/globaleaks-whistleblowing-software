@@ -1,3 +1,42 @@
+Changes in version 5.0.96
+    Implement security enhancements following auditors suggestions:
+    - Bind authenticated requests with DPoP proof-of-possession [RFC 9449]
+    - Enforce tenant isolation and ownership across resources
+    - Enforce role network access policy on authenticated requests
+    - Revoke sessions on admin update, password change and deletion
+    - Confine sessions pending forced password change or 2FA enrollment
+    - Require step-up confirmation for deletion of users, contexts and tenants
+    - Require 2FA confirmation on voluntary password change
+    - Serialize TOTP one-time-use verification
+    - Mask recipient and whistleblower files through redaction
+    - Exclude masked files from report exports
+    - Restrict recipient files to their author
+    - Restrict editing of user identity fields to privileged users
+    - Validate submission answers, nesting depth and status transitions
+    - Enforce screening choices and intake gates on submissions
+    - Compute submission scoring and screening on the backend
+    - Enforce notification toggles across all mail paths
+    - Extend audit logging to file access, exports and redactions
+    - Rate-limit signup, support, password reset and email change
+    - Rate-limit proof-of-work and submission endpoints
+    - Rate-limit and sanitize CSP violation reports
+    - Skip per-IP rate limiting for Tor traffic
+    - Verify the SMTP server certificate against the hostname
+    - Restrict the TLS handshake signature hashes
+    - Generate fresh ephemeral keypairs for assisted submissions
+    - Escape spreadsheet formula prefixes in CSV exports
+    - Mask two factor authentication and access code inputs
+    - Harden systemd service, AppArmor profile and Docker containers
+    - Bind high ports to loopback on Tor-only platforms
+    - Fail closed to Tor-only when web reachability is unknown
+    - Fix defang of multiple URLs at once
+    Improve notification rendering of the {TipStatus} keyword
+    Improve upload time estimate formatting
+    Fix questionnaire and question template lists not refreshing
+    Perform lint fixes thanks to Ruff inspector
+    Bump client dependencies to their latest stable versions
+    Update translations
+
 Changes in version 5.0.95
     Fix incompatibility with iOS (#4841)
     Bump client dependenciesto their latest stable versions
