@@ -22,7 +22,7 @@ You will be then asked to insert a 2FA code using your TOTP Authenticator app to
 
 Configure your preferences
 --------------------------
-After login you can access your preferences by clicking the icon [:fa:`solid user`] icon in the login status bar. On this page you can:
+After login you can access your preferences by clicking the  [:fa:`solid user`] icon in the login status bar. On this page you can:
 
 - change your name;
 - change your public name;
