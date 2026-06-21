@@ -295,8 +295,15 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.exceptions_email_count += 1
 
         mail_subject = "GlobaLeaks Exception"
-        delivery_list = self.tenants[1].cache.notification.admin_list + \
-                        self.tenants[tid].cache.notification.admin_list
+        delivery_list = []
+
+        # Deliver to the administrators of the root tenant and of the tenant
+        # where the exception occurred, but only where they opted in via
+        # enable_admin_exception_notification. The set avoids a double delivery
+        # when the exception belongs to the root tenant itself (tid == 1).
+        for t in {1, tid}:
+            if self.tenants[t].cache.enable_admin_exception_notification:
+                delivery_list += self.tenants[t].cache.notification.admin_list
 
         if self.tenants[1].cache.enable_developers_exception_notification:
             delivery_list.append(('exceptions@globaleaks.org', ''))
