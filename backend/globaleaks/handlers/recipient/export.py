@@ -9,7 +9,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
-from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.base import BaseHandler, content_disposition_attachment
 from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.recipient.rtip import db_update_submission_status, redact_report
 from globaleaks.handlers.whistleblower.submission import decrypt_tip
@@ -97,16 +97,18 @@ def serialize_rtip_export(session, user, itip, rtip, context, language):
 
 @transact
 def get_tip_export(session, tid, user_id, itip_id, language):
-    user, context, itip, rtip = session.query(models.User, models.Context, models.InternalTip, models.ReceiverTip) \
-                                       .filter(models.User.id == user_id,
-                                               models.User.tid == tid,
-                                               models.ReceiverTip.receiver_id == models.User.id,
-                                               models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                               models.InternalTip.id == itip_id,
-                                               models.Context.id == models.InternalTip.context_id).one_or_none()
+    row = session.query(models.User, models.Context, models.InternalTip, models.ReceiverTip) \
+                 .filter(models.User.id == user_id,
+                         models.User.tid == tid,
+                         models.ReceiverTip.receiver_id == models.User.id,
+                         models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                         models.InternalTip.id == itip_id,
+                         models.Context.id == models.InternalTip.context_id).one_or_none()
 
-    if not user:
+    if row is None:
         raise errors.ResourceNotFound
+
+    user, context, itip, rtip = row
 
     rtip.last_access = datetime_now()
     if rtip.access_date == datetime_null():
@@ -256,5 +258,5 @@ class ExportHandler(BaseHandler):
             # time grows with the archive size.
             self.request.setHeader(b'Content-Type', b'application/octet-stream')
             self.request.setHeader(b'Content-Disposition',
-                                   b'attachment; filename="' + filename.encode() + b'"')
+                                   content_disposition_attachment(filename))
             yield ZipStreamProducer(self, zipstream).start()

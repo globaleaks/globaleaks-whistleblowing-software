@@ -1,6 +1,6 @@
 import json
 
-from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.base import BaseHandler, content_disposition_attachment
 from globaleaks.rest.errors import FileTooBig, InputValidationError
 from globaleaks.tests import helpers
 
@@ -39,6 +39,28 @@ class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
         handler.request.args = self._upload_args(total_size=1024 * 1024,
                                                  identifier=b'atlimit')
         self.assertIsNone(handler.process_file_upload())
+
+    def test_content_disposition_plain_name(self):
+        # A token-only ASCII name is emitted unquoted, with no filename*.
+        self.assertEqual(content_disposition_attachment('normal.pdf'),
+                         'attachment; filename=normal.pdf')
+
+    def test_content_disposition_spoofing_is_neutralized(self):
+        # An attacker-controlled name cannot break out of the quoted-string:
+        # both `"` and `\` are backslash-escaped (Content-Disposition spoofing).
+        self.assertEqual(content_disposition_attachment('evil"\\.pdf'),
+                         'attachment; filename="evil\\"\\\\.pdf"')
+
+    def test_content_disposition_unicode_gets_filename_star(self):
+        # A non-ASCII name keeps an ASCII-folded fallback and a percent-encoded
+        # RFC 5987 filename* for modern browsers.
+        self.assertEqual(content_disposition_attachment('rapporto-€.pdf'),
+                         "attachment; filename=rapporto-.pdf; filename*=UTF-8''rapporto-%E2%82%AC.pdf")
+
+    def test_content_disposition_strips_crlf(self):
+        # CR/LF must be removed to prevent HTTP response header injection.
+        self.assertEqual(content_disposition_attachment('evil.pdf\r\nSet-Cookie: x=1'),
+                         'attachment; filename="evil.pdfSet-Cookie: x=1"')
 
     def test_validate_request_valid1(self):
         dummy_message = {'spam': 'ham', 'firstd': {3: 4}, 'fields': "CIAOCIAO", 'nest': [{1: 2, 3: 4}]}

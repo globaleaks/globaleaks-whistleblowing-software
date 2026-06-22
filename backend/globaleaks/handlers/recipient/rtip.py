@@ -1264,6 +1264,9 @@ def delete_rfile(session, tid, user_id, file_id):
     :param file_id: The file ID of the rfile to be deleted
     """
     rfile = db_access_rfile(session, tid, user_id, file_id)
+    if rfile is None:
+        raise errors.ResourceNotFound
+
     session.delete(rfile)
 
 

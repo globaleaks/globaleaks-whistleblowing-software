@@ -2,8 +2,10 @@ import json
 import mimetypes
 import os
 import re
+import unicodedata
 
 from datetime import datetime
+from urllib.parse import quote
 
 from tempfile import NamedTemporaryFile
 
@@ -28,6 +30,71 @@ from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now
 
 mimetypes.add_type('text/javascript', '.js')
+
+
+# RFC 7230 token characters; a value made only of these needs no quoting.
+_token_chars = frozenset(
+    "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~"
+)
+
+
+def quote_header_value(value):
+    """
+    Quote a header parameter value (port of werkzeug.http.quote_header_value).
+
+    A bare token is returned unchanged; anything else is wrapped in double
+    quotes with `\\` and `"` backslash-escaped. The escaping is what prevents
+    an attacker-controlled filename from breaking out of the quoted-string.
+    """
+    if not value:
+        return '""'
+
+    if _token_chars.issuperset(value):
+        return value
+
+    value = value.replace("\\", "\\\\").replace('"', '\\"')
+    return '"%s"' % value
+
+
+def sanitize_filename(filename):
+    """
+    Reduce a client-supplied filename to a bare, line-break-free basename.
+
+    `os.path.basename` drops any directory components (path traversal), and
+    `splitlines()` removes every line-boundary character (CR, LF, and the wider
+    set Python recognises: VT, FF, FS/GS/RS, NEL, LS, PS). This is the single
+    sanitization step shared by both ends of a file's lifecycle: it cleans the
+    name stored at upload time (then reflected into the UI, emails and the
+    Content-Disposition header) and is reapplied as defense in depth when a
+    download header is built.
+    """
+    return ''.join(os.path.basename(filename).splitlines())
+
+
+def content_disposition_attachment(filename):
+    """
+    Build a safe Content-Disposition "attachment" header value (RFC 6266).
+
+    Port of the logic in werkzeug.utils.send_file: the filename of a download
+    can be attacker-controlled (e.g. a whistleblower chooses the name of an
+    uploaded attachment), so a raw name could otherwise break out of the
+    quoted-string and dictate the filename the recipient's browser saves
+    (Content-Disposition spoofing).
+
+    An ASCII name is emitted as a single, escaped "filename". A non-ASCII name
+    additionally gets a percent-encoded "filename*" (RFC 5987) for modern
+    browsers, with an ASCII-folded "filename" fallback for legacy clients.
+    """
+    filename = sanitize_filename(filename)
+
+    try:
+        filename.encode('ascii')
+    except UnicodeEncodeError:
+        fallback = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore').decode('ascii')
+        encoded = quote(filename, safe="!#$&+-.^_`|~")  # safe = RFC 8187 attr-char (ex RFC 5987)
+        return "attachment; filename=%s; filename*=UTF-8''%s" % (quote_header_value(fallback), encoded)
+
+    return 'attachment; filename=%s' % quote_header_value(filename)
 
 
 def decodeString(string):
@@ -379,7 +446,7 @@ class BaseHandler(object):
     def _serve_download(self, filename, fp):
         self.request.setHeader(b'Content-Type', 'application/octet-stream')
         self.request.setHeader(b'Content-Disposition',
-                               'attachment; filename="%s"' % filename)
+                               content_disposition_attachment(filename))
 
         return serve_file(self.request, fp)
 
@@ -455,7 +522,7 @@ class BaseHandler(object):
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return None
 
-        filename = os.path.basename(self.request.args[b'flowFilename'][0].decode())
+        filename = sanitize_filename(self.request.args[b'flowFilename'][0].decode())
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
 
