@@ -15,6 +15,13 @@ from globaleaks.utils.utility import deferred_sleep
 USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
 
+# CSP violation reports are accepted unauthenticated (browsers post them without
+# credentials); these thresholds bound a flood so it cannot evict genuine
+# reports from the bounded rotating CSP log nor impose sustained synchronous
+# write load on the reactor. Excess reports are dropped.
+CSP_REPORTS_PER_MINUTE_PER_IP = 30
+CSP_REPORTS_PER_MINUTE_PER_SYSTEM = 1000
+
 # A session pending a mandatory step (reset-token password change, forced
 # password change, password-age expiry, or mandatory two-factor enrollment) is
 # confined to this minimal set of endpoints: read its own preferences, perform
@@ -190,6 +197,17 @@ def decorator_rate_limit(f):
                     State.RateLimit.check(b"signups_per_hour_per_system",
                                           root_tenant.cache.threshold_signups_per_hour_per_system,
                                           3600) > 0
+
+        elif path == b'/api/report':
+            if not self.request.client_using_tor:
+                block = State.RateLimit.check(b"reports_csp_per_minute_per_ip:" + client_ip,
+                                              CSP_REPORTS_PER_MINUTE_PER_IP,
+                                              60) > 0
+
+            block = block or \
+                    State.RateLimit.check(b"reports_csp_per_minute_per_system",
+                                          CSP_REPORTS_PER_MINUTE_PER_SYSTEM,
+                                          60) > 0
 
         elif self.session:
             user_id = self.session.user_id.encode()
