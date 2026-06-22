@@ -24,7 +24,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2026-04-28 09:06+0000\n"
+"PO-Revision-Date: 2026-06-22 19:23+0000\n"
 "Last-Translator: Viktor Varga "
 "<vargaviktor@users.noreply.localizationlab.weblate.cloud>\n"
 "Language-Team: Hungarian <https://localizationlab.weblate.cloud/projects/"
@@ -33,7 +33,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17\n"
+"X-Generator: Weblate 2026.6.1\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -2174,3 +2174,12 @@ msgstr "Szerep: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Jelszó: {Password}"
+
+msgid "Reset password"
+msgstr "Jelszó helyreállítás"
+
+msgid "hours"
+msgstr "óra"
+
+msgid "minutes"
+msgstr "perc"
