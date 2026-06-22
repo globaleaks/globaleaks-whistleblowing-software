@@ -1,5 +1,6 @@
 # Handlers dealing with user support requests
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.utils.log import escape_string
 
 
 class ReportHandler(BaseHandler):
@@ -9,5 +10,5 @@ class ReportHandler(BaseHandler):
     check_roles = 'any'
 
     def post(self):
-        request = self.request.content.read()
-        self.state.csp_report_log.write(request)
+        request = self.request.content.read().decode('utf-8', 'replace')
+        self.state.csp_report_log.write((escape_string(request) + "\n").encode())
