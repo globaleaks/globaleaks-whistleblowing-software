@@ -455,7 +455,10 @@ class BaseHandler(object):
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return None
 
-        filename = os.path.basename(self.request.args[b'flowFilename'][0].decode())
+        # Strip line breaks from the client-supplied filename: it is later
+        # reflected into the Content-Disposition response header on download,
+        # so CR/LF must be removed to prevent HTTP response header injection.
+        filename = ''.join(os.path.basename(self.request.args[b'flowFilename'][0].decode()).splitlines())
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
 
