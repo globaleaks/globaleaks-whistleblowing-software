@@ -18,6 +18,7 @@ export class TipFieldComponent {
   @Input() preview = false;
   @Input() redactMode: boolean;
   @Input() redactOperationTitle: string;
+  @Input() disabled = false;
 
   hasMultipleEntries(field_answer: any): boolean {
     return Array.isArray(field_answer) && field_answer.length > 1;

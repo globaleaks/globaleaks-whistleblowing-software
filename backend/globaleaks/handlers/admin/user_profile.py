@@ -37,6 +37,12 @@ def sync_roles(session, profile, request):
 
 def sync_permissions(session, profile, request):
     permissions = request['permissions']
+
+    if profile.tid != 1 and permissions.get('can_forward_reports'):
+        permissions['can_mask_information'] = False
+        permissions['can_redact_information'] = False
+        permissions['can_delete_submission'] = False
+
     permissions = [perm for perm, value in permissions.items() if value]
 
     current_permissions = {p.permission for p in profile.permissions}

@@ -13,6 +13,10 @@ export interface rtipResolverModel {
   expiration_date: string;
   reminder_date: string;
   progressive: number;
+  channel_progressive: number;
+  channel_progressive_sort_key: string;
+  context_count: number;
+  slug: string;
   subscription: number;
   important: boolean;
   label: string;

@@ -24,6 +24,7 @@ from globaleaks.handlers.whistleblower.submission import db_create_receivertip, 
 from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
 from globaleaks.handlers.user import serialize_user
 from globaleaks.models import UserProfile, serializers
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
@@ -571,6 +572,7 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
     :param substatus_id: A new substatus ID
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, rtip_id)
+    db_enforce_metadata_permission_on_forward_type(session, tid, itip)
 
     if itip.status != status_id or itip.substatus != substatus_id:
         itip.update_date = rtip.last_access = datetime_now()
@@ -604,7 +606,7 @@ def db_access_rtip(session, tid, user_id, itip_id):
                                models.ReceiverTip.receiver_id == models.User.id,
                                models.ReceiverTip.internaltip_id == models.InternalTip.id))
 
-    if itip.type == 'forward-request' and tid != 1:
+    if itip.type == 'forward-request' and tid != 1 and db_get_forward_request_source_tid(session, itip) != tid:
         raise errors.ForbiddenOperation
 
     return user, rtip, itip
@@ -693,13 +695,25 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
     if itip.reminder_date < rtip.last_access:
         itip.reminder_date = datetime_never()
 
-    if itip.status == 'new':
+    if itip.status == 'new' and not (itip.type == 'forward-request' and tid != itip.tid):
         itip.update_date = rtip.last_access
         db_update_submission_status(session, tid, user_id, itip, 'opened')
 
     db_log(session, tid=tid, type='access_report', user_id=user_id, object_id=itip.id)
 
     report = serializers.serialize_rtip(session, itip, rtip, language)
+    if itip.crypto_tip_pub_key and not rtip.crypto_tip_prv_key:
+        forward_request = report.get('data', {}).get('forward_request')
+        report['data'] = {}
+        if forward_request:
+            report['data']['forward_request'] = forward_request
+        report['label'] = ''
+        for questionnaire in report['questionnaires']:
+            questionnaire['answers'] = {}
+
+    if itip.type == 'forward-request' and tid != itip.tid:
+        report['context_id'] = ConfigFactory(session, tid).get_val('forward_request_channel') or report['context_id']
+
     if itip.type in ('submission', 'forward'):
         from globaleaks.handlers.recipient import forward
         report['allow_forward'] = forward.db_can_forward_report(session, tid, itip)
@@ -742,12 +756,14 @@ def redact_report(session, user_session, report, enforce=False):
     user_id = user_session.user_id
 
     user = session.query(models.User).get(user_id)
+    tid = user.tid
 
     redactions = session.query(models.Redaction).filter(models.Redaction.internaltip_id == report['id']).all()
 
     if not enforce and \
-            (user_session.permissions.can_mask_information or \
-             user_session.permissions.can_redact_information or \
+            (((tid == 1 or not user_session.has_permission('can_forward_reports')) and
+              (user_session.permissions.can_mask_information or
+               user_session.permissions.can_redact_information)) or
              not len(redactions)):
         return report
 
@@ -791,9 +807,53 @@ def db_get_forward_source_tid(session, itip):
         return None
 
 
+def db_get_forward_request_source_tid(session, itip):
+    data = session.query(models.InternalTipData) \
+                  .filter(models.InternalTipData.internaltip_id == itip.id,
+                          models.InternalTipData.key == 'forward_request') \
+                  .one_or_none()
+    if data is None:
+        return None
+
+    try:
+        return int(data.value.get('source_tid'))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
 def db_enforce_delete_permission_on_forward_type(tid, itip):
     if itip.type in ('forward-request', 'forward') and tid != 1:
         raise errors.ForbiddenOperation
+
+
+def db_is_forward_workflow_report(session, itip):
+    if itip.type in ('forward-request', 'forward'):
+        return True
+
+    if session.query(models.InternalTipData) \
+              .filter(models.InternalTipData.internaltip_id == itip.id,
+                      models.InternalTipData.key.in_(('forward_request', 'forwarded_from'))) \
+              .count() > 0:
+        return True
+
+    return session.query(models.InternalTipForwarding) \
+                  .filter(models.InternalTipForwarding.internaltip_id == itip.id) \
+                  .count() > 0
+
+
+def db_enforce_metadata_permission_on_forward_type(session, tid, itip):
+    if tid != 1 and db_is_forward_workflow_report(session, itip):
+        raise errors.ForbiddenOperation
+
+
+def db_user_has_profile_permission(session, user, permission):
+    if user is None:
+        return False
+
+    return session.query(models.UserProfilePermission) \
+                  .filter(models.UserProfilePermission.profile_id == user.profile_id,
+                          models.UserProfilePermission.permission == permission) \
+                  .count() > 0
 
 
 def db_enforce_expiration_permission_on_forward_type(session, tid, itip):
@@ -872,7 +932,8 @@ def delete_rtip(session, tid, user_session, itip_id):
     """
     user, rtip, itip = db_access_rtip(session, tid, user_session.user_id, itip_id)
 
-    if not user_session.permissions.can_delete_submission:
+    if (tid != 1 and user_session.has_permission('can_forward_reports')) or \
+            not user_session.permissions.can_delete_submission:
         raise errors.ForbiddenOperation
 
     db_enforce_delete_permission_on_forward_type(tid, itip)
@@ -948,6 +1009,7 @@ def set_reminder(session, tid, user_id, itip_id, reminder_date):
     :param reminder_date: A new reminder expiration date
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+    db_enforce_metadata_permission_on_forward_type(session, tid, itip)
 
     db_set_reminder(session, itip, reminder_date)
 
@@ -964,10 +1026,11 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     :param key: A key of the property to be set
     :param value: A value to be assigned to the property
     """
-    _, _, itip = db_access_rtip(session, tid, user_id, itip_id)
+    user, _, itip = db_access_rtip(session, tid, user_id, itip_id)
 
     if key == 'allow_forward':
-        if tid != 1 or itip.type != 'forward-request':
+        if tid != 1 or itip.type != 'forward-request' or \
+           not db_user_has_profile_permission(session, user, 'can_request_forward'):
             raise errors.ForbiddenOperation
 
         forward_request = session.query(models.InternalTipData) \
@@ -1021,6 +1084,9 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
         db_log(session, tid=source_tid, type='report_forward_request_authorized',
                user_id=None, object_id=source_object_id, data=source_log_data)
         return
+
+    if key in ('label', 'important'):
+        db_enforce_metadata_permission_on_forward_type(session, tid, itip)
 
     if itip.crypto_tip_pub_key and value and key in ['label']:
         value = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, value))
@@ -1170,8 +1236,9 @@ def create_redaction(session, tid, user_session, data):
 
     itip.update_date = rtip.last_access = datetime_now()
 
-    if not user_session.permissions.can_mask_information:
-        return
+    if (tid != 1 and user_session.has_permission('can_forward_reports')) or \
+            not user_session.permissions.can_mask_information:
+        raise errors.ForbiddenOperation
 
     redaction = models.Redaction()
     redaction.id = data.get('id')
@@ -1204,6 +1271,9 @@ def update_redaction(session, tid, user_session, redaction_id, redaction_data, t
 
     operation = redaction_data['operation']
     content_type = redaction_data['content_type']
+
+    if tid != 1 and user_session.has_permission('can_forward_reports'):
+        raise errors.ForbiddenOperation
 
     if not redaction or redaction.internaltip_id != itip.id:
         return
@@ -1313,6 +1383,9 @@ class RTipInstance(OperationHandler):
         if key == 'enable_notifications':
             return set_receivertip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
 
+        if key == 'label' and not self.session.has_permission('can_change_label'):
+            raise errors.ForbiddenOperation
+
         return set_internaltip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
 
     def grant_tip_access(self, req_args, itip_id, *args, **kwargs):
@@ -1331,6 +1404,9 @@ class RTipInstance(OperationHandler):
         return set_reminder(self.request.tid, self.session.user_id, itip_id, req_args['value'])
 
     def update_submission_status(self, req_args, rtip_id, *args, **kwargs):
+        if not self.session.has_permission('can_change_status'):
+            raise errors.ForbiddenOperation
+
         return update_tip_submission_status(self.request.tid, self.session.user_id, rtip_id,
                                             req_args['status'], req_args['substatus'])
 

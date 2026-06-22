@@ -56,6 +56,10 @@
               }
             </div>
             <div class="form-group">
+              <label for="context-slug-input">{{ 'Slug' | translate }}</label>
+              <input id="context-slug-input" name="slug" class="form-control" [(ngModel)]="contextResolver.slug" type="text">
+            </div>
+            <div class="form-group">
               <label for="context-description">{{ 'Description' | translate }}</label>
               <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver.description"></textarea>
             </div>

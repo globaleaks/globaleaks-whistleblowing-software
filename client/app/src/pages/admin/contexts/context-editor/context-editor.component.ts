@@ -113,6 +113,10 @@ export class ContextEditorComponent implements OnInit {
       return receivers;
     }
 
+    if (this.contextResolver.type === 'forward-request' || this.contextResolver.channel_type === 'forward-request') {
+      return receivers.filter(user => user.profile?.permissions?.can_request_forward);
+    }
+
     return receivers.filter(user => user.profile?.permissions?.can_forward_reports);
   }
 
@@ -146,7 +150,8 @@ export class ContextEditorComponent implements OnInit {
     if (context.additional_questionnaire_id === null) {
       context.additional_questionnaire_id = "";
     }
-    this.utilsService.updateAdminContext(context, context.id).subscribe(_ => {
+    this.utilsService.updateAdminContext(context, context.id).subscribe(updatedContext => {
+      Object.assign(context, updatedContext);
     });
   }
 

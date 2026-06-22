@@ -1,3 +1,5 @@
+import re
+
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
@@ -7,16 +9,32 @@ from globaleaks.orm import db_add, db_del, db_get, transact, tw
 from globaleaks.rest import requests, errors
 
 FORWARD_REQUEST_QUESTIONNAIRE_ID = 'forward_request'
+CHANNEL_TYPE_SUBMISSION = 'submission'
+CHANNEL_TYPE_FORWARD = 'forward'
+CHANNEL_TYPE_FORWARD_REQUEST = 'forward-request'
+CHANNEL_TYPES = {CHANNEL_TYPE_SUBMISSION, CHANNEL_TYPE_FORWARD, CHANNEL_TYPE_FORWARD_REQUEST}
+
+
+def normalize_context_slug(slug):
+    return re.sub(r'[^a-z0-9]+', '-', (slug or '').lower()).strip('-')
 
 
 def db_forward_receivers_query(session, tid):
+    return db_forward_receivers_query_for_permission(session, tid, 'can_forward_reports')
+
+
+def db_forward_request_receivers_query(session, tid):
+    return db_forward_receivers_query_for_permission(session, tid, 'can_request_forward')
+
+
+def db_forward_receivers_query_for_permission(session, tid, permission):
     return session.query(models.User.id) \
                   .join(models.UserProfilePermission,
                         models.UserProfilePermission.profile_id == models.User.profile_id) \
                   .filter(models.User.tid == tid,
                           models.User.enabled == True,
                           models.User.role == 'receiver',
-                          models.UserProfilePermission.permission == 'can_forward_reports')
+                          models.UserProfilePermission.permission == permission)
 
 
 def db_filter_forward_receiver_ids(session, tid, receiver_ids):
@@ -24,6 +42,16 @@ def db_filter_forward_receiver_ids(session, tid, receiver_ids):
         return []
 
     allowed_ids = {r[0] for r in db_forward_receivers_query(session, tid)
+                                      .filter(models.User.id.in_(receiver_ids))}
+
+    return [receiver_id for receiver_id in receiver_ids if receiver_id in allowed_ids]
+
+
+def db_filter_forward_request_receiver_ids(session, tid, receiver_ids):
+    if not receiver_ids:
+        return []
+
+    allowed_ids = {r[0] for r in db_forward_request_receivers_query(session, tid)
                                       .filter(models.User.id.in_(receiver_ids))}
 
     return [receiver_id for receiver_id in receiver_ids if receiver_id in allowed_ids]
@@ -39,11 +67,15 @@ def admin_serialize_context(session, context, language):
     :return: a dictionary representing the serialization of the context.
     """
     tenant_config = ConfigFactory(session, context.tid)
-    forward_channel_ids = {
-        tenant_config.get_val('forward_channel'),
-        tenant_config.get_val('forward_request_channel')
-    }
-    is_forward_channel = context.id in forward_channel_ids
+    forward_channel_id = tenant_config.get_val('forward_channel')
+    forward_request_channel_id = tenant_config.get_val('forward_request_channel')
+    if context.id == forward_channel_id:
+        channel_type = CHANNEL_TYPE_FORWARD
+    elif context.id == forward_request_channel_id:
+        channel_type = CHANNEL_TYPE_FORWARD_REQUEST
+    else:
+        channel_type = context.type or CHANNEL_TYPE_SUBMISSION
+    is_forward_channel = channel_type != CHANNEL_TYPE_SUBMISSION
 
     receivers = [r[0] for r in session.query(models.ReceiverContext.receiver_id)
                                       .filter(models.ReceiverContext.context_id == context.id)
@@ -51,14 +83,20 @@ def admin_serialize_context(session, context, language):
 
     if is_forward_channel:
         context.hidden = True
-        receivers = db_filter_forward_receiver_ids(session, context.tid, receivers)
+        if channel_type == CHANNEL_TYPE_FORWARD_REQUEST:
+            receivers = db_filter_forward_request_receiver_ids(session, context.tid, receivers)
+        else:
+            receivers = db_filter_forward_receiver_ids(session, context.tid, receivers)
 
     picture = session.query(models.File).filter(models.File.name == context.id).one_or_none() is not None
 
     ret = {
         'id': context.id,
+        'type': channel_type,
+        'slug': context.slug,
         'hidden': context.hidden,
         'is_forward_channel': is_forward_channel,
+        'channel_type': channel_type,
         'tip_timetolive': context.tip_timetolive,
         'tip_reminder': context.tip_reminder,
         'select_all_receivers': context.select_all_receivers,
@@ -146,6 +184,11 @@ def fill_context_request(tid, request, language):
     """
     request['tid'] = tid
     fill_localized_keys(request, models.Context.localized_keys, language)
+    request['type'] = request.get('type') or CHANNEL_TYPE_SUBMISSION
+    if request['type'] not in CHANNEL_TYPES:
+        raise errors.InputValidationError("Invalid channel type")
+
+    request['slug'] = normalize_context_slug(request.get('slug', ''))
 
     if not request['allow_recipients_selection']:
         request['select_all_receivers'] = True
@@ -215,12 +258,19 @@ def db_update_context(session, tid, context, request, language):
     if context.id in forward_channel_ids:
         request = fill_context_request(tid, request, language)
         context.hidden = True
+        context.type = CHANNEL_TYPE_FORWARD_REQUEST \
+            if context.id == tenant_config.get_val('forward_request_channel') else \
+            CHANNEL_TYPE_FORWARD
         context.questionnaire_id = FORWARD_REQUEST_QUESTIONNAIRE_ID \
             if context.id == tenant_config.get_val('forward_request_channel') else \
             ConfigFactory(session, 1).get_val('forward_questionnaire')
         context.additional_questionnaire_id = ''
+        context.slug = request['slug']
         context.tip_timetolive = request['tip_timetolive']
-        request['receivers'] = db_filter_forward_receiver_ids(session, tid, request['receivers'])
+        if context.id == tenant_config.get_val('forward_request_channel'):
+            request['receivers'] = db_filter_forward_request_receiver_ids(session, tid, request['receivers'])
+        else:
+            request['receivers'] = db_filter_forward_receiver_ids(session, tid, request['receivers'])
         db_associate_context_receivers(session, context, request['receivers'])
         return context
 

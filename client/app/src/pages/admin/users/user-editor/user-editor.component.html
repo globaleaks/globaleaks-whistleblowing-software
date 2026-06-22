@@ -255,16 +255,24 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <input class="form-check-input" name="can_mask_information" [(ngModel)]="user.profile.permissions.can_mask_information" type="checkbox" [disabled]="user.id !== user.profile_id" />
-                <span [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to mask information' | translate }}</span>
+                <input class="form-check-input" name="can_mask_information" [(ngModel)]="user.profile.permissions.can_mask_information" type="checkbox" [disabled]="user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)" />
+                <span [ngClass]="{'text-gray': user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)}">{{ 'Give this user ability to mask information' | translate }}</span>
              </div>
               <div class="form-group">
-                <input class="form-check-input" name="can_redact_information" [(ngModel)]="user.profile.permissions.can_redact_information" type="checkbox" [disabled]="user.id !== user.profile_id" />
-                <span [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to permanently redact masked information' | translate }}</span>
+                <input class="form-check-input" name="can_redact_information" [(ngModel)]="user.profile.permissions.can_redact_information" type="checkbox" [disabled]="user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)" />
+                <span [ngClass]="{'text-gray': user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)}">{{ 'Give this user ability to permanently redact masked information' | translate }}</span>
              </div>
               <div class="form-group">
-                <input class="form-check-input" name="can_delete_submission" [(ngModel)]="user.profile.permissions.can_delete_submission" type="checkbox" [disabled]="user.id !== user.profile_id" />
-                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Allow the recipient to delete reports' | translate }}</label>
+                <input class="form-check-input" name="can_delete_submission" [(ngModel)]="user.profile.permissions.can_delete_submission" type="checkbox" [disabled]="user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id || (user.profile.tid !== 1 && user.profile.permissions.can_forward_reports)}">{{ 'Allow the recipient to delete reports' | translate }}</label>
+             </div>
+              <div class="form-group">
+                <input class="form-check-input" name="can_change_status" [(ngModel)]="user.profile.permissions.can_change_status" type="checkbox" [disabled]="user.id !== user.profile_id" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Allow the recipient to change report status' | translate }}</label>
+             </div>
+              <div class="form-group">
+                <input class="form-check-input" name="can_change_label" [(ngModel)]="user.profile.permissions.can_change_label" type="checkbox" [disabled]="user.id !== user.profile_id" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Allow the recipient to change report labels' | translate }}</label>
              </div>
               @if (!nodeData.can_postpone_expiration) {
                 <div  class="form-group">
@@ -281,8 +289,12 @@
                 <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to transfer reports to other users' | translate }}</label>
              </div>
               <div class="form-group">
-                <input class="form-check-input" name="can_forward_reports" [(ngModel)]="user.profile.permissions.can_forward_reports" type="checkbox" [disabled]="user.id !== user.profile_id" />
-                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Give this user ability to forward reports' | translate }}</label>
+                <input class="form-check-input" name="can_forward_reports" [(ngModel)]="user.profile.permissions.can_forward_reports" (ngModelChange)="normalizeForwardingProfilePermissions(user.profile)" type="checkbox" [disabled]="user.id !== user.profile_id" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Allow this recipient to forward' | translate }}</label>
+             </div>
+              <div class="form-group">
+                <input class="form-check-input" name="can_request_forward" [(ngModel)]="user.profile.permissions.can_request_forward" type="checkbox" [disabled]="user.id !== user.profile_id" />
+                <label [ngClass]="{'text-gray': user.id !== user.profile_id}">{{ 'Allow this recipient to perform forward request' | translate }}</label>
              </div>
            </div>
          </div>

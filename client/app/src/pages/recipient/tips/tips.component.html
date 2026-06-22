@@ -84,10 +84,10 @@
                 <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
-            <th class="TipInfoID" (click)="sortKey = 'progressive'; sortReverse = !sortReverse">
+            <th class="TipInfoID" (click)="sortKey = 'channel_progressive_sort_key'; sortReverse = !sortReverse">
               <i class="fas fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
-              @if (sortKey === 'progressive') {
+              @if (sortKey === 'channel_progressive_sort_key') {
                 <span>
                   @if (!sortReverse) {
                     <i class="fas fa-sort-down" aria-hidden="true"></i>
@@ -333,7 +333,7 @@
                   <span [ngClass]="{'text-warning': utils.isDatePassed(tip.reminder_date)}"><i class="fas fa-bell"></i></span>
                 }
               </td>
-              <td class="TipInfoID">{{tip.progressive}}</td>
+              <td class="TipInfoID">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</td>
               @if (appDataService.public.contexts.length > 1) {
                 <td class="TipInfoContext">{{tip.context_name}}</td>
               }

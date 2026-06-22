@@ -10,14 +10,18 @@
               class="btn btn-outline-secondary" [attr.aria-label]="'Reports' | translate">
               <i class="fas fa-arrow-left"></i>
             </a>
-            <button id="tip-action-star" type="button" (click)="tipToggleStar()"
-              ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Mark as important' | translate">
-              <i class="fas fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
-            </button>
-            <button id="tip-action-reminder" type="button" (click)="setReminder()"
-              ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-              <i class="fas" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
-            </button>
+            @if (canMarkImportant()) {
+              <button id="tip-action-star" type="button" (click)="tipToggleStar()"
+                ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Mark as important' | translate">
+                <i class="fas fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
+              </button>
+            }
+            @if (canSetReminder()) {
+              <button id="tip-action-reminder" type="button" (click)="setReminder()"
+                ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
+                <i class="fas" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
+              </button>
+            }
             @if (tip && !tip.enable_notifications) {
               <button id="tip-action-notify" type="button" (click)="tipNotify(true)"
                 ngbTooltip="{{'Turn on email notifications' | translate}}"
@@ -69,12 +73,12 @@
                       <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
                     </button>
                 }
-                @if ((preferencesService.dataModel.profile.permissions.can_redact_information || preferencesService.dataModel.profile.permissions.can_mask_information)) {
+                @if (canMaskOrRedact()) {
                   <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}" [attr.aria-label]="'Mask' | translate">
                     <i class="fas fa-eraser me-2"></i>{{'Mask' | translate}}
                   </button>
                 }
-                @if (tip.status !== 'closed') {
+                @if (canChangeStatus() && tip.status !== 'closed') {
                   <button id="tip-action-change-status" class="dropdown-item" type="button" (click)="openModalChangeState()" [attr.aria-label]="'Change status' | translate">
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
@@ -84,12 +88,12 @@
                     <i class="fas fa-share me-2"></i>{{'Forward' | translate}}
                   </button>
                 }
-                @if (preferencesService.dataModel.tid === 1 && preferencesService.dataModel.profile.permissions.can_forward_reports && tip.type === 'forward-request' && !tip.allow_forward) {
+                @if (preferencesService.dataModel.tid === 1 && preferencesService.dataModel.profile.permissions.can_request_forward && tip.type === 'forward-request' && !tip.allow_forward) {
                   <button id="tip-action-authorize-forward" class="dropdown-item" type="button" (click)="authorizeForward()" [attr.aria-label]="'Authorize forward' | translate">
                     <i class="fas fa-check me-2"></i>{{'Authorize forward' | translate}}
                   </button>
                 }
-                @if (tip.status === 'closed') {
+                @if (canChangeStatus() && tip.status === 'closed') {
                   <button id="tip-action-reopen" class="dropdown-item" type="button" (click)="openModalReopen()" [attr.aria-label]="'Reopen' | translate">
                     <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
                   </button>
@@ -137,6 +141,7 @@
     </div>
     <div class="row justify-content-between">
       <div class="col-md-12">
+        @if (canChangeLabel()) {
         <div id="TipLabelBox" class="float-start">
           <span class="input-group ms-1">
             <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
@@ -147,6 +152,7 @@
             </span>
           </span>
         </div>
+        }
       </div>
     </div>
     <div class="row mt-2">

@@ -82,10 +82,14 @@ export interface Data {
   forwarded_from?: {
     source_tid: number | string;
   };
+  forward_request?: {
+    source_tid: number | string;
+  };
 }
 
 export interface Context {
   id: string;
+  slug: string;
   hidden: boolean;
   order: number;
   tip_timetolive: number;

@@ -55,8 +55,8 @@ export class TipsComponent implements OnInit {
   dropdownContextData: { id: number; label: string; }[] = [];
   dropdownScoreModel: { id: number; label: string; }[] = [];
   dropdownScoreData: { id: number; label: string; }[] = [];
-  sortKey: keyof rtipResolverModel = 'creation_date';
-  sortReverse = true;
+  sortKey: keyof rtipResolverModel = 'channel_progressive_sort_key';
+  sortReverse = false;
   channelDropdownVisible = false;
   statusDropdownVisible = false;
   scoreDropdownVisible = false;
@@ -163,7 +163,7 @@ export class TipsComponent implements OnInit {
 
   private loadForwardRequestOptions() {
     if (this.preferencesService.dataModel.tid === 1 ||
-        !this.preferencesService.dataModel.profile.permissions.can_forward_reports) {
+        !this.preferencesService.dataModel.profile.permissions.can_request_forward) {
       this.forwardRequestAvailable = false;
       this.forwardRequestOptions = null;
       return;
@@ -220,7 +220,7 @@ export class TipsComponent implements OnInit {
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
-      tip.context_name = tip.context?.name ?? '';
+      tip.context_name = tip.context?.name ?? tip.context_name ?? '';
       tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
       if (!uniqueKeys.includes(tip.submissionStatusStr)) {
         uniqueKeys.push(tip.submissionStatusStr);
@@ -238,6 +238,7 @@ export class TipsComponent implements OnInit {
         this.dropdownScoreData.push({id: this.dropdownScoreData.length + 1, label: scoreLabel});
       }
     }
+
   }
 
   maskScore(score: number) {
@@ -378,7 +379,7 @@ export class TipsComponent implements OnInit {
     const output = [...this.filteredTips];
     return output.map(tip => ({
       id: tip.id,
-      progressive: tip.progressive,
+      progressive: tip.channel_progressive,
       important: tip.important,
       context_name: tip.context_name,
       label: tip.label,

@@ -171,11 +171,62 @@ export class TipComponent implements OnInit {
   }
 
   isForwardManagedReport() {
-    return this.tip?.type === "forward-request" || this.tip?.type === "forward";
+    return this.tip?.type === "forward-request" ||
+           this.tip?.type === "forward" ||
+           !!this.tip?.data?.forward_request ||
+           !!this.tip?.data?.forwarded_from ||
+           !!this.tip?.forwards?.length;
+  }
+
+  isForwardMetadataRestricted() {
+    return this.preferencesService.dataModel.tid !== 1 && this.isForwardManagedReport();
+  }
+
+  canChangeStatus() {
+    return this.preferencesService.dataModel.profile.permissions.can_change_status &&
+           !this.isForwardMetadataRestricted();
+  }
+
+  canChangeLabel() {
+    return this.preferencesService.dataModel.profile.permissions.can_change_label &&
+           !this.isForwardMetadataRestricted();
+  }
+
+  canSetReminder() {
+    return !this.isForwardMetadataRestricted();
+  }
+
+  canMarkImportant() {
+    return !this.isForwardMetadataRestricted();
   }
 
   isForwardFromRootTenant() {
     return Number(this.tip?.data?.forwarded_from?.source_tid) === 1;
+  }
+
+  isTenantForwardRequest() {
+    return this.preferencesService.dataModel.tid !== 1 &&
+           Number(this.tip?.data?.forward_request?.source_tid) === this.preferencesService.dataModel.tid;
+  }
+
+  isTenantForwardRequestAuthorized() {
+    return this.isTenantForwardRequest() && this.tip?.type !== "forward-request";
+  }
+
+  hasForwardRequestStatus() {
+    return !!this.tip?.data?.forward_request;
+  }
+
+  forwardRequestStatusLabel() {
+    if (!this.hasForwardRequestStatus()) {
+      return "";
+    }
+
+    return this.tip?.type === "forward-request" ? "Pending" : "Authorized";
+  }
+
+  forwardRequestStatusClass() {
+    return this.tip?.type === "forward-request" ? "bg-secondary" : "bg-success";
   }
 
   canEditExpiration() {
@@ -195,14 +246,28 @@ export class TipComponent implements OnInit {
   }
 
   canDeleteReport() {
-    if (!this.preferencesService.dataModel.profile.permissions.can_delete_submission) {
+    const permissions = this.preferencesService.dataModel.profile.permissions;
+
+    if ((this.preferencesService.dataModel.tid !== 1 && permissions.can_forward_reports) ||
+        !permissions.can_delete_submission) {
       return false;
     }
 
     return !this.isForwardManagedReport() || this.preferencesService.dataModel.tid === 1;
   }
 
+  canMaskOrRedact() {
+    const permissions = this.preferencesService.dataModel.profile.permissions;
+
+    return (this.preferencesService.dataModel.tid === 1 || !permissions.can_forward_reports) &&
+           (permissions.can_redact_information || permissions.can_mask_information);
+  }
+
   updateLabel(label: string) {
+    if (!this.canChangeLabel()) {
+      return;
+    }
+
     this.httpService.tipOperation("set", {"key": "label", "value": label}, this.RTipService.tip.id).subscribe(() => {
     });
   }
@@ -317,6 +382,7 @@ export class TipComponent implements OnInit {
       modalRef.componentInstance.tipId = this.tip.id;
       modalRef.componentInstance.tenants = response.tenants;
       modalRef.componentInstance.questionnaire = response.questionnaire;
+      modalRef.componentInstance.showTenantSelector = this.preferencesService.dataModel.tid === 1;
       modalRef.result.then(
         () => this.reload(),
         () => {}
@@ -349,6 +415,10 @@ export class TipComponent implements OnInit {
   }
 
   openModalChangeState(){
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(ChangeSubmissionStatusComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.arg={
       tip:this.tip,
@@ -364,6 +434,10 @@ export class TipComponent implements OnInit {
   }
 
   openModalReopen(){
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(ReopenSubmissionComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
       this.tip.status = "opened";
@@ -374,6 +448,10 @@ export class TipComponent implements OnInit {
   }
 
   updateSubmissionStatus() {
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const args = {"status":  this.tip.status, "substatus": this.tip.substatus ? this.tip.substatus : ""};
     this.httpService.tipOperation("update_status", args, this.tip.id)
       .subscribe(
@@ -416,6 +494,10 @@ export class TipComponent implements OnInit {
   }
 
   tipToggleStar() {
+    if (!this.canMarkImportant()) {
+      return;
+    }
+
     this.httpService.tipOperation("set", {
       "key": "important",
       "value": !this.RTipService.tip.important
@@ -433,6 +515,10 @@ export class TipComponent implements OnInit {
   }
 
   tipDelete() {
+    if (!this.canDeleteReport()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
     };
@@ -443,6 +529,10 @@ export class TipComponent implements OnInit {
   }
 
   setReminder() {
+    if (!this.canSetReminder()) {
+      return;
+    }
+
     const tip_reminder = this.appDataService.contexts_by_id?.[this.tip.context_id]?.tip_reminder ?? 0;
     const modalRef = this.modalService.open(TipOperationSetReminderComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.args = {
@@ -489,6 +579,11 @@ export class TipComponent implements OnInit {
   }
 
   toggleRedactMode() {
+    if (!this.canMaskOrRedact()) {
+      this.redactMode = false;
+      return;
+    }
+
     this.redactMode = !this.redactMode;
   }
 

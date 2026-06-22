@@ -14,7 +14,6 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import db_archive_questionnaire_schema, \
                                                          db_assign_submission_progressive, \
                                                          db_create_receivertip
-from globaleaks.models import serializers
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
@@ -40,7 +39,10 @@ def db_access_source_rtip(session, tid, user_id, itip_id):
 
 
 def db_get_forward_channel(session, target_tid):
-    return db_ensure_forward_channel(session, target_tid)
+    channel = db_ensure_forward_channel(session, target_tid)
+    if channel.type != 'forward':
+        raise errors.InputValidationError("Target tenant has no forward channel configured")
+    return channel
 
 
 def db_get_forward_request_channel(session, target_tid=1):
@@ -54,27 +56,22 @@ def db_get_forward_request_channel(session, target_tid=1):
     return db_get(session,
                   models.Context,
                   (models.Context.id == forward_request_channel_id,
-                   models.Context.tid == target_tid))
+                   models.Context.tid == target_tid,
+                   models.Context.type == 'forward-request'))
 
 
 def db_get_forward_questionnaire(session, tid, language):
     forward_questionnaire = db_ensure_forward_questionnaire(session)
     questionnaire_id = forward_questionnaire.id
 
-    questionnaire = db_get_questionnaire(session, tid, questionnaire_id, language, True)
-    questionnaire['steps'] = serializers.fill_missing_forward_schema_labels(session, questionnaire['steps'], language)
-
-    return questionnaire
+    return db_get_questionnaire(session, tid, questionnaire_id, language, True)
 
 
 def db_get_forward_request_questionnaire(session, tid, language):
     forward_request_questionnaire = db_ensure_forward_request_questionnaire(session)
     questionnaire_id = forward_request_questionnaire.id
 
-    questionnaire = db_get_questionnaire(session, tid, questionnaire_id, language, True)
-    questionnaire['steps'] = serializers.fill_missing_forward_schema_labels(session, questionnaire['steps'], language)
-
-    return questionnaire
+    return db_get_questionnaire(session, tid, questionnaire_id, language, True)
 
 
 def db_tenant_forward_request_pending(session, source_tid):
@@ -83,6 +80,24 @@ def db_tenant_forward_request_pending(session, source_tid):
                                models.InternalTip.type == 'forward-request',
                                models.InternalTip.allow_forward == False,
                                models.InternalTip.status != 'closed',
+                               models.InternalTipData.internaltip_id == models.InternalTip.id,
+                               models.InternalTipData.key == 'forward_request') \
+                       .all()
+
+    for _, data in requests_:
+        try:
+            if int(data.value.get('source_tid')) == source_tid:
+                return True
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+    return False
+
+
+def db_tenant_forward_request_authorized(session, source_tid):
+    requests_ = session.query(models.InternalTip, models.InternalTipData) \
+                       .filter(models.InternalTip.tid == 1,
+                               models.InternalTip.type == 'submission',
                                models.InternalTipData.internaltip_id == models.InternalTip.id,
                                models.InternalTipData.key == 'forward_request') \
                        .all()
@@ -125,6 +140,9 @@ def db_is_forwardable_report(session, source_tid, source_itip):
 
 def db_can_forward_report(session, source_tid, source_itip):
     if not db_is_forwardable_report(session, source_tid, source_itip):
+        return False
+
+    if source_tid != 1 and not db_tenant_forward_request_authorized(session, source_tid):
         return False
 
     source_config = ConfigFactory(session, source_tid)
@@ -253,20 +271,34 @@ def db_query_forward_receivers(session, target_tid):
                           models.UserProfilePermission.permission == 'can_forward_reports')
 
 
+def db_query_forward_request_receivers(session, target_tid):
+    return session.query(models.User) \
+                  .join(models.UserProfilePermission,
+                        models.UserProfilePermission.profile_id == models.User.profile_id) \
+                  .filter(models.User.tid == target_tid,
+                          models.User.enabled == True,
+                          models.User.role == 'receiver',
+                          models.UserProfilePermission.permission == 'can_request_forward')
+
+
 def db_get_forward_receivers(session, target_tid, channel_id, crypto_is_available):
     channel = db_get(session,
                      models.Context,
                      (models.Context.id == channel_id,
                       models.Context.tid == target_tid))
 
-    receivers = db_query_forward_receivers(session, target_tid) \
+    receiver_query = db_query_forward_request_receivers(session, target_tid) \
+        if channel.type == 'forward-request' else \
+        db_query_forward_receivers(session, target_tid)
+
+    receivers = receiver_query \
         .join(models.ReceiverContext,
               models.ReceiverContext.receiver_id == models.User.id) \
         .filter(models.ReceiverContext.context_id == channel_id) \
         .all()
 
     if not receivers and channel.select_all_receivers:
-        receivers = db_query_forward_receivers(session, target_tid).all()
+        receivers = receiver_query.all()
 
     if crypto_is_available:
         encryption = db_get(session,
@@ -324,7 +356,7 @@ def get_forward_options(session, tid, user_session, itip_id, language):
 
 @transact
 def get_forward_request_options(session, tid, user_session, language):
-    if not user_session.has_permission('can_forward_reports'):
+    if not user_session.has_permission('can_request_forward'):
         raise errors.ForbiddenOperation
 
     if not db_can_request_forward(session, tid):
@@ -341,7 +373,7 @@ def get_forward_request_options(session, tid, user_session, language):
 
 @transact
 def create_forward_request(session, tid, user_session, request):
-    if not user_session.has_permission('can_forward_reports'):
+    if not user_session.has_permission('can_request_forward'):
         raise errors.ForbiddenOperation
 
     source_user = db_get(session,
@@ -431,6 +463,10 @@ def create_forward_request(session, tid, user_session, request):
         receiver_tip_key = GCE.asymmetric_encrypt(receiver.crypto_pub_key, crypto_tip_prv_key) \
             if target_encryption else b''
         db_create_receivertip(session, receiver, target_itip, receiver_tip_key)
+
+    source_receiver_tip_key = GCE.asymmetric_encrypt(source_user.crypto_pub_key, crypto_tip_prv_key) \
+        if target_encryption and source_user.crypto_pub_key else b''
+    db_create_receivertip(session, source_user, target_itip, source_receiver_tip_key)
 
     source_log_data = {
         'target_internaltip_id': target_itip.id,

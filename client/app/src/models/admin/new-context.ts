@@ -1,5 +1,7 @@
 export class NewContext {
   id = "";
+  type = "submission";
+  slug = "";
   hidden = true;
   name = "";
   description = "";

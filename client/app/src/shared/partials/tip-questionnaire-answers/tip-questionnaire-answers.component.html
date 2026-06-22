@@ -33,7 +33,7 @@
                   @for (field of step.children | orderBy:['y', 'x']; track field; let index_step = $index) {
                     <div>
                       <ng-container>
-                        <src-tip-field [fieldAnswers]="questionnaire.answers" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [fields]="field" [index]="index_step"></src-tip-field>
+                        <src-tip-field [fieldAnswers]="questionnaire.answers" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [disabled]="disabled" [fields]="field" [index]="index_step"></src-tip-field>
                       </ng-container>
                     </div>
                   }

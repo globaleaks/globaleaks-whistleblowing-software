@@ -12,6 +12,8 @@ import globaleaks.handlers.recipient.forward
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access
+from globaleaks.models.config import ConfigFactory
+from globaleaks.models import get_localized_values
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
@@ -60,6 +62,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
     # Fetch number of receivers who have access to each report
     for itip_id, count in session.query(models.ReceiverTip.internaltip_id,
                                         func.count(models.ReceiverTip.id)) \
+                                 .filter(models.User.id == models.ReceiverTip.receiver_id,
+                                         models.User.tid == models.InternalTip.tid,
+                                         models.InternalTip.id == models.ReceiverTip.internaltip_id) \
                                  .group_by(models.ReceiverTip.internaltip_id):
         receiver_count_by_itip[itip_id] = count
 
@@ -77,6 +82,29 @@ def get_receivertips(session, tid, user_session, language, args={}):
     dict_ret = dict()
     can_request_forward = globaleaks.handlers.recipient.forward.db_can_request_forward(session, tid)
 
+    context_cache = {}
+
+    def get_context_info(context_id):
+        if context_id in context_cache:
+            return context_cache[context_id]
+
+        context = session.query(models.Context).filter(models.Context.id == context_id).one_or_none()
+        if context is None:
+            context_cache[context_id] = {
+                'name': '',
+                'order': 0,
+                'slug': ''
+            }
+            return context_cache[context_id]
+
+        name = get_localized_values({}, context, ['name'], language)['name']
+        context_cache[context_id] = {
+            'name': name,
+            'order': context.order or 0,
+            'slug': context.slug
+        }
+        return context_cache[context_id]
+
     # Fetch rtip, internaltip and associated questionnaire schema
     for rtip, itip, answers, data in session.query(models.ReceiverTip,
                                                    models.InternalTip,
@@ -93,13 +121,16 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                                     models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
                                             .group_by(models.ReceiverTip.id):
-        if itip.type == 'forward-request' and tid != 1:
-            continue
-
         answers = answers.answers
         label = itip.label
+        context_id = itip.context_id
+        if itip.type == 'forward-request' and tid != itip.tid:
+            context_id = ConfigFactory(session, tid).get_val('forward_request_channel') or context_id
+        elif itip.type == 'forward':
+            context_id = ConfigFactory(session, tid).get_val('forward_channel') or context_id
+
         accessible = rtip.receiver_id == user_id
-        if itip.crypto_tip_pub_key and accessible:
+        if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
             tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
 
             if label:
@@ -121,6 +152,11 @@ def get_receivertips(session, tid, user_session, language, args={}):
         else:
             subscription = 2
 
+        receiver_count = receiver_count_by_itip.get(itip.id, 0)
+        if itip.type == 'forward-request' and tid != itip.tid:
+            receiver_count = 1
+
+        context_info = get_context_info(context_id)
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
                 'id': itip.id,
@@ -134,7 +170,9 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'important': itip.important,
                 'label': label,
                 'updated': rtip.last_access < itip.update_date,
-                'context_id': itip.context_id,
+                'context_id': context_id,
+                'context_name': context_info['name'],
+                'slug': context_info['slug'],
                 'type': itip.type,
                 'allow_forward': allow_forward,
                 'can_request_forward': can_request_forward,
@@ -145,12 +183,25 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'substatus': itip.substatus,
                 'file_count': files_by_itip.get(itip.id, 0),
                 'comment_count': comments_by_itip.get(itip.id, 0),
-                'receiver_count': receiver_count_by_itip.get(itip.id, 0),
+                'receiver_count': receiver_count,
                 'subscription': subscription,
                 'accessible': accessible
             }
 
-    return list(dict_ret.values())
+    ret = list(dict_ret.values())
+    reports_by_context = {}
+    for report in ret:
+        reports_by_context.setdefault(report['context_id'], []).append(report)
+
+    for reports in reports_by_context.values():
+        reports.sort(key=lambda r: (r['creation_date'], r['progressive']))
+        for index, report in enumerate(reports, start=1):
+            context_order = get_context_info(report['context_id'])['order']
+            report['channel_progressive'] = index
+            report['context_count'] = index
+            report['channel_progressive_sort_key'] = '%08d-%08d' % (context_order, index)
+
+    return ret
 
 
 @transact

@@ -1,6 +1,5 @@
 # Handlers dealing with public API exporting main platform configuration/resources
 import copy
-
 from sqlalchemy import or_
 
 from globaleaks import models, LANGUAGES_SUPPORTED, LANGUAGES_SUPPORTED_CODES
@@ -300,12 +299,18 @@ def serialize_context(session, context, language, data=None):
     :param data: The dictionary of prefetched resources
     """
     tenant_config = ConfigFactory(session, context.tid)
-    if context.id in {tenant_config.get_val('forward_channel'),
-                      tenant_config.get_val('forward_request_channel')}:
+    if context.id == tenant_config.get_val('forward_channel'):
+        context.type = 'forward'
+    elif context.id == tenant_config.get_val('forward_request_channel'):
+        context.type = 'forward-request'
+
+    if context.type in ('forward', 'forward-request'):
         context.hidden = True
 
     ret = {
         'id': context.id,
+        'type': context.type,
+        'slug': context.slug,
         'hidden': context.hidden,
         'order': context.order,
         'tip_timetolive': context.tip_timetolive,

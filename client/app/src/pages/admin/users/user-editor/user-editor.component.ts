@@ -75,6 +75,7 @@ export class UserEditorComponent implements OnInit {
     };
 
     this.user.profile = this.profiles.filter(profile => profile.id == this.user.profile_id)[0];
+    this.normalizeForwardingProfilePermissions(this.user.profile);
     this.filteredProfiles = this.profiles.filter(p => p.custom === false);
   }
 
@@ -101,6 +102,7 @@ export class UserEditorComponent implements OnInit {
   }
 
   saveUser(userData: User) {
+    this.normalizeForwardingProfilePermissions(userData.profile);
     const user = userData;
     if (user.pgp_key_remove) {
       user.pgp_key_public = "";
@@ -224,5 +226,15 @@ export class UserEditorComponent implements OnInit {
         user.escrow = !user.escrow;
       }
     });
+  }
+
+  normalizeForwardingProfilePermissions(profile: UserProfile) {
+    if (profile.tid === 1 || !profile?.permissions?.can_forward_reports) {
+      return;
+    }
+
+    profile.permissions.can_mask_information = false;
+    profile.permissions.can_redact_information = false;
+    profile.permissions.can_delete_submission = false;
   }
 }

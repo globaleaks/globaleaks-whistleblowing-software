@@ -4,7 +4,10 @@ export class NewUserPermissions {
   can_grant_access_to_reports = false;
   can_edit_general_settings = false;
   can_transfer_access_to_reports = false;
+  can_request_forward = false;
   can_forward_reports = false;
+  can_change_status = true;
+  can_change_label = true;
   can_mask_information = true;
   can_redact_information = false;
 }

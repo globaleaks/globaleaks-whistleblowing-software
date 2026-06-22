@@ -15,7 +15,10 @@ user_permissions = [
     'can_redact_information',
     'can_mask_information',
     'can_transfer_access_to_reports',
-    'can_forward_reports'
+    'can_request_forward',
+    'can_forward_reports',
+    'can_change_status',
+    'can_change_label'
 ]
 
 

@@ -10,7 +10,10 @@ export class UserProfile {
     can_grant_access_to_reports: boolean;
     can_edit_general_settings: boolean;
     can_transfer_access_to_reports: boolean;
+    can_request_forward: boolean;
     can_forward_reports: boolean;
+    can_change_status: boolean;
+    can_change_label: boolean;
     can_mask_information: boolean;
     can_redact_information: boolean;
   };

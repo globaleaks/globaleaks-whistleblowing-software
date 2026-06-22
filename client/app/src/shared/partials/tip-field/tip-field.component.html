@@ -12,7 +12,7 @@
           <div>
             <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"
               [field]="fields" [fieldAnswers]=fieldAnswers
-            [entry]="fieldAnswers[fields.id][0]"></src-tip-field-answer-entry>
+              [entry]="fieldAnswers[fields.id][0]" [disabled]="disabled"></src-tip-field-answer-entry>
           </div>
         }
         @if (hasMultipleEntries(fieldAnswers[fields.id])) {
@@ -23,7 +23,7 @@
                   <span class="text-muted">#{{i + 1}}</span>
                 </div>
                 <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"
-                [field]="fields" class="" [entry]="entry"></src-tip-field-answer-entry>
+                [field]="fields" class="" [entry]="entry" [disabled]="disabled"></src-tip-field-answer-entry>
               </div>
             }
           </div>

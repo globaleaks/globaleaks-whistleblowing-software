@@ -75,6 +75,8 @@ export class ProfileEditorComponent implements OnInit {
     } else {
       this.roles.push({ value: this.profile.role, role: this.profile.role.charAt(0).toUpperCase() + this.profile.role.slice(1) });
     }
+
+    this.normalizeForwardingProfilePermissions(this.profile);
   }
 
   toggleEditing() {
@@ -82,6 +84,7 @@ export class ProfileEditorComponent implements OnInit {
   }
 
   saveProfile(userData: UserProfile ) {
+    this.normalizeForwardingProfilePermissions(userData);
     const user = userData;
     return this.utilsService.updateAdminUserProfile(userData.id, userData).subscribe({
       next:()=>{
@@ -156,5 +159,15 @@ export class ProfileEditorComponent implements OnInit {
 
   setDefaultRole(role: string) {
     this.profile.role = role;
+  }
+
+  normalizeForwardingProfilePermissions(profile: UserProfile) {
+    if (profile.tid === 1 || !profile.permissions.can_forward_reports) {
+      return;
+    }
+
+    profile.permissions.can_mask_information = false;
+    profile.permissions.can_redact_information = false;
+    profile.permissions.can_delete_submission = false;
   }
 }

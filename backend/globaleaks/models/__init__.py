@@ -19,7 +19,10 @@ user_permissions = [
     'can_redact_information',
     'can_mask_information',
     'can_transfer_access_to_reports',
-    'can_forward_reports'
+    'can_request_forward',
+    'can_forward_reports',
+    'can_change_status',
+    'can_change_label'
 ]
 
 
@@ -399,10 +402,14 @@ class _Context(Model):
     score_threshold_medium = Column(Integer, default=0, nullable=False)
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
     additional_questionnaire_id = Column(UnicodeText(36), index=True)
+    type = Column(UnicodeText(24), default='submission', nullable=False)
+    slug = Column(UnicodeText(100), default='', nullable=False)
     hidden = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
 
     unicode_keys = [
+        'type',
+        'slug',
         'questionnaire_id',
         'additional_questionnaire_id'
     ]

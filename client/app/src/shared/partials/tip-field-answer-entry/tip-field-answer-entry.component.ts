@@ -43,6 +43,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   @Input() fieldAnswers: any;
   @Input() redactOperationTitle: string;
   @Input() redactMode: boolean;
+  @Input() disabled = false;
 
   format = "dd/MM/yyyy";
   locale = "en-US";

@@ -66,84 +66,6 @@ def serialize_archived_questionnaire_schema(questionnaire_schema, language):
     return questionnaire
 
 
-def _localized_value_is_empty(value, require_dict=False):
-    if require_dict and not isinstance(value, dict):
-        return True
-
-    if isinstance(value, dict):
-        return not any(value.values())
-
-    return not value
-
-
-def _copy_missing_localized_values(target, source, keys, require_dict=False):
-    for key in keys:
-        if _localized_value_is_empty(target.get(key), require_dict):
-            target[key] = copy.deepcopy(source.get(key, {}))
-
-
-def _copy_missing_field_labels(target_field, source_field, require_dict=False):
-    _copy_missing_localized_values(target_field, source_field, models.Field.localized_keys, require_dict)
-
-    target_options = sorted(target_field.get('options', []), key=lambda option: option.get('order', 0))
-    source_options = sorted(source_field.get('options', []), key=lambda option: option.get('order', 0))
-    for target_option, source_option in zip(target_options, source_options):
-        _copy_missing_localized_values(target_option, source_option, models.FieldOption.localized_keys, require_dict)
-
-    target_children = sorted(target_field.get('children', []), key=lambda field: (field.get('y', 0), field.get('x', 0)))
-    source_children = sorted(source_field.get('children', []), key=lambda field: (field.get('y', 0), field.get('x', 0)))
-    for target_child, source_child in zip(target_children, source_children):
-        _copy_missing_field_labels(target_child, source_child, require_dict)
-
-
-def fill_missing_forward_schema_labels(session, schema, language=None):
-    """
-    Forward questionnaires may keep their own field IDs while mirroring the
-    default questionnaire. If a stale Forward copy has empty labels, restore
-    only the missing localized text by position so answer IDs remain unchanged.
-    """
-    default_questionnaire_id = ConfigFactory(session, 1).get_val('default_questionnaire')
-    if not default_questionnaire_id:
-        return schema
-
-    default_questionnaire = session.query(models.Questionnaire) \
-                                   .filter(models.Questionnaire.id == default_questionnaire_id,
-                                           models.Questionnaire.tid == 1) \
-                                   .one_or_none()
-    if default_questionnaire is None:
-        return schema
-
-    from globaleaks.handlers.public import serialize_questionnaire
-
-    filled_schema = copy.deepcopy(schema)
-    source_schema = serialize_questionnaire(session, 1, default_questionnaire, language).get('steps', [])
-    require_dict = language is None
-
-    target_steps = sorted(filled_schema, key=lambda step: step.get('order', 0))
-    source_steps = sorted(source_schema, key=lambda step: step.get('order', 0))
-    for target_step, source_step in zip(target_steps, source_steps):
-        _copy_missing_localized_values(target_step, source_step, models.Step.localized_keys, require_dict)
-
-        target_fields = sorted(target_step.get('children', []), key=lambda field: (field.get('y', 0), field.get('x', 0)))
-        source_fields = sorted(source_step.get('children', []), key=lambda field: (field.get('y', 0), field.get('x', 0)))
-        for target_field, source_field in zip(target_fields, source_fields):
-            _copy_missing_field_labels(target_field, source_field, require_dict)
-
-    return filled_schema
-
-
-def is_forward_report(session, internaltip):
-    forwarded_report = session.query(models.InternalTipData) \
-                              .filter(models.InternalTipData.internaltip_id == internaltip.id,
-                                      models.InternalTipData.key == 'forwarded_from') \
-                              .one_or_none() is not None
-
-    if forwarded_report:
-        return True
-
-    return internaltip.context_id == ConfigFactory(session, internaltip.tid).get_val('forward_channel')
-
-
 def serialize_identityaccessrequest(session, identityaccessrequest):
     InternalTipAlias = aliased(models.InternalTip)
     UserAlias = aliased(models.User)
@@ -280,11 +202,9 @@ def serialize_itip(session, internaltip, language):
                .order_by(models.InternalTipAnswers.creation_date.asc())
 
     questionnaires = []
-    forwarded_report = is_forward_report(session, internaltip)
     for ita, aqs in x:
-        schema = fill_missing_forward_schema_labels(session, aqs.schema) if forwarded_report else aqs.schema
         questionnaires.append({
-            'steps': serialize_archived_questionnaire_schema(schema, language),
+            'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
             'answers': ita.answers
         })
 

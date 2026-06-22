@@ -181,21 +181,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     tenant_config = ConfigFactory(session, tid)
-    forward_request_channel_id = tenant_config.get_val('forward_request_channel')
-    is_forward_request = context.id == forward_request_channel_id
-
-    if context.id == tenant_config.get_val('forward_channel'):
+    if context.type != 'submission':
         raise errors.InputValidationError("Invalid reporting channel")
-
-    if is_forward_request:
-        try:
-            source_tid = int(request['forward_request'].get('source_tid', 0))
-        except ValueError:
-            source_tid = 0
-        accepted_sources = tenant_config.get_val('accepts_requests_of_forward_from')
-        if not source_tid or \
-           ('*' not in accepted_sources and source_tid not in accepted_sources and str(source_tid) not in accepted_sources):
-            raise errors.ForbiddenOperation
 
     answers = request['answers']
     steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
@@ -229,8 +216,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     itip = models.InternalTip()
     itip.tid = tid
     itip.status = 'new'
-    itip.type = 'forward-request' if is_forward_request else 'submission'
-    itip.allow_forward = itip.type == 'submission' and tid == 1 and tenant_config.get_val('accept_forwarding')
+    itip.type = 'submission'
+    itip.allow_forward = tid == 1 and tenant_config.get_val('accept_forwarding')
 
     # Ensure that update_date and creation_date have the same value at creation time.
     itip.update_date = itip.creation_date
@@ -269,9 +256,6 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     session.add(itip)
     session.flush()
-
-    if is_forward_request:
-        db_set_internaltip_data(session, itip.id, 'forward_request', request['forward_request'], itip.creation_date)
 
     user_session.user_id = itip.id
 

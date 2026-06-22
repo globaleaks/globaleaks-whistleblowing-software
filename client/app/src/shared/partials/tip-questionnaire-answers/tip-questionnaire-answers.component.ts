@@ -20,6 +20,7 @@ export class TipQuestionnaireAnswersComponent {
   @Input() tipService: ReceiverTipService | WbtipService;
   @Input() redactOperationTitle: string;
   @Input() redactMode: boolean;
+  @Input() disabled = false;
   collapsed = false;
 
   public toggleCollapse() {

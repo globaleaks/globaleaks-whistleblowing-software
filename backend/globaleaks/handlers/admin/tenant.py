@@ -133,6 +133,16 @@ def db_has_forward_permission(session, user):
                   .count() > 0
 
 
+def db_has_forward_request_permission(session, user):
+    if user is None:
+        return False
+
+    return session.query(models.UserProfilePermission) \
+                  .filter(models.UserProfilePermission.profile_id == user.profile_id,
+                          models.UserProfilePermission.permission == 'can_request_forward') \
+                  .count() > 0
+
+
 def db_get_first_forward_receiver(session, tid):
     return session.query(models.User) \
                   .join(models.UserProfilePermission,
@@ -141,6 +151,18 @@ def db_get_first_forward_receiver(session, tid):
                           models.User.role == 'receiver',
                           models.User.enabled == True,
                           models.UserProfilePermission.permission == 'can_forward_reports') \
+                  .order_by(models.User.creation_date) \
+                  .first()
+
+
+def db_get_first_forward_request_receiver(session, tid):
+    return session.query(models.User) \
+                  .join(models.UserProfilePermission,
+                        models.UserProfilePermission.profile_id == models.User.profile_id) \
+                  .filter(models.User.tid == tid,
+                          models.User.role == 'receiver',
+                          models.User.enabled == True,
+                          models.UserProfilePermission.permission == 'can_request_forward') \
                   .order_by(models.User.creation_date) \
                   .first()
 
@@ -159,6 +181,7 @@ def db_initialize_default_forward(session, tid, language, default_context, recei
         context_desc = admin_serialize_context(session, default_context, language)
         context_desc['id'] = uuid4()
         context_desc['name'] = 'Forward'
+        context_desc['type'] = 'forward'
         context_desc['hidden'] = True
         context_desc['questionnaire_id'] = forward_questionnaire.id
         context_desc['additional_questionnaire_id'] = ''
@@ -168,6 +191,7 @@ def db_initialize_default_forward(session, tid, language, default_context, recei
         forward_channel = db_create_context(session, tid, None, context_desc, language)
     else:
         forward_channel.hidden = True
+        forward_channel.type = 'forward'
         forward_channel.additional_questionnaire_id = ''
         forward_channel.allow_recipients_selection = False
         forward_channel.select_all_receivers = True
@@ -192,6 +216,7 @@ def db_ensure_forward_channel(session, tid, language=None):
                                      models.Context.tid == tid) \
                              .one_or_none()
     if forward_channel is not None:
+        forward_channel.type = 'forward'
         return forward_channel
 
     excluded_context_ids = {
@@ -222,7 +247,7 @@ def db_initialize_forward_request_channel(session, tid, language, default_contex
 
     tenant_node = config.ConfigFactory(session, tid)
     forward_request_questionnaire = db_ensure_forward_request_questionnaire(session)
-    receiver_user = receiver_user if db_has_forward_permission(session, receiver_user) else None
+    receiver_user = receiver_user if db_has_forward_request_permission(session, receiver_user) else None
 
     request_channel = session.query(models.Context) \
                              .filter(models.Context.id == tenant_node.get_val('forward_request_channel'),
@@ -233,6 +258,7 @@ def db_initialize_forward_request_channel(session, tid, language, default_contex
         context_desc = admin_serialize_context(session, default_context, language)
         context_desc['id'] = uuid4()
         context_desc['name'] = FORWARD_REQUEST_CHANNEL_NAME
+        context_desc['type'] = 'forward-request'
         context_desc['hidden'] = True
         context_desc['questionnaire_id'] = forward_request_questionnaire.id
         context_desc['additional_questionnaire_id'] = ''
@@ -242,6 +268,7 @@ def db_initialize_forward_request_channel(session, tid, language, default_contex
         request_channel = db_create_context(session, tid, None, context_desc, language)
     else:
         request_channel.hidden = True
+        request_channel.type = 'forward-request'
         request_channel.additional_questionnaire_id = ''
         request_channel.allow_recipients_selection = False
         request_channel.select_all_receivers = True
@@ -258,7 +285,9 @@ def db_ensure_channel_receiver(session, tid, context):
     if has_receiver:
         return
 
-    receiver_user = db_get_first_forward_receiver(session, tid)
+    receiver_user = db_get_first_forward_request_receiver(session, tid) \
+        if context.type == 'forward-request' else \
+        db_get_first_forward_receiver(session, tid)
     if receiver_user is None:
         return
 
@@ -276,6 +305,7 @@ def db_ensure_forward_request_channel(session, language=None):
                                      models.Context.tid == 1) \
                              .one_or_none()
     if request_channel is not None:
+        request_channel.type = 'forward-request'
         db_ensure_channel_receiver(session, 1, request_channel)
         return request_channel
 
@@ -291,7 +321,7 @@ def db_ensure_forward_request_channel(session, language=None):
     if default_context is None:
         raise errors.InternalServerError('Unable to initialize forward request channel')
 
-    receiver_user = db_get_first_forward_receiver(session, 1)
+    receiver_user = db_get_first_forward_request_receiver(session, 1)
 
     db_initialize_forward_request_channel(session, 1, language, default_context, receiver_user)
 
