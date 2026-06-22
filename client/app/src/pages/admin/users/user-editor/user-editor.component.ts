@@ -4,6 +4,7 @@ import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
+import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {PasswordSetComponent} from "@app/shared/modals/password-set/password-set.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -75,24 +76,29 @@ export class UserEditorComponent implements OnInit {
     });
   }
 
-  async setPassword(user: userResolverModel) {
-    // Generate a random password on the client. The plaintext is shown to the
-    // administrator only after the change has been confirmed and applied so
-    // that it can be communicated to the user; only the derived hash is sent.
-    const password = this.cryptoService.generatePassword();
+  setPassword(user: userResolverModel) {
+    // Ask for an explicit confirmation and change the password only once the
+    // operator confirms: nothing is generated or sent before that.
+    const modalRef = this.modalService.open(ConfirmationComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+    modalRef.componentInstance.confirmFunction = async () => {
+      // Generate a random password on the client. The plaintext is shown to the
+      // administrator only after the change has been applied so that it can be
+      // communicated to the user; only the derived hash is sent.
+      const password = this.cryptoService.generatePassword();
 
-    let hash: string;
-    this.appDataService.updateShowLoadingPanel(true);
-    try {
-      hash = await this.cryptoService.hashArgon2(password, user.salt);
-    } finally {
-      this.appDataService.updateShowLoadingPanel(false);
-    }
+      let hash: string;
+      this.appDataService.updateShowLoadingPanel(true);
+      try {
+        hash = await this.cryptoService.hashArgon2(password, user.salt);
+      } finally {
+        this.appDataService.updateShowLoadingPanel(false);
+      }
 
-    this.utilsService.runAdminOperation("set_user_password", {user_id: user.id, password: hash}, false).subscribe(() => {
-      const modalRef = this.modalService.open(PasswordSetComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
-      modalRef.componentInstance.password = password;
-    });
+      this.utilsService.runAdminOperation("set_user_password", {user_id: user.id, password: hash}, false).subscribe(() => {
+        const passwordModalRef = this.modalService.open(PasswordSetComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+        passwordModalRef.componentInstance.password = password;
+      });
+    };
   }
 
   saveUser(userData: userResolverModel) {
@@ -133,7 +139,12 @@ export class UserEditorComponent implements OnInit {
   }
 
   resetUserPassword(user: userResolverModel) {
-    this.utilsService.runAdminOperation("send_password_reset_email", {"value": user.id}, true).subscribe();
+    // Ask for an explicit confirmation and send the reset link only once the
+    // operator confirms: nothing is sent before that.
+    const modalRef = this.modalService.open(ConfirmationComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+    modalRef.componentInstance.confirmFunction = () => {
+      return this.utilsService.runAdminOperation("send_password_reset_email", {"value": user.id}, true).subscribe();
+    };
   }
 
   loadPublicKeyFile(files: FileList | null,user:userResolverModel) {

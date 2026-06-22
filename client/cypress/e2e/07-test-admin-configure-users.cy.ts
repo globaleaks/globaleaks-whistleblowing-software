@@ -72,13 +72,12 @@ describe("admin add, configure, and delete users", () => {
     cy.visit("/#/admin/users");
 
     // Pick the first non-admin user and trigger the reset/activation link.
-    // The administrator must confirm the operation with their own password;
-    // sending the link does not alter the user's current password.
+    // The operator must confirm the operation; sending the link does not alter
+    // the user's current password.
     cy.get(".userList").eq(1).find("#edit_user").should("be.visible").click();
     cy.get(".userList").eq(1).find("#send_reset_link").should("be.visible").click();
 
-    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
-    cy.get("#confirm").click();
+    cy.get("#modal-action-ok").should("be.visible").click();
 
     cy.logout();
   });
@@ -89,7 +88,7 @@ describe("admin add, configure, and delete users", () => {
 
     // The administrator triggers a password reset for each user. The new
     // password is generated client-side and only revealed in a modal after the
-    // change has been confirmed and applied. We capture each generated password
+    // operation has been confirmed and applied. We capture each generated password
     // and keep it in an in-memory store (shared across specs via cy.task) so the
     // subsequent first-login tests can use the real credentials, indexed by
     // username (see 08-test-users-first-login).
@@ -108,9 +107,8 @@ describe("admin add, configure, and delete users", () => {
           cy.wrap($row).find("#user-username-input").invoke("val").then(username => {
             cy.wrap($row).find("#set_password").should("be.visible").click();
 
-            // Confirm the administrative operation with the admin password.
-            cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
-            cy.get("#confirm").click();
+            // Confirm the operation: the password is changed only on confirmation.
+            cy.get("#modal-action-ok").should("be.visible").click();
 
             // The generated password is shown but hidden by default.
             cy.get("#NewPassword").should("be.visible").and("have.attr", "type", "password");
