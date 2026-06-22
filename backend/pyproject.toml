@@ -89,6 +89,7 @@ dependencies = {file = ["requirements.txt"]}
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["globaleaks*"]
+exclude = ["globaleaks.tests", "globaleaks.tests.*"]
 
 [tool.setuptools.data-files]
 "bin" = ["bin/globaleaks", "bin/gl-admin"]
