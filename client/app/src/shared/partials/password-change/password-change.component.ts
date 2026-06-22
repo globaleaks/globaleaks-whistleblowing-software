@@ -1,7 +1,6 @@
 import {Component, OnInit, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Router} from "@angular/router";
@@ -27,9 +26,7 @@ export class PasswordChangeComponent implements OnInit {
   private router = inject(Router);
   httpService = inject(HttpService);
   appDataService = inject(AppDataService);
-  authentication = inject(AuthenticationService);
   preferencesService = inject(PreferenceResolver);
-  utilsService = inject(UtilsService);
   cryptoService = inject(CryptoService);
 
   passwordStrengthScore = 0;
