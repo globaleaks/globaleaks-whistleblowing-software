@@ -45,6 +45,9 @@ Access and save your account recovery key
 -----------------------------------------
 After first login, you should access your ``Account Recovery Key`` on the ``Preferences`` page and save it in a secure location. You will be prompted to enter your password before the Account Recovery Key is made available.
 
+.. image:: ../images/user/recoverykey.png
+   :align: center
+
 .. image:: ../images/user/recoverykey_revealed.png
    :align: center
 
