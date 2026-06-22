@@ -11,9 +11,14 @@ import sys
 # Avoid writing bytecode files at runtime
 sys.dont_write_bytecode = True
 
-this_directory = os.path.dirname(__file__)
-root = os.path.abspath(os.path.join(this_directory, '..'))
-sys.path.insert(0, root)
+this_directory = os.path.dirname(os.path.abspath(__file__))
+root = os.path.dirname(this_directory)
+
+# Only prepend the source tree when running from a checkout (the package
+# sits next to this launcher). In the installed package globaleaks lives in
+# dist-packages, already on sys.path, so no insertion is needed.
+if os.path.isdir(os.path.join(root, 'globaleaks')):
+    sys.path.insert(0, root)
 
 from globaleaks.utils.utility import get_distribution_codename
 
