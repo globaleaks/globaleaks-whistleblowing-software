@@ -647,16 +647,29 @@ def db_access_rfile(session, tid, user_id, rfile_id):
     :param rfile_id: the requested rfile ID
     :return: A model requested
     """
-    itips_ids = [x[0] for x in session.query(models.InternalTip.id)
-                                      .filter(models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                              models.ReceiverTip.receiver_id == user_id,
-                                              models.InternalTip.tid == tid)]
+    rfile = (
+        session.query(models.ReceiverFile)
+        .join(
+            models.ReceiverTip,
+            models.ReceiverTip.internaltip_id == models.ReceiverFile.internaltip_id
+        )
+        .join(
+            models.InternalTip,
+            models.InternalTip.id == models.ReceiverFile.internaltip_id
+        )
+        .filter(
+            models.ReceiverFile.id == rfile_id,
+            models.ReceiverTip.receiver_id == user_id,
+            models.InternalTip.tid == tid,
+            or_(
+                models.ReceiverFile.visibility != 2,
+                models.ReceiverFile.author_id == user_id
+            )
+        )
+        .one_or_none()
+    )
 
-    return db_get(session,
-                  models.ReceiverFile,
-                  (models.ReceiverFile.id == rfile_id,
-                   models.ReceiverFile.internaltip_id.in_(itips_ids)))
-
+    return rfile
 
 @transact
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
@@ -1240,6 +1253,7 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
             db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
+
 
 def delete_rfile(session, tid, user_id, file_id):
     """
