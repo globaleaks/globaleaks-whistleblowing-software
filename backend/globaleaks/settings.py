@@ -33,7 +33,13 @@ class SettingsClass(object, metaclass=Singleton):
         self.backend_script = os.path.abspath(os.path.join(self.src_path, 'globaleaks/backend.py'))
 
         self.pidfile_path = '/run/globaleaks/globaleaks.pid'
-        self.ramdisk_path = '/dev/shm/globaleaks'  # noqa: S108 - dedicated tmpfs ramdisk path, not a shared temp file
+        # RAM-backed spool for password-reset/activation token markers. It must
+        # never hit disk: the markers are decryptable with the token mailed to
+        # the user, and the mail spool is on persistent storage. /run is a
+        # systemd-managed tmpfs (RuntimeDirectory=globaleaks) that is root-owned
+        # rather than world-writable like /dev/shm, and the unit preserves it
+        # across restarts so in-flight tokens survive a service reload.
+        self.ramdisk_path = '/run/globaleaks/ramdisk'
         self.working_path = '/var/globaleaks'
         self.client_path = None
 
@@ -77,6 +83,11 @@ class SettingsClass(object, metaclass=Singleton):
         self.files_path = os.path.abspath(os.path.join(self.working_path, 'files'))
         self.attachments_path = os.path.abspath(os.path.join(self.working_path, 'attachments'))
         self.tmp_path = os.path.abspath(os.path.join(self.working_path, 'tmp'))
+
+        # In devel/test runs there is no systemd RuntimeDirectory, so keep the
+        # ramdisk under the working path where it is writable without privileges.
+        if self.devel_mode:
+            self.ramdisk_path = os.path.abspath(os.path.join(self.working_path, 'ramdisk'))
         self.tor_control = os.path.abspath(os.path.join(self.tmp_path, 'tor_control'))
         self.socks_socket = os.path.abspath(os.path.join(self.tmp_path, 'tor_socks'))
 

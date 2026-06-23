@@ -17,8 +17,8 @@ LISTENING_IP="${LISTENING_IP:-}"
 WORKING_DIR="${WORKING_DIR:-/var/globaleaks}"
 APPARMOR_SANDBOXING="${APPARMOR_SANDBOXING:-1}"
 
-# The /dev/shm ramdisk directory is created by the daemon itself; the unit
-# mounts a private tmpfs over /dev/shm (TemporaryFileSystem=), so no local
+# The ramdisk directory is created by the daemon itself under the unit's
+# RuntimeDirectory (/run/globaleaks, a root-owned systemd tmpfs), so no local
 # user can pre-plant entries there and no guard is needed here.
 
 if [ "${APPARMOR_SANDBOXING}" -eq 1 ]; then
