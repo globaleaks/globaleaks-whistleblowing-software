@@ -46,6 +46,31 @@ class TestAdminResetSubmissions(helpers.TestHandlerWithPopulatedDB):
         yield self.test_model_count(models.Comment, 0)
         yield self.test_model_count(models.Mail, 0)
 
+    def test_put_on_secondary_tenant_is_forbidden(self):
+        # Resetting the submissions is restricted to root tenant administrators
+        # (or root administrators acting through a management session).
+        data_request = {
+            'operation': 'reset_submissions',
+            'args': {}
+        }
+
+        handler = self.request(data_request, role='admin', tid=2)
+
+        self.assertRaises(errors.ForbiddenOperation, handler.put)
+
+    def test_put_on_secondary_tenant_with_management_session(self):
+        # A root administrator operating on a secondary tenant through a
+        # management session is allowed to reset its submissions.
+        data_request = {
+            'operation': 'reset_submissions',
+            'args': {}
+        }
+
+        handler = self.request(data_request, role='admin', tid=2,
+                               properties={'management_session': True})
+
+        return handler.put()
+
 
 class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler

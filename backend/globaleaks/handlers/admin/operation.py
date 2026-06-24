@@ -361,6 +361,7 @@ class AdminOperationHandler(OperationHandler):
         })
 
     def reset_submissions(self, req_args, *args, **kwargs):
+        self.check_root_or_management_session()
         return reset_submissions(self.request.tid, self.session.user_id)
 
     @inlineCallbacks

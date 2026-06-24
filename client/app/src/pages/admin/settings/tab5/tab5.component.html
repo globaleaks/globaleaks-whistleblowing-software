@@ -204,10 +204,12 @@
         <i class="fas fa-check"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>
-      <button class="btn btn-danger" (click)="resetSubmissions()">
-        <i class="fas fa-trash"></i>
-        <span>{{ 'Reset reports' | translate }}</span>
-      </button>
+      @if (nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session) {
+        <button class="btn btn-danger" (click)="resetSubmissions()">
+          <i class="fas fa-trash"></i>
+          <span>{{ 'Reset reports' | translate }}</span>
+        </button>
+      }
     </div>
   </div>
 </div>

@@ -23,7 +23,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgClass, TranslatorPipe, TranslateModule]
 })
 export class Tab5Component implements OnInit {
-  private authenticationService = inject(AuthenticationService);
+  protected authenticationService = inject(AuthenticationService);
   private modalService = inject(NgbModal);
   private appConfigService = inject(AppConfigService);
   private utilsService = inject(UtilsService);
