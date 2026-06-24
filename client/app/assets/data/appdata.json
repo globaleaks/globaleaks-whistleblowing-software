@@ -874,6 +874,12 @@
       "zh_HK": "{NodeName}",
       "zh_TW": "{NodeName}"
     },
+    "admin_password_change_mail_template": {
+      "en": "Dear {RecipientName},\n\nThis is to inform you that the password for your account ({Username}) on {NodeName} has been changed by an administrator.\n\nIf you did not authorize this change, please contact your platform administrator immediately.\n\nKind regards,\n{NodeName}"
+    },
+    "admin_password_change_mail_title": {
+      "en": "Your account password has been changed"
+    },
     "admin_pgp_alert_mail_template": {
       "am": "ውድ {RecipientName},\n\nይህ ኢሜል የሚከተሉት ተጠቃሚዎች የፒጂፒ ቁልፍ \n\nእንደተቃጠለ ወይም ሊቃጠል እንደሆነ መረጃ ይሰጦታል፡፡\n\n{PGPKeyInfoList}\n\nትክክለኛ የፒጂፒ ቁልፍ ከሌለ ስርኣቱ የተመሰጠረ ማሳወቂያ\n\nሊልክላቸው አይችልም\n\nከትህትና ጋር\n{NodeName}",
       "ar": "عزيزي {RecipientName},\n\nهذا بريد إلكتروني لنبلغكم أنّ مفتاح PGP الخاصّ بالمستخدمين التوالي سوف تنتهي أو انتهت بالفعل:\n\n{PGPKeyInfoList}\n\nبدون مفتاح PGP صالح، لن يكون النظام قادرا على إرسال اشعارات مشفرة.\n\nأطيب التحيّات،\n{NodeName}",

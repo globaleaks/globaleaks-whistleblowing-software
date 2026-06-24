@@ -410,6 +410,8 @@ ConfigL10NFilters = {
         'admin_anomaly_disk_low',
         'admin_anomaly_mail_template',
         'admin_anomaly_mail_title',
+        'admin_password_change_mail_template',
+        'admin_password_change_mail_title',
         'admin_pgp_alert_mail_template',
         'admin_pgp_alert_mail_title',
         'admin_signup_alert_mail_template',
