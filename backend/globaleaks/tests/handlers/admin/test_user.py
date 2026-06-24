@@ -1,7 +1,10 @@
+
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin import user
+from globaleaks.handlers.base import BaseHandler
+from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
 from globaleaks.tests import helpers
 
@@ -105,6 +108,30 @@ class TestAdminInstance(helpers.TestInstanceHandler):
         data = helpers.TestInstanceHandler.get_dummy_request(self)
         data['pgp_key_remove'] = False
         return data
+
+    @inlineCallbacks
+    def test_delete_requires_confirmation(self):
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        data = self.get_dummy_request()
+        data = yield self._test_desc['create'](1, self.session, data, 'en')
+
+        handler = self.request(data, role='admin')
+
+        self.assertRaises(errors.InvalidAuthentication, handler.delete, data['id'])
+
+    @inlineCallbacks
+    def test_delete_with_confirmation(self):
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = helpers.VALID_CONFIRMATION
+
+        data = self.get_dummy_request()
+        data = yield self._test_desc['create'](1, self.session, data, 'en')
+
+        handler = self.request(data, role='admin', headers={'x-confirmation': confirmation})
+
+        yield handler.delete(data['id'])
 
 
 class TestReceiverCollection(TestAdminCollection):

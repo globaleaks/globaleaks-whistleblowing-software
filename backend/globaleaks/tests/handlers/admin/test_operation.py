@@ -1,4 +1,3 @@
-import base64
 
 from globaleaks import models
 from globaleaks.handlers.admin.operation import AdminOperationHandler
@@ -102,7 +101,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         # operator to confirm with their own credential (password or 2FA).
         self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
-        confirmation = base64.b64encode(helpers.VALID_KEY.encode('utf-16-le')).decode()
+        confirmation = helpers.VALID_CONFIRMATION
 
         return self._test_operation_handler('set_user_password',
                                            {'user_id': self.dummyReceiver_1['id'],
@@ -129,7 +128,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         # the operator to confirm with their own credential (password or 2FA).
         self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
-        confirmation = base64.b64encode(helpers.VALID_KEY.encode('utf-16-le')).decode()
+        confirmation = helpers.VALID_CONFIRMATION
 
         return self._test_operation_handler('send_password_reset_email',
                                            {'value': self.dummyReceiver_1['id']},

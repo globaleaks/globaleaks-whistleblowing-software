@@ -1,6 +1,8 @@
+
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.admin import tenant
+from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import config
 from globaleaks.orm import tw
 from globaleaks.rest import errors
@@ -83,3 +85,18 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
 
     def test_delete(self):
         return self.handler.delete(4)
+
+    def test_delete_requires_confirmation(self):
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        self.assertRaises(errors.InvalidAuthentication, self.handler.delete, 4)
+
+    @inlineCallbacks
+    def test_delete_with_confirmation(self):
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = helpers.VALID_CONFIRMATION
+
+        handler = self.request(get_dummy_tenant_desc(), role='admin', headers={'x-confirmation': confirmation})
+
+        yield handler.delete(4)

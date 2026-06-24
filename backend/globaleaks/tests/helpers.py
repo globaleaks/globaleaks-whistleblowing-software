@@ -58,6 +58,8 @@ VALID_PASSWORD = 'ACollectionOfDiplomaticHistorySince_1966_ToThe_Pr esentDay#'
 VALID_SALT = GCE.generate_salt()
 VALID_KEY = GCE.derive_key(VALID_PASSWORD, VALID_SALT)
 VALID_HASH = sha256(Base64Encoder.decode(VALID_KEY.encode()))
+# Step-up confirmation payload: the valid key as the client encodes it (UTF-16-LE, base64)
+VALID_CONFIRMATION = base64.b64encode(VALID_KEY.encode('utf-16-le')).decode()
 VALID_BASE64_IMG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII='
 INVALID_PASSWORD = 'antani'
 
