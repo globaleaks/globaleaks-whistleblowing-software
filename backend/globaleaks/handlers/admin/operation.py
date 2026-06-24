@@ -12,7 +12,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa
 from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_set_config_variable, ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import db_get_protected_users, db_set_config_variable, ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
@@ -134,6 +134,13 @@ def toggle_escrow(session, tid, user_session):
             session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)
 
     else:
+        # Only protected users may dismantle key escrow. When protected users
+        # exist, a non-protected operator must not be able to disable escrow
+        # and thus invalidate the privileged key recovery capability.
+        protected_users = db_get_protected_users(session, tid)
+        if protected_users and user_session.user_id not in protected_users:
+            raise errors.ForbiddenOperation
+
         if tid == 1:
             session.query(models.User).update({'crypto_escrow_bkp1_key': ''}, synchronize_session=False)
         else:
@@ -172,6 +179,13 @@ def toggle_user_escrow(session, tid, user_session, user_id):
 
         user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
     else:
+        # Only protected users may revoke key escrow access. When protected
+        # users exist, a non-protected operator must not be able to revoke
+        # escrow keys and thus invalidate the privileged key recovery capability.
+        protected_users = db_get_protected_users(session, tid)
+        if protected_users and user_session.user_id not in protected_users:
+            raise errors.ForbiddenOperation
+
         user.crypto_escrow_prv_key = ''
 
     db_log(session, tid=tid, type='toggle_user_escrow', user_id=user_session.user_id, object_id=user_id)
@@ -226,6 +240,10 @@ def reset_templates(session, tid, user_id):
 
 def db_set_user_password(session, tid, user_session, user_id, key):
     user = db_get_user(session, tid, user_id)
+
+    if user.id in db_get_protected_users(session, tid):
+        # Prevent password reset of protected users
+        raise errors.ForbiddenOperation
 
     # if encryption is enabled accept password changes only if the admin has access to escrow keys
     if user.crypto_pub_key and not user_session.ek:
@@ -283,6 +301,10 @@ def db_admin_generate_password_reset_token(session, tid, user_session, user_id, 
     user = session.query(User).filter(User.tid == tid, User.id == user_id).one_or_none()
     if user is None:
         return
+
+    if user.id in db_get_protected_users(session, tid):
+        # Prevent sending password reset links via mail to protected users
+        raise errors.ForbiddenOperation
 
     token = db_generate_password_reset_token(session, user)
 

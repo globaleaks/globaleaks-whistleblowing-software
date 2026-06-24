@@ -29,6 +29,16 @@ class Bool(Item):
     _type = bool
 
 
+class List(Item):
+    _type = list
+
+    def __init__(self, *args, **kwargs):
+        if 'default' not in kwargs:
+            kwargs['default'] = list
+
+        Item.__init__(self, *args, **kwargs)
+
+
 ConfigDescriptor = {
     'acme': Bool(default=False),
     'acme_accnt_key': Unicode(),
@@ -86,6 +96,7 @@ ConfigDescriptor = {
     'onionservice': Unicode(default=''),
     'password_change_period': Int(default=365),  # Days
     'pgp': Bool(default=False),
+    'protected_users': List(),  # List of ids of users protected from deletion and password reset
     'reachable_via_web': Bool(default=True),
     'receipt_salt': Unicode(default=GCE.generate_salt),
     'rootdomain': Unicode(default=''),

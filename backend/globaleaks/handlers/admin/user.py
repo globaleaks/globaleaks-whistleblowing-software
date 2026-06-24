@@ -8,6 +8,7 @@ from globaleaks.handlers.user import parse_pgp_options, \
                                      user_serialize_user
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.models import fill_localized_keys
+from globaleaks.models.config import db_get_protected_users
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import Sessions
@@ -114,6 +115,9 @@ def db_delete_user(session, tid, user_session, user_id):
         raise errors.ForbiddenOperation
     elif user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
+        raise errors.ForbiddenOperation
+    elif user_to_be_deleted.id in db_get_protected_users(session, tid):
+        # Prevent deletion of protected users
         raise errors.ForbiddenOperation
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))

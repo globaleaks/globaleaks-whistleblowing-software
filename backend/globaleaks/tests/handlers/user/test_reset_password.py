@@ -1,6 +1,8 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
@@ -92,3 +94,30 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
         for invalid_token in invalid_tokens:
             handler = self.request({'reset_token': invalid_token, 'recovery_key': '', 'auth_code': ''})
             self.assertRaises(errors.InputValidationError, handler.put)
+
+
+class TestProtectedPasswordReset(helpers.TestHandlerWithPopulatedDB):
+    # A freshly initialized database is required so that the protected_users
+    # config row (added after the archived test database was generated) is
+    # present and can be set.
+    initialize_test_database_using_archived_db = False
+
+    from globaleaks.handlers.user import reset_password
+    _handler = reset_password.PasswordResetHandler
+
+    @inlineCallbacks
+    def test_post_protected_user(self):
+        # Protected users must not be eligible for self-service password reset
+        # token issuance, and the generic response must be preserved
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+
+        data_request = {
+            'username': self.dummyReceiver_1['username']
+        }
+
+        handler = self.request(data_request)
+
+        yield handler.post()
+
+        # No mail must have been created for a protected user
+        yield self.test_model_count(models.Mail, 0)

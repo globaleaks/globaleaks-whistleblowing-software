@@ -3,6 +3,8 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import AdminOperationHandler
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
@@ -206,3 +208,41 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
 
     def test_admin_enable_user_permission_file_upload(self):
         return self._test_operation_handler('enable_user_permission_file_upload')
+
+
+class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):
+    # A freshly initialized database is required so that the protected_users
+    # config row (added after the archived test database was generated) is
+    # present and can be set.
+    initialize_test_database_using_archived_db = False
+
+    _handler = AdminOperationHandler
+
+    def _test_operation_handler(self, operation, args=None):
+        data_request = {
+            'operation': operation,
+            'args': args if args is not None else {}
+        }
+
+        handler = self.request(data_request, role='admin')
+
+        return handler.put()
+
+    @defer.inlineCallbacks
+    def test_set_user_password_forbidden_for_protected_user(self):
+        # Setting the password of a protected user must be forbidden
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+
+        yield self.assertFailure(self._test_operation_handler('set_user_password',
+                                                             {'user_id': self.dummyReceiver_1['id'],
+                                                              'password': helpers.VALID_KEY}),
+                                 errors.ForbiddenOperation)
+
+    @defer.inlineCallbacks
+    def test_send_password_reset_email_forbidden_for_protected_user(self):
+        # Issuing a password reset link to a protected user must be forbidden
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+
+        yield self.assertFailure(self._test_operation_handler('send_password_reset_email',
+                                                             {'value': self.dummyReceiver_1['id']}),
+                                 errors.ForbiddenOperation)

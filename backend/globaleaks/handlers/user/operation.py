@@ -149,6 +149,10 @@ def disable_2fa(session, tid, user_id, obj_id):
     """
     user = db_get_user(session, tid, obj_id)
 
+    if obj_id in models.config.db_get_protected_users(session, tid):
+        # Prevent disabling two factor authentication of protected users
+        raise errors.ForbiddenOperation
+
     user.two_factor_secret = ''
 
     db_log(session, tid=tid, type='disable_2fa', user_id=user_id, object_id=obj_id)

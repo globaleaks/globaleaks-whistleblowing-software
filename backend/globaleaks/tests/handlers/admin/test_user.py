@@ -4,6 +4,8 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.admin import user
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
 from globaleaks.tests import helpers
@@ -186,3 +188,21 @@ class TestCustodianInstance(TestAdminInstance):
             'language': 'en'
         }
     }
+
+
+class TestProtectedUserDeletion(helpers.TestHandlerWithPopulatedDB):
+    # A freshly initialized database is required so that the protected_users
+    # config row (added after the archived test database was generated) is
+    # present and can be set.
+    initialize_test_database_using_archived_db = False
+
+    _handler = user.UserInstance
+
+    @inlineCallbacks
+    def test_delete_forbidden_for_protected_user(self):
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+
+        handler = self.request({}, role='admin')
+
+        yield self.assertFailure(handler.delete(self.dummyReceiver_1['id']),
+                                 errors.ForbiddenOperation)

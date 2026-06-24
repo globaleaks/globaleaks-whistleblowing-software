@@ -139,6 +139,15 @@ def db_set_config_variable(session, tid, var, val):
     ConfigFactory(session, tid).set_val(var, val)
 
 
+def db_get_protected_users(session, tid):
+    """
+    Return the list of ids of the users protected from deletion and password reset.
+    """
+    value = ConfigFactory(session, tid).get_val('protected_users')
+
+    return value if isinstance(value, list) else []
+
+
 def initialize_config(session, tid, mode):
     variables = {}
 

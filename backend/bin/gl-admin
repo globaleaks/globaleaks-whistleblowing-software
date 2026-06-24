@@ -323,6 +323,52 @@ def set_var(args, silent=False):
         print("Success! {} set to '{}'".format(args.varname, args.value))
 
 
+def set_user_protection(args, protect):
+    db_path = check_db(args.workdir)
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute("SELECT id FROM user WHERE tid=? AND username=?;", (args.tid, args.username))
+    user = c.fetchone()
+    if user is None:
+        print("Failed! The user '{}' does not exist".format(args.username))
+        conn.close()
+        sys.exit(1)
+
+    user_id = user[0]
+
+    # protected_users stores the list of protected user ids; ids are used in
+    # place of usernames so that the protection survives a username change.
+    c.execute("SELECT value FROM config WHERE tid=? AND var_name='protected_users';", (args.tid,))
+    ret = c.fetchone()
+    protected = json.loads(ret[0]) if ret is not None and ret[0] else []
+
+    if protect:
+        if user_id not in protected:
+            protected.append(user_id)
+    else:
+        protected = [u for u in protected if u != user_id]
+
+    c.execute("UPDATE config SET value=? WHERE tid=? AND var_name='protected_users';",
+              (json.dumps(protected), args.tid))
+    conn.commit()
+    conn.close()
+
+    reset_gl_cache()
+
+    print("Success! User '{}' has been {}.".format(args.username,
+          "protected" if protect else "unprotected"))
+
+
+def protect_user(args):
+    set_user_protection(args, True)
+
+
+def unprotect_user(args):
+    set_user_protection(args, False)
+
+
 def add_workingdir_path_arg(parser):
     parser.add_argument("-w",
                         "--workdir",
@@ -372,6 +418,18 @@ sv_p.add_argument("--tid", help="the tenant id", default='1', type=int)
 sv_p.add_argument("varname", help="the name of the config var", type=str)
 sv_p.add_argument("value", help="value which must be of the correct type Bool(0|1), Int(0-9^9), String(everything else)")
 sv_p.set_defaults(func=set_var)
+
+pr_p = subp.add_parser("protect-user", help="protect a user from deletion and password reset")
+add_workingdir_path_arg(pr_p)
+pr_p.add_argument("--tid", help="the tenant id", default='1', type=int)
+pr_p.add_argument("username")
+pr_p.set_defaults(func=protect_user)
+
+upr_p = subp.add_parser("unprotect-user", help="remove the protection from a user")
+add_workingdir_path_arg(upr_p)
+upr_p.add_argument("--tid", help="the tenant id", default='1', type=int)
+upr_p.add_argument("username")
+upr_p.set_defaults(func=unprotect_user)
 
 if __name__ == '__main__':
     try:

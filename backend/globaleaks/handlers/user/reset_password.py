@@ -11,6 +11,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import user_serialize_user
+from globaleaks.models.config import db_get_protected_users
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
 from globaleaks.sessions import Sessions
@@ -65,7 +66,7 @@ def generate_password_reset_token_by_user_id(session, tid, user_id):
     :return:
     """
     user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_id, models.User.enabled.is_(True)).one_or_none()
-    if user is not None:
+    if user is not None and user.id not in db_get_protected_users(session, tid):
         db_generate_password_reset_token(session, user)
 
     return {'redirect': '/login/passwordreset/requested'}
@@ -88,7 +89,14 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
       models.User.tid == tid
     ).distinct()
 
+    protected_users = db_get_protected_users(session, tid)
+
     for user in users:
+        if user.id in protected_users:
+            # Silently skip protected users to avoid sending reset links and
+            # to preserve the generic anti-enumeration response
+            continue
+
         if State.RateLimit.check(b"password_resets_per_hour_per_user:" + user.id.encode(), 5, 3600) > 0:
             continue
 
