@@ -312,4 +312,6 @@ class ContextInstance(BaseHandler):
         """
         Delete the specified context.
         """
+        self.check_confirmation()
+
         return delete_context(self.request.tid, context_id)

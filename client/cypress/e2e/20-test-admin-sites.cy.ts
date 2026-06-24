@@ -18,6 +18,8 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     cy.get("button[name='delete_tenant']").last().click();
     cy.get("#modal-action-ok").click();
+    cy.get(".modal [type='password']").type(Cypress.env("user_password"));
+    cy.get(".modal .btn-primary").click();
 
     cy.get("button[name='configure_tenant']").last().click();
 

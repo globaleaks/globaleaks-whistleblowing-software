@@ -71,8 +71,7 @@ export class SiteslistComponent {
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
-        const url = "api/admin/tenants/" + arg.id;
-        return this.httpService.requestDeleteTenant(url).subscribe(_ => {
+        return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id).subscribe(_ => {
           this.deleted.emit(this.tenant.id);
         });
       };

@@ -45,6 +45,8 @@ describe("admin configure, add, and delete channels", () => {
     cy.visit("#/admin/channels");
     cy.get("[name='delete_context']").last().click();
     cy.get("#modal-action-ok").click();
+    cy.get(".modal [type='password']").type(Cypress.env("user_password"));
+    cy.get(".modal .btn-primary").click();
 
     cy.logout();
   });

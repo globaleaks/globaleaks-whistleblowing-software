@@ -245,4 +245,6 @@ class UserInstance(BaseHandler):
         """
         Delete the specified user.
         """
+        self.check_confirmation()
+
         return tw(db_delete_user, self.request.tid, self.session, user_id)

@@ -629,12 +629,19 @@ export class UtilsService {
     return this.http.delete<void>(url);
   }
 
-  deleteAdminUser(user_id: string) {
-    return this.httpService.requestDeleteAdminUser(user_id);
+  deleteWithConfirmation(url: string): Observable<any> {
+    return this.getConfirmation((secret: string) => {
+      const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
+      return this.http.delete(url, {headers});
+    });
   }
 
-  deleteAdminContext(user_id: string) {
-    return this.httpService.requestDeleteAdminContext(user_id);
+  deleteAdminUser(user_id: string) {
+    return this.deleteWithConfirmation("api/admin/users/" + user_id);
+  }
+
+  deleteAdminContext(context_id: string) {
+    return this.deleteWithConfirmation("api/admin/contexts/" + context_id);
   }
 
   deleteStatus(url: string) {

@@ -77,10 +77,6 @@ export class HttpService {
     return this.httpClient.delete<Session>("api/auth/session");
   }
 
-  requestDeleteTenant(url: string): Observable<tenantResolverModel> {
-    return this.httpClient.delete<tenantResolverModel>(url);
-  }
-
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
     return this.httpClient.put<tenantResolverModel>(url, data);
   }
@@ -366,10 +362,6 @@ export class HttpService {
     return this.httpClient.put<userResolverModel>("api/admin/users/" + id, param);
   }
 
-  requestDeleteAdminUser(id: string): Observable<userResolverModel> {
-    return this.httpClient.delete<userResolverModel>("api/admin/users/" + id);
-  }
-
   requestAddAdminContext(param: NewContext): Observable<contextResolverModel> {
     return this.httpClient.post<contextResolverModel>("api/admin/contexts", param);
   }
@@ -404,10 +396,6 @@ export class HttpService {
 
   requestUpdateAdminContext(param: contextResolverModel, id: string): Observable<contextResolverModel> {
     return this.httpClient.put<contextResolverModel>("api/admin/contexts/" + id, param);
-  }
-
-  requestDeleteAdminContext(id: string): Observable<contextResolverModel> {
-    return this.httpClient.delete<contextResolverModel>("api/admin/contexts/" + id);
   }
 
   requestDeleteStatus(url: string): Observable<Status> {

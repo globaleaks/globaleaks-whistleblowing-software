@@ -345,4 +345,6 @@ class TenantInstance(BaseHandler):
         """
         Delete the specified tenant.
         """
+        self.check_confirmation()
+
         return tw(db_del, models.Tenant, models.Tenant.id == int(tid))
