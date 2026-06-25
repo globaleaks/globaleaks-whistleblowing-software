@@ -58,6 +58,22 @@ describe("admin enable scoring system", () => {
   });
 });
 
+describe("admin enable forwarding", () => {
+  it("should enable forwarding incoming and outgoing", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get('input[name="node.dataModel.enable_forward_in"]').check();
+    cy.get('input[name="node.dataModel.enable_forward_out"]').check();
+    cy.get("#save").click();
+
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get('input[name="node.dataModel.enable_forward_in"]').should("be.visible").should("be.checked");
+    cy.get('input[name="node.dataModel.enable_forward_out"]').should("be.visible").should("be.checked");
+    cy.logout();
+  });
+});
+
 describe("admin add and remove disclaimer", function () {
   it("should add disclaimer", function () {
     cy.login_admin();

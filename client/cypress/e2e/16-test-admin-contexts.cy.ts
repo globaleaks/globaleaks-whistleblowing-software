@@ -21,6 +21,40 @@ describe("admin configure, add, and delete channels", () => {
     });
   });
 
+  it("should add recipients to forward and forward-request channels", () => {
+    cy.visit("/");
+    cy.login_admin();
+
+    cy.visit("#/admin/channels");
+
+    cy.get('[id^="context-"]').then($list => {
+      const found = Array.from($list).find(el => /forward-request/i.test(el.innerText) || /forward request/i.test(el.innerText));
+      if (found) {
+        cy.wrap(found).within(() => {
+          cy.get('#edit_context').click();
+          cy.get('.add-receiver-btn').click();
+          cy.get('ng-select[name="selected.value"]').click();
+          cy.get('ng-select[name="selected.value"]').contains('Recipient').click();
+          cy.get('#save_context').click();
+        });
+      }
+    });
+
+    cy.get('[id^="context-"]').then($list => {
+      const found = Array.from($list).find(el => /\bforward\b/i.test(el.innerText) && !/forward-request/i.test(el.innerText));
+      if (found) {
+        cy.wrap(found).within(() => {
+          cy.get('#edit_context').click();
+          cy.get('.add-receiver-btn').click();
+          cy.get('ng-select[name="selected.value"]').click();
+          cy.get('ng-select[name="selected.value"]').contains('Recipient').click();
+          cy.get('#save_context').click();
+        });
+      }
+    });
+    cy.logout();
+  });
+
   it("should add new channels", () => {
     cy.visit("/");
     cy.login_admin();

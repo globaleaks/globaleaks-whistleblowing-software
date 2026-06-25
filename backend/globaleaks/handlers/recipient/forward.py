@@ -142,7 +142,8 @@ def db_can_forward_report(session, source_tid, source_itip):
     if not db_is_forwardable_report(session, source_tid, source_itip):
         return False
 
-    if source_tid != 1 and not db_tenant_forward_request_authorized(session, source_tid):
+    if source_tid != 1 and source_itip.type != 'submission' and \
+       not db_tenant_forward_request_authorized(session, source_tid):
         return False
 
     source_config = ConfigFactory(session, source_tid)
