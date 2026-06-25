@@ -2,7 +2,7 @@
 
 set -e
 
-TARGETS="bookworm bullseye focal jammy noble resolute trixie"
+TARGETS="bookworm bullseye jammy noble resolute trixie"
 DISTRIBUTION="trixie"
 TAG="stable"
 LOCAL_ENV=0
@@ -15,7 +15,7 @@ usage() {
   echo " -h"
   echo -e " -t tagname (build specific release/branch)"
   echo -e " -l (Use local repository & environment)"
-  echo -e " -d distribution (available: bookworm, bullseye, focal, jammy, noble, resolute, trixie)"
+  echo -e " -d distribution (available: bookworm, bullseye, jammy, noble, resolute, trixie)"
   echo -e " -n (do not sign)"
   echo -e " -p (push on repository)"
 }
@@ -43,7 +43,7 @@ while getopts "d:t:nph:lz" opt; do
 done
 
 case "$DISTRIBUTION" in
-  bookworm|bullseye|focal|jammy|noble|resolute|trixie|all) ;;
+  bookworm|bullseye|jammy|noble|resolute|trixie|all) ;;
   *) usage; exit 1 ;;
 esac
 
