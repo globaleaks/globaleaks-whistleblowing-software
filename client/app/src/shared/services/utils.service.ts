@@ -848,16 +848,14 @@ export class UtilsService {
       forceChunkSize: true,
       simultaneousUploads: 1,
       testChunks: false,
-      // Retry chunks only when the connection itself is interrupted, never on an
-      // application response. Any real HTTP reply has a status in 100..599; a dropped
-      // connection surfaces as XHR status 0. Listing the whole HTTP range as permanent
-      // makes every server reply terminal (fail fast: a 403 rate-limit, a 413 too-big and
-      // the like are not retried), while status 0 stays retryable. The backend writes each
-      // chunk at most once, so a re-sent chunk is safe. successStatuses is evaluated before
-      // permanentErrors, so 2xx replies still count as success.
+      // Chunk retries are disabled: each chunk is sent exactly once. A dropped
+      // connection (XHR status 0) or any HTTP reply terminates the chunk without a
+      // re-send, so every DPoP proof is used a single time and the backend can
+      // enforce replay protection on uploads like on any other request.
+      // permanentErrors lists the whole 100..599 range so any server reply is
+      // terminal; successStatuses is evaluated first, so 2xx still counts as success.
       permanentErrors: HTTP_STATUS_CODES,
-      maxChunkRetries: 5,
-      chunkRetryInterval: 2000,
+      maxChunkRetries: 0,
       speedSmoothingFactor:0.01,
       allowDuplicateUploads:false,
       singleFile:false,
