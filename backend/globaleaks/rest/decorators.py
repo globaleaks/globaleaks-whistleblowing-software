@@ -5,6 +5,7 @@ from twisted.internet.threads import deferToThread
 from globaleaks.db import sync_refresh_tenant_cache
 from globaleaks.handlers.base import connection_check
 from globaleaks.rest import errors
+from globaleaks.utils import dpop
 from globaleaks.rest.cache import Cache
 from globaleaks.state import State
 from globaleaks.utils.ip import get_ip_identity
@@ -38,6 +39,30 @@ def check_session_or_token(self):
     # Ensures a token or a session is included in the request
     if self.request.path not in BYPASS_PATHS and not has_session_or_token(self):
         raise errors.InternalServerError("Invalid request: No token and no session")
+
+
+def check_dpop(self):
+    # Enforce the RFC 9449 DPoP proof bound to the presented session. Sessions
+    # presented via the X-Session header must carry a valid proof signed by the
+    # bound key, matching the request method/URI and the session-token hash
+    # (ath). Session-establishing handlers (login, submission) carry no session
+    # yet and perform their own proof verification and binding.
+    # A single request carries a single proof; verifying it once is sufficient
+    # (a handler method is dispatched once in production). The guard keeps proof
+    # verification idempotent so that a repeated invocation is not rejected as a
+    # jti replay.
+    if self.dpop_checked:
+        return
+
+    self.dpop_checked = True
+
+    if self.session is None or self.session_id_cleartext is None:
+        return
+
+    proof, htm, htu = self.dpop_request_fields()
+    self.dpop_thumbprint = dpop.verify_dpop_proof(proof, htm, htu,
+                                                  thumbprint=self.session.dpop_jkt,
+                                                  ath=dpop.compute_ath(self.session_id_cleartext))
 
 
 def check_authentication(self, roles):
@@ -83,6 +108,15 @@ def decorator_authentication(f, roles):
     # Decorator that performs role checks on the user session
     def wrapper(self, *args, **kwargs):
         check_authentication(self, roles)
+        return f(self, *args, **kwargs)
+
+    return wrapper
+
+
+def decorator_dpop(f):
+    # Decorator that enforces the DPoP proof bound to the presented session
+    def wrapper(self, *args, **kwargs):
+        check_dpop(self)
         return f(self, *args, **kwargs)
 
     return wrapper
@@ -281,6 +315,7 @@ def decorate_method(h, method):
         f = decorator_rate_limit(f)
         f = decorator_require_session_or_token(f)
 
+    f = decorator_dpop(f)
     f = decorator_authentication(f, roles)
 
     setattr(h, method, f)

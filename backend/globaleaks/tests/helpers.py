@@ -44,6 +44,11 @@ from globaleaks.rest.api import JSONEncoder
 from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+
+from globaleaks.utils import dpop as dpop_utils
 from globaleaks.utils import tempdict
 from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
 from globaleaks.utils.securetempfile import SecureTemporaryFile
@@ -170,6 +175,60 @@ def get_token():
     token.salt = TOKEN_SALT
     State.tokens[token.id] = token
     return TOKEN_ANSWER
+
+
+# A fixed ECDSA P-256 key pair used to produce valid DPoP proofs (RFC 9449) for
+# the test suite; sessions forged by request() are bound to its thumbprint.
+DPOP_PRV_KEY = ec.generate_private_key(ec.SECP256R1())
+_dpop_pub = DPOP_PRV_KEY.public_key().public_numbers()
+DPOP_JWK = {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": dpop_utils.b64url_encode(_dpop_pub.x.to_bytes(32, 'big')),
+    "y": dpop_utils.b64url_encode(_dpop_pub.y.to_bytes(32, 'big'))
+}
+DPOP_JKT = dpop_utils.jwk_thumbprint(DPOP_JWK)
+
+
+def make_dpop_proof(method, path, session_id=None):
+    """Build a valid DPoP proof signed with the test key for the given request."""
+    header = {"typ": "dpop+jwt", "alg": "ES256", "jwk": DPOP_JWK}
+    payload = {
+        "htm": method,
+        "htu": path,
+        "iat": dpop_utils.now_epoch(),
+        "jti": secrets.token_hex(16)
+    }
+
+    if session_id is not None:
+        payload["ath"] = dpop_utils.compute_ath(session_id)
+
+    signing_input = dpop_utils.b64url_encode(json.dumps(header).encode()) + "." + \
+                    dpop_utils.b64url_encode(json.dumps(payload).encode())
+
+    der = DPOP_PRV_KEY.sign(signing_input.encode(), ec.ECDSA(hashes.SHA256()))
+    r, s = decode_dss_signature(der)
+    sig = dpop_utils.b64url_encode(r.to_bytes(32, 'big') + s.to_bytes(32, 'big'))
+
+    return (signing_input + "." + sig).encode()
+
+
+def dpop_htu(request):
+    """Reconstruct the htu (request path only) the backend computes for a request."""
+    return request.path.decode()
+
+
+# Bind every session created during the tests to the test DPoP key, so that the
+# strict per-request enforcement is satisfied even for sessions created directly
+# via Sessions.new (i.e. bypassing request()).
+_orig_sessions_new = Sessions.new
+
+
+def _test_sessions_new(tid, user_id, user_tid, user_role, cc='', ek='', dpop_jkt=''):
+    return _orig_sessions_new(tid, user_id, user_tid, user_role, cc, ek, dpop_jkt or DPOP_JKT)
+
+
+Sessions.new = _test_sessions_new
 
 
 def forge_nested_answers(field_id, depth=3000):
@@ -1081,9 +1140,9 @@ class TestHandler(TestGLWithPopulatedDB):
 
         if role is not None:
             if role == 'whistleblower' and user_id == None:
-                session = initialize_submission_session(1)
+                session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
             else:
-                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, role == 'admin')
+                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, role == 'admin', dpop_jkt=DPOP_JKT)
 
             if permissions:
                 session.permissions = permissions
@@ -1096,6 +1155,19 @@ class TestHandler(TestGLWithPopulatedDB):
         # during unit tests a token is always provided to any handler
         headers[b'x-token'] = get_token()
 
+        # Attach a valid DPoP proof (RFC 9449) bound to the session the request
+        # carries (created above for a role, or referenced via a manually passed
+        # X-Session header) so that the strict per-request enforcement is
+        # satisfied. Session-binding handlers (login, submission) consume a proof
+        # without a session.
+        dpop_session_id = None
+        if session is not None:
+            dpop_session_id = session.id
+        else:
+            raw_sid = headers.get(b'x-session', headers.get('x-session'))
+            if raw_sid is not None:
+                dpop_session_id = raw_sid.decode() if isinstance(raw_sid, bytes) else raw_sid
+
         if handler_cls is None:
             handler_cls = self._handler
 
@@ -1107,13 +1179,21 @@ class TestHandler(TestGLWithPopulatedDB):
                                 method=b'GET',
                                 tid=tid)
 
+        # Attach the proof after forging the request so the htu is derived from
+        # the same request path the backend reconstructs.
+        request.headers[b'dpop'] = make_dpop_proof('GET', dpop_htu(request), session_id=dpop_session_id)
+
         api.APIResourceWrapper()
 
-        if not getattr(handler_cls, 'decorated', False):
+        # Use the same guard attribute as the production decoration path
+        # (APIResourceWrapper, invoked above) so that registry handlers are not
+        # decorated twice; double decoration would run check_dpop twice and
+        # reject the second pass as a jti replay.
+        if not getattr(handler_cls, '_decorated', False):
+            handler_cls._decorated = True
             for method in ['get', 'post', 'put', 'delete']:
                 if getattr(handler_cls, method, None) is not None:
                     decorators.decorate_method(handler_cls, method)
-                    handler_cls.decorated = True
 
         handler = handler_cls(self.state, request, **kwargs)
 

@@ -106,7 +106,7 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
 
 
 @transact
-def validate_password_reset(session, reset_token, recovery_key, auth_code):
+def validate_password_reset(session, reset_token, recovery_key, auth_code, dpop_jkt=''):
     """
     Retrieves a user given a password reset validation token
 
@@ -180,7 +180,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                                 user.tid,
                                 user.role,
                                 prv_key,
-                                user.crypto_escrow_prv_key != '')
+                                user.crypto_escrow_prv_key != '',
+                                dpop_jkt=dpop_jkt)
 
     user_session.properties['reset_token'] = reset_token
     user_session.properties['password_change_needed'] = True
@@ -210,4 +211,5 @@ class PasswordResetHandler(BaseHandler):
 
         return validate_password_reset(request['reset_token'],
                                        request['recovery_key'],
-                                       request['auth_code'])
+                                       request['auth_code'],
+                                       self.get_dpop_thumbprint())

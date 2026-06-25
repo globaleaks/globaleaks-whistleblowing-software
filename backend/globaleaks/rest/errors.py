@@ -185,3 +185,11 @@ class DuplicateUserError(GLException):
     reason = "A user with this username already exists"
     error_code = 17
     status_code = 422
+
+class InvalidDPoP(GLException):
+    """
+    The DPoP proof (RFC 9449) accompanying the request is missing or invalid
+    """
+    reason = "Invalid DPoP proof"
+    error_code = 18
+    status_code = 401

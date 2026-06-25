@@ -543,6 +543,10 @@ class APIResourceWrapper(Resource):
                 # and fill temporary files.
                 decorators.check_session_or_token(h)
                 decorators.check_authentication(h, h.check_roles)
+                # Enforce the DPoP proof binding (including single-use jti replay
+                # protection) before processing the upload body. Chunk retries are
+                # disabled client-side, so each chunk carries a distinct proof.
+                decorators.check_dpop(h)
 
                 h.process_file_upload()
             except Exception as e:

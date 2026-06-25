@@ -53,7 +53,7 @@ def db_login_failure(session, tid, whistleblower=False, user_id=None):
 
 
 @transact
-def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=None):
+def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=None, dpop_jkt=''):
     """
     Login transaction for whistleblowers' access
 
@@ -93,7 +93,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
 
     db_log(session, tid=tid, type='whistleblower_login', user_id=operator_id, object_id=itip.id)
 
-    session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key)
+    session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key, dpop_jkt=dpop_jkt)
 
     session.properties["receipt_change_needed"] = itip.receipt_change_needed
 
@@ -101,7 +101,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
 
 
 @transact
-def login(session, tid, username, password, authcode, client_using_tor, client_ip):
+def login(session, tid, username, password, authcode, client_using_tor, client_ip, dpop_jkt=''):
     """
     Login transaction for users' access
 
@@ -170,7 +170,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 
-    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key != '')
+    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key != '', dpop_jkt=dpop_jkt)
 
     session.properties['password_change_needed'] = user.password_change_needed
     session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
@@ -231,7 +231,8 @@ class AuthenticationHandler(BaseHandler):
                               request['password'],
                               request['authcode'],
                               self.request.client_using_tor,
-                              self.request.client_ip)
+                              self.request.client_ip,
+                              self.get_dpop_thumbprint())
 
         if tid != self.request.tid:
             returnValue({
@@ -258,7 +259,7 @@ class TokenAuthHandler(BaseHandler):
         connection_check(session.tid, session.role,
                          self.request.client_ip, self.request.client_using_tor)
 
-        session = Sessions.regenerate(session)
+        session = Sessions.regenerate(session, dpop_jkt=self.get_dpop_thumbprint())
 
         returnValue(session.serialize())
 
@@ -281,14 +282,17 @@ class ReceiptAuthHandler(BaseHandler):
             # this is actually a recipient operating on behalf of a whistleblower
             operator_id = self.session.properties.get('operator_session')
 
+        dpop_jkt = self.get_dpop_thumbprint()
+
         if request['receipt']:
             session = yield login_whistleblower(self.request.tid, request['receipt'],
-                                                self.request.client_using_tor, operator_id)
+                                                self.request.client_using_tor, operator_id,
+                                                dpop_jkt=dpop_jkt)
         else:
             if not self.state.accept_submissions or self.state.tenants[self.request.tid].cache['disable_submissions']:
                 raise errors.SubmissionDisabled
 
-            session = initialize_submission_session(self.request.tid)
+            session = initialize_submission_session(self.request.tid, dpop_jkt=dpop_jkt)
 
         if operator_id:
             session.properties["operator_session"] = self.session.user_id
@@ -353,7 +357,8 @@ class TenantAuthSwitchHandler(BaseHandler):
                                self.session.user_tid,
                                self.session.role,
                                self.session.cc,
-                               self.session.ek)
+                               self.session.ek,
+                               dpop_jkt=self.get_dpop_thumbprint())
 
         session.properties['management_session'] = True
 
@@ -374,7 +379,8 @@ class OperatorAuthSwitchHandler(BaseHandler):
                                self.session.user_tid,
                                "whistleblower",
                                prv_key,
-                               False)
+                               False,
+                               dpop_jkt=self.get_dpop_thumbprint())
 
         session.properties['operator_session'] = self.session.user_id
 

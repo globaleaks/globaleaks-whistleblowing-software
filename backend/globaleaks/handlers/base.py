@@ -22,6 +22,7 @@ from globaleaks.sessions import Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
+from globaleaks.utils import dpop
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.ip import check_ip
 from globaleaks.utils.log import log
@@ -190,6 +191,13 @@ class BaseHandler(object):
         self.request.start_time = datetime.now()
         self.token = None
 
+        # DPoP (RFC 9449): the cleartext session id presented in the X-Session
+        # header (needed to compute the `ath` claim) and the verified thumbprint
+        # of the request's DPoP proof (cached once verified).
+        self.session_id_cleartext = None
+        self.dpop_thumbprint = None
+        self.dpop_checked = False
+
         self.session = self.get_session()
 
     def get_session(self):
@@ -223,7 +231,8 @@ class BaseHandler(object):
         # Check session header
         session_id = self.request.headers.get(b'x-session')
         if session_id:
-            session = Sessions.get(session_id.decode())
+            self.session_id_cleartext = session_id.decode()
+            session = Sessions.get(self.session_id_cleartext)
 
         if session is None or session.tid != self.request.tid:
             return
@@ -233,6 +242,37 @@ class BaseHandler(object):
              self.request.log_ip_and_ua = True
 
         return session
+
+    def dpop_request_fields(self):
+        """Return the (proof, htm, htu) tuple of the current request for DPoP."""
+        return (self.request.headers.get(b'dpop'),
+                self.request.method.decode(),
+                self.dpop_htu())
+
+    def dpop_htu(self):
+        """
+        Reconstruct the htu claim: the request path only, without scheme, host,
+        query or fragment. See globaleaks.utils.dpop for why the binding is
+        path-only rather than the full RFC 9449 request URI.
+
+        request.path has been stripped of the tenant prefix by the API router,
+        so both client and server compute the same value.
+        """
+        return self.request.path.decode()
+
+    def get_dpop_thumbprint(self):
+        """
+        Verify the DPoP proof of a session-establishing request and return the
+        thumbprint (jkt) to bind to the new session.
+
+        When the request already carried a session whose proof was verified by
+        check_dpop, that thumbprint is reused to avoid re-validating (and double
+        -consuming the jti of) the same proof.
+        """
+        if self.dpop_thumbprint is None:
+            self.dpop_thumbprint = dpop.verify_dpop_proof(*self.dpop_request_fields())
+
+        return self.dpop_thumbprint
 
     @staticmethod
     def validate_python_type(value, python_type):

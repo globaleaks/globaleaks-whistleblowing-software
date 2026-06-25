@@ -864,10 +864,37 @@ export class UtilsService {
       generateUniqueIdentifier:() => {
         return crypto.randomUUID();
       },
-      headers:() => {
-        return {"X-Session": this.authenticationService.session.id};
+      // flow.js cannot sign asynchronously inside the (synchronous) headers
+      // callback, so each chunk is signed in the async preprocess hook and the
+      // resulting DPoP proof is stashed on the chunk for headers() to read.
+      preprocess: (chunk: any) => {
+        const target = chunk?.fileObj?.flowObj?.opts?.target || "";
+        let path = "/" + String(target).split("?")[0].split("#")[0].replace(/^\/+/, "");
+        // Match the backend htu: the request path only (no scheme/host), with the
+        // tenant prefix stripped. The proof binds method + path so it survives the
+        // proxies that commonly front GlobaLeaks and rewrite the origin.
+        path = path.replace(/^\/t\/[^/]+/, "");
+        const session = this.authenticationService.session;
+
+        this.cryptoService.generateDpopProof(
+          "POST",
+          path,
+          session ? session.id : undefined
+        ).then((proof) => {
+          chunk.dpopProof = proof;
+          chunk.preprocessFinished();
+        }).catch(() => {
+          chunk.preprocessFinished();
+        });
+      },
+      headers:(_file: any, chunk: any) => {
+        const headers: { [key: string]: string } = {"X-Session": this.authenticationService.session.id};
+        if (chunk && chunk.dpopProof) {
+          headers["DPoP"] = chunk.dpopProof;
+        }
+        return headers;
       }
-    };
+    } as FlowOptions;
   }
 
   public getFlowInstance(): Flow {

@@ -25,7 +25,10 @@ class Session(dict):
             'files': [],
             'token': State.tokens.new(tid),
             'properties': {},
-            'permissions': {}
+            'permissions': {},
+            # RFC 9449 DPoP binding: thumbprint (jkt) of the client public key
+            # bound to this session.
+            'dpop_jkt': ''
         }
 
     def __getattr__(self, name):
@@ -89,16 +92,22 @@ class SessionsFactory(TempDict):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_role, cc='', ek=''):
+    def new(self, tid, user_id, user_tid, user_role, cc='', ek='', dpop_jkt=''):
         self.revoke(tid, user_id)
         session = Session(tid, user_id, user_tid, user_role, cc, ek)
+        session.dpop_jkt = dpop_jkt
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session
 
-    def regenerate(self, session):
+    def regenerate(self, session, dpop_jkt=None):
         del self[session.id]
         session.id = nacl_random(32).hex()
+        # A regenerated session (e.g. cross-tenant handoff) is presented by a
+        # freshly loaded client with a new key pair: rebind the thumbprint so
+        # the handoff is bound to the new key.
+        if dpop_jkt is not None:
+            session.dpop_jkt = dpop_jkt
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session
@@ -107,6 +116,6 @@ class SessionsFactory(TempDict):
 Sessions = SessionsFactory(timeout=Settings.authentication_lifetime)
 
 
-def initialize_submission_session(tid):
+def initialize_submission_session(tid, dpop_jkt=''):
     prv_key, pub_key = GCE.generate_keypair()
-    return Sessions.new(tid, uuid4(), tid, 'whistleblower', prv_key)
+    return Sessions.new(tid, uuid4(), tid, 'whistleblower', prv_key, dpop_jkt=dpop_jkt)

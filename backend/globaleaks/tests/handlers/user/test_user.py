@@ -192,8 +192,8 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
             'args': args if args is not None else {}
         }
 
-        handler = self.request(data_request, role='receiver', properties=properties)
-        handler.request.path = b'/api/user/operations'
+        handler = self.request(data_request, role='receiver', properties=properties,
+                               uri=b'https://www.globaleaks.org/api/user/operations')
         return handler.put()
 
     @inlineCallbacks
@@ -254,8 +254,8 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
 
         # An operation other than the password change is not dispatched
         handler = self.request({'operation': 'get_users_names', 'args': {}},
-                               role='receiver', properties=properties)
-        handler.request.path = b'/api/user/operations'
+                               role='receiver', properties=properties,
+                               uri=b'https://www.globaleaks.org/api/user/operations')
         self.assertIsNone((yield handler.put()))
 
         # The password change itself remains available
@@ -263,6 +263,6 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
 
         new_key = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
         handler = self.request({'operation': 'change_password', 'args': {'new_password': new_key}},
-                               role='receiver', properties=properties)
-        handler.request.path = b'/api/user/operations'
+                               role='receiver', properties=properties,
+                               uri=b'https://www.globaleaks.org/api/user/operations')
         yield handler.put()

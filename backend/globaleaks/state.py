@@ -30,6 +30,7 @@ from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.ratelimit import RateLimit
 from globaleaks.utils.singleton import Singleton
 from globaleaks.utils.sni import SNIMap
+from globaleaks.utils import dpop
 from globaleaks.utils.sock import reserve_tcp_socket
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.templating import Templating
@@ -112,6 +113,10 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.TwoFactorTokens = TempDict(120)
         self.TwoFactorTokensLock = threading.Lock()
         self.TempUploadFiles = TempDict(3600)
+        # Single-use store for DPoP proof identifiers (jti) used to detect proof
+        # replay. The TTL must exceed the proof acceptance window so that a proof
+        # cannot be replayed while it is still considered fresh.
+        self.dpop_jti = TempDict(dpop.PROOF_MAX_AGE + dpop.PROOF_MAX_FUTURE, 1000000)
         self.RateLimit = RateLimit(10000)
 
         self.shutdown = False

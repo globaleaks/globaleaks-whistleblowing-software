@@ -6,8 +6,9 @@ import {
   HttpHandler,
   HttpClient,
   HttpErrorResponse,
+  HttpResponse,
 } from "@angular/common/http";
-import {catchError, finalize, from, Observable, switchMap, throwError} from "rxjs";
+import {catchError, finalize, from, Observable, switchMap, tap, throwError} from "rxjs";
 import {TokenResponse} from "@app/models/authentication/token-response";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -48,6 +49,60 @@ export class appInterceptor implements HttpInterceptor {
     }
   }
 
+  private computeHtu(url: string): string {
+    let path: string;
+    try {
+      if (/^https?:\/\//i.test(url)) {
+        path = new URL(url).pathname;
+      } else {
+        path = "/" + url.replace(/^\/+/, "");
+      }
+    } catch {
+      path = "/" + url.replace(/^\/+/, "");
+    }
+
+    path = path.split("?")[0].split("#")[0];
+
+    // Strip the tenant prefix that the backend removes from request.path before
+    // it computes the htu, so that the htu matches on both sides.
+    path = path.replace(/^\/t\/[^/]+/, "");
+
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
+
+    // The DPoP proof binds only method + path, not scheme/host: GlobaLeaks is
+    // frequently served behind proxies that rewrite the origin the backend sees,
+    // and the session is already bound to a tenant server-side, so the path
+    // alone is what both sides can agree on.
+    return path;
+  }
+
+  private attachDpop(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const session = this.authenticationService.session;
+
+    const proof = this.cryptoService.generateDpopProof(
+      request.method,
+      this.computeHtu(request.url),
+      session ? session.id : undefined
+    );
+
+    return from(proof).pipe(
+      switchMap((dpop) => next.handle(request.clone({headers: request.headers.set("DPoP", dpop)})).pipe(
+        tap((event) => {
+          // Keep the DPoP proof clock aligned to the server regardless of the
+          // device clock by learning the offset from the response Date header.
+          if (event instanceof HttpResponse) {
+            const date = event.headers.get("Date");
+            if (date) {
+              this.cryptoService.updateTimeOffset(Date.parse(date));
+            }
+          }
+        })
+      ))
+    );
+  }
+
   intercept(httpRequest: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (httpRequest.url.endsWith("/data/i18n/.json")) {
       return next.handle(httpRequest);
@@ -73,15 +128,15 @@ export class appInterceptor implements HttpInterceptor {
       return this.httpClient.post("api/auth/token", {}).pipe(
         switchMap((response) =>
           from(this.cryptoService.proofOfWork(Object.assign(new TokenResponse(), response))).pipe(
-            switchMap((ans) => next.handle(httpRequest.clone({
+            switchMap((ans) => this.attachDpop(httpRequest.clone({
               headers: httpRequest.headers.set("x-token", `${Object.assign(new TokenResponse(), response).id}:${ans}`)
                 .set("Accept-Language", this.getAcceptLanguageHeader() || ""),
-            })))
+            }), next))
           )
         )
       );
     } else {
-      return next.handle(authRequest);
+      return this.attachDpop(authRequest, next);
     }
   }
 }
