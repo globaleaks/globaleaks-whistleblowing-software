@@ -470,13 +470,14 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     this.activeButton = 'record';
     this.seconds = 0;
     this.startTime = Date.now();
-    this.flow = this.utilsService.getFlowInstance();
-    this.flow.opts.target =  this.fileUploadUrl;
-    this.flow.opts.singleFile =  this.field !== undefined && !this.field.multi_entry;
     const useWebm = MediaRecorder.isTypeSupported('audio/webm;codecs=opus');
     const audioMimeType = useWebm ? 'audio/webm;codecs=opus' : undefined;
     this.audioExt = useWebm ? 'audio.webm' : 'audio.mp4';
-    this.flow.opts.query = {type: this.audioExt, reference_id: fileId};
+    this.flow = this.utilsService.getFlowInstance({
+      target: this.fileUploadUrl,
+      singleFile: this.field !== undefined && !this.field.multi_entry,
+      query: {type: this.audioExt, reference_id: fileId}
+    });
 
     this.secondsTracker = setInterval(() => {
       this.seconds += 1;

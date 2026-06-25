@@ -842,7 +842,7 @@ export class UtilsService {
     );
   }
 
-  public getFlowOptions(): FlowOptions {
+  public getFlowOptions(overrides: Partial<FlowOptions> = {}): FlowOptions {
     return {
       chunkSize: 1000 * 1024,
       forceChunkSize: true,
@@ -862,6 +862,10 @@ export class UtilsService {
       generateUniqueIdentifier:() => {
         return crypto.randomUUID();
       },
+      // Per-call-site specifics (target, query, singleFile, ...) are merged in
+      // here. The DPoP hooks below are intentionally placed AFTER this spread so
+      // that no call site can override them and silently upload without a proof.
+      ...overrides,
       // flow.js cannot sign asynchronously inside the (synchronous) headers
       // callback, so each chunk is signed in the async preprocess hook and the
       // resulting DPoP proof is stashed on the chunk for headers() to read.
@@ -895,7 +899,7 @@ export class UtilsService {
     } as FlowOptions;
   }
 
-  public getFlowInstance(): Flow {
-    return new Flow(this.getFlowOptions());
+  public getFlowInstance(overrides: Partial<FlowOptions> = {}): Flow {
+    return new Flow(this.getFlowOptions(overrides));
   }
 }

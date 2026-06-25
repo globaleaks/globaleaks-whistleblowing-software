@@ -1,8 +1,6 @@
 import {Component, ElementRef, Input, ViewChild, inject} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
-import Flow from "@flowjs/flow.js";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {AdminFile} from "@app/models/component-model/admin-file";
@@ -22,7 +20,6 @@ export class AdminFileComponent {
   protected appConfigService = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
-  protected authenticationService = inject(AuthenticationService);
 
   @Input() adminFile: AdminFile;
   @Input() present: boolean;
@@ -32,17 +29,10 @@ export class AdminFileComponent {
   onFileSelected(files: FileList | null, filetype: string) {
     if (files && files.length > 0) {
       const file = files[0];
-      const flowJsInstance = new Flow({
+      const flowJsInstance = this.utilsService.getFlowInstance({
         target: "api/admin/files/" + filetype,
         singleFile: true,
-        allowDuplicateUploads: false,
-        testChunks: false,
-        permanentErrors: [500, 501],
-        generateUniqueIdentifier: () => {
-          return crypto.randomUUID();
-        },
-        query: {fileSizeLimit: this.node.dataModel.maximum_filesize * 1024 * 1024},
-        headers: {"X-Session": this.authenticationService.session.id}
+        query: {fileSizeLimit: this.node.dataModel.maximum_filesize * 1024 * 1024}
       });
 
       flowJsInstance.on("fileSuccess", (_) => {

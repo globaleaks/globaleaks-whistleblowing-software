@@ -79,13 +79,12 @@ export class Tab2Component implements OnInit {
   onFileSelected(files: FileList | null) {
     if (files && files.length > 0) {
       const file = files[0];
-      const flowJsInstance = this.utilsService.getFlowInstance();
-
-      flowJsInstance.opts.target = "api/admin/files/custom";
-      flowJsInstance.opts.allowDuplicateUploads = true;
-      flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.query = {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024};
-      flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
+      const flowJsInstance = this.utilsService.getFlowInstance({
+        target: "api/admin/files/custom",
+        allowDuplicateUploads: true,
+        singleFile: true,
+        query: {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024}
+      });
 
       flowJsInstance.on("fileSuccess", (_) => {
         this.appConfigService.reinit(false);

@@ -38,9 +38,10 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngOnInit() {
     this.filemodel = this.imageUploadModel[this.imageUploadModelAttr];
-    this.flowConfig = this.utilsService.getFlowOptions();
-    this.flowConfig.target = "api/admin/files/"+this.imageUploadId;
-    this.flowConfig.singleFile = true;
+    this.flowConfig = this.utilsService.getFlowOptions({
+      target: "api/admin/files/" + this.imageUploadId,
+      singleFile: true
+    });
   }
 
   ngAfterViewInit() {

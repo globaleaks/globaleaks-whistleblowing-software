@@ -42,10 +42,11 @@ export class TipUploadWbFileComponent {
   onFileSelected(files: FileList | null) {
     if (files && files.length > 0) {
       const file = files[0];
-      const flowJsInstance = this.utilsService.getFlowInstance();
-      flowJsInstance.opts.target = "api/recipient/rtips/" + this.tip.id + "/rfiles";
-      flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.query = {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024};
+      const flowJsInstance = this.utilsService.getFlowInstance({
+        target: "api/recipient/rtips/" + this.tip.id + "/rfiles",
+        singleFile: true,
+        query: {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024}
+      });
       flowJsInstance.on("fileSuccess", (_) => {
         this.updated.emit()
         this.errorFile = null;
