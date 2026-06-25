@@ -523,7 +523,14 @@ export class UtilsService {
       refresh = false;
     }
 
-    if (requireConfirmation.indexOf(operation) !== -1) {
+    // A root administrator issuing a password reset link while operating on
+    // another tenant through a management session is exempted from step-up
+    // confirmation, mirroring the backend behavior.
+    const isManagementSession = !!this.authenticationService.session?.properties?.management_session;
+    const needsConfirmation = requireConfirmation.indexOf(operation) !== -1 &&
+      !(operation === "send_password_reset_email" && isManagementSession);
+
+    if (needsConfirmation) {
       // The authorized request is performed from within the confirmation modal
       // so that, if the confirmation secret is rejected, the modal stays open
       // and the operator can retry instead of losing the dialog.

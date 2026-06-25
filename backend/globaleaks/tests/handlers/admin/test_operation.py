@@ -171,6 +171,18 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
                           'send_password_reset_email',
                           {'value': self.dummyReceiver_1['id']})
 
+    def test_admin_send_password_reset_email_skips_confirmation_in_management_session(self):
+        # A root administrator operating on a secondary tenant through a
+        # management session is exempted from step-up confirmation when issuing
+        # a password reset link: the operation succeeds without any
+        # x-confirmation header.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        return self._test_operation_handler('send_password_reset_email',
+                                           {'value': self.dummyReceiver_1['id']},
+                                           tid=2,
+                                           properties={'management_session': True})
+
     def test_admin_reset_smtp_settings(self):
         return self._test_operation_handler('reset_smtp_settings')
 

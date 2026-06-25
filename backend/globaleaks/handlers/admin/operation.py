@@ -333,8 +333,7 @@ class AdminOperationHandler(OperationHandler):
         'toggle_user_escrow',
         'enable_user_permission_file_upload',
         'reset_submissions',
-        'set_user_password',
-        'send_password_reset_email'
+        'set_user_password'
     ]
 
     def enable_encryption(self, req_args, *args, **kwargs):
@@ -358,6 +357,14 @@ class AdminOperationHandler(OperationHandler):
     def send_password_reset_email(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['value']:
             raise errors.ForbiddenOperation
+
+        # Require step-up confirmation only when an administrator operates
+        # directly on a tenant (including the root one). A root tenant
+        # administrator operating on another tenant via a management session
+        # already authenticated fully on the root tenant before switching and
+        # is therefore exempted.
+        if not self.session.properties.get('management_session', False):
+            self.check_confirmation()
 
         return send_password_reset_token(self.request.tid,
                                          self.session,
