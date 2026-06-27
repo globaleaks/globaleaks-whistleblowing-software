@@ -131,6 +131,18 @@ def datetime_to_day_str(date, tz=0):
     return date.strftime("%d/%m/%Y")
 
 
+def parse_ISO8601(isodate):
+    """
+    Parse the date/time portion of an ISO 8601 string into a datetime.
+    """
+    return datetime(year=int(isodate[0:4]),
+                    month=int(isodate[5:7]),
+                    day=int(isodate[8:10]),
+                    hour=int(isodate[11:13]),
+                    minute=int(isodate[14:16]),
+                    second=int(isodate[17:19]))
+
+
 def ISO8601_to_pretty_str(isodate, tz=0):
     """
     convert a ISO8601 in pretty formatted str format
@@ -138,12 +150,7 @@ def ISO8601_to_pretty_str(isodate, tz=0):
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = datetime(year=int(isodate[0:4]),
-                    month=int(isodate[5:7]),
-                    day=int(isodate[8:10]),
-                    hour=int(isodate[11:13]),
-                    minute=int(isodate[14:16]),
-                    second=int(isodate[17:19]))
+    date = parse_ISO8601(isodate)
 
     if tz != 0:
         tz_i, tz_d = divmod(tz, 1)
@@ -161,12 +168,7 @@ def ISO8601_to_day_str(isodate, tz=0):
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = datetime(year=int(isodate[0:4]),
-                    month=int(isodate[5:7]),
-                    day=int(isodate[8:10]),
-                    hour=int(isodate[11:13]),
-                    minute=int(isodate[14:16]),
-                    second=int(isodate[17:19]))
+    date = parse_ISO8601(isodate)
 
     return datetime_to_day_str(date, tz)
 

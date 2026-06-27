@@ -320,43 +320,50 @@ class TestAnswersSchemaValidation(unittest.TestCase):
             F_LEAF: [{'value': 'x'}],
             F_GROUP: [{F_CHILD: [{'value': 'y'}]}]
         }
-        # No exception expected
         submission.db_validate_submission_answers(steps, answers)
+        # Canonical answers are kept verbatim
+        self.assertEqual(answers, {
+            F_LEAF: [{'value': 'x'}],
+            F_GROUP: [{F_CHILD: [{'value': 'y'}]}]
+        })
 
-    def test_leaf_answer_data_is_left_untouched(self):
-        # Non-list entry attributes (value, transient UI flags, checkbox option
-        # ids mapping to strings) are not recursion targets and must pass.
+    def test_unrecognized_leaf_keys_are_stripped(self):
+        # The client's transient required_status flag and any key a modified
+        # client appends carry no answer data: they are dropped so they can
+        # neither be persisted nor escape the per-field checks.
         steps = schema_with_fieldgroup()
         answers = {
-            F_LEAF: [{'value': 'x', 'required_status': False, F_UNKNOWN: 'True'}]
+            F_LEAF: [{'value': 'x', 'required_status': False, F_UNKNOWN: 'y'}]
         }
         submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_LEAF: [{'value': 'x'}]})
 
-    def test_unknown_top_level_field_is_rejected(self):
+    def test_unknown_top_level_field_is_stripped(self):
         steps = schema_with_fieldgroup()
-        answers = {F_UNKNOWN: [{'value': 'x'}]}
-        self.assertRaises(errors.InputValidationError,
-                          submission.db_validate_submission_answers, steps, answers)
+        answers = {F_LEAF: [{'value': 'x'}], F_UNKNOWN: [{'value': 'y'}]}
+        submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_LEAF: [{'value': 'x'}]})
 
-    def test_nested_field_not_in_fieldgroup_is_rejected(self):
+    def test_nested_field_not_in_fieldgroup_is_stripped(self):
         # A field id nested where the schema does not define it as a child
         steps = schema_with_fieldgroup()
         answers = {F_GROUP: [{F_UNKNOWN: [{'value': 'x'}]}]}
-        self.assertRaises(errors.InputValidationError,
-                          submission.db_validate_submission_answers, steps, answers)
+        submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_GROUP: [{}]})
 
-    def test_nested_list_under_a_leaf_field_is_rejected(self):
-        # A leaf field has no children: smuggling a nested field-id list into
-        # its entry must be rejected.
+    def test_nested_list_under_a_leaf_field_is_stripped(self):
+        # A leaf field has no children: a nested field-id list smuggled into
+        # its entry is dropped rather than recursed into.
         steps = schema_with_fieldgroup()
         answers = {F_LEAF: [{F_CHILD: [{'value': 'x'}]}]}
-        self.assertRaises(errors.InputValidationError,
-                          submission.db_validate_submission_answers, steps, answers)
+        submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_LEAF: [{}]})
 
-    def test_deeply_nested_answers_are_rejected(self):
+    def test_deeply_nested_answers_are_pruned_without_deep_recursion(self):
         # The denial-of-service payload: a field id recursively nested far
-        # beyond the recursion limit. The validation, driven by the schema,
-        # rejects it at the first level without recursing.
+        # beyond the recursion limit. The traversal, driven by the schema,
+        # drops it at the first level (F_GROUP is not a child of itself) without
+        # ever recursing to the attacker-controlled depth.
         steps = schema_with_fieldgroup()
         entry = {}
         cur = entry
@@ -365,15 +372,16 @@ class TestAnswersSchemaValidation(unittest.TestCase):
             cur[F_GROUP] = [child]
             cur = child
         answers = {F_GROUP: [entry]}
-        self.assertRaises(errors.InputValidationError,
-                          submission.db_validate_submission_answers, steps, answers)
+        submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_GROUP: [{}]})
 
-    def test_non_uuid_keys_and_non_list_values_are_ignored(self):
-        # Keys that are not field-id shaped, or that do not carry a list, are
-        # never recursed into by the readers and are intentionally not policed.
+    def test_non_uuid_keys_and_non_list_values_are_stripped(self):
+        # Keys that are not field-id shaped, or that do not carry recognised
+        # answer data, are never read by the consumers and are dropped.
         steps = schema_with_fieldgroup()
         answers = {F_LEAF: [{'not-a-uuid': [{'value': 'x'}], 'value': 'y'}]}
         submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_LEAF: [{'value': 'y'}]})
 
 
 # Field and option ids shaped like the UUIDs the answers validation acts upon
@@ -456,6 +464,16 @@ class TestAnswersConstraintsValidation(unittest.TestCase):
         steps = schema_with_constraints()
         answers = {F_CHECK: [{OPT_A: True, OPT_B: False, 'required_status': False}]}
         submission.db_validate_submission_answers(steps, answers)
+        # The boolean option flags are kept; the transient flag is stripped
+        self.assertEqual(answers, {F_CHECK: [{OPT_A: True, OPT_B: False}]})
+
+    def test_non_boolean_checkbox_flag_is_stripped(self):
+        # A flag that is not a boolean (e.g. an oversized string smuggled under
+        # a valid option id) carries no selection and is dropped.
+        steps = schema_with_constraints()
+        answers = {F_CHECK: [{OPT_A: 'x' * 10000}]}
+        submission.db_validate_submission_answers(steps, answers)
+        self.assertEqual(answers, {F_CHECK: [{}]})
 
     def test_inexistent_checkbox_option_is_rejected(self):
         steps = schema_with_constraints()
@@ -727,14 +745,19 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 
     @inlineCallbacks
-    def test_create_submission_with_deeply_nested_answers_rejected(self):
+    def test_create_submission_with_deeply_nested_answers_is_pruned(self):
         # A modified client cannot persist answers nested beyond the
         # questionnaire schema: such a report would later exhaust the recursion
-        # limit when an assigned recipient opens or exports it.
+        # limit when an assigned recipient opens or exports it. The schema-driven
+        # traversal drops the nested payload at the first level (the forged field
+        # is not defined there) so the submission succeeds carrying no such data,
+        # without ever recursing to the attacker-controlled depth.
         self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
         self.submission_desc['answers'] = helpers.forge_nested_answers('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
+        before = yield self.get_model_count(models.InternalTip)
         handler = self.request(self.submission_desc, role='whistleblower')
-        yield self.assertFailure(handler.post(), errors.InputValidationError)
+        yield handler.post()
+        self.assertEqual((yield self.get_model_count(models.InternalTip)), before + 1)
 
     @inlineCallbacks
     def test_create_submission_must_include_mandatory_recipients_when_selection_allowed(self):

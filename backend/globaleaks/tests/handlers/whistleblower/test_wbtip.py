@@ -5,7 +5,6 @@ from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.orm import transact
-from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.tests.helpers import VALID_SALT
 from globaleaks.utils.crypto import GCE
@@ -103,10 +102,13 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
             yield handler.post()
 
     @inlineCallbacks
-    def test_post_with_deeply_nested_answers_rejected(self):
+    def test_post_with_deeply_nested_answers_is_pruned(self):
         # A modified client cannot persist identity answers nested beyond the
         # questionnaire schema: such a report would later exhaust the recursion
-        # limit when an assigned recipient opens, exports or redacts it.
+        # limit when an assigned recipient opens, exports or redacts it. The
+        # schema-driven traversal drops the nested payload (the identity field is
+        # not a child of itself) so the operation succeeds carrying no such data,
+        # without ever recursing to the attacker-controlled depth.
         identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummyContext['id'])
 
         body = {
@@ -117,7 +119,7 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
         wbtips_desc = yield self.get_wbtips()
         for wbtip_desc in wbtips_desc:
             handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
-            yield self.assertFailure(handler.post(), errors.InputValidationError)
+            yield handler.post()
 
 
 class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
@@ -153,10 +155,13 @@ class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
             yield handler.post()
 
     @inlineCallbacks
-    def test_post_with_deeply_nested_answers_rejected(self):
+    def test_post_with_deeply_nested_answers_is_pruned(self):
         # A modified client cannot persist answers nested beyond the
         # questionnaire schema: such a report would later exhaust the recursion
-        # limit when an assigned recipient opens, exports or redacts it.
+        # limit when an assigned recipient opens, exports or redacts it. The
+        # schema-driven traversal drops the nested payload at the first level
+        # (the forged field is not defined there) so the operation succeeds
+        # carrying no such data, without recursing to the attacker depth.
         body = {
           'cmd': 'fill',
           'answers': helpers.forge_nested_answers('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
@@ -165,7 +170,7 @@ class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
         wbtips_desc = yield self.get_wbtips()
         for wbtip_desc in wbtips_desc:
             handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
-            yield self.assertFailure(handler.post(), errors.InputValidationError)
+            yield handler.post()
 
 
 class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):

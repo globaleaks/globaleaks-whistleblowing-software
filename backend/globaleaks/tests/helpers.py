@@ -729,7 +729,7 @@ class TestGL(unittest.TestCase):
         if field_type == 'checkbox':
             value = {}
             for option in field['options']:
-                value[option['id']] = 'True'
+                value[option['id']] = True
         elif field_type in {'selectbox', 'multichoice'}:
             value = {'value': field['options'][0]['id']}
         elif field_type == 'date':

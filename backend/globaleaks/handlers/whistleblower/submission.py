@@ -20,7 +20,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, GCE
 from globaleaks.utils.json import JSONEncoder
-from globaleaks.utils.utility import get_expiration, datetime_null
+from globaleaks.utils.utility import get_expiration, datetime_null, parse_ISO8601
 
 
 def index_answers(answers, parent_index=''):
@@ -512,12 +512,7 @@ def db_validate_field_entry(field, entry):
                 raise errors.InputValidationError("Invalid date value")
 
             try:
-                datetime(year=int(value[0:4]),
-                         month=int(value[5:7]),
-                         day=int(value[8:10]),
-                         hour=int(value[11:13]),
-                         minute=int(value[14:16]),
-                         second=int(value[17:19]))
+                parse_ISO8601(value)
             except (TypeError, ValueError):
                 raise errors.InputValidationError("Invalid date value")
 
@@ -554,34 +549,47 @@ def db_validate_field_entry(field, entry):
 
 def db_validate_submission_answers(steps, answers):
     """
-    Enforce that the submitted answers conform to the authoritative
-    questionnaire schema, an invariant otherwise enforced only by the official
-    client. The traversal is driven by the schema so that the submitted answers
-    map one-to-one onto the questionnaire the administrator configured.
+    Reduce the submitted answers, in place, to the canonical data the
+    authoritative questionnaire schema defines, an invariant otherwise enforced
+    only by the official client. The traversal is driven by the schema so that
+    what is persisted maps one-to-one onto the questionnaire the administrator
+    configured.
 
-    The structural validation polices the exact surface that the recursive
-    helpers operating on the stored answers descend into (see index_answers): a
-    key shaped like a field id (a UUID) whose value is a list of answer entries.
-    In a schema-conformant submission this pattern occurs only for the children
-    of a fieldgroup, so the traversal rejects any field the questionnaire does
-    not define at that position (a question that does not exist). This also
-    bounds the answers nesting to the depth configured by the administrator and
-    prevents a modified client from persisting arbitrarily deep answers that
-    would later exhaust the recursion limit when recipients open or export the
+    Every key that does not carry recognised answer data for its field is
+    dropped rather than persisted: the client's transient required_status flag,
+    a field the questionnaire does not define at that position (a question that
+    does not exist), and any key a modified client appends. This is what keeps a
+    modified client from smuggling unbounded content under an arbitrary key past
+    the per-field length and format checks, and bounds the answers nesting to
+    the depth the administrator configured so that arbitrarily deep answers
+    cannot later exhaust the recursion limit when recipients open or export the
     report.
 
-    Each entry is additionally validated against the constraints of its field
-    (see db_validate_field_entry) so that oversized or malformed text answers,
-    selections of options the questionnaire does not define, and ill-formed
-    date/daterange/tos values are rejected as well.
+    The answer value each field does carry is still validated against the
+    field's constraints (see db_validate_field_entry), so that oversized or
+    malformed text answers, selections of options the questionnaire does not
+    define, and ill-formed date/daterange/tos values are rejected rather than
+    stored.
     """
-    def validate_entries(field, entries):
-        if not isinstance(entries, list):
-            raise errors.InputValidationError("Invalid answers structure")
+    # Field types whose answer entry carries a single leaf 'value' (text, a
+    # selected option id, a date/daterange string or a tos boolean), constrained
+    # per type by db_validate_field_entry. The remaining types carry their
+    # answer differently: checkbox as option_id -> flag pairs, fieldgroup as
+    # child_field_id -> entries, and fileupload/voice carry no leaf value at all
+    # (their content flows through the attachments pipeline).
+    value_field_types = ('inputbox', 'textarea', 'selectbox', 'multichoice',
+                         'date', 'daterange', 'tos')
+
+    def prune_entries(field, entries):
+        field_type = field['type']
 
         children = {}
-        if field['type'] == 'fieldgroup':
+        if field_type == 'fieldgroup':
             children = {child['id']: child for child in field.get('children', [])}
+
+        option_ids = set()
+        if field_type == 'checkbox':
+            option_ids = {option['id'] for option in field.get('options', [])}
 
         for entry in entries:
             if not isinstance(entry, dict):
@@ -589,30 +597,41 @@ def db_validate_submission_answers(steps, answers):
 
             db_validate_field_entry(field, entry)
 
-            for key, value in entry.items():
-                # Only keys shaped like a field id and carrying a list of
-                # entries are recursed into by the helpers reading the answers;
-                # anything else is leaf answer data validated above.
-                if not isinstance(value, list) or not re.match(requests.uuid_regexp, key):
-                    continue
+            # Keep only the keys that carry recognised answer data for this
+            # field and drop everything else: the recursion descends into the
+            # children of a fieldgroup (the shape index_answers reads), a
+            # checkbox keeps its option flags, a value-bearing field keeps its
+            # leaf value, and any other key is discarded so it is neither
+            # persisted nor able to escape the checks db_validate_field_entry
+            # applied above.
+            for key in list(entry.keys()):
+                value = entry[key]
 
-                child = children.get(key)
-                if child is None:
-                    raise errors.InputValidationError("Unexpected nested field in answers")
+                if field_type in value_field_types:
+                    if key == 'value':
+                        continue
+                elif field_type == 'fieldgroup':
+                    child = children.get(key)
+                    if child is not None and isinstance(value, list):
+                        prune_entries(child, value)
+                        continue
+                elif field_type == 'checkbox':
+                    if key in option_ids and isinstance(value, bool):
+                        continue
 
-                validate_entries(child, value)
+                del entry[key]
 
     schema_fields = {field['id']: field for step in steps for field in step['children']}
 
-    for key, value in answers.items():
-        if not isinstance(value, list) or not re.match(requests.uuid_regexp, key):
+    for key in list(answers.keys()):
+        value = answers[key]
+
+        field = schema_fields.get(key) if re.match(requests.uuid_regexp, key) else None
+        if field is None or not isinstance(value, list):
+            del answers[key]
             continue
 
-        field = schema_fields.get(key)
-        if field is None:
-            raise errors.InputValidationError("Unexpected field in answers")
-
-        validate_entries(field, value)
+        prune_entries(field, value)
 
 
 def db_validate_answers(session, tid, questionnaire_id, answers, identity_provided):
