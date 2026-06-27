@@ -30,12 +30,12 @@
         "@fontsource-variable/noto-sans-khmer": "5.2.8",
         "@fontsource-variable/noto-sans-kr": "5.2.10",
         "@fontsource-variable/noto-sans-lao": "5.2.8",
+        "@fontsource-variable/noto-sans-myanmar": "5.2.1",
         "@fontsource-variable/noto-sans-sc": "5.2.10",
         "@fontsource-variable/noto-sans-tamil": "5.2.7",
         "@fontsource-variable/noto-sans-thaana": "5.2.8",
         "@fontsource-variable/noto-sans-thai": "5.2.8",
         "@fontsource-variable/noto-serif-tibetan": "5.2.8",
-        "@fontsource/noto-sans-myanmar": "5.2.7",
         "@fortawesome/fontawesome-svg-core": "7.3.0",
         "@fortawesome/free-brands-svg-icons": "7.3.0",
         "@fortawesome/free-solid-svg-icons": "7.3.0",
@@ -3831,6 +3831,15 @@
         "url": "https://github.com/sponsors/ayuhito"
       }
     },
+    "node_modules/@fontsource-variable/noto-sans-myanmar": {
+      "version": "5.2.1",
+      "resolved": "https://registry.npmjs.org/@fontsource-variable/noto-sans-myanmar/-/noto-sans-myanmar-5.2.1.tgz",
+      "integrity": "sha512-ObCAke6iQVR9xTeJjX4zK/xFYCJj2kqKK3MglIRgzMRVENYRZ8PajQROht2l3RiDrYLGqTXtN/BvoI9GcYp/bw==",
+      "license": "OFL-1.1",
+      "funding": {
+        "url": "https://github.com/sponsors/ayuhito"
+      }
+    },
     "node_modules/@fontsource-variable/noto-sans-sc": {
       "version": "5.2.10",
       "license": "OFL-1.1",
@@ -3861,13 +3870,6 @@
     },
     "node_modules/@fontsource-variable/noto-serif-tibetan": {
       "version": "5.2.8",
-      "license": "OFL-1.1",
-      "funding": {
-        "url": "https://github.com/sponsors/ayuhito"
-      }
-    },
-    "node_modules/@fontsource/noto-sans-myanmar": {
-      "version": "5.2.7",
       "license": "OFL-1.1",
       "funding": {
         "url": "https://github.com/sponsors/ayuhito"

@@ -36,7 +36,7 @@
     "@fontsource-variable/noto-sans-thaana": "5.2.8",
     "@fontsource-variable/noto-sans-thai": "5.2.8",
     "@fontsource-variable/noto-serif-tibetan": "5.2.8",
-    "@fontsource/noto-sans-myanmar": "5.2.7",
+    "@fontsource-variable/noto-sans-myanmar": "5.2.1",
     "@fortawesome/fontawesome-svg-core": "7.3.0",
     "@fortawesome/free-brands-svg-icons": "7.3.0",
     "@fortawesome/free-solid-svg-icons": "7.3.0",
