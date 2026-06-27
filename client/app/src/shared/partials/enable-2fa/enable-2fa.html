@@ -15,7 +15,10 @@
       </div>
       <br />
       <div class="text-center">
-        <qrcode ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'Q'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
+        <div class="qrcode-wrapper position-relative d-inline-block">
+          <qrcode ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(twoFactorAuthData.totp.secret);" [qrdata]="twoFactorAuthData.totp.qrcode_string" [width]="350" [errorCorrectionLevel]="'H'" [colorDark]="'#1d1f2a'" [colorLight]="'#fff'"></qrcode>
+          <span class="qrcode-logo"><i class="fa-brands fa-globaleaks" aria-hidden="true"></i></span>
+        </div>
         <div class="form-group d-block mx-auto">
           <label for="otp-secret-input" class="visually-hidden">{{'2FA'}}</label>
           <input id="otp-secret-input" class="form-control mx-auto" name="secret" [ngModel]="twoFactorAuthData.totp.secret" [ngModelOptions]="{standalone: true}" type="text" size="32" readonly disabled />

@@ -12,7 +12,26 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "src-enable-2fa",
     templateUrl: "./enable-2fa.html",
     standalone: true,
-    imports: [QRCodeComponent, FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
+    imports: [QRCodeComponent, FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe],
+    styles: [`
+      .qrcode-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        border-radius: 50%;
+        color: #1d1f2a;
+        font-size: 42px;
+        line-height: 1;
+        pointer-events: none;
+      }
+    `]
 })
 export class Enable2fa {
   protected utils = inject(UtilsService);

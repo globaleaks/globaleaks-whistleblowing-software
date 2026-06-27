@@ -38,6 +38,7 @@
     "@fontsource-variable/noto-serif-tibetan": "5.2.8",
     "@fontsource/noto-sans-myanmar": "5.2.7",
     "@fortawesome/fontawesome-svg-core": "7.3.0",
+    "@fortawesome/free-brands-svg-icons": "7.3.0",
     "@fortawesome/free-solid-svg-icons": "7.3.0",
     "@ng-bootstrap/ng-bootstrap": "20.0.0",
     "@ng-idle/core": "16.0.0",

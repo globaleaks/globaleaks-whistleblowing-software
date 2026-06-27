@@ -37,6 +37,7 @@
         "@fontsource-variable/noto-serif-tibetan": "5.2.8",
         "@fontsource/noto-sans-myanmar": "5.2.7",
         "@fortawesome/fontawesome-svg-core": "7.3.0",
+        "@fortawesome/free-brands-svg-icons": "7.3.0",
         "@fortawesome/free-solid-svg-icons": "7.3.0",
         "@ng-bootstrap/ng-bootstrap": "20.0.0",
         "@ng-idle/core": "16.0.0",
@@ -3942,6 +3943,18 @@
       "resolved": "https://registry.npmjs.org/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-7.3.0.tgz",
       "integrity": "sha512-MFbTNLDWkLJwbozDvHOZ7hwyDjQcBMBattlcOQ6ZmV5YD9bBrqdl1rNtmVjQ/lzqveXXX3sMz2Ew6fAgXoxmkw==",
       "license": "MIT",
+      "dependencies": {
+        "@fortawesome/fontawesome-common-types": "7.3.0"
+      },
+      "engines": {
+        "node": ">=6"
+      }
+    },
+    "node_modules/@fortawesome/free-brands-svg-icons": {
+      "version": "7.3.0",
+      "resolved": "https://registry.npmjs.org/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-7.3.0.tgz",
+      "integrity": "sha512-W6C9ZbPWpwcUycq6U90lVbvWTrEnr01Td2x5jlO8fOtvww4kqDBMSmZqXQCc6FIIJD4kTH6G1MBRExAaSXz3yg==",
+      "license": "(CC-BY-4.0 AND MIT)",
       "dependencies": {
         "@fortawesome/fontawesome-common-types": "7.3.0"
       },
