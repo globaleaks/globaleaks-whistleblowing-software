@@ -158,6 +158,11 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     """
     fill_localized_keys(request, models.User.localized_keys, language)
 
+    protected_users = db_get_protected_users(session, tid)
+    if user_id in protected_users and user_session.user_id not in protected_users:
+        # Prevent non-protected operators from editing protected users
+        raise errors.ForbiddenOperation
+
     user = db_get_user(session, tid, user_id)
     user.can_redact_information = request['can_redact_information']
     user.can_mask_information = request['can_mask_information']
