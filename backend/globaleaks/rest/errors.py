@@ -193,3 +193,11 @@ class InvalidDPoP(GLException):
     reason = "Invalid DPoP proof"
     error_code = 18
     status_code = 401
+
+class InvalidPoW(GLException):
+    """
+    The proof-of-work token accompanying the request is missing or invalid
+    """
+    reason = "Invalid PoW"
+    error_code = 19
+    status_code = 401

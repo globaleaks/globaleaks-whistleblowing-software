@@ -25,9 +25,9 @@ class Token(object):
     def validate(self, answer):
         try:
             if not Base64Encoder.decode(GCE.argon2id(self.id + answer, self.salt, 1, 1 << 20))[31] == 0:
-                raise errors.InternalServerError("TokenFailure: Invalid Token")
+                raise errors.InvalidPoW
         except Exception:
-            raise errors.InternalServerError("TokenFailure: Invalid token")
+            raise errors.InvalidPoW
 
 
 class TokenList(TempDict):
@@ -44,7 +44,7 @@ class TokenList(TempDict):
     def get(self, key):
         ret = TempDict.get(self, key)
         if ret is None:
-            raise errors.InternalServerError("TokenFailure: Invalid token")
+            raise errors.InvalidPoW
 
         return ret
 
@@ -54,6 +54,6 @@ class TokenList(TempDict):
             token = self.pop(key)
             token.validate(answer)
         except Exception:
-            raise errors.InternalServerError("TokenFailure: Invalid token")
+            raise errors.InvalidPoW
 
         return token
