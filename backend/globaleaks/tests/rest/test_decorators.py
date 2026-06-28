@@ -182,7 +182,7 @@ class TestDecorators(unittest.TestCase):
         decorated_func = decorator_authentication(test_func, ["receiver"])
 
         self.handler.request.client_ip = "198.51.100.5"
-        with self.assertRaises(errors.AccessLocationInvalid):
+        with self.assertRaises(errors.InvalidAuthentication):
             decorated_func(self.handler)
 
         # From an allowed address the same session is authorized

@@ -146,7 +146,7 @@ def connection_check(tid, role, client_ip, client_using_tor):
     if ip_filter_enabled:
         ip_filter = cache.get(ip_filter_key)
         if not check_ip(client_ip, ip_filter):
-            raise errors.AccessLocationInvalid
+            raise errors.InvalidAuthentication
 
     https_allowed = cache.get(https_allowed_key)
     if not https_allowed and not client_using_tor:

@@ -212,7 +212,7 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
             'password': helpers.VALID_KEY,
             'authcode': ''
         }, client_addr=b'192.168.1.1')
-        yield self.assertFailure(handler.post(), errors.AccessLocationInvalid)
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_login_success_on_ip_filtering(self):
