@@ -122,6 +122,12 @@ To minimize the exposure of users' encryption keys, the keys are stored in an en
 
 The implementation uses Libsodium's SecretBox, where the client's session key is used as the secret. Only the client maintains a copy of the session key, while the server retains only a SHA-256 hash.
 
+Session binding
+---------------
+The Session ID transmitted in the ``X-Session`` header is, on its own, a bearer secret: anyone who obtains the value could in principle replay it from a different context. To eliminate this risk, every authenticated session is cryptographically bound to a client-held key pair and each request must carry a per-request proof-of-possession, adapting the `OAuth 2.0 Demonstrating Proof of Possession (DPoP) <https://datatracker.ietf.org/doc/html/rfc9449>`__ (RFC 9449) construction to the GlobaLeaks session model. This turns the Session ID into a sender-constrained credential: a captured Session ID, or a single replayed proof, is useless without the private key that never leaves the browser.
+
+This defense addresses realistic exfiltration paths in the whistleblowing threat model, including a malicious browser extension or injected script reading the in-page Session ID, a TLS-terminating reverse proxy logging request headers, and forensic or memory traces left on a client device.
+
 HTTP headers
 ------------
 The system implements a large set of HTTP headers specifically configured to improve software security and achieves a `score A+ by Security Headers <https://securityheaders.com/?q=https%3A%2F%2Fdemo.globaleaks.org&followRedirects=on>`_ and a `score A+ by Mozilla Observatory <https://observatory.mozilla.org/analyze/demo.globaleaks.org>`_.
