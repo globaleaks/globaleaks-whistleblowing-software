@@ -117,10 +117,20 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
                                    models.InternalTip.tid == tid,
                                    models.Context.id == models.InternalTip.context_id).one()
 
+    whistleblower_identity = session.query(models.Field) \
+                                    .filter(models.Field.template_id == 'whistleblower_identity',
+                                            models.Field.step_id == models.Step.id,
+                                            models.Step.questionnaire_id == context.questionnaire_id).one_or_none()
+
+    if whistleblower_identity is None or identity_field_id != whistleblower_identity.id:
+        raise errors.InputValidationError("Invalid whistleblower identity field")
+
     # The identity answers are the entry of the whistleblower identity field,
     # so they are validated exactly as the initial submission validates the
-    # field entries.
-    db_validate_answers(session, tid, context.questionnaire_id, {identity_field_id: [wbi]}, True)
+    answers = {whistleblower_identity.id: [wbi]}
+    db_validate_answers(session, tid, context.questionnaire_id, answers, True)
+
+    wbi = answers[whistleblower_identity.id][0]
 
     if itip.crypto_tip_pub_key:
         wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
