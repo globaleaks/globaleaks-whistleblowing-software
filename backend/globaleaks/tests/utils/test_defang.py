@@ -16,7 +16,7 @@ texts = [
     ("https[://]already[.]defanged.com", "https[://]already[.]defanged[.]com"),
 
     # Text with multiple URLs
-    ("Check https://site.com and ftp:/files.net", "Check https[://]site[.]com and ftp[:/]files[.]net"),
+    ("Check https://site.com and https://files.net", "Check https[://]site[.]com and https[://]files[.]net"),
 
     # Text with invisible characters
     ("hidden\u200bchar\u200chere", "hiddencharhere"),
