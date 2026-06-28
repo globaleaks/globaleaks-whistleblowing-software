@@ -150,7 +150,7 @@ def connection_check(tid, role, client_ip, client_using_tor):
 
     https_allowed = cache.get(https_allowed_key)
     if not https_allowed and not client_using_tor:
-        raise errors.TorNetworkRequired
+        raise errors.InvalidAuthentication
 
 
 def db_confirmation_check(session, tid, user_id, secret):

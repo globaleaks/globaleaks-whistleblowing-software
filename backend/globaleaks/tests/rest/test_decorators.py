@@ -155,7 +155,7 @@ class TestDecorators(unittest.TestCase):
         decorated_func = decorator_authentication(test_func, ["receiver"])
 
         self.handler.request.client_using_tor = False
-        with self.assertRaises(errors.TorNetworkRequired):
+        with self.assertRaises(errors.InvalidAuthentication):
             decorated_func(self.handler)
 
         # Over Tor the same session is authorized

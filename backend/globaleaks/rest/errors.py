@@ -138,16 +138,6 @@ class InvalidTwoFactorAuthCode(GLException):
     status_code = 406
 
 
-class TorNetworkRequired(GLException):
-    """
-    A connection receiver not via Tor network is required to
-    be enforced with anonymity
-    """
-    reason = "Resource can be accessed only within Tor network"
-    error_code = 13
-    status_code = 403  # Forbidden
-
-
 class FileTooBig(GLException):
     """
     Raised when the uploaded file is bigger than acceptable

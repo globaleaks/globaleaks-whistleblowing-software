@@ -126,7 +126,7 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
             'authcode': ''
         })
         State.tenants[1].cache['https_admin'] = False
-        yield self.assertFailure(handler.post(), errors.TorNetworkRequired)
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_invalid_login_wrong_password(self):
@@ -278,7 +278,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
         yield self.perform_full_submission_actions()
         handler = self.request({'receipt': self.dummySubmission['receipt']})
         State.tenants[1].cache['https_whistleblower'] = False
-        yield self.assertFailure(handler.post(), errors.TorNetworkRequired)
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_single_session_per_whistleblower(self):
@@ -444,7 +444,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
         State.tenants[1].cache['https_receiver'] = False
         user_handler = self.request({}, headers={'x-session': session.id},
                                         handler_cls=UserInstance)
-        yield self.assertRaises(errors.TorNetworkRequired, user_handler.get)
+        yield self.assertRaises(errors.InvalidAuthentication, user_handler.get)
 
     @inlineCallbacks
     def test_redemption_enforces_session_tenant_connection_policy(self):
@@ -459,4 +459,4 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
             'authtoken': session.id,
         })
 
-        yield self.assertFailure(handler.post(), errors.TorNetworkRequired)
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
