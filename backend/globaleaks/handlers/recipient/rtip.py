@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 
 from nacl.encoding import Base64Encoder
-from sqlalchemy import or_
+from sqlalchemy import and_, or_
 from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -1163,13 +1163,19 @@ def create_redaction(session, tid, user_id, data):
     # questionnaire, e.g. the default one), so there is no per-report row to
     # validate here; they are instead confined by the report-scoped redaction
     # loading at consumption time (see redact_report).
+    #
+    # In addition, a personal (visibility == 2) recipient file belongs to a
+    # single recipient (author_id); reject any reference to such a file owned by
+    # another user, mirroring the access guard enforced in db_access_rfile.
     if reference_id and \
             (session.query(models.InternalFile)
                     .filter(models.InternalFile.id == reference_id,
                             models.InternalFile.internaltip_id != itip.id).first() or
              session.query(models.ReceiverFile)
                     .filter(models.ReceiverFile.id == reference_id,
-                            models.ReceiverFile.internaltip_id != itip.id).first() or
+                            or_(models.ReceiverFile.internaltip_id != itip.id,
+                                and_(models.ReceiverFile.visibility == 2,
+                                     models.ReceiverFile.author_id != user_id))).first() or
              session.query(models.Comment)
                     .filter(models.Comment.id == reference_id,
                             models.Comment.internaltip_id != itip.id).first()):
