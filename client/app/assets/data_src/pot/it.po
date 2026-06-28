@@ -28,7 +28,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2026-06-22 06:07+0000\n"
+"PO-Revision-Date: 2026-06-28 19:23+0000\n"
 "Last-Translator: Giovanni Pellerano "
 "<evilaliv3@users.noreply.localizationlab.weblate.cloud>\n"
 "Language-Team: Italian <https://localizationlab.weblate.cloud/projects/"
@@ -609,7 +609,6 @@ msgstr "Alto"
 msgid "Hint"
 msgstr "Suggerimento"
 
-#, fuzzy
 msgid "Home"
 msgstr "Pagina iniziale"
 
@@ -1358,13 +1357,12 @@ msgid ""
 "deselected:"
 msgstr "I seguenti destinatari riceveranno la segnalazione e non possono essere deselezionati:"
 
-#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
 msgstr ""
 "Completa la seguente procedura guidata per creare la tua piattaforma di "
-"sengnalazione."
+"segnalazione."
 
 msgid "The link will expire in 7 days."
 msgstr "Il link ha una validità di 7 giorni."
@@ -1563,7 +1561,6 @@ msgstr "In attesa che i file finiscano di essere caricati."
 msgid "Warning"
 msgstr "Attenzione"
 
-#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
@@ -1642,9 +1639,8 @@ msgstr "Il tuo nuovo indirizzo email è stato validato."
 msgid "Your report was successful."
 msgstr "La tua segnalazione è andata a buon fine."
 
-#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
-msgstr "La tua piattaforma di whistleblowing è quasi pronta!"
+msgstr "La tua piattaforma di segnalazione è quasi pronta!"
 
 msgid "days"
 msgstr "giorni"
@@ -1782,9 +1778,8 @@ msgstr "Distinti saluti,"
 msgid "Account activation"
 msgstr "Attivazione account"
 
-#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "La tua piattaforma di whistleblowing è ora accessibile all'indirizzo:"
+msgstr "La tua piattaforma di segnalazione è ora accessibile all'indirizzo:"
 
 msgid "To log in, visit:"
 msgstr "Per accedere visita:"
@@ -1829,9 +1824,8 @@ msgstr "Senza una chiave PGP valida, il sistema non sarà in grado di inviare lo
 msgid "PGP key expiration alert"
 msgstr "Notifica di scadenza chiave PGP"
 
-#, fuzzy
 msgid "A new whistleblowing site has been registered."
-msgstr "Un nuovo sito di whistleblowing è stato registrato."
+msgstr "Un nuovo sito di segnalazione è stata registrata."
 
 msgid "Registration data:"
 msgstr "Dati di registrazione"
@@ -1845,9 +1839,8 @@ msgstr "Nome: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
-#, fuzzy
 msgid "New whistleblowing site registered"
-msgstr "Nuovo sito di whistleblowing registrato"
+msgstr "Nuovo sito di segnalazione registrato"
 
 msgid ""
 "This is a test email sent out from the platform's administrative interface."
@@ -1885,7 +1878,6 @@ msgstr "Da: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
-#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Da: Persona segnalante"
 
@@ -1927,7 +1919,6 @@ msgstr "Il sistema effetturerà automaticamente nuovi tentativi."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Fallimento nel rinnovo del certificato HTTPS"
 
-#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
@@ -1941,7 +1932,6 @@ msgstr "La segnalazione può essere consultata accedendo all'indirizzo:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Accesso all'identità della persona segnalante autorizzato"
 
-#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."

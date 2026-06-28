@@ -16,9 +16,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2026-06-22 06:07+0000\n"
-"Last-Translator: Giovanni Pellerano "
-"<evilaliv3@users.noreply.localizationlab.weblate.cloud>\n"
+"PO-Revision-Date: 2026-06-25 13:07+0000\n"
+"Last-Translator: eva <eva@users.noreply.localizationlab.weblate.cloud>\n"
 "Language-Team: Finnish <https://localizationlab.weblate.cloud/projects/"
 "globaleaks/stable/fi/>\n"
 "Language: fi\n"
@@ -73,7 +72,7 @@ msgid "Add new question"
 msgstr "Lisää uusi kysymys"
 
 msgid "Add new questionnaire"
-msgstr "Lisää uusi vihjelomake"
+msgstr "Lisää uusi ilmoituslomake"
 
 msgid "Add question from template"
 msgstr "Lisää kysymys mallipohjasta"
@@ -82,7 +81,7 @@ msgid "Addition"
 msgstr "Lisäys"
 
 msgid "Additional questionnaire"
-msgstr "Täydentävä vihjelomake"
+msgstr "Täydentävä ilmoituslomake"
 
 msgid "Address"
 msgstr "Osoite"
@@ -335,7 +334,7 @@ msgid "Deny"
 msgstr "Kiellä"
 
 msgid "Deny access to the reporting person's identity"
-msgstr "Estä pääsy vihjeenantajan henkilöllisyyteen"
+msgstr "Estä pääsy ilmoittajan henkilöllisyyteen"
 
 msgid "Description"
 msgstr "Kuvaus"
@@ -368,7 +367,7 @@ msgid "Disable notifications to recipients"
 msgstr "Poista käytöstä ilmoitukset vastaanottajille"
 
 msgid "Disable submissions"
-msgstr "Poista vihjeiden lähettäminen käytöstä"
+msgstr "Poista ilmoitusten lähettäminen käytöstä"
 
 msgid "Disable the privacy panel"
 msgstr "Poista tietosuojapaneeli käytöstä"
@@ -966,13 +965,13 @@ msgid "Question to solicit possible reporting persons"
 msgstr "Kysymys mahdollisten ilmiantajien hankkimiseksi"
 
 msgid "Questionnaire"
-msgstr "Vihjelomake"
+msgstr "Ilmoituslomake"
 
 msgid "Questionnaire answers"
-msgstr "Saapuneet vihjeet"
+msgstr "Saapuneet ilmoitukset"
 
 msgid "Questionnaires"
-msgstr "Vihjelomakkeet"
+msgstr "Ilmoituslomakkeet"
 
 msgid "Questions"
 msgstr "Kysymykset"
@@ -1206,7 +1205,7 @@ msgid "Show recipients in alphabetical order"
 msgstr "Näytä vastaanottajat aakkosjärjestyksessä"
 
 msgid "Show the questionnaire navigation interface"
-msgstr "Näytä vihjelomakkeen navigaationäkymä"
+msgstr "Näytä ilmoituslomakkeen navigaationäkymä"
 
 msgid "Sign up"
 msgstr "Rekisteröidy"
@@ -1266,7 +1265,7 @@ msgid "Submit"
 msgstr "Lähetä"
 
 msgid "Submit a report"
-msgstr "Jätä vihje"
+msgstr "Jätä ilmoitus"
 
 msgid "Subscribed"
 msgstr "Tilattu"
@@ -1345,13 +1344,12 @@ msgid ""
 "deselected:"
 msgstr "Seuraavat vastaanottajat saavat ilmoituksesi, eikä valintaa voi poistaa:"
 
-#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
 msgstr ""
-"Tämän vaihe vaiheelta -opastuksen avulla voit ottaa vihjepalvelun käyttöösi "
-"haluamillasi asetuksilla."
+"Tämän vaihe vaiheelta -opastuksen avulla voit ottaa whistleblowing-palvelun "
+"käyttöösi haluamillasi asetuksilla."
 
 msgid "The link will expire in 7 days."
 msgstr "Linkki vanhenee 7 päivän kuluttua."
@@ -1409,10 +1407,10 @@ msgid "The validation link is either incorrect or has expired."
 msgstr "Vahvistuslinkki on joko virheellinen tai vanhentunut."
 
 msgid "The reporting person has already read the last update"
-msgstr "Vihjeen lähettäjä on jo lukenut viimeisimmän päivityksen"
+msgstr "Ilmoituksen lähettäjä on jo lukenut viimeisimmän päivityksen"
 
 msgid "The reporting person has not read the last update yet"
-msgstr "Vihjeen lähettäjä ei ole vielä lukenut viimeisintä päivitystä"
+msgstr "Ilmoituksen lähettäjä ei ole vielä lukenut viimeisintä päivitystä"
 
 msgid "Then, copy and paste the following address into the Tor Browser:"
 msgstr "Kopioi ja liitä sitten seuraava osoite Tor-selaimeen:"
@@ -1536,7 +1534,7 @@ msgid "View"
 msgstr "Näytä"
 
 msgid "View your report"
-msgstr "Tarkastele omaa vihjettä"
+msgstr "Tarkastele omaa ilmoitustasi"
 
 msgid "Voice"
 msgstr "Ääni"
@@ -1579,7 +1577,7 @@ msgid "Welcome!"
 msgstr "Tervetuloa!"
 
 msgid "Reporting person"
-msgstr "Vihjeenantaja"
+msgstr "Ilmoituksen lähettäjä"
 
 msgid "Reporting person's last access"
 msgstr "Vihjeenantajan viimeisin kirjautumisajankohta"
@@ -1868,9 +1866,8 @@ msgstr "Lähettäjä: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Päivämäärä: {EventTime}"
 
-#, fuzzy
 msgid "From: Whistleblower"
-msgstr "Lähettäjä: Vihjeen antaja"
+msgstr "Lähettäjä: Ilmoittaja"
 
 msgid "Date: {SubmissionDate}"
 msgstr "Päivämäärä: {SubmissionDate}"
@@ -1879,7 +1876,7 @@ msgid "Label: {TipLabel}"
 msgstr "Otsikko: {TipLabel}"
 
 msgid "Status: {TipStatus}"
-msgstr "Vihjeen tila: {TipStatus}"
+msgstr "Ilmoituksen tila: {TipStatus}"
 
 msgid ""
 "The HTTPS certificate loaded on the platform is about to, or has already "
@@ -1952,7 +1949,7 @@ msgid ""
 msgstr "Tämä sähköpostiviesti ilmoittaa, että ilmoituksen {TipNum} tekijä on antanut henkilötietonsa."
 
 msgid "The reporting person has provided their identity"
-msgstr "Vihjeen lähettäjä on antanut henkilötietonsa"
+msgstr "Ilmoituksen lähettäjä on antanut henkilötietonsa"
 
 msgid ""
 "You're receiving this email because a password reset has been requested for "
@@ -2042,13 +2039,13 @@ msgid "This is an email to notify that an existing report has been updated."
 msgstr "Tämä sähköpostiviesti ilmoittaa, että aiemmin luotua ilmoitusta on päivitetty."
 
 msgid "Report updated"
-msgstr "Vihjettä on päivitetty"
+msgstr "Ilmoitusta päivitetty"
 
 msgid "This email is to remind you the presence of unread or updated reports."
 msgstr "Tämä sähköpostiviesti muistuttaa sinua lukemattomista tai päivitetyistä ilmoituksista."
 
 msgid "Reminder about unread or updated reports"
-msgstr "Muistutus lukemattomista tai päivitetyistä vihjeistä"
+msgstr "Muistutus lukemattomista tai päivitetyistä ilmoituksista"
 
 msgid "Role: {Role}"
 msgstr "Rooli: {Role}"
@@ -2058,3 +2055,9 @@ msgstr "Salasana: {Password}"
 
 msgid "Reset password"
 msgstr "Aseta salasana"
+
+msgid "hours"
+msgstr "tuntia"
+
+msgid "minutes"
+msgstr "minuuttia"
