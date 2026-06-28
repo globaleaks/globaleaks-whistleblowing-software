@@ -241,10 +241,6 @@ def serialize_itip(session, internaltip, language):
         ret['data'][itd.key] = itd.value
         ret['data'][itd.key + "_date"] = itd.creation_date
 
-    for redaction in session.query(models.Redaction) \
-                            .filter(models.Redaction.internaltip_id == internaltip.id):
-        ret['redactions'].append(serialize_redaction(session, redaction))
-
     return ret
 
 
@@ -278,6 +274,10 @@ def serialize_rtip(session, itip, rtip, language):
 
     if iar:
         ret['iar'] = serialize_identityaccessrequest(session, iar)
+
+    for redaction in session.query(models.Redaction) \
+                            .filter(models.Redaction.internaltip_id == itip.id):
+        ret['redactions'].append(serialize_redaction(session, redaction))
 
     active_receiver_ids = session.query(models.ReceiverTip.receiver_id) \
         .filter(models.ReceiverTip.internaltip_id == itip.id) \
