@@ -206,9 +206,9 @@ export class AppConfigService {
   }
 
   reload() {
-    this.localInitialization(true, () => {
-      const url = this.router.url;
-      this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
+    const url = this.router.url;
+    this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
+      this.localInitialization(true, () => {
         this.router.navigateByUrl(url);
       });
     });
