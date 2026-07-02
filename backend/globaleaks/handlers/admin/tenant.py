@@ -174,9 +174,10 @@ def db_get_tenant_list(session):
     configs = db_get_configs(session, 'tenant')
 
     for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != DEFAULT_PROFILE_ID):
+        if s and not t.active:
+            continue
+
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
-        if s:
-            tenant_dict['signup'] = serializers.serialize_signup(s)
 
         ret.append(tenant_dict)
 
@@ -338,12 +339,24 @@ def wizard(session, tid, hostname, request):
 
 
 @transact
-def update(session, tid, request):
+def update(session, tid, request, language):
     root_tenant_config = config.ConfigFactory(session, 1)
 
     t = db_get(session, models.Tenant, models.Tenant.id == tid)
 
-    t.active = request['active']
+    if request['active'] and not t.active:
+        subscriber = session.query(models.Subscriber).filter(
+            models.Subscriber.tid == tid,
+            models.Subscriber.activation_token.isnot(None)
+        ).one_or_none()
+
+        if subscriber is not None:
+            from globaleaks.handlers.signup import db_signup_activation
+            db_signup_activation(session, subscriber.activation_token, '', language)
+        else:
+            t.active = True
+    else:
+        t.active = request['active']
 
     if request['subdomain'] + "." + root_tenant_config.get_val('rootdomain') == root_tenant_config.get_val('hostname'):
         raise errors.ForbiddenOperation
@@ -456,7 +469,7 @@ class TenantInstance(BaseHandler):
         request = self.validate_request(self.request.content.read(),
                                         requests.AdminTenantDesc)
 
-        return update(int(tid), request)
+        return update(int(tid), request, self.request.language)
 
     @inlineCallbacks
     def delete(self, tid):

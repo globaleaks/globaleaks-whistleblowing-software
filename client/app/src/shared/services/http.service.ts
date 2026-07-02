@@ -135,6 +135,10 @@ export class HttpService {
     return this.httpClient.post<void>("api/signup", param);
   }
 
+  requestSignupInvite(token: string): Observable<{organization_name: string; email: string; expiration_date: string}> {
+    return this.httpClient.get<{organization_name: string; email: string; expiration_date: string}>("api/invites/" + token);
+  }
+
   requestWizard(param: string): Observable<void> {
     return this.httpClient.post<void>("api/wizard", param);
   }
@@ -368,6 +372,23 @@ export class HttpService {
     subdomain: string
   }): Observable<tenantResolverModel> {
     return this.httpClient.post<tenantResolverModel>("api/admin/tenants", param);
+  }
+
+  // Admin invite: reuse signup flow on backend
+  requestAdminInvite(param: any): Observable<any> {
+    return this.httpClient.post<any>("api/admin/invites", param);
+  }
+
+  requestAdminInvites(): Observable<any[]> {
+    return this.httpClient.get<any[]>("api/admin/invites");
+  }
+
+  requestDeleteAdminInvite(id: string): Observable<void> {
+    return this.httpClient.delete<void>("api/admin/invites/" + id);
+  }
+
+  requestUpdateAdminInvite(id: string, action: "accept" | "deny"): Observable<any> {
+    return this.httpClient.put<any>("api/admin/invites/" + id, {action});
   }
 
   accessIdentity(id: string): Observable<void> {

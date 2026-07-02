@@ -32,4 +32,8 @@ export class SignupdefaultComponent implements OnInit {
   ngOnInit(): void {
     this.emailRegex = Constants.Constants.emailRegexp;
   }
+
+  get invitedSignup(): boolean {
+    return !!this.signup.token;
+  }
 }

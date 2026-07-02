@@ -4,6 +4,15 @@
       <div class="title">{{'Sign up'|translate}}</div>
     </div>
   </div>
+  @if (invitedSignup) {
+    <div class="row">
+      <div class="col-md-12 form-group">
+        <label for="signup-organization-name">{{'Organization name'|translate}}</label>
+        <input id="signup-organization-name" name="organization_name" class="form-control" [(ngModel)]="signup.organization_name" type="text" readonly>
+      </div>
+    </div>
+  }
+  @if (!invitedSignup) {
   <div class="row">
     <div class="col-md-12 form-group">
       <label for="signup-subdomain">
@@ -18,6 +27,7 @@
       </div>
     </div>
   </div>
+  }
   <div class="row">
     <div class="col-md-6 form-group">
       <label for="signup-name">{{'Name'|translate}}</label>

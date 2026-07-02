@@ -25,10 +25,13 @@
       <div class="congratulations">
         <div class="title">{{'Success!'|translate}}</div>
         <div>
-          <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
-          <span>{{'Check your inbox to activate it.'|translate}}</span>
-          <br />
-          <span>{{'If not activated within 24 hours the platform will be automatically deleted.'|translate}}</span>
+          @if (appDataService.public.node.signup_auto_authorize || signup.token) {
+            <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
+            <span>{{'Check your inbox for the credentials.'|translate}}</span>
+          }
+          @if (!appDataService.public.node.signup_auto_authorize && !signup.token) {
+            <span>{{'Your whistleblowing platform registration is waiting for approval.'|translate}}</span>
+          }
         </div>
       </div>
     </div>

@@ -163,6 +163,10 @@ api_spec = [
     ('/api/signup', signup.Signup),
     ('/api/signup', signup.SignupActivation, r'/api/signup/([a-zA-Z0-9_\-]{64})'),
 
+    ('/api/admin/invites', admin.invite.InvitesCollection),
+    ('/api/admin/invites', admin.invite.AdminInviteInstance, r'/api/admin/invites/' + uuid_regexp),
+    ('/api/invites', admin.invite.InviteInstance, r'/api/invites/([a-zA-Z0-9_\-]{64})'),
+
     # Well known path
     ('/.well-known/acme-challenge', admin.https.AcmeChallengeHandler, r'/\.well-known/acme-challenge/([a-zA-Z0-9_\-]{42,44})'),
     ('/.well-known/security.txt', security.SecuritytxtHandler),

@@ -45,6 +45,7 @@ export class NotificationTab3Component {
     'software_update_available',
     'admin_signup_alert',
     'signup',
+    'signup_invite',
     'activation',
     'email_validation',
     'account_activation',

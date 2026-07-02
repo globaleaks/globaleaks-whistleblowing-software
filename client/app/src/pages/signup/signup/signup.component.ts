@@ -3,6 +3,7 @@ import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Signup} from "@app/models/component-model/signup";
+import {ActivatedRoute} from "@angular/router";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
 import {WbpaComponent} from "../templates/wbpa/wbpa.component";
@@ -19,6 +20,7 @@ export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   private httpService = inject(HttpService);
   private appConfig = inject(AppConfigService);
+  private route = inject(ActivatedRoute);
 
   hostname = "";
   completed = false;
@@ -36,11 +38,19 @@ export class SignupComponent implements OnInit {
     "organization_vat_code": "",
     "organization_location": "",
     "tos1": false,
-    "tos2": false
+    "tos2": false,
+    "token": ""
   };
 
   ngOnInit() {
     this.appConfig.routeChangeListener();
+    this.signup.token = this.route.snapshot.queryParamMap.get("token") || "";
+    if (this.signup.token) {
+      this.httpService.requestSignupInvite(this.signup.token).subscribe(invite => {
+        this.signup.organization_name = invite.organization_name;
+        this.signup.email = invite.email;
+      });
+    }
   }
 
   updateSubdomain() {

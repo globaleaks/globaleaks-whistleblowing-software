@@ -122,6 +122,14 @@ account_activation_keywords = [
 ]
 
 
+signup_invite_keywords = [
+    '{RecipientName}',
+    '{OrganizationName}',
+    '{InviteUrl}',
+    '{ExpirationDate}'
+]
+
+
 def indent(n=1):
     return '  ' * n
 
@@ -554,6 +562,27 @@ class EmailValidationKeyword(UserNodeKeyword):
         return '/api/user/validate/email/' + self.data['validation_token']
 
 
+class TenantInviteKeyword(NodeKeyword):
+    keyword_list = NodeKeyword.keyword_list + signup_invite_keywords
+    data_keys = NodeKeyword.data_keys + ['invite']
+
+    def RecipientName(self):
+        return self.data['invite']['email']
+
+    def OrganizationName(self):
+        return self.data['invite']['organization_name']
+
+    def InviteUrl(self):
+        if self.data['node']['hostname']:
+            site = 'https://' + self.data['node']['hostname']
+        else:
+            site = ''
+
+        return site + '/#/signup?token=' + self.data['invite']['token']
+
+    def ExpirationDate(self):
+        return datetime_to_pretty_str(self.data['invite']['expiration_date'])
+
 class AccountActivationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + account_activation_keywords
 
@@ -615,7 +644,8 @@ supported_template_types = {
     'user_credentials': UserCredentials,
     'identity_access_request': IdentityAccessRequestKeyword,
     'identity_access_authorized': TipKeyword,
-    'identity_access_denied': TipKeyword
+    'identity_access_denied': TipKeyword,
+    'signup_invite': TenantInviteKeyword
 }
 
 

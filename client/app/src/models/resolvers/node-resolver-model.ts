@@ -13,6 +13,8 @@ export class nodeResolverModel {
   enable_developers_exception_notification: boolean;
   enable_scoring_system: boolean;
   enable_signup: boolean;
+  signup_invite_only: boolean;
+  signup_auto_authorize: boolean;
   encryption: boolean;
   escrow: boolean;
   hostname: string;

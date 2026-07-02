@@ -232,6 +232,8 @@ AdminNodeDesc = {
     'simplified_login': bool,
     'enable_scoring_system': bool,
     'enable_signup': bool,
+    'signup_invite_only': bool,
+    'signup_auto_authorize': bool,
     'mode': str,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
@@ -543,7 +545,7 @@ WizardDesc = {
 }
 
 SignupDesc = {
-    'subdomain': subdomain_regexp,
+    'subdomain': subdomain_regexp_or_empty,
     'name': alphanumeric_str_regexp,
     'surname': alphanumeric_str_regexp,
     'role': alphanumeric_str_regexp,
@@ -553,6 +555,25 @@ SignupDesc = {
     'organization_tax_code': alphanumeric_str_regexp,
     'organization_vat_code': alphanumeric_str_regexp,
     'organization_location': str,
+    'tos1': bool,
+    'tos2': bool
+}
+
+TenantInviteDesc = {
+    'organization_name': str,
+    'email': email_regexp
+}
+
+TenantInviteUpdateDesc = {
+    'action': r'^(accept|deny)$'
+}
+
+TenantInviteAcceptanceDesc = {
+    'name': alphanumeric_str_regexp,
+    'surname': alphanumeric_str_regexp,
+    'role': alphanumeric_str_regexp,
+    'email': email_regexp,
+    'phone': phone_regexp,
     'tos1': bool,
     'tos2': bool
 }

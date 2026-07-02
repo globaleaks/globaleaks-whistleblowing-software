@@ -1,18 +1,21 @@
-# Handlers implementing platform signup
-from twisted.internet.threads import deferToThread
+import json
+from datetime import timedelta
+
 from globaleaks import models
-from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.db import db_refresh_tenant_cache
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.tenant import db_create as db_create_tenant, db_wizard
 from globaleaks.handlers.admin.user import db_get_users
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.models.config import ConfigFactory
+from globaleaks.models.config import ConfigFactory, db_set_config_variable
+from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
 from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, GCE
+from globaleaks.utils.utility import datetime_now
 
 
 @transact
@@ -29,7 +32,36 @@ def signup(session, request, language):
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
-    if request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
+    invite = None
+    invited_tenant = None
+    invite_token = request['token']
+
+    if invite_token:
+        ret = session.query(models.Subscriber, models.Tenant) \
+            .filter(models.Subscriber.activation_token == invite_token,
+                    models.Subscriber.state == EnumSubscriberStatus.invited.value,
+                    models.Tenant.id == models.Subscriber.tid).one_or_none()
+
+        if ret is None:
+            raise errors.ForbiddenOperation
+
+        invite, invited_tenant = ret
+
+        if invite.registration_date < datetime_now() - timedelta(hours=24):
+            db_del(session, models.Tenant, models.Tenant.id == invited_tenant.id)
+            raise errors.ForbiddenOperation
+
+        request['subdomain'] = ''
+        request['organization_name'] = invite.organization_name
+        request['organization_tax_code'] = ''
+        request['organization_vat_code'] = ''
+        request['organization_location'] = ''
+    elif config.get_val('signup_invite_only'):
+        raise errors.ForbiddenOperation
+    elif not request['subdomain']:
+        raise errors.InputValidationError
+
+    if request['subdomain'] and request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
         raise errors.ForbiddenOperation
 
     request['activation_token'] = generateRandomKey()
@@ -40,48 +72,50 @@ def signup(session, request, language):
 
     # Delete the tenants created for the same subdomain that have still not been activated
     # Ticket reference: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2640
-    tids = [tid for (tid,) in session.query(models.Tenant.id).filter(
-        models.Subscriber.subdomain == request['subdomain'],
-        models.Subscriber.activation_token.isnot(None),
-        models.Tenant.id == models.Subscriber.tid
-    ).all()]
+    tids = []
+    if request['subdomain']:
+        tids = [tid for (tid,) in session.query(models.Tenant.id).filter(
+            models.Subscriber.subdomain == request['subdomain'],
+            models.Subscriber.activation_token.isnot(None),
+            models.Tenant.id == models.Subscriber.tid
+        ).all()]
 
     db_del(session, models.Tenant, models.Tenant.id.in_(tids))
 
-    tenant = db_create_tenant(session, {'active': False,
-                                        'name': request['subdomain'],
-                                        'subdomain': request['subdomain'],
-                                        'mode': config.get_val('mode'),
-                                        'profile': 'default'})
+    active = invite is not None or config.get_val('signup_auto_authorize')
+    if invite is not None:
+        tenant = invited_tenant
+        tenant.active = active
 
-    signup = models.Subscriber(request)
+        signup = invite
+        for key in request:
+            if key != 'subdomain' and hasattr(signup, key):
+                setattr(signup, key, request[key])
+        db_set_config_variable(session, tenant.id, 'subdomain', request['subdomain'])
+        signup.state = EnumSubscriberStatus.invited.value
+    else:
+        tenant = db_create_tenant(session, {'active': active,
+                                            'name': request['organization_name'] or request['subdomain'],
+                                            'subdomain': request['subdomain'],
+                                            'mode': config.get_val('mode'),
+                                            'profile': 'default'})
 
-    signup.tid = tenant.id
+        signup = models.Subscriber(request)
 
-    session.add(signup)
+        signup.tid = tenant.id
+
+        session.add(signup)
 
     session.flush()
 
-    # We need to send two emails
-    #
-    # The first one is sent to the platform owner with the activation email.
-    #
-    # The second goes to the instance administrators notifying them that a new
-    # platform has been added.
+    if active:
+        db_signup_activation(session, request['activation_token'], '', language)
+        return
+
+    # Notify instance administrators that a new platform is waiting for approval.
 
     signup_dict = serializers.serialize_signup(signup)
 
-    # Email 1 - Activation Link
-    template_vars = {
-        'type': 'signup',
-        'node': db_admin_serialize_node(session, 1, language),
-        'notification': db_get_notification(session, 1, language),
-        'signup': signup_dict
-    }
-
-    State.format_and_send_mail(session, 1, signup.email, template_vars)
-
-    # Email 2 - Admin Notification
     for user_desc in db_get_users(session, 1, 'admin'):
         template_vars = {
             'type': 'admin_signup_alert',
@@ -94,8 +128,7 @@ def signup(session, request, language):
         State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
 
 
-@transact
-def signup_activation(session, token, hostname, language):
+def db_signup_activation(session, token, hostname, language):
     """
     Transaction registering the activation of a platform registered via signup
 
@@ -172,7 +205,12 @@ def signup_activation(session, token, hostname, language):
 
     State.format_and_send_mail(session, 1, signup.email, template_vars)
 
-    deferToThread(sync_refresh_tenant_cache, tenant)
+    db_refresh_tenant_cache(session, tenant.id)
+
+
+@transact
+def signup_activation(session, token, hostname, language):
+    return db_signup_activation(session, token, hostname, language)
 
 
 class Signup(BaseHandler):
@@ -183,11 +221,20 @@ class Signup(BaseHandler):
     root_tenant_only = True
 
     def post(self):
-        request = self.validate_request(self.request.content.read(),
-                                        requests.SignupDesc)
+        raw_request = self.request.content.read()
+        try:
+            parsed_request = json.loads(raw_request)
+        except:
+            raise errors.InputValidationError
+
+        token = ''
+        if 'token' in parsed_request:
+            token = parsed_request['token']
+        request = self.validate_request(parsed_request, requests.SignupDesc)
 
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
+        request['token'] = token
 
         return signup(request, self.request.language)
 

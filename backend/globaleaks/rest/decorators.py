@@ -21,7 +21,7 @@ def has_session_or_token(self):
 def decorator_require_session_or_token(f):
     # Decorator that ensures a token or a session is included in the request
     def wrapper(self, *args, **kwargs):
-        if self.request.path not in BYPASS_PATHS and not has_session_or_token(self):
+        if self.request.path not in BYPASS_PATHS and not self.request.path.startswith(b"/api/signup") and not has_session_or_token(self):
             raise errors.InternalServerError("Invalid request: No token and no session")
 
         return f(self, *args, **kwargs)

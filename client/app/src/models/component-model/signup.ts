@@ -12,4 +12,5 @@ export interface Signup {
   organization_location: string;
   tos1: boolean;
   tos2: boolean;
+  token?: string;
 }

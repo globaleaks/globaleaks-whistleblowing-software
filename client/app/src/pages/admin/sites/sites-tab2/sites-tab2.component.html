@@ -40,6 +40,18 @@
           <div>
             <div class="form-group">
               <label>
+                <input name="signup_invite_only" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_invite_only" type="checkbox" />
+                <span>{{'Invite only'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input name="signup_auto_authorize" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_auto_authorize" type="checkbox" />
+                <span>{{'Automatically authorize newly registered sites'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
                 <input name="signup_tos1_enable" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" />
                 <span>{{'Enable terms of service'|translate}}</span>
                 <span>#1</span>

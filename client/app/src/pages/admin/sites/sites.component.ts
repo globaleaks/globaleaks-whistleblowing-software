@@ -5,6 +5,7 @@ import {Tab} from "@app/models/component-model/tab";
 import {SitesTab1Component} from "@app/pages/admin/sites/sites-tab1/sites-tab1.component";
 import {SitesTab2Component} from "@app/pages/admin/sites/sites-tab2/sites-tab2.component";
 import {SitesTab3Component} from "@app/pages/admin/sites/sites-tab3/sites-tab3.component";
+import {SitesTab4Component} from "@app/pages/admin/sites/sites-tab4/sites-tab4.component";
 import {FormsModule} from "@angular/forms";
 import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
 import {NgTemplateOutlet} from "@angular/common";
@@ -15,7 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-sites",
     templateUrl: "./sites.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, SitesTab1Component, SitesTab2Component, SitesTab3Component, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, SitesTab1Component, SitesTab2Component, SitesTab3Component, SitesTab4Component, TranslatorPipe, TranslateModule]
 })
 export class SitesComponent implements OnInit, AfterViewInit {
   node = inject(NodeResolver);
@@ -25,6 +26,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
   @ViewChild("tab1") tab1!: TemplateRef<SitesTab1Component>;
   @ViewChild("tab2") tab2!: TemplateRef<SitesTab2Component>;
   @ViewChild("tab3") tab3!: TemplateRef<SitesTab3Component>;
+  @ViewChild("tab4") tab4!: TemplateRef<SitesTab4Component>;
 
   tabs: Tab[];
   nodeData: NodeResolver;
@@ -51,13 +53,20 @@ export class SitesComponent implements OnInit, AfterViewInit {
         },
       ];
       if (this.authenticationService.session.role === "admin") {
-        this.tabs = this.tabs.concat([
+        const adminTabs: Tab[] = [
           {
             id:"options",
             title: "Options",
             component: this.tab2
-          }
-        ]);
+          },
+          {
+            id:"invites",
+            title: "Registrations",
+            component: this.tab4
+          },
+        ];
+
+        this.tabs = this.tabs.concat(adminTabs);
       }
 
       this.cdr.detectChanges();

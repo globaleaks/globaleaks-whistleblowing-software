@@ -1,0 +1,126 @@
+<div class="row">
+  <div class="col-md-6">
+    <form #inviteForm="ngForm">
+      <div class="form-group mb-3">
+        <label>{{'Organization name' | translate}}</label>
+        <input class="form-control" data-cy="invite-organization-name" name="organization_name" [(ngModel)]="invite.organization_name" required>
+      </div>
+      <div class="form-group mb-3">
+        <label>{{'Email' | translate}}</label>
+        <input type="email" class="form-control" data-cy="invite-email" name="email" [(ngModel)]="invite.email" required>
+      </div>
+      <button class="btn btn-primary" data-cy="create-invite" [disabled]="inviteForm.invalid" (click)="createInvite()" type="button">
+        {{'Invite' | translate}}
+      </button>
+    </form>
+  </div>
+</div>
+<hr>
+<app-paginated-interface [items]="invites" [itemsPerPage]="20" [orderBy]="'creation_date'" [orderDesc]="true">
+  <ng-template #content let-item="item" let-index="index">
+    <div class="config-item reveal" data-cy="invite-row">
+      <div class="editorHeader row" (click)="toggleRegistration(item)">
+        <div class="col-md-6">
+          <div>
+            <span>{{item.organization_name || '-'}}</span>
+          </div>
+          <div class="tenant-badge">
+            <span class="badge bg-primary me-1">{{item.status}}</span>
+            <span class="badge bg-secondary">{{item.expiration_date | date}}</span>
+          </div>
+        </div>
+        <div class="col-md-6 clearfix">
+          <span class="float-end">
+            @if (canAcceptOrDeny(item)) {
+              <button class="btn btn-sm btn-primary me-1" data-cy="accept-invite" (click)="$event.stopPropagation(); acceptInvite(item.id)">
+                {{'Accept' | translate}}
+              </button>
+              <button class="btn btn-sm btn-danger me-1" data-cy="deny-invite" (click)="$event.stopPropagation(); denyInvite(item.id)">
+                {{'Deny' | translate}}
+              </button>
+            }
+            @if (canDelete(item)) {
+              <button class="btn btn-sm btn-danger" data-cy="delete-invite" (click)="$event.stopPropagation(); deleteInvite(item.id)">
+                {{'Delete' | translate}}
+              </button>
+            }
+            <button class="btn btn-sm btn-outline-secondary" name="edit_invite" data-cy="toggle-registration" (click)="$event.stopPropagation(); toggleRegistration(item)">
+              <i class="fa" [ngClass]="{'fa-chevron-down': expandedRegistration !== item.id, 'fa-chevron-up': expandedRegistration === item.id}"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+      @if (expandedRegistration === item.id) {
+        <div data-cy="registration-details">
+          <hr />
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>
+                  <span>{{'Creation date:'|translate}}</span> {{item.creation_date | date:'dd-MM-yyyy'}}
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Name</span><span>: </span>
+                </label>
+                <span>{{item.name}}</span>
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Surname</span><span>: </span>
+                </label>
+                <span>{{item.surname}}</span>
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Language</span><span>: </span>
+                </label>
+                <span>{{item.language}}</span>
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Email address</span><span>: </span>
+                </label>
+                <span>{{item.email}}</span>
+              </div>
+              <div class="form-group">
+                <label>
+                  <span data-translate>Phone number</span><span>: </span>
+                </label>
+                <span>{{item.phone}}</span>
+              </div>
+              <label data-translate>Organization</label>
+              <div class="ml-4">
+                <div class="form-group">
+                  <label>
+                    <span data-translate>Name</span><span>: </span>
+                  </label>
+                  <span>{{item.organization_name}}</span>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span data-translate>Address</span><span>: </span>
+                  </label>
+                  <span>{{item.organization_location}}</span>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span data-translate>Fiscal code</span><span>: </span>
+                  </label>
+                  <span>{{item.organization_tax_code}}</span>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span data-translate>Tax code</span><span>: </span>
+                  </label>
+                  <span>{{item.organization_vat_code}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </ng-template>
+</app-paginated-interface>
