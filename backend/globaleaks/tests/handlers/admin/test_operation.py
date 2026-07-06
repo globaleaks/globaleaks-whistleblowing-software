@@ -3,7 +3,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import AdminOperationHandler
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
-from globaleaks.models.config import db_set_config_variable
+from globaleaks.models.config import db_get_config_variable, db_set_config_variable
 from globaleaks.orm import tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -102,13 +102,15 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
                                                                {'value': 'tenant-2.example.org'}),
                                   errors.InputValidationError)
 
-    def test_admin_set_hostname_invalid_because_ending_with_root_tenant_hostname(self):
-        # The root tenant hostname is a forbidden ending for secondary tenants
-        return self.assertFailure(self._test_operation_handler('set_hostname',
-                                                               {'value': 'sub.www.state.gov'},
-                                                               tid=2,
-                                                               properties={'management_session': True}),
-                                  errors.InputValidationError)
+    @defer.inlineCallbacks
+    def test_admin_set_hostname_valid_subdomain_of_root_tenant_hostname(self):
+        yield self._test_operation_handler('set_hostname',
+                                           {'value': 'sub.www.state.gov'},
+                                           tid=2,
+                                           properties={'management_session': True})
+
+        value = yield tw(db_get_config_variable, 2, 'hostname')
+        self.assertEqual(value, 'sub.www.state.gov')
 
     def test_admin_set_hostname_invalid_because_onion(self):
         return self.assertFailure(self._test_operation_handler('set_hostname',
