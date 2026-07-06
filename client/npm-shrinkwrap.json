@@ -1,12 +1,12 @@
 {
   "name": "globaleaks",
-  "version": "5.0.96",
+  "version": "5.0.97",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "globaleaks",
-      "version": "5.0.96",
+      "version": "5.0.97",
       "hasInstallScript": true,
       "dependencies": {
         "@angular/common": "21.2.17",
