@@ -86,17 +86,17 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
         answers = answers.answers  # noqa: PLW2901
         label = itip.label
         accessible = rtip.receiver_id == receiver_id
-        if itip.crypto_tip_pub_key and accessible:
+        if not accessible:
+            # redact contents of reports the current recipient is not assigned to
+            answers = ""  # noqa: PLW2901
+            label = ""
+        elif itip.crypto_tip_pub_key:
             tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
 
             if label:
                 label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
 
             answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())  # noqa: PLW2901
-        elif itip.crypto_tip_pub_key:
-            # remove useless and unusable crypted data
-            answers = ""  # noqa: PLW2901
-            label = ""
 
         if data is None:
             subscription = 0
