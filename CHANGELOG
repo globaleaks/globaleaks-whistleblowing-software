@@ -1,3 +1,10 @@
+Changes in version 5.0.97
+    Fix serialization of identity access requests requested by deleted users
+    Regression on configuration of hostnames that are subdomains of parent
+      tenant domain. (#4873)
+    Correct reports listing on platforms still without encryption
+    Bump client dependencies to their latest stable versions
+
 Changes in version 5.0.96
     Implement security enhancements following auditors suggestions:
     - Bind authenticated requests with DPoP proof-of-possession [RFC 9449]
