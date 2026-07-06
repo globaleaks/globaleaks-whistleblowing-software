@@ -22,6 +22,15 @@ export class IdentityAccessRequestsComponent {
   protected iarResolver = inject(IarResolver);
   protected utilsService = inject(UtilsService);
 
+  usersNames: Record<string, string> = {};
+
+  constructor() {
+    this.utilsService.runUserOperation("get_users_names", {}, false).subscribe({
+      next: response => {
+        this.usersNames = response as Record<string, string>;
+      }
+    });
+  }
 
   authorizeIdentityAccessRequest(iar_id: string) {
     this.httpService.authorizeIdentity("api/custodian/iars/" + iar_id, {

@@ -3,7 +3,6 @@ import os
 
 
 from sqlalchemy import func, or_, not_
-from sqlalchemy.orm import aliased
 
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
@@ -67,29 +66,16 @@ def serialize_archived_questionnaire_schema(questionnaire_schema, language):
 
 
 def serialize_identityaccessrequest(session, identityaccessrequest):
-    InternalTipAlias = aliased(models.InternalTip)
-    UserAlias = aliased(models.User)
-
-    itip, request_user = session.query(InternalTipAlias, UserAlias) \
-        .join(UserAlias, UserAlias.id == identityaccessrequest.request_user_id) \
-        .filter(InternalTipAlias.id == identityaccessrequest.internaltip_id) \
-        .one()
-
-    reply_user = session.query(models.User) \
-                        .filter(models.User.id == identityaccessrequest.reply_user_id).one_or_none()
-
     return {
         'id': identityaccessrequest.id,
         'internaltip_id': identityaccessrequest.internaltip_id,
         'request_date': identityaccessrequest.request_date,
-        'request_user_name': request_user.name,
+        'request_user_id': identityaccessrequest.request_user_id,
         'request_motivation': identityaccessrequest.request_motivation,
         'reply_date': identityaccessrequest.reply_date,
-        'reply_user_name': reply_user.id if reply_user is not None else '',
+        'reply_user_id': identityaccessrequest.reply_user_id,
         'reply': identityaccessrequest.reply,
-        'reply_motivation': identityaccessrequest.reply_motivation,
-        'submission_progressive': itip.progressive,
-        'submission_date': itip.creation_date
+        'reply_motivation': identityaccessrequest.reply_motivation
     }
 
 

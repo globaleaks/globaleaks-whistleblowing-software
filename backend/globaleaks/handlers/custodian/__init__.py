@@ -22,13 +22,15 @@ from globaleaks.utils.utility import datetime_now
 def get_identityaccessrequest_list(session, tid, user_id, user_key):
     ret = []
 
-    for iarc, iar in session.query(models.IdentityAccessRequestCustodian, models.IdentityAccessRequest) \
+    for iarc, iar, itip in session.query(models.IdentityAccessRequestCustodian, models.IdentityAccessRequest, models.InternalTip) \
                             .filter(models.IdentityAccessRequestCustodian.identityaccessrequest_id == models.IdentityAccessRequest.id,
                                     models.IdentityAccessRequestCustodian.custodian_id == user_id,
                                     models.IdentityAccessRequest.internaltip_id == models.InternalTip.id,
                                     models.InternalTip.tid == tid) \
                             .order_by(models.IdentityAccessRequest.request_date.desc()):
         elem = serializers.serialize_identityaccessrequest(session, iar)
+        elem['submission_progressive'] = itip.progressive
+        elem['submission_date'] = itip.creation_date
 
         if iarc.crypto_tip_prv_key:
             crypto_tip_prv_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(iarc.crypto_tip_prv_key))
