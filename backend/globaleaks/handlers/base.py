@@ -11,7 +11,7 @@ from tempfile import NamedTemporaryFile
 
 from nacl.encoding import Base64Encoder
 from twisted.internet import abstract
-from twisted.internet.defer import DeferredLock, inlineCallbacks, maybeDeferred
+from twisted.internet.defer import DeferredLock
 from twisted.internet.threads import deferToThread
 from twisted.protocols.basic import FileSender
 
@@ -490,7 +490,6 @@ class BaseHandler(object):
 
         return serve_file(self.request, fp)
 
-    @inlineCallbacks
     def serialize_download(self, fn, *args):
         # Serialize CPU-heavy downloads per user (report exports and PGP-wrapped
         # attachment downloads): a user runs at most one at a time and the rest
@@ -503,14 +502,14 @@ class BaseHandler(object):
             lock = DeferredLock()
             self.state.download_locks[key] = lock
 
-        yield lock.acquire()
-        try:
-            ret = yield maybeDeferred(fn, *args)
-            return ret
-        finally:
-            lock.release()
+        def drop_if_idle(result):
             if not lock.locked and not lock.waiting:
                 self.state.download_locks.pop(key, None)
+            return result
+
+        # DeferredLock.run acquires the lock, runs fn, and releases it (even on
+        # failure); drop_if_idle then prunes the map once no one is queued.
+        return lock.run(fn, *args).addBoth(drop_if_idle)
 
     def process_file_upload(self):
         if b'flowFilename' not in self.request.args:
