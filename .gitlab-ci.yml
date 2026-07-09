@@ -1,0 +1,32 @@
+variables:
+  SONAR_HOST_URL: 'http://quality.lab.anticorruzione.local/'
+  SONAR_PROJECT_KEY: 'Whistleblowing_2025'
+  SONAR_TOKEN: '73f220ba3d9c75d1bb4cde9c91b83405b1e5d56f'
+
+stages:
+  - verify
+
+sonarqube:
+  stage: verify
+  image:
+    name: sonarsource/sonar-scanner-cli:4.8.1
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: 0
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  cache:
+    key: "sonar-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .sonar/cache
+  script:
+    - >
+      sonar-scanner
+      -Dsonar.host.url="${SONAR_HOST_URL}"
+      -Dsonar.login="${SONAR_TOKEN}"
+      -Dsonar.projectKey="${SONAR_PROJECT_KEY}"
+      -Dsonar.projectName="Whistleblowing_2025"
+      -Dsonar.projectVersion="${CI_COMMIT_BRANCH}"
+      -Dsonar.sources=.
+      -Dsonar.scm.disabled=true
+  rules:
+    - if: '$CI_COMMIT_BRANCH =~ /^sonarqube-v[01]$/'
