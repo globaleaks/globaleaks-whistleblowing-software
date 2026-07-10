@@ -4,7 +4,6 @@ import hashlib
 from io import BytesIO as StringIO
 
 from twisted import version as _twisted_version
-from twisted.internet import address
 from twisted.logger import ILogObserver, Logger
 from twisted.mail._cred import CramMD5ClientAuthenticator
 from twisted.python import log
@@ -19,13 +18,6 @@ from globaleaks.rest.errors import InputValidationError
 
 def null_function(*args, **kw):
     pass
-
-
-def mock_Request_getClientIP(self):
-    if isinstance(self.client, (address.IPv4Address, address.IPv6Address)):
-        return self.client.host
-
-    return None
 
 
 def mock_Request_gotLength(self, length):
@@ -88,7 +80,6 @@ def mock_Headers_addRawHeader(self, name, value):
     return _orig_Headers_addRawHeader(self, name, _sanitize_linear_whitespace(value))
 
 
-Request.getClientIP = mock_Request_getClientIP
 Request.gotLength = mock_Request_gotLength
 Request.parseCookies = null_function
 Request.redirect = mock_Request_redirect

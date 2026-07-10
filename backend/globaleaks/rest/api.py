@@ -14,7 +14,7 @@ from typing import List, Tuple
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from twisted.internet import defer
+from twisted.internet import address, defer
 from twisted.python.failure import Failure
 from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
@@ -405,7 +405,11 @@ class APIResourceWrapper(Resource):
         request.finished = False
         request.nonce = base64.b64encode(secrets.token_bytes(16))
 
-        request.client_ip = request.getClientIP()
+        client_address = request.getClientAddress()
+        if isinstance(client_address, (address.IPv4Address, address.IPv6Address)):
+            request.client_ip = client_address.host
+        else:
+            request.client_ip = None
         if isinstance(request.client_ip, bytes):
             request.client_ip = request.client_ip.decode()
 
