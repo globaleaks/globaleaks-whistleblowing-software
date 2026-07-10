@@ -11,7 +11,7 @@ services:
         DISTRIBUTION: trixie
     restart: unless-stopped
     container_name: globaleaks
-    network_mode: host
+    network_mode: bridge
     cap_drop:
       - ALL
     security_opt:
