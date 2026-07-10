@@ -10,8 +10,7 @@ from cryptography.hazmat.backends import default_backend
 
 from OpenSSL import SSL
 from OpenSSL._util import lib as _lib
-from OpenSSL.crypto import load_certificate, load_privatekey, FILETYPE_PEM, \
-    dump_certificate_request, X509Req
+from OpenSSL.crypto import load_certificate, load_privatekey, FILETYPE_PEM
 
 from twisted.internet import ssl
 
@@ -83,9 +82,8 @@ def gen_ecc_key():
 
 
 def gen_x509_csr_pem(key_pair, csr_fields, csr_sign_bits):
-    req = gen_x509_csr(key_pair, csr_fields, csr_sign_bits)
-    pem_csr = dump_certificate_request(SSL.FILETYPE_PEM, req)
-    return pem_csr
+    csr = gen_x509_csr(key_pair, csr_fields, csr_sign_bits)
+    return csr.public_bytes(serialization.Encoding.PEM)
 
 
 def gen_selfsigned_certificate(hostname="127.0.0.1", ip="127.0.0.1"):
@@ -155,21 +153,34 @@ def gen_x509_csr(key_pair, csr_fields, csr_sign_bits):
         CN    - Common name
         emailAddress - E-mail address
 
-    :rtype: A `pyopenssl.OpenSSL.crypto.X509Req`
+    :rtype: A `cryptography.x509.CertificateSigningRequest`
     """
-    req = X509Req()
-    subj = req.get_subject()
+    name_oids = {
+        'C': NameOID.COUNTRY_NAME,
+        'ST': NameOID.STATE_OR_PROVINCE_NAME,
+        'L': NameOID.LOCALITY_NAME,
+        'O': NameOID.ORGANIZATION_NAME,
+        'OU': NameOID.ORGANIZATIONAL_UNIT_NAME,
+        'CN': NameOID.COMMON_NAME,
+        'emailAddress': NameOID.EMAIL_ADDRESS,
+    }
 
-    for field, value in csr_fields.items():
-        if value:
-            setattr(subj, field, value)
+    if isinstance(key_pair, str):
+        key_pair = key_pair.encode()
 
-    prv_key = load_privatekey(SSL.FILETYPE_PEM, key_pair)
+    key = serialization.load_pem_private_key(key_pair, password=None, backend=default_backend())
 
-    req.set_pubkey(prv_key)
-    req.sign(prv_key, 'sha'+str(csr_sign_bits))
+    name = x509.Name([
+        x509.NameAttribute(name_oids[field], value)
+        for field, value in csr_fields.items()
+        if value and field in name_oids
+    ])
 
-    return req
+    return (
+        x509.CertificateSigningRequestBuilder()
+        .subject_name(name)
+        .sign(key, getattr(hashes, 'SHA%d' % csr_sign_bits)(), default_backend())
+    )
 
 
 def parse_issuer_name(x509):
