@@ -61,6 +61,7 @@ RestrictSUIDSGID=yes
 # Syscalls and sockets
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
+SystemCallErrorNumber=ENOSYS
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 
 [Install]
