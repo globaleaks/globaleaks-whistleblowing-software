@@ -1,11 +1,7 @@
-import hmac
-import hashlib
-
 from io import BytesIO as StringIO
 
 from twisted import version as _twisted_version
 from twisted.logger import ILogObserver, Logger
-from twisted.mail._cred import CramMD5ClientAuthenticator
 from twisted.python import log
 from twisted.web import http_headers
 from twisted.web.http import HTTPChannel, Request
@@ -33,11 +29,6 @@ def mock_Request_gotLength(self, length):
 def mock_Request_redirect(self, url):
     self.setResponseCode(301)
     self.setHeader(b"location", url)
-
-
-def mock_CramMD5ClientAuthenticator_challengeResponse(self, secret, chal):
-    response = hmac.HMAC(secret, chal, digestmod=hashlib.md5).hexdigest()
-    return self.user + b' ' + response.encode('ascii')
 
 
 def mock_HTTPChannel_finishRequestBody(self, data):
@@ -81,8 +72,6 @@ if (_twisted_version.major, _twisted_version.minor) < (24, 7):
 if not hasattr(http_headers, "_sanitizeLinearWhitespace"):
     Headers.setRawHeaders = mock_Headers_setRawHeaders
     Headers.addRawHeader = mock_Headers_addRawHeader
-
-CramMD5ClientAuthenticator.challengeResponse = mock_CramMD5ClientAuthenticator_challengeResponse
 
 
 @implementer(ILogObserver)
