@@ -1,6 +1,6 @@
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import Factory, Protocol
-from twisted.test.proto_helpers import StringTransportWithDisconnection
+from twisted.internet.testing import StringTransportWithDisconnection
 from twisted.trial import unittest
 
 from globaleaks.utils.socks import SOCKS5ClientProtocol

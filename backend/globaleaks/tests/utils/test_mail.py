@@ -1,6 +1,6 @@
 from email import message_from_bytes
 from twisted.internet.defer import Deferred, fail, succeed
-from twisted.test.proto_helpers import MemoryReactorClock
+from twisted.internet.testing import MemoryReactorClock
 from twisted.trial import unittest
 from twisted.mail.smtp import ESMTPSenderFactory
 from unittest.mock import patch
