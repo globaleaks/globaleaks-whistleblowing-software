@@ -134,7 +134,7 @@ class Logger:
 
         msg = escape_string(msg)
 
-        tid = kwargs.get('tid', None)
+        tid = kwargs.get('tid')
         p = '[%s]' % prefix if tid is None else '[%s] [%d]' % (prefix, tid)
 
         print(p, msg)
