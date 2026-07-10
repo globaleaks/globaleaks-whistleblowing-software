@@ -245,13 +245,14 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                             .filter(models.EnabledLanguage.tid.in_(tids)):
         State.tenants[tid].cache['languages_enabled'].append(lang)
 
-    for cfg in session.query(Config).filter(Config.tid.in_(tids)):
-        tenant_cache = State.tenants[cfg.tid].cache
+    for tid, var_name, value in session.query(Config.tid, Config.var_name, Config.value) \
+                                       .filter(Config.tid.in_(tids)):
+        tenant_cache = State.tenants[tid].cache
 
-        if cfg.var_name in ['https_cert', 'tor_onion_key'] or cfg.var_name in ConfigFilters['node']:
-            tenant_cache[cfg.var_name] = cfg.value
-        elif cfg.var_name in ConfigFilters['notification']:
-            tenant_cache['notification'][cfg.var_name] = cfg.value
+        if var_name in ['https_cert', 'tor_onion_key'] or var_name in ConfigFilters['node']:
+            tenant_cache[var_name] = value
+        elif var_name in ConfigFilters['notification']:
+            tenant_cache['notification'][var_name] = value
 
     for tid, mail, pub_key in session.query(models.User.tid, models.User.mail_address, models.User.pgp_key_public) \
                                      .filter(models.User.role == 'admin',
