@@ -94,9 +94,7 @@ def generateRandomPassword(N: int) -> str:
     password += secrets.SystemRandom().choice(string.digits)
     password += secrets.SystemRandom().choice(accessible_special_symbols)
 
-    password = ''.join(secrets.SystemRandom().sample(password, N))
-
-    return password
+    return ''.join(secrets.SystemRandom().sample(password, N))
 
 
 def totpVerify(secret: str, token: str) -> None:

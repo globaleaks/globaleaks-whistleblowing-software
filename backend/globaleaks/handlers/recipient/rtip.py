@@ -647,7 +647,7 @@ def db_access_rfile(session, tid, user_id, rfile_id):
     :param rfile_id: the requested rfile ID
     :return: A model requested
     """
-    rfile = (
+    return (
         session.query(models.ReceiverFile)
         .join(
             models.ReceiverTip,
@@ -669,7 +669,6 @@ def db_access_rfile(session, tid, user_id, rfile_id):
         .one_or_none()
     )
 
-    return rfile
 
 @transact
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
@@ -968,7 +967,6 @@ def postpone_expiration(session, tid, user_id, itip_id, expiration_date):
     }
 
     db_log(session, tid=tid, type='update_report_expiration', user_id=user_id, object_id=itip.id, data=log_data)
-
 
 
 @transact

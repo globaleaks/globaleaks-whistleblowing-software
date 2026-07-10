@@ -637,9 +637,8 @@ class Templating:
                 variable_content = re.sub("}", ")", variable_content)
                 raw_template = raw_template.replace(kw, variable_content)
 
-        raw_template = raw_template.rstrip()
+        return raw_template.rstrip()
 
-        return raw_template
 
     def get_mail_subject_and_body(self, data):
         subject_template = ''

@@ -70,25 +70,21 @@ def gen_rsa_key(bits):
         backend=default_backend()
     )
 
-    key = key.private_bytes(
+    return key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
-
-    return key
 
 
 def gen_ecc_key():
     key = ec.generate_private_key(ec.SECP384R1(), default_backend())
 
-    key = key.private_bytes(
+    return key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
-
-    return key
 
 
 def gen_x509_csr_pem(key_pair, csr_fields, csr_sign_bits):
