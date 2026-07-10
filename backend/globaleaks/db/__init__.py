@@ -260,11 +260,12 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                                              models.User.tid.in_(tids)):
         State.tenants[tid].cache.notification.admin_list.extend([(mail, pub_key)])
 
-    for custodian in session.query(models.User) \
-                            .filter(models.User.role == 'custodian',
-                                    models.User.enabled.is_(True),
-                                    models.User.tid.in_(tids)):
-        State.tenants[custodian.tid].cache['custodian'] = True
+    for (tid,) in session.query(models.User.tid) \
+                         .filter(models.User.role == 'custodian',
+                                 models.User.enabled.is_(True),
+                                 models.User.tid.in_(tids)) \
+                         .distinct():
+        State.tenants[tid].cache['custodian'] = True
 
     for redirect in session.query(models.Redirect).filter(models.Redirect.tid.in_(tids)):
         State.tenants[redirect.tid].cache['redirects'][redirect.path1] = redirect.path2
