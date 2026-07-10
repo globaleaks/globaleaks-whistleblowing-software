@@ -75,7 +75,7 @@ if not hasattr(http_headers, "_sanitizeLinearWhitespace"):
 
 
 @implementer(ILogObserver)
-class NullObserver(object):
+class NullObserver:
     def __call__(self, event):
         pass
 

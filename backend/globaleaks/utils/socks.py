@@ -138,7 +138,7 @@ class SOCKS5ClientFactory(WrappingFactory):
 
 
 @implementer(interfaces.IStreamClientEndpoint)
-class SOCKS5ClientEndpoint(object):
+class SOCKS5ClientEndpoint:
     def __init__(self, host, port, proxyEndpoint):
         self.host = host
         self.port = port
@@ -150,7 +150,7 @@ class SOCKS5ClientEndpoint(object):
 
 
 @implementer(interfaces.IStreamClientEndpoint)
-class TLSWrapClientEndpoint(object):
+class TLSWrapClientEndpoint:
     _wrapper = tls.TLSMemoryBIOFactory
 
     def __init__(self, contextFactory, wrappedEndpoint):
@@ -169,7 +169,7 @@ _Agent = Agent
 
 
 @implementer(IAgentEndpointFactory, IAgent)
-class SOCKS5Agent(object):
+class SOCKS5Agent:
     endpointFactory = SOCKS5ClientEndpoint
     _tlsWrapper = TLSWrapClientEndpoint
 

@@ -24,7 +24,7 @@ def gen_cache_key(*args):
     return '-'.join(['{}'.format(arg) for arg in args])
 
 
-class MailGenerator(object):
+class MailGenerator:
     def __init__(self, state):
         self.state = state
         self.cache = {}

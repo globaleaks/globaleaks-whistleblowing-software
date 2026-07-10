@@ -2,7 +2,7 @@ from globaleaks.tests import helpers
 from globaleaks.utils.tempdict import TempDict
 
 
-class TestObject(object):
+class TestObject:
     callbacks_count = 0
 
     def __init__(self, obj_id):

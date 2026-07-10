@@ -29,7 +29,7 @@ field_types = [
 ]
 
 
-class LocalizationEngine(object):
+class LocalizationEngine:
     """
     This Class can manage all the localized strings inside one ORM object
     """
@@ -91,7 +91,7 @@ def get_localized_values(dictionary, obj, keys, language):
 Base = declarative_base()
 
 
-class Model(object):
+class Model:
     """
     Base ORM model
     """

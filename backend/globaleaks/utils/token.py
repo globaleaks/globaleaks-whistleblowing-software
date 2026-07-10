@@ -7,7 +7,7 @@ from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.utility import datetime_now
 
 
-class Token(object):
+class Token:
     def __init__(self, tid):
         self.tid = tid
         self.id = generateRandomKey().encode()

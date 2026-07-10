@@ -10,7 +10,7 @@ from globaleaks.rest import errors
 from globaleaks.utils.log import log
 
 
-class PGPContext(object):
+class PGPContext:
     def __init__(self, key):
         """
         :param key: The PGP key to be loaded

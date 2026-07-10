@@ -11,7 +11,7 @@ possible_client_paths = [
 ]
 
 
-class SettingsClass(object, metaclass=Singleton):
+class SettingsClass(metaclass=Singleton):
     def __init__(self):
         # daemonize the process
         self.nodaemon = False

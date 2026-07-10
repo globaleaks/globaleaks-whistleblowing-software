@@ -190,7 +190,7 @@ def db_reset_https_config(session, tid, user_id):
     db_log(session, tid=tid, type='reset_https_config', user_id=user_id)
 
 
-class FileResource(object):
+class FileResource:
     """
     An interface for interacting with files stored on disk or in the db
     """

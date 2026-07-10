@@ -370,7 +370,7 @@ class TLSClientContextFactory(ssl.ClientContextFactory):
         return new_tls_client_context()
 
 
-class CtxValidator(object):
+class CtxValidator:
     parents = []
 
     def _validate_parents(self, cfg, ctx, check_expiration):

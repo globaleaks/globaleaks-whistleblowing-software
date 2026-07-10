@@ -146,7 +146,7 @@ def db_log(session, **kwargs):
     session.add(entry)
 
 
-class transact(object):
+class transact:
     """
     Class decorator for managing transactions.
     """

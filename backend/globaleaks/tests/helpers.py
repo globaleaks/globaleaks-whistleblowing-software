@@ -127,7 +127,7 @@ for k, fname in HTTPS_DATA.items():
         HTTPS_DATA[k] = fd.read()
 
 
-class FakeThreadPool(object):
+class FakeThreadPool:
     """
     A fake L{twisted.python.threadpool.ThreadPool}, running functions inside
     the main thread instead for easing tests.
@@ -613,7 +613,7 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
 
     request.headers = request.getAllHeaders()
 
-    class fakeBody(object):
+    class fakeBody:
         def read(self):
             ret = body
             if isinstance(ret, dict):

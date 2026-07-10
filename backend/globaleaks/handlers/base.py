@@ -173,7 +173,7 @@ def sync_confirmation_check(session, tid, user_id, secret):
     return db_confirmation_check(session, tid, user_id, secret)
 
 
-class BaseHandler(object):
+class BaseHandler:
     check_roles = 'admin'
     handler_exec_time_threshold = 120
     cache_resource = False

@@ -35,7 +35,7 @@ stringEndArchive64 = b"PK\x06\x06"  # magic token for Zip64 header
 stringDataDescriptor = b"PK\x07\x08"  # magic number for data descriptor
 
 
-class ZipInfo(object):
+class ZipInfo:
     """Class with attributes describing each file in the ZIP archive."""
 
     def __init__(self, filename="NoName", date_time=(1980, 1, 1, 0, 0, 0), compression=ZIP_DEFLATED):
@@ -138,7 +138,7 @@ class ZipInfo(object):
         return header + filename + extra
 
 
-class ZipStream(object):
+class ZipStream:
     def __init__(self, files):
         self.files = files
 
@@ -317,7 +317,7 @@ class ZipStream(object):
         yield self.archive_footer()
 
 
-class ZipStreamProducer(object):
+class ZipStreamProducer:
     """Streaming producter for ZipStream"""
 
     def __init__(self, handler, zipstreamObject):

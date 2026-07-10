@@ -14,7 +14,7 @@ from zope.interface import implementer
 from globaleaks.utils.tls import ChainValidator, TLSServerContextFactory, new_tls_server_context
 
 
-class _NegotiationData(object):
+class _NegotiationData:
     """
     A container for the negotiation data.
     """
@@ -33,7 +33,7 @@ class _NegotiationData(object):
             context.set_alpn_protos(self.alpnProtocols)
 
 
-class _ContextProxy(object):
+class _ContextProxy:
     """
     A basic proxy object for the OpenSSL Context object that records the
     values of the ALPN callback, to ensure that they get set appropriately
@@ -67,7 +67,7 @@ class _ContextProxy(object):
         else:
             delattr(self._obj, attr)
 
-class _ConnectionProxy(object):
+class _ConnectionProxy:
     """
     A basic proxy for an OpenSSL Connection object that returns a ContextProxy
     wrapping the actual OpenSSL Context whenever it's asked for.
@@ -98,7 +98,7 @@ class _ConnectionProxy(object):
 
 
 @implementer(IOpenSSLServerConnectionCreator)
-class SNIMap(object):
+class SNIMap:
     def __init__(self):
         self.default_context = None
         self.configs_by_tid = {}

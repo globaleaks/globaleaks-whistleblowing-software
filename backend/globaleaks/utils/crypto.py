@@ -105,7 +105,7 @@ def totpVerify(secret: str, token: str) -> None:
         raise ValueError("Invalid TOTP token")
 
 
-class _StreamingEncryptionObject(object):
+class _StreamingEncryptionObject:
     """
     Streaming encrypt/decrypt with:
         - v1 streaming (SecretBox chunked format)
@@ -294,7 +294,7 @@ class _StreamingEncryptionObject(object):
         self.close()
 
 
-class _GCE(object):
+class _GCE:
     options = {
         'OPSLIMIT': 16,
         'MEMLIMIT': 27  # 128MB

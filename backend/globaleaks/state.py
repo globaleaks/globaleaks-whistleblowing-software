@@ -56,7 +56,7 @@ silenced_exceptions = (
 )
 
 
-class TenantState(object):
+class TenantState:
     def __init__(self):
         self.cache = ObjectDict()
 
@@ -344,7 +344,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         return self.tor_exit_set.update(net_agent)
 
     def totp_verify(self, secret, token):
-        class UsedToken(object):
+        class UsedToken:
             def __init__(self, token):
                self.token = token
 

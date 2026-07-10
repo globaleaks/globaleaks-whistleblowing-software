@@ -33,7 +33,7 @@ def db_get_configs(session, filter_name):
     return configs
 
 
-class ConfigFactory(object):
+class ConfigFactory:
     def __init__(self, session, tid):
         self.session = session
         self.tid = tid
@@ -77,7 +77,7 @@ class ConfigFactory(object):
             self.session.add(Config({'tid': self.tid, 'var_name': key, 'value': get_default(ConfigDescriptor[key].default)}))
 
 
-class ConfigL10NFactory(object):
+class ConfigL10NFactory:
     def __init__(self, session, tid):
         self.session = session
         self.tid = tid

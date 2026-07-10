@@ -133,7 +133,7 @@ def indent_text(text, n=1):
     return '\n'.join([('  ' * n if not line.isspace() else '') + line for line in text.splitlines()])
 
 
-class Keyword(object):
+class Keyword:
     keyword_list = []
     data_keys = []
 
@@ -625,7 +625,7 @@ supported_template_types = {
 }
 
 
-class Templating(object):
+class Templating:
     def format_template(self, raw_template, data):
         keyword_converter = supported_template_types[data['type']](data)
 

@@ -114,7 +114,7 @@ class LogObserver(txlog.FileLogObserver):
         util.untilConcludes(self.flush)
 
 
-class Logger(object):
+class Logger:
     """
     Customized LogPublisher
     """
