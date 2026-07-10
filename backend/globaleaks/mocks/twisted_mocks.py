@@ -35,15 +35,6 @@ def mock_Request_redirect(self, url):
     self.setHeader(b"location", url)
 
 
-_orig_request_write = Request.write
-def mock_Request_write(self, data):
-    # Backport Twisted #9410 from  19.7.0
-    if self._disconnected:
-        return
-
-    return _orig_request_write(self, data)
-
-
 def mock_CramMD5ClientAuthenticator_challengeResponse(self, secret, chal):
     response = hmac.HMAC(secret, chal, digestmod=hashlib.md5).hexdigest()
     return self.user + b' ' + response.encode('ascii')
@@ -83,7 +74,6 @@ def mock_Headers_addRawHeader(self, name, value):
 Request.gotLength = mock_Request_gotLength
 Request.parseCookies = null_function
 Request.redirect = mock_Request_redirect
-Request.write = mock_Request_write
 
 if (_twisted_version.major, _twisted_version.minor) < (24, 7):
     HTTPChannel._finishRequestBody = mock_HTTPChannel_finishRequestBody
