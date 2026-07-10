@@ -29,15 +29,13 @@ def index_answers(answers, parent_index=''):
                 not isinstance(answers[key], list):
             continue
 
-        index = 0
-        for answer in answers[key]:
+        for index, answer in enumerate(answers[key]):
             str_index = str(index)
             if parent_index:
                str_index = parent_index + "-" + str_index
 
             answer['index'] = str_index
             index_answers(answer, str_index)
-            index += 1
 
 
 def decrypt_tip(user_key, tip_prv_key, tip):
