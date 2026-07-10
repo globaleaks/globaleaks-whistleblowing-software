@@ -1,6 +1,6 @@
 import os
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from tempfile import TemporaryDirectory
 
@@ -16,7 +16,7 @@ class PGPContext(object):
         :param key: The PGP key to be loaded
         """
         self.fingerprint = ''
-        self.expiration = datetime.utcfromtimestamp(0)
+        self.expiration = datetime.fromtimestamp(0, timezone.utc).replace(tzinfo=None)
 
         self.tempdir = TemporaryDirectory()
 
@@ -41,7 +41,7 @@ class PGPContext(object):
             for k in all_keys:
                 if k['fingerprint'] == self.fingerprint:
                     if k['expires']:
-                        self.expiration = datetime.utcfromtimestamp(int(k['expires']))
+                        self.expiration = datetime.fromtimestamp(int(k['expires']), timezone.utc).replace(tzinfo=None)
                     break
 
         except Exception as excep:

@@ -1,6 +1,6 @@
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from twisted.trial import unittest
 
 from globaleaks.utils import utility
@@ -29,7 +29,7 @@ class TestUtility(unittest.TestCase):
         self.assertFalse(utility.is_uuid4("not-a-uuid"))
 
     def test_datetime_null(self):
-        self.assertEqual(utility.datetime_null(), datetime.utcfromtimestamp(0))
+        self.assertEqual(utility.datetime_null(), datetime.fromtimestamp(0, timezone.utc).replace(tzinfo=None))
 
     def test_get_expiration(self):
         date = utility.get_expiration(15)

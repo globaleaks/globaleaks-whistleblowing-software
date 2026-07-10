@@ -5,7 +5,7 @@
 import re
 import uuid
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
@@ -75,7 +75,7 @@ def datetime_now():
     """
     :return: a utc datetime object representing a null date
     """
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def datetime_never():
@@ -89,7 +89,7 @@ def get_expiration(days):
     """
     :return: a utc datetime object representing an expiration time calculated as the current date + N days
     """
-    date = datetime.utcnow()
+    date = datetime.now(timezone.utc).replace(tzinfo=None)
     return datetime(year=date.year, month=date.month, day=date.day, hour=23, minute=59, second=59) + timedelta(days)
 
 

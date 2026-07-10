@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from globaleaks.tests import helpers
 from globaleaks.utils.pgp import PGPContext
@@ -35,9 +35,9 @@ class TestPGP(helpers.TestGL):
         pgpctx = PGPContext(helpers.PGPKEYS['VALID_PGP_KEY1_PRV'])
 
         self.assertEqual(pgpctx.expiration,
-                         datetime.utcfromtimestamp(0))
+                         datetime.fromtimestamp(0, timezone.utc).replace(tzinfo=None))
 
         pgpctx = PGPContext(helpers.PGPKEYS['EXPIRED_PGP_KEY_PUB'])
 
         self.assertEqual(pgpctx.expiration,
-                         datetime.utcfromtimestamp(1391012793))
+                         datetime.fromtimestamp(1391012793, timezone.utc).replace(tzinfo=None))
