@@ -6,7 +6,7 @@ from globaleaks.handlers.recipient import export, rtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
-from twisted.internet.defer import DeferredList, inlineCallbacks, returnValue
+from twisted.internet.defer import DeferredList, inlineCallbacks
 
 
 @transact
@@ -53,7 +53,7 @@ class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
         self.assertNotEqual(body, b'')
 
         with zipfile.ZipFile(io.BytesIO(body)) as zf:
-            returnValue(zf.namelist())
+            return zf.namelist()
 
     @inlineCallbacks
     def test_export(self):

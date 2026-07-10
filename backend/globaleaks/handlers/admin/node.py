@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.db.appdata import load_appdata
@@ -139,7 +139,7 @@ class NodeInstance(BaseHandler):
                        self.request.language,
                        config_desc=config[0])
 
-        returnValue(ret)
+        return ret
 
     @inlineCallbacks
     def put(self):
@@ -157,4 +157,4 @@ class NodeInstance(BaseHandler):
                        request,
                        self.request.language)
 
-        returnValue(ret)
+        return ret

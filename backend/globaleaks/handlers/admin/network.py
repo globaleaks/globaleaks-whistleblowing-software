@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models.config import ConfigFactory
@@ -65,4 +65,4 @@ class NetworkInstance(BaseHandler):
                            self.session,
                            request)
 
-        returnValue(ret)
+        return ret

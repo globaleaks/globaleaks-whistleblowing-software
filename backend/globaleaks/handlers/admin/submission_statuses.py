@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -202,7 +202,7 @@ class SubmissionSubStatusCollection(OperationHandler):
                                      status_id,
                                      self.request.language)
 
-        returnValue(submission_status['substatuses'])
+        return submission_status['substatuses']
 
     def post(self, status_id):
         request = self.validate_request(self.request.content.read(),

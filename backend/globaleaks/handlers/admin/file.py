@@ -2,7 +2,7 @@ import os
 import re
 
 from sqlalchemy.sql.expression import or_
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -151,7 +151,7 @@ class FileInstance(BaseHandler):
 
         yield self.write_upload_plaintext_to_disk(path)
 
-        returnValue(id)
+        return id
 
     @inlineCallbacks
     def delete(self, name):

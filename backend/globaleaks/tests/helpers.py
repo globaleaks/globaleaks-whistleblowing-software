@@ -16,7 +16,7 @@ from urllib.parse import urlsplit  # pylint: disable=import-error
 
 
 from twisted.internet.address import IPv4Address
-from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
+from twisted.internet.defer import inlineCallbacks, Deferred
 from twisted.internet.task import Clock
 from twisted.python.failure import Failure
 from twisted.trial import unittest
@@ -788,13 +788,13 @@ class TestGL(unittest.TestCase):
         else:
             receipt = GCE.generate_receipt()
 
-        returnValue({
+        return {
             'context_id': context_id,
             'receivers': context['receivers'],
             'identity_provided': False,
             'answers': answers,
             'receipt': receipt
-        })
+        }
 
     def get_dummy_attachment(self, name=None, content=None):
         return get_dummy_attachment(name=name, content=content)

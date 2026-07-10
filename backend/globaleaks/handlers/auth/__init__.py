@@ -4,7 +4,7 @@ from datetime import timedelta
 from sqlalchemy import exists, func, or_, and_
 
 from nacl.encoding import Base64Encoder
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 import globaleaks.handlers.auth.token
 
@@ -235,11 +235,11 @@ class AuthenticationHandler(BaseHandler):
                               self.get_dpop_thumbprint())
 
         if tid != self.request.tid:
-            returnValue({
+            return {
                 'redirect': 'https://%s/#/login?token=%s' % (State.tenants[tid].cache.hostname, session.id)
-            })
+            }
 
-        returnValue(session.serialize())
+        return session.serialize()
 
 
 class TokenAuthHandler(BaseHandler):
@@ -261,7 +261,7 @@ class TokenAuthHandler(BaseHandler):
 
         session = Sessions.regenerate(session, dpop_jkt=self.get_dpop_thumbprint())
 
-        returnValue(session.serialize())
+        return session.serialize()
 
 
 class ReceiptAuthHandler(BaseHandler):
@@ -302,7 +302,7 @@ class ReceiptAuthHandler(BaseHandler):
             # whistleblower session cannot be used to accumulate others
             del Sessions[self.session.id]
 
-        returnValue(session.serialize())
+        return session.serialize()
 
 
 class SessionHandler(BaseHandler):

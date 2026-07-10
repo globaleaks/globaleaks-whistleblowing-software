@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
 from twisted.internet import reactor, task
-from twisted.internet.defer import DeferredLock, inlineCallbacks, returnValue
+from twisted.internet.defer import DeferredLock, inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
@@ -834,14 +834,14 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
         self._handler = rtip.RTipInstance
         handler = self.request(role='receiver', user_id=receiver_id)
         ret = yield handler.get(itip_id)
-        returnValue(ret)
+        return ret
 
     @inlineCallbacks
     def read_wbtip(self, itip_id):
         self._handler = wbtip.WBTipInstance
         handler = self.request(role='whistleblower', user_id=itip_id)
         ret = yield handler.get()
-        returnValue(ret)
+        return ret
 
     def find_redactable_answer(self, tip):
         # A top-level questionnaire answer holding a non-empty string value,

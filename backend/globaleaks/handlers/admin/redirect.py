@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -72,7 +72,7 @@ class RedirectCollection(BaseHandler):
 
         yield update_redirects_state(self.request.tid)
 
-        returnValue(redirect)
+        return redirect
 
 
 class RedirectInstance(BaseHandler):

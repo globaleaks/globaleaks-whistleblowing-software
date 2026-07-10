@@ -1,7 +1,7 @@
 import contextlib
 import os
 from nacl.encoding import Base64Encoder
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.db.appdata import load_appdata
@@ -379,9 +379,9 @@ class AdminOperationHandler(OperationHandler):
 
         yield tw(db_log, tid=self.request.tid, type='reset_onion_key', user_id=self.session.user_id)
 
-        returnValue({
+        return {
             'onionservice': hostname
-        })
+        }
 
     def reset_submissions(self, req_args, *args, **kwargs):
         self.check_root_or_management_session()

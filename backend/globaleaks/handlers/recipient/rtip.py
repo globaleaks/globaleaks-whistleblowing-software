@@ -10,7 +10,7 @@ from datetime import datetime
 from nacl.encoding import Base64Encoder
 from sqlalchemy import and_, or_
 from twisted.internet.threads import deferToThread
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.context import admin_serialize_context
@@ -1305,7 +1305,7 @@ class RTipRedactionCollection(BaseHandler):
 
         redaction = yield update_redaction(self.request.tid, self.session.user_id, redaction_id, data, tip)
 
-        returnValue(redaction)
+        return redaction
 
 
 class RTipInstance(OperationHandler):
@@ -1325,7 +1325,7 @@ class RTipInstance(OperationHandler):
 
         tip = yield redact_report(self.session.user_id, tip)
 
-        returnValue(tip)
+        return tip
 
     def operation_descriptors(self):
         return {
@@ -1492,7 +1492,7 @@ class ReceiverFileUpload(BaseHandler):
     def post(self, itip_id):
         result, crypto_key = yield register_rfile_on_db(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
         yield deferToThread(write_rfile_to_disk, self.uploaded_file, crypto_key)
-        returnValue(result)
+        return result
 
 
 class ReceiverFileDownload(BaseHandler):

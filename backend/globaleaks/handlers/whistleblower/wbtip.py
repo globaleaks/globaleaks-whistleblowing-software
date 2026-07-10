@@ -4,7 +4,7 @@ import os
 
 from nacl.encoding import Base64Encoder
 from twisted.internet.threads import deferToThread
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
@@ -231,7 +231,7 @@ class WBTipInstance(BaseHandler):
 
         tip = yield redact_report(self.session.user_id, tip)
 
-        returnValue(tip)
+        return tip
 
 
 class WBTipCommentCollection(BaseHandler):
