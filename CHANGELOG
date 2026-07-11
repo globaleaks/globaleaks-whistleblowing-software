@@ -1,3 +1,10 @@
+Changes in version 5.0.98
+    Improve performance of tenant configuration and custodian cache loading
+    Adopt a bridge network topology in the Docker Compose example
+    Improve forward-compatibility of the systemd sandbox on recent systems
+    Perform code modernization and lint fixes
+    Bump client dependencies to their latest stable versions
+
 Changes in version 5.0.97
     Fix serialization of identity access requests requested by deleted users
     Regression on configuration of hostnames that are subdomains of parent
