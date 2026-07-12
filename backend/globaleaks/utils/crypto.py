@@ -69,6 +69,15 @@ def sha256(data: Union[bytes, str]) -> bytes:
     h.update(_convert_to_bytes(data))
     return binascii.b2a_hex(h.finalize())
 
+def sha512(data: Union[bytes, str]) -> bytes:
+    """
+    Perform the sha512 of the passed data
+    :param data: A data to be hashed
+    :return: A hash value
+    """
+    h = hashes.Hash(hashes.SHA512(), backend=crypto_backend)
+    h.update(_convert_to_bytes(data))
+    return binascii.b2a_hex(h.finalize())
 
 def generateRandomKey() -> str:
     """

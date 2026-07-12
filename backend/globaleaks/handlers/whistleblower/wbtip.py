@@ -20,7 +20,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE
+from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -100,17 +100,27 @@ def create_comment(session, tid, user_id, content):
     itip.update_date = itip.last_access = datetime_now()
 
     _content = content
+    hash_sha256 = sha256(content)
+    hash_sha512 = sha512(content)
+    _hash_sha256 = hash_sha256.decode()
+    _hash_sha512 = hash_sha512.decode()
     if itip.crypto_tip_pub_key:
         _content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _hash_sha256 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha256)).decode()
+        _hash_sha512 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha512)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
     comment.content = _content
+    comment.hash_sha256 = _hash_sha256
+    comment.hash_sha512 = _hash_sha512
     session.add(comment)
     session.flush()
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    ret['hash_sha256'] = hash_sha256
+    ret['hash_sha512'] = hash_sha512
 
     return ret
 
@@ -145,6 +155,13 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
 
     if not context.additional_questionnaire_id:
         return
+
+    for _, field_items in answers.items():
+            for item in field_items:
+                if 'value' in item and item['value']:
+                    val_str = str(item['value'])
+                    item['hash_sha256'] = sha256(val_str).decode()
+                    item['hash_sha512'] = sha512(val_str).decode()
 
     steps = db_get_questionnaire(session, tid, context.additional_questionnaire_id, None)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)

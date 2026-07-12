@@ -47,7 +47,7 @@ from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
 from globaleaks.utils import tempdict
-from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
+from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
@@ -464,7 +464,9 @@ def get_dummy_attachment(name=None, content=None):
         'type': content_type,
         'submission': False,
         "reference_id": '',
-        "visibility": b'public'
+        "visibility": b'public',
+        "hash_sha256": sha256(content),
+        "hash_sha512": sha512(content)
     }
 
 
@@ -794,6 +796,20 @@ class TestGL(unittest.TestCase):
     @transact
     def get_model_count(self, session, model):
         return session.query(model).count()
+
+    def verify_questionnaire_hashes(self, tip_desc):
+        self.assertTrue('questionnaires' in tip_desc)
+        self.assertTrue(len(tip_desc['questionnaires']) > 0)
+
+        for questionnaire in tip_desc['questionnaires']:
+            self.assertTrue('hash_sha256' in questionnaire)
+            self.assertTrue('hash_sha512' in questionnaire)
+            self.assertIsInstance(questionnaire['hash_sha256'], str)
+            self.assertIsInstance(questionnaire['hash_sha512'], str)
+            self.assertTrue(len(questionnaire['hash_sha256']) > 0)
+            self.assertTrue(len(questionnaire['hash_sha512']) > 0)
+            self.assertEqual(len(questionnaire['hash_sha256']), 64)
+            self.assertEqual(len(questionnaire['hash_sha512']), 128)
 
 
 class TestGLWithPopulatedDB(TestGL):

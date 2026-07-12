@@ -26,7 +26,7 @@ from globaleaks.models import UserProfile, serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE
+from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating
@@ -647,7 +647,7 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
         itip.update_date = rtip.last_access
 
     if itip.crypto_tip_pub_key:
-        for k in ['name', 'description', 'type', 'size']:
+        for k in ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512']:
             if k == 'size':
                 uploaded_file[k] = str(uploaded_file[k])
             uploaded_file[k] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, uploaded_file[k]))
@@ -661,6 +661,8 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     new_file.size = uploaded_file['size']
     new_file.internaltip_id = itip.id
     new_file.visibility = uploaded_file['visibility']
+    new_file.hash_sha256 = uploaded_file['hash_sha256']
+    new_file.hash_sha512 = uploaded_file['hash_sha512']
 
     session.add(new_file)
 
@@ -1043,9 +1045,15 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     if visibility == 'public':
         itip.update_date = rtip.last_access
 
+    hash_sha256 = sha256(content)
+    hash_sha512 = sha512(content)
     _content = content
+    _hash_sha256 = hash_sha256.decode()
+    _hash_sha512 = hash_sha512.decode()
     if itip.crypto_tip_pub_key:
         _content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _hash_sha256 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha256)).decode()
+        _hash_sha512 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha512)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
@@ -1053,11 +1061,15 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     comment.author_id = rtip.receiver_id
     comment.content = _content
     comment.visibility = visibility
+    comment.hash_sha256 = _hash_sha256
+    comment.hash_sha512 = _hash_sha512
     session.add(comment)
     session.flush()
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    ret['hash_sha256'] = hash_sha256
+    ret['hash_sha512'] = hash_sha512
     return ret
 
 

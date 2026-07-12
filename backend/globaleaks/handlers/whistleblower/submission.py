@@ -12,7 +12,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import sha256, GCE
+from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null
 
@@ -81,11 +81,12 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 pass
 
     for x in tip['comments']:
-        if x['content']:
-            x['content'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x['content'].encode())).decode()
+        for k in ['content', 'hash_sha256', 'hash_sha512']:
+            if k in x and x[k]:
+                x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
 
     for x in tip['wbfiles'] + tip['rfiles']:
-        for k in ['name', 'description', 'type', 'size']:
+        for k in ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512']:
             if k in x and x[k]:
                 x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
                 if k == 'size':
@@ -179,6 +180,14 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     answers = request['answers']
+
+    for _, field_items in answers.items():
+        for item in field_items:
+            if 'value' in item and item['value']:
+                val_str = str(item['value'])
+                item['hash_sha256'] = sha256(val_str).decode()
+                item['hash_sha512'] = sha512(val_str).decode()
+
     steps = db_get_questionnaire(session, tid, questionnaire.id, None, True)['steps']
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
@@ -260,6 +269,16 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     # Apply special handling to the whistleblower identity question
     if itip.enable_whistleblower_identity and request['identity_provided'] and answers[whistleblower_identity.id]:
+
+        identity_data = answers[whistleblower_identity.id][0]
+        for key, field_items in identity_data.items():
+            if isinstance(field_items, list):
+                for item in field_items:
+                    if 'value' in item and item['value']:
+                        val_str = str(item['value'])
+                        item['hash_sha256'] = sha256(val_str).decode()
+                        item['hash_sha512'] = sha512(val_str).decode()
+
         if crypto_is_available:
             wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers[whistleblower_identity.id][0]).encode())).decode()
         else:
@@ -282,7 +301,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     for uploaded_file in user_session.files:
         if crypto_is_available:
-            for k in ['name', 'type', 'size']:
+            for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
                 uploaded_file[k] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
 
         new_file = models.InternalFile()
@@ -294,6 +313,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         new_file.internaltip_id = itip.id
         new_file.reference_id = uploaded_file['reference_id']
         new_file.creation_date = itip.creation_date
+        new_file.hash_sha256 = uploaded_file['hash_sha256']
+        new_file.hash_sha512 = uploaded_file['hash_sha512']
         session.add(new_file)
 
     for user in receivers:

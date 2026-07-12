@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 
 
@@ -9,6 +10,7 @@ from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
+from globaleaks.utils.crypto import sha256, sha512
 
 
 def get_identity_files(data):
@@ -106,7 +108,9 @@ def serialize_comment(session, comment):
         'creation_date': comment.creation_date,
         'content': comment.content,
         'author_id': comment.author_id,
-        'visibility': comment.visibility
+        'visibility': comment.visibility,
+        'hash_sha256': comment.hash_sha256,
+        'hash_sha512': comment.hash_sha512
     }
 
 
@@ -146,7 +150,9 @@ def serialize_ifile(session, ifile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -170,7 +176,9 @@ def serialize_wbfile(session, ifile, wbfile):
         'size': ifile.size,
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -192,7 +200,9 @@ def serialize_rfile(session, rfile):
         'type': rfile.content_type,
         'description': rfile.description,
         'visibility': rfile.visibility,
-        'error': error
+        'error': error,
+        'hash_sha256': rfile.hash_sha256,
+        'hash_sha512': rfile.hash_sha512
     }
 
 def serialize_itip(session, internaltip, language):
@@ -203,9 +213,14 @@ def serialize_itip(session, internaltip, language):
 
     questionnaires = []
     for ita, aqs in x:
+        questionnaire_data = {'questionnaire_hash': ita.questionnaire_hash, 'answers': ita.answers}
+        questionnaire_json = json.dumps(questionnaire_data, sort_keys=True)
+
         questionnaires.append({
             'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
-            'answers': ita.answers
+            'answers': ita.answers,
+            'hash_sha256': sha256(questionnaire_json).decode(),
+            'hash_sha512': sha512(questionnaire_json).decode()
         })
 
     ret = {
