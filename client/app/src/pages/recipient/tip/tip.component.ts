@@ -394,7 +394,7 @@ export class TipComponent implements OnInit {
   }
 
   exportTip(tipId: string) {
-    this.utils.saveAs(this.authenticationService, "tip.zip", `/api/recipient/tips/${tipId}/export`);
+    this.utils.saveAs(this.authenticationService, "tip.zip", `/api/recipient/rtips/${tipId}/export`);
   }
 
   openLogsModal() {
