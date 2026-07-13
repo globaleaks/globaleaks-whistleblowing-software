@@ -1130,8 +1130,6 @@ class _Tenant(Model):
     id = Column(Integer, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     active = Column(Boolean, default=False, nullable=False)
-    affiliated = Column(Boolean, nullable=True)
-    external = Column(Boolean, default=False, nullable=False)
 
     bool_keys = ['active']
 
