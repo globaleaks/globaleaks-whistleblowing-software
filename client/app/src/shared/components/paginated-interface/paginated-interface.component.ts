@@ -56,12 +56,18 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
+      this.currentPage = 1;
       this.update();
     }
   }
 
-  update(): void {
+  /** Reset to the first page (e.g. on search) and recompute. */
+  onSearchChange(): void {
     this.currentPage = 1;
+    this.update();
+  }
+
+  update(): void {
     this.filteredItems = [...this.items];
 
     // Apply optional filter object
@@ -113,15 +119,13 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
     if (this.currentPage > maxPage) {
       this.currentPage = maxPage;
     }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
+    }
 
     // Pagination
     const start = (this.currentPage - 1) * this.itemsPerPage;
     const end = this.currentPage * this.itemsPerPage;
     this.paginatedItems = [...this.filteredItems.slice(start, end)];
-  }
-
-  onSearchUpdate(): void {
-    this.currentPage = 1;
-    this.update();
   }
 }
