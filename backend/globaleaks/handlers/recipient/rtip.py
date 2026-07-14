@@ -1162,9 +1162,10 @@ def create_redaction(session, tid, user_id, data):
     # validate here; they are instead confined by the report-scoped redaction
     # loading at consumption time (see redact_report).
     #
-    # In addition, a personal (visibility == 2) recipient file belongs to a
-    # single recipient (author_id); reject any reference to such a file owned by
-    # another user, mirroring the access guard enforced in db_access_rfile.
+    # In addition, a personal (visibility == 2) recipient file or comment
+    # belongs to a single recipient (author_id); reject any reference to such an
+    # object owned by another user, mirroring the access guard enforced in
+    # db_access_rfile and in serialize_rtip's per-recipient visibility filter.
     if reference_id and \
             (session.query(models.InternalFile)
                     .filter(models.InternalFile.id == reference_id,
@@ -1176,7 +1177,9 @@ def create_redaction(session, tid, user_id, data):
                                      models.ReceiverFile.author_id != user_id))).first() or
              session.query(models.Comment)
                     .filter(models.Comment.id == reference_id,
-                            models.Comment.internaltip_id != itip.id).first()):
+                            or_(models.Comment.internaltip_id != itip.id,
+                                and_(models.Comment.visibility == 2,
+                                     models.Comment.author_id != user_id))).first()):
         raise errors.InputValidationError
 
     redaction = models.Redaction()
