@@ -799,6 +799,35 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
                                      [{'start': 0, 'end': 5}], [{'start': 0, 'end': 16}])
 
     @inlineCallbacks
+    def test_create_redaction_rejects_personal_comment_of_other_recipient(self):
+        # A personal (visibility == 2) comment is visible only to its author.
+        # A second recipient must not be able to reference it in a redaction,
+        # mirroring the guard already enforced for personal receiver files.
+        itip_id = (yield self.get_rtips())[0]['id']
+
+        other_personal = yield rtip.create_comment(1, self.dummyReceiver_2['id'],
+                                                    itip_id, 'secret personal note',
+                                                    'personal')
+
+        body = {
+            'internaltip_id': itip_id,
+            'reference_id': other_personal['id'],
+            'entry': '0',
+            'permanent_redaction': '',
+            'temporary_redaction': [{'start': 0, 'end': 5}]
+        }
+
+        handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+        yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+        # A public comment authored by the other recipient stays referenceable.
+        other_public = yield rtip.create_comment(1, self.dummyReceiver_2['id'],
+                                                  itip_id, 'shared note', 'public')
+        body['reference_id'] = other_public['id']
+        handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+        yield handler.post()
+
+    @inlineCallbacks
     def test_redact_file(self):
         yield Delivery().run()
 
