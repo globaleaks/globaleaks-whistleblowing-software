@@ -798,34 +798,64 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
                                      'comment', comment_ids[rtip_desc['id']],
                                      [{'start': 0, 'end': 5}], [{'start': 0, 'end': 16}])
 
-    @inlineCallbacks
-    def test_create_redaction_rejects_personal_comment_of_other_recipient(self):
-        # A personal (visibility == 2) comment is visible only to its author.
-        # A second recipient must not be able to reference it in a redaction,
-        # mirroring the guard already enforced for personal receiver files.
-        itip_id = (yield self.get_rtips())[0]['id']
+    @transact
+    def add_receiver_files(self, session, itip_id, author_id):
+        # Insert a personal and a public receiver file authored by author_id,
+        # bypassing the upload machinery which is irrelevant to this guard.
+        ids = {}
+        for visibility in ('personal', 'public'):
+            rfile = models.ReceiverFile()
+            rfile.internaltip_id = itip_id
+            rfile.author_id = author_id
+            rfile.name = 'attachment.txt'
+            rfile.size = 1
+            rfile.content_type = 'text/plain'
+            rfile.visibility = visibility
+            session.add(rfile)
+            session.flush()
+            ids[visibility] = rfile.id
 
-        other_personal = yield rtip.create_comment(1, self.dummyReceiver_2['id'],
-                                                    itip_id, 'secret personal note',
-                                                    'personal')
+        return ids
+
+    @inlineCallbacks
+    def test_create_redaction_rejects_personal_object_of_other_recipient(self):
+        # A personal (visibility == 2) comment or receiver file is visible only
+        # to its author. A second recipient must not be able to reference either
+        # one in a redaction -- mirroring db_access_rfile and serialize_rtip's
+        # per-recipient visibility filter -- while a public object of the same
+        # kind stays referenceable.
+        itip_id = (yield self.get_rtips())[0]['id']
+        other = self.dummyReceiver_2['id']
+
+        references = {'personal': [], 'public': []}
+
+        for visibility in ('personal', 'public'):
+            comment = yield rtip.create_comment(1, other, itip_id, 'note', visibility)
+            references[visibility].append(comment['id'])
+
+        file_ids = yield self.add_receiver_files(itip_id, other)
+        for visibility in ('personal', 'public'):
+            references[visibility].append(file_ids[visibility])
 
         body = {
             'internaltip_id': itip_id,
-            'reference_id': other_personal['id'],
+            'reference_id': None,
             'entry': '0',
             'permanent_redaction': '',
             'temporary_redaction': [{'start': 0, 'end': 5}]
         }
 
-        handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
-        yield self.assertFailure(handler.post(), errors.InputValidationError)
+        # Personal objects owned by the other recipient are rejected.
+        for reference_id in references['personal']:
+            body['reference_id'] = reference_id
+            handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+            yield self.assertFailure(handler.post(), errors.InputValidationError)
 
-        # A public comment authored by the other recipient stays referenceable.
-        other_public = yield rtip.create_comment(1, self.dummyReceiver_2['id'],
-                                                  itip_id, 'shared note', 'public')
-        body['reference_id'] = other_public['id']
-        handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
-        yield handler.post()
+        # Public objects of the same kinds stay referenceable.
+        for reference_id in references['public']:
+            body['reference_id'] = reference_id
+            handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+            yield handler.post()
 
     @inlineCallbacks
     def test_redact_file(self):
