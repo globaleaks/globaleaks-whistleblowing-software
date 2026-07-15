@@ -8,6 +8,7 @@ from twisted.internet.defer import DeferredLock, inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
+from globaleaks.models import serializers
 from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
@@ -1037,3 +1038,58 @@ class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
+
+
+@transact
+def identity_visibility_by_recipient(session, itip_id, authorized_receiver_id, other_receiver_id):
+    # Provide a whistleblower identity on the report.
+    itd = models.InternalTipData()
+    itd.internaltip_id = itip_id
+    itd.key = 'whistleblower_identity'
+    itd.value = 'SECRET_IDENTITY'
+    session.add(itd)
+
+    # A single recipient files an identity access request that a custodian authorizes.
+    iar = models.IdentityAccessRequest()
+    iar.internaltip_id = itip_id
+    iar.request_user_id = authorized_receiver_id
+    iar.reply = 'authorized'
+    session.add(iar)
+    session.flush()
+
+    itip = session.query(models.InternalTip).get(itip_id)
+
+    authorized_rtip = session.query(models.ReceiverTip) \
+                             .filter_by(internaltip_id=itip_id, receiver_id=authorized_receiver_id).one()
+    other_rtip = session.query(models.ReceiverTip) \
+                        .filter_by(internaltip_id=itip_id, receiver_id=other_receiver_id).one()
+
+    authorized_view = serializers.serialize_rtip(session, itip, authorized_rtip, 'en')
+    other_view = serializers.serialize_rtip(session, itip, other_rtip, 'en')
+
+    return ('whistleblower_identity' in authorized_view['data'],
+            'whistleblower_identity' in other_view['data'])
+
+
+class TestIdentityAccessRequestVisibility(helpers.TestHandlerWithPopulatedDB):
+    _handler = rtip.IdentityAccessRequestsCollection
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def test_identity_authorization_is_per_recipient(self):
+        rtip_descs = yield self.get_rtips()
+        itip_id = rtip_descs[0]['id']
+
+        authorized, other = yield identity_visibility_by_recipient(
+            itip_id,
+            self.dummyReceiver_1['id'],
+            self.dummyReceiver_2['id'])
+
+        # The recipient whose request was authorized sees the identity.
+        self.assertTrue(authorized)
+        # A co-recipient without an authorized request of their own must not.
+        self.assertFalse(other)

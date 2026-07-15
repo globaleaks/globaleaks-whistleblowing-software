@@ -255,7 +255,8 @@ def serialize_rtip(session, itip, rtip, language):
     ret['enable_notifications'] = rtip.enable_notifications
 
     iar = session.query(models.IdentityAccessRequest) \
-                 .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
+                 .filter(models.IdentityAccessRequest.internaltip_id == itip.id,
+                         models.IdentityAccessRequest.request_user_id == user_id) \
                  .order_by(models.IdentityAccessRequest.request_date.desc()).first()
 
     if iar:
