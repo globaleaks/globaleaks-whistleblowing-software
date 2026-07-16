@@ -521,10 +521,10 @@ class APIResourceWrapper(Resource):
             return b''
 
         # OIDC token verification against the IdP configured on the tenant
-        if State.tenants[request.tid].cache.get('idp'):
+        if State.tenants[request.tid].cache.idp:
             bearer_token = extract_bearer_token(request)
             if bearer_token:
-                issuer = State.tenants[request.tid].cache.get('idp_issuer')
+                issuer = State.tenants[request.tid].cache.idp_issuer
                 try:
                     request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer)
                 except Exception as e:
@@ -667,8 +667,8 @@ class APIResourceWrapper(Resource):
         if request.path == b'/index.html':
             # Allow the client to reach the tenant's configured IdP (if any)
             idp_connect_src = b""
-            if request.tid in State.tenants and State.tenants[request.tid].cache.get('idp'):
-                idp_origin = idp_origin_from_issuer(State.tenants[request.tid].cache.get('idp_issuer'))
+            if request.tid in State.tenants and State.tenants[request.tid].cache.idp:
+                idp_origin = idp_origin_from_issuer(State.tenants[request.tid].cache.idp_issuer)
                 if idp_origin:
                     idp_connect_src = b" " + idp_origin
 

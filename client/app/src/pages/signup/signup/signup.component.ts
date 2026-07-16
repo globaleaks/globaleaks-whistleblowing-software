@@ -3,7 +3,10 @@ import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Signup} from "@app/models/component-model/signup";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
+import {HttpHeaders} from "@angular/common/http";
+import {OAuthService} from "angular-oauth2-oidc";
+import {IdpService} from "@app/services/root/idp.service";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
 import {WbpaComponent} from "../templates/wbpa/wbpa.component";
@@ -21,10 +24,15 @@ export class SignupComponent implements OnInit {
   private httpService = inject(HttpService);
   private appConfig = inject(AppConfigService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private oauthService = inject(OAuthService);
+  private idpService = inject(IdpService);
 
   hostname = "";
   completed = false;
   step = 1;
+  idpRequired = false;
+  idpAuthenticated = false;
   signup: Signup = {
     "subdomain": "",
     "name": "",
@@ -44,7 +52,16 @@ export class SignupComponent implements OnInit {
 
   ngOnInit() {
     this.appConfig.routeChangeListener();
-    this.signup.token = this.route.snapshot.queryParamMap.get("token") || "";
+    const queryParams = this.route.snapshot.queryParams;
+    this.signup.token = "token" in queryParams ? queryParams["token"] : "";
+    
+    const config = this.appDataService.public?.node || {};
+    this.idpRequired = !!config.idp;
+    this.setIdpClaims();
+    if (this.idpRequired) {
+      this.oauthService.events.subscribe(() => this.setIdpClaims());
+    }
+    
     if (this.signup.token) {
       this.httpService.requestSignupInvite(this.signup.token).subscribe(invite => {
         this.signup.organization_name = invite.organization_name;
@@ -60,9 +77,39 @@ export class SignupComponent implements OnInit {
     }
   }
 
+  authenticateWithIDP() {
+    this.idpService.startLogin(this.router.url);
+  }
+
+  setIdpClaims() {
+    if (!this.idpRequired || !this.oauthService.hasValidAccessToken()) {
+      return;
+    }
+
+    const claims = this.oauthService.getIdentityClaims() || {};
+    this.idpAuthenticated = "sub" in claims || "user_id" in claims;
+
+    if (claims["given_name"] && !this.signup.name) {
+      this.signup.name = claims["given_name"];
+    }
+    if (claims["family_name"] && !this.signup.surname) {
+      this.signup.surname = claims["family_name"];
+    }
+    if (claims["email"] && !this.signup.email) {
+      this.signup.email = claims["email"];
+    }
+  }
+
   complete() {
+    if (this.idpRequired && (!this.idpAuthenticated || !this.oauthService.hasValidAccessToken())) {
+      this.authenticateWithIDP();
+      return;
+    }
+    
     const param = JSON.stringify(this.signup);
-    this.httpService.requestSignup(param).subscribe
+    const accessToken = this.oauthService.getAccessToken();
+    const headers = accessToken ? new HttpHeaders({Authorization: `Bearer ${accessToken}`}) : undefined;
+    this.httpService.requestSignup(param, headers).subscribe
     (
       {
         next: _ => {

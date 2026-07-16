@@ -70,6 +70,7 @@ export class Node {
   receipt_salt: string;
   idp: boolean;
   idp_issuer: string;
+  default_user_profile: string;
   antivirus_enabled: boolean;
 }
 

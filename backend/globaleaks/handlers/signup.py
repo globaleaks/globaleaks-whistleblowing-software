@@ -19,7 +19,7 @@ from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def signup(session, request, language):
+def signup(session, request, language, oidc_token=None):
     """
     Transact handling the registration of a new signup
 
@@ -30,6 +30,10 @@ def signup(session, request, language):
     config = ConfigFactory(session, 1)
 
     if not config.get_val('enable_signup'):
+        raise errors.ForbiddenOperation
+
+    mode_idp = config.get_val('idp')
+    if mode_idp and not oidc_token:
         raise errors.ForbiddenOperation
 
     invite = None
@@ -98,7 +102,7 @@ def signup(session, request, language):
                                             'name': request['organization_name'] or request['subdomain'],
                                             'subdomain': request['subdomain'],
                                             'mode': config.get_val('mode'),
-                                            'profile': 'default'})
+                                            'profile': config.get_val('profile')})
 
         signup = models.Subscriber(request)
 
@@ -109,7 +113,7 @@ def signup(session, request, language):
     session.flush()
 
     if active:
-        db_signup_activation(session, request['activation_token'], '', language)
+        db_signup_activation(session, request['activation_token'], '', language, oidc_token)
         return
 
     # Notify instance administrators that a new platform is waiting for approval.
@@ -128,7 +132,7 @@ def signup(session, request, language):
         State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
 
 
-def db_signup_activation(session, token, hostname, language):
+def db_signup_activation(session, token, hostname, language, idp_claims=None):
     """
     Transaction registering the activation of a platform registered via signup
 
@@ -136,6 +140,7 @@ def db_signup_activation(session, token, hostname, language):
     :param token: A activation token
     :param hostname: The choosen hostname
     :param language: A language of the request
+    :param idp_claims: IDP user claims for autofilling data
     """
     config = ConfigFactory(session, 1)
 
@@ -155,24 +160,56 @@ def db_signup_activation(session, token, hostname, language):
 
     signup.activation_token = None
 
+    if idp_claims and not signup.name:
+        signup.name = idp_claims['given_name'] if 'given_name' in idp_claims else signup.name or ''
+    if idp_claims and not signup.surname:
+        signup.surname = idp_claims['family_name'] if 'family_name' in idp_claims else signup.surname or ''
+
     node_name = signup.organization_name or signup.subdomain
 
     node = ConfigFactory(session, tenant.id)
-    mode = node.get_val('mode')
+    signup_idp = config.get_val('idp')
+    if signup_idp:
+        node.set_val('idp', True)
+        node.set_val('idp_issuer', config.get_val('idp_issuer'))
+
     salt = node.get_val('receipt_salt')
 
-    if mode == 'wbpa':
-        skip_admin_account_creation = True
-        admin_password = admin_key = ''
-    else:
-        skip_admin_account_creation = False
-        admin_password = generateRandomPassword(16)
-        admin_salt = GCE.generate_salt(salt + ":" + 'admin')
-        admin_key = GCE.derive_key(admin_password, admin_salt).encode()
+    default_user_profile = node.get_val('default_user_profile')
+    default_profile = None
+    if default_user_profile and default_user_profile != 'none':
+        default_profile = session.query(models.UserProfile).filter(models.UserProfile.id == default_user_profile).one_or_none()
+        if default_profile is None:
+            raise errors.InputValidationError
 
-    receiver_password = generateRandomPassword(16)
-    receiver_salt = GCE.generate_salt(salt + ":" + 'recipient')
-    receiver_key = GCE.derive_key(receiver_password, receiver_salt).encode()
+    if default_profile is None:
+        skip_admin_account_creation = True
+        skip_recipient_account_creation = True
+        skip_default_account_creation = True
+        default_role = ''
+        default_username = ''
+        default_user_profile = ''
+        admin_password = admin_key = ''
+        receiver_password = receiver_key = ''
+        generic_password = ''
+        default_key = ''
+    else:
+        default_role = default_profile.role
+        default_user_profile = default_profile.id
+        default_username = 'recipient' if default_role == 'receiver' else default_role
+        default_password = generateRandomPassword(16)
+        default_salt = GCE.generate_salt(salt + ":" + default_username)
+        default_key = GCE.derive_key(default_password, default_salt).encode()
+
+        skip_admin_account_creation = default_role != 'admin'
+        skip_recipient_account_creation = default_role != 'receiver'
+        skip_default_account_creation = default_role in ('admin', 'receiver')
+
+        admin_password = default_password if default_role == 'admin' else ''
+        admin_key = default_key if default_role == 'admin' else ''
+        receiver_password = default_password if default_role == 'receiver' else ''
+        receiver_key = default_key if default_role == 'receiver' else ''
+        generic_password = default_password if not skip_default_account_creation else ''
 
     wizard = {
         'node_language': signup.language,
@@ -181,16 +218,29 @@ def db_signup_activation(session, token, hostname, language):
         'admin_name': signup.name + ' ' + signup.surname,
         'admin_password': admin_key,
         'admin_mail_address': signup.email,
+        'admin_profile_id': default_user_profile if default_role == 'admin' else '',
         'admin_escrow': config.get_val('escrow'),
         'receiver_username': 'recipient',
         'receiver_name': signup.name + ' ' + signup.surname,
         'receiver_password': receiver_key,
         'receiver_mail_address': signup.email,
+        'receiver_profile_id': default_user_profile if default_role == 'receiver' else '',
+        'default_username': default_username,
+        'default_name': signup.name + ' ' + signup.surname,
+        'default_password': generic_password and default_key or '',
+        'default_mail_address': signup.email,
+        'default_role': default_role,
+        'default_profile_id': default_user_profile if not skip_default_account_creation else '',
         'profile': 'default',
         'skip_admin_account_creation': skip_admin_account_creation,
-        'skip_recipient_account_creation': False,
+        'skip_recipient_account_creation': skip_recipient_account_creation,
+        'skip_default_account_creation': skip_default_account_creation,
         'enable_developers_exception_notification': True
     }
+
+    password_recipient = receiver_password or generic_password
+    signup_user_role = 'recipient' if default_role == 'receiver' else default_role
+    signup_user_username = default_username
 
     db_wizard(session, signup.tid, hostname, wizard)
 
@@ -200,7 +250,9 @@ def db_signup_activation(session, token, hostname, language):
         'notification': db_get_notification(session, 1, language),
         'signup': serializers.serialize_signup(signup),
         'password_admin': admin_password,
-        'password_recipient': receiver_password
+        'password_recipient': password_recipient,
+        'signup_user_role': signup_user_role,
+        'signup_user_username': signup_user_username
     }
 
     State.format_and_send_mail(session, 1, signup.email, template_vars)
@@ -236,7 +288,7 @@ class Signup(BaseHandler):
         request['client_user_agent'] = self.request.client_ua
         request['token'] = token
 
-        return signup(request, self.request.language)
+        return signup(request, self.request.language, self.request.oidc_token)
 
 
 class SignupActivation(BaseHandler):

@@ -10,7 +10,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {NgZone} from "@angular/core";
-import {AuthConfig, OAuthService} from 'angular-oauth2-oidc';
+import {IdpService} from "@app/services/root/idp.service";
 import {filter} from 'rxjs';
 
 @Injectable({
@@ -26,7 +26,7 @@ export class AppConfigService {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
-  private oauthService = inject(OAuthService);
+  private idpService = inject(IdpService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private ngZone = inject(NgZone);
   private isRunning = false;
@@ -60,20 +60,13 @@ export class AppConfigService {
         }
 
         if (this.appDataService.public.node.idp) {
-            this.oauthService.configure({
-                issuer: this.appDataService.public.node.idp_issuer,
-                redirectUri: window.location.origin + '/#/login',
-                clientId: 'globaleaks',
-                responseType: 'code',
-                scope: 'openid profile email',
-                requireHttps: false,
-                postLogoutRedirectUri: window.location.origin + '/',
-            });
-            this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
-              if (this.authenticationService.session) {
-                  this.oauthService.setupAutomaticSilentRefresh();
-              }
-            });
+          this.idpService.initialize().then(authenticated => {
+            if (authenticated && this.authenticationService.session) {
+              this.idpService.setupAutomaticRefresh();
+            }
+          });
+        } else {
+          this.idpService.disable();
         }
 
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);

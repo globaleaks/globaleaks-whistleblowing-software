@@ -217,8 +217,8 @@ class AuthenticationHandler(BaseHandler):
 
             if State.tenants[tid].cache.idp:
                 if self.request.oidc_token:
-                    preferred_username = self.request.oidc_token.get('preferred_username')
-                    email = self.request.oidc_token.get('email')
+                    preferred_username = self.request.oidc_token['preferred_username'] if 'preferred_username' in self.request.oidc_token else ''
+                    email = self.request.oidc_token['email'] if 'email' in self.request.oidc_token else ''
 
                     def ensure_user(session):
                         user = session.query(User).filter(User.username == preferred_username, User.mail_address == email, User.enabled.is_(True), User.tid == tid).one_or_none()
@@ -346,9 +346,6 @@ class SessionHandler(BaseHandler):
                      user_id=self.session.properties.get("operator_session"))
         else:
             yield tw(db_log, tid=self.session.tid,  type='logout', user_id=self.session.user_id)
-
-        if not self.session.properties.get('management_session', False):
-            self.request.setHeader(b'Clear-Site-Data', b'"*"')
 
         del Sessions[self.session.id]
 

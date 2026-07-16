@@ -2,32 +2,19 @@
   <div class="col-md-6">
     <form #contentForm="ngForm">
       <div class="form-group">
-        <label>Authentication</label>
-        <select class="form-control" [(ngModel)]="nodeResolver.dataModel.auth_type" name="auth_type" required>
-          <option value="globaleaks">Default (GlobaLeaks)</option>
-          <option value="idp">IDP (OIDC/Keycloak)</option>
-        </select>
+        <label>
+          <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.idp" name="idp" type="checkbox" [disabled]="isInheritedTenantContext()" />
+          <span>{{'Identity Provider Configuration' | translate}}</span>
+        </label>
       </div>
-      @if (nodeResolver.dataModel.auth_type === 'globaleaks') {
-        <div class="form-group">
-          <label>Enable Two-Factor Authentication</label>
-          <input type="checkbox" [(ngModel)]="nodeResolver.dataModel.enable2FA" name="enable2FA" />
-        </div>
-        @if (nodeResolver.dataModel.enable2FA) {
-          <div class="form-group">
-            <label>Enforce Two-Factor Authentication</label>
-            <input type="checkbox" [(ngModel)]="nodeResolver.dataModel.enforce2FA" name="enforce2FA" />
-          </div>
-        }
-      }
-      @if (nodeResolver.dataModel.auth_type === 'idp') {
+      @if (nodeResolver.dataModel.idp) {
         <div class="form-group">
           <label>OIDC Issuer URL</label>
-          <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" name="issuer" class="form-control" [pattern]="Constants.issuerRegexp" #issuer="ngModel" [ngClass]="{'is-invalid': issuer.invalid && issuer.touched}" required/>
+          <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" name="issuer" class="form-control" [pattern]="Constants.issuerRegexp" #issuer="ngModel" [ngClass]="{'is-invalid': issuer.invalid && issuer.touched}" [disabled]="isInheritedTenantContext()" required/>
         </div>
       }
       <div class="form-group">
-        <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid || !nodeResolver.dataModel.idp_issuer" (click)="updateNode()">
+        <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid || isInheritedTenantContext()" (click)="updateNode()">
           <i class="fa-solid fa-check"></i> Save
         </button>
       </div>

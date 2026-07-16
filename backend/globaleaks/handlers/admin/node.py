@@ -1,3 +1,5 @@
+import json
+
 from globaleaks.state import State
 from twisted.internet.defer import inlineCallbacks, returnValue
 
@@ -210,14 +212,26 @@ class NodeInstance(BaseHandler):
         """
         config = yield self.determine_allow_config_filter()
 
-        request = yield self.validate_request(self.request.content.read(),
-                                              config[1])
+        raw_request = self.request.content.read()
+        if config[1] == requests.AdminNodeDesc:
+            try:
+                parsed_request = json.loads(raw_request)
+            except:
+                raise errors.InputValidationError
 
-        # When IDP authentication is enabled, validate server-side that the
-        # configured issuer is reachable and exposes a usable JWKS before
-        # persisting the change. This is done on the backend (not in the
-        # browser) so it is not constrained by the client CSP connect-src.
-        if request.get('idp') and request.get('idp_issuer'):
+            if 'default_user_profile' not in parsed_request:
+                parsed_request['default_user_profile'] = State.tenants[self.request.tid].cache['default_user_profile']
+
+            raw_request = json.dumps(parsed_request)
+
+        request = yield self.validate_request(raw_request, config[1])
+
+        if request['idp'] and not request['idp_issuer']:
+            raise errors.InputValidationError('IDP issuer is required when IDP is enabled')
+
+        # When a local IDP issuer is configured, validate server-side that it is
+        # reachable and exposes a usable JWKS before persisting the change.
+        if request['idp']:
             try:
                 yield State.oidcauth.validate_issuer(request['idp_issuer'])
             except Exception:

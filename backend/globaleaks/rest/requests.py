@@ -271,6 +271,7 @@ AdminNodeDesc = {
     'backup_retention': int,
     'idp': bool,
     'idp_issuer': str,
+    'default_user_profile': str,
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,

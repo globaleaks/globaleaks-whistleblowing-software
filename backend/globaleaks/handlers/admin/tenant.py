@@ -271,6 +271,7 @@ def db_wizard(session, tid, hostname, request):
         admin_desc['mail_address'] = request['admin_mail_address']
         admin_desc['language'] = language
         admin_desc['role'] = 'admin'
+        admin_desc['profile_id'] = request['admin_profile_id'] if 'admin_profile_id' in request else ''
         admin_desc['pgp_key_remove'] = False
         admin_desc = admin_desc | user_permissions
 
@@ -294,11 +295,30 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['mail_address'] = request['receiver_mail_address']
         receiver_desc['language'] = language
         receiver_desc['role'] = 'receiver'
+        receiver_desc['profile_id'] = request['receiver_profile_id'] if 'receiver_profile_id' in request else ''
         receiver_desc['pgp_key_remove'] = False
         receiver_desc = receiver_desc | user_permissions
 
         receiver_user = db_create_user(session, tid, None, receiver_desc, language)
         receiver_user.password_change_needed = (tid != 1)
+
+    if 'skip_default_account_creation' in request and not request['skip_default_account_creation']:
+        default_desc = models.User().dict(language)
+        default_desc['username'] = request['default_username']
+        default_desc['password'] = request['default_password']
+        default_desc['name'] = request['default_name']
+        default_desc['mail_address'] = request['default_mail_address']
+        default_desc['language'] = language
+        default_desc['role'] = request['default_role']
+        default_desc['profile_id'] = request['default_profile_id'] if 'default_profile_id' in request else ''
+        default_desc['pgp_key_remove'] = False
+        default_desc = default_desc | user_permissions
+
+        default_user = db_create_user(session, tid, None, default_desc, language)
+        default_user.password_change_needed = (tid != 1)
+
+        if default_user.role == 'receiver':
+            receiver_user = default_user
 
     context_desc = models.Context().dict(language)
     context_desc['name'] = 'Default'

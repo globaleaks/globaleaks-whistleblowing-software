@@ -14,6 +14,7 @@ import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.co
 import {DomSanitizer} from '@angular/platform-browser';
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {OAuthService} from "angular-oauth2-oidc";
+import {IdpService} from "@app/services/root/idp.service";
 
 @Injectable({
   providedIn: "root"
@@ -29,6 +30,7 @@ export class AuthenticationService {
   private sanitizer = inject(DomSanitizer);
   private cryptoService = inject(CryptoService);
   private oauthService = inject(OAuthService);
+  private idpService = inject(IdpService);
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
@@ -41,7 +43,7 @@ export class AuthenticationService {
   }
 
   init() {
-    this.session = window.sessionStorage.getItem("session");
+    this.session = window.sessionStorage.getItem(this.getTenantSessionKey());
     if (typeof this.session === "string") {
       this.session = JSON.parse(this.session);
     }
@@ -51,18 +53,17 @@ export class AuthenticationService {
     this.loginInProgress = false;
     this.requireAuthCode = false;
     this.loginData = new LoginDataRef();
-    this.performLogout();
   };
 
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
     this.session = null;
-    window.sessionStorage.clear();
-    this.performLogout();
+    window.sessionStorage.removeItem(this.getTenantSessionKey());
+    window.sessionStorage.removeItem("session");
     if (role === "whistleblower") {
       window.location.replace("about:blank");
     } else {
-      this.loginRedirect();
+      this.performLogout();
     }
   };
 
@@ -72,23 +73,26 @@ export class AuthenticationService {
     return match ? match[0] : "";
   }
 
+  private getTenantSessionKey(): string {
+    return `session:${this.getTenantBasePath() || "root"}`;
+  }
+
   private performLogout() {
-    const idToken = this.oauthService.getIdToken();
-    if (this.appDataService.public.node.idp && this.oauthService && idToken) {
-      this.oauthService.logOut({
-        client_id: 'globaleaks',
-        id_token_hint: idToken,
-        post_logout_redirect_uri: window.location.origin + '/login'
-      });
+    if (this.appDataService.public.node.idp) {
+      this.idpService.restartLogin();
+      return;
     }
     const tenantBasePath = this.getTenantBasePath();
-    const loginPath = tenantBasePath ? `${tenantBasePath}/#/login` : "/login";
+    const loginPath = tenantBasePath ? `${tenantBasePath}/#/login` : "/#/login";
     window.location.replace(loginPath);
   }
 
   setSession(response: Session) {
     this.session = response;
-    window.sessionStorage.setItem("session", JSON.stringify(this.session));
+    window.sessionStorage.setItem(this.getTenantSessionKey(), JSON.stringify(this.session));
+    if (this.appDataService.public.node.idp && this.oauthService.hasValidAccessToken()) {
+      this.idpService.setupAutomaticRefresh();
+    }
   }
 
   resetPassword(username: string) {

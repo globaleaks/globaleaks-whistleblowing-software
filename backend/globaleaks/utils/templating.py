@@ -537,8 +537,8 @@ class PlatformSignupKeyword(NodeKeyword):
 
         data = {
             'type': 'user_credentials',
-            'role': 'recipient',
-            'username': 'recipient',
+            'role': self.data.get('signup_user_role', 'recipient'),
+            'username': self.data.get('signup_user_username', 'recipient'),
             'password': self.data['password_recipient']
         }
 

@@ -61,7 +61,7 @@ def db_create_user_profile(session, tid, request):
     :param request: The request data
     :return: The serialized descriptor of the created object
     """
-    if not request.get('id'):
+    if 'id' not in request or not request['id']:
         request['id'] = uuid4()
 
     request['tid'] = tid
@@ -163,12 +163,12 @@ def get_user_profiles(session, tid):
     pid = config.db_get_pid(session, tid)
 
     if tid != pid:
-        subquery = session.query(UserProfile.id).filter(UserProfile.tid == pid, UserProfile.id == models.User.id)
-        profiles = session.query(UserProfile).filter(UserProfile.tid == pid, UserProfile.id.notin_(subquery)).all()
+        profile_user_ids = [user_id[0] for user_id in session.query(models.User.id).filter(models.User.tid == pid).all()]
+        profiles = session.query(UserProfile).filter(UserProfile.tid == pid).all()
 
         for profile in profiles:
             ret.append(serialize_user_profile(session, profile))
-            ret[-1]['custom'] = False
+            ret[-1]['custom'] = profile.id in profile_user_ids
 
     user_ids = [user_id[0] for user_id in session.query(models.User.id).filter(models.User.tid == tid).all()]
     profiles = session.query(models.UserProfile).filter(models.UserProfile.tid == tid).all()

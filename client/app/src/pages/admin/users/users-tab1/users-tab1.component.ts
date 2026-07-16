@@ -83,31 +83,28 @@ export class UsersTab1Component implements OnInit {
       users: this.httpService.requestUsersResource()
     }).subscribe({
       next: ({ profiles, users }: { profiles: UserProfile[]; users: User[] }) => {
-        this.profiles = profiles;
+        const profileMap: {[id: string]: UserProfile} = {};
+        profiles.forEach((profile: UserProfile) => {
+          profileMap[profile.id] = profile;
+        });
 
-        this.custom_profiles = profiles.filter((p: UserProfile) => p.custom);
-        this.selectable_profiles = profiles.filter((p: UserProfile) => !p.custom);
-
-        // Build lookup map for performance
-        const profileMap = new Map<string, UserProfile>(
-          this.profiles.map((p: UserProfile) => [p.id, p])
-        );
-
-        // Attach profiles to users (NO nulls allowed)
         this.users = users.map((user: User) => {
-          const profile = profileMap.get(user.profile_id);
+          let profile = profileMap[user.profile_id];
 
-          if (!profile) {
-            throw new Error(
-              `Missing profile for user ${user.id} (profile_id=${user.profile_id})`
-            );
+          if (!profile && user.profile) {
+            profile = user.profile;
+            profileMap[profile.id] = profile;
           }
 
           return {
             ...user,
-            profile
+            profile: profile || user.profile
           };
         });
+
+        this.profiles = Object.values(profileMap);
+        this.custom_profiles = this.profiles.filter((p: UserProfile) => p.custom);
+        this.selectable_profiles = this.profiles.filter((p: UserProfile) => !p.custom);
       },
       error: (err: unknown) => {
         console.error('Failed to load users or profiles', err);

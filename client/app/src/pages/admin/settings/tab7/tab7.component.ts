@@ -23,15 +23,15 @@ export class Tab7Component {
   protected nodeResolver = inject(NodeResolver);
   protected readonly Constants = Constants;
 
-  constructor() {
-    this.nodeResolver.dataModel.auth_type = this.nodeResolver.dataModel.idp ? 'idp' : 'globaleaks';
+  isInheritedTenantContext() {
+    return !!this.nodeResolver.dataModel.tid && this.nodeResolver.dataModel.tid !== 1 && !this.nodeResolver.dataModel.is_profile;
   }
 
   updateNode() {
-    this.nodeResolver.dataModel.idp = this.nodeResolver.dataModel.auth_type === "idp";
-    // The issuer is validated server-side during the update: the backend checks
-    // that it is reachable and exposes a usable JWKS and returns an error
-    // otherwise (surfaced by the global error interceptor).
+    if (this.nodeResolver.dataModel.idp && !this.nodeResolver.dataModel.idp_issuer) {
+      return;
+    }
+    
     this.utilsService.update(this.nodeResolver.dataModel).subscribe({
       next: () => {
         if (this.appDataService.public?.node) {

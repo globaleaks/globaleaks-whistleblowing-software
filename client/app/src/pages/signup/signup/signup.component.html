@@ -1,21 +1,32 @@
 <div class="row">
   @if (step === 1) {
     <div class="col-md-6 wizard-block">
-      @switch (appDataService.public.node.mode) {
-        @case ('default') {
-          <div>
-            <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-          </div>
-        }
-        @case ('demo') {
-          <div>
-            <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-          </div>
-        }
-        @case ('wbpa') {
-          <div>
-            <src-wbpa (updateSubdomain)=updateSubdomain() (complete)="complete()" [signup]="signup"></src-wbpa>
-          </div>
+      @if (idpRequired && !idpAuthenticated) {
+        <div class="idp-auth-block">
+          <div class="title">{{'Identity Provider Authentication'|translate}}</div>
+          <p>{{'You must authenticate with your identity provider to proceed.'|translate}}</p>
+          <button class="btn btn-primary" type="button" (click)="authenticateWithIDP()">
+            <span>{{'Authenticate with IDP'|translate}}</span>
+          </button>
+        </div>
+      }
+      @if (!idpRequired || idpAuthenticated) {
+        @switch (appDataService.public.node.mode) {
+          @case ('default') {
+            <div>
+              <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
+            </div>
+          }
+          @case ('demo') {
+            <div>
+              <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
+            </div>
+          }
+          @case ('wbpa') {
+            <div>
+              <src-wbpa (updateSubdomain)=updateSubdomain() (complete)="complete()" [signup]="signup"></src-wbpa>
+            </div>
+          }
         }
       }
     </div>

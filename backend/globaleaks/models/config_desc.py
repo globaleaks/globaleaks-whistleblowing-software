@@ -152,6 +152,7 @@ ConfigDescriptor = {
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
+    'default_user_profile': Unicode(default=''),
     'antivirus_enabled': Bool(default=False),
     'antivirus_clamd_ip': Unicode(default='localhost'),
     'antivirus_clamd_port': Int(default=3310),
@@ -202,6 +203,7 @@ ConfigFilters = {
         'https_whistleblower',
         'idp',
         'idp_issuer',
+        'default_user_profile',
         'ip_filter_admin',
         'ip_filter_admin_enable',
         'ip_filter_analyst',
@@ -333,6 +335,7 @@ ConfigFilters = {
         'antivirus_clamd_port',
         'idp',
         'idp_issuer',
+        'default_user_profile',
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
@@ -437,7 +440,10 @@ ConfigFilters = {
         'name',
         'onionservice',
         'subdomain',
-        'rootdomain'
+        'rootdomain',
+        'idp',
+        'idp_issuer',
+        'default_user_profile'
     ]
 }
 
