@@ -33,7 +33,7 @@ from globaleaks.utils.singleton import Singleton
 from globaleaks.utils.sni import SNIMap
 from globaleaks.utils.sock import reserve_tcp_socket
 from globaleaks.utils.tempdict import TempDict
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.token import TokenList
 from globaleaks.utils.tor_exit_set import TorExitSet
 from globaleaks.utils.utility import datetime_now
@@ -311,7 +311,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
     def format_and_send_mail(self, session, tid, mail_address, template_vars):
         mail_subject, mail_body = Templating().get_mail_subject_and_body(template_vars)
 
-        db_schedule_email(session, tid, mail_address, mail_subject, mail_body)
+        n_tid = tid if self.tenants[tid].cache.mode == 'default' else 1
+        secondary_smtp = mail_uses_smtp2(self.tenants[n_tid].cache.notification,
+                                         template_vars.get('type', ''))
+
+        db_schedule_email(session, tid, mail_address, mail_subject, mail_body, secondary_smtp)
 
     def get_tmp_file_by_name(self, filename):
         for k, v in self.TempUploadFiles.items():

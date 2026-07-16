@@ -45,6 +45,48 @@ def disable_reminders(session):
         itip.reminder_date = datetime_never()
 
 
+@transact
+def get_mail_routing_flags(session):
+    return [m.secondary_smtp for m in session.query(models.Mail)]
+
+
+class TestSecondarySMTPRouting(helpers.TestGLWithPopulatedDB):
+    @inlineCallbacks
+    def generate_submission_mails(self):
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+        notification = Notification()
+        notification.skip_sleep = True
+        yield notification.generate_emails()
+
+    @inlineCallbacks
+    def test_selected_types_are_routed_to_smtp2(self):
+        # Route the notification types produced by a submission through smtp2
+        yield tw(db_set_config_variable, 1, 'smtp2_enabled', True)
+        yield tw(db_set_config_variable, 1, 'smtp2_template_types', ['tip', 'tip_update'])
+
+        yield self.generate_submission_mails()
+
+        flags = yield get_mail_routing_flags()
+
+        self.assertTrue(len(flags) > 0)
+        self.assertTrue(all(flags))
+
+    @inlineCallbacks
+    def test_unselected_types_are_not_routed_to_smtp2(self):
+        # smtp2 is enabled but none of the produced types are selected
+        yield tw(db_set_config_variable, 1, 'smtp2_enabled', True)
+        yield tw(db_set_config_variable, 1, 'smtp2_template_types', [])
+
+        yield self.generate_submission_mails()
+
+        flags = yield get_mail_routing_flags()
+
+        self.assertTrue(len(flags) > 0)
+        self.assertFalse(any(flags))
+
+
 class TestNotification(helpers.TestGLWithPopulatedDB):
     @inlineCallbacks
     def test_notification(self):

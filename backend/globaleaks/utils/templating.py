@@ -649,6 +649,20 @@ supported_template_types = {
 }
 
 
+def mail_uses_smtp2(notification, mail_type):
+    """
+    Return True if emails of the given template type must be delivered via the
+    secondary SMTP server (smtp2).
+
+    :param notification: The notification configuration, either the tenant cache
+                         ObjectDict or the serialized notification dict; both
+                         expose a dict-like .get() interface.
+    :param mail_type: The template type of the email being sent
+    """
+    return bool(notification.get('smtp2_enabled', False)) and \
+        mail_type in notification.get('smtp2_template_types', [])
+
+
 class Templating(object):
     def format_template(self, raw_template, data):
         keyword_converter = supported_template_types[data['type']](data)

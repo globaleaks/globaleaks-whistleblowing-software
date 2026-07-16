@@ -15,7 +15,7 @@ from globaleaks.models import serializers
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_del, transact, tw
 from globaleaks.utils.log import log
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, deferred_sleep
 
 
@@ -89,6 +89,7 @@ class MailGenerator(object):
             'subject': subject,
             'body': body,
             'tid': tid,
+            'secondary_smtp': mail_uses_smtp2(data['notification'], data['type']),
         }))
 
     def db_generate_emails_for_expiring_reports(self, session, tid):
@@ -138,7 +139,8 @@ class MailGenerator(object):
                 'tid': tid,
                 'address': user_desc['mail_address'],
                 'subject': subject,
-                'body': body
+                'body': body,
+                'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
             }))
 
 
@@ -370,7 +372,8 @@ def get_mails_from_the_pool(session):
             'address': mail.address,
             'subject': mail.subject,
             'body': mail.body,
-            'tid': mail.tid
+            'tid': mail.tid,
+            'secondary_smtp': mail.secondary_smtp
         })
 
     return ret
@@ -387,7 +390,7 @@ class Notification(LoopingJob):
     def spool_emails(self):
         mails = yield get_mails_from_the_pool()
         for mail in mails:
-            sent = yield self.state.sendmail(mail['tid'], mail['address'], mail['subject'], mail['body'])
+            sent = yield self.state.sendmail(mail['tid'], mail['address'], mail['subject'], mail['body'], use_smtp2=mail['secondary_smtp'])
             if sent:
                 yield tw(db_del, models.Mail, models.Mail.id == mail['id'])
 

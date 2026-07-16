@@ -10,12 +10,13 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {SendMailComponent} from "@app/shared/modals/send-mail/send-mail.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 
 @Component({
     selector: "src-notification-tab3",
     templateUrl: "./notification-tab3.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslatorPipe, NgSelectComponent, NgOptionTemplateDirective]
 })
 export class NotificationTab3Component {
   protected nodeResolver = inject(NodeResolver);

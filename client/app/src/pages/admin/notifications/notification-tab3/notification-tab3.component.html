@@ -130,6 +130,26 @@
         </div>
         }
         <div class="form-group">
+          <label for="smtp2-template-select">{{ 'Deliver the following notifications through the secondary SMTP server' | translate }}</label>
+          <ng-select id="smtp2-template-select" [(ngModel)]="selected.value" [ngModelOptions]="{standalone: true}" [items]="supported_template_types" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="selectTemplate($event)" [ariaLabel]="'Select' | translate">
+            <ng-template ng-option-tmp let-item="item">
+              {{ item | translate }}
+            </ng-template>
+          </ng-select>
+          @if (notificationResolver.dataModel.smtp2_template_types.length > 0) {
+            <ul class="selection-list">
+              @for (template of notificationResolver.dataModel.smtp2_template_types; track template; let index = $index) {
+                <li>
+                  <span>{{ template | translate }}</span>
+                  <span (click)="removeTemplate(index)" ngbTooltip="{{'Remove' | translate}}">
+                    <i class="fas fa-xmark"></i>
+                  </span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+        <div class="form-group">
           <button id="test_smtp2" (click)="updateThenTestMail(notificationResolver.dataModel,true)" class="btn btn-primary">
             <i class="fas fa-envelope"></i>
             <span>{{ 'Test' | translate }}</span>

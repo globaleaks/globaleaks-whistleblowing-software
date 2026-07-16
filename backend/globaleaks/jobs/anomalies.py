@@ -11,7 +11,7 @@ from globaleaks.state import State
 from globaleaks.transactions import db_schedule_email
 from globaleaks.utils.fs import get_disk_space
 from globaleaks.utils.log import log
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 
 
 @transact
@@ -29,7 +29,8 @@ def generate_admin_alert_mail(session, tid, alert):
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
-        db_schedule_email(session, tid, user_desc['mail_address'], subject, body)
+        db_schedule_email(session, tid, user_desc['mail_address'], subject, body,
+                          mail_uses_smtp2(data['notification'], data['type']))
 
 
 @inlineCallbacks

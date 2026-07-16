@@ -12,7 +12,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import transact
 from globaleaks.rest import requests
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now
 
 
@@ -76,7 +76,8 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
             'address': data['user']['mail_address'],
             'subject': subject,
             'body': body,
-            'tid': user.tid
+            'tid': user.tid,
+            'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
         }))
 
 

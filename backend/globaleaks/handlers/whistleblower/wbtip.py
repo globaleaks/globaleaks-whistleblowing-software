@@ -28,7 +28,7 @@ from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
 from globaleaks.models.config import db_get_config_variable
 
@@ -69,7 +69,8 @@ def db_notify_report_update(session, user, rtip, itip):
         'address': data['user']['mail_address'],
         'subject': subject,
         'body': body,
-        'tid': user.tid
+        'tid': user.tid,
+        'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
     }))
 
 
