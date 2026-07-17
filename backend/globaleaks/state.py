@@ -245,24 +245,44 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.settings.socks_port
         )
 
-    def schedule_support_email(self, tid, text):
-        subject = "Support request"
-        delivery_list = set.union(set(self.tenants[1].cache.notification.admin_list),
-                                  set(self.tenants[tid].cache.notification.admin_list))
+    def schedule_support_email(self, tid):
+        # Content-free notification: the support request content is stored
+        # encrypted in the database and never travels by e-mail. The notice only
+        # tells administrators that a request has arrived and that they should
+        # log in to read it. Because it carries no sensitive content there is no
+        # need to opportunistically PGP-encrypt it.
+        #
+        # Recipients are the administrators of the current tenant only (support
+        # threads are tenant-scoped and are not shared with the root tenant).
+        subject = "New support request"
+        body = "A new support request has been received. Log in to the platform to read it."
 
-        for mail_address, pgp_key_public in delivery_list:
-            body = text
-
-            # Opportunisticly encrypt the mail body. NOTE that mails will go out
-            # unencrypted if one address in the list does not have a public key set.
-            if pgp_key_public:
-                try:
-                    body = PGPContext(pgp_key_public).encrypt_message(mail_body)
-                except:
-                    continue
-
+        for mail_address, _ in self.tenants[tid].cache.notification.admin_list:
             # avoid waiting for the notification to send and instead rely on threads to handle it
             tw(db_schedule_email, tid, mail_address, subject, body)
+
+    def schedule_support_notification(self, tid, mail_address):
+        # Content-free notification to a single recipient (an authenticated
+        # requester informed that an administrator replied). The reply content
+        # stays inside the encrypted boundary; the requester logs in to read it.
+        if not mail_address:
+            return
+
+        subject = "New support message"
+        body = "You have received a reply to your support request. Log in to the platform to read it."
+        tw(db_schedule_email, tid, mail_address, subject, body)
+
+    def send_support_reply_email(self, tid, mail_address, text):
+        # DELIBERATE BOUNDARY CROSSING: this is the only point at which support
+        # content leaves the encrypted boundary in cleartext. An anonymous
+        # requester cannot log in to read replies, so an administrator's reply is
+        # delivered to the e-mail address they supplied. This is by design and is
+        # surfaced in the admin UI. All other support content stays encrypted.
+        if not mail_address:
+            return
+
+        subject = "Reply to your support request"
+        tw(db_schedule_email, tid, mail_address, subject, text)
 
     def schedule_exception_email(self, tid, exception_text, *args):
         if not hasattr(self.tenants[tid].cache, 'notification'):

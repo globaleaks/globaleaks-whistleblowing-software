@@ -14,3 +14,7 @@
     <span>{{'Settings' | translate}}</span>
   </a>
 }
+<a routerLink="/recipient/support" routerLinkActive="active" id="recipient_support" [ngClass]="{'active': isActive('/recipient/support')}" [attr.aria-current]="isActive('/recipient/support') ? 'page' : 'false'">
+  <i class="fas fa-life-ring"></i>
+  <span>{{'Support' | translate}}</span>
+</a>

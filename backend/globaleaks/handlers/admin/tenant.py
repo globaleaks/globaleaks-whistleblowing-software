@@ -248,9 +248,23 @@ def db_wizard(session, tid, hostname, request):
        node.set_val('hostname', hostname)
 
     crypto_stat_prv_key = ""
+    crypto_support_prv_key = ""
     if encryption:
         crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
         node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
+
+        # The per-tenant support keypair is created here, alongside the
+        # statistical key, and its private key is later propagated to every
+        # administrator (at wizard time to the first admin, and thereafter
+        # administrator-to-administrator on each admin creation).
+        crypto_support_prv_key, crypto_support_pub_key = GCE.generate_keypair()
+        node.set_val('crypto_support_pub_key', crypto_support_pub_key)
+
+        # For a secondary tenant, seal the support private key to the root tenant
+        # support public key so that root-tenant administrators can read this
+        # tenant's support requests too (support key hierarchy, mirroring escrow).
+        if tid != 1 and root_tenant_node.get_val('crypto_support_pub_key'):
+            node.set_val('crypto_support_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_support_pub_key'), crypto_support_prv_key)))
 
     if encryption and escrow:
         crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
@@ -285,6 +299,11 @@ def db_wizard(session, tid, hostname, request):
         # it can be propagated to every other admin/analyst (escrow independent)
         if encryption and admin_user.crypto_pub_key:
             admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
+
+        # The first admin always becomes a holder of the support key so that
+        # it can be propagated to every other admin on creation.
+        if encryption and admin_user.crypto_pub_key:
+            admin_user.crypto_support_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_support_prv_key))
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)

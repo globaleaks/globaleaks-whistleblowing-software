@@ -37,6 +37,7 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
+import {SupportRequest, UserSupportRequest} from "@app/models/admin/support-request";
 
 
 @Injectable({
@@ -159,6 +160,30 @@ export class HttpService {
 
   requestSupport(param: string): Observable<void> {
     return this.httpClient.post<void>("api/support", param);
+  }
+
+  requestSupportRequests(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/admin/support");
+  }
+
+  updateSupportRequest(id: string, param: { status: string }): Observable<void> {
+    return this.httpClient.put<void>("api/admin/support/" + id, param);
+  }
+
+  deleteSupportRequest(id: string): Observable<void> {
+    return this.httpClient.delete<void>("api/admin/support/" + id);
+  }
+
+  addAdminSupportMessage(id: string, param: { content: string }): Observable<void> {
+    return this.httpClient.post<void>("api/admin/support/" + id + "/messages", param);
+  }
+
+  requestUserSupportRequests(): Observable<UserSupportRequest[]> {
+    return this.httpClient.get<UserSupportRequest[]>("api/user/support");
+  }
+
+  addUserSupportMessage(id: string, param: { content: string }): Observable<void> {
+    return this.httpClient.post<void>("api/user/support/" + id + "/messages", param);
   }
 
   requestNewComment(param: string): Observable<Comment> {

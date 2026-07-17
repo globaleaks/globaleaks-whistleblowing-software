@@ -65,6 +65,7 @@ INVALID_PASSWORD = 'antani'
 
 ESCROW_PRV_KEY, ESCROW_PUB_KEY = GCE.generate_keypair()
 STAT_PRV_KEY, STAT_PUB_KEY = GCE.generate_keypair()
+SUPPORT_PRV_KEY, SUPPORT_PUB_KEY = GCE.generate_keypair()
 
 KEY = GCE.generate_key()
 USER_KEY = Base64Encoder.decode(GCE.derive_key(VALID_PASSWORD, VALID_SALT).encode())
@@ -75,6 +76,7 @@ USER_REC_KEY_PLAIN = GCE.asymmetric_decrypt(USER_PRV_KEY, Base64Encoder.decode(U
 USER_REC_KEY_PLAIN = Base32Encoder.encode(USER_REC_KEY_PLAIN).replace(b'=', b'').decode('utf-8')
 
 USER_ESCROW_PRV_KEY = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
+USER_SUPPORT_PRV_KEY = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, SUPPORT_PRV_KEY))
 
 GCE_orig_generate_key = GCE.generate_key
 GCE_orig_generate_keypair = GCE.generate_keypair
@@ -835,11 +837,13 @@ class TestGLWithPopulatedDB(TestGL):
         db_set_config_variable(session, 1, 'receipt_salt', VALID_SALT)
         db_set_config_variable(session, 1, 'crypto_escrow_pub_key', ESCROW_PUB_KEY)
         db_set_config_variable(session, 1, 'crypto_stat_pub_key', STAT_PUB_KEY)
+        db_set_config_variable(session, 1, 'crypto_support_pub_key', SUPPORT_PUB_KEY)
 
         for user in session.query(models.User):
             if user.id == self.dummyAdmin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
                 user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
+                user.crypto_support_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, SUPPORT_PRV_KEY))
 
             if self.clientside_hashing:
                 user.salt = VALID_SALT
@@ -1044,7 +1048,7 @@ class TestHandler(TestGLWithPopulatedDB):
             if role == 'whistleblower' and user_id == None:
                 session = initialize_submission_session(1)
             else:
-                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions)
+                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', USER_SUPPORT_PRV_KEY if role == 'admin' else '', [role], permissions)
 
             if permissions:
                 for p in user_permissions:

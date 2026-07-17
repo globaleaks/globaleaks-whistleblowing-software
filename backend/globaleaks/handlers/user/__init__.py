@@ -58,6 +58,7 @@ def db_reconcile_statistical_key(session, tid, user, cc):
     db_grant_statistical_key(session, tid, stat_prv_key)
 
 import globaleaks.handlers.user.validate_email
+import globaleaks.handlers.user.support
 
 user_permissions = ObjectDict({
     'can_edit_general_settings': False,

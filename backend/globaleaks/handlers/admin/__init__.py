@@ -11,6 +11,7 @@ import globaleaks.handlers.admin.questionnaire
 import globaleaks.handlers.admin.redirect
 import globaleaks.handlers.admin.auditlog
 import globaleaks.handlers.admin.step
+import globaleaks.handlers.admin.support
 import globaleaks.handlers.admin.invite
 import globaleaks.handlers.admin.tenant
 import globaleaks.handlers.admin.user

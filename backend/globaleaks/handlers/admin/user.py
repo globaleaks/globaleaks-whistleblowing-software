@@ -8,6 +8,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_create_user_profile, db_update_user_profile
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_get_support_prv_key
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
                                      serialize_user, \
@@ -110,6 +111,16 @@ def db_create_user(session, tid, user_session, request, language):
 
             current_user = db_get(session, models.User, models.User.id == user_session.user_id)
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
+
+            # If the tenant has a support key and the new user is an administrator,
+            # seal the tenant support private key to the new administrator's public
+            # key so they can read support requests. The key is resolved from the
+            # acting administrator's session, descending the support hierarchy when
+            # a root administrator provisions a secondary-tenant administrator so
+            # the new admin receives *their tenant's* support key (not the root's).
+            if user.role == 'admin' and user_session.sk and config.get_val('crypto_support_pub_key'):
+                support_prv = db_get_support_prv_key(session, tid, user_session)
+                user.crypto_support_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, support_prv)).decode()
 
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:

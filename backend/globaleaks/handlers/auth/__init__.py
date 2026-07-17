@@ -158,7 +158,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     for r in user_permissions:
         permissions[r] = r in user.profile.permissions_list
 
-    return Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions)
+    return Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.crypto_support_prv_key, user.profile.roles_list, permissions)
 
 
 @transact
@@ -371,6 +371,7 @@ class TenantAuthSwitchHandler(BaseHandler):
                                self.session.role,
                                self.session.cc,
                                self.session.ek,
+                               self.session.sk,
                                self.session.permissions)
 
         session.properties['management_session'] = True
@@ -398,6 +399,7 @@ class RoleAuthSwitchHandler(BaseHandler):
                                role,
                                self.session.cc,
                                self.session.ek,
+                               self.session.sk,
                                self.session.permissions)
 
         returnValue({'redirect': '/#/login?token=%s' % (session.id)})
@@ -417,6 +419,7 @@ class OperatorAuthSwitchHandler(BaseHandler):
                                "whistleblower",
                                self.session.cc,
                                self.session.ek,
+                               self.session.sk,
                                self.session.permissions)
 
         session.properties['operator_session'] = self.session.user_id

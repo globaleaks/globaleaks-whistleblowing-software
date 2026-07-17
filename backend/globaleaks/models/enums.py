@@ -77,3 +77,10 @@ class EnumForwardingState(_Enum):
 class EnumAuthorType(_Enum):
     main = 0
     eo = 1
+
+
+class EnumSupportStatus(_Enum):
+    new = 0
+    read = 1
+    answered = 2
+    closed = 3

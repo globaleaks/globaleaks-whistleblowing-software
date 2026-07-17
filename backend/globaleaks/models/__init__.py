@@ -1168,6 +1168,7 @@ class _User(Model):
     crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_global_stat_prv_key = Column(UnicodeText(84), default='', nullable=True)
     crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_support_prv_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
     change_email_address = Column(UnicodeText, default='', nullable=False)
@@ -1310,6 +1311,64 @@ class UserProfilePermission(_UserProfilePermission, Base):
         return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 UniqueConstraint('profile_id', 'permission'),
                 CheckConstraint(self.permission.in_(user_permissions)))
+
+
+class _SupportRequest(Model):
+    """
+    This model keeps track of the head of a support request thread.
+
+    Each request owns its own keypair (modelled on the tip keys): every
+    message of the thread is sealed to ``crypto_pub_key``; the thread private
+    key is wrapped to the tenant support public key (``crypto_prv_key``) so
+    that every administrator holding the support key can read it, and, when
+    the requester is authenticated, also wrapped to the requester public key
+    (``crypto_author_prv_key``) so the requester can read replies.
+    """
+    __tablename__ = 'supportrequest'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36))                                          # null = anonymous / e-mail requester
+    crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)         # thread pub key (cleartext)
+    crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)         # thread prv key sealed to tenant support pub
+    crypto_author_prv_key = Column(UnicodeText(84), default='', nullable=False)  # thread prv key sealed to requester pub (authenticated)
+    mail_address = Column(UnicodeText, default='', nullable=False)              # sealed to thread pub key (anonymous case)
+    status = Column(Enum(EnumSupportStatus), default='new', nullable=False)      # new | read | answered | closed
+
+    unicode_keys = ['status']
+
+
+class SupportRequest(_SupportRequest, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                CheckConstraint(self.status.in_(EnumSupportStatus.keys())))
+
+
+class _SupportMessage(Model):
+    """
+    This model keeps track of a single message within a support request thread.
+
+    The content is sealed to the owning thread public key. ``author_id`` is the
+    administrator id when the message is an admin reply, and null when it is a
+    message posted by the requester (including the initial request).
+    """
+    __tablename__ = 'supportmessage'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    support_request_id = Column(UnicodeText(36), nullable=False, index=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36))                                         # admin id; null = the requester
+    content = Column(UnicodeText, default='', nullable=False)                   # sealed to thread pub key
+    new = Column(Boolean, default=True, nullable=False)                         # unread flag (for notification / badge)
+
+
+class SupportMessage(_SupportMessage, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['support_request_id'], ['supportrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),)
 
 
 class _WhistleblowerFile(Model):

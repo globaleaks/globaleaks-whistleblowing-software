@@ -161,7 +161,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                                 user.username,
                                 user.role,
                                 prv_key,
-                                user.crypto_escrow_prv_key)
+                                user.crypto_escrow_prv_key,
+                                user.crypto_support_prv_key)
 
     user_session.properties['reset_token'] = reset_token
 

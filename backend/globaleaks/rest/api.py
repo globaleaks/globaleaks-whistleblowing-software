@@ -79,6 +79,8 @@ api_spec = [
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
     ('/api/user/operations', user.operation.UserOperationHandler),
+    ('/api/user/support', user.support.UserSupportRequestCollection),
+    ('/api/user/support', user.support.UserSupportRequestMessageCollection, r'/api/user/support/' + uuid_regexp + r'/messages'),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler, r'/api/user/reset/password/(.+)'),
     ('/api/user/validate/email', user.validate_email.EmailValidation, r'/api/user/validate/email/(.+)'),
@@ -158,6 +160,9 @@ api_spec = [
     ('/api/admin/config/tls/files/', admin.https.FileHandler, r'/api/admin/config/tls/files/(cert|chain|key)'),
     ('/api/admin/files', admin.file.FileCollection),
     ('/api/admin/files', admin.file.FileInstance, r'/api/admin/files/(.+)'),
+    ('/api/admin/support', admin.support.SupportRequestCollection),
+    ('/api/admin/support', admin.support.SupportRequestInstance, r'/api/admin/support/' + uuid_regexp),
+    ('/api/admin/support', admin.support.SupportRequestMessageCollection, r'/api/admin/support/' + uuid_regexp + r'/messages'),
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
     ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),

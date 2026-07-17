@@ -105,6 +105,15 @@ export const adminRoutes: Routes = [
     data: {sidebar: "admin-sidebar", pageTitle: "Audit log"},
   },
   {
+    path: "support",
+    loadComponent: () => import('@app/pages/admin/support/support.component').then(m => m.SupportComponent),
+    resolve: {
+      NodeResolver, PreferenceResolver
+    },
+    pathMatch: "full",
+    data: {sidebar: "admin-sidebar", pageTitle: "Support"},
+  },
+  {
     path: "notifications",
     loadComponent: () => import('@app/pages/admin/notifications/notifications.component').then(m => m.NotificationsComponent),
     resolve: {

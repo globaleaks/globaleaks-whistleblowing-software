@@ -37,5 +37,14 @@ export const custodianRoutes: Routes = [
     resolve: {
       PreferenceResolver, NodeResolver, RtipsResolver: RTipsResolver, IarsResolver: IarResolver
     },
+  },
+  {
+    path: "support",
+    loadComponent: () => import('@app/shared/components/user-support/user-support.component').then(m => m.UserSupportComponent),
+    pathMatch: "full",
+    resolve: {
+      PreferenceResolver
+    },
+    data: {pageTitle: "Support"},
   }
 ];

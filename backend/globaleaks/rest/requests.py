@@ -584,8 +584,16 @@ TenantInviteAcceptanceDesc = {
 }
 
 SupportDesc = {
-    'mail_address': email_regexp,
+    'mail_address': email_regexp_or_empty,
     'text': str
+}
+
+AdminSupportDesc = {
+    'status': r'^(new|read|answered|closed)$'
+}
+
+SupportMessageDesc = {
+    'content': str
 }
 
 PasswordReset1Desc = {
