@@ -44,6 +44,7 @@ Audio
 Audit log
 Auditor
 Authentication failed
+Authentication method
 Authorization
 Authorize
 Authorize access to the reporting person's identity
@@ -51,6 +52,7 @@ Authorized
 Auto-renewal
 Automatic configuration
 Available disk space
+Basic authentication
 Before proceeding please read carefully the documentation at:
 Before proceeding, please enable the two factor authentication.
 Before proceeding, please set a new password.
@@ -240,6 +242,7 @@ Maximum number of input characters
 Maximum number of selectable recipients:
 Me only
 Medium
+Microsoft Graph API
 Min
 Minimum number of input characters
 Mobile
@@ -269,6 +272,11 @@ Number
 Number of days till notifying unread reports to users
 Number of downloads
 Number of hours before sending a report expiration alert
+OAuth2 (modern authentication)
+OAuth2 client ID
+OAuth2 client secret
+OAuth2 scope
+OAuth2 token endpoint
 Object
 One or more recipients have not performed the first login yet. This means they won't be receiving reports.
 Open

@@ -151,6 +151,9 @@ msgstr "Auditor"
 msgid "Authentication failed"
 msgstr "Authentication failed"
 
+msgid "Authentication method"
+msgstr "Authentication method"
+
 msgid "Authorization"
 msgstr "Authorization"
 
@@ -171,6 +174,9 @@ msgstr "Automatic configuration"
 
 msgid "Available disk space"
 msgstr "Available disk space"
+
+msgid "Basic authentication"
+msgstr "Basic authentication"
 
 msgid "Before proceeding please read carefully the documentation at:"
 msgstr "Before proceeding please read carefully the documentation at:"
@@ -764,6 +770,9 @@ msgstr "Me only"
 msgid "Medium"
 msgstr "Medium"
 
+msgid "Microsoft Graph API"
+msgstr "Microsoft Graph API"
+
 msgid "Min"
 msgstr "Min"
 
@@ -850,6 +859,21 @@ msgstr "Number of downloads"
 
 msgid "Number of hours before sending a report expiration alert"
 msgstr "Number of hours before sending a report expiration alert"
+
+msgid "OAuth2 (modern authentication)"
+msgstr "OAuth2 (modern authentication)"
+
+msgid "OAuth2 client ID"
+msgstr "OAuth2 client ID"
+
+msgid "OAuth2 client secret"
+msgstr "OAuth2 client secret"
+
+msgid "OAuth2 scope"
+msgstr "OAuth2 scope"
+
+msgid "OAuth2 token endpoint"
+msgstr "OAuth2 token endpoint"
 
 msgid "Object"
 msgstr "Object"
