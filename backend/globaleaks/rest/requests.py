@@ -299,6 +299,11 @@ AdminNotificationDesc = {
     'smtp_port': int,
     'smtp_security': str,  # 'TLS' or 'SSL' only
     'smtp_authentication': bool,
+    'smtp_authentication_type': str,  # 'basic', 'oauth2' or 'graph'
+    'smtp_oauth2_token_endpoint': str,
+    'smtp_oauth2_client_id': str,
+    'smtp_oauth2_client_secret': str,
+    'smtp_oauth2_scope': str,
     'smtp_username': str,
     'smtp_password': str,
     'smtp_source_email': email_regexp,
@@ -308,6 +313,11 @@ AdminNotificationDesc = {
     'smtp2_port': int,
     'smtp2_security': str,  # 'TLS' or 'SSL' only
     'smtp2_authentication': bool,
+    'smtp2_authentication_type': str,  # 'basic', 'oauth2' or 'graph'
+    'smtp2_oauth2_token_endpoint': str,
+    'smtp2_oauth2_client_id': str,
+    'smtp2_oauth2_client_secret': str,
+    'smtp2_oauth2_scope': str,
     'smtp2_username': str,
     'smtp2_password': str,
     'smtp2_source_email': email_regexp,
