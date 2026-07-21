@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
-from twisted.internet.defer import inlineCallbacks, returnValue, succeed, AlreadyCalledError, CancelledError
+from twisted.internet.defer import inlineCallbacks, returnValue, AlreadyCalledError, CancelledError
 from twisted.internet.error import ConnectionLost, ConnectionRefusedError, DNSLookupError, NoRouteError, TimeoutError
 from twisted.mail.smtp import SMTPError
 from twisted.python.failure import Failure
