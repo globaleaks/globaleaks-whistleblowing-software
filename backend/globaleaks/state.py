@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
-from twisted.internet.defer import succeed, AlreadyCalledError, CancelledError
+from twisted.internet.defer import inlineCallbacks, returnValue, AlreadyCalledError, CancelledError
 from twisted.internet.error import ConnectionLost, ConnectionRefusedError, DNSLookupError, NoRouteError, TimeoutError
 from twisted.mail.smtp import SMTPError
 from twisted.python.failure import Failure
@@ -25,6 +25,7 @@ from globaleaks.utils.crypto import sha256, totpVerify
 from globaleaks.utils.fs import read_json_file
 from globaleaks.utils.log import log, openLogFile
 from globaleaks.utils.mail import sendmail
+from globaleaks.utils.oauth2 import get_access_token
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.oidc import OIDCAuth
 from globaleaks.utils.pgp import PGPContext
@@ -204,9 +205,10 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.exceptions.clear()
         self.exceptions_email_count = 0
 
+    @inlineCallbacks
     def sendmail(self, tid, to_address, subject, body, use_smtp2=False):
         if self.settings.disable_notifications:
-            return succeed(True)
+            returnValue(True)
         if self.tenants[tid].cache.mode != 'default':
             tid = 1
         notification = self.tenants[tid].cache.notification
@@ -219,6 +221,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
             smtp_username = notification.smtp2_username
             smtp_password = notification.smtp2_password
             smtp_source_email = notification.smtp2_source_email
+            smtp_authentication_type = notification.smtp2_authentication_type
+            smtp_oauth2_token_endpoint = notification.smtp2_oauth2_token_endpoint
+            smtp_oauth2_client_id = notification.smtp2_oauth2_client_id
+            smtp_oauth2_client_secret = notification.smtp2_oauth2_client_secret
+            smtp_oauth2_scope = notification.smtp2_oauth2_scope
         else:
             smtp_server = notification.smtp_server
             smtp_port = notification.smtp_port
@@ -227,8 +234,27 @@ class StateClass(ObjectDict, metaclass=Singleton):
             smtp_username = notification.smtp_username
             smtp_password = notification.smtp_password
             smtp_source_email = notification.smtp_source_email
+            smtp_authentication_type = notification.smtp_authentication_type
+            smtp_oauth2_token_endpoint = notification.smtp_oauth2_token_endpoint
+            smtp_oauth2_client_id = notification.smtp_oauth2_client_id
+            smtp_oauth2_client_secret = notification.smtp_oauth2_client_secret
+            smtp_oauth2_scope = notification.smtp_oauth2_scope
 
-        return sendmail(
+        oauth2_token = None
+        if smtp_authentication_type == 'oauth2':
+            try:
+                oauth2_token = yield get_access_token(
+                    self.get_agent(),
+                    smtp_oauth2_token_endpoint,
+                    smtp_oauth2_client_id,
+                    smtp_oauth2_client_secret,
+                    smtp_oauth2_scope
+                )
+            except Exception as e:
+                log.err("Unable to obtain an OAuth2 access token for mail delivery: %s", e, tid=tid)
+                returnValue(False)
+
+        result = yield sendmail(
             tid,
             smtp_server,
             smtp_port,
@@ -242,8 +268,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.tenants[tid].cache.name + ' - ' + subject,
             body,
             self.tenants[1].cache.anonymize_outgoing_connections,
-            self.settings.socks_port
+            self.settings.socks_port,
+            oauth2_token=oauth2_token
         )
+
+        returnValue(result)
 
     def schedule_support_email(self, tid, text):
         subject = "Support request"
