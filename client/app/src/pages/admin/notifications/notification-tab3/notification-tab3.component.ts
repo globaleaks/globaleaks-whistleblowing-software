@@ -63,16 +63,11 @@ export class NotificationTab3Component {
 
   onAuthenticationTypeChange(smtp2?: boolean) {
     const data = this.notificationResolver.dataModel;
+    const prefix = smtp2 ? 'smtp2' : 'smtp';
 
     // OAuth2 requires an encrypted transport; drop the unencrypted option.
-    if (smtp2) {
-      if (data.smtp2_authentication_type === 'oauth2' && data.smtp2_security === 'PLAIN') {
-        data.smtp2_security = 'TLS';
-      }
-    } else {
-      if (data.smtp_authentication_type === 'oauth2' && data.smtp_security === 'PLAIN') {
-        data.smtp_security = 'TLS';
-      }
+    if (data[prefix + '_authentication_type'] === 'oauth2' && data[prefix + '_security'] === 'PLAIN') {
+      data[prefix + '_security'] = 'TLS';
     }
   }
 
@@ -98,33 +93,19 @@ export class NotificationTab3Component {
 
   resetSMTPSettings(smtp2?: boolean) {
     const data = this.notificationResolver.dataModel;
+    const prefix = smtp2 ? 'smtp2' : 'smtp';
 
-    if (smtp2) {
-      data.smtp2_server = 'mail.globaleaks.org';
-      data.smtp2_port = 587;
-      data.smtp2_username = 'globaleaks';
-      data.smtp2_password = 'globaleaks';
-      data.smtp2_source_email = 'notifications@globaleaks.org';
-      data.smtp2_security = 'TLS';
-      data.smtp2_authentication = true;
-      data.smtp2_authentication_type = 'basic';
-      data.smtp2_oauth2_token_endpoint = '';
-      data.smtp2_oauth2_client_id = '';
-      data.smtp2_oauth2_client_secret = '';
-      data.smtp2_oauth2_scope = '';
-    } else {
-      data.smtp_server = 'mail.globaleaks.org';
-      data.smtp_port = 587;
-      data.smtp_username = 'globaleaks';
-      data.smtp_password = 'globaleaks';
-      data.smtp_source_email = 'notifications@globaleaks.org';
-      data.smtp_security = 'TLS';
-      data.smtp_authentication = true;
-      data.smtp_authentication_type = 'basic';
-      data.smtp_oauth2_token_endpoint = '';
-      data.smtp_oauth2_client_id = '';
-      data.smtp_oauth2_client_secret = '';
-      data.smtp_oauth2_scope = '';
-    }
+    data[prefix + '_server'] = 'mail.globaleaks.org';
+    data[prefix + '_port'] = 587;
+    data[prefix + '_username'] = 'globaleaks';
+    data[prefix + '_password'] = 'globaleaks';
+    data[prefix + '_source_email'] = 'notifications@globaleaks.org';
+    data[prefix + '_security'] = 'TLS';
+    data[prefix + '_authentication'] = true;
+    data[prefix + '_authentication_type'] = 'basic';
+    data[prefix + '_oauth2_token_endpoint'] = '';
+    data[prefix + '_oauth2_client_id'] = '';
+    data[prefix + '_oauth2_client_secret'] = '';
+    data[prefix + '_oauth2_scope'] = '';
   }
 }

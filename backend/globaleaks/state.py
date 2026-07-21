@@ -213,32 +213,20 @@ class StateClass(ObjectDict, metaclass=Singleton):
             tid = 1
         notification = self.tenants[tid].cache.notification
 
-        if notification.smtp2_enabled and use_smtp2:
-            smtp_server = notification.smtp2_server
-            smtp_port = notification.smtp2_port
-            smtp_security = notification.smtp2_security
-            smtp_authentication = notification.smtp2_authentication
-            smtp_username = notification.smtp2_username
-            smtp_password = notification.smtp2_password
-            smtp_source_email = notification.smtp2_source_email
-            smtp_authentication_type = notification.smtp2_authentication_type
-            smtp_oauth2_token_endpoint = notification.smtp2_oauth2_token_endpoint
-            smtp_oauth2_client_id = notification.smtp2_oauth2_client_id
-            smtp_oauth2_client_secret = notification.smtp2_oauth2_client_secret
-            smtp_oauth2_scope = notification.smtp2_oauth2_scope
-        else:
-            smtp_server = notification.smtp_server
-            smtp_port = notification.smtp_port
-            smtp_security = notification.smtp_security
-            smtp_authentication = notification.smtp_authentication
-            smtp_username = notification.smtp_username
-            smtp_password = notification.smtp_password
-            smtp_source_email = notification.smtp_source_email
-            smtp_authentication_type = notification.smtp_authentication_type
-            smtp_oauth2_token_endpoint = notification.smtp_oauth2_token_endpoint
-            smtp_oauth2_client_id = notification.smtp_oauth2_client_id
-            smtp_oauth2_client_secret = notification.smtp_oauth2_client_secret
-            smtp_oauth2_scope = notification.smtp_oauth2_scope
+        profile = 'smtp2' if notification.smtp2_enabled and use_smtp2 else 'smtp'
+
+        smtp_server = getattr(notification, profile + '_server')
+        smtp_port = getattr(notification, profile + '_port')
+        smtp_security = getattr(notification, profile + '_security')
+        smtp_authentication = getattr(notification, profile + '_authentication')
+        smtp_username = getattr(notification, profile + '_username')
+        smtp_password = getattr(notification, profile + '_password')
+        smtp_source_email = getattr(notification, profile + '_source_email')
+        smtp_authentication_type = getattr(notification, profile + '_authentication_type')
+        smtp_oauth2_token_endpoint = getattr(notification, profile + '_oauth2_token_endpoint')
+        smtp_oauth2_client_id = getattr(notification, profile + '_oauth2_client_id')
+        smtp_oauth2_client_secret = getattr(notification, profile + '_oauth2_client_secret')
+        smtp_oauth2_scope = getattr(notification, profile + '_oauth2_scope')
 
         oauth2_token = None
         if smtp_authentication_type == 'oauth2':
