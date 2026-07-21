@@ -24,6 +24,7 @@ from globaleaks.utils.agent import get_tor_agent, get_web_agent
 from globaleaks.utils.crypto import sha256, totpVerify
 from globaleaks.utils.fs import read_json_file
 from globaleaks.utils.log import log, openLogFile
+from globaleaks.utils.graph import send_mail as graph_send_mail
 from globaleaks.utils.mail import sendmail
 from globaleaks.utils.oauth2 import get_access_token
 from globaleaks.utils.objectdict import ObjectDict
@@ -241,7 +242,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
             smtp_oauth2_scope = notification.smtp_oauth2_scope
 
         oauth2_token = None
-        if smtp_authentication_type == 'oauth2':
+        if smtp_authentication_type in ('oauth2', 'graph'):
             try:
                 oauth2_token = yield get_access_token(
                     self.get_agent(),
@@ -251,7 +252,23 @@ class StateClass(ObjectDict, metaclass=Singleton):
                     smtp_oauth2_scope
                 )
             except Exception as e:
-                log.err("Unable to obtain an OAuth2 access token for SMTP: %s", e, tid=tid)
+                log.err("Unable to obtain an OAuth2 access token for mail delivery: %s", e, tid=tid)
+                returnValue(False)
+
+        if smtp_authentication_type == 'graph':
+            try:
+                result = yield graph_send_mail(
+                    self.get_agent(),
+                    oauth2_token,
+                    self.tenants[tid].cache.name,
+                    smtp_source_email,
+                    to_address,
+                    self.tenants[tid].cache.name + ' - ' + subject,
+                    body
+                )
+                returnValue(result)
+            except Exception as e:
+                log.err("Unable to deliver mail through Microsoft Graph: %s", e, tid=tid)
                 returnValue(False)
 
         result = yield sendmail(

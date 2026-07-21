@@ -65,3 +65,42 @@ class TestStateSendmail(helpers.TestGL):
 
         self.assertFalse(result)
         self.assertEqual(mock_sendmail.call_count, 0)
+
+    @inlineCallbacks
+    def test_sendmail_graph_uses_graph_transport(self):
+        """Graph authentication delivers through the Graph transport, not SMTP."""
+        notification = self.state.tenants[1].cache.notification
+        notification.smtp_authentication_type = 'graph'
+        notification.smtp_oauth2_token_endpoint = 'https://login.example.com/token'
+        notification.smtp_oauth2_client_id = 'client-id'
+        notification.smtp_oauth2_client_secret = 'client-secret'
+        notification.smtp_oauth2_scope = 'https://graph.microsoft.com/.default'
+
+        with patch('globaleaks.state.get_access_token', return_value=succeed('the-token')) as mock_token, \
+             patch('globaleaks.state.graph_send_mail', return_value=succeed(True)) as mock_graph, \
+             patch('globaleaks.state.sendmail', return_value=succeed(True)) as mock_sendmail:
+            result = yield self.state.sendmail(1, 'to@example.com', 'subject', 'body')
+
+        self.assertTrue(result)
+        self.assertEqual(mock_token.call_count, 1)
+        self.assertEqual(mock_graph.call_count, 1)
+        self.assertEqual(mock_graph.call_args[0][1], 'the-token')
+        self.assertEqual(mock_sendmail.call_count, 0)
+
+    @inlineCallbacks
+    def test_sendmail_graph_send_failure_returns_false(self):
+        """A Graph delivery failure is reported without falling back to SMTP."""
+        notification = self.state.tenants[1].cache.notification
+        notification.smtp_authentication_type = 'graph'
+        notification.smtp_oauth2_token_endpoint = 'https://login.example.com/token'
+        notification.smtp_oauth2_client_id = 'client-id'
+        notification.smtp_oauth2_client_secret = 'client-secret'
+        notification.smtp_oauth2_scope = 'https://graph.microsoft.com/.default'
+
+        with patch('globaleaks.state.get_access_token', return_value=succeed('the-token')), \
+             patch('globaleaks.state.graph_send_mail', return_value=fail(Exception("boom"))), \
+             patch('globaleaks.state.sendmail', return_value=succeed(True)) as mock_sendmail:
+            result = yield self.state.sendmail(1, 'to@example.com', 'subject', 'body')
+
+        self.assertFalse(result)
+        self.assertEqual(mock_sendmail.call_count, 0)
