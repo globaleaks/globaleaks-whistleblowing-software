@@ -5,7 +5,12 @@ from twisted.trial import unittest
 from twisted.mail.smtp import ESMTPSenderFactory
 from unittest.mock import patch
 
-from globaleaks.utils.mail import MIME_mail_build, sendmail
+from globaleaks.utils.mail import (
+    MIME_mail_build,
+    sendmail,
+    XOAuth2Authenticator,
+    XOAuth2ESMTPSender,
+)
 
 
 class TestMailUtils(unittest.TestCase):
@@ -128,6 +133,50 @@ class TestMailUtils(unittest.TestCase):
 
         self.assertIsInstance(d, Deferred)
         self.assertEqual(mock_socks_connect.call_count, 1)
+
+    def test_xoauth2_authenticator_name(self):
+        """Test that the XOAUTH2 authenticator advertises the XOAUTH2 mechanism."""
+        auth = XOAuth2Authenticator(b"user@example.com")
+        self.assertEqual(auth.getName(), b"XOAUTH2")
+
+    def test_xoauth2_authenticator_challenge_response(self):
+        """Test that the XOAUTH2 authenticator builds the SASL bearer string."""
+        auth = XOAuth2Authenticator(b"user@example.com")
+        response = auth.challengeResponse(b"the-token")
+        self.assertEqual(response, b"user=user@example.com\x01auth=Bearer the-token\x01\x01")
+
+    def test_xoauth2_sender_registers_only_xoauth2(self):
+        """Test that the XOAUTH2 sender offers no password-based mechanism."""
+        sender = XOAuth2ESMTPSender(b"user@example.com", b"the-token", None, b"localhost")
+        names = [a.getName() for a in sender.authenticators]
+        self.assertEqual(names, [b"XOAUTH2"])
+
+    @patch("globaleaks.utils.mail.reactor", new_callable=lambda: MemoryReactorClock())
+    @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", return_value=succeed(None))
+    @patch("globaleaks.utils.mail.XOAuth2ESMTPSenderFactory")
+    def test_sendmail_oauth2(self, mock_factory, mock_connect, mock_reactor):
+        """Test that sendmail uses the XOAUTH2 factory when given a token."""
+        d = sendmail(tid=1,
+                     smtp_host="smtp.example.com",
+                     smtp_port=587,
+                     security="TLS",
+                     authentication=True,
+                     username="user@example.com",
+                     password="",
+                     from_name="Sender",
+                     from_address="sender@example.com",
+                     to_address="receiver@example.com",
+                     subject="Test Subject",
+                     body="Test Body",
+                     anonymize=False,
+                     oauth2_token="the-token")
+
+        self.assertIsInstance(d, Deferred)
+        self.assertEqual(mock_factory.call_count, 1)
+        args, kwargs = mock_factory.call_args
+        self.assertEqual(args[0], b"user@example.com")
+        self.assertEqual(args[1], b"the-token")
+        self.assertEqual(mock_connect.call_count, 1)
 
     @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", side_effect=Exception("Unexpected error"))
     def test_sendmail_unexpected_exception(self, mock_connect):

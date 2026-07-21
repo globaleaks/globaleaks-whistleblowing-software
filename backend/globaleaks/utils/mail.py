@@ -6,14 +6,46 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from zope.interface import implementer
+
 from twisted.internet import reactor, defer
 from twisted.internet.endpoints import TCP4ClientEndpoint
-from twisted.mail.smtp import messageid, ESMTPSenderFactory
+from twisted.mail.smtp import messageid, ESMTPSender, ESMTPSenderFactory, IClientAuthentication
 from twisted.protocols import tls
 
 from globaleaks.utils.socks import SOCKS5ClientEndpoint
 from globaleaks.utils.tls import TLSClientContextFactory
 from globaleaks.utils.log import log
+
+
+@implementer(IClientAuthentication)
+class XOAuth2Authenticator:
+    """
+    SASL XOAUTH2 client authenticator.
+
+    Presents an OAuth2 bearer token to the SMTP server following the XOAUTH2
+    mechanism used by providers such as Microsoft 365 and Google Workspace.
+    The token is carried in the password slot of the ESMTP sender.
+    """
+    def __init__(self, user):
+        self.user = user
+
+    def getName(self):
+        return b"XOAUTH2"
+
+    def challengeResponse(self, secret, chal=1):
+        return b"user=" + self.user + b"\x01auth=Bearer " + secret + b"\x01\x01"
+
+
+class XOAuth2ESMTPSender(ESMTPSender):
+    def _registerAuthenticators(self):
+        # Only XOAUTH2 is offered so that the bearer token is never presented
+        # to a password-based mechanism advertised by the server.
+        self.registerAuthenticator(XOAuth2Authenticator(self.username))
+
+
+class XOAuth2ESMTPSenderFactory(ESMTPSenderFactory):
+    protocol = XOAuth2ESMTPSender
 
 
 def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail_body):
@@ -39,7 +71,7 @@ def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail
     return BytesIO(multipart.as_bytes())  # pylint: disable=no-member
 
 
-def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_port=9999):
+def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_port=9999, oauth2_token=None):
     """
     Send an email using SMTPS/SMTP+TLS and maybe torify the connection.
 
@@ -57,6 +89,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
     :param body: A mail body
     :param anonymize: A boolean to enable anonymous mail connection
     :param socks_port: A socks port to be used for the mail connection
+    :param oauth2_token: An OAuth2 access token authenticating via XOAUTH2
     :return: A deferred resource resolving at the end of the connection
     """
     try:
@@ -74,18 +107,32 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
         context_factory = TLSClientContextFactory()
         smtp_deferred = defer.Deferred()
 
-        factory = ESMTPSenderFactory(
-            username.encode() if authentication else None,
-            password.encode() if authentication else None,
-            from_address,
-            to_address,
-            message,
-            smtp_deferred,
-            contextFactory=context_factory,
-            requireAuthentication=authentication,
-            requireTransportSecurity=(security == 'TLS'),
-            retries=0,
-            timeout=timeout)
+        if oauth2_token:
+            factory = XOAuth2ESMTPSenderFactory(
+                username.encode(),
+                oauth2_token.encode(),
+                from_address,
+                to_address,
+                message,
+                smtp_deferred,
+                contextFactory=context_factory,
+                requireAuthentication=True,
+                requireTransportSecurity=(security == 'TLS'),
+                retries=0,
+                timeout=timeout)
+        else:
+            factory = ESMTPSenderFactory(
+                username.encode() if authentication else None,
+                password.encode() if authentication else None,
+                from_address,
+                to_address,
+                message,
+                smtp_deferred,
+                contextFactory=context_factory,
+                requireAuthentication=authentication,
+                requireTransportSecurity=(security == 'TLS'),
+                retries=0,
+                timeout=timeout)
 
         if security == "SSL":
             factory = tls.TLSMemoryBIOFactory(context_factory, True, factory)
