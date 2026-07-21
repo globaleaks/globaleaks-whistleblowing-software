@@ -46,6 +46,81 @@ Once configured all the parameters for notifications, it is possible to test the
 
 If all is working as expected, click on the "Save" button to keep the configured parameters.
 
+Modern authentication for outgoing email
+----------------------------------------
+Providers such as Microsoft 365 and Google Workspace have deprecated basic authentication (username and password) for outgoing email. GlobaLeaks therefore supports modern authentication based on OAuth2, selectable independently on each SMTP profile through the "Authentication method" field once "Require authentication" is enabled.
+
+Three methods are available:
+
+- **Basic authentication**: the traditional username and password.
+- **OAuth2 (modern authentication)**: authenticates over SMTP using the XOAUTH2 mechanism, presenting a short-lived OAuth2 access token instead of a password.
+- **Microsoft Graph API**: delivers the message over HTTPS through the Microsoft Graph ``sendMail`` endpoint, without using SMTP at all.
+
+Both OAuth2 and Microsoft Graph obtain the access token from the provider using the OAuth2 client-credentials grant. You therefore need to register an application with your identity provider and supply its credentials; the client ID and client secret are always required because they authenticate the application to the provider that issues the token.
+
+What to fill in
+...............
+The following table summarises which fields are required depending on the selected method:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 24 24 24
+
+   * - Field
+     - Basic
+     - OAuth2 (XOAUTH2)
+     - Microsoft Graph
+   * - SMTP email address
+     - Required (sender)
+     - Required (sender)
+     - Required (sending mailbox)
+   * - SMTP server address and port
+     - Required
+     - Required
+     - Not used
+   * - Transport Security
+     - Required (SMTPS or SMTP/TLS)
+     - Required (SMTPS or SMTP/TLS)
+     - Not used
+   * - Username
+     - Required
+     - Required
+     - Not used
+   * - Password
+     - Required
+     - Not used
+     - Not used
+   * - OAuth2 token endpoint
+     - Not used
+     - Required
+     - Required
+   * - OAuth2 client ID
+     - Not used
+     - Required
+     - Required
+   * - OAuth2 client secret
+     - Not used
+     - Required
+     - Required
+   * - OAuth2 scope
+     - Not used
+     - Required
+     - Required
+
+Microsoft 365
+.............
+Register an application in Microsoft Entra ID (Azure Active Directory) and create a client secret. The token endpoint is ``https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token``, where ``<tenant-id>`` is your directory (tenant) identifier.
+
+- For **OAuth2 (XOAUTH2)**: grant the ``SMTP.SendAsApp`` application permission (Office 365 Exchange Online), register the service principal in Exchange Online and grant it access to the sending mailbox. Use the scope ``https://outlook.office365.com/.default`` with server ``smtp.office365.com``, port ``587`` and ``SMTP/TLS`` security.
+- For **Microsoft Graph**: grant the ``Mail.Send`` application permission and use the scope ``https://graph.microsoft.com/.default``.
+
+Google Workspace
+................
+For Gmail, use the token endpoint ``https://oauth2.googleapis.com/token`` and the scope ``https://mail.google.com/`` with server ``smtp.gmail.com``.
+
+.. note::
+   With modern authentication the credentials must always travel over an encrypted connection: the plaintext (PLAIN) transport security is therefore not offered when OAuth2 is selected, and Microsoft 365 and Google reject authentication over unencrypted connections.
+
 Configure recipients
 --------------------
 The Recipient is the person that will receive and process the data that whistleblowers input in the platform.
