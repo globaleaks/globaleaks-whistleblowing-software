@@ -21,6 +21,7 @@
         <span>{{ 'Invalid email address' | translate }}</span>
       </div>
       }
+      @if (notificationResolver.dataModel.smtp_authentication_type !== 'graph') {
       <div class="form-group">
         <label for="smtp-server-address">{{ 'SMTP server address' | translate }}</label>
         <input id="smtp-server-address" class="form-control" name="notification.dataModel.smtp_server" [(ngModel)]="notificationResolver.dataModel.smtp_server" type="text" />
@@ -32,11 +33,14 @@
       <div class="form-group">
         <label for="smtp-security-select">{{ 'Security' | translate }}</label>
         <select id="smtp-security-select" class="form-select-custom" name="notification.dataModel.smtp_security" [(ngModel)]="notificationResolver.dataModel.smtp_security">
-          <option value="PLAIN">PLAIN</option>
+          @if (notificationResolver.dataModel.smtp_authentication_type !== 'oauth2') {
+            <option value="PLAIN">PLAIN</option>
+          }
           <option value="SSL">SMTPS</option>
           <option value="TLS">SMTP/TLS</option>
         </select>
       </div>
+      }
       <div class="form-group">
         <input id="smtp-authentication" class="form-check-input" name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
         <label for="smtp-authentication">{{ 'Require authentication' | translate }}</label>
@@ -44,13 +48,42 @@
       @if (notificationResolver.dataModel.smtp_authentication) {
       <div>
         <div class="form-group">
+          <label for="smtp-authentication-type">{{ 'Authentication method' | translate }}</label>
+          <select id="smtp-authentication-type" class="form-select-custom" name="notification.dataModel.smtp_authentication_type" [(ngModel)]="notificationResolver.dataModel.smtp_authentication_type" (ngModelChange)="onAuthenticationTypeChange()">
+            <option value="basic">{{ 'Basic authentication' | translate }}</option>
+            <option value="oauth2">{{ 'OAuth2 (modern authentication)' | translate }}</option>
+            <option value="graph">{{ 'Microsoft Graph API' | translate }}</option>
+          </select>
+        </div>
+        @if (notificationResolver.dataModel.smtp_authentication_type !== 'graph') {
+        <div class="form-group">
           <label for="smtp-username">{{ 'Username' | translate }}</label>
           <input id="smtp-username" class="form-control" name="notification.dataModel.smtp_username" [(ngModel)]="notificationResolver.dataModel.smtp_username" type="text" />
         </div>
-        <div class="form-group">
-          <label for="smtp-password">{{ 'Password' | translate }}</label>
-          <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
-        </div>
+        }
+        @if (notificationResolver.dataModel.smtp_authentication_type === 'oauth2' || notificationResolver.dataModel.smtp_authentication_type === 'graph') {
+          <div class="form-group">
+            <label for="smtp-oauth2-token-endpoint">{{ 'OAuth2 token endpoint' | translate }}</label>
+            <input id="smtp-oauth2-token-endpoint" class="form-control" name="notification.dataModel.smtp_oauth2_token_endpoint" [(ngModel)]="notificationResolver.dataModel.smtp_oauth2_token_endpoint" type="text" />
+          </div>
+          <div class="form-group">
+            <label for="smtp-oauth2-client-id">{{ 'OAuth2 client ID' | translate }}</label>
+            <input id="smtp-oauth2-client-id" class="form-control" name="notification.dataModel.smtp_oauth2_client_id" [(ngModel)]="notificationResolver.dataModel.smtp_oauth2_client_id" type="text" />
+          </div>
+          <div class="form-group">
+            <label for="smtp-oauth2-client-secret">{{ 'OAuth2 client secret' | translate }}</label>
+            <input id="smtp-oauth2-client-secret" class="form-control" name="notification.dataModel.smtp_oauth2_client_secret" [(ngModel)]="notificationResolver.dataModel.smtp_oauth2_client_secret" type="password" placeholder="*****************" />
+          </div>
+          <div class="form-group">
+            <label for="smtp-oauth2-scope">{{ 'OAuth2 scope' | translate }}</label>
+            <input id="smtp-oauth2-scope" class="form-control" name="notification.dataModel.smtp_oauth2_scope" [(ngModel)]="notificationResolver.dataModel.smtp_oauth2_scope" type="text" />
+          </div>
+        } @else {
+          <div class="form-group">
+            <label for="smtp-password">{{ 'Password' | translate }}</label>
+            <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
+          </div>
+        }
       </div>
       }
       <div class="form-group">
@@ -97,6 +130,7 @@
           <span>{{ 'Invalid email address' | translate }}</span>
         </div>
         }
+        @if (notificationResolver.dataModel.smtp2_authentication_type !== 'graph') {
         <div class="form-group">
           <label for="smtp2-server-address">{{ 'SMTP server address' | translate }}</label>
           <input id="smtp2-server-address" class="form-control" name="notification.dataModel.smtp2_server" [(ngModel)]="notificationResolver.dataModel.smtp2_server" type="text" />
@@ -108,11 +142,14 @@
         <div class="form-group">
           <label for="smtp2-security-select">{{ 'Security' | translate }}</label>
           <select id="smtp2-security-select" class="form-select-custom" name="notification.dataModel.smtp2_security" [(ngModel)]="notificationResolver.dataModel.smtp2_security">
-            <option value="PLAIN">PLAIN</option>
+            @if (notificationResolver.dataModel.smtp2_authentication_type !== 'oauth2') {
+              <option value="PLAIN">PLAIN</option>
+            }
             <option value="SSL">SMTPS</option>
             <option value="TLS">SMTP/TLS</option>
           </select>
         </div>
+        }
         <div class="form-group">
           <input id="smtp2-authentication" class="form-check-input" name="notification.dataModel.smtp2_authentication" [(ngModel)]="notificationResolver.dataModel.smtp2_authentication" type="checkbox">
           <label for="smtp2-authentication">{{ 'Require authentication' | translate }}</label>
@@ -120,13 +157,42 @@
         @if (notificationResolver.dataModel.smtp2_authentication) {
         <div>
           <div class="form-group">
+            <label for="smtp2-authentication-type">{{ 'Authentication method' | translate }}</label>
+            <select id="smtp2-authentication-type" class="form-select-custom" name="notification.dataModel.smtp2_authentication_type" [(ngModel)]="notificationResolver.dataModel.smtp2_authentication_type" (ngModelChange)="onAuthenticationTypeChange(true)">
+              <option value="basic">{{ 'Basic authentication' | translate }}</option>
+              <option value="oauth2">{{ 'OAuth2 (modern authentication)' | translate }}</option>
+              <option value="graph">{{ 'Microsoft Graph API' | translate }}</option>
+            </select>
+          </div>
+          @if (notificationResolver.dataModel.smtp2_authentication_type !== 'graph') {
+          <div class="form-group">
             <label for="smtp2-username">{{ 'Username' | translate }}</label>
             <input id="smtp2-username" class="form-control" name="notification.dataModel.smtp2_username" [(ngModel)]="notificationResolver.dataModel.smtp2_username" type="text" />
           </div>
-          <div class="form-group">
-            <label for="smtp2-password">{{ 'Password' | translate }}</label>
-            <input id="smtp2-password" class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
-          </div>
+          }
+          @if (notificationResolver.dataModel.smtp2_authentication_type === 'oauth2' || notificationResolver.dataModel.smtp2_authentication_type === 'graph') {
+            <div class="form-group">
+              <label for="smtp2-oauth2-token-endpoint">{{ 'OAuth2 token endpoint' | translate }}</label>
+              <input id="smtp2-oauth2-token-endpoint" class="form-control" name="notification.dataModel.smtp2_oauth2_token_endpoint" [(ngModel)]="notificationResolver.dataModel.smtp2_oauth2_token_endpoint" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="smtp2-oauth2-client-id">{{ 'OAuth2 client ID' | translate }}</label>
+              <input id="smtp2-oauth2-client-id" class="form-control" name="notification.dataModel.smtp2_oauth2_client_id" [(ngModel)]="notificationResolver.dataModel.smtp2_oauth2_client_id" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="smtp2-oauth2-client-secret">{{ 'OAuth2 client secret' | translate }}</label>
+              <input id="smtp2-oauth2-client-secret" class="form-control" name="notification.dataModel.smtp2_oauth2_client_secret" [(ngModel)]="notificationResolver.dataModel.smtp2_oauth2_client_secret" type="password" placeholder="*****************" />
+            </div>
+            <div class="form-group">
+              <label for="smtp2-oauth2-scope">{{ 'OAuth2 scope' | translate }}</label>
+              <input id="smtp2-oauth2-scope" class="form-control" name="notification.dataModel.smtp2_oauth2_scope" [(ngModel)]="notificationResolver.dataModel.smtp2_oauth2_scope" type="text" />
+            </div>
+          } @else {
+            <div class="form-group">
+              <label for="smtp2-password">{{ 'Password' | translate }}</label>
+              <input id="smtp2-password" class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
+            </div>
+          }
         </div>
         }
         <div class="form-group">

@@ -4,6 +4,11 @@ export class notificationResolverModel {
   enable_receiver_notification_emails: boolean;
   enable_analyst_notification_emails: boolean;
   smtp_authentication: boolean;
+  smtp_authentication_type: string;
+  smtp_oauth2_token_endpoint: string;
+  smtp_oauth2_client_id: string;
+  smtp_oauth2_client_secret: string;
+  smtp_oauth2_scope: string;
   smtp_password: string;
   smtp_port: number;
   smtp_security: string;
@@ -12,6 +17,11 @@ export class notificationResolverModel {
   smtp_username: string;
   smtp2_enabled: boolean;
   smtp2_authentication: boolean;
+  smtp2_authentication_type: string;
+  smtp2_oauth2_token_endpoint: string;
+  smtp2_oauth2_client_id: string;
+  smtp2_oauth2_client_secret: string;
+  smtp2_oauth2_scope: string;
   smtp2_password: string;
   smtp2_port: number;
   smtp2_security: string;
