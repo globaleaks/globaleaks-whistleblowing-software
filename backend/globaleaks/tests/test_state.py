@@ -88,6 +88,27 @@ class TestStateSendmail(helpers.TestGL):
         self.assertEqual(mock_sendmail.call_count, 0)
 
     @inlineCallbacks
+    def test_sendmail_smtp2_oauth2_uses_secondary_profile(self):
+        """The secondary SMTP profile resolves its own OAuth2 settings."""
+        notification = self.state.tenants[1].cache.notification
+        notification.smtp2_enabled = True
+        notification.smtp2_authentication_type = 'oauth2'
+        notification.smtp2_oauth2_token_endpoint = 'https://login.example.com/token2'
+        notification.smtp2_oauth2_client_id = 'client-id-2'
+        notification.smtp2_oauth2_client_secret = 'client-secret-2'
+        notification.smtp2_oauth2_scope = 'https://outlook.office365.com/.default'
+
+        with patch('globaleaks.state.get_access_token', return_value=succeed('the-token-2')) as mock_token, \
+             patch('globaleaks.state.sendmail', return_value=succeed(True)) as mock_sendmail:
+            result = yield self.state.sendmail(1, 'to@example.com', 'subject', 'body', use_smtp2=True)
+
+        self.assertTrue(result)
+        self.assertEqual(mock_token.call_count, 1)
+        self.assertEqual(mock_token.call_args[0][1], 'https://login.example.com/token2')
+        _, kwargs = mock_sendmail.call_args
+        self.assertEqual(kwargs['oauth2_token'], 'the-token-2')
+
+    @inlineCallbacks
     def test_sendmail_graph_send_failure_returns_false(self):
         """A Graph delivery failure is reported without falling back to SMTP."""
         notification = self.state.tenants[1].cache.notification
