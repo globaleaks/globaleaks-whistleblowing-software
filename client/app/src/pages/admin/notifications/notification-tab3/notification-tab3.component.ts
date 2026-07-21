@@ -61,6 +61,21 @@ export class NotificationTab3Component {
     this.utilsService.updateAdminNotification(notification).subscribe();
   }
 
+  onAuthenticationTypeChange(smtp2?: boolean) {
+    const data = this.notificationResolver.dataModel;
+
+    // OAuth2 requires an encrypted transport; drop the unencrypted option.
+    if (smtp2) {
+      if (data.smtp2_authentication_type === 'oauth2' && data.smtp2_security === 'PLAIN') {
+        data.smtp2_security = 'TLS';
+      }
+    } else {
+      if (data.smtp_authentication_type === 'oauth2' && data.smtp_security === 'PLAIN') {
+        data.smtp_security = 'TLS';
+      }
+    }
+  }
+
   updateThenTestMail(notification: notificationResolverModel,smtp2?: boolean): void {
     const modalRef = this.modalService.open(SendMailComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = (email: string) => {
@@ -92,6 +107,11 @@ export class NotificationTab3Component {
       data.smtp2_source_email = 'notifications@globaleaks.org';
       data.smtp2_security = 'TLS';
       data.smtp2_authentication = true;
+      data.smtp2_authentication_type = 'basic';
+      data.smtp2_oauth2_token_endpoint = '';
+      data.smtp2_oauth2_client_id = '';
+      data.smtp2_oauth2_client_secret = '';
+      data.smtp2_oauth2_scope = '';
     } else {
       data.smtp_server = 'mail.globaleaks.org';
       data.smtp_port = 587;
@@ -100,6 +120,11 @@ export class NotificationTab3Component {
       data.smtp_source_email = 'notifications@globaleaks.org';
       data.smtp_security = 'TLS';
       data.smtp_authentication = true;
+      data.smtp_authentication_type = 'basic';
+      data.smtp_oauth2_token_endpoint = '';
+      data.smtp_oauth2_client_id = '';
+      data.smtp_oauth2_client_secret = '';
+      data.smtp_oauth2_scope = '';
     }
   }
 }
