@@ -1163,10 +1163,10 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
 def create_redaction(session, tid, user_id, data):
     user, rtip, itip = db_access_rtip(session, tid, user_id, data['internaltip_id'])
 
-    itip.update_date = rtip.last_access = datetime_now()
-
     if not user.can_mask_information:
         return
+
+    itip.update_date = rtip.last_access = datetime_now()
 
     reference_id = data.get('reference_id')
 
