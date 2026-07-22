@@ -18,7 +18,7 @@ from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
-from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip
+from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip, MAX_ANSWERS_DEPTH
 from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked, db_notify_report_update
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
@@ -493,7 +493,10 @@ def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data,
     comment.content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, content)).decode()
 
 
-def db_redact_answers(answers, redaction):
+def db_redact_answers(answers, redaction, depth=0):
+    if depth >= MAX_ANSWERS_DEPTH:
+        return
+
     for key in answers:
         if not re.match(requests.uuid_regexp, key) or \
                 not isinstance(answers[key], list):
@@ -505,15 +508,18 @@ def db_redact_answers(answers, redaction):
                     answer['value'] = redact_content(answer['value'], redaction.permanent_redaction)
                     return
             else:
-                db_redact_answers(answer, redaction)
+                db_redact_answers(answer, redaction, depth + 1)
 
 
-def db_redact_whistleblower_identities(whistleblower_identities, redaction, ranges=None, character='0x2588'):
+def db_redact_whistleblower_identities(whistleblower_identities, redaction, ranges=None, character='0x2588', depth=0):
     # The identity is stored/extracted as a fieldgroup answer keyed by field id
     # and, unlike questionnaire answers, is not indexed at read time; it is
     # therefore matched by reference id only (never by entry/index). The write
     # path masks it destructively with the permanent redaction; the consumption
     # path passes the temporary redaction and the lighter mask character.
+    if depth >= MAX_ANSWERS_DEPTH:
+        return
+
     if ranges is None:
         ranges = redaction.permanent_redaction
 
@@ -526,7 +532,7 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction, rang
                     whistleblower_identity['value'] = redact_content(whistleblower_identity['value'], ranges, character)
                     return
             else:
-                db_redact_whistleblower_identities(whistleblower_identity, redaction, ranges, character)
+                db_redact_whistleblower_identities(whistleblower_identity, redaction, ranges, character, depth + 1)
 
 
 def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
@@ -766,7 +772,10 @@ def get_rtip(session, tid, user_id, itip_id, language):
     return db_get_rtip(session, tid, user_id, itip_id, language)
 
 
-def redact_answers(answers, redactions):
+def redact_answers(answers, redactions, depth=0):
+    if depth >= MAX_ANSWERS_DEPTH:
+        return
+
     for key in answers:
         if not re.match(requests.uuid_regexp, key) or \
                 not isinstance(answers[key], list):
@@ -778,7 +787,7 @@ def redact_answers(answers, redactions):
                     if key == redaction.reference_id and answer['index'] == redaction.entry:
                         answer['value'] = redact_content(answer['value'], redaction.temporary_redaction, '0x2591')
             else:
-                redact_answers(answer, redactions)
+                redact_answers(answer, redactions, depth + 1)
 
 
 def mask_report_files(report, masked_ids, hide_name=True):

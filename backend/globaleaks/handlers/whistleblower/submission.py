@@ -23,7 +23,18 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null, parse_ISO8601
 
 
-def index_answers(answers, parent_index=''):
+# Maximum nesting depth traversed when indexing/masking questionnaire answers.
+# Bounds every answer-tree recursion (index_answers, redact_answers,
+# db_redact_answers, db_redact_whistleblower_identities) so a report with
+# maliciously deep nesting cannot exhaust the interpreter recursion limit and
+# turn every consumption-time read into a 500 for all viewers.
+MAX_ANSWERS_DEPTH = 64
+
+
+def index_answers(answers, parent_index='', depth=0):
+    if depth >= MAX_ANSWERS_DEPTH:
+        return
+
     for key in answers:
         if not re.match(requests.uuid_regexp, key) or \
                 not isinstance(answers[key], list):
@@ -35,7 +46,7 @@ def index_answers(answers, parent_index=''):
                str_index = parent_index + "-" + str_index
 
             answer['index'] = str_index
-            index_answers(answer, str_index)
+            index_answers(answer, str_index, depth + 1)
 
 
 def decrypt_tip(user_key, tip_prv_key, tip):
