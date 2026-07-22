@@ -13,6 +13,9 @@ from globaleaks.utils.crypto import GCE
 
 import globaleaks.handlers.recipient.export
 
+from globaleaks.handlers.recipient.rtip import db_user_can_bypass_masking, redact_answers
+from globaleaks.handlers.whistleblower.submission import index_answers
+
 
 @transact
 def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
@@ -97,6 +100,9 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                 label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
 
             answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())  # noqa: PLW2901
+            # Index the answers as decrypt_tip does so that a temporary mask,
+            # matched by field key and answer index, can be applied below.
+            index_answers(answers)
 
         if data is None:
             subscription = 0
@@ -138,6 +144,18 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                                      .filter(models.ReceiverTip.internaltip_id.in_(dict_ret.keys())) \
                                      .group_by(models.ReceiverTip.internaltip_id):
             dict_ret[itip_id]['receiver_count'] = count
+
+    # Mask the returned answers
+    if dict_ret and not db_user_can_bypass_masking(session, receiver_id):
+        redactions_by_itip = {}
+        for redaction in session.query(models.Redaction) \
+                                .filter(models.Redaction.internaltip_id.in_(dict_ret.keys())):
+            redactions_by_itip.setdefault(redaction.internaltip_id, []).append(redaction)
+
+        for itip_id, entry in dict_ret.items():
+            redactions = redactions_by_itip.get(itip_id)
+            if redactions and isinstance(entry['answers'], dict):
+                redact_answers(entry['answers'], redactions)
 
     return list(dict_ret.values())
 

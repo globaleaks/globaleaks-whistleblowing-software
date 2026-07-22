@@ -966,6 +966,51 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
             # Restore the permission for the next report iteration.
             yield self.set_redaction_privileges(receiver_id, True)
 
+    @inlineCallbacks
+    def test_temporary_redaction_masks_whistleblower_identity(self):
+        # The whistleblower identity is masked on the consumption-time pass
+        # (redact_report, shared by the rtip detail, wbtip and export paths): a
+        # temporary mask over an identity field must hide it from a non-privileged
+        # recipient while a privileged one keeps reading it. The identity is
+        # extracted from the questionnaire answers and, unlike them, is not
+        # indexed at read time, so it is matched by reference id only -- masking
+        # it as a plain answer (which requires an 'index') would raise KeyError.
+        mask = chr(0x2591)
+        identity_field_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+
+        def build_report(itip_id):
+            return {
+                'id': itip_id,
+                'questionnaires': [],
+                'comments': [],
+                'wbfiles': [],
+                'rfiles': [],
+                'data': {'whistleblower_identity': {
+                    identity_field_id: [{'value': 'SECRET identity'}]
+                }}
+            }
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            itip_id = rtip_desc['id']
+            receiver_id = rtip_desc['receiver_id']
+
+            yield self.add_redaction(itip_id, identity_field_id, [{'start': 0, 'end': 100}])
+
+            # A privileged recipient reads the original identity.
+            report = yield rtip.redact_report(receiver_id, build_report(itip_id))
+            self.assertEqual(report['data']['whistleblower_identity'][identity_field_id][0]['value'],
+                             'SECRET identity')
+
+            # A recipient without the permission reads the masked identity.
+            yield self.set_redaction_privileges(receiver_id, False)
+            report = yield rtip.redact_report(receiver_id, build_report(itip_id))
+            value = report['data']['whistleblower_identity'][identity_field_id][0]['value']
+            self.assertNotIn('SECRET', value)
+            self.assertIn(mask, value)
+
+            yield self.set_redaction_privileges(receiver_id, True)
+
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.WhistleblowerFileDownload

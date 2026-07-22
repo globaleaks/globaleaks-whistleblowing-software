@@ -508,17 +508,25 @@ def db_redact_answers(answers, redaction):
                 db_redact_answers(answer, redaction)
 
 
-def db_redact_whistleblower_identities(whistleblower_identities, redaction):
+def db_redact_whistleblower_identities(whistleblower_identities, redaction, ranges=None, character='0x2588'):
+    # The identity is stored/extracted as a fieldgroup answer keyed by field id
+    # and, unlike questionnaire answers, is not indexed at read time; it is
+    # therefore matched by reference id only (never by entry/index). The write
+    # path masks it destructively with the permanent redaction; the consumption
+    # path passes the temporary redaction and the lighter mask character.
+    if ranges is None:
+        ranges = redaction.permanent_redaction
+
     for key in whistleblower_identities:
         if isinstance(whistleblower_identities[key], bool):
             continue
         for inner_idx, whistleblower_identity in enumerate(whistleblower_identities[key]):
             if 'value' in whistleblower_identity:
                 if key == redaction.reference_id:
-                    whistleblower_identity['value'] = redact_content(whistleblower_identity['value'], redaction.permanent_redaction)
+                    whistleblower_identity['value'] = redact_content(whistleblower_identity['value'], ranges, character)
                     return
             else:
-                db_redact_whistleblower_identities(whistleblower_identity, redaction)
+                db_redact_whistleblower_identities(whistleblower_identity, redaction, ranges, character)
 
 
 def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
@@ -798,32 +806,40 @@ def mask_report_files(report, masked_ids, hide_name=True):
             f['masked'] = True
 
 
+def db_user_can_bypass_masking(session, user_id):
+    # Viewers holding the masking/redaction permission read unmasked content to
+    # moderate it; a missing user record (the whistleblower) is never privileged.
+    user = session.query(models.User).get(user_id)
+    return user is not None and (user.can_mask_information or user.can_redact_information)
+
+
 @transact
 def redact_report(session, user_id, report):
-    user = session.query(models.User).get(user_id)
-
     redactions = session.query(models.Redaction).filter(models.Redaction.internaltip_id == report['id']).all()
 
     if not len(redactions):
         return report
 
-    # Text content (answers and comments) is masked only for viewers without
-    # the masking/redaction permission (recipients without it and the
-    # whistleblower, who has no user record); privileged recipients need to
-    # read it to moderate. The content of a masked file is instead never
-    # downloadable by anyone, so masked files are flagged and their name is
-    # hidden for everyone.
-    privileged = user is not None and (user.can_mask_information or user.can_redact_information)
+    # Text content (answers, identity and comments) is masked only for viewers
+    # without the masking/redaction permission (recipients without it and the
+    # whistleblower); the content of a masked file is instead never downloadable
+    # by anyone, so masked files are flagged and their name is hidden for everyone.
+    privileged = db_user_can_bypass_masking(session, user_id)
 
     if not privileged:
         redactions_by_reference_id = {}
         for redaction in redactions:
-            if redaction.reference_id not in redactions_by_reference_id:
-                redactions_by_reference_id[redaction.reference_id] = []
-            redactions_by_reference_id[redaction.reference_id].append(redaction)
+            redactions_by_reference_id.setdefault(redaction.reference_id, []).append(redaction)
 
         for q in report['questionnaires']:
             redact_answers(q['answers'], redactions)
+
+        # The whistleblower identity is extracted from the questionnaire answers
+        # and not indexed, so it is masked by its own reference-id-only traversal.
+        identity = report.get('data', {}).get('whistleblower_identity')
+        if isinstance(identity, dict):
+            for redaction in redactions:
+                db_redact_whistleblower_identities(identity, redaction, redaction.temporary_redaction, '0x2591')
 
         for comment in report['comments']:
             if comment['id'] in redactions_by_reference_id:
