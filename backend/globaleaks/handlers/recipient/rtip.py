@@ -842,8 +842,10 @@ def redact_report(session, user_id, report):
                 db_redact_whistleblower_identities(identity, redaction, redaction.temporary_redaction, '0x2591')
 
         for comment in report['comments']:
-            if comment['id'] in redactions_by_reference_id:
-                comment['content'] = redact_content(comment['content'], redactions_by_reference_id[comment['id']][0].temporary_redaction, '0x2591')
+            # Apply every redaction targeting the comment, not just the first:
+            # redact_content is length-preserving, so the masks compose.
+            for redaction in redactions_by_reference_id.get(comment['id'], []):
+                comment['content'] = redact_content(comment['content'], redaction.temporary_redaction, '0x2591')
 
     mask_report_files(report, {r.reference_id for r in redactions if r.entry == '0'}, hide_name=not privileged)
 
