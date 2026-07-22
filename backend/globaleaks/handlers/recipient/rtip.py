@@ -1161,6 +1161,33 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     return ret
 
 
+def validate_redaction_ranges(ranges):
+    # temporary_redaction/permanent_redaction reach the range math
+    # (validate_ranges/merge_and_sort_ranges/get_new_temporary_redaction) and the
+    # stored JSON columns straight from the client. Accept only a list of
+    # {'start', 'end'} where each bound is an integer or the '-inf'/'inf' file
+    # sentinel, so malformed input can never crash those helpers.
+    if not isinstance(ranges, list):
+        raise errors.InputValidationError
+
+    for r in ranges:
+        if not isinstance(r, dict):
+            raise errors.InputValidationError
+
+        for bound in ('start', 'end'):
+            v = r.get(bound)
+            if isinstance(v, bool) or not (isinstance(v, int) or v in ('-inf', 'inf')):
+                raise errors.InputValidationError
+
+
+def validate_redaction_request(data):
+    # An empty field ('' or []) carries no range and is left to the callee.
+    for key in ('temporary_redaction', 'permanent_redaction'):
+        ranges = data.get(key)
+        if ranges:
+            validate_redaction_ranges(ranges)
+
+
 @transact
 def create_redaction(session, tid, user_id, data):
     user, rtip, itip = db_access_rtip(session, tid, user_id, data['internaltip_id'])
@@ -1309,6 +1336,7 @@ class RTipRedactionCollection(BaseHandler):
     def post(self):
         payload = self.request.content.read().decode('utf-8')
         data = json.loads(payload)
+        validate_redaction_request(data)
 
         return create_redaction(self.request.tid, self.session.user_id, data)
 
@@ -1316,6 +1344,7 @@ class RTipRedactionCollection(BaseHandler):
     def put(self, redaction_id):
         payload = self.request.content.read().decode('utf-8')
         data = json.loads(payload)
+        validate_redaction_request(data)
 
         tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, data['internaltip_id'], self.request.language)
 
