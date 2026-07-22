@@ -533,7 +533,7 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
     currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
     index = next((i for i, q in enumerate(tip_data['questionnaires'])
@@ -572,7 +572,7 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
     currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
     new_temporary_redaction = get_new_temporary_redaction(currentMaskedData['temporary_redaction'],
