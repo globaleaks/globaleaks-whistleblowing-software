@@ -404,7 +404,8 @@ def db_validate_submission_receivers(session, context, steps, answers, requested
     for receiver_id, forcefully_selected in session.query(models.ReceiverContext.receiver_id, models.User.forcefully_selected) \
                                                    .filter(models.ReceiverContext.context_id == context.id,
                                                            models.User.id == models.ReceiverContext.receiver_id,
-                                                           models.User.role == 'receiver'):
+                                                           models.User.role == 'receiver',
+                                                           models.User.enabled.is_(True)):
         context_receivers.add(receiver_id)
         if forcefully_selected:
             mandatory_receivers.add(receiver_id)

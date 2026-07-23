@@ -174,7 +174,11 @@ def db_prepare_contexts_serialization(session, contexts):
         for o in session.query(models.File).filter(models.File.name.in_(contexts_ids)):
             data['imgs'][o.name] = True
 
-        for o in session.query(models.ReceiverContext).filter(models.ReceiverContext.context_id.in_(contexts_ids)).order_by(models.ReceiverContext.order):
+        for o in session.query(models.ReceiverContext) \
+                        .join(models.User, models.User.id == models.ReceiverContext.receiver_id) \
+                        .filter(models.ReceiverContext.context_id.in_(contexts_ids),
+                                models.User.enabled.is_(True)) \
+                        .order_by(models.ReceiverContext.order):
             if o.context_id not in data['receivers']:
                 data['receivers'][o.context_id] = []
 
@@ -644,7 +648,8 @@ def db_get_receivers(session, tid, language):
     :return: A list of receivers descriptors
     """
     receivers = session.query(models.User).filter(models.User.role == models.EnumUserRole.receiver.value,
-                                                  models.User.tid == tid)
+                                                  models.User.tid == tid,
+                                                  models.User.enabled.is_(True))
     data = db_prepare_receivers_serialization(session, receivers)
 
     return [serialize_receiver(session, receiver, language, data) for receiver in receivers]
