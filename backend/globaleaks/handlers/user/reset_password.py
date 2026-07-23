@@ -183,6 +183,10 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code, dpop_
                                 user.crypto_escrow_prv_key != '',
                                 dpop_jkt=dpop_jkt)
 
+    # The session is issued for the redirect login flow: the client is sent to
+    # /login?token=<id> and adopts it via /api/auth/tokenauth. Flag it as
+    # presentable as an authtoken, consistently with the other redirect logins.
+    user_session.properties['authtoken'] = True
     user_session.properties['reset_token'] = reset_token
     user_session.properties['password_change_needed'] = True
 

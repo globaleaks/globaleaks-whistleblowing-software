@@ -235,6 +235,12 @@ class AuthenticationHandler(BaseHandler):
                               self.get_dpop_thumbprint())
 
         if tid != self.request.tid:
+            # The session is issued for the redirect login flow: a freshly loaded
+            # client on the target tenant adopts it via /api/auth/tokenauth with
+            # its own DPoP key. Flag it as presentable as an authtoken so that
+            # token login is restricted to such sessions and never accepts a
+            # primary session id.
+            session.properties['authtoken'] = True
             return {
                 'redirect': 'https://%s/#/login?token=%s' % (State.tenants[tid].cache.hostname, session.id)
             }
@@ -253,13 +259,23 @@ class TokenAuthHandler(BaseHandler):
         request = self.validate_request(self.request.content.read(), requests.TokenAuthDesc)
 
         session = Sessions.get(request['authtoken'])
-        if session is None:
+
+        # Restrict token login to sessions issued for the redirect flow. Rejecting
+        # any other session id prevents a captured primary session id from being
+        # adopted and bound to a client-supplied DPoP key without proof of
+        # possession of the key the session was originally bound to.
+        if session is None or not session.properties.get('authtoken'):
             yield tw(db_login_failure, self.request.tid, 0)
+            raise errors.InvalidAuthentication
 
         connection_check(session.tid, session.role,
                          self.request.client_ip, self.request.client_using_tor)
 
         session = Sessions.regenerate(session, dpop_jkt=self.get_dpop_thumbprint())
+
+        # The redirect login is single-use: the adopted session becomes a primary
+        # session and cannot be adopted again.
+        session.properties.pop('authtoken', None)
 
         return session.serialize()
 
@@ -361,6 +377,7 @@ class TenantAuthSwitchHandler(BaseHandler):
                                dpop_jkt=self.get_dpop_thumbprint())
 
         session.properties['management_session'] = True
+        session.properties['authtoken'] = True
 
         return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
 
@@ -383,5 +400,6 @@ class OperatorAuthSwitchHandler(BaseHandler):
                                dpop_jkt=self.get_dpop_thumbprint())
 
         session.properties['operator_session'] = self.session.user_id
+        session.properties['authtoken'] = True
 
         return {'redirect': '/#/login?token=%s' % session.id}

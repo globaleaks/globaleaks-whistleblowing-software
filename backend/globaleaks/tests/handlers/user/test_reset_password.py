@@ -1,9 +1,11 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers import auth
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import tw
 from globaleaks.rest import errors
+from globaleaks.sessions import Sessions
 from globaleaks.tests import helpers
 
 
@@ -49,6 +51,31 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request({'reset_token': valid_reset_token, 'recovery_key': helpers.USER_REC_KEY_PLAIN, 'auth_code': ''})
         ret = yield handler.put()
         self.assertEqual(ret['status'], 'success')
+
+        # The issued session is handed to /login?token=<id> and adopted via
+        # /api/auth/tokenauth, so it must be presentable as an authtoken.
+        session = Sessions.get(ret['token'])
+        self.assertTrue(session.properties.get('authtoken'))
+
+    @inlineCallbacks
+    def test_reset_token_is_adoptable_via_tokenauth(self):
+        # End-to-end: the session issued by a successful password reset is handed
+        # to the client as /login?token=<id> and adopted through
+        # /api/auth/tokenauth. The full chain must work -- issuing the reset and
+        # then adopting the returned token at the tokenauth endpoint.
+        valid_reset_token = 'a' * 64
+        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
+
+        handler = self.request({'reset_token': valid_reset_token,
+                                'recovery_key': helpers.USER_REC_KEY_PLAIN,
+                                'auth_code': ''})
+        ret = yield handler.put()
+        self.assertEqual(ret['status'], 'success')
+
+        # Adopt the issued token through the tokenauth endpoint.
+        handler = self.request({'authtoken': ret['token']}, handler_cls=auth.TokenAuthHandler)
+        response = yield handler.post()
+        self.assertIn('id', response)
 
     @inlineCallbacks
     def test_post_disabled_user(self):

@@ -419,6 +419,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+        session.properties['authtoken'] = True
         self.authtoken = session.id
 
     @inlineCallbacks
@@ -429,6 +430,25 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
 
         response = yield handler.post()
         self.assertTrue('id' in response)
+
+        # The redirect login is single-use: the adopted session becomes a primary
+        # session that can no longer be adopted through tokenauth.
+        adopted = Sessions.get(response['id'])
+        self.assertFalse(adopted.properties.get('authtoken'))
+
+    @inlineCallbacks
+    def test_rejects_non_authtoken_session(self):
+        # A primary session id (not issued for the redirect login flow) must not
+        # be adoptable through tokenauth: this prevents a captured session id from
+        # being bound to a client-supplied key without proof of possession.
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+
+        handler = self.request({'authtoken': session.id})
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+        # The presented session must remain intact: not rotated, its DPoP binding
+        # unchanged.
+        self.assertIsNotNone(Sessions.get(session.id))
 
     @inlineCallbacks
     def test_session_use_enforces_tenant_connection_policy(self):
@@ -451,6 +471,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
         # A session bound to tenant 2 must be validated against tenant 2's
         # connection policy even when redeemed through a more permissive tenant.
         session = Sessions.new(2, self.dummyReceiver_1['id'], 2, 'receiver')
+        session.properties['authtoken'] = True
 
         State.tenants[1].cache['https_receiver'] = True
         State.tenants[2].cache['https_receiver'] = False
