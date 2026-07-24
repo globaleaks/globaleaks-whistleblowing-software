@@ -1,3 +1,22 @@
+Changes in version 5.0.99
+    Implement security enhancements following auditors suggestions:
+    - Exclude disabled recipients from recipient selection and report delivery
+    - Make whistleblower-identity access authorization definitive and tenant-scoped
+    - Apply active maskings to the report listing to prevent a redaction bypass
+    - Apply all redactions targeting a comment on consumption, not only the first
+    - Enforce personal-comment ownership on redaction creation
+    - Guard the answer and identity redaction paths against a missing descriptor
+    - Bump the report update timestamp only after the masking permission check
+    - Validate redaction range input at the handler
+    - Bound answer-tree recursion depth to prevent a report-view denial of service
+    - Restrict authtoken usage
+    - Prevent lowering the encryption setting via the node settings API
+    - Validate the wizard admin and recipient e-mail addresses
+    - Overwrite the whole file during secure deletion
+    Fix tip access grant to return a consistent result for keyless recipients
+    Improve unit tests in relation to data redaction
+    Bump client dependencies to their latest stable versions
+
 Changes in version 5.0.98
     Improve performance of tenant configuration and custodian cache loading
     Adopt a bridge network topology in the Docker Compose example
