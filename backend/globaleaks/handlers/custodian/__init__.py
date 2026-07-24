@@ -97,7 +97,8 @@ def update_identityaccessrequest(session, tid, user_id, identityaccessrequest_id
                              .filter(models.IdentityAccessRequest.id == identityaccessrequest_id,
                                      models.IdentityAccessRequestCustodian.identityaccessrequest_id == models.IdentityAccessRequest.id,
                                      models.IdentityAccessRequestCustodian.custodian_id == user_id,
-                                     models.InternalTip.id == models.IdentityAccessRequest.internaltip_id).one()
+                                     models.InternalTip.id == models.IdentityAccessRequest.internaltip_id,
+                                     models.InternalTip.tid == tid).one()
 
     if request['reply_motivation'] and itip.crypto_tip_pub_key:
         request['reply_motivation'] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, request['reply_motivation']))

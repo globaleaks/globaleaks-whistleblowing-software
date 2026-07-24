@@ -1103,6 +1103,16 @@ def create_identityaccessrequest(session, tid, user_id, user_cc, itip_id, reques
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
+    # An authorization to access the whistleblower identity is granted at the
+    # report level and is definitive: once any request has been authorized the
+    # identity is disclosed to every recipient of the report, so a further
+    # request must not be accepted. Allowing one would let a later pending
+    # request re-hide an identity that was already, irrevocably, released.
+    if session.query(models.IdentityAccessRequest) \
+              .filter(models.IdentityAccessRequest.internaltip_id == itip.id,
+                      models.IdentityAccessRequest.reply == 'authorized').count():
+        raise errors.ForbiddenOperation
+
     crypto_tip_prv_key = GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(rtip.crypto_tip_prv_key))
 
     iar = models.IdentityAccessRequest()
