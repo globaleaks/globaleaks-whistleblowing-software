@@ -26,9 +26,12 @@ def srm(absolutefpath, iterations_number=1):
 
     def _overwrite(absolutefpath, pattern):
         count = 0
-        length = len(pattern)
+        length = os.path.getsize(absolutefpath)
 
-        with open(absolutefpath, 'wb+') as f:
+        # 'r+b' (not 'wb+') so the file is not truncated on open: truncation
+        # would release the original data blocks unoverwritten. Overwrite the
+        # whole content, in pattern-sized chunks, up to the original size.
+        with open(absolutefpath, 'r+b') as f:
             f.seek(0)
             while count < length:
                 f.write(pattern)
