@@ -51,6 +51,15 @@ export const adminRoutes: Routes = [
     data: {sidebar: "admin-sidebar", pageTitle: "Settings"},
   },
   {
+    path: "support",
+    loadComponent: () => import('@app/pages/admin/support/support.component').then(m => m.AdminSupportComponent),
+    resolve: {
+      NodeResolver
+    },
+    pathMatch: "full",
+    data: {sidebar: "admin-sidebar", pageTitle: "Support"},
+  },
+  {
     path: "sites",
     loadComponent: () => import('@app/pages/admin/sites/sites.component').then(m => m.SitesComponent),
     resolve: {

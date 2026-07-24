@@ -8,6 +8,7 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 
 import globaleaks.handlers.auth.token
 from globaleaks.handlers.base import connection_check, BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_key
 from globaleaks.handlers.user import db_reconcile_statistical_key, user_permissions
 from globaleaks.models import InternalTip, User, UserProfile
 from globaleaks.models.config import ConfigFactory
@@ -132,9 +133,10 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     crypto_prv_key = ''
     if user.crypto_prv_key:
         crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(user.crypto_prv_key))
-    elif State.tenants[tid].cache.encryption:
-        # Special condition where the user is accessing for the first time via password
-        # on a system with no escrow keys.
+    elif State.tenants[tid].cache.encryption or \
+         ConfigFactory(session, tid).get_val('crypto_support_pub_key'):
+        # First login on a tenant that needs a user encryption key, either for
+        # submissions or for authenticated support conversations.
         crypto_prv_key, _ = GCE.generate_keypair()
 
         # Force password change on which the user key will be created
@@ -152,13 +154,25 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
         db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
 
+    if crypto_prv_key and user.crypto_support_prv_key:
+        db_reconcile_support_key(session, tid, user, crypto_prv_key)
+
     db_log(session, tid=tid, type='login', user_id=user.id)
 
     permissions = ObjectDict()
     for r in user_permissions:
         permissions[r] = r in user.profile.permissions_list
 
-    return Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions)
+    return Sessions.new(tid,
+                        user.id,
+                        user.tid,
+                        user.username,
+                        user.role,
+                        crypto_prv_key,
+                        user.crypto_escrow_prv_key,
+                        user.profile.roles_list,
+                        permissions,
+                        sk=user.crypto_support_prv_key)
 
 
 @transact
@@ -371,7 +385,8 @@ class TenantAuthSwitchHandler(BaseHandler):
                                self.session.role,
                                self.session.cc,
                                self.session.ek,
-                               self.session.permissions)
+                               permissions=self.session.permissions,
+                               sk=self.session.sk)
 
         session.properties['management_session'] = True
 
@@ -398,7 +413,8 @@ class RoleAuthSwitchHandler(BaseHandler):
                                role,
                                self.session.cc,
                                self.session.ek,
-                               self.session.permissions)
+                               permissions=self.session.permissions,
+                               sk=self.session.sk)
 
         returnValue({'redirect': '/#/login?token=%s' % (session.id)})
 

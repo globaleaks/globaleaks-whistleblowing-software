@@ -32,6 +32,7 @@ short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
 homepage_regexp = r'^/(submission)?$'
+support_status_regexp = r'^(new|read|answered|closed)$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -474,6 +475,7 @@ NodeDesc = {
     'signup_tos2_title': str,
     'simplified_login': bool,
     'start_time': DateType,
+    'support': bool,
     'whistleblowing_button': str,
     'whistleblowing_question': str,
     'user_privacy_policy_text': str,
@@ -586,6 +588,18 @@ TenantInviteAcceptanceDesc = {
 SupportDesc = {
     'mail_address': email_regexp,
     'text': str
+}
+
+AuthenticatedSupportDesc = {
+    'text': str
+}
+
+AdminSupportRequestDesc = {
+    'status': support_status_regexp,
+}
+
+SupportMessageDesc = {
+    'content': str
 }
 
 PasswordReset1Desc = {

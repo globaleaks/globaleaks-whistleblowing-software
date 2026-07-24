@@ -87,10 +87,46 @@ def decorator_rate_limit(f):
         client_ip = get_ip_identity(self.request.client_ip).encode()
         tid = str(self.request.tid).encode()
         path = self.request.path
+
+        # The public support endpoint has the same abuse profile as a report
+        # submission. Reuse the configured report thresholds, but keep separate
+        # buckets so legitimate reporting and support traffic do not consume one
+        # another's allowance.
+        if path == b'/api/support':
+            block = State.RateLimit.check(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                                          root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
+                                          3600) > 0
+            block = block or State.RateLimit.check(b"support_per_hour_per_ip:" + client_ip,
+                                                   root_tenant.cache.threshold_reports_per_hour_per_ip,
+                                                   3600) > 0
+            block = block or State.RateLimit.check(b"support_per_hour_per_tenant:" + tid,
+                                                   root_tenant.cache.threshold_reports_per_hour_per_tenant,
+                                                   3600) > 0
+            block = block or State.RateLimit.check(b"support_per_hour_per_system",
+                                                   root_tenant.cache.threshold_reports_per_hour_per_system,
+                                                   3600) > 0
+
         if self.session:
             user_id = self.session.user_id.encode()
 
-            if self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
+            if path.startswith(b'/api/user/support/') and path.endswith(b'/message'):
+                delay = State.RateLimit.check(
+                    b"support_messages_per_second_per_user:" + tid + b":" + user_id,
+                    root_tenant.cache.threshold_operations_per_second_per_report,
+                    1
+                )
+                delay = delay or State.RateLimit.check(
+                    b"support_messages_per_minute_per_user:" + tid + b":" + user_id,
+                    root_tenant.cache.threshold_operations_per_minute_per_report,
+                    60
+                )
+                block = State.RateLimit.check(
+                    b"support_messages_per_hour_per_user:" + tid + b":" + user_id,
+                    root_tenant.cache.threshold_operations_per_hour_per_report,
+                    3600
+                ) > 0
+
+            elif self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
                 if self.request.path == b'/api/whistleblower/submission':
                     block = State.RateLimit.check(b"reports_per_hour_per_tenant_per_ip:" + tid,
                                                   root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,

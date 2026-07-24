@@ -93,4 +93,5 @@ export class nodeResolverModel {
   auth_type: string;
   enable2FA: boolean;
   enforce2FA: boolean;
+  support: boolean;
 }

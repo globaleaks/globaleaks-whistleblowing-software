@@ -1069,6 +1069,65 @@ class SubmissionSubStatus(_SubmissionSubStatus, Base):
         return ForeignKeyConstraint(['tid', 'submissionstatus_id'], ['submissionstatus.tid', 'submissionstatus.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
 
 
+class _SupportRequest(Model):
+    """
+    An encrypted support conversation scoped to one tenant.
+    """
+    __tablename__ = 'supportrequest'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False, index=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    crypto_pub_key = Column(UnicodeText, nullable=False)
+    crypto_prv_key = Column(UnicodeText, nullable=False)
+    crypto_author_prv_key = Column(UnicodeText, default='', nullable=False)
+    mail_address = Column(UnicodeText, default='', nullable=False)
+    status = Column(Enum(EnumSupportRequestStatus), default='new', nullable=False, index=True)
+
+    unicode_keys = [
+        'author_id',
+        'crypto_pub_key',
+        'crypto_prv_key',
+        'crypto_author_prv_key',
+        'mail_address',
+        'status'
+    ]
+    optional_references = ['author_id']
+
+
+class SupportRequest(_SupportRequest, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                CheckConstraint(self.status.in_(EnumSupportRequestStatus.keys())))
+
+
+class _SupportMessage(Model):
+    """
+    An encrypted message belonging to a support conversation.
+    """
+    __tablename__ = 'supportmessage'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    support_request_id = Column(UnicodeText(36), nullable=False, index=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    content = Column(UnicodeText, nullable=False)
+    new = Column(Boolean, default=True, nullable=False)
+
+    unicode_keys = ['support_request_id', 'author_id', 'content']
+    optional_references = ['author_id']
+    bool_keys = ['new']
+
+
+class SupportMessage(_SupportMessage, Base):
+    @declared_attr
+    def __table_args__(self):
+        return ForeignKeyConstraint(['support_request_id'], ['supportrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
 class _Subscriber(Model):
     __tablename__ = 'subscriber'
 
@@ -1168,6 +1227,7 @@ class _User(Model):
     crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_global_stat_prv_key = Column(UnicodeText(84), default='', nullable=True)
     crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_support_prv_key = Column(UnicodeText, default='', nullable=False)
     crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
     change_email_address = Column(UnicodeText, default='', nullable=False)

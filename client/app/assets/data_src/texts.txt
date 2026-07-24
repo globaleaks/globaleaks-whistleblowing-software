@@ -20,6 +20,7 @@ Address
 Admin
 Administrators authorized to change user passwords:
 Advanced
+All
 Allow the recipient to edit the reports' expiration date
 Allow the recipient to delete reports
 Allow the reporting person to add attachments
@@ -34,6 +35,7 @@ Anomaly detection thresholds
 Anonymity
 Anonymize outgoing connections
 Anonymous
+Answered
 Are you sure?
 Assign score points
 Assigned to
@@ -137,9 +139,11 @@ Enable encryption
 Enable scoring system
 Enable search engines indexing
 Enable simplified login
+Enable submission encryption and complete your encryption key setup before initializing support requests.
 Enable terms of service
 Enable two factor authentication
 Enabled
+Encrypted content is unavailable.
 Enter a name for the copy
 Enter a report
 Enter the two factor authentication code
@@ -208,6 +212,8 @@ Invalid confirmation
 Invalid email address
 Invalid phone number
 Issuer:
+Initialize encrypted support requests to start receiving requests.
+Initialize support
 Join our chat:
 Label
 Label the report
@@ -252,6 +258,7 @@ Move up
 Multi-line text input
 Multiple choice input
 Multiplier
+My support requests
 Name
 Network
 New
@@ -259,6 +266,8 @@ New password
 New request
 Next
 No
+No support requests
+No support requests match the current filters.
 None
 Not provided.
 Notifications
@@ -311,6 +320,7 @@ Questionnaire
 Questionnaire answers
 Questionnaires
 Questions
+Read
 Read receipt
 Receivers
 Recipient
@@ -328,6 +338,8 @@ Remember your access code for this report.
 Reminder date
 Remove
 Reopen
+Replies to anonymous requests are sent by email without in-system encryption.
+Reply
 Reply motivation
 Reply to the request
 Report
@@ -415,6 +427,10 @@ Subscription date
 Substatuses
 Success!
 Sufficient
+Support
+Support must be initialized by an administrator logged directly into this tenant.
+Support requests
+Support requests are currently unavailable.
 Surname
 Tax code
 Template
@@ -458,6 +474,7 @@ This custom text is no longer displayed on the platform. The original text has e
 This domain name is not available.
 This field is mandatory
 This is a demo platform, please do not use it for real submissions.
+This support request is closed.
 This user has not performed the first login yet.
 Threshold
 Title
@@ -476,6 +493,7 @@ Type
 Type your new password again
 URL redirects
 Unhide
+Unread reply
 Unselect
 Upload
 Upload a file:
@@ -507,6 +525,7 @@ Whistleblowing Policy
 Whistleblowing button
 Width
 Yes
+You
 You are connecting to the server without anonymity and this server supports only anonymous submissions
 You are entering a report received through other channels.
 You are strongly advised to visit this site using the app called Tor Browser, that protects your identity.
@@ -514,6 +533,7 @@ You have completed the platform activation.
 You have completed the platform wizard.
 You have reached the maximum number of selectable recipients.
 You must select at least one recipient.
+You do not have access to decrypt this support request.
 Your new email address has been validated.
 Your report was successful.
 Your whistleblowing platform is almost ready!

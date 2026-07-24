@@ -6,6 +6,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.operation import OperationHandler
+from globaleaks.handlers.support import initialize_support
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa
@@ -280,6 +281,9 @@ class AdminOperationHandler(OperationHandler):
     def enable_encryption(self, req_args, *args, **kwargs):
         return enable_encryption(self.request.tid)
 
+    def initialize_support(self, req_args, *args, **kwargs):
+        return initialize_support(self.request.tid, self.session)
+
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
 
@@ -390,6 +394,7 @@ class AdminOperationHandler(OperationHandler):
     def operation_descriptors(self):
         return {
             'enable_encryption': AdminOperationHandler.enable_encryption,
+            'initialize_support': AdminOperationHandler.initialize_support,
             'disable_2fa': AdminOperationHandler.disable_2fa,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
             'reset_submissions': AdminOperationHandler.reset_submissions,

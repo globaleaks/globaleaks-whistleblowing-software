@@ -37,6 +37,14 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
+import {
+  CreatedSupportRequest,
+  NewSupportMessage,
+  NewSupportRequest,
+  SupportMessage,
+  SupportRequest,
+  SupportRequestStatusUpdate
+} from "@app/models/app/support";
 
 
 @Injectable({
@@ -157,8 +165,36 @@ export class HttpService {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
 
-  requestSupport(param: string): Observable<void> {
-    return this.httpClient.post<void>("api/support", param);
+  requestSupport(param: NewSupportRequest): Observable<CreatedSupportRequest> {
+    return this.httpClient.post<CreatedSupportRequest>("api/support", param);
+  }
+
+  requestAdminSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/admin/support");
+  }
+
+  requestUpdateAdminSupport(id: string, param: SupportRequestStatusUpdate): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/admin/support/${id}`, param);
+  }
+
+  requestDeleteAdminSupport(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`api/admin/support/${id}`);
+  }
+
+  requestAdminSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/admin/support/${id}/message`, param);
+  }
+
+  requestUserSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/user/support");
+  }
+
+  requestUpdateUserSupport(id: string): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/user/support/${id}`, {});
+  }
+
+  requestUserSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/user/support/${id}/message`, param);
   }
 
   requestNewComment(param: string): Observable<Comment> {

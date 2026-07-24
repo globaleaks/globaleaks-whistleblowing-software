@@ -31,6 +31,7 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {CreatedSupportRequest, NewSupportRequest} from "@app/models/app/support";
 @Injectable({
   providedIn: "root"
 })
@@ -383,13 +384,8 @@ export class UtilsService {
     }
   }
 
-  submitSupportRequest(arg: {mail_address: string,text: string} ) {
-    const param = JSON.stringify({
-      "mail_address": arg.mail_address,
-      "text": arg.text,
-      "url": window.location.href.replace("localhost", "127.0.0.1")
-    });
-    this.httpService.requestSupport(param).subscribe();
+  submitSupportRequest(arg: NewSupportRequest): Observable<CreatedSupportRequest> {
+    return this.httpService.requestSupport(arg);
   }
 
   runUserOperation(operation: string, args: any, refresh: boolean) {

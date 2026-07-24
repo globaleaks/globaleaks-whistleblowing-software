@@ -75,6 +75,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
+        'support': config.get_val('crypto_support_pub_key') != '',
         'logo': True if logo else False,
         'tid': tid
     })

@@ -20,6 +20,13 @@ class EnumUserStatus(_Enum):
     suspend = 1
 
 
+class EnumSupportRequestStatus(_Enum):
+    new = 0
+    read = 1
+    answered = 2
+    closed = 3
+
+
 class EnumFieldInstance(_Enum):
     instance = 0
     template = 1

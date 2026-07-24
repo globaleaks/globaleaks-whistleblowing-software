@@ -28,6 +28,7 @@ export class Node {
   enable_signup: boolean;
   signup_invite_only: boolean;
   signup_auto_authorize: boolean;
+  support: boolean;
   homepage: string;
   hostname: string;
   https_whistleblower = false;

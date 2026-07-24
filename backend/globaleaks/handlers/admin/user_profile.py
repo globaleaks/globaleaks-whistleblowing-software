@@ -3,16 +3,19 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_user_access, \
+                                         decrypt_support_private_key
 from globaleaks.handlers.user import serialize_user_profile, \
                                      user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.models import config, UserProfile, fill_localized_keys
 from globaleaks.orm import db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
+from globaleaks.sessions import Sessions
 from globaleaks.utils.utility import uuid4
 
 
-def sync_roles(session, profile, request):
+def sync_roles(session, profile, request, sync_users=True):
     roles = request['roles']
 
     if not request['roles'] or request['role'] not in request['roles']:
@@ -30,9 +33,12 @@ def sync_roles(session, profile, request):
     for role_name in roles_set - current_roles:
         profile.roles.append(models.UserProfileRole({'profile_id': profile.id, 'role': role_name}))
 
-    # Sync users using this profile
-    for user in session.query(models.User).filter(models.User.profile_id == profile.id, models.User.role.notin_(roles)):
-        user.role = request['role']
+    # A newly created profile cannot have users yet. Skipping this redundant
+    # query also keeps historical migrations from binding the current User
+    # mapper to an intermediate database schema.
+    if sync_users:
+        for user in session.query(models.User).filter(models.User.profile_id == profile.id, models.User.role.notin_(roles)):
+            user.role = request['role']
 
 
 def sync_permissions(session, profile, request):
@@ -52,7 +58,7 @@ def sync_permissions(session, profile, request):
         profile.permissions.append(models.UserProfilePermission({'profile_id': profile.id, 'permission': permission_name}))
 
 
-def db_create_user_profile(session, tid, request):
+def db_create_user_profile(session, tid, request, sync_users=True):
     """
     Transaction for creating a new user
 
@@ -68,7 +74,7 @@ def db_create_user_profile(session, tid, request):
     profile = models.UserProfile(request)
     profile.role = request['role']
 
-    sync_roles(session, profile, request)
+    sync_roles(session, profile, request, sync_users=sync_users)
     sync_permissions(session, profile, request)
 
     session.add(profile)
@@ -126,7 +132,7 @@ def db_update_user_profile(session, tid, profile_id, request):
 
 
 @transact
-def update_user_profile(session, tid, profile_id, request):
+def update_user_profile(session, tid, user_session, profile_id, request):
     """
     Update the user profile in the database.
 
@@ -136,7 +142,26 @@ def update_user_profile(session, tid, profile_id, request):
     :param request: The new data for updating the user profile
     :return: The updated user object
     """
-    return db_update_user_profile(session, tid, profile_id, request)
+    affected_users = session.query(models.User) \
+                            .filter(models.User.tid == tid,
+                                    models.User.profile_id == profile_id) \
+                            .all()
+    support_private_key = decrypt_support_private_key(
+        user_session, tid, session
+    )
+    profile = db_update_user_profile(session, tid, profile_id, request)
+    admin_capable = 'admin' in request['roles']
+
+    for user in affected_users:
+        db_reconcile_support_user_access(
+            session,
+            tid,
+            user,
+            support_private_key,
+            admin_capable=admin_capable
+        )
+
+    return profile, [user.id for user in affected_users]
 
 
 def db_get_user_profile(session, tid, id):
@@ -217,7 +242,15 @@ class UserProfileInstance(BaseHandler):
         """
         request = json.loads(self.request.content.read())
         profile_request = yield self.validate_request(json.dumps(request), requests.AdminUserProfileDesc)
-        profile = yield update_user_profile(self.request.tid, profile_id, profile_request)
+        profile, affected_user_ids = yield update_user_profile(
+            self.request.tid,
+            self.session,
+            profile_id,
+            profile_request
+        )
+        for user_id in affected_user_ids:
+            Sessions.revoke_user(self.request.tid, user_id)
+
         return profile
 
     def delete(self, profile_id):

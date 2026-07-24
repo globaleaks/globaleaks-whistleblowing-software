@@ -19,11 +19,16 @@ user_permissions = [
 
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
+    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+                 permissions=None, sk=''):
+        if isinstance(sk, bytes):
+            sk = sk.decode()
+
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
           'ek': ek,
+          'sk': sk,
           'expireCall': None
         })
 
@@ -62,12 +67,14 @@ class Session(dict):
         session.id = sha256(self.id)
         session.cc = GCE.symmetric_encrypt(key, self.cc)
         session.ek = GCE.symmetric_encrypt(key, self.ek)
+        session.sk = GCE.symmetric_encrypt(key, self.sk)
         return session
 
     def decrypt(self, key):
         key = bytes.fromhex(key)
         self.cc = GCE.symmetric_decrypt(key, self.cc)
         self.ek = GCE.symmetric_decrypt(key, self.ek)
+        self.sk = GCE.symmetric_decrypt(key, self.sk).decode()
 
     def getTime(self):
         return self.expireCall.getTime() if self.expireCall else 0
@@ -105,9 +112,16 @@ class SessionsFactory(TempDict):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
+    def revoke_user(self, user_tid, user_id):
+        for k, v in list(self.items()):
+            if v.user_tid == user_tid and v.user_id == user_id:
+                del self[k]
+
+    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+            permissions=None, sk=''):
         self.revoke(tid, user_id)
-        session = Session(tid, user_id, user_tid, user_username, user_role, cc, ek, roles, permissions)
+        session = Session(tid, user_id, user_tid, user_username, user_role,
+                          cc, ek, roles, permissions, sk)
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session

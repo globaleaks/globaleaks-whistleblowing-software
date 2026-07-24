@@ -1,0 +1,124 @@
+<div id="AdminSupport" class="config-section reveal">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span>{{ 'Support requests' | translate }}</span>
+    @if (nodeResolver.dataModel.support) {
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-cy="refresh-support" (click)="loadRequests()">
+        <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+  @if (!nodeResolver.dataModel.support) {
+    <div class="alert alert-info">
+      @if (managementSession) {
+        <p class="mb-0">{{ 'Support must be initialized by an administrator logged directly into this tenant.' | translate }}</p>
+      } @else if (!nodeResolver.dataModel.encryption) {
+        <p class="mb-0">{{ 'Enable submission encryption and complete your encryption key setup before initializing support requests.' | translate }}</p>
+      } @else {
+        <p>{{ 'Initialize encrypted support requests to start receiving requests.' | translate }}</p>
+        <button type="button" class="btn btn-primary" data-cy="initialize-support" [disabled]="initializing" (click)="initializeSupport()">
+          @if (initializing) {
+            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+          } @else {
+            <i class="fas fa-key" aria-hidden="true"></i>
+          }
+          <span>{{ 'Initialize support' | translate }}</span>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="row">
+      <div class="col-md-6">
+        <label for="support-status-filter">{{ 'Status' | translate }}</label>
+        <select id="support-status-filter" class="form-control" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+          <option value="all">{{ 'All' | translate }}</option>
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ statusLabels[status] | translate }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="support-search">{{ 'Search' | translate }}</label>
+        <input id="support-search" type="search" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"/>
+      </div>
+    </div>
+    <app-paginated-interface [items]="filteredRequests" [itemsPerPage]="20" [showSearch]="false" [orderBy]="'update_date'" [orderDesc]="true">
+      <ng-template #content let-request="item" let-index="index">
+        <form id="support-request-{{index}}" name="editSupport" #editSupport="ngForm" novalidate>
+            <div class="config-item reveal" [attr.data-cy]="'support-request-' + index">
+            <div class="editorHeader" [attr.aria-expanded]="expandedRequestId === request.id">
+              <div class="row align-items-center">
+                <span class="col-md-7" (click)="toggleRequest(request)">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge" [ngClass]="statusClass(request.status)">{{ statusLabel(request.status) | translate }}</span>
+                    <strong>{{ request.mail_address || (request.author_id ? ('User' | translate) : ('Anonymous' | translate)) }}</strong>
+                  </div>
+                  <div class="text-truncate mt-1">{{ preview(request) || ('Encrypted content is unavailable.' | translate) }}</div>
+                </span>
+                <span class="col-md-5">
+                  <span class="float-end">
+                    <span>{{ request.update_date | date:'dd-MM-yyyy HH:mm' }}</span>
+                    <button type="button" class="btn btn-sm btn-danger" data-cy="delete-support-request" (click)="deleteRequest(request)">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
+                      <span>{{ 'Delete' | translate }}</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" name="edit_support" (click)="toggleRequest(request)">
+                      <i class="fa fa-chevron-down"></i>
+                    </button>
+                  </span>
+                </span>
+              </div>
+            </div>
+            @if (expandedRequestId === request.id) {
+              <div class="mt-3 pt-3 border-top" data-cy="support-request-details">
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label [for]="'support-status-' + request.id">{{ 'Status' | translate }}</label>
+                    <select [id]="'support-status-' + request.id" class="form-select" [ngModel]="request.status" (ngModelChange)="updateStatus(request, $event)">
+                      @for (status of statuses; track status) {
+                        <option [value]="status">{{ statusLabels[status] | translate }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+                @if (!canDecrypt(request)) {
+                  <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-lock me-1" aria-hidden="true"></i>
+                    <span>{{ 'You do not have access to decrypt this support request.' | translate }}</span>
+                  </div>
+                } @else {
+                  <div class="mb-3">
+                    @for (message of request.messages; track message.id) {
+                      <div class="message mb-2">
+                        <div class="row">
+                          <strong class="col-md-6">{{ messageAuthor(request, message) | translate }}</strong>
+                          <span class="col-md-6 text-md-end">{{ message.creation_date | date:'dd-MM-yyyy HH:mm' }}</span>
+                        </div>
+                        <div class="preformatted mt-2">{{ message.content }}</div>
+                      </div>
+                    }
+                  </div>
+                  @if (!request.author_id) {
+                    <div class="alert alert-warning" role="alert">
+                      <i class="fas fa-envelope me-1" aria-hidden="true"></i>
+                      <span>{{ 'Replies to anonymous requests are sent by email without in-system encryption.' | translate }}</span>
+                    </div>
+                  }
+                  @if (request.status !== 'closed') {
+                    <div class="form-group">
+                      <label [for]="'support-reply-' + request.id">{{ 'Reply' | translate }}</label>
+                      <textarea [id]="'support-reply-' + request.id" class="form-control" [name]="'support-reply-' + request.id" [(ngModel)]="replyDrafts[request.id]" maxlength="4096" rows="4"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary me-2" data-cy="send-support-reply" [disabled]="!(replyDrafts[request.id] || '').trim() || !!sendingReplyId" (click)="sendReply(request)">
+                      <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                      <span>{{ 'Send' | translate }}</span>
+                    </button>
+                  }
+                }
+              </div>
+            }
+          </div>
+        </form>
+      </ng-template>
+    </app-paginated-interface>
+  }
+</div>

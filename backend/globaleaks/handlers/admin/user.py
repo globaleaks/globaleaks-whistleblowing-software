@@ -8,6 +8,9 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_create_user_profile, db_update_user_profile
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_user_access, \
+                                         decrypt_support_private_key, \
+                                         is_support_admin
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
                                      serialize_user, \
@@ -16,6 +19,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.models import config, Config, UserProfile, fill_localized_keys
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
+from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
@@ -98,8 +102,9 @@ def db_create_user(session, tid, user_session, request, language):
 
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
+    crypto_support_pub_key = config.get_val('crypto_support_pub_key')
 
-    if (encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password')):
+    if (encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or crypto_support_pub_key or (encryption and request.get('password')):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
@@ -111,6 +116,11 @@ def db_create_user(session, tid, user_session, request, language):
             current_user = db_get(session, models.User, models.User.id == user_session.user_id)
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
 
+    if crypto_support_pub_key and user_session:
+        support_private_key = decrypt_support_private_key(user_session, tid, session)
+        db_reconcile_support_user_access(
+            session, tid, user, support_private_key
+        )
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:
         return user
@@ -225,6 +235,14 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     fill_localized_keys(request, models.User.localized_keys, language)
 
     user = db_get_user(session, tid, user_id)
+    old_role = user.role
+    old_profile_id = user.profile_id
+    old_enabled = user.enabled
+    was_support_admin = user.role == 'admin' or session.query(models.UserProfileRole.profile_id) \
+        .filter(models.UserProfileRole.profile_id == user.profile_id,
+                models.UserProfileRole.role == 'admin') \
+        .first() is not None
+    support_private_key = decrypt_support_private_key(user_session, tid, session)
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
         # Delete profiles when:
@@ -258,8 +276,23 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     parse_pgp_options(user, request)
 
     user.update(request)
+    session.flush()
+    session.expire(user, ['profile'])
 
-    return serialize_user(session, user, language)
+    is_now_support_admin = is_support_admin(user)
+    db_reconcile_support_user_access(
+        session,
+        tid,
+        user,
+        support_private_key,
+        admin_capable=is_now_support_admin
+    )
+
+    revoke_session = old_role != user.role or \
+        old_profile_id != user.profile_id or \
+        old_enabled != user.enabled or \
+        was_support_admin != is_now_support_admin
+    return serialize_user(session, user, language), revoke_session
 
 
 def db_get_users(session, tid, role=None, language=None):
@@ -326,14 +359,27 @@ class UserInstance(BaseHandler):
         """
         return tw(get_user, self.request.tid, user_id)
 
+    @inlineCallbacks
     def put(self, user_id):
         """
         Update the specified user.
         """
         request = json.loads(self.request.content.read())
         request = self.validate_request(request, requests.AdminUserDesc)
-        return tw(db_update_user, self.request.tid, self.session, user_id, request, self.request.language)
+        user, revoke_session = yield tw(
+            db_update_user,
+            self.request.tid,
+            self.session,
+            user_id,
+            request,
+            self.request.language
+        )
+        if revoke_session:
+            Sessions.revoke_user(self.request.tid, user_id)
 
+        return user
+
+    @inlineCallbacks
     def delete(self, user_id):
         """
         Delete the specified user.
@@ -344,11 +390,12 @@ class UserInstance(BaseHandler):
                                           requests.AdminUserDeleteDesc)
 
 
-        return tw(db_delete_user,
-                  self.request.tid,
-                  self.session,
-                  user_id,
-                  check)
+        yield tw(db_delete_user,
+                 self.request.tid,
+                 self.session,
+                 user_id,
+                 check)
+        Sessions.revoke_user(self.request.tid, user_id)
 
 
 class UserStats(BaseHandler):

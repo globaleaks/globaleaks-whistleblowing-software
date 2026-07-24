@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
-from twisted.internet.defer import succeed, AlreadyCalledError, CancelledError
+from twisted.internet.defer import DeferredList, succeed, AlreadyCalledError, CancelledError
 from twisted.internet.error import ConnectionLost, ConnectionRefusedError, DNSLookupError, NoRouteError, TimeoutError
 from twisted.mail.smtp import SMTPError
 from twisted.python.failure import Failure
@@ -245,24 +245,55 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.settings.socks_port
         )
 
-    def schedule_support_email(self, tid, text):
+    def schedule_support_email(self, tid, text=None):
+        """Queue a content-free notification for admins of the tenant."""
         subject = "Support request"
-        delivery_list = set.union(set(self.tenants[1].cache.notification.admin_list),
-                                  set(self.tenants[tid].cache.notification.admin_list))
+        text = "A support request has arrived. Log in to GlobaLeaks to read it."
+        # A user has one support-key wrapper, so root management sessions cannot
+        # decrypt a child tenant's distinct key. Do not send them an unusable
+        # child-tenant notification.
+        delivery_list = set(self.tenants[tid].cache.notification.admin_list)
 
+        deferreds = []
         for mail_address, pgp_key_public in delivery_list:
             body = text
 
-            # Opportunisticly encrypt the mail body. NOTE that mails will go out
-            # unencrypted if one address in the list does not have a public key set.
+            # Opportunistically encrypt even though the notification carries no
+            # requester address or support content.
             if pgp_key_public:
                 try:
-                    body = PGPContext(pgp_key_public).encrypt_message(mail_body)
-                except:
-                    continue
+                    body = PGPContext(pgp_key_public).encrypt_message(body)
+                except Exception:
+                    # The generic notification contains no requester data or
+                    # support content, so plaintext fallback is safe.
+                    body = text
 
             # avoid waiting for the notification to send and instead rely on threads to handle it
-            tw(db_schedule_email, tid, mail_address, subject, body)
+            deferreds.append(tw(db_schedule_email, tid, mail_address, subject, body))
+
+        return DeferredList(deferreds, consumeErrors=True)
+
+    def schedule_support_reply_email(self, tid, mail_address, body='',
+                                     pgp_key_public='', content_free=True):
+        """Queue a requester notification or an explicit anonymous reply.
+
+        Anonymous requesters cannot authenticate back into a support thread, so
+        an administrator may deliberately cross the platform trust boundary and
+        send the reply body by email. Authenticated requesters only receive a
+        content-free notification and read the encrypted reply in-system.
+        """
+        subject = "Support request reply"
+        if content_free:
+            body = "A reply to your support request is available. Log in to GlobaLeaks to read it."
+
+        if pgp_key_public:
+            try:
+                body = PGPContext(pgp_key_public).encrypt_message(body)
+            except Exception:
+                if not content_free:
+                    return succeed(False)
+
+        return tw(db_schedule_email, tid, mail_address, subject, body)
 
     def schedule_exception_email(self, tid, exception_text, *args):
         if not hasattr(self.tenants[tid].cache, 'notification'):

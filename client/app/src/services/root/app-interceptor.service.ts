@@ -71,7 +71,14 @@ export class appInterceptor implements HttpInterceptor {
       headers: authRequest.headers.set("Accept-Language", this.getAcceptLanguageHeader() || ""),
     });
 
-    if (httpRequest.url.includes("api/signup") || httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session || protectedUrls.includes(httpRequest.url)) {
+    const session = this.authenticationService.session;
+    const authenticatedSupportRequest = httpRequest.url === "api/support" &&
+      !!session && session.role !== "whistleblower";
+    const proofOfWorkRequired = httpRequest.url.includes("api/signup") ||
+      (httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session) ||
+      (protectedUrls.includes(httpRequest.url) && !authenticatedSupportRequest);
+
+    if (proofOfWorkRequired) {
       return this.httpClient.post("api/auth/token", {}).pipe(
         switchMap((response) =>
           from(this.cryptoService.proofOfWork(Object.assign(new TokenResponse(), response))).pipe(
