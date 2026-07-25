@@ -141,8 +141,12 @@ def db_get_tenant_list(session):
 
     configs = db_get_configs(session, 'tenant')
 
-    for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True):
-        tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+    signups = {s.tid: s for s in session.query(*models.Subscriber.__table__.columns)}
+
+    for t in session.query(models.Tenant.id, models.Tenant.creation_date, models.Tenant.active):
+        tenant_dict = serializers.serialize_tenant(session, t, configs.get(t.id))
+
+        s = signups.get(t.id)
         if s:
             tenant_dict['signup'] = serializers.serialize_signup(s)
 

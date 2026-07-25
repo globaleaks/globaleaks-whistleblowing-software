@@ -22,13 +22,10 @@ def get_default(default):
 
 def db_get_configs(session, filter_name):
     configs = {}
-    _configs = session.query(Config).filter(Config.var_name.in_(ConfigFilters[filter_name]))
 
-    for c in _configs:
-        if c.tid not in configs:
-            configs[c.tid] = {}
-
-        configs[c.tid][c.var_name] = c.value
+    for tid, var_name, value in session.query(Config.tid, Config.var_name, Config.value) \
+                                       .filter(Config.var_name.in_(ConfigFilters[filter_name])):
+        configs.setdefault(tid, {})[var_name] = value
 
     return configs
 
