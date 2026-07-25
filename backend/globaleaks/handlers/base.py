@@ -223,7 +223,14 @@ class BaseHandler:
 
             try:
                 self.token = self.state.tokens.validate(token)
-                if self.token.session is not None:
+                if self.token.session is not None and \
+                   self.token.session.id in Sessions:
+                    # The token keeps its own reference to the session object, so
+                    # without re-checking liveness it would keep authenticating
+                    # after logout, after Sessions.revoke() (used on password,
+                    # role and permission changes) and after natural expiry: all
+                    # of those only drop the entry from Sessions. The stored
+                    # session id is already the hashed key used by Sessions.
                     session = self.token.session
             except Exception:
                 return
