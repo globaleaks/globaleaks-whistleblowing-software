@@ -1,12 +1,19 @@
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks import models
 from globaleaks.handlers import auth
 from globaleaks.handlers.user import UserInstance
 from globaleaks.handlers.whistleblower.wbtip import WBTipInstance
+from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.tests import helpers
+
+
+@transact
+def count_audit_entries(session, type):
+    return session.query(models.AuditLog).filter(models.AuditLog.type == type).count()
 
 
 class TestAuthTypeHandler(helpers.TestHandlerWithPopulatedDB):
@@ -138,6 +145,34 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         })
 
         yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_invalid_login_is_recorded_in_the_audit_log(self):
+        # db_login_failure logs and then raises; the raise reaches the @transact
+        # wrapper, so the entry must survive the resulting rollback.
+        handler = self.request({
+            'tid': 1,
+            'username': 'admin',
+            'password': 'INVALIDPASSWORD',
+            'authcode': '',
+        })
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+        self.assertEqual((yield count_audit_entries('login_failure')), 1)
+
+    @inlineCallbacks
+    def test_invalid_login_of_unexistent_user_is_recorded_in_the_audit_log(self):
+        handler = self.request({
+            'tid': 1,
+            'username': 'unexistent',
+            'password': 'INVALIDPASSWORD',
+            'authcode': '',
+        })
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+        self.assertEqual((yield count_audit_entries('login_failure')), 1)
 
     @inlineCallbacks
     def test_single_session_per_user(self):

@@ -47,7 +47,16 @@ def db_set_receipt_hash(session, tid, itip, receipt):
 
 
 def db_login_failure(session, tid, whistleblower=False, user_id=None):
+    # A login failure aborts the whole transaction; discard any pending state
+    # first so that only the audit entry below can be persisted.
+    session.rollback()
+
     db_log(session, tid=tid, type='whistleblower_login_failure' if whistleblower else 'login_failure', user_id=user_id)
+
+    # The entry must be committed before aborting: the raise below reaches the
+    # @transact wrapper, whose rollback would otherwise discard it and leave
+    # failed authentications entirely unrecorded.
+    session.commit()
 
     raise errors.InvalidAuthentication
 
