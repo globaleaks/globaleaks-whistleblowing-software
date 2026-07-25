@@ -198,6 +198,10 @@ class BaseHandler:
         self.dpop_thumbprint = None
         self.dpop_checked = False
 
+        # True when the request is authenticated solely by a session bearing
+        # token, a path that is exempt from the DPoP proof of possession check.
+        self.session_from_token = False
+
         self.session = self.get_session()
 
     def get_session(self):
@@ -232,6 +236,7 @@ class BaseHandler:
                     # of those only drop the entry from Sessions. The stored
                     # session id is already the hashed key used by Sessions.
                     session = self.token.session
+                    self.session_from_token = True
             except Exception:
                 return
 
@@ -240,6 +245,7 @@ class BaseHandler:
         if session_id:
             self.session_id_cleartext = session_id.decode()
             session = Sessions.get(self.session_id_cleartext)
+            self.session_from_token = False
 
         if session is None or session.tid != self.request.tid:
             return
