@@ -54,14 +54,14 @@ export class SignupComponent implements OnInit {
     this.appConfig.routeChangeListener();
     const queryParams = this.route.snapshot.queryParams;
     this.signup.token = "token" in queryParams ? queryParams["token"] : "";
-    
+
     const config = this.appDataService.public?.node || {};
     this.idpRequired = !!config.idp;
     this.setIdpClaims();
     if (this.idpRequired) {
       this.oauthService.events.subscribe(() => this.setIdpClaims());
     }
-    
+
     if (this.signup.token) {
       this.httpService.requestSignupInvite(this.signup.token).subscribe(invite => {
         this.signup.organization_name = invite.organization_name;
@@ -105,7 +105,7 @@ export class SignupComponent implements OnInit {
       this.authenticateWithIDP();
       return;
     }
-    
+
     const param = JSON.stringify(this.signup);
     const accessToken = this.oauthService.getAccessToken();
     const headers = accessToken ? new HttpHeaders({Authorization: `Bearer ${accessToken}`}) : undefined;

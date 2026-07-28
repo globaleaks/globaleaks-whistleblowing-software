@@ -12,7 +12,6 @@ class EnumUserRole(_Enum):
     receiver = 1
     custodian = 2
     analyst = 3
-    accreditor = 4
 
 
 class EnumUserStatus(_Enum):

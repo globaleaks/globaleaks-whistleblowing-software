@@ -32,6 +32,10 @@
       <label for="default-user-profile-select">{{'Default user profile' | translate}}</label>
       <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile">
         <option value="">{{'None' | translate}}</option>
+        <option value="admin">{{'Admin' | translate}}</option>
+        <option value="analyst">{{'Analyst' | translate}}</option>
+        <option value="custodian">{{'Custodian' | translate}}</option>
+        <option value="recipient">{{'Recipient' | translate}}</option>
         @for (profile of userProfiles; track profile.id) {
           <option [value]="profile.id">{{profile.name | translate}}</option>
         }

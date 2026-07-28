@@ -31,7 +31,7 @@ export class Tab7Component {
     if (this.nodeResolver.dataModel.idp && !this.nodeResolver.dataModel.idp_issuer) {
       return;
     }
-    
+
     this.utilsService.update(this.nodeResolver.dataModel).subscribe({
       next: () => {
         if (this.appDataService.public?.node) {

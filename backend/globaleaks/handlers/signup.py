@@ -147,6 +147,11 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
+    if not token:
+        # An empty token would match subscribers whose activation token has
+        # been voided upon activation, reactivating them.
+        return {}
+
     ret = session.query(models.Subscriber, models.Tenant) \
                  .filter(models.Subscriber.activation_token == token,
                          models.Tenant.id == models.Subscriber.tid).one_or_none()
@@ -175,27 +180,36 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
 
     salt = node.get_val('receipt_salt')
 
-    default_user_profile = node.get_val('default_user_profile')
-    default_profile = None
-    if default_user_profile and default_user_profile != 'none':
+    # Read the tenant specific value (inherited from the tenant profile)
+    # falling back on the root tenant configuration set via the Sites interface
+    default_user_profile = node.get_val('default_user_profile') or config.get_val('default_user_profile')
+
+    default_role = ''
+    default_profile_id = ''
+    if default_user_profile in ('admin', 'analyst', 'custodian', 'recipient'):
+        # Role keyword: create the user with the given role and a
+        # standard per-user profile
+        default_role = 'receiver' if default_user_profile == 'recipient' else default_user_profile
+    elif default_user_profile and default_user_profile != 'none':
+        # Profile reference: create the user with the role and profile
+        # of the referenced user profile
         default_profile = session.query(models.UserProfile).filter(models.UserProfile.id == default_user_profile).one_or_none()
         if default_profile is None:
             raise errors.InputValidationError
 
-    if default_profile is None:
+        default_role = default_profile.role
+        default_profile_id = default_profile.id
+
+    if not default_role:
         skip_admin_account_creation = True
         skip_recipient_account_creation = True
         skip_default_account_creation = True
-        default_role = ''
         default_username = ''
-        default_user_profile = ''
         admin_password = admin_key = ''
         receiver_password = receiver_key = ''
         generic_password = ''
         default_key = ''
     else:
-        default_role = default_profile.role
-        default_user_profile = default_profile.id
         default_username = 'recipient' if default_role == 'receiver' else default_role
         default_password = generateRandomPassword(16)
         default_salt = GCE.generate_salt(salt + ":" + default_username)
@@ -218,19 +232,19 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
         'admin_name': signup.name + ' ' + signup.surname,
         'admin_password': admin_key,
         'admin_mail_address': signup.email,
-        'admin_profile_id': default_user_profile if default_role == 'admin' else '',
+        'admin_profile_id': default_profile_id if default_role == 'admin' else '',
         'admin_escrow': config.get_val('escrow'),
         'receiver_username': 'recipient',
         'receiver_name': signup.name + ' ' + signup.surname,
         'receiver_password': receiver_key,
         'receiver_mail_address': signup.email,
-        'receiver_profile_id': default_user_profile if default_role == 'receiver' else '',
+        'receiver_profile_id': default_profile_id if default_role == 'receiver' else '',
         'default_username': default_username,
         'default_name': signup.name + ' ' + signup.surname,
         'default_password': generic_password and default_key or '',
         'default_mail_address': signup.email,
         'default_role': default_role,
-        'default_profile_id': default_user_profile if not skip_default_account_creation else '',
+        'default_profile_id': default_profile_id if not skip_default_account_creation else '',
         'profile': 'default',
         'skip_admin_account_creation': skip_admin_account_creation,
         'skip_recipient_account_creation': skip_recipient_account_creation,
