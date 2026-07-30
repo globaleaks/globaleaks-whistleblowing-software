@@ -9,7 +9,7 @@ from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_create_user_profile, db_update_user_profile
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
-                                         decrypt_support_private_key, \
+                                         decrypt_tenant_support_private_key, \
                                          is_support_admin
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
@@ -117,7 +117,7 @@ def db_create_user(session, tid, user_session, request, language):
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
 
     if crypto_support_pub_key and user_session:
-        support_private_key = decrypt_support_private_key(user_session, tid, session)
+        support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
         db_reconcile_support_user_access(
             session, tid, user, support_private_key
         )
@@ -242,7 +242,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
         .filter(models.UserProfileRole.profile_id == user.profile_id,
                 models.UserProfileRole.role == 'admin') \
         .first() is not None
-    support_private_key = decrypt_support_private_key(user_session, tid, session)
+    support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
         # Delete profiles when:
@@ -280,13 +280,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     session.expire(user, ['profile'])
 
     is_now_support_admin = is_support_admin(user)
-    db_reconcile_support_user_access(
-        session,
-        tid,
-        user,
-        support_private_key,
-        admin_capable=is_now_support_admin
-    )
+    db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=is_now_support_admin)
 
     revoke_session = old_role != user.role or \
         old_profile_id != user.profile_id or \

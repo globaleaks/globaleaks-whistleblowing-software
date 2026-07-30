@@ -11,7 +11,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {NewSupportRequest, SupportMessage, SupportRequest, SupportRequestStatus} from "@app/models/app/support";
+import {NewSupportRequest, supportRequestStatusClass, supportRequestStatusLabels, SupportMessage, SupportRequest} from "@app/models/app/support";
 
 @Component({
     selector: "src-request-support",
@@ -29,8 +29,6 @@ export class RequestSupportComponent implements OnInit {
   private changeDetectorRef = inject(ChangeDetectorRef);
 
   protected readonly Constants = Constants;
-  sent = false;
-  sendingReplyId = "";
   markingReadIds = new Set<string>();
   view: "new" | "requests" = "new";
   expandedRequestId = "";
@@ -38,12 +36,8 @@ export class RequestSupportComponent implements OnInit {
   requests: SupportRequest[] = [];
   replyDrafts: Record<string, string> = {};
 
-  readonly statusLabels: Record<SupportRequestStatus, string> = {
-    new: "New",
-    read: "Read",
-    answered: "Answered",
-    closed: "Closed"
-  };
+  readonly statusLabels = supportRequestStatusLabels;
+  readonly statusClass = supportRequestStatusClass;
 
   ngOnInit(): void {
     this.arg.mail_address = this.preferenceResolver.dataModel?.mail_address || "";
@@ -72,14 +66,14 @@ export class RequestSupportComponent implements OnInit {
 
     this.utilsService.submitSupportRequest(request).subscribe({
       next: () => {
-        this.sent = true;
         this.arg.text = "";
         if (this.authenticated) {
-          this.loadRequests();
+          this.showRequests();
+        } else {
+          this.activeModal.close();
         }
       },
-      error: () => {
-      }
+      error: () => {}
     });
   }
 
@@ -89,7 +83,6 @@ export class RequestSupportComponent implements OnInit {
   }
 
   startNewRequest(): void {
-    this.sent = false;
     this.view = "new";
   }
 
@@ -106,14 +99,10 @@ export class RequestSupportComponent implements OnInit {
 
     this.httpService.requestUserSupport().subscribe({
       next: (requests) => {
-        this.requests = requests.map(request => ({
-          ...request,
-          messages: request.messages || []
-        }));
+        this.requests = requests.map(request => ({...request, messages: request.messages || []}));
         this.changeDetectorRef.detectChanges();
       },
-      error: () => {
-      }
+      error: () => {}
     });
   }
 
@@ -143,11 +132,10 @@ export class RequestSupportComponent implements OnInit {
 
   sendFollowup(request: SupportRequest): void {
     const content = (this.replyDrafts[request.id] || "").trim();
-    if (!content || this.sendingReplyId || !this.canDecrypt(request) || request.status === "closed") {
+    if (!content || !this.canDecrypt(request) || request.status === "closed") {
       return;
     }
 
-    this.sendingReplyId = request.id;
     this.httpService.requestUserSupportMessage(request.id, {content}).subscribe({
       next: (message) => {
         request.messages = [...request.messages, message];
@@ -155,39 +143,19 @@ export class RequestSupportComponent implements OnInit {
         request.preview = message.content;
         request.update_date = message.creation_date;
         request.status = "new";
-        this.requests = [
-          request,
-          ...this.requests.filter(item => item.id !== request.id)
-        ];
+        this.requests = [request, ...this.requests.filter(item => item.id !== request.id)];
         this.replyDrafts[request.id] = "";
-        this.sendingReplyId = "";
       },
-      error: () => {
-        this.sendingReplyId = "";
-      }
+      error: () => {}
     });
   }
 
   canDecrypt(request: SupportRequest): boolean {
-    return request.decryptable !== false && request.key_available !== false;
+    return request.key_available;
   }
 
   messageAuthor(message: SupportMessage): string {
     return message.author_id ? "Admin" : "You";
   }
 
-  statusClass(status: SupportRequestStatus): string {
-    switch (status) {
-      case "new":
-        return "bg-info";
-      case "read":
-        return "bg-secondary";
-      case "answered":
-        return "bg-success";
-      case "closed":
-        return "bg-dark";
-      default:
-        return "bg-secondary";
-    }
-  }
 }

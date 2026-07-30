@@ -88,10 +88,6 @@ def decorator_rate_limit(f):
         tid = str(self.request.tid).encode()
         path = self.request.path
 
-        # The public support endpoint has the same abuse profile as a report
-        # submission. Reuse the configured report thresholds, but keep separate
-        # buckets so legitimate reporting and support traffic do not consume one
-        # another's allowance.
         if path == b'/api/support':
             block = State.RateLimit.check(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
                                           root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,

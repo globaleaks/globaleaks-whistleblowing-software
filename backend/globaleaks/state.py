@@ -245,43 +245,29 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.settings.socks_port
         )
 
-    def schedule_support_email(self, tid, text=None):
-        """Queue a content-free notification for admins of the tenant."""
+    def schedule_support_email(self, tid):
         subject = "Support request"
         text = "A support request has arrived. Log in to GlobaLeaks to read it."
-        # A user has one support-key wrapper, so root management sessions cannot
-        # decrypt a child tenant's distinct key. Do not send them an unusable
-        # child-tenant notification.
         delivery_list = set(self.tenants[tid].cache.notification.admin_list)
+        if tid != 1:
+            delivery_list.update(self.tenants[1].cache.notification.admin_list)
 
         deferreds = []
         for mail_address, pgp_key_public in delivery_list:
             body = text
 
-            # Opportunistically encrypt even though the notification carries no
-            # requester address or support content.
             if pgp_key_public:
                 try:
                     body = PGPContext(pgp_key_public).encrypt_message(body)
                 except Exception:
-                    # The generic notification contains no requester data or
-                    # support content, so plaintext fallback is safe.
                     body = text
 
-            # avoid waiting for the notification to send and instead rely on threads to handle it
             deferreds.append(tw(db_schedule_email, tid, mail_address, subject, body))
 
         return DeferredList(deferreds, consumeErrors=True)
 
     def schedule_support_reply_email(self, tid, mail_address, body='',
                                      pgp_key_public='', content_free=True):
-        """Queue a requester notification or an explicit anonymous reply.
-
-        Anonymous requesters cannot authenticate back into a support thread, so
-        an administrator may deliberately cross the platform trust boundary and
-        send the reply body by email. Authenticated requesters only receive a
-        content-free notification and read the encrypted reply in-system.
-        """
         subject = "Support request reply"
         if content_free:
             body = "A reply to your support request is available. Log in to GlobaLeaks to read it."

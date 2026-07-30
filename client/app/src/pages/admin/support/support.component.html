@@ -1,47 +1,26 @@
 <div id="AdminSupport" class="config-section reveal">
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center">
     <span>{{ 'Support requests' | translate }}</span>
-    @if (nodeResolver.dataModel.support) {
-      <button type="button" class="btn btn-sm btn-outline-secondary" data-cy="refresh-support" (click)="loadRequests()">
-        <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
-      </button>
-    }
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-cy="refresh-support" (click)="loadRequests()">
+      <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+    </button>
   </div>
-  @if (!nodeResolver.dataModel.support) {
-    <div class="alert alert-info">
-      @if (managementSession) {
-        <p class="mb-0">{{ 'Support must be initialized by an administrator logged directly into this tenant.' | translate }}</p>
-      } @else if (!nodeResolver.dataModel.encryption) {
-        <p class="mb-0">{{ 'Enable submission encryption and complete your encryption key setup before initializing support requests.' | translate }}</p>
-      } @else {
-        <p>{{ 'Initialize encrypted support requests to start receiving requests.' | translate }}</p>
-        <button type="button" class="btn btn-primary" data-cy="initialize-support" [disabled]="initializing" (click)="initializeSupport()">
-          @if (initializing) {
-            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-          } @else {
-            <i class="fas fa-key" aria-hidden="true"></i>
-          }
-          <span>{{ 'Initialize support' | translate }}</span>
-        </button>
-      }
-    </div>
-  } @else {
-    <div class="row">
-      <div class="col-md-6">
-        <label for="support-status-filter">{{ 'Status' | translate }}</label>
-        <select id="support-status-filter" class="form-control" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
-          <option value="all">{{ 'All' | translate }}</option>
-          @for (status of statuses; track status) {
-            <option [value]="status">{{ statusLabels[status] | translate }}</option>
-          }
-        </select>
-      </div>
-      <div class="col-md-6">
-        <label for="support-search">{{ 'Search' | translate }}</label>
-        <input id="support-search" type="search" class="form-control" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()"/>
+  @if (tenants.length > 1) {
+    <div class="row mt-3">
+      <div class="col-md-2">
+        <div class="form-group">
+          <label for="support-tenant-filter">{{ 'Tenant' | translate }}</label>
+          <select id="support-tenant-filter" class="form-select" name="supportTenantFilter" [(ngModel)]="selectedTenantId" (ngModelChange)="applyFilters()">
+            <option [ngValue]="0">{{ 'All tenants' | translate }}</option>
+            @for (tenant of tenants; track tenant.id) {
+              <option [ngValue]="tenant.id">{{ tenant.name }}</option>
+            }
+          </select>
+        </div>
       </div>
     </div>
-    <app-paginated-interface [items]="filteredRequests" [itemsPerPage]="20" [showSearch]="false" [orderBy]="'update_date'" [orderDesc]="true">
+  }
+  <app-paginated-interface [items]="filteredRequests" [itemsPerPage]="20" [orderBy]="'update_date'" [orderDesc]="true">
       <ng-template #content let-request="item" let-index="index">
         <form id="support-request-{{index}}" name="editSupport" #editSupport="ngForm" novalidate>
             <div class="config-item reveal" [attr.data-cy]="'support-request-' + index">
@@ -50,9 +29,10 @@
                 <span class="col-md-7" (click)="toggleRequest(request)">
                   <div class="d-flex align-items-center gap-2">
                     <span class="badge" [ngClass]="statusClass(request.status)">{{ statusLabel(request.status) | translate }}</span>
+                    <span class="badge bg-secondary">{{ request.tenant_name }}</span>
                     <strong>{{ request.mail_address || (request.author_id ? ('User' | translate) : ('Anonymous' | translate)) }}</strong>
                   </div>
-                  <div class="text-truncate mt-1">{{ preview(request) || ('Encrypted content is unavailable.' | translate) }}</div>
+                  <div class="text-truncate mt-1">{{ preview(request) }}</div>
                 </span>
                 <span class="col-md-5">
                   <span class="float-end">
@@ -108,8 +88,7 @@
                       <label [for]="'support-reply-' + request.id">{{ 'Reply' | translate }}</label>
                       <textarea [id]="'support-reply-' + request.id" class="form-control" [name]="'support-reply-' + request.id" [(ngModel)]="replyDrafts[request.id]" maxlength="4096" rows="4"></textarea>
                     </div>
-                    <button type="button" class="btn btn-primary me-2" data-cy="send-support-reply" [disabled]="!(replyDrafts[request.id] || '').trim() || !!sendingReplyId" (click)="sendReply(request)">
-                      <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                    <button type="button" class="btn btn-primary me-2" data-cy="send-support-reply" [disabled]="!(replyDrafts[request.id] || '').trim()" (click)="sendReply(request)">
                       <span>{{ 'Send' | translate }}</span>
                     </button>
                   }
@@ -119,6 +98,5 @@
           </div>
         </form>
       </ng-template>
-    </app-paginated-interface>
-  }
+  </app-paginated-interface>
 </div>

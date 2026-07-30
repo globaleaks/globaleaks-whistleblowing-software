@@ -14,11 +14,6 @@ describe("Recipient first login", () => {
     cy.get('#tab2').click();
     cy.takeScreenshot("user/password_change");
 
-    cy.get("#SupportLink").click();
-    cy.get("#support-request-email").clear();
-    cy.takeScreenshot("user/modal_support", ".modal-dialog");
-    cy.get(".modal #modal-action-cancel").click();
-
     cy.logout();
   });
 
@@ -100,4 +95,3 @@ describe("Analyst first login", () => {
     cy.logout();
   });
 });
-

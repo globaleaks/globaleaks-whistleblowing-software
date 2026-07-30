@@ -11,6 +11,7 @@ from globaleaks.handlers.admin.node import db_update_enabled_languages
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, import_questionnaires
 from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, \
@@ -299,6 +300,8 @@ def db_wizard(session, tid, hostname, request):
 
         receiver_user = db_create_user(session, tid, None, receiver_desc, language)
         receiver_user.password_change_needed = (tid != 1)
+
+    db_initialize_support(session, tid)
 
     context_desc = models.Context().dict(language)
     context_desc['name'] = 'Default'

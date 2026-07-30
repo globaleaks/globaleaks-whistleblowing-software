@@ -4,7 +4,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
-                                         decrypt_support_private_key
+                                         decrypt_tenant_support_private_key
 from globaleaks.handlers.user import serialize_user_profile, \
                                      user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
@@ -33,9 +33,6 @@ def sync_roles(session, profile, request, sync_users=True):
     for role_name in roles_set - current_roles:
         profile.roles.append(models.UserProfileRole({'profile_id': profile.id, 'role': role_name}))
 
-    # A newly created profile cannot have users yet. Skipping this redundant
-    # query also keeps historical migrations from binding the current User
-    # mapper to an intermediate database schema.
     if sync_users:
         for user in session.query(models.User).filter(models.User.profile_id == profile.id, models.User.role.notin_(roles)):
             user.role = request['role']
@@ -146,20 +143,12 @@ def update_user_profile(session, tid, user_session, profile_id, request):
                             .filter(models.User.tid == tid,
                                     models.User.profile_id == profile_id) \
                             .all()
-    support_private_key = decrypt_support_private_key(
-        user_session, tid, session
-    )
+    support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
     profile = db_update_user_profile(session, tid, profile_id, request)
     admin_capable = 'admin' in request['roles']
 
     for user in affected_users:
-        db_reconcile_support_user_access(
-            session,
-            tid,
-            user,
-            support_private_key,
-            admin_capable=admin_capable
-        )
+        db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=admin_capable)
 
     return profile, [user.id for user in affected_users]
 

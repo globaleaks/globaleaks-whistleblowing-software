@@ -21,6 +21,7 @@ Admin
 Administrators authorized to change user passwords:
 Advanced
 All
+All tenants
 Allow the recipient to edit the reports' expiration date
 Allow the recipient to delete reports
 Allow the reporting person to add attachments
@@ -139,11 +140,9 @@ Enable encryption
 Enable scoring system
 Enable search engines indexing
 Enable simplified login
-Enable submission encryption and complete your encryption key setup before initializing support requests.
 Enable terms of service
 Enable two factor authentication
 Enabled
-Encrypted content is unavailable.
 Enter a name for the copy
 Enter a report
 Enter the two factor authentication code
@@ -212,8 +211,6 @@ Invalid confirmation
 Invalid email address
 Invalid phone number
 Issuer:
-Initialize encrypted support requests to start receiving requests.
-Initialize support
 Join our chat:
 Label
 Label the report
@@ -266,8 +263,6 @@ New password
 New request
 Next
 No
-No support requests
-No support requests match the current filters.
 None
 Not provided.
 Notifications
@@ -428,7 +423,6 @@ Substatuses
 Success!
 Sufficient
 Support
-Support must be initialized by an administrator logged directly into this tenant.
 Support requests
 Support requests are currently unavailable.
 Surname

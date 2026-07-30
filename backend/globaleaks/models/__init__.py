@@ -1082,6 +1082,7 @@ class _SupportRequest(Model):
     author_id = Column(UnicodeText(36), nullable=True, index=True)
     crypto_pub_key = Column(UnicodeText, nullable=False)
     crypto_prv_key = Column(UnicodeText, nullable=False)
+    root_crypto_prv_key = Column(UnicodeText, default='', nullable=False)
     crypto_author_prv_key = Column(UnicodeText, default='', nullable=False)
     mail_address = Column(UnicodeText, default='', nullable=False)
     status = Column(Enum(EnumSupportRequestStatus), default='new', nullable=False, index=True)
@@ -1090,6 +1091,7 @@ class _SupportRequest(Model):
         'author_id',
         'crypto_pub_key',
         'crypto_prv_key',
+        'root_crypto_prv_key',
         'crypto_author_prv_key',
         'mail_address',
         'status'

@@ -135,22 +135,16 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
         crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(user.crypto_prv_key))
     elif State.tenants[tid].cache.encryption or \
          ConfigFactory(session, tid).get_val('crypto_support_pub_key'):
-        # First login on a tenant that needs a user encryption key, either for
-        # submissions or for authenticated support conversations.
         crypto_prv_key, _ = GCE.generate_keypair()
 
-        # Force password change on which the user key will be created
         user.password_change_needed = True
 
-    # Require password change if password change threshold is exceeded
     if State.tenants[tid].cache.password_change_period > 0 and \
        user.password_change_date < datetime_now() - timedelta(days=State.tenants[tid].cache.password_change_period):
         user.password_change_needed = True
 
     user.last_login = datetime_now()
 
-    # A logging-in holder propagates the statistical key to any admin/analyst
-    # still missing it (covers activation-link and legacy accounts)
     if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
         db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
 
@@ -163,16 +157,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     for r in user_permissions:
         permissions[r] = r in user.profile.permissions_list
 
-    return Sessions.new(tid,
-                        user.id,
-                        user.tid,
-                        user.username,
-                        user.role,
-                        crypto_prv_key,
-                        user.crypto_escrow_prv_key,
-                        user.profile.roles_list,
-                        permissions,
-                        sk=user.crypto_support_prv_key)
+    return Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions, sk=user.crypto_support_prv_key)
 
 
 @transact

@@ -266,8 +266,13 @@ def db_refresh_tenant_cache(session, to_refresh=None):
             else:
                 update_cache(tid, default_cfg)
 
-    query = (session.query(models.User.tid,models.User.mail_address,models.User.pgp_key_public)
-            .filter(models.User.role == 'admin', models.User.enabled.is_(True), models.User.notification.is_(True), models.User.tid.in_(tids)))
+    query = (session.query(models.User.tid, models.User.mail_address, models.User.pgp_key_public)
+            .join(models.UserProfileRole, models.User.profile_id == models.UserProfileRole.profile_id)
+            .filter(models.UserProfileRole.role == 'admin',
+                    models.User.enabled.is_(True),
+                    models.User.notification.is_(True),
+                    models.User.tid.in_(tids))
+            .distinct())
     results = query.all()
 
     for tid, mail, pub_key in results:

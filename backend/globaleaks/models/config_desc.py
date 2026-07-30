@@ -48,6 +48,7 @@ ConfigDescriptor = {
     'counter_tenants': Int(default=0),
     'crypto_escrow_prv_key': Unicode(default=''),
     'crypto_escrow_pub_key': Unicode(default=''),
+    'crypto_support_prv_key': Unicode(default=''),
     'crypto_support_pub_key': Unicode(default=''),
     'crypto_stat_prv_key': Unicode(default=''),
     'crypto_stat_pub_key': Unicode(default=''),

@@ -1,21 +1,15 @@
 import {DatePipe, NgClass} from "@angular/common";
 import {Component, OnInit, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
-import {
-  SupportMessage,
-  SupportRequest,
-  SupportRequestStatus
-} from "@app/models/app/support";
+import {supportRequestStatusClass, supportRequestStatusLabels, supportRequestStatuses, SupportMessage, SupportRequest, SupportRequestStatus} from "@app/models/app/support";
+import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
-import {AppDataService} from "@app/app-data.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 @Component({
   selector: "src-admin-support",
@@ -24,57 +18,33 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
   imports: [DatePipe, FormsModule, NgClass, PaginatedInterfaceComponent, TranslateModule, TranslatorPipe]
 })
 export class AdminSupportComponent implements OnInit {
-  private appDataService = inject(AppDataService);
-  private authenticationService = inject(AuthenticationService);
   private httpService = inject(HttpService);
   private modalService = inject(NgbModal);
-  private utilsService = inject(UtilsService);
-  protected nodeResolver = inject(NodeResolver);
+  private nodeResolver = inject(NodeResolver);
 
   requests: SupportRequest[] = [];
   filteredRequests: SupportRequest[] = [];
   expandedRequestId = "";
-  statusFilter: SupportRequestStatus | "all" = "all";
-  searchTerm = "";
   replyDrafts: Record<string, string> = {};
-  initializing = false;
-  sendingReplyId = "";
+  selectedTenantId = 0;
+  availableTenants: tenantResolverModel[] = [];
 
-  readonly statuses: SupportRequestStatus[] = ["new", "read", "answered", "closed"];
-  readonly statusLabels: Record<SupportRequestStatus, string> = {
-    new: "New",
-    read: "Read",
-    answered: "Answered",
-    closed: "Closed"
-  };
+  readonly statuses = supportRequestStatuses;
+  readonly statusLabels = supportRequestStatusLabels;
+  readonly statusClass = supportRequestStatusClass;
 
   ngOnInit(): void {
-    if (this.nodeResolver.dataModel.support) {
-      this.loadRequests();
+    this.loadRequests();
+    if (this.nodeResolver.dataModel.root_tenant) {
+      this.httpService.fetchTenant().subscribe({
+        next: tenants => {
+          this.availableTenants = tenants
+            .filter(tenant => tenant.id < 1000001)
+            .sort((a, b) => a.id - b.id);
+        },
+        error: () => {}
+      });
     }
-  }
-
-  get managementSession(): boolean {
-    return !!this.authenticationService.session?.properties?.management_session;
-  }
-
-  initializeSupport(): void {
-    if (this.managementSession || this.initializing || !this.nodeResolver.dataModel.encryption) {
-      return;
-    }
-
-    this.initializing = true;
-    this.utilsService.runAdminOperation("initialize_support", {}, false).subscribe({
-      next: () => {
-        this.nodeResolver.dataModel.support = true;
-        this.appDataService.public.node.support = true;
-        this.initializing = false;
-        this.loadRequests();
-      },
-      error: () => {
-        this.initializing = false;
-      }
-    });
   }
 
   loadRequests(): void {
@@ -86,32 +56,32 @@ export class AdminSupportComponent implements OnInit {
         }));
         this.applyFilters();
       },
-      error: () => { }
+      error: () => {}
     });
   }
 
   statusLabel(status: SupportRequestStatus): string {
-    return this.statusLabels[status] || status;
+    return this.statusLabels[status];
   }
 
   applyFilters(): void {
-    const statusFiltered = this.statusFilter === "all"
-      ? [...this.requests]
-      : this.requests.filter(request => request.status === this.statusFilter);
+    this.filteredRequests = this.selectedTenantId ?
+      this.requests.filter(request => request.tid === this.selectedTenantId) :
+      [...this.requests];
+  }
 
-    const searchTerm = this.searchTerm.trim().toLocaleLowerCase();
-    this.filteredRequests = searchTerm
-      ? statusFiltered.filter(request => {
-          const searchableContent = [
-            request.id,
-            request.mail_address,
-            request.preview,
-            ...request.messages.map(message => message.content)
-          ].join("\n").toLocaleLowerCase();
+  get tenants(): {id: number; name: string}[] {
+    if (this.availableTenants.length) {
+      return this.availableTenants.map(({id, name}) => ({id, name}));
+    }
 
-          return searchableContent.includes(searchTerm);
-        })
-      : statusFiltered;
+    const tenants = new Map<number, string>();
+    for (const request of this.requests) {
+      tenants.set(request.tid, request.tenant_name);
+    }
+
+    return Array.from(tenants, ([id, name]) => ({id, name}))
+      .sort((a, b) => a.id - b.id);
   }
 
   toggleRequest(request: SupportRequest): void {
@@ -141,11 +111,10 @@ export class AdminSupportComponent implements OnInit {
 
   sendReply(request: SupportRequest): void {
     const content = (this.replyDrafts[request.id] || "").trim();
-    if (!content || this.sendingReplyId || !this.canDecrypt(request)) {
+    if (!content || !this.canDecrypt(request)) {
       return;
     }
 
-    this.sendingReplyId = request.id;
     this.httpService.requestAdminSupportMessage(request.id, {content}).subscribe({
       next: (message) => {
         request.messages = [...request.messages, message];
@@ -155,11 +124,8 @@ export class AdminSupportComponent implements OnInit {
         request.status = "answered";
         this.applyFilters();
         this.replyDrafts[request.id] = "";
-        this.sendingReplyId = "";
       },
-      error: () => {
-        this.sendingReplyId = "";
-      }
+      error: () => {}
     });
   }
 
@@ -181,7 +147,7 @@ export class AdminSupportComponent implements OnInit {
   }
 
   canDecrypt(request: SupportRequest): boolean {
-    return request.decryptable !== false && request.key_available !== false;
+    return request.key_available;
   }
 
   preview(request: SupportRequest): string {
@@ -200,18 +166,4 @@ export class AdminSupportComponent implements OnInit {
     return request.author_id ? "User" : "Anonymous";
   }
 
-  statusClass(status: SupportRequestStatus): string {
-    switch (status) {
-      case "new":
-        return "bg-info";
-      case "read":
-        return "bg-secondary";
-      case "answered":
-        return "bg-success";
-      case "closed":
-        return "bg-dark";
-      default:
-        return "bg-secondary";
-    }
-  }
 }

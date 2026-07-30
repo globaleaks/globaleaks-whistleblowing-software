@@ -26,7 +26,6 @@
     }
     @if (view === 'new') {
       <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
-        @if (!sent) {
           <div>
             @if (!authenticated) {
               <div class="form-group">
@@ -49,19 +48,7 @@
               }
             </div>
           </div>
-        }
       </form>
-      @if (sent) {
-        <div id="sent" class="alert alert-secondary">
-          <span>{{ 'Thank you.' | translate }}</span>
-          <span>{{ 'We will try to get back to you as soon as possible.' | translate }}</span>
-        </div>
-        @if (authenticated) {
-          <button type="button" class="btn btn-outline-primary" (click)="showRequests()">
-            {{ 'My support requests' | translate }}
-          </button>
-        }
-      }
     } @else {
         @for (request of requests; track request.id) {
           <div class="config-item">
@@ -72,7 +59,7 @@
                   @if (hasUnreadAdminMessages(request)) {
                     <span class="badge bg-warning text-dark me-2">{{ 'Unread reply' | translate }}</span>
                   }
-                  <span class="text-truncate">{{ request.preview || ('Encrypted content is unavailable.' | translate) }}</span>
+                  <span class="text-truncate">{{ request.preview }}</span>
                 </div>
                 <div class="text-nowrap">
                   <span>{{ request.update_date | date:'dd-MM-yyyy HH:mm' }}</span>
@@ -105,12 +92,7 @@
                       <label [for]="'support-followup-' + request.id">{{ 'Reply' | translate }}</label>
                       <textarea [id]="'support-followup-' + request.id" class="form-control" [name]="'support-followup-' + request.id" [(ngModel)]="replyDrafts[request.id]" maxlength="4096" rows="4"></textarea>
                     </div>
-                    <button type="button" class="btn btn-primary" [disabled]="!(replyDrafts[request.id] || '').trim() || !!sendingReplyId" (click)="sendFollowup(request)">
-                      @if (sendingReplyId === request.id) {
-                        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-                      } @else {
-                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                      }
+                    <button type="button" class="btn btn-primary" [disabled]="!(replyDrafts[request.id] || '').trim()" (click)="sendFollowup(request)">
                       <span>{{ 'Send' | translate }}</span>
                     </button>
                   }
@@ -123,7 +105,7 @@
     }
 </div>
 <div class="modal-footer">
-  @if (supportAvailable && view === 'new' && !sent) {
+  @if (supportAvailable && view === 'new') {
     <button id="modal-action-ok" type="button" class="btn btn-primary" [disabled]="!isRequestValid()" (click)="submitRequest()">
       <span>{{ 'Submit' | translate }}</span>
     </button>
