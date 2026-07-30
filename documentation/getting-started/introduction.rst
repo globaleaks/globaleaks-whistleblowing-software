@@ -2,7 +2,7 @@ Introduction
 ============
 .. include:: badges.rst
 
-`GlobaLeaks <https://www.globaleaks.org/>`_ is a free and open-source whistleblowing software that enables anyone to easily set up and maintain a secure reporting platform.
+`GlobaLeaks <https://globaleaks.org/>`_ is a free and open-source whistleblowing software that enables anyone to easily set up and maintain a secure reporting platform.
 
 This software, based on well-defined :doc:`design principles <getting-started/design-principles>`, is a community-driven project available without licensing costs and it provides publicly accessible source code, open documentation, transparent security specifications, public peer reviews, numerous independent security audits.
 

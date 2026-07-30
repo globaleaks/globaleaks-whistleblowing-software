@@ -14,10 +14,10 @@ If you are an independent security auditor or, during your peer review of GlobaL
    :header: "Date", "Auditor", "Goal", "Report"
    :widths: 6, 15, 15, 15
 
-   "2013", "`iSecPartners <https://www.isecpartners.com>`_", "Architecture Audit", "`Report <https://www.globaleaks.org/docs/en/pt/2013-isec.pdf>`_"
-   "2013", "`Cure53 <https://cure53.de/>`_", "Web Security Audit", "`Report <https://www.globaleaks.org/docs/en/pt/2013-cure53.pdf>`_"
-   "2014", "`LeastAuthority <https://leastauthority.com/>`_", "Source Code Audit", "`Report <https://www.globaleaks.org/docs/en/pt/2014-leastauthority.pdf>`_"
-   "2018", "`SubGraph <https://subgraph.com/>`_", "Overall Audit", "`Report <https://www.globaleaks.org/docs/en/pt/2018-subgraph.pdf>`_"
-   "2019", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Crypto Audit, Multi-tenancy Audit, Overall Audit", "`Report <https://www.globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
-   "2022", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Server Source Code Audit, Client Pentest, OpSec for Whistleblowers, OpSec for Server Administrators", "`Report <https://www.globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
-   "2024", "`ISGroup <https://isgroup.it/>`_", "Surface Analysis and Network Penetration Test", "`Report <https://www.globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"
+   "2013", "`iSecPartners <https://www.isecpartners.com>`_", "Architecture Audit", "`Report <https://globaleaks.org/docs/en/pt/2013-isec.pdf>`_"
+   "2013", "`Cure53 <https://cure53.de/>`_", "Web Security Audit", "`Report <https://globaleaks.org/docs/en/pt/2013-cure53.pdf>`_"
+   "2014", "`LeastAuthority <https://leastauthority.com/>`_", "Source Code Audit", "`Report <https://globaleaks.org/docs/en/pt/2014-leastauthority.pdf>`_"
+   "2018", "`SubGraph <https://subgraph.com/>`_", "Overall Audit", "`Report <https://globaleaks.org/docs/en/pt/2018-subgraph.pdf>`_"
+   "2019", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Crypto Audit, Multi-tenancy Audit, Overall Audit", "`Report <https://globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
+   "2022", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Server Source Code Audit, Client Pentest, OpSec for Whistleblowers, OpSec for Server Administrators", "`Report <https://globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
+   "2024", "`ISGroup <https://isgroup.biz/>`_", "Surface Analysis and Network Penetration Test", "`Report <https://globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"

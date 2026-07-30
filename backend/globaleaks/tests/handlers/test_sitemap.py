@@ -23,7 +23,7 @@ class TestSitemapHandlerHandler(helpers.TestHandler):
         handler = self.request()
 
         State.tenants[1].cache.allow_indexing = True
-        State.tenants[1].cache.hostname = 'www.globaleaks.org'
+        State.tenants[1].cache.hostname = 'globaleaks.org'
         State.tenants[1].cache.languages_enabled = ['en', 'ar', 'it']
         State.tenants[1].cache.default_language = 'en'
 
@@ -43,14 +43,14 @@ class TestSitemapHandlerHandler(helpers.TestHandler):
 
         # Check that the <url> element contains the expected <loc>, <changefreq>, and <priority>
         self.assertIn("<url>", data)
-        self.assertIn("<loc>https://www.globaleaks.org/#/</loc>", data)
+        self.assertIn("<loc>https://globaleaks.org/#/</loc>", data)
         self.assertIn("<changefreq>weekly</changefreq>", data)
         self.assertIn("<priority>1.00</priority>", data)
 
         # Check that the alternate language links are present except for the default lang
-        self.assertIn("<xhtml:link rel='alternate' hreflang='ar' href='https://www.globaleaks.org/#/?lang=ar' />", data)
-        self.assertIn("<xhtml:link rel='alternate' hreflang='it' href='https://www.globaleaks.org/#/?lang=it' />", data)
-        self.assertNotIn("<xhtml:link rel='alternate' hreflang='en' href='https://www.globaleaks.org/#/?lang=en' />", data)
+        self.assertIn("<xhtml:link rel='alternate' hreflang='ar' href='https://globaleaks.org/#/?lang=ar' />", data)
+        self.assertIn("<xhtml:link rel='alternate' hreflang='it' href='https://globaleaks.org/#/?lang=it' />", data)
+        self.assertNotIn("<xhtml:link rel='alternate' hreflang='en' href='https://globaleaks.org/#/?lang=en' />", data)
 
         # Ensure the closing </urlset> is present
         self.assertIn("</urlset>", data)

@@ -1,5 +1,5 @@
 <div align="center">
- <a href="https://www.globaleaks.org"><img src="https://raw.githubusercontent.com/globaleaks/globaleaks-whistleblowing-software/stable/brand/assets/webp/globaleaks-logo-color.webp" width="400"></a>
+ <a href="https://globaleaks.org"><img src="https://raw.githubusercontent.com/globaleaks/globaleaks-whistleblowing-software/stable/brand/assets/webp/globaleaks-logo-color.webp" width="400"></a>
 </div>
 
 <div align="center">
@@ -10,7 +10,7 @@
 </div>
 
 
-[GlobaLeaks](https://www.globaleaks.org/) is free and open-source whistleblowing software enabling anyone to easily set up and maintain a secure reporting platform.
+[GlobaLeaks](https://globaleaks.org/) is free and open-source whistleblowing software enabling anyone to easily set up and maintain a secure reporting platform.
 
 The software is recognized by the [Digital Public Good Alliance](https://digitalpublicgoods.net) as a [Digital Public Good](https://digitalpublicgoods.net/r/globaleaks).
 

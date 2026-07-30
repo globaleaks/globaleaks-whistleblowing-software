@@ -2,7 +2,7 @@ name: GlobaLeaks
 releaseDate: '2026-07-24'
 publiccodeYmlVersion: '0.5.0'
 url: 'https://github.com/globaleaks/globaleaks-whistleblowing-software'
-landingURL: 'https://www.globaleaks.org/'
+landingURL: 'https://globaleaks.org/'
 roadmap: "https://docs.globaleaks.org/en/stable/technical/roadmap.html"
 logo: brand/assets/svg/globaleaks-icon-color.svg
 softwareVersion: 5.0.99
@@ -30,7 +30,7 @@ legal:
     GlobaLeaks
 organisation:
   name: GlobaLeaks
-  uri: https://www.globaleaks.org
+  uri: https://globaleaks.org
 intendedAudience:
   scope:
     - agriculture
@@ -142,13 +142,13 @@ description:
       GlobaLeaks is a free and open-source whistleblowing software enabling anyone to
       easily set up and maintain a secure reporting platform
     longDescription: >-
-      [GlobaLeaks](https://www.globaleaks.org/) is a free and open-source whistleblowing
+      [GlobaLeaks](https://globaleaks.org/) is a free and open-source whistleblowing
       software enabling anyone to easily set up and maintain a secure reporting platform.
       Thanks to GlobaLeaks even non-technical people are be able to setup their
       own anonymous whistleblowing project. Designed to be user-friendly the
       software is customizable up to own needs and protects the whistleblower's
       privacy and submissions. GlobaLeaks targets
-      [many use cases](https://www.globaleaks.org/usecases/) and therefore
+      [many use cases](https://globaleaks.org/usecases/) and therefore
       it has been designed as a framework. Designed with flexibility in mind and
       translated in [more than 70 languages](https://www.transifex.com/otf/globaleaks)
       GlobaLeaks is nowadays adopted worldwide by more than 30000 projects.
@@ -244,13 +244,13 @@ description:
       GlobaLeaks è software di whistleblowing libero e open-source che permette a tutti di creare
       e mantenere una piattaforma di segnalazione sicura
     longDescription: >-
-      [GlobaLeaks](https://www.globaleaks.org/) è software di whistleblowing libero e open-source
+      [GlobaLeaks](https://globaleaks.org/) è software di whistleblowing libero e open-source
       che permette a tutti di creare e mantenere una piattaforma di segnalazione sicura.
       Grazie a GlobaLeaks anche le persone non tecniche sono in grado di avviare il proprio
       progetto di whistleblowing anonimo. Progettato per essere intuitivo, il software è
       personalizzabile in base alle proprie esigenze e protegge la privacy e le comunicazioni
       dei segnalanti. GlobaLeaks si rivolge a
-      [molti casi d'uso](https://www.globaleaks.org/usecases/) e quindi è stato progettato
+      [molti casi d'uso](https://globaleaks.org/usecases/) e quindi è stato progettato
       come un framework. Progettato per essere altamente configurabile e tradotto in
       [oltre 70 lingue](https://www.transifex.com/otf/globaleaks), GlobaLeaks è oggi adottato
       in tutto il mondo da oltre 30000 progetti. La variegata gamma di utenti comprende media

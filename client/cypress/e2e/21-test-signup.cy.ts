@@ -8,7 +8,7 @@ describe("Admin Enable Signup", function() {
     cy.get('input[name="enable_signup"]').click();
     cy.get('input[name="signup_tos1_enable"]').click();
     cy.get('input[name="signup_tos1_title"]').type("Terms and Conditions");
-    cy.get('input[name="signup_tos1_checkbox_label"]').type("I've ready and I accept the [Terms and Conditions](https://www.globaleaks.org)");
+    cy.get('input[name="signup_tos1_checkbox_label"]').type("I've ready and I accept the [Terms and Conditions](https://globaleaks.org)");
     cy.takeScreenshot("admin/signup_configuration");
     cy.get("#save").click();
 

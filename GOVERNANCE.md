@@ -1,39 +1,39 @@
 # GlobaLeaks Governance
 
 ## Introduction
-[GlobaLeaks](https://www.globaleaks.org) is free, open source software enabling anyone to easily set up and maintain a secure whistleblowing platform.
+[GlobaLeaks](https://globaleaks.org) is free, open source software enabling anyone to easily set up and maintain a secure whistleblowing platform.
 
 The software project has been started in 2011 and [originally authored](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/AUTHORS) by Arturo Filastò, Claudio Agosti, Fabio Pietrosanti, Giovanni Pellerano and Michele Orrù.
 
 Authored in 2021, this document is a responsible and tentative attempt to analyze the existing governance status, define roles and responsibilities in order to properly define a proper project governance and thus be sure to be able to continue to protect whistleblowers in the long run.
 
 ## Roles and responsibilities
-This section defines the main project roles and respective responsibilities for the [GlobaLeaks Team](https://www.globaleaks.org/about/people/) and other project [Contributors](https://github.com/globaleaks/globaleaks-whistleblowing-software/graphs/contributors).
+This section defines the main project roles and respective responsibilities for the [GlobaLeaks Team](https://globaleaks.org/about/people/) and other project [Contributors](https://github.com/globaleaks/globaleaks-whistleblowing-software/graphs/contributors).
 
 ### Project Lead
 The Project Lead is responsible for coordinating the overall work of the GlobaLeaks team and of the GlobaLeaks FLOSS community with the aim of continuously improving the software and methodology and protecting whistleblowers.
 
-The project is currently led by [Giovanni Pellerano](https://www.globaleaks.org/about/people/#giovanni-pellerano), who is currently the lead developer and has continuously guided and advised contributors and users since 2011. This lead role and responsibility is focused on doing what's best for this project, guiding contributors through the analysis of user requirements and the definition and execution of the [Project Roadmap](https://docs.globaleaks.org/en/stable/roadmap/) in adherence to [Contributributors Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CONTRIBUTING.md) and the [Best Practices](https://bestpractices.coreinfrastructure.org/en/projects/3816).
+The project is currently led by [Giovanni Pellerano](https://globaleaks.org/about/people/#giovanni-pellerano), who is currently the lead developer and has continuously guided and advised contributors and users since 2011. This lead role and responsibility is focused on doing what's best for this project, guiding contributors through the analysis of user requirements and the definition and execution of the [Project Roadmap](https://docs.globaleaks.org/en/stable/roadmap/) in adherence to [Contributributors Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CONTRIBUTING.md) and the [Best Practices](https://bestpractices.coreinfrastructure.org/en/projects/3816).
 
 ### Project Manager
 The Project Manager is in charge of managing and coordinating the activities of the project.
 
-[Susanna Ferro](https://www.globaleaks.org/about/people/#susanna-ferro) is the current Project Manager.
+[Susanna Ferro](https://globaleaks.org/about/people/#susanna-ferro) is the current Project Manager.
 
 ### Community Lead
 The Community Lead is responsible for identifying community needs, verifying and enforcing the project’s [Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md), making sure everybody feels represented and safe.
 
-[Rima Sghaier](https://www.globaleaks.org/about/people/#rima-sghaier) is the current Community Lead.
+[Rima Sghaier](https://globaleaks.org/about/people/#rima-sghaier) is the current Community Lead.
 
 ### Compliance Manager
 The Compliance Manager ensures that the project complies with its national, European and international regulatory and legal requirements, as well as internal policies and bylaws.
 
-[Alessandro Rodolfi](https://www.globaleaks.org/about/people/#alessandro-rodolfi) is current Compliance Manager.
+[Alessandro Rodolfi](https://globaleaks.org/about/people/#alessandro-rodolfi) is current Compliance Manager.
 
 ### Data Protection Officer
 The Data Protection Officer (DPO) is responsible for educating the members of the team and the contributors about data compliance, training members of the team who are involved in processing data, and carrying out regular security audits. They also serve as the main point of contact between the company and the relevant data protection authorities.
 
-[Rima Sghaier](https://www.globaleaks.org/about/people/#rima-sghaier) is the current DPO.
+[Rima Sghaier](https://globaleaks.org/about/people/#rima-sghaier) is the current DPO.
 
 ### Contributors
 Everyone is welcome!
@@ -42,7 +42,7 @@ Everyone is welcome!
 
 List of team members, current and previous contributors and related statistics can be found at:
 
-* https://www.globaleaks.org/about/people
+* https://globaleaks.org/about/people
 * https://github.com/globaleaks/globaleaks-whistleblowing-software/graphs/contributors
 * https://www.openhub.net/p/globaleaks
 

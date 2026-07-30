@@ -10,7 +10,7 @@ Build-Depends:
   pybuild-plugin-pyproject,
   python3-all,
   python3-setuptools
-Homepage: https://www.globaleaks.org/
+Homepage: https://globaleaks.org/
 Vcs-Git: https://github.com/globaleaks/globaleaks-whistleblowing-software.git
 Standards-Version: 4.7.2
 Rules-Requires-Root: no

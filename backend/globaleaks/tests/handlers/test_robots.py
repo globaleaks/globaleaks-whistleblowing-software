@@ -24,11 +24,11 @@ class TestRobotstxtHandlerHandler(helpers.TestHandler):
         handler = self.request()
 
         State.tenants[1].cache.allow_indexing = True
-        State.tenants[1].cache.hostname = "www.globaleaks.org"
+        State.tenants[1].cache.hostname = "globaleaks.org"
 
         response = yield handler.get()
 
         self.assertEqual(response, "User-agent: *\n"
                                    "Allow: /$\n"
                                    "Disallow: *\n"
-                                   "Sitemap: https://www.globaleaks.org/sitemap.xml")
+                                   "Sitemap: https://globaleaks.org/sitemap.xml")

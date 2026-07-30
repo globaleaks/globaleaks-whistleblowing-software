@@ -144,7 +144,7 @@ class TestAPI(TestGL):
 
         # '/' and '/index.html' are both served as the entry point: '/index.html'
         # is canonicalized to '/' and must not redirect.
-        for entrypoint in (b"https://www.globaleaks.org/", b"https://www.globaleaks.org/index.html"):
+        for entrypoint in (b"https://globaleaks.org/", b"https://globaleaks.org/index.html"):
             for method, status_code in test_cases:
                 request = forge_request(uri=entrypoint, method=method)
                 self.api.render(request)
@@ -169,7 +169,7 @@ class TestAPI(TestGL):
                                                     'report-to csp-endpoint'
 
         for method, status_code in test_cases:
-            request = forge_request(uri=b"https://www.globaleaks.org/workers/crypto.worker.js", method=method)
+            request = forge_request(uri=b"https://globaleaks.org/workers/crypto.worker.js", method=method)
             self.api.render(request)
             self.assertEqual(request.responseCode, status_code)
             for headerName, expectedHeaderValue in server_headers.items():
@@ -179,7 +179,7 @@ class TestAPI(TestGL):
         server_headers = copy.copy(default_server_headers)
 
         for method, status_code in test_cases:
-            request = forge_request(uri=b"https://www.globaleaks.org/api/public", method=method)
+            request = forge_request(uri=b"https://globaleaks.org/api/public", method=method)
             self.api.render(request)
             self.assertEqual(request.responseCode, status_code)
             for headerName, expectedHeaderValue in server_headers.items():
@@ -204,7 +204,7 @@ class TestAPI(TestGL):
         server_headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
 
         for method, status_code in test_cases:
-            request = forge_request(uri=b"https://www.globaleaks.org/viewer/index.html", method=method)
+            request = forge_request(uri=b"https://globaleaks.org/viewer/index.html", method=method)
             self.api.render(request)
             self.assertEqual(request.responseCode, status_code)
             for headerName, expectedHeaderValue in server_headers.items():
@@ -215,7 +215,7 @@ class TestAPI(TestGL):
         server_headers['Access-Control-Allow-Origin'] = 'null'
 
         for method, status_code in test_cases:
-            request = forge_request(uri=b"https://www.globaleaks.org/viewer/script.js", method=method)
+            request = forge_request(uri=b"https://globaleaks.org/viewer/script.js", method=method)
             self.api.render(request)
             self.assertEqual(request.responseCode, status_code)
             for headerName, expectedHeaderValue in server_headers.items():
@@ -224,7 +224,7 @@ class TestAPI(TestGL):
 
     def test_request_state_and_redirects(self):
         # Remote HTTP connection is always redirected to HTTPS
-        request = forge_request(uri=b'http://www.globaleaks.org/')
+        request = forge_request(uri=b'http://globaleaks.org/')
         self.api.render(request)
         self.assertFalse(request.client_using_tor)
         self.assertEqual(request.responseCode, 302)
@@ -242,8 +242,8 @@ class TestAPI(TestGL):
         self.assertEqual(request.responseCode, 302)
 
         # Remote HTTP connection not coming from Tor should be redirected to HTTPS
-        request = forge_request(uri=b'http://www.globaleaks.org/', client_addr=b'8.8.8.8')
+        request = forge_request(uri=b'http://globaleaks.org/', client_addr=b'8.8.8.8')
         self.api.render(request)
         self.assertFalse(request.client_using_tor)
         self.assertEqual(request.responseCode, 302)
-        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://www.globaleaks.org/')
+        self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://globaleaks.org/')

@@ -502,7 +502,7 @@ msgstr ""
 
 #: ../../getting-started/introduction.rst:5
 msgid ""
-"`GlobaLeaks <https://www.globaleaks.org/>`_ is a free and open-source "
+"`GlobaLeaks <https://globaleaks.org/>`_ is a free and open-source "
 "whistleblowing software that enables anyone to easily set up and maintain"
 " a secure reporting platform."
 msgstr ""
@@ -4110,7 +4110,7 @@ msgid "Architecture Audit"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
-msgid "`Report <https://www.globaleaks.org/docs/en/pt/2013-isec.pdf>`_"
+msgid "`Report <https://globaleaks.org/docs/en/pt/2013-isec.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4122,7 +4122,7 @@ msgid "Web Security Audit"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
-msgid "`Report <https://www.globaleaks.org/docs/en/pt/2013-cure53.pdf>`_"
+msgid "`Report <https://globaleaks.org/docs/en/pt/2013-cure53.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4138,7 +4138,7 @@ msgid "Source Code Audit"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
-msgid "`Report <https://www.globaleaks.org/docs/en/pt/2014-leastauthority.pdf>`_"
+msgid "`Report <https://globaleaks.org/docs/en/pt/2014-leastauthority.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4154,7 +4154,7 @@ msgid "Overall Audit"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
-msgid "`Report <https://www.globaleaks.org/docs/en/pt/2018-subgraph.pdf>`_"
+msgid "`Report <https://globaleaks.org/docs/en/pt/2018-subgraph.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4172,7 +4172,7 @@ msgstr ""
 #: ../../technical/security/security-audits.rst:1
 msgid ""
 "`Report "
-"<https://www.globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
+"<https://globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4188,7 +4188,7 @@ msgstr ""
 #: ../../technical/security/security-audits.rst:1
 msgid ""
 "`Report "
-"<https://www.globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
+"<https://globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
@@ -4204,7 +4204,7 @@ msgid "Surface Analysis and Network Penetration Test"
 msgstr ""
 
 #: ../../technical/security/security-audits.rst:1
-msgid "`Report <https://www.globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"
+msgid "`Report <https://globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"
 msgstr ""
 
 #: ../../technical/security/threat-model.rst:3
@@ -6499,7 +6499,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid ""
-#~ "`GlobaLeaks <https://www.globaleaks.org/>`_ is an"
+#~ "`GlobaLeaks <https://globaleaks.org/>`_ is an"
 #~ " open-source, free software intended "
 #~ "to enable anyone to easily set up"
 #~ " and maintain a secure whistleblowing "
@@ -6524,7 +6524,7 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid ""
-#~ "`GlobaLeaks <https://www.globaleaks.org>`_ is free,"
+#~ "`GlobaLeaks <https://globaleaks.org>`_ is free,"
 #~ " open source software enabling anyone "
 #~ "to easily set up and maintain a"
 #~ " secure whistleblowing platform."

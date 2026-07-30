@@ -160,7 +160,7 @@ def init_state():
     State.RateLimit.enabled = False
 
     State.tenants[1] = TenantState()
-    State.tenants[1].cache.hostname = 'www.globaleaks.org'
+    State.tenants[1].cache.hostname = 'globaleaks.org'
     State.tenants[1].cache.encryption = True
 
     State.init_environment()
@@ -393,7 +393,7 @@ class MockDict:
             'whistleblowing_question': '',
             'whistleblowing_button': '',
             'homepage': '/',
-            'hostname': 'www.globaleaks.org',
+            'hostname': 'globaleaks.org',
             'rootdomain': 'antani.gov',
             'email': 'email@dummy.net',
             'languages_supported': [],  # ignored
@@ -450,7 +450,7 @@ class MockDict:
 
         self.dummyNetwork = {
             'anonymize_outgoing_connections': True,
-            'hostname': 'www.globaleaks.org',
+            'hostname': 'globaleaks.org',
             'https_admin': True,
             'https_analyst': True,
             'https_custodian': True,
@@ -543,7 +543,7 @@ BaseHandler.real_check_confirmation = BaseHandler.check_confirmation
 BaseHandler.check_confirmation = check_confirmation
 
 
-def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
+def forge_request(uri=b'https://globaleaks.org/', tid=1,
                   headers=None, body='', args=None, client_addr=b'127.0.0.1', method=b'GET'):
     """
     Creates a twisted.web.Request compliant request that is from an external
@@ -1108,7 +1108,7 @@ class TestHandler(TestGLWithPopulatedDB):
     def setUp(self):
         return TestGL.setUp(self)
 
-    def request(self, body='', uri=b'https://www.globaleaks.org/', tid=1,
+    def request(self, body='', uri=b'https://globaleaks.org/', tid=1,
                 user_id=None, role=None, multilang=False, headers=None, token=False, permissions=None, properties=None,
                 client_addr=b'127.0.0.1',
                 handler_cls=None, attachment=None,

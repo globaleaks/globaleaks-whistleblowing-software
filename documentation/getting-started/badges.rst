@@ -3,7 +3,7 @@
    .. raw:: html
 
       <div class="introduction-banner">
-          <a href="https://www.globaleaks.org">
+          <a href="https://globaleaks.org">
               <img src="https://raw.githubusercontent.com/globaleaks/globaleaks-whistleblowing-software/stable/brand/assets/webp/globaleaks-logo-color.webp" width="400">
           </a>
           <div>
