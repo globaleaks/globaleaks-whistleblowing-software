@@ -21,3 +21,4 @@ If you are an independent security auditor or, during your peer review of GlobaL
    "2019", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Crypto Audit, Multi-tenancy Audit, Overall Audit", "`Report <https://globaleaks.org/docs/en/pt/2019-radicallyopensecurity.pdf>`_"
    "2022", "`RadicallyOpenSecurity <https://radicallyopensecurity.com/>`_", "Server Source Code Audit, Client Pentest, OpSec for Whistleblowers, OpSec for Server Administrators", "`Report <https://globaleaks.org/docs/en/pt/2022-radicallyopensecurity.pdf>`_"
    "2024", "`ISGroup <https://isgroup.biz/>`_", "Surface Analysis and Network Penetration Test", "`Report <https://globaleaks.org/docs/en/pt/2024-isgroup.pdf>`_"
+   "2026", "`ISGroup <https://isgroup.biz/>`_", "Source Code Audit under an LLM-Equipped Adversary Model", "`Report <https://globaleaks.org/docs/en/pt/2026-isgroup.pdf>`_"
