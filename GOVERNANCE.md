@@ -13,7 +13,7 @@ This section defines the main project roles and respective responsibilities for 
 ### Project Lead
 The Project Lead is responsible for coordinating the overall work of the GlobaLeaks team and of the GlobaLeaks FLOSS community with the aim of continuously improving the software and methodology and protecting whistleblowers.
 
-The project is currently led by [Giovanni Pellerano](https://globaleaks.org/about/people/#giovanni-pellerano), who is currently the lead developer and has continuously guided and advised contributors and users since 2011. This lead role and responsibility is focused on doing what's best for this project, guiding contributors through the analysis of user requirements and the definition and execution of the [Project Roadmap](https://docs.globaleaks.org/en/stable/roadmap/) in adherence to [Contributributors Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CONTRIBUTING.md) and the [Best Practices](https://bestpractices.coreinfrastructure.org/en/projects/3816).
+The project is currently led by [Giovanni Pellerano](https://globaleaks.org/about/people/#giovanni-pellerano), who is currently the lead developer and has continuously guided and advised contributors and users since 2011. This lead role and responsibility is focused on doing what's best for this project, guiding contributors through the analysis of user requirements and the definition and execution of the [Project Roadmap](https://docs.globaleaks.org/en/stable/technical/roadmap.html) in adherence to [Contributributors Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CONTRIBUTING.md) and the [Best Practices](https://bestpractices.coreinfrastructure.org/en/projects/3816).
 
 ### Project Manager
 The Project Manager is in charge of managing and coordinating the activities of the project.
@@ -77,7 +77,7 @@ Many are the organizations that participate in the GlobaLeaks project and that c
 
 Here are listed the main organizations behind the project’s governance and sustainability:
 
-* [Whistleblowing Solutions Impresa Sociale (S.r.l.)](https://www.whistleblowingsolutions.it/): an innovative social enterprise that carries out research and development to support whistleblowers and the fight against corruption. It was founded in 2016 to guarantee the economic sustainability of the GlobaLeaks project, through taking care of the growing number of requests for assistance, maintenance and custom deployment. WBS hosts the development activities and coordinates the community efforts.
+* [Whistleblowing Solutions Impresa Sociale S.r.l. (WBS)](https://www.whistleblowingsolutions.it/): an innovative social enterprise that carries out research and development to support whistleblowers and the fight against corruption. It was founded in 2016 to guarantee the economic sustainability of the GlobaLeaks project, through taking care of the growing number of requests for assistance, maintenance and custom deployment. WBS hosts the development activities and coordinates the community efforts.
 
 * [Hermes Center for Transparency and Digital Human Rights (HERMES)](https://www.hermescenter.org/): a non-profit association founded in 2012 by a group of hacktivists, lawyers and digital rights defenders to host the development and implementation of open source technologies with the purpose of advocating for freedom of speech online and, more generally, the protection of human rights and personal freedom in a connected world. Fiscal sponsor for the initial GlobaLeaks development lifecycle is owner of the [AGPLv3 License](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/LICENSE) and [Trademark](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/globaleaks-euipo-trademark-certificate.pdf).
 
@@ -92,7 +92,7 @@ Feedback is welcome by any former or new contributor.
 
 ## Annexes
 
-* [Project Roadmap](https://docs.globaleaks.org/en/devel/roadmap/index.html)
+* [Project Roadmap](https://docs.globaleaks.org/en/stable/technical/roadmap.html)
 * [Project Code of Conduct](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CODE_OF_CONDUCT.md)
 * [Contributors Guidelines](https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CONTRIBUTING.md)
 * [Project Security Policy](https://github.com/globaleaks/globaleaks-whistleblowing-software/security/policy)
