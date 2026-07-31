@@ -1,9 +1,38 @@
+import base64
 import json
-from jose import jwt, jwk
+import time
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks, returnValue
 from twisted.web.client import Agent, readBody
 from twisted.web.http_headers import Headers
+
+
+def b64d(data):
+    """
+    Decode a base64url encoded JWS/JWK value; the padding stripped as per
+    RFC 7515 Appendix C is restored and any character outside the alphabet
+    is rejected rather than silently ignored.
+    """
+    if isinstance(data, str):
+        data = data.encode('utf-8')
+
+    return base64.b64decode(data + b'=' * (-len(data) % 4), altchars=b'-_', validate=True)
+
+
+def rsa_public_key(key):
+    """
+    Build an RSA public key from its JWK representation (RFC 7518 Section 6.3).
+    """
+    if key.get('kty') != 'RSA':
+        raise Exception("Unsupported key type in JWKS")
+
+    n = int.from_bytes(b64d(key['n']), 'big')
+    e = int.from_bytes(b64d(key['e']), 'big')
+
+    return rsa.RSAPublicNumbers(e, n).public_key()
 
 
 class OIDCAuth(object):
@@ -98,26 +127,56 @@ class OIDCAuth(object):
         if not jwks:
             raise Exception("JWKS not available for the configured issuer")
 
-        headers = jwt.get_unverified_headers(token)
-        kid = headers.get('kid')
+        try:
+            signing_input, encoded_signature = token.rsplit('.', 1)
+            encoded_headers, encoded_claims = signing_input.split('.')
+            headers = json.loads(b64d(encoded_headers))
+            claims = json.loads(b64d(encoded_claims))
+            signature = b64d(encoded_signature)
+        except Exception:
+            raise Exception("The token is malformed")
+
+        # The signature algorithm is pinned to RS256 and never taken from the
+        # token header, to avoid algorithm-confusion attacks.
+        if headers.get('alg') != 'RS256':
+            raise Exception("The token is not signed with the expected algorithm")
 
         key = None
-        for jwk_key in jwks['keys']:
-            if jwk_key['kid'] == kid:
+        for jwk_key in jwks.get('keys', []):
+            if jwk_key.get('kid') == headers.get('kid'):
                 key = jwk_key
                 break
 
         if key is None:
             raise Exception("Public key not found in JWKS")
 
-        public_key = jwk.construct(key)
+        try:
+            rsa_public_key(key).verify(signature,
+                                       signing_input.encode('utf-8'),
+                                       padding.PKCS1v15(),
+                                       hashes.SHA256())
+        except InvalidSignature:
+            raise Exception("The token signature is not valid")
 
-        # The signature algorithm is pinned to RS256 and never taken from the
-        # token header, to avoid algorithm-confusion attacks. jwt.decode verifies
-        # the signature, the expiration and the issuer; the audience is checked
-        # below because its value is issuer specific.
-        claims = jwt.decode(token, public_key, algorithms=['RS256'], issuer=issuer,
-                            options={'verify_aud': False})
+        if claims.get('iss') != issuer:
+            raise Exception("The token has not been issued by the configured issuer")
+
+        now = time.time()
+
+        # A token carrying no expiration would be valid forever and is
+        # therefore rejected even though RFC 7519 makes the claim optional.
+        try:
+            if float(claims['exp']) <= now:
+                raise Exception("The token is expired")
+        except (KeyError, TypeError, ValueError):
+            raise Exception("The token does not declare a valid expiration")
+
+        if 'nbf' in claims:
+            try:
+                if float(claims['nbf']) > now:
+                    raise Exception("The token is not valid yet")
+            except (TypeError, ValueError):
+                raise Exception("The token does not declare a valid validity start")
 
         # The audience of an access token varies across IdPs: some issue it to
         # the client identifier, others (Keycloak by default) issue it to a

@@ -1,14 +1,8 @@
 import base64
-import datetime
 import json
-from jose import jwt
-from jose.exceptions import ExpiredSignatureError, JWTError
-from twisted.trial import unittest
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+import time
 from cryptography.hazmat.primitives import hashes
-
-from unittest.mock import patch
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 from globaleaks.tests import helpers
 from globaleaks.utils import oidc
@@ -22,19 +16,6 @@ class Test_OIDCAuth(helpers.TestGL):
             key_size=2048
         )
 
-        # Serialize the private key (we won't use it directly in the test but for key generation)
-        self.private_pem = self.private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        )
-
-        # Serialize the public key, which will be used to create the JWK
-        self.public_pem = self.private_key.public_key().public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
-
         # OIDC metadata
         self.issuer = "http://127.0.0.1:9090/realms/globaleaks"
         self.audience = "account"
@@ -42,6 +23,37 @@ class Test_OIDCAuth(helpers.TestGL):
 
         self.oidc = oidc.OIDCAuth()
         self.oidc.jwks = {self.issuer: {"keys": []}}
+
+    def base64url_encode(self, data):
+        """
+        Encodes data in base64url encoding.
+        """
+        return base64.urlsafe_b64encode(data).rstrip(b'=')
+
+    def encode_token(self, payload, headers=None):
+        """
+        Signs a JWT with the dynamically created private key; this is the
+        counterpart of the verification implemented in globaleaks.utils.oidc.
+        """
+        headers = headers or {}
+        headers.setdefault("kid", "test-key-id")
+        headers.setdefault("alg", "RS256")
+        headers.setdefault("typ", "JWT")
+
+        segments = [
+            self.base64url_encode(json.dumps(headers).encode('utf-8')),
+            self.base64url_encode(json.dumps(payload).encode('utf-8'))
+        ]
+
+        signing_input = b'.'.join(segments)
+
+        signature = self.private_key.sign(signing_input,
+                                          padding.PKCS1v15(),
+                                          hashes.SHA256())
+
+        segments.append(self.base64url_encode(signature))
+
+        return b'.'.join(segments).decode('utf-8')
 
     def generate_valid_token(self):
         """
@@ -54,24 +66,12 @@ class Test_OIDCAuth(helpers.TestGL):
             "iss": self.issuer,
             "aud": self.audience,
             "azp": self.client_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-            "iat": datetime.datetime.utcnow(),
+            "exp": time.time() + 3600,
+            "iat": time.time(),
             "nonce": "random_nonce_value"
         }
 
-        header = {
-            "kid": "test-key-id",
-            "alg": "RS256",
-            "typ": "JWT"
-        }
-
-        return jwt.encode(payload, self.private_pem, algorithm="RS256", headers=header)
-
-    def base64url_encode(self, data):
-        """
-        Encodes data in base64url encoding.
-        """
-        return base64.urlsafe_b64encode(data).rstrip(b'=')
+        return self.encode_token(payload)
 
     def generate_jwk(self):
         """
@@ -115,7 +115,9 @@ class Test_OIDCAuth(helpers.TestGL):
         # Mock the JWKS response with the generated key
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.oidc.verify_token(valid_token, self.issuer, self.client_id)
+        claims = self.oidc.verify_token(valid_token, self.issuer, self.client_id)
+
+        self.assertEqual(claims['sub'], 'admin')
 
     def test_invalid_token_format(self):
         """
@@ -128,7 +130,7 @@ class Test_OIDCAuth(helpers.TestGL):
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
+        self.assertRaisesRegex(Exception, "malformed", self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
 
     def test_no_key_in_jwks(self):
         """
@@ -140,7 +142,7 @@ class Test_OIDCAuth(helpers.TestGL):
         # Mock a JWKS response without the correct key ID
         self.oidc.jwks = {self.issuer: {"keys": [{"kid": "other-key-id", "alg": "RS256", "use": "sig"}]}}
 
-        self.assertRaises(Exception, self.oidc.verify_token, valid_token, self.issuer, self.client_id)
+        self.assertRaisesRegex(Exception, "Public key not found", self.oidc.verify_token, valid_token, self.issuer, self.client_id)
 
     def test_invalid_signature(self):
         """
@@ -156,7 +158,42 @@ class Test_OIDCAuth(helpers.TestGL):
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
+        self.assertRaisesRegex(Exception, "signature is not valid", self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
+
+    def test_token_signed_by_another_key(self):
+        """
+        Test that a token signed by a key different from the one advertised in
+        the JWKS is rejected.
+        """
+        valid_token = self.generate_valid_token()
+
+        # Advertise a JWK carrying the key id of the token but the public key
+        # of a different key pair
+        self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaisesRegex(Exception, "signature is not valid", self.oidc.verify_token, valid_token, self.issuer, self.client_id)
+
+    def test_token_signed_with_an_unexpected_algorithm(self):
+        """
+        Test that the algorithm is never taken from the token header: a token
+        declaring a different algorithm is rejected instead of being verified
+        with the algorithm it declares.
+        """
+        payload = {
+            "sub": "admin",
+            "iss": self.issuer,
+            "aud": self.audience,
+            "azp": self.client_id,
+            "exp": time.time() + 3600
+        }
+
+        token = self.encode_token(payload, {"alg": "none"})
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaisesRegex(Exception, "expected algorithm", self.oidc.verify_token, token, self.issuer, self.client_id)
 
     def test_expired_signature(self):
         """
@@ -170,19 +207,75 @@ class Test_OIDCAuth(helpers.TestGL):
             "iss": self.issuer,
             "aud": self.audience,
             "azp": self.client_id,
-            "exp": datetime.datetime.utcnow() - datetime.timedelta(hours=1),  # Set expiration in the past
-            "iat": datetime.datetime.utcnow(),
+            "exp": time.time() - 3600,  # Set expiration in the past
+            "iat": time.time(),
             "nonce": "random_nonce_value"
         }
 
         # Use the same private key to generate an expired token
-        expired_token = jwt.encode(expired_payload, self.private_pem, algorithm="RS256", headers={"kid": "test-key-id"})
+        expired_token = self.encode_token(expired_payload)
 
         # Mock the JWKS response with the generated key
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(ExpiredSignatureError, self.oidc.verify_token, expired_token, self.issuer, self.client_id)
+        self.assertRaisesRegex(Exception, "expired", self.oidc.verify_token, expired_token, self.issuer, self.client_id)
+
+    def test_token_without_expiration(self):
+        """
+        Test that a token carrying no expiration is rejected: it would
+        otherwise be accepted forever.
+        """
+        payload = {
+            "sub": "admin",
+            "iss": self.issuer,
+            "aud": self.audience,
+            "azp": self.client_id
+        }
+
+        token = self.encode_token(payload)
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaisesRegex(Exception, "valid expiration", self.oidc.verify_token, token, self.issuer, self.client_id)
+
+    def test_token_not_yet_valid(self):
+        """
+        Test that a token whose validity starts in the future is rejected.
+        """
+        payload = {
+            "sub": "admin",
+            "iss": self.issuer,
+            "aud": self.audience,
+            "azp": self.client_id,
+            "exp": time.time() + 7200,
+            "nbf": time.time() + 3600
+        }
+
+        token = self.encode_token(payload)
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaisesRegex(Exception, "not valid yet", self.oidc.verify_token, token, self.issuer, self.client_id)
+
+    def test_token_issued_by_another_issuer(self):
+        """
+        Test that a token issued by an issuer different from the configured
+        one is rejected.
+        """
+        payload = {
+            "sub": "admin",
+            "iss": "http://127.0.0.1:9090/realms/another",
+            "aud": self.audience,
+            "azp": self.client_id,
+            "exp": time.time() + 3600
+        }
+
+        token = self.encode_token(payload)
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaisesRegex(Exception, "configured issuer", self.oidc.verify_token, token, self.issuer, self.client_id)
 
     def test_token_issued_to_another_client(self):
         """
@@ -196,15 +289,15 @@ class Test_OIDCAuth(helpers.TestGL):
             "iss": self.issuer,
             "aud": self.audience,
             "azp": "another-client",
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-            "iat": datetime.datetime.utcnow()
+            "exp": time.time() + 3600,
+            "iat": time.time()
         }
 
-        token = jwt.encode(payload, self.private_pem, algorithm="RS256", headers={"kid": "test-key-id"})
+        token = self.encode_token(payload)
 
         self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
 
-        self.assertRaises(Exception, self.oidc.verify_token, token, self.issuer, self.client_id)
+        self.assertRaisesRegex(Exception, "configured client", self.oidc.verify_token, token, self.issuer, self.client_id)
 
     def test_token_audienced_to_the_configured_client(self):
         """
@@ -216,11 +309,11 @@ class Test_OIDCAuth(helpers.TestGL):
             "email": "john.doe@example.com",
             "iss": self.issuer,
             "aud": [self.client_id],
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-            "iat": datetime.datetime.utcnow()
+            "exp": time.time() + 3600,
+            "iat": time.time()
         }
 
-        token = jwt.encode(payload, self.private_pem, algorithm="RS256", headers={"kid": "test-key-id"})
+        token = self.encode_token(payload)
 
         self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
 
@@ -234,4 +327,4 @@ class Test_OIDCAuth(helpers.TestGL):
 
         self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
 
-        self.assertRaises(Exception, self.oidc.verify_token, valid_token, self.issuer, '')
+        self.assertRaisesRegex(Exception, "No IdP client identifier", self.oidc.verify_token, valid_token, self.issuer, '')
