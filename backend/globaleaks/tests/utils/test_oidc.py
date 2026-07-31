@@ -38,6 +38,7 @@ class Test_OIDCAuth(helpers.TestGL):
         # OIDC metadata
         self.issuer = "http://127.0.0.1:9090/realms/globaleaks"
         self.audience = "account"
+        self.client_id = "globaleaks"
 
         self.oidc = oidc.OIDCAuth()
         self.oidc.jwks = {self.issuer: {"keys": []}}
@@ -52,6 +53,7 @@ class Test_OIDCAuth(helpers.TestGL):
             "email": "john.doe@example.com",
             "iss": self.issuer,
             "aud": self.audience,
+            "azp": self.client_id,
             "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
             "iat": datetime.datetime.utcnow(),
             "nonce": "random_nonce_value"
@@ -113,7 +115,7 @@ class Test_OIDCAuth(helpers.TestGL):
         # Mock the JWKS response with the generated key
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.oidc.verify_token(valid_token, self.issuer)
+        self.oidc.verify_token(valid_token, self.issuer, self.client_id)
 
     def test_invalid_token_format(self):
         """
@@ -126,7 +128,7 @@ class Test_OIDCAuth(helpers.TestGL):
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer)
+        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
 
     def test_no_key_in_jwks(self):
         """
@@ -138,7 +140,7 @@ class Test_OIDCAuth(helpers.TestGL):
         # Mock a JWKS response without the correct key ID
         self.oidc.jwks = {self.issuer: {"keys": [{"kid": "other-key-id", "alg": "RS256", "use": "sig"}]}}
 
-        self.assertRaises(Exception, self.oidc.verify_token, valid_token, self.issuer)
+        self.assertRaises(Exception, self.oidc.verify_token, valid_token, self.issuer, self.client_id)
 
     def test_invalid_signature(self):
         """
@@ -154,7 +156,7 @@ class Test_OIDCAuth(helpers.TestGL):
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer)
+        self.assertRaises(JWTError, self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
 
     def test_expired_signature(self):
         """
@@ -167,6 +169,7 @@ class Test_OIDCAuth(helpers.TestGL):
             "email": "john.doe@example.com",
             "iss": self.issuer,
             "aud": self.audience,
+            "azp": self.client_id,
             "exp": datetime.datetime.utcnow() - datetime.timedelta(hours=1),  # Set expiration in the past
             "iat": datetime.datetime.utcnow(),
             "nonce": "random_nonce_value"
@@ -179,4 +182,56 @@ class Test_OIDCAuth(helpers.TestGL):
         jwk_key = self.generate_jwk()
         self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
 
-        self.assertRaises(ExpiredSignatureError, self.oidc.verify_token, expired_token, self.issuer)
+        self.assertRaises(ExpiredSignatureError, self.oidc.verify_token, expired_token, self.issuer, self.client_id)
+
+    def test_token_issued_to_another_client(self):
+        """
+        Test that a token issued by the same issuer to a different client is
+        rejected: the generic audience used by some IdPs is shared across all
+        the clients of the same realm and is therefore not sufficient on its own.
+        """
+        payload = {
+            "sub": "admin",
+            "email": "john.doe@example.com",
+            "iss": self.issuer,
+            "aud": self.audience,
+            "azp": "another-client",
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
+            "iat": datetime.datetime.utcnow()
+        }
+
+        token = jwt.encode(payload, self.private_pem, algorithm="RS256", headers={"kid": "test-key-id"})
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaises(Exception, self.oidc.verify_token, token, self.issuer, self.client_id)
+
+    def test_token_audienced_to_the_configured_client(self):
+        """
+        Test that a token whose audience is the configured client is accepted
+        also when the IdP does not issue the 'azp' claim.
+        """
+        payload = {
+            "sub": "admin",
+            "email": "john.doe@example.com",
+            "iss": self.issuer,
+            "aud": [self.client_id],
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
+            "iat": datetime.datetime.utcnow()
+        }
+
+        token = jwt.encode(payload, self.private_pem, algorithm="RS256", headers={"kid": "test-key-id"})
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.oidc.verify_token(token, self.issuer, self.client_id)
+
+    def test_no_client_id_configured(self):
+        """
+        Test that no token is accepted when no client identifier is configured.
+        """
+        valid_token = self.generate_valid_token()
+
+        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
+
+        self.assertRaises(Exception, self.oidc.verify_token, valid_token, self.issuer, '')

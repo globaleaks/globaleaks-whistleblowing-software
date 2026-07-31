@@ -177,6 +177,7 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
     if signup_idp:
         node.set_val('idp', True)
         node.set_val('idp_issuer', config.get_val('idp_issuer'))
+        node.set_val('idp_client_id', config.get_val('idp_client_id'))
 
     salt = node.get_val('receipt_salt')
 

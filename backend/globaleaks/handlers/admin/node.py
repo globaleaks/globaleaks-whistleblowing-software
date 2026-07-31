@@ -232,6 +232,9 @@ class NodeInstance(BaseHandler):
         # When a local IDP issuer is configured, validate server-side that it is
         # reachable and exposes a usable JWKS before persisting the change.
         if request['idp']:
+            if not request.get('idp_client_id'):
+                raise errors.InputValidationError('No IdP client identifier configured')
+
             try:
                 yield State.oidcauth.validate_issuer(request['idp_issuer'])
             except Exception:

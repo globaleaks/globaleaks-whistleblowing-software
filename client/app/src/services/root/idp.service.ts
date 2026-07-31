@@ -55,7 +55,7 @@ export class IdpService {
     this.oauthService.configure({
       issuer: this.appDataService.public.node.idp_issuer,
       redirectUri: window.location.origin + tenantBasePath + "/#/login",
-      clientId: "globaleaks",
+      clientId: this.appDataService.public.node.idp_client_id,
       responseType: "code",
       scope: "openid profile email",
       requireHttps: false,
@@ -87,7 +87,7 @@ export class IdpService {
       return Promise.resolve(false);
     }
 
-    const configurationKey = this.getTenantStoragePrefix() + this.appDataService.public.node.idp_issuer;
+    const configurationKey = this.getTenantStoragePrefix() + this.appDataService.public.node.idp_issuer + ":" + this.appDataService.public.node.idp_client_id;
     if (configurationKey !== this.configurationKey) {
       if (this.configurationKey) {
         this.oauthService.logOut(true);

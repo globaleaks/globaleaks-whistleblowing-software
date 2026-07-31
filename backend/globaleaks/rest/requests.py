@@ -273,6 +273,7 @@ AdminNodeDesc = {
     'idp': bool,
     'idp_issuer': str,
     'default_user_profile': default_user_profile_regexp,
+    'idp_client_id': str,
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,

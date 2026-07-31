@@ -85,6 +85,7 @@ ConfigDescriptor = {
     'https_whistleblower': Bool(default=True),
     'idp': Bool(default=False),
     'idp_issuer': Unicode(default=''),
+    'idp_client_id': Unicode(default=''),
     'ip_filter_admin': Unicode(default=''),
     'ip_filter_admin_enable': Bool(default=False),
     'ip_filter_analyst': Unicode(default=''),
@@ -203,6 +204,7 @@ ConfigFilters = {
         'https_whistleblower',
         'idp',
         'idp_issuer',
+        'idp_client_id',
         'default_user_profile',
         'ip_filter_admin',
         'ip_filter_admin_enable',
@@ -335,6 +337,7 @@ ConfigFilters = {
         'antivirus_clamd_port',
         'idp',
         'idp_issuer',
+        'idp_client_id',
         'default_user_profile',
     ],
     'admin_network': [
@@ -412,6 +415,7 @@ ConfigFilters = {
         'https_whistleblower',
         'idp',
         'idp_issuer',
+        'idp_client_id',
         'maximum_filesize',
         'name',
         'mode',
@@ -443,6 +447,7 @@ ConfigFilters = {
         'rootdomain',
         'idp',
         'idp_issuer',
+        'idp_client_id',
         'default_user_profile'
     ]
 }

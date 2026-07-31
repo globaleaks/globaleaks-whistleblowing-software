@@ -40,7 +40,8 @@ export class Tab7Component {
             node: {
               ...this.appDataService.public.node,
               idp: this.nodeResolver.dataModel.idp,
-              idp_issuer: this.nodeResolver.dataModel.idp_issuer
+              idp_issuer: this.nodeResolver.dataModel.idp_issuer,
+              idp_client_id: this.nodeResolver.dataModel.idp_client_id
             }
           });
         }

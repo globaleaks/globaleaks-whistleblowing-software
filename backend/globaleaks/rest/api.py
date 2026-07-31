@@ -525,8 +525,9 @@ class APIResourceWrapper(Resource):
             bearer_token = extract_bearer_token(request)
             if bearer_token:
                 issuer = State.tenants[request.tid].cache.idp_issuer
+                client_id = State.tenants[request.tid].cache.idp_client_id
                 try:
-                    request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer)
+                    request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer, client_id)
                 except Exception as e:
                     try:
                         db_log(None, tid=request.tid, type='idp_malfunction', object_id=None, details=str(e))

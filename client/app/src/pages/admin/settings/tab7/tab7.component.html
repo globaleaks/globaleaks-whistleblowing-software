@@ -12,6 +12,10 @@
           <label>OIDC Issuer URL</label>
           <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_issuer" id="idp-issuer" name="issuer" class="form-control" [pattern]="Constants.issuerRegexp" #issuer="ngModel" [ngClass]="{'is-invalid': issuer.invalid && issuer.touched}" [disabled]="isInheritedTenantContext()" required/>
         </div>
+        <div class="form-group">
+          <label>OIDC Client ID</label>
+          <input type="text" [(ngModel)]="nodeResolver.dataModel.idp_client_id" id="idp-client-id" name="client_id" class="form-control" #clientId="ngModel" [ngClass]="{'is-invalid': clientId.invalid && clientId.touched}" [disabled]="isInheritedTenantContext()" required/>
+        </div>
       }
       <div class="form-group">
         <button class="btn btn-primary" id="save" [disabled]="contentForm.invalid || isInheritedTenantContext()" (click)="updateNode()">

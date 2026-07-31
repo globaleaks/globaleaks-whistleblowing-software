@@ -388,6 +388,7 @@ class MockDict:
             'backup_retention': 7,
             'idp': False,
             'idp_issuer': '',
+            'idp_client_id': '',
         }
 
         self.dummyNetwork = {
