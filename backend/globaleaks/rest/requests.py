@@ -84,7 +84,6 @@ ContentType = r'(.*)'
 
 AdminTenantDesc = {
     'name': str,
-    'mode': str,
     'active': bool,
     'subdomain': subdomain_regexp_or_empty,
     'profile': str,
@@ -233,9 +232,11 @@ AdminNodeDesc = {
     'simplified_login': bool,
     'enable_scoring_system': bool,
     'enable_signup': bool,
+    'enable_onion': bool,
+    'default_tip_timetolive': int,
+    'demo': bool,
     'signup_invite_only': bool,
     'signup_auto_authorize': bool,
-    'mode': str,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
     'signup_tos1_text': str,

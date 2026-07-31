@@ -341,7 +341,6 @@ class MockDict:
             'simplified_login': False,
             'enable_scoring_system': False,
             'enable_signup': True,
-            'mode': 'default',
             'signup_auto_authorize': True,
             'signup_invite_only': False,
             'signup_tos1_enable': False,
@@ -911,7 +910,7 @@ class TestGLWithPopulatedDB(TestGL):
         # fill_data create_tenant
         for i in range(1, self.population_of_tenants):
             name = 'tenant-' + str(i+1)
-            t = yield create_tenant({'mode': 'default', 'name': name, 'active': True, 'subdomain': name, 'profile': '1000001'})
+            t = yield create_tenant({'name': name, 'active': True, 'subdomain': name, 'profile': '1000001'})
             yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
             yield self.set_hostnames(i)
 

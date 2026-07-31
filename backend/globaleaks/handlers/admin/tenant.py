@@ -79,7 +79,7 @@ def db_create(session, desc, isTenant = True, **kwargs):
             db_set_config_variable(session, 1, 'https_selfsigned_key', key)
             db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
 
-        for var in ['mode', 'profile', 'subdomain']:
+        for var in ['profile', 'subdomain']:
             db_set_config_variable(session, t.id, var, desc[var])
 
     elif t.id == DEFAULT_PROFILE_ID:
@@ -323,11 +323,13 @@ def db_wizard(session, tid, hostname, request):
     context_desc = models.Context().dict(language)
     context_desc['name'] = 'Default'
     context_desc['status'] = 'enabled'
+    context_desc['questionnaire_id'] = node.get_val('default_questionnaire')
+    context_desc['tip_timetolive'] = node.get_val('default_tip_timetolive')
 
     if not request['skip_recipient_account_creation']:
         context_desc['receivers'] = [receiver_user.id]
 
-    context = db_create_context(session, tid, None, context_desc, language)
+    db_create_context(session, tid, None, context_desc, language)
 
     # Root tenants initialization terminates here
 
@@ -339,25 +341,6 @@ def db_wizard(session, tid, hostname, request):
     rootdomain = root_tenant_node.get_val('rootdomain')
     if subdomain and rootdomain:
         node.set_val('hostname', subdomain + "." + rootdomain)
-
-    mode = node.get_val('mode')
-
-    if mode in ['wbpa']:
-        node.set_val('simplified_login', True)
-
-        for varname in ['anonymize_outgoing_connections',
-                        'password_change_period',
-                        'default_questionnaire']:
-            node.set_val(varname, root_tenant_node.get_val(varname))
-
-        context.questionnaire_id = root_tenant_node.get_val('default_questionnaire')
-
-        # Set data retention policy to 12 months
-        context.tip_timetolive = 365
-
-        if not request['skip_recipient_account_creation']:
-            # Set the recipient name equal to the node name
-            receiver_user.name = receiver_user.public_name = request['node_name']
 
 
 @transact
@@ -388,7 +371,7 @@ def update(session, tid, request, language):
     if request['subdomain'] + "." + root_tenant_config.get_val('rootdomain') == root_tenant_config.get_val('hostname'):
         raise errors.ForbiddenOperation
 
-    for var in ['mode', 'name', 'subdomain']:
+    for var in ['name', 'subdomain']:
         db_set_config_variable(session, tid, var, request[var])
 
     return serializers.serialize_tenant(session, t)

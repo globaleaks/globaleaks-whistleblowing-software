@@ -5,6 +5,9 @@ export class nodeResolverModel {
   custom_support_url: string;
   default_language: string;
   default_questionnaire: string;
+  default_tip_timetolive: number;
+  demo: boolean;
+  enable_onion: boolean;
   description: string;
   disable_privacy_badge: boolean;
   disable_submissions: boolean;
@@ -23,7 +26,6 @@ export class nodeResolverModel {
   log_accesses_of_internal_users: boolean;
   log_level: string;
   maximum_filesize: number;
-  mode: string;
   name: string;
   password_change_period: number;
   pgp: boolean;

@@ -13,22 +13,21 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
 
 @Component({
-  selector: 'src-sites-tab3',
-  templateUrl: './sites-tab3.component.html',
+  selector: 'src-sites-tab2',
+  templateUrl: './sites-tab2.component.html',
   standalone: true,
   imports: [FormsModule, ProfilelistComponent, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule, SlicePipe, TranslatorPipe, FilterPipe, OrderByPipe, TranslateModule]
 })
-export class SitesTab3Component implements OnInit {
+export class SitesTab2Component implements OnInit {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   private http = inject(HttpClient);
   @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
 
   search: string;
-  newTenant: { name: string, active: boolean, profile: string, mode: string, subdomain: string, is_profile: boolean} = {
+  newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
     active: true,
-    mode: "",
     profile: "default",
     subdomain: "",
     is_profile: true

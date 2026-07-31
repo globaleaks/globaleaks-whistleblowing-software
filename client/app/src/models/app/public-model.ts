@@ -32,7 +32,7 @@ export class Node {
   hostname: string;
   https_whistleblower = false;
   maximum_filesize: number;
-  mode: string;
+  demo: boolean;
   name: string;
   onionservice: string;
   rootdomain: string;

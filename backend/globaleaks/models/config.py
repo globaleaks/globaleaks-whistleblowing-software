@@ -1,5 +1,4 @@
 from sqlalchemy import and_, delete, or_, tuple_
-from sqlalchemy.orm import aliased
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.models import Config, ConfigL10N
@@ -8,18 +7,34 @@ from globaleaks.models.config_desc import ConfigDescriptor, ConfigFilters, Confi
 from globaleaks.utils.onion import generate_onion_service_v3
 
 
-# List of variables that on creation are set with the value
-# they have on the root tenant
-inherit_from_root_tenant = ['default_questionnaire']
+root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
 
-root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
+secondary_tenant_keys = ["profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
 
-secondary_tenant_keys = ["profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
-
-protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "mode", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
+protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
 
 
 DEFAULT_PROFILE_ID = 1000001
+
+
+def db_get_pid_by_profile(session, profile_value):
+    """
+    Resolve the tenant ID of the profile referenced by the given profile value
+
+    :param session: An ORM session
+    :param profile_value: The value of the 'profile' configuration variable
+    :return: The tenant ID of the referenced profile
+    """
+    if not profile_value:
+        return None
+
+    if profile_value == 'default':
+        return DEFAULT_PROFILE_ID
+
+    return session.query(Config.tid).filter(
+        Config.var_name == 'uuid',
+        Config.value == profile_value
+    ).scalar()
 
 
 def db_get_pid(session, tid):
@@ -28,25 +43,56 @@ def db_get_pid(session, tid):
         Config.var_name == 'profile',
     ).scalar()
 
+    return db_get_pid_by_profile(session, profile_value)
+
+
+def db_get_profile_children(session, pid):
+    """
+    Retrieve the tenant IDs of the tenants inheriting from the given profile
+
+    :param session: An ORM session
+    :param pid: The tenant ID of the profile
+    :return: The list of the tenant IDs referencing the profile
+    """
+    if pid == DEFAULT_PROFILE_ID:
+        profile_value = 'default'
+    else:
+        profile_value = session.query(Config.value).filter(
+            Config.tid == pid,
+            Config.var_name == 'uuid'
+        ).scalar()
+
     if not profile_value:
-        return None
+        return []
 
-    if profile_value == 'default':
-        return DEFAULT_PROFILE_ID
+    return [tid for tid, in session.query(Config.tid).filter(
+        Config.var_name == 'profile',
+        Config.value == profile_value
+    ).all()]
 
-    config_profile = aliased(Config)
-    config_uuid4 = aliased(Config)
 
-    result_tid = session.query(config_uuid4.tid).join(
-        config_profile,
-        config_uuid4.value == config_profile.value
-    ).filter(
-        config_profile.var_name == 'profile',
-        config_profile.value == profile_value,
-        config_uuid4.var_name == 'uuid'
-    ).scalar()
+def db_get_profile_val(session, pid, var_name):
+    """
+    Resolve a configuration variable on the inheritance chain of a profile
 
-    return result_tid
+    :param session: An ORM session
+    :param pid: The tenant ID of the profile
+    :param var_name: The name of the configuration variable
+    :return: The value configured on the profile, on the default profile or the descriptor default
+    """
+    for lookup_tid in [pid, DEFAULT_PROFILE_ID]:
+        if lookup_tid is None:
+            continue
+
+        value = session.query(Config.value).filter(
+            Config.tid == lookup_tid,
+            Config.var_name == var_name
+        ).scalar()
+
+        if value is not None:
+            return value
+
+    return get_default(ConfigDescriptor[var_name].default)
 
 
 def get_default(default):
@@ -145,8 +191,7 @@ class ConfigFactory(object):
         self.session.query(Config).filter(Config.tid == tid, Config.var_name == var_name).delete(synchronize_session=False)
 
     def sync_profile(self, t_result, d_result):
-        result = self.session.query(Config).filter(Config.var_name == 'profile', Config.value == str(self.tid)).all()
-        tid_list = [config.tid for config in result]
+        tid_list = db_get_profile_children(self.session, self.tid)
 
         for entry in self.session.query(Config).filter(Config.tid.in_(tid_list)).all():
             if entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value or entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name].value == entry.value:
@@ -246,8 +291,7 @@ class ConfigL10NFactory(object):
         self.session.query(ConfigL10N).filter(ConfigL10N.tid == self.tid, ConfigL10N.var_name.in_(ConfigFilters[filter_name]))
 
     def sync_profile(self, lang, t_result, d_result):
-        result = self.session.query(Config).filter(Config.var_name == 'profile', Config.value == str(self.tid)).all()
-        tid_list = [config.tid for config in result]
+        tid_list = db_get_profile_children(self.session, self.tid)
 
         for entry in self.session.query(ConfigL10N).filter(ConfigL10N.tid.in_(tid_list)).all():
             if (entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value) or (entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name] == entry.value):
@@ -305,18 +349,18 @@ def initialize_config(session, tid, data):
     for name, desc in ConfigDescriptor.items():
         variables[name] = get_default(desc.default)
 
+    pid = None
+
     if tid != 1:
         # Initialization valid for secondary tenants
-        variables['mode'] = data['mode']
         variables['profile'] = data['profile']
+        pid = db_get_pid_by_profile(session, data['profile'])
 
-    if data['mode'] == 'default':
+    # The onion service is generated only for the tenants for which it is
+    # enabled by their own profile; the others are reachable as a subdomain
+    # of the onion service of the root tenant.
+    if db_get_profile_val(session, pid, 'enable_onion'):
         variables['onionservice'], variables['tor_onion_key'] = generate_onion_service_v3()
-
-    if data['mode'] == 'wbpa':
-        root_tenant_node = ConfigFactory(session, 1).serialize('node')
-        for name in inherit_from_root_tenant:
-            variables[name] = root_tenant_node[name]
 
     if tid == 1:
         for name in root_tenant_keys:

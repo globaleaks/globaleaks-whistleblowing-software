@@ -23,7 +23,7 @@ class TestORM(helpers.TestGL):
         raise Exception("antani")
 
     def db_add_config(self, session):
-        tenant_data = {'active': True, 'name': 'GlobaLeaks', 'mode': 'default', 'profile': 'default', 'subdomain': 'subdomain'}
+        tenant_data = {'active': True, 'name': 'GlobaLeaks', 'profile': 'default', 'subdomain': 'subdomain'}
         db_create_tenant(session, tenant_data, isTenant=True)
 
     @inlineCallbacks

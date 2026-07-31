@@ -58,10 +58,7 @@ def db_notify_report_update(session, user, rtip, itip):
       'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
     }
 
-    if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
-    else:
-        data['notification'] = db_get_notification(session, 1, user.language)
+    data['notification'] = db_get_notification(session, user.tid, user.language)
 
     subject, body = Templating().get_mail_subject_and_body(data)
 

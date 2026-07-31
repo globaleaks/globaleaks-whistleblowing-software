@@ -91,6 +91,45 @@
       </div>
     }
     <div class="form-group">
+      <label for="default-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
+      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
+        @for (item of questionnaireData; track item) {
+          <option [ngValue]="item.id">{{item.name}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="default-user-profile-select">{{ 'User profile' | translate }}</label>
+      <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile">
+        <option value="">{{ 'None' | translate }}</option>
+        <option value="admin">{{ 'Admin' | translate }}</option>
+        <option value="analyst">{{ 'Analyst' | translate }}</option>
+        <option value="custodian">{{ 'Custodian' | translate }}</option>
+        <option value="recipient">{{ 'Recipient' | translate }}</option>
+        @for (profile of userProfiles; track profile.id) {
+          <option [value]="profile.id">{{profile.name | translate}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="default-tip-timetolive">{{ 'Data retention policy' | translate }} ({{ 'days' | translate }})</label>
+      <input id="default-tip-timetolive" name="default_tip_timetolive" class="form-control" [(ngModel)]="nodeResolver.dataModel.default_tip_timetolive" type="number" min="0" />
+    </div>
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" type="checkbox" />
+        <span>{{ 'Enable demo mode' | translate }}</span>
+      </label>
+      <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
+    </div>
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" type="checkbox" />
+        <span>{{ 'Enable a dedicated Tor onion service' | translate }}</span>
+      </label>
+      <div>{{ 'The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.' | translate }}</div>
+    </div>
+    <div class="form-group">
       <label for="homepage-input">{{ 'Home' | translate }}</label>
       <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" required>
         <option value="/">/</option>

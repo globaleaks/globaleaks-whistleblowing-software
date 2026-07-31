@@ -257,7 +257,8 @@ def db_serialize_node(session, tid, language):
     :return: The serialization of the public node configuration
     """
     languages = db_get_languages(session, tid)
-    ret = ConfigFactory(session, tid).serialize('public_node')
+    node = ConfigFactory(session, tid)
+    ret = node.serialize('public_node')
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
@@ -273,17 +274,10 @@ def db_serialize_node(session, tid, language):
         if language not in languages:
             language = root_tenant_node.get_val('default_language')
 
-        root_tenant_l10n = ConfigL10NFactory(session, 1)
-
-        if ret['mode'] != 'default':
+        # Tenants not exposing their own onion service are reachable as a
+        # subdomain of the onion service of the root tenant
+        if not node.get_val('enable_onion'):
             ret['onionservice'] = ret['subdomain'] + '.' + root_tenant_node.get_val('onionservice')
-
-        if ret['mode'] not in ['default', 'demo']:
-            ret['disable_privacy_badge'] = root_tenant_node.get_val('disable_privacy_badge')
-            ret['footer'] = root_tenant_l10n.get_val('footer', language)
-            ret['whistleblowing_question'] = root_tenant_l10n.get_val('whistleblowing_question', language)
-            ret['whistleblowing_button'] = root_tenant_l10n.get_val('whistleblowing_button', language)
-            ret['disclaimer_text'] = root_tenant_l10n.get_val('disclaimer_text', language)
 
     ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 

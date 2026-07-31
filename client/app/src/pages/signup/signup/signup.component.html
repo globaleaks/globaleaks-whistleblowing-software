@@ -11,23 +11,9 @@
         </div>
       }
       @if (!idpRequired || idpAuthenticated) {
-        @switch (appDataService.public.node.mode) {
-          @case ('default') {
-            <div>
-              <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-            </div>
-          }
-          @case ('demo') {
-            <div>
-              <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-            </div>
-          }
-          @case ('wbpa') {
-            <div>
-              <src-wbpa (updateSubdomain)=updateSubdomain() (complete)="complete()" [signup]="signup"></src-wbpa>
-            </div>
-          }
-        }
+        <div>
+          <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
+        </div>
       }
     </div>
   }

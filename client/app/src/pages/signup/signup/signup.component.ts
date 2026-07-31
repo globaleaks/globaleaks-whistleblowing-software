@@ -9,7 +9,6 @@ import {OAuthService} from "angular-oauth2-oidc";
 import {IdpService} from "@app/services/root/idp.service";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
-import {WbpaComponent} from "../templates/wbpa/wbpa.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -17,7 +16,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-signup",
     templateUrl: "./signup.component.html",
     standalone: true,
-    imports: [SignupdefaultComponent, WbpaComponent, TranslateModule, TranslatorPipe]
+    imports: [SignupdefaultComponent, TranslateModule, TranslatorPipe]
 })
 export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);

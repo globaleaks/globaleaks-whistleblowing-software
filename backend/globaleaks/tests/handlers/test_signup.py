@@ -31,9 +31,8 @@ class TestSignupActivation(helpers.TestHandler):
     _handler = signup.SignupActivation
 
     @inlineCallbacks
-    def _signup(self, mode):
+    def _signup(self):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
-        yield tw(db_set_config_variable, 1, 'mode', mode)
 
         yield self.test_model_count(models.User, 0)
 
@@ -51,22 +50,10 @@ class TestSignupActivation(helpers.TestHandler):
         return self.assertFailure(handler.post(u'valid_or_invalid'), errors.ForbiddenOperation)
 
     @inlineCallbacks
-    def test_valid_signup_in_default_mode(self):
-        yield self._signup('default')
+    def test_valid_signup(self):
+        yield self._signup()
 
         yield self.test_model_count(models.User, 2)
-
-    @inlineCallbacks
-    def test_valid_signup_in_demo_mode(self):
-        yield self._signup('demo')
-
-        yield self.test_model_count(models.User, 2)
-
-    @inlineCallbacks
-    def test_valid_signup_in_wbpa_mode(self):
-        yield self._signup('wbpa')
-
-        yield self.test_model_count(models.User, 1)
 
     @inlineCallbacks
     def test_invalid_signup_with_invalid_activation_token(self):

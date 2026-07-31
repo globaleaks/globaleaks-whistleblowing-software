@@ -420,7 +420,6 @@ export class HttpService {
   addTenant(param: {
     name: string,
     active: boolean,
-    mode: string,
     subdomain: string
   }): Observable<tenantResolverModel> {
     return this.httpClient.post<tenantResolverModel>("api/admin/tenants", param);

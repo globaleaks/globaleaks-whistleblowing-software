@@ -9,12 +9,17 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.db import compact_db, db_get_tracked_attachments, db_get_tracked_files, db_refresh_tenant_cache
 from globaleaks.jobs.job import DailyJob
+from globaleaks.models.config import DEFAULT_PROFILE_ID
 from globaleaks.orm import db_del, db_log, transact, tw
 from globaleaks.utils.fs import srm
 from globaleaks.utils.utility import datetime_never, datetime_now, is_expired
 
 
 __all__ = ['Cleaning']
+
+
+# Lifetime, in days, of the platforms for which the demo mode is enabled
+DEMO_PLATFORM_LIFETIME = 90
 
 
 class Cleaning(DailyJob):
@@ -98,20 +103,35 @@ class Cleaning(DailyJob):
 
     @transact
     def delete_expired_demo_platforms(self, session):
-        to_delete = set(tid[0] for tid in session.query(models.Tenant.id)
-                                                 .filter(models.Tenant.id != 1,
-                                                         models.Tenant.id == models.Config.tid,
-                                                         models.Tenant.creation_date <= datetime_now() - timedelta(90),
-                                                         models.Config.var_name == 'mode',
-                                                         models.Config.value == 'demo').all())
+        """
+        Transaction for deleting the demo platforms whose lifetime has expired.
+
+        The first site and the profiles are never deleted, regardless of the
+        value that the demo variable assumes on them.
+
+        :param session: An ORM session
+        """
+        to_delete = set()
+
+        for tid, creation_date in session.query(models.Tenant.id, models.Tenant.creation_date) \
+                                         .filter(models.Tenant.id != 1,
+                                                 models.Tenant.id < DEFAULT_PROFILE_ID):
+            if tid not in self.state.tenants:
+                continue
+
+            if self.state.tenants[tid].cache.demo and is_expired(creation_date, days=DEMO_PLATFORM_LIFETIME):
+                to_delete.add(tid)
+
+        if not to_delete:
+            return
+
         db_del(session, models.Tenant, models.Tenant.id.in_(to_delete))
-        db_refresh_tenant_cache(session, to_delete)
+        db_refresh_tenant_cache(session)
 
 
     @inlineCallbacks
     def operation(self):
-        if self.state.tenants[1].cache['mode'] == 'demo':
-            yield self.delete_expired_demo_platforms()
+        yield self.delete_expired_demo_platforms()
 
         yield self.clean()
 

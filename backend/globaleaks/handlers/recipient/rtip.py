@@ -65,10 +65,7 @@ def db_notify_grant_access(session, user):
     data['user'] = serialize_user(session, user, user.language)
     data['node'] = db_admin_serialize_node(session, user.tid, user.language)
 
-    if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
-    else:
-        data['notification'] = db_get_notification(session, 1, user.language)
+    data['notification'] = db_get_notification(session, user.tid, user.language)
 
     subject, body = Templating().get_mail_subject_and_body(data)
 
@@ -974,10 +971,7 @@ def db_create_identityaccessrequest_notifications(session, itip, rtip, iar):
         data['iar'] = serializers.serialize_identityaccessrequest(session, iar)
         data['node'] = db_admin_serialize_node(session, itip.tid, user.language)
 
-        if data['node']['mode'] == 'default':
-            data['notification'] = db_get_notification(session, itip.tid, user.language)
-        else:
-            data['notification'] = db_get_notification(session, 1, user.language)
+        data['notification'] = db_get_notification(session, itip.tid, user.language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 

@@ -10,8 +10,9 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import {HttpService} from "@app/shared/services/http.service";
 import {NgClass} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
@@ -31,9 +32,11 @@ export class Tab5Component implements OnInit {
   protected preferenceResolver = inject(PreferenceResolver);
   private usersResolver = inject(UsersResolver);
   private questionnairesResolver = inject(QuestionnairesResolver);
+  private httpService = inject(HttpService);
 
   @Input() contentForm: NgForm;
   userData: User[] = [];
+  userProfiles: UserProfile[] = [];
   questionnaireData: questionnaireResolverModel[];
   routeReload = false;
 
@@ -44,6 +47,10 @@ export class Tab5Component implements OnInit {
     this.filterUserData();
 
     this.questionnaireData = this.questionnairesResolver.dataModel;
+
+    this.httpService.requestUserProfilesResource().subscribe((profiles: UserProfile[]) => {
+      this.userProfiles = profiles.filter(profile => profile.name !== "");
+    });
   }
 
   filterUserData(): void {

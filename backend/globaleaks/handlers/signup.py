@@ -101,7 +101,6 @@ def signup(session, request, language, oidc_token=None):
         tenant = db_create_tenant(session, {'active': active,
                                             'name': request['organization_name'] or request['subdomain'],
                                             'subdomain': request['subdomain'],
-                                            'mode': config.get_val('mode'),
                                             'profile': config.get_val('profile')})
 
         signup = models.Subscriber(request)
@@ -182,7 +181,7 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
     salt = node.get_val('receipt_salt')
 
     # Read the tenant specific value (inherited from the tenant profile)
-    # falling back on the root tenant configuration set via the Sites interface
+    # falling back on the root tenant configuration set via Settings/Advanced
     default_user_profile = node.get_val('default_user_profile') or config.get_val('default_user_profile')
 
     default_role = ''

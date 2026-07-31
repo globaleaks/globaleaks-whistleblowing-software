@@ -3,13 +3,13 @@ import sqlalchemy
 import sys
 import traceback
 from collections import defaultdict
-from operator import or_
 
 from globaleaks.rest.cache import Cache
 
 from globaleaks import models, DATABASE_VERSION
 from globaleaks.handlers.admin.https import db_load_tls_configs
 from globaleaks.models import Base, Config
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_pid, db_get_profile_children
 from globaleaks.models.config_desc import ConfigFilters
 from globaleaks.orm import get_engine, get_session, make_db_uri, transact, transact_sync
 from globaleaks.settings import Settings
@@ -79,8 +79,8 @@ def initialize_db(session):
     :param session: An ORM session
     """
     from globaleaks.handlers.admin import tenant
-    tenant.db_create(session, {'active': True, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''})
-    tenant.db_create(session, {'active': True, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
+    tenant.db_create(session, {'active': True, 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''})
+    tenant.db_create(session, {'active': True, 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
 
 
 def update_db():
@@ -208,13 +208,15 @@ def db_refresh_tenant_cache(session, to_refresh=None):
     else:
         if to_refresh in active_tids:
             tids = [to_refresh]
-            if to_refresh < 1000001:
-                profile_exists = session.query(Config).filter_by(tid=to_refresh, var_name='profile').first()
-                if profile_exists:
-                    tids.append(profile_exists.tid)
+            if to_refresh < DEFAULT_PROFILE_ID:
+                pid = db_get_pid(session, to_refresh)
+                if pid is not None and pid != to_refresh:
+                    tids.append(pid)
 
-            elif to_refresh >= 1000001:
-                matching_tids = [tid[0] for tid in session.query(Config.tid).filter_by(var_name='profile', value=str(to_refresh)).all()]
+            else:
+                matching_tids = [tid for tid in db_get_profile_children(session, to_refresh)
+                                 if tid in active_tids and tid != to_refresh]
+
                 tids.extend(matching_tids)
 
                 # Invalidate every tenant using the updated profile
@@ -228,16 +230,16 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
     tids = sorted(tids)
 
+    pids = {}
+
     for tid in tids:
         if tid not in State.tenants:
             State.tenants[tid] = TenantState()
 
+        pids[tid] = db_get_pid(session, tid) or DEFAULT_PROFILE_ID
+
         tenant_cache = State.tenants[tid].cache
-        profile = session.query(Config.value).filter(Config.tid == tid, Config.var_name == 'profile').scalar()
-        if profile is not None and profile != 1000001:
-            tenant_cache['ptid'] = profile
-        else:
-            tenant_cache['ptid'] = tid
+        tenant_cache['ptid'] = pids[tid]
 
         tenant_cache['redirects'] = {}
         tenant_cache['custodian'] = False
@@ -255,16 +257,20 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
     configs = defaultdict(dict)
 
-    for cfg in session.query(Config).filter(or_(Config.tid.in_(tids), Config.tid == 1000001)):
+    lookup_tids = set(tids) | set(pids.values()) | {DEFAULT_PROFILE_ID}
+
+    for cfg in session.query(Config).filter(Config.tid.in_(lookup_tids)):
         configs[cfg.tid][cfg.var_name] = cfg
 
-    for var_name, default_cfg in configs[1000001].items():
-        for tid, tenant in list(configs.items()):
-            # TODO: get value from tenant or profile
-            if var_name in tenant:
-                update_cache(tid, tenant[var_name])
-            else:
-                update_cache(tid, default_cfg)
+    # Every configuration variable is resolved following the inheritance chain
+    # default profile < tenant profile < tenant
+    for tid in tids:
+        resolved = dict(configs[DEFAULT_PROFILE_ID])
+        resolved.update(configs[pids[tid]])
+        resolved.update(configs[tid])
+
+        for cfg in resolved.values():
+            update_cache(tid, cfg)
 
     query = (session.query(models.User.tid,models.User.mail_address,models.User.pgp_key_public)
             .filter(models.User.role == 'admin', models.User.enabled.is_(True), models.User.notification.is_(True), models.User.tid.in_(tids)))

@@ -85,7 +85,6 @@ def create_invite(session, request, language):
     tenant = db_create_tenant(session, {'active': False,
                                         'name': request['organization_name'],
                                         'subdomain': token,
-                                        'mode': config.get_val('mode'),
                                         'profile': config.get_val('profile')})
 
     invite = models.Subscriber({

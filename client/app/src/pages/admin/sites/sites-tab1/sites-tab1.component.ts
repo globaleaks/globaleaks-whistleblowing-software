@@ -17,10 +17,9 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 export class SitesTab1Component implements OnInit {
   private httpService = inject(HttpService);
 
-  newTenant: { name: string, active: boolean, mode: string, profile: string, subdomain: string, is_profile: boolean} = {
+  newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
     active: true,
-    mode: "default",
     profile: "default",
     subdomain: "",
     is_profile: false
