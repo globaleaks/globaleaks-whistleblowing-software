@@ -49,7 +49,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
         {
           id:"profiles",
           title: "Profiles",
-          component: this.tab3
+          component: this.tab2
         },
       ];
       if (this.authenticationService.session.role === "admin") {
@@ -57,7 +57,7 @@ export class SitesComponent implements OnInit, AfterViewInit {
           {
             id:"options",
             title: "Options",
-            component: this.tab2
+            component: this.tab3
           },
           {
             id:"invites",

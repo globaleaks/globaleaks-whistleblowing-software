@@ -1,125 +1,82 @@
 <div class="row">
-  <div class="col-md-6">
-    <div class="form-group">
-      <label>
-        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.adminonly" name="nodeResolver.dataModel.adminonly" type="checkbox" />
-        <span>{{'Use the first site for administrative purposes only'|translate}}</span>
-      </label>
+  <div class="col-md-12">
+    <div>
+      <span>{{'Profiles'|translate}}</span>
+      <button class="btn btn-sm btn-primary show-add-profile-btn" (click)="toggleAddTenant()">
+        <i class="fa-solid fa-plus"></i>
+        <span>{{'Add'|translate}}</span>
+      </button>
+      <span class="custom-file">
+        <input type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput.files)" />
+        <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
+          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
+        </label>
+      </span>
     </div>
-    <div class="form-group">
-      <label for="sites-mode-select">{{'Mode:'|translate}}</label>
-      <select id="sites-mode-select" name="mode" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.mode" required>
-        <option value="default" [selected]="nodeResolver.dataModel.mode === 'default'">DEFAULT</option>
-        <option value="demo">DEMO</option>
-        <option value="wbpa">WHISTLEBLOWINGPA</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="rootdomain-input">{{'Root domain used for secondary sites'|translate}}</label>
-      <div>
-        <input id="rootdomain-input" name="rootdomain" class="form-control" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="default-questionnaire-select">{{'Questionnaire'|translate}}</label>
-      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
-        @for (item of questionnairesResolver.dataModel; track item) {
-          <option [ngValue]="item.id">{{item.name}}</option>
-        }
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="default-user-profile-select">{{'Default user profile' | translate}}</label>
-      <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile">
-        <option value="">{{'None' | translate}}</option>
-        <option value="admin">{{'Admin' | translate}}</option>
-        <option value="analyst">{{'Analyst' | translate}}</option>
-        <option value="custodian">{{'Custodian' | translate}}</option>
-        <option value="recipient">{{'Recipient' | translate}}</option>
-        @for (profile of userProfiles; track profile.id) {
-          <option [value]="profile.id">{{profile.name | translate}}</option>
-        }
-      </select>
-    </div>
-    @if (!nodeResolver.dataModel.adminonly) {
-      <div>
-        <div class="form-group">
-          <label>
-            <input name="enable_signup" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_signup" type="checkbox" />
-            <span>{{'Allow users to sign up'|translate}}</span>
-          </label>
+
+    @if (showAddTenant) {
+      <div class="row">
+        <div class="col-md-6">
+          <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
+            <div class="form-group">
+              <label>
+                <span>{{'Name'|translate}}</span>
+                <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              </label>
+              <div>
+                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120"
+                  type="text" required />
+              </div>
+            </div>
+            <div class="form-group clearfix">
+              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid"
+                (click)="addTenant();toggleAddTenant()" type="button">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add</span>
+              </button>
+            </div>
+          </form>
         </div>
-        @if (nodeResolver.dataModel.enable_signup) {
-          <div>
-            <div class="form-group">
-              <label>
-                <input name="signup_invite_only" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_invite_only" type="checkbox" />
-                <span>{{'Invite only'|translate}}</span>
-              </label>
-            </div>
-            <div class="form-group">
-              <label>
-                <input name="signup_auto_authorize" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_auto_authorize" type="checkbox" />
-                <span>{{'Automatically authorize newly registered sites'|translate}}</span>
-              </label>
-            </div>
-            <div class="form-group">
-              <label>
-                <input name="signup_tos1_enable" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" />
-                <span>{{'Enable terms of service'|translate}}</span>
-                <span>#1</span>
-              </label>
-              @if (nodeResolver.dataModel.signup_tos1_enable) {
-                <div class="nested">
-                  <div class="form-group">
-                    <label for="signup-tos1-title">{{'Title'|translate}}</label>
-                    <input id="signup-tos1-title" name="signup_tos1_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_title" type="text" />
-                  </div>
-                  <div class="form-group">
-                    <label for="signup-tos1-text">{{'Text'|translate}}</label>
-                    <div>
-                      <textarea id="signup-tos1-text" name="signup_tos1_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_text" rows="4"></textarea>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="signup-tos1-checkbox-label">{{'Checkbox label'|translate}}</label>
-                    <input id="signup-tos1-checkbox-label" name="signup_tos1_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos1_checkbox_label" type="text" />
-                  </div>
-                </div>
-              }
-            </div>
-            <div class="form-group">
-              <label>
-                <input name="signup_tos2_enable" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos2_enable" type="checkbox" />
-                <span>{{'Enable terms of service'|translate}}</span>
-                <span>#2</span>
-              </label>
-              @if (nodeResolver.dataModel.signup_tos2_enable) {
-                <div class="nested">
-                  <div class="form-group">
-                    <label for="signup-tos2-title">{{'Title'|translate}}</label>
-                    <input id="signup-tos2-title" name="signup_tos2_title" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_title" type="text" />
-                  </div>
-                  <div class="form-group">
-                    <label for="signup-tos2-text">{{'Text'|translate}}</label>
-                    <div>
-                      <textarea id="signup-tos2-text" name="signup_tos2_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_text" rows="4"></textarea>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="signup-tos2-checkbox-label">{{'Checkbox label'|translate}}</label>
-                    <input id="signup-tos2-checkbox-label" name="signup_tos2_checkbox_label" class="form-control" [(ngModel)]="nodeResolver.dataModel.signup_tos2_checkbox_label" type="text" />
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        }
       </div>
     }
-    <button class="btn btn-primary" id="save" (click)="utilsService.updateNode(nodeResolver.dataModel)">
-      <i class="fas fa-check"></i>
-      <span>{{'Save'|translate}}</span>
-    </button>
-  </div>
-</div>
+
+    <div class="row mb-3">
+      <div class="col d-flex justify-content-end">
+        <div class="input-group input-group-sm w-auto">
+          <input type="text" class="form-control" placeholder="{{ 'Search' | translate }}" [(ngModel)]="search">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      @if (tenants) {
+        <div class="col-md-12">
+          @for (tenant of tenants | orderBy:'id' | filter:'name':search | slice: (currentPage - 1) * itemsPerPage : currentPage * itemsPerPage; track tenant; let index = $index) {
+            <div
+              >
+              <form id="tenant-{{index}}" #editTenant="ngForm" novalidate>
+                <src-profilelist [editTenant]="editTenant" [index]="(currentPage - 1) * itemsPerPage + index"
+                [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)"></src-profilelist>
+              </form>
+            </div>
+          }
+          @if ((tenants | filter:'name':search).length > 10) {
+            <div class="text-center">
+              <ngb-pagination dir="ltr" class="d-flex justify-content-center" [(page)]="currentPage" [pageSize]="itemsPerPage" [collectionSize]="(tenants | filter:'name':search).length">
+                <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationFirst><i class="fa-solid fa-backward-fast" ngbTooltip="{{'First' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationPrevious><i class="fa-solid fa-backward-step" ngbTooltip="{{'Previous' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationNext><i class="fa-solid fa-forward-step" ngbTooltip="{{'Next' | translate}}"></i></ng-template>
+                <ng-template ngbPaginationLast><i class="fa-solid fa-forward-fast" ngbTooltip="{{'Last' | translate}}"></i></ng-template>
+              </ngb-pagination>
+            </div>
+          }
+        </div>
+      }
+    </div>
