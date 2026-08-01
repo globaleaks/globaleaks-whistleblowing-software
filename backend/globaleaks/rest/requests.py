@@ -19,6 +19,7 @@ uuid_regexp = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$
 uuid_regexp_or_empty = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
 user_role_regexp = r'^(admin|analyst|custodian|receiver)$'
 default_user_profile_regexp = r'^(admin|analyst|custodian|recipient)$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
+profile_regexp = r'^default$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 email_regexp = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$'
 email_regexp_or_empty = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$|^$'
 hostname_regexp = r'^[0-9a-z\-\.]+$'
@@ -237,6 +238,7 @@ AdminNodeDesc = {
     'demo': bool,
     'signup_invite_only': bool,
     'signup_auto_authorize': bool,
+    'signup_profile': profile_regexp,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
     'signup_tos1_text': str,

@@ -46,6 +46,24 @@ def db_get_pid(session, tid):
     return db_get_pid_by_profile(session, profile_value)
 
 
+def db_get_signup_profile(session, tid):
+    """
+    Resolve the profile to be assigned to the tenants created via signup
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant handling the signups
+    :return: The value of the 'profile' configuration variable to be used
+    """
+    profile_value = db_get_config_variable(session, tid, 'signup_profile')
+
+    # Fall back on the default profile in case the configured profile
+    # has been deleted in the meantime
+    if not profile_value or db_get_pid_by_profile(session, profile_value) is None:
+        profile_value = 'default'
+
+    return profile_value
+
+
 def db_get_profile_children(session, pid):
     """
     Retrieve the tenant IDs of the tenants inheriting from the given profile

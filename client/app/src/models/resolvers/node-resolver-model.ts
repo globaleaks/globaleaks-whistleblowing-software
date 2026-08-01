@@ -18,6 +18,7 @@ export class nodeResolverModel {
   enable_signup: boolean;
   signup_invite_only: boolean;
   signup_auto_authorize: boolean;
+  signup_profile: string;
   encryption: boolean;
   escrow: boolean;
   hostname: string;

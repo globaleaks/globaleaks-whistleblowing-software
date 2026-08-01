@@ -13,8 +13,8 @@ from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
-from globaleaks.models.config import db_get_configs, db_get_profile_children, \
-    db_get_config_variable, db_set_config_variable
+from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
+    db_get_config_variable, db_get_signup_profile, db_set_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -120,6 +120,11 @@ def is_profile_mapped(session, tid):
 
     if tid <= DEFAULT_PROFILE_ID:
         return False
+
+    # The profile configured for the sites created via signup is in use even
+    # when no site has been registered yet
+    if db_get_pid_by_profile(session, db_get_signup_profile(session, 1)) == tid:
+        return True
 
     # The sites reference their profile by its UUID and not by its tenant ID
     return db_get_profile_children(session, tid) != []

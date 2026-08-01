@@ -9,7 +9,7 @@ from globaleaks.handlers.admin.tenant import db_create as db_create_tenant, db_w
 from globaleaks.handlers.admin.user import db_get_users
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.models.config import ConfigFactory, db_set_config_variable
+from globaleaks.models.config import ConfigFactory, db_get_signup_profile, db_set_config_variable
 from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, transact
 from globaleaks.rest import requests, errors
@@ -101,7 +101,7 @@ def signup(session, request, language, oidc_token=None):
         tenant = db_create_tenant(session, {'active': active,
                                             'name': request['organization_name'] or request['subdomain'],
                                             'subdomain': request['subdomain'],
-                                            'profile': config.get_val('profile')})
+                                            'profile': db_get_signup_profile(session, 1)})
 
         signup = models.Subscriber(request)
 

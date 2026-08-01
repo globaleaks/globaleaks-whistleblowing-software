@@ -1,7 +1,9 @@
-import {Component, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {FormsModule} from "@angular/forms";
+import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
+import {HttpService} from "@app/shared/services/http.service";
 
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
@@ -12,7 +14,18 @@ import {TranslateModule} from "@ngx-translate/core";
     standalone: true,
     imports: [FormsModule, TranslatorPipe, TranslateModule]
 })
-export class SitesTab3Component {
+export class SitesTab3Component implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
+  private httpService = inject(HttpService);
+
+  siteProfiles: tenantResolverModel[] = [];
+
+  ngOnInit(): void {
+    this.httpService.fetchTenant().subscribe(
+      tenants => {
+        this.siteProfiles = tenants.filter(tenant => tenant.id > 1000001);
+      }
+    );
+  }
 }

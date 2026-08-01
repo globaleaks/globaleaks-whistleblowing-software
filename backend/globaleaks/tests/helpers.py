@@ -343,6 +343,7 @@ class MockDict:
             'enable_signup': True,
             'signup_auto_authorize': True,
             'signup_invite_only': False,
+            'signup_profile': 'default',
             'signup_tos1_enable': False,
             'signup_tos1_title': '',
             'signup_tos1_text': '',

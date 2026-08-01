@@ -5,7 +5,7 @@ from globaleaks.handlers.admin.tenant import db_create as db_create_tenant
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models.config import ConfigFactory
+from globaleaks.models.config import db_get_signup_profile
 from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del
 from globaleaks.orm import transact
@@ -80,12 +80,11 @@ def db_delete_expired_invites(session):
 def create_invite(session, request, language):
     db_delete_expired_invites(session)
 
-    config = ConfigFactory(session, 1)
     token = generateRandomKey()
     tenant = db_create_tenant(session, {'active': False,
                                         'name': request['organization_name'],
                                         'subdomain': token,
-                                        'profile': config.get_val('profile')})
+                                        'profile': db_get_signup_profile(session, 1)})
 
     invite = models.Subscriber({
         'tid': tenant.id,

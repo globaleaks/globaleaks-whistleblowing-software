@@ -35,6 +35,17 @@
               </label>
             </div>
             <div class="form-group">
+              <label for="signup-profile-select">{{'Profile'|translate}}</label>
+              <select id="signup-profile-select" name="signup_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.signup_profile">
+                <option value="default">DEFAULT</option>
+                @for (profile of siteProfiles; track profile.id) {
+                  @if (profile.active) {
+                    <option [value]="profile.uuid">{{profile.name}}</option>
+                  }
+                }
+              </select>
+            </div>
+            <div class="form-group">
               <label>
                 <input name="signup_tos1_enable" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_tos1_enable" type="checkbox" />
                 <span>{{'Enable terms of service'|translate}}</span>
