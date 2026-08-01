@@ -163,6 +163,8 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                                 prv_key,
                                 user.crypto_escrow_prv_key)
 
+    user_session.idp_id = user.idp_id
+
     user_session.properties['reset_token'] = reset_token
 
     db_log(session, tid=user.tid, type='login', user_id=user.id)

@@ -36,6 +36,7 @@ export class AuthenticationService {
   permissions: { can_upload_files: boolean }
   loginInProgress = false;
   requireAuthCode = false;
+  requireUsername = false;
   loginData: LoginDataRef = new LoginDataRef();
 
   constructor() {
@@ -52,8 +53,32 @@ export class AuthenticationService {
   public reset() {
     this.loginInProgress = false;
     this.requireAuthCode = false;
+    this.requireUsername = false;
     this.loginData = new LoginDataRef();
   };
+
+  /**
+   * Resolve the account bound to the identity authenticated on the identity
+   * provider
+   *
+   * The account bound to the identity is resolved by the backend and presented
+   * to its user, that is asked for its password alone; an identity not bound to
+   * any account yet requires instead the user to identify the account that the
+   * identity is going to be bound to on this first authentication.
+   */
+  async checkIdpBinding() {
+    if (!this.appDataService.public.node.idp || !this.oauthService.hasValidAccessToken()) {
+      return;
+    }
+
+    try {
+      const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({"username": ""}), this.getHeader()));
+      this.requireUsername = res.type === "binding";
+      this.loginData.loginUsername = res.username || "";
+    } catch (_) {
+      this.requireUsername = true;
+    }
+  }
 
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
@@ -123,11 +148,16 @@ export class AuthenticationService {
             if (username === "whistleblower") {
               password = password.replace(/\D/g, "");
             }
-            if(this.appDataService.public.node.idp && this.oauthService && username !== "whistleblower"){
-              const idpUserInfo = this.oauthService.getIdentityClaims();
-              username = idpUserInfo["preferred_username"];
+
+            // An account already bound to the identity authenticated on the
+            // identity provider is resolved by the backend via the identity
+            // itself; the username is submitted only to bind an identity that
+            // is not bound to any account yet
+            if (this.appDataService.public.node.idp && username !== "whistleblower" && !this.requireUsername) {
+              username = "";
             }
-            const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""})));
+
+            const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""}), username !== "whistleblower" ? authHeader : undefined));
             if (res.type == 'key') {
               this.appDataService.updateShowLoadingPanel(true);
               password = await this.cryptoService.hashArgon2(password, res.salt);

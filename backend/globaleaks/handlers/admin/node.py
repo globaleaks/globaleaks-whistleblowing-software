@@ -156,8 +156,14 @@ def db_update_node(session, tid, user_session, request, language):
 
     config = ConfigFactory(session, tid)
     antivirus_was_enabled = config.get_val('antivirus_enabled')
+    idp_issuer_was = config.get_val('idp_issuer')
 
     config.update('node', request)
+
+    # The identities bound to the users are unique only within the identity
+    # provider that issued them and are therefore reset when it is changed
+    if config.get_val('idp_issuer') != idp_issuer_was:
+        session.query(models.User).filter(models.User.tid == tid).update({'idp_id': ''}, synchronize_session=False)
 
     antivirus_is_enabled = request.get('antivirus_enabled', antivirus_was_enabled)
     if antivirus_was_enabled and not antivirus_is_enabled:

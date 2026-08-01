@@ -37,7 +37,9 @@ export class LoginComponent implements OnInit {
       // A login flow started on the signup is completed on this route and must
       // not be replaced by a login flow against the IdP configured on the site
       if (publicData.node.idp && !this.idpService.isSignupLoginPending() && !("token" in this.route.snapshot.queryParams) && !this.authentication.session) {
-        this.idpService.startLogin("/login");
+        // The username is asked only when the identity authenticated on the
+        // identity provider is not bound to any account of the platform yet
+        this.idpService.startLogin("/login").then(() => this.authentication.checkIdpBinding());
       }
     });
 

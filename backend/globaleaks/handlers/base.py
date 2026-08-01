@@ -155,7 +155,10 @@ class BaseHandler(object):
         if session is None or session.tid != self.request.tid:
             return
 
-        if session and self.request.oidc_token and session.username != self.request.oidc_token['preferred_username']:
+        # A session is usable only along the identity of the identity provider
+        # bound to its account, so that a token of a different identity cannot
+        # be carried on requests performed with it
+        if session.idp_id and self.request.oidc_token and session.idp_id != self.request.oidc_token.get('sub'):
             return
 
         if session.role != 'whistleblower' and \

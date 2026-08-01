@@ -287,6 +287,7 @@ def db_wizard(session, tid, hostname, request):
         admin_desc['language'] = language
         admin_desc['role'] = 'admin'
         admin_desc['profile_id'] = request['admin_profile_id'] if 'admin_profile_id' in request else ''
+        admin_desc['idp_id'] = request.get('idp_id', '')
         admin_desc['pgp_key_remove'] = False
         admin_desc = admin_desc | user_permissions
 
@@ -311,6 +312,7 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['language'] = language
         receiver_desc['role'] = 'receiver'
         receiver_desc['profile_id'] = request['receiver_profile_id'] if 'receiver_profile_id' in request else ''
+        receiver_desc['idp_id'] = request.get('idp_id', '')
         receiver_desc['pgp_key_remove'] = False
         receiver_desc = receiver_desc | user_permissions
 
@@ -326,6 +328,7 @@ def db_wizard(session, tid, hostname, request):
         default_desc['language'] = language
         default_desc['role'] = request['default_role']
         default_desc['profile_id'] = request['default_profile_id'] if 'default_profile_id' in request else ''
+        default_desc['idp_id'] = request.get('idp_id', '')
         default_desc['pgp_key_remove'] = False
         default_desc = default_desc | user_permissions
 

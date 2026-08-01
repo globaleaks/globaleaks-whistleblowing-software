@@ -270,6 +270,8 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
         'default_mail_address': signup.email,
         'default_role': default_role,
         'default_profile_id': default_profile_id if not skip_default_account_creation else '',
+        # The account is bound to the identity that performed the registration
+        'idp_id': idp_claims.get('sub', '') if idp_claims else '',
         'profile': 'default',
         'skip_admin_account_creation': skip_admin_account_creation,
         'skip_recipient_account_creation': skip_recipient_account_creation,
