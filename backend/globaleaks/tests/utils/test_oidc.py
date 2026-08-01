@@ -3,6 +3,7 @@ import json
 import time
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from twisted.internet import defer
 
 from globaleaks.tests import helpers
 from globaleaks.utils import oidc
@@ -328,3 +329,69 @@ class Test_OIDCAuth(helpers.TestGL):
         self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
 
         self.assertRaisesRegex(Exception, "No IdP client identifier", self.oidc.verify_token, valid_token, self.issuer, '')
+
+    def test_endpoint_published_via_https(self):
+        """
+        Test that an endpoint published via HTTPS is accepted.
+        """
+        oidc.validate_endpoint("https://idp.globaleaks.org/realms/globaleaks")
+
+    def test_endpoint_published_via_http(self):
+        """
+        Test that an endpoint published via plain HTTP is refused.
+        """
+        self.assertRaisesRegex(Exception, "HTTPS", oidc.validate_endpoint,
+                               "http://idp.globaleaks.org/realms/globaleaks")
+
+    def test_endpoint_published_via_http_on_the_loopback_interface(self):
+        """
+        Test that an endpoint published via plain HTTP is accepted on the
+        loopback interface, so that a local IdP can be used on testing setups.
+        """
+        oidc.validate_endpoint("http://127.0.0.1:9090/realms/globaleaks")
+
+    def test_endpoint_published_via_an_unsupported_scheme(self):
+        """
+        Test that an endpoint published via a scheme other than HTTP(S) is refused.
+        """
+        self.assertRaisesRegex(Exception, "HTTPS", oidc.validate_endpoint,
+                               "file:///etc/passwd")
+
+    def test_document_within_the_accepted_size(self):
+        """
+        Test that a document within the accepted size is collected.
+        """
+        protocol = oidc.BoundedBodyProtocol(1024)
+
+        documents = []
+        protocol.finished.addCallback(documents.append)
+
+        protocol.dataReceived(b'{"issuer":')
+        protocol.dataReceived(b'"globaleaks"}')
+        protocol.connectionLost(None)
+
+        self.assertEqual(documents, [b'{"issuer":"globaleaks"}'])
+
+    def test_document_exceeding_the_accepted_size(self):
+        """
+        Test that a document exceeding the accepted size is dropped, so that an
+        identity provider cannot exhaust the memory of the platform.
+        """
+        protocol = oidc.BoundedBodyProtocol(8)
+
+        failures = []
+        protocol.finished.addErrback(failures.append)
+
+        protocol.dataReceived(b'x' * 9)
+        protocol.connectionLost(None)
+
+        self.assertEqual(len(failures), 1)
+
+    def test_metadata_advertising_another_issuer(self):
+        """
+        Test that the metadata advertising an issuer different from the one they
+        have been retrieved for are refused, as required by OIDC Discovery.
+        """
+        self.oidc.fetch_json = lambda url: defer.succeed({"issuer": "https://another.globaleaks.org"})
+
+        return self.assertFailure(self.oidc.fetch_metadata(self.issuer), Exception)

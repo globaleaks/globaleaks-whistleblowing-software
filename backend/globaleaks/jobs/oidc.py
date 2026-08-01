@@ -1,5 +1,5 @@
 # Refresh of the JWKS of the IdP configured on each tenant
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import DeferredList, inlineCallbacks
 
 from globaleaks.jobs.job import LoopingJob
 
@@ -27,13 +27,16 @@ class OIDC(LoopingJob):
             if cache.get('signup_idp') and cache.get('signup_idp_issuer'):
                 issuers.add(cache.get('signup_idp_issuer'))
 
-        for issuer in issuers:
-            try:
-                yield self.state.oidcauth.fetch_jwks(issuer)
-            except Exception:
-                pass
+        # The issuers are refreshed concurrently, so that an unresponsive
+        # identity provider does not delay the refresh of the other tenants
+        yield DeferredList([self.state.oidcauth.fetch_jwks(issuer) for issuer in issuers],
+                           consumeErrors=True)
 
-        # Drop cached JWKS of issuers that are no longer configured
+        # Drop cached documents of issuers that are no longer configured
         for issuer in list(self.state.oidcauth.jwks.keys()):
             if issuer not in issuers:
                 del self.state.oidcauth.jwks[issuer]
+
+        for issuer in list(self.state.oidcauth.metadata.keys()):
+            if issuer not in issuers:
+                del self.state.oidcauth.metadata[issuer]

@@ -1,13 +1,77 @@
 import base64
 import json
 import time
+from urllib.parse import urlparse
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, returnValue
-from twisted.web.client import Agent, readBody
+from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
+from twisted.internet.protocol import Protocol
 from twisted.web.http_headers import Headers
+
+
+# Timeout applied to every request performed towards an identity provider
+REQUEST_TIMEOUT = 15
+
+# Maximum size accepted for the documents published by an identity provider
+MAX_RESPONSE_SIZE = 1024 * 1024
+
+
+def validate_endpoint(url):
+    """
+    Validate an endpoint published by an identity provider
+
+    OpenID Connect Discovery 1.0 requires the published endpoints to be HTTPS;
+    plain HTTP is accepted only towards the loopback interface, so that a local
+    identity provider can still be used on development and testing setups.
+
+    :param url: The URL of the endpoint
+    """
+    parsed = urlparse(url)
+
+    if parsed.scheme == 'https':
+        return
+
+    if parsed.scheme == 'http' and parsed.hostname in ['127.0.0.1', '::1', 'localhost']:
+        return
+
+    raise Exception("The endpoints of the IdP are required to be reached via HTTPS")
+
+
+class BoundedBodyProtocol(Protocol):
+    """
+    Protocol collecting a response body up to a maximum size, dropping the
+    connection when the limit is exceeded or when the caller gives up, so that
+    an identity provider cannot exhaust the resources of the platform
+    """
+    def __init__(self, max_size):
+        self.max_size = max_size
+        self.chunks = []
+        self.size = 0
+        self.finished = Deferred(lambda _: self.stop())
+
+    def stop(self):
+        if self.transport is not None:
+            self.transport.stopProducing()
+
+    def dataReceived(self, data):
+        self.size += len(data)
+
+        if self.size > self.max_size:
+            self.stop()
+            return
+
+        self.chunks.append(data)
+
+    def connectionLost(self, reason):
+        if self.finished.called:
+            return
+
+        if self.size > self.max_size:
+            self.finished.errback(Exception("The document published by the IdP is too big"))
+        else:
+            self.finished.callback(b''.join(self.chunks))
 
 
 def b64d(data):
@@ -59,31 +123,60 @@ class OIDCAuth(object):
         # JWKS documents cached per issuer URL
         self.jwks = {}
 
-        # JWKS endpoints resolved via OIDC discovery, cached per issuer URL
-        self.jwks_uris = {}
+        # Metadata documents resolved via OIDC discovery, cached per issuer URL
+        self.metadata = {}
 
     def discovery_url(self, issuer):
         return issuer.rstrip('/') + '/.well-known/openid-configuration'
 
     @inlineCallbacks
     def fetch_json(self, url):
-        agent = Agent(reactor)
-        response = yield agent.request(
-            b'GET',
-            url.encode('utf-8'),
-            Headers({'User-Agent': ['Twisted Web Client']}),
-            None
-        )
-        body = yield readBody(response)
+        """
+        Fetch a JSON document published by an identity provider
+
+        The request is performed with the agent of the platform, so that the
+        configured anonymization of the outgoing connections is honored, and is
+        bounded in time and in size, so that an unresponsive or malicious
+        identity provider cannot exhaust the resources of the platform.
+
+        :param url: The URL of the document
+        :return: The fetched document
+        """
+        validate_endpoint(url)
+
+        # Imported here as the state imports this module at load time
+        from globaleaks.state import State
+
+        headers = {'User-Agent': ['Twisted Web Client']}
+
+        response = yield State.get_agent().request(b'GET',
+                                                   url.encode('utf-8'),
+                                                   Headers(headers),
+                                                   None).addTimeout(REQUEST_TIMEOUT, reactor)
+
+        protocol = BoundedBodyProtocol(MAX_RESPONSE_SIZE)
+        response.deliverBody(protocol)
+
+        # The timeout cancels the collection of the body, dropping the
+        # connection with an identity provider that stopped responding
+        body = yield protocol.finished.addTimeout(REQUEST_TIMEOUT, reactor)
+
         returnValue(json.loads(body.decode('utf-8')))
 
     @inlineCallbacks
-    def fetch_jwks_uri(self, issuer):
+    def fetch_metadata(self, issuer):
         """
-        Resolve the JWKS endpoint of an issuer via OIDC Discovery, so that any
+        Resolve the endpoints of an issuer via OIDC Discovery, so that any
         standard-compliant IdP is supported and not only those exposing the
-        endpoint at a vendor specific path.
+        endpoints at a vendor specific path.
+
+        :param issuer: The issuer to be resolved
+        :return: The metadata published by the issuer
         """
+        metadata = self.metadata.get(issuer)
+        if metadata is not None:
+            returnValue(metadata)
+
         metadata = yield self.fetch_json(self.discovery_url(issuer))
 
         # OpenID Connect Discovery 1.0 requires the issuer advertised in the
@@ -91,11 +184,9 @@ class OIDCAuth(object):
         if metadata.get('issuer', '').rstrip('/') != issuer.rstrip('/'):
             raise Exception("The issuer advertised by the IdP does not match the configured one")
 
-        jwks_uri = metadata.get('jwks_uri')
-        if not jwks_uri:
-            raise Exception("The configured issuer does not advertise a JWKS endpoint")
+        self.metadata[issuer] = metadata
 
-        returnValue(jwks_uri)
+        returnValue(metadata)
 
     @inlineCallbacks
     def fetch_jwks(self, issuer):
@@ -103,16 +194,17 @@ class OIDCAuth(object):
             return
 
         try:
-            jwks_uri = self.jwks_uris.get(issuer)
+            metadata = yield self.fetch_metadata(issuer)
+
+            jwks_uri = metadata.get('jwks_uri')
             if not jwks_uri:
-                jwks_uri = yield self.fetch_jwks_uri(issuer)
-                self.jwks_uris[issuer] = jwks_uri
+                raise Exception("The configured issuer does not advertise a JWKS endpoint")
 
             self.jwks[issuer] = yield self.fetch_json(jwks_uri)
         except Exception:
-            # Drop the cached endpoint so that the next refresh performs
+            # Drop the cached metadata so that the next refresh performs
             # discovery again; this recovers from IdP reconfigurations.
-            self.jwks_uris.pop(issuer, None)
+            self.metadata.pop(issuer, None)
             raise
 
     @inlineCallbacks
