@@ -13,7 +13,7 @@ from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
-from globaleaks.models.config import db_get_configs, \
+from globaleaks.models.config import db_get_configs, db_get_profile_children, \
     db_get_config_variable, db_set_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
@@ -109,10 +109,20 @@ def create(session, desc, *args, **kwargs):
 
 @transact
 def is_profile_mapped(session, tid):
-    if int(tid) > 1000001:
-        return session.query(Config).filter_by(value=tid, var_name='profile').first() is not None
-    else:
+    """
+    Check whether a profile is currently assigned to any of the existing sites
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the profile
+    :return: True if the profile is in use, False otherwise
+    """
+    tid = int(tid)
+
+    if tid <= DEFAULT_PROFILE_ID:
         return False
+
+    # The sites reference their profile by its UUID and not by its tenant ID
+    return db_get_profile_children(session, tid) != []
 
 
 def db_get_tenant_stats(session, tid):
