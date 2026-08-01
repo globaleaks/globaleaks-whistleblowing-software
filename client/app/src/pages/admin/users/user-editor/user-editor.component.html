@@ -148,6 +148,14 @@
               </span>
            </div>
           }
+          @if (user.idp_binding) {
+            <div class="form-group">
+              <span class="btn btn-danger" (click)="resetIdpBinding(user)">
+                <i class="fas fa-ban"></i>
+                <span>{{ 'Reset the identity bound to this user' | translate }}</span>
+              </span>
+           </div>
+          }
           <div class="form-group">
             <label for="user-language-select">{{ 'Language' | translate }}</label>
             <select id="user-language-select" class="form-select-custom" [(ngModel)]="user.language" [ngModelOptions]="{standalone: true}">

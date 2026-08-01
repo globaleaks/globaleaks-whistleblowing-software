@@ -42,6 +42,7 @@ export class User {
   encryption: boolean;
   escrow: boolean;
   two_factor: boolean;
+  idp_binding: boolean;
   forcefully_selected: boolean;
   clicked_recovery_key: boolean;
   contexts: string[];

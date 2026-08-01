@@ -135,6 +135,7 @@ def serialize_user(session, user, language):
         'salt': user.salt,
         'escrow': user.crypto_escrow_prv_key != '',
         'two_factor': user.two_factor_secret != '',
+        'idp_binding': user.idp_id != '',
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
         'contexts': contexts,

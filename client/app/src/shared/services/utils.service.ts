@@ -535,6 +535,7 @@ export class UtilsService {
     const requireConfirmation = [
       "enable_encryption",
       "disable_2fa",
+      "reset_idp_binding",
       "get_recovery_key",
       "toggle_escrow",
       "toggle_user_escrow",

@@ -90,6 +90,10 @@ export class UserEditorComponent implements OnInit {
     this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, true).subscribe();
   }
 
+  resetIdpBinding(user: User) {
+    this.utilsService.runAdminOperation("reset_idp_binding", {"value": user.id}, true).subscribe();
+  }
+
   async setPassword(setPasswordArgs: { user_id: string, password: string }) {
     this.appDataService.updateShowLoadingPanel(true);
     setPasswordArgs.password = await this.cryptoService.hashArgon2(setPasswordArgs.password, this.user.salt);

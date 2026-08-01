@@ -137,6 +137,26 @@ def disable_2fa(session, tid, user_id, obj_id):
 
 
 @transact
+def reset_idp_binding(session, tid, user_id, obj_id):
+    """
+    Transaction for resetting the identity bound to a user
+
+    The account is bound again on its next authentication, so that the access
+    can be restored when the identity of a user changes on the identity provider
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: A user ID
+    :param obj_id: A user ID
+    """
+    user = db_get_user(session, tid, obj_id)
+
+    user.idp_id = ''
+
+    db_log(session, tid=tid, type='reset_idp_binding', user_id=user_id, object_id=obj_id)
+
+
+@transact
 def accepted_privacy_policy(session, tid, user_id):
     """
     Transaction for disabling the two factor authentication
