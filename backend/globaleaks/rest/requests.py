@@ -87,7 +87,7 @@ AdminTenantDesc = {
     'name': str,
     'active': bool,
     'subdomain': subdomain_regexp_or_empty,
-    'profile': str,
+    'profile': profile_regexp,
 }
 
 AdminTenantDeleteDesc = {
