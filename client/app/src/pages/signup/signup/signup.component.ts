@@ -54,10 +54,13 @@ export class SignupComponent implements OnInit {
     const queryParams = this.route.snapshot.queryParams;
     this.signup.token = "token" in queryParams ? queryParams["token"] : "";
 
+    // The signup is authenticated against the IdP inherited from the profile
+    // configured for the sites created via signup
     const config = this.appDataService.public?.node || {};
-    this.idpRequired = !!config.idp;
+    this.idpRequired = !!config.signup_idp;
     this.setIdpClaims();
     if (this.idpRequired) {
+      this.idpService.initialize("signup").then(() => this.setIdpClaims());
       this.oauthService.events.subscribe(() => this.setIdpClaims());
     }
 
@@ -77,7 +80,7 @@ export class SignupComponent implements OnInit {
   }
 
   authenticateWithIDP() {
-    this.idpService.startLogin(this.router.url);
+    this.idpService.startLogin(this.router.url, "signup");
   }
 
   setIdpClaims() {
@@ -100,11 +103,26 @@ export class SignupComponent implements OnInit {
   }
 
   complete() {
-    if (this.idpRequired && (!this.idpAuthenticated || !this.oauthService.hasValidAccessToken())) {
-      this.authenticateWithIDP();
+    if (!this.idpRequired) {
+      this.submit();
       return;
     }
 
+    // The session of the IdP used for the signup is restored before submitting,
+    // as the site may be authenticated by a different identity provider
+    this.idpService.initialize("signup").then(() => {
+      this.setIdpClaims();
+
+      if (!this.idpAuthenticated || !this.oauthService.hasValidAccessToken()) {
+        this.authenticateWithIDP();
+        return;
+      }
+
+      this.submit();
+    });
+  }
+
+  private submit() {
     const param = JSON.stringify(this.signup);
     const accessToken = this.oauthService.getAccessToken();
     const headers = accessToken ? new HttpHeaders({Authorization: `Bearer ${accessToken}`}) : undefined;

@@ -64,6 +64,37 @@ def db_get_signup_profile(session, tid):
     return profile_value
 
 
+def db_get_signup_idp_config(session, tid):
+    """
+    Resolve the IdP configuration inherited by the tenants created via signup
+
+    The signup is authenticated against the IdP configured on the profile
+    assigned to the tenants created via signup, so that every registration
+    is validated with the same identity provider that the created tenant
+    is going to use.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant handling the signups
+    :return: The IdP configuration to be used for authenticating the signups
+    """
+    # The IdP of the profile is not disclosed nor used when the signup is
+    # disabled and no registration is therefore possible
+    if not db_get_config_variable(session, tid, 'enable_signup'):
+        return {
+            'signup_idp': False,
+            'signup_idp_issuer': '',
+            'signup_idp_client_id': ''
+        }
+
+    pid = db_get_pid_by_profile(session, db_get_signup_profile(session, tid))
+
+    return {
+        'signup_idp': db_get_profile_val(session, pid, 'idp'),
+        'signup_idp_issuer': db_get_profile_val(session, pid, 'idp_issuer'),
+        'signup_idp_client_id': db_get_profile_val(session, pid, 'idp_client_id')
+    }
+
+
 def db_get_profile_children(session, pid):
     """
     Retrieve the tenant IDs of the tenants inheriting from the given profile

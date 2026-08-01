@@ -4,6 +4,8 @@ import {Router} from "@angular/router";
 import {AppDataService} from "@app/app-data.service";
 import {OAuthService, OAuthStorage} from "angular-oauth2-oidc";
 
+export type IdpContext = "login" | "signup";
+
 class TenantOAuthStorage implements OAuthStorage {
   constructor(private prefix: string) {}
 
@@ -30,6 +32,7 @@ export class IdpService {
   private router = inject(Router);
 
   private configurationKey = "";
+  private storagePrefix = "";
   private initialization?: Promise<boolean>;
   private loginStarted = false;
 
@@ -39,8 +42,51 @@ export class IdpService {
     return match ? match[0] : "";
   }
 
-  private getTenantStoragePrefix(): string {
+  private getTenantKeyPrefix(): string {
     return `oidc:${this.getTenantBasePath() || "root"}:`;
+  }
+
+  private getTenantStoragePrefix(context: IdpContext): string {
+    const login = this.getContextConfig("login");
+    const signup = this.getContextConfig("signup");
+
+    // The tokens of the signup are kept in a dedicated storage only when the
+    // signup is authenticated by an IdP different from the one of the site;
+    // when the IdP is the same a single session is shared by the two flows
+    if (context === "signup" && (!login.enabled || login.issuer !== signup.issuer || login.clientId !== signup.clientId)) {
+      return this.getTenantKeyPrefix() + "signup:";
+    }
+
+    return this.getTenantKeyPrefix();
+  }
+
+  private getPendingContextKey(): string {
+    return this.getTenantKeyPrefix() + "context";
+  }
+
+  private getPendingContext(): IdpContext | null {
+    const context = window.sessionStorage.getItem(this.getPendingContextKey());
+    return context === "signup" || context === "login" ? context : null;
+  }
+
+  private setPendingContext(context: IdpContext | null) {
+    if (context) {
+      window.sessionStorage.setItem(this.getPendingContextKey(), context);
+    } else {
+      window.sessionStorage.removeItem(this.getPendingContextKey());
+    }
+  }
+
+  private getContextConfig(context: IdpContext): { enabled: boolean, issuer: string, clientId: string } {
+    const node = this.appDataService.public.node;
+
+    // The signup is authenticated against the IdP inherited from the profile
+    // configured for the sites created via signup
+    if (context === "signup") {
+      return {enabled: !!node.signup_idp, issuer: node.signup_idp_issuer, clientId: node.signup_idp_client_id};
+    }
+
+    return {enabled: !!node.idp, issuer: node.idp_issuer, clientId: node.idp_client_id};
   }
 
   private getReturnRoute(routePath?: string): string {
@@ -48,14 +94,15 @@ export class IdpService {
     return route === "/signup" || route.startsWith("/signup?") ? route : "/login";
   }
 
-  private configure() {
+  private configure(context: IdpContext, storagePrefix: string) {
     const tenantBasePath = this.getTenantBasePath();
+    const config = this.getContextConfig(context);
 
-    this.oauthService.setStorage(new TenantOAuthStorage(this.getTenantStoragePrefix()));
+    this.oauthService.setStorage(new TenantOAuthStorage(storagePrefix));
     this.oauthService.configure({
-      issuer: this.appDataService.public.node.idp_issuer,
+      issuer: config.issuer,
       redirectUri: window.location.origin + tenantBasePath + "/#/login",
-      clientId: this.appDataService.public.node.idp_client_id,
+      clientId: config.clientId,
       responseType: "code",
       scope: "openid profile email",
       requireHttps: false,
@@ -82,20 +129,39 @@ export class IdpService {
     }
   }
 
-  initialize(): Promise<boolean> {
-    if (!this.appDataService.public.node.idp) {
+  private hasIdpResponse(): boolean {
+    const url = window.location.href;
+    return url.indexOf("code=") !== -1 && url.indexOf("state=") !== -1;
+  }
+
+  isSignupLoginPending(): boolean {
+    return this.hasIdpResponse() && this.getPendingContext() === "signup";
+  }
+
+  initialize(context?: IdpContext): Promise<boolean> {
+    // The authentication is always redirected back on the login route and is
+    // therefore completed with the configuration of the context that started it
+    const activeContext = context || (this.hasIdpResponse() ? this.getPendingContext() : null) || "login";
+    const config = this.getContextConfig(activeContext);
+
+    if (!config.enabled) {
       return Promise.resolve(false);
     }
 
-    const configurationKey = this.getTenantStoragePrefix() + this.appDataService.public.node.idp_issuer + ":" + this.appDataService.public.node.idp_client_id;
+    const storagePrefix = this.getTenantStoragePrefix(activeContext);
+    const configurationKey = storagePrefix + config.issuer + ":" + config.clientId;
     if (configurationKey !== this.configurationKey) {
-      if (this.configurationKey) {
+      // The tokens are dropped only when the IdP configured for the session in
+      // use changes; sessions kept in a dedicated storage are left untouched
+      if (this.configurationKey && this.storagePrefix === storagePrefix) {
         this.oauthService.logOut(true);
       }
+
+      this.storagePrefix = storagePrefix;
       this.configurationKey = configurationKey;
       this.initialization = undefined;
       this.loginStarted = false;
-      this.configure();
+      this.configure(activeContext, storagePrefix);
     }
 
     if (!this.initialization) {
@@ -103,6 +169,7 @@ export class IdpService {
         this.loginStarted = false;
         const authenticated = this.oauthService.hasValidAccessToken();
         if (authenticated) {
+          this.setPendingContext(null);
           this.restoreReturnRoute();
         }
         return authenticated;
@@ -121,13 +188,16 @@ export class IdpService {
       this.oauthService.logOut(true);
     }
     this.configurationKey = "";
+    this.storagePrefix = "";
     this.initialization = undefined;
     this.loginStarted = false;
+    this.setPendingContext(null);
   }
 
-  startLogin(routePath?: string): Promise<void> {
+  startLogin(routePath?: string, context: IdpContext = "login"): Promise<void> {
     const returnRoute = this.getReturnRoute(routePath);
-    return this.initialize().then(() => {
+    this.setPendingContext(context === "signup" ? "signup" : null);
+    return this.initialize(context).then(() => {
       if (this.oauthService.hasValidAccessToken() || this.loginStarted) {
         return;
       }

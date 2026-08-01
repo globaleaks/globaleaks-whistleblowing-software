@@ -22,6 +22,20 @@ def b64d(data):
     return base64.b64decode(data + b'=' * (-len(data) % 4), altchars=b'-_', validate=True)
 
 
+def extract_bearer_token(request):
+    """
+    Extract the OIDC access token carried by the Authorization header
+    """
+    try:
+        auth_header = request.getHeader('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            return auth_header[len('Bearer '):].strip()
+    except:
+        pass
+
+    return None
+
+
 def rsa_public_key(key):
     """
     Build an RSA public key from its JWK representation (RFC 7518 Section 6.3).

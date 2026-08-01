@@ -9,32 +9,60 @@ from globaleaks.handlers.admin.tenant import db_create as db_create_tenant, db_w
 from globaleaks.handlers.admin.user import db_get_users
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.models.config import ConfigFactory, db_get_signup_profile, db_set_config_variable
+from globaleaks.models.config import ConfigFactory, db_get_signup_idp_config, db_get_signup_profile, db_set_config_variable
 from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
 from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, GCE
+from globaleaks.utils.oidc import extract_bearer_token
 from globaleaks.utils.utility import datetime_now
 
 
+def db_verify_signup_token(session, tid, bearer_token):
+    """
+    Verify the OIDC access token carried by a signup request
+
+    The token is validated against the IdP inherited from the profile
+    configured for the tenants created via signup.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant handling the signups
+    :param bearer_token: The OIDC access token carried by the request
+    :return: The claims of the verified token or None if no IdP is configured
+    """
+    idp_config = db_get_signup_idp_config(session, tid)
+
+    if not idp_config['signup_idp']:
+        return None
+
+    if not bearer_token:
+        raise errors.ForbiddenOperation
+
+    try:
+        return State.oidcauth.verify_token(bearer_token,
+                                           idp_config['signup_idp_issuer'],
+                                           idp_config['signup_idp_client_id'])
+    except:
+        raise errors.ForbiddenOperation
+
+
 @transact
-def signup(session, request, language, oidc_token=None):
+def signup(session, request, language, bearer_token=None):
     """
     Transact handling the registration of a new signup
 
     :param session: An ORM session
     :param request: A user request
     :param language: A language of the request
+    :param bearer_token: The OIDC access token carried by the request
     """
     config = ConfigFactory(session, 1)
 
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
-    mode_idp = config.get_val('idp')
-    if mode_idp and not oidc_token:
-        raise errors.ForbiddenOperation
+    oidc_token = db_verify_signup_token(session, 1, bearer_token)
 
     invite = None
     invited_tenant = None
@@ -171,12 +199,9 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
 
     node_name = signup.organization_name or signup.subdomain
 
+    # The IdP configuration is not copied on the created tenant as it is
+    # inherited from the profile assigned to the tenants created via signup
     node = ConfigFactory(session, tenant.id)
-    signup_idp = config.get_val('idp')
-    if signup_idp:
-        node.set_val('idp', True)
-        node.set_val('idp_issuer', config.get_val('idp_issuer'))
-        node.set_val('idp_client_id', config.get_val('idp_client_id'))
 
     salt = node.get_val('receipt_salt')
 
@@ -302,7 +327,7 @@ class Signup(BaseHandler):
         request['client_user_agent'] = self.request.client_ua
         request['token'] = token
 
-        return signup(request, self.request.language, self.request.oidc_token)
+        return signup(request, self.request.language, extract_bearer_token(self.request))
 
 
 class SignupActivation(BaseHandler):

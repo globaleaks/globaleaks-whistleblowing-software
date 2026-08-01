@@ -59,7 +59,7 @@ export class AppConfigService {
           this.appDataService.updatePublic(data.body);
         }
 
-        if (this.appDataService.public.node.idp) {
+        if (this.appDataService.public.node.idp || this.appDataService.public.node.signup_idp) {
           this.idpService.initialize().then(authenticated => {
             if (authenticated && this.authenticationService.session) {
               this.idpService.setupAutomaticRefresh();

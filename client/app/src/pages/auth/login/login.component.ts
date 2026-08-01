@@ -34,7 +34,9 @@ export class LoginComponent implements OnInit {
       filter(publicData => !!publicData.node),
       take(1)
     ).subscribe(publicData => {
-      if (publicData.node.idp && !("token" in this.route.snapshot.queryParams) && !this.authentication.session) {
+      // A login flow started on the signup is completed on this route and must
+      // not be replaced by a login flow against the IdP configured on the site
+      if (publicData.node.idp && !this.idpService.isSignupLoginPending() && !("token" in this.route.snapshot.queryParams) && !this.authentication.session) {
         this.idpService.startLogin("/login");
       }
     });

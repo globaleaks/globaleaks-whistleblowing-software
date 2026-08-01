@@ -71,6 +71,9 @@ export class Node {
   idp: boolean;
   idp_issuer: string;
   idp_client_id: string;
+  signup_idp: boolean;
+  signup_idp_issuer: string;
+  signup_idp_client_id: string;
   default_user_profile: string;
   antivirus_enabled: boolean;
 }

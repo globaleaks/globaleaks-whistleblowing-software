@@ -22,6 +22,11 @@ class OIDC(LoopingJob):
             if cache.get('idp') and cache.get('idp_issuer'):
                 issuers.add(cache.get('idp_issuer'))
 
+            # The IdP used for authenticating the signups is inherited from
+            # the profile configured for the tenants created via signup
+            if cache.get('signup_idp') and cache.get('signup_idp_issuer'):
+                issuers.add(cache.get('signup_idp_issuer'))
+
         for issuer in issuers:
             try:
                 yield self.state.oidcauth.fetch_jwks(issuer)

@@ -45,6 +45,7 @@ from globaleaks.handlers import admin, \
 from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.json import JSONEncoder
+from globaleaks.utils.oidc import extract_bearer_token
 from globaleaks.utils.sock import isIPAddress
 from globaleaks.orm import db_log
 
@@ -244,17 +245,7 @@ def parse_accept_language(raw_header: str) -> List[str]:
     return [lang for lang, _, _ in parsed]
 
 
-def extract_bearer_token(request):
-    try:
-        auth_header = request.getHeader('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            return auth_header[len('Bearer '):].strip()
-    except:
-        pass
-
-    return None
-
-
+@lru_cache(maxsize=128)
 def idp_origin_from_issuer(issuer):
     """Return the scheme://host[:port] origin of the configured IdP issuer"""
     try:
@@ -520,8 +511,10 @@ class APIResourceWrapper(Resource):
             request.setResponseCode(400)
             return b''
 
-        # OIDC token verification against the IdP configured on the tenant
-        if State.tenants[request.tid].cache.idp:
+        # OIDC token verification against the IdP configured on the tenant;
+        # the signups carry a token issued by the IdP inherited from the profile
+        # used for the registrations and are verified by their own handler
+        if State.tenants[request.tid].cache.idp and not request.path.startswith(b'/api/signup'):
             bearer_token = extract_bearer_token(request)
             if bearer_token:
                 issuer = State.tenants[request.tid].cache.idp_issuer
@@ -666,12 +659,26 @@ class APIResourceWrapper(Resource):
 
         # CSP Policy on the entry point
         if request.path == b'/index.html':
-            # Allow the client to reach the tenant's configured IdP (if any)
+            # Allow the client to reach the IdP configured on the tenant and
+            # the one inherited from the profile used for the signups (if any)
             idp_connect_src = b""
-            if request.tid in State.tenants and State.tenants[request.tid].cache.idp:
-                idp_origin = idp_origin_from_issuer(State.tenants[request.tid].cache.idp_issuer)
-                if idp_origin:
-                    idp_connect_src = b" " + idp_origin
+            if request.tid in State.tenants:
+                tenant_cache = State.tenants[request.tid].cache
+
+                idp_issuers = []
+                if tenant_cache.idp:
+                    idp_issuers.append(tenant_cache.idp_issuer)
+
+                if tenant_cache.get('signup_idp'):
+                    idp_issuers.append(tenant_cache.get('signup_idp_issuer'))
+
+                idp_origins = []
+                for issuer in idp_issuers:
+                    idp_origin = idp_origin_from_issuer(issuer)
+                    if idp_origin and idp_origin not in idp_origins:
+                        idp_origins.append(idp_origin)
+
+                idp_connect_src = b"".join([b" " + idp_origin for idp_origin in idp_origins])
 
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
