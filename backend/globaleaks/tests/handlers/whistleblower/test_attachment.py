@@ -1,10 +1,25 @@
 import os
 
 from twisted.internet.defer import inlineCallbacks
+from twisted.trial import unittest
 
 from globaleaks.handlers.whistleblower import attachment
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+
+
+class TestAttachmentAuthentication(unittest.TestCase):
+    def test_submission_attachment_rejects_missing_session(self):
+        handler = attachment.SubmissionAttachment.__new__(attachment.SubmissionAttachment)
+        handler.session = None
+
+        self.assertRaises(errors.NotAuthenticated, handler.post)
+
+    def test_post_submission_attachment_rejects_missing_session(self):
+        handler = attachment.PostSubmissionAttachment.__new__(attachment.PostSubmissionAttachment)
+        handler.session = None
+
+        self.assertRaises(errors.NotAuthenticated, handler.post)
 
 
 class TestSubmissionAttachment(helpers.TestHandlerWithPopulatedDB):

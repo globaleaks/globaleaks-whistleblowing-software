@@ -6,6 +6,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
+from globaleaks.rest import errors
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now
 
@@ -62,9 +63,17 @@ class SubmissionAttachment(BaseHandler):
     check_roles = 'whistleblower'
     upload_handler = True
 
+    def require_session(self):
+        if self.session is None:
+            raise errors.NotAuthenticated
+
+        return self.session
+
     def post(self):
+        session = self.require_session()
+
         self.uploaded_file['submission'] = True
-        self.session.files.append(self.uploaded_file)
+        session.files.append(self.uploaded_file)
 
 
 class PostSubmissionAttachment(SubmissionAttachment):
@@ -75,6 +84,8 @@ class PostSubmissionAttachment(SubmissionAttachment):
     upload_handler = True
 
     def post(self):
+        session = self.require_session()
+
         self.uploaded_file['submission'] = False
 
-        return register_ifile_on_db(self.request.tid, self.session.user_id, self.uploaded_file)
+        return register_ifile_on_db(self.request.tid, session.user_id, self.uploaded_file)
