@@ -1,20 +1,7 @@
 <div class="row">
   @if (step === 1) {
     <div class="col-md-6 wizard-block">
-      @if (idpRequired && !idpAuthenticated) {
-        <div class="idp-auth-block">
-          <div class="title">{{'Identity Provider Authentication'|translate}}</div>
-          <p>{{'You must authenticate with your identity provider to proceed.'|translate}}</p>
-          <button class="btn btn-primary" type="button" (click)="authenticateWithIDP()">
-            <span>{{'Authenticate with IDP'|translate}}</span>
-          </button>
-        </div>
-      }
-      @if (!idpRequired || idpAuthenticated) {
-        <div>
-          <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-        </div>
-      }
+      <src-signupdefault (complete)="complete()" (authenticate)="authenticateWithIDP()" [signup]="signup" [idpRequired]="idpRequired" [idpAuthenticated]="idpAuthenticated" [idpFields]="idpFields"></src-signupdefault>
     </div>
   }
   @if (step === 2) {

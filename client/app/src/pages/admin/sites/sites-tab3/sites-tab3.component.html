@@ -35,6 +35,18 @@
               </label>
             </div>
             <div class="form-group">
+              <label>
+                <input name="signup_request_organization" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_organization" type="checkbox" />
+                <span>{{'Organization'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input name="signup_request_subdomain" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_subdomain" type="checkbox" />
+                <span>{{'Site'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
               <label for="signup-profile-select">{{'Profile'|translate}}</label>
               <select id="signup-profile-select" name="signup_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.signup_profile">
                 <option value="default">DEFAULT</option>

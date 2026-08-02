@@ -32,6 +32,7 @@ export class SignupComponent implements OnInit {
   step = 1;
   idpRequired = false;
   idpAuthenticated = false;
+  idpFields = {name: false, surname: false, email: false};
   signup: Signup = {
     "subdomain": "",
     "name": "",
@@ -40,6 +41,7 @@ export class SignupComponent implements OnInit {
     "email": "",
     "phone": "",
     "organization_name": "",
+    "organization_email": "",
     "organization_type": "",
     "organization_tax_code": "",
     "organization_vat_code": "",
@@ -52,7 +54,14 @@ export class SignupComponent implements OnInit {
   ngOnInit() {
     this.appConfig.routeChangeListener();
     const queryParams = this.route.snapshot.queryParams;
-    this.signup.token = "token" in queryParams ? queryParams["token"] : "";
+
+    // The data compiled before the identification are restored, so that the
+    // round trip towards the identity provider does not lose them; they are
+    // kept in the session of the browser and never submitted until the
+    // registration is completed
+    this.restoreSignup();
+
+    this.signup.token = "token" in queryParams ? queryParams["token"] : this.signup.token;
 
     // The signup is authenticated against the IdP inherited from the profile
     // configured for the sites created via signup
@@ -72,6 +81,33 @@ export class SignupComponent implements OnInit {
     }
   }
 
+  private getStorageKey(): string {
+    const path = window.location.pathname || "";
+    const match = path.match(/^\/t\/[^/]+/);
+    return `signup:${match ? match[0] : "root"}`;
+  }
+
+  private storeSignup() {
+    window.sessionStorage.setItem(this.getStorageKey(), JSON.stringify(this.signup));
+  }
+
+  private restoreSignup() {
+    const stored = window.sessionStorage.getItem(this.getStorageKey());
+    if (!stored) {
+      return;
+    }
+
+    try {
+      this.signup = {...this.signup, ...JSON.parse(stored)};
+    } catch (_) {
+      window.sessionStorage.removeItem(this.getStorageKey());
+    }
+  }
+
+  private clearSignup() {
+    window.sessionStorage.removeItem(this.getStorageKey());
+  }
+
   updateSubdomain() {
     this.signup.subdomain = "";
     if (this.signup.organization_name) {
@@ -80,6 +116,7 @@ export class SignupComponent implements OnInit {
   }
 
   authenticateWithIDP() {
+    this.storeSignup();
     this.idpService.startLogin(this.router.url, "signup");
   }
 
@@ -91,14 +128,13 @@ export class SignupComponent implements OnInit {
     const claims = this.oauthService.getIdentityClaims() || {};
     this.idpAuthenticated = "sub" in claims || "user_id" in claims;
 
-    if (claims["given_name"] && !this.signup.name) {
-      this.signup.name = claims["given_name"];
-    }
-    if (claims["family_name"] && !this.signup.surname) {
-      this.signup.surname = claims["family_name"];
-    }
-    if (claims["email"] && !this.signup.email) {
-      this.signup.email = claims["email"];
+    // The data attested by the identity provider are presented to the user and
+    // are not editable; the ones it does not publish are asked for as usual
+    for (const [claim, key] of [["given_name", "name"], ["family_name", "surname"], ["email", "email"]] as const) {
+      if (claims[claim]) {
+        this.signup[key] = claims[claim];
+        this.idpFields[key] = true;
+      }
     }
   }
 
@@ -130,6 +166,7 @@ export class SignupComponent implements OnInit {
     (
       {
         next: _ => {
+          this.clearSignup();
           this.step += 1;
         }
       }

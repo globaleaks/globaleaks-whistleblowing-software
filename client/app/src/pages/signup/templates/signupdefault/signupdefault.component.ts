@@ -22,10 +22,15 @@ export class SignupdefaultComponent implements OnInit {
 
 
   @Input() signup: Signup;
+  @Input() idpRequired = false;
+  @Input() idpAuthenticated = false;
+  @Input() idpFields: { name: boolean, surname: boolean, email: boolean } = {name: false, surname: false, email: false};
   @Output() complete: EventEmitter<any> = new EventEmitter<any>();
+  @Output() authenticate: EventEmitter<any> = new EventEmitter<any>();
 
   emailRegex: string;
   confirmation_email: string;
+  confirmation_organization_email: string;
   validated = false;
   mail: string;
 
@@ -35,5 +40,14 @@ export class SignupdefaultComponent implements OnInit {
 
   get invitedSignup(): boolean {
     return !!this.signup.token;
+  }
+
+  get organizationRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_organization;
+  }
+
+  // The site of an invited registration is the one created along the invitation
+  get subdomainRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_subdomain && !this.invitedSignup;
   }
 }

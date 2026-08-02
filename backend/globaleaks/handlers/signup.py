@@ -64,6 +64,17 @@ def signup(session, request, language, bearer_token=None):
 
     oidc_token = db_verify_signup_token(session, 1, bearer_token)
 
+    if not config.get_val('signup_request_organization'):
+        request['organization_name'] = ''
+        request['organization_email'] = ''
+        request['organization_location'] = ''
+        request['phone'] = ''
+        request['organization_tax_code'] = ''
+        request['organization_vat_code'] = ''
+
+    if not config.get_val('signup_request_subdomain'):
+        request['subdomain'] = ''
+
     invite = None
     invited_tenant = None
     invite_token = request['token']
@@ -90,7 +101,7 @@ def signup(session, request, language, bearer_token=None):
         request['organization_location'] = ''
     elif config.get_val('signup_invite_only'):
         raise errors.ForbiddenOperation
-    elif not request['subdomain']:
+    elif config.get_val('signup_request_subdomain') and not request['subdomain']:
         raise errors.InputValidationError
 
     if request['subdomain'] and request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
@@ -127,11 +138,16 @@ def signup(session, request, language, bearer_token=None):
         signup.state = EnumSubscriberStatus.invited.value
     else:
         tenant = db_create_tenant(session, {'active': active,
-                                            'name': request['organization_name'] or request['subdomain'],
+                                            'name': request['organization_name'] or request['subdomain'] or request['email'],
                                             'subdomain': request['subdomain'],
                                             'profile': db_get_signup_profile(session, 1)})
 
         signup = models.Subscriber(request)
+
+        # The subdomain of a registration performed on a platform not asking
+        # for one is a placeholder, the column being unique: the site is
+        # reached via the hostname configured on it afterwards
+        signup.subdomain = request['subdomain'] or generateRandomKey()
 
         signup.tid = tenant.id
 
@@ -192,16 +208,13 @@ def db_signup_activation(session, token, hostname, language, idp_claims=None):
 
     signup.activation_token = None
 
-    if idp_claims and not signup.name:
-        signup.name = idp_claims['given_name'] if 'given_name' in idp_claims else signup.name or ''
-    if idp_claims and not signup.surname:
-        signup.surname = idp_claims['family_name'] if 'family_name' in idp_claims else signup.surname or ''
-
-    node_name = signup.organization_name or signup.subdomain
-
     # The IdP configuration is not copied on the created tenant as it is
     # inherited from the profile assigned to the tenants created via signup
     node = ConfigFactory(session, tenant.id)
+
+    # The subdomain configured on the tenant is empty when the registration
+    # does not ask for one, the value held by the subscriber being a placeholder
+    node_name = signup.organization_name or node.get_val('subdomain') or signup.email
 
     salt = node.get_val('receipt_salt')
 

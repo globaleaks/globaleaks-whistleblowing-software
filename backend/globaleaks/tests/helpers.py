@@ -436,6 +436,7 @@ class MockDict:
             'phone': '',
             'subdomain': 'anac',
             'organization_name': 'Autorità Nazionale Anticorruzione',
+            'organization_email': 'protocollo@anticorruzione.it',
             'organization_tax_code': '',
             'organization_vat_code': '',
             'organization_location': '',

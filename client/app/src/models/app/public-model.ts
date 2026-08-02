@@ -27,6 +27,8 @@ export class Node {
   enable_scoring_system: boolean;
   enable_signup: boolean;
   signup_invite_only: boolean;
+  signup_request_organization: boolean;
+  signup_request_subdomain: boolean;
   signup_auto_authorize: boolean;
   homepage: string;
   hostname: string;
