@@ -1,6 +1,7 @@
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
 from globaleaks import models
 from globaleaks.handlers import signup
+from globaleaks.handlers.admin.invite import create_invite
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
@@ -10,6 +11,17 @@ from globaleaks.tests import helpers
 @transact
 def get_signup_token(session):
     return session.query(models.Subscriber.activation_token).first()[0]
+
+
+@transact
+def get_invitation(session):
+    subscriber = session.query(models.Subscriber).one()
+
+    return {
+        'token': subscriber.activation_token,
+        'organization_name': subscriber.organization_name,
+        'organization_email': subscriber.organization_email
+    }
 
 
 @transact
@@ -96,6 +108,53 @@ class TestSignup(helpers.TestHandler):
 
         handler = self.request(request)
         yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+
+class TestSignupWithInvitation(helpers.TestHandler):
+    _handler = signup.Signup
+
+    @inlineCallbacks
+    def _invite(self):
+        yield tw(db_set_config_variable, 1, 'enable_signup', True)
+        yield tw(db_set_config_variable, 1, 'signup_invite_only', True)
+
+        yield create_invite({'organization_name': 'Autorità Nazionale Anticorruzione',
+                             'email': 'protocollo@anticorruzione.it'}, 'en')
+
+        invitation = yield get_invitation()
+
+        returnValue(invitation)
+
+    @inlineCallbacks
+    def test_post_with_an_invitation(self):
+        invitation = yield self._invite()
+
+        # The identity of the organization is the one the invitation has been
+        # issued to and is never the one submitted by the client
+        request = dict(self.dummySignup)
+        request['token'] = invitation['token']
+        request['organization_name'] = 'Another Organization'
+        request['organization_email'] = 'another@example.org'
+
+        handler = self.request(request)
+        yield handler.post()
+
+        subscriber = yield get_subscriber()
+        self.assertEqual(subscriber['organization_name'], invitation['organization_name'])
+        self.assertEqual(subscriber['organization_email'], invitation['organization_email'])
+
+        # The address of the user is the one collected on the registration
+        self.assertEqual(subscriber['email'], self.dummySignup['email'])
+
+    @inlineCallbacks
+    def test_post_with_an_invalid_invitation(self):
+        yield self._invite()
+
+        request = dict(self.dummySignup)
+        request['token'] = 'invalid'
+
+        handler = self.request(request)
+        yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
 
 
 class TestSignupActivation(helpers.TestHandler):

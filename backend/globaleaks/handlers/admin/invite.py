@@ -37,6 +37,7 @@ def serialize_invite(subscriber, tenant):
         'id': subscriber.id,
         'token': subscriber.activation_token,
         'organization_name': subscriber.organization_name,
+        'organization_email': subscriber.organization_email,
         'organization_tax_code': subscriber.organization_tax_code,
         'organization_vat_code': subscriber.organization_vat_code,
         'organization_location': subscriber.organization_location,
@@ -93,8 +94,11 @@ def create_invite(session, request, language):
         'name': '',
         'surname': '',
         'phone': '',
-        'email': request['email'],
+        # The invitation is issued to an organization: the data of the user
+        # performing the registration are collected on the registration itself
+        'email': '',
         'organization_name': request['organization_name'],
+        'organization_email': request['email'],
         'organization_tax_code': None,
         'organization_vat_code': None,
         'organization_location': '',
@@ -116,7 +120,7 @@ def create_invite(session, request, language):
         'notification': db_get_notification(session, 1, language)
     }
 
-    State.format_and_send_mail(session, 1, invite.email, template_vars)
+    State.format_and_send_mail(session, 1, invite.organization_email, template_vars)
 
     return serialize_invite(invite, tenant)
 
@@ -137,7 +141,7 @@ def get_invite(session, token):
 
     return {
         'organization_name': invite.organization_name,
-        'email': invite.email,
+        'organization_email': invite.organization_email,
         'expiration_date': invite.registration_date + INVITE_EXPIRATION
     }
 

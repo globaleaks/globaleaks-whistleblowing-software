@@ -567,7 +567,7 @@ class TenantInviteKeyword(NodeKeyword):
     data_keys = NodeKeyword.data_keys + ['invite']
 
     def RecipientName(self):
-        return self.data['invite']['email']
+        return self.data['invite']['organization_email']
 
     def OrganizationName(self):
         return self.data['invite']['organization_name']

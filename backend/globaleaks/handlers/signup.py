@@ -94,11 +94,13 @@ def signup(session, request, language, bearer_token=None):
             db_del(session, models.Tenant, models.Tenant.id == invited_tenant.id)
             raise errors.ForbiddenOperation
 
+        # The organization is the one the invitation has been issued to: its
+        # identity is taken from the invitation and never from the request, so
+        # that an invited registration cannot be performed on an organization
+        # different from the invited one
         request['subdomain'] = ''
         request['organization_name'] = invite.organization_name
-        request['organization_tax_code'] = ''
-        request['organization_vat_code'] = ''
-        request['organization_location'] = ''
+        request['organization_email'] = invite.organization_email
     elif config.get_val('signup_invite_only'):
         raise errors.ForbiddenOperation
     elif config.get_val('signup_request_subdomain') and not request['subdomain']:

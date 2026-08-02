@@ -76,7 +76,7 @@ export class SignupComponent implements OnInit {
     if (this.signup.token) {
       this.httpService.requestSignupInvite(this.signup.token).subscribe(invite => {
         this.signup.organization_name = invite.organization_name;
-        this.signup.email = invite.email;
+        this.signup.organization_email = invite.organization_email;
       });
     }
   }
