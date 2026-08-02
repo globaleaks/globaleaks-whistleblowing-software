@@ -1179,7 +1179,7 @@ class _User(Model):
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     profile_id = Column(Integer, default='', nullable=False)
     status = Column(Enum(EnumUserStatus), default='active', nullable=False)
-    idp_id = Column(UnicodeText(18), default='', nullable=False)
+    idp_id = Column(UnicodeText, default='', nullable=False)
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
