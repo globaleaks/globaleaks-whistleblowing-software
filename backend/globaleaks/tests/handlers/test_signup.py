@@ -2,9 +2,10 @@ from twisted.internet.defer import inlineCallbacks, returnValue
 from globaleaks import models
 from globaleaks.handlers import signup
 from globaleaks.handlers.admin.invite import create_invite
-from globaleaks.models.config import db_set_config_variable
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_set_config_variable
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
+from globaleaks.state import State
 from globaleaks.tests import helpers
 
 
@@ -92,6 +93,29 @@ class TestSignup(helpers.TestHandler):
         self.assertNotEqual(subscriber['subdomain'], self.dummySignup['subdomain'])
 
     @inlineCallbacks
+    def test_post_with_the_data_published_by_the_identity_provider(self):
+        yield tw(db_set_config_variable, 1, 'enable_signup', True)
+        yield tw(db_set_config_variable, DEFAULT_PROFILE_ID, 'idp', True)
+
+        verify_token = State.oidcauth.verify_token
+        self.addCleanup(setattr, State.oidcauth, 'verify_token', verify_token)
+
+        # The claims not conforming to the format expected for the field they
+        # are trusted for are discarded in favor of the compiled values
+        State.oidcauth.verify_token = lambda *args: {'sub': 'subject1',
+                                                     'given_name': 'Mario',
+                                                     'family_name': 'Rossi',
+                                                     'email': 'not an address'}
+
+        handler = self.request(self.dummySignup, headers={'Authorization': 'Bearer token'})
+        yield handler.post()
+
+        subscriber = yield get_subscriber()
+        self.assertEqual(subscriber['name'], 'Mario')
+        self.assertEqual(subscriber['surname'], 'Rossi')
+        self.assertEqual(subscriber['email'], self.dummySignup['email'])
+
+    @inlineCallbacks
     def test_post_with_invite_only_and_no_invitation(self):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
         yield tw(db_set_config_variable, 1, 'signup_invite_only', True)
@@ -145,6 +169,38 @@ class TestSignupWithInvitation(helpers.TestHandler):
 
         # The address of the user is the one collected on the registration
         self.assertEqual(subscriber['email'], self.dummySignup['email'])
+
+    @inlineCallbacks
+    def test_post_with_an_invitation_and_no_authentication(self):
+        invitation = yield self._invite()
+        yield tw(db_set_config_variable, DEFAULT_PROFILE_ID, 'idp', True)
+
+        # An invitation does not exempt from the authentication required by the
+        # identity provider configured for the registrations
+        request = dict(self.dummySignup)
+        request['token'] = invitation['token']
+
+        handler = self.request(request)
+        yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
+
+    @inlineCallbacks
+    def test_post_with_an_invitation_and_authentication(self):
+        invitation = yield self._invite()
+        yield tw(db_set_config_variable, DEFAULT_PROFILE_ID, 'idp', True)
+
+        verify_token = State.oidcauth.verify_token
+        self.addCleanup(setattr, State.oidcauth, 'verify_token', verify_token)
+
+        State.oidcauth.verify_token = lambda *args: {'sub': 'subject1'}
+
+        request = dict(self.dummySignup)
+        request['token'] = invitation['token']
+
+        handler = self.request(request, headers={'Authorization': 'Bearer token'})
+        yield handler.post()
+
+        subscriber = yield get_subscriber()
+        self.assertEqual(subscriber['organization_name'], invitation['organization_name'])
 
     @inlineCallbacks
     def test_post_with_an_invalid_invitation(self):

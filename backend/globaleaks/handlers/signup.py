@@ -64,6 +64,22 @@ def signup(session, request, language, bearer_token=None):
 
     oidc_token = db_verify_signup_token(session, 1, bearer_token)
 
+    # The data of the user are the sole data always collected on the
+    # registration; the identity provider, when configured, is the source
+    # trusted for them, so that they cannot be forged by a client.
+    #
+    # The claims are published by a third party and are therefore validated as
+    # any other input: the request has been validated before them and a claim
+    # not conforming to the format expected for the field is discarded, the
+    # value compiled by the user being kept in its place.
+    if oidc_token:
+        for claim, key in [('given_name', 'name'),
+                           ('family_name', 'surname'),
+                           ('email', 'email')]:
+            value = oidc_token.get(claim)
+            if isinstance(value, str) and BaseHandler.validate_regexp(value, requests.SignupDesc[key]):
+                request[key] = value
+
     if not config.get_val('signup_request_organization'):
         request['organization_name'] = ''
         request['organization_email'] = ''
