@@ -14,8 +14,8 @@ def get_dummy_tenant_desc(subdomain='subdomain'):
         'label': 'tenant-xxx',
         'active': True,
         'name': 'GlobaLeaks',
-        'mode': 'default',
         'subdomain': subdomain,
+        'profile': 'default'
     }
 
 
@@ -69,6 +69,7 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         t = yield tenant.create(get_dummy_tenant_desc())
+        t['profile'] = 'default'
         self.handler = self.request(t, role='admin')
 
     def test_get(self):
@@ -84,12 +85,12 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         yield self.assertFailure(handler.put(4), errors.ForbiddenOperation)
 
     def test_delete(self):
-        return self.handler.delete(4)
+        return self.request(None, role='admin').delete(4)
 
     def test_delete_requires_confirmation(self):
         self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
-        self.assertRaises(errors.InvalidAuthentication, self.handler.delete, 4)
+        return self.assertFailure(self.request(None, role='admin').delete(4), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_delete_with_confirmation(self):
@@ -97,6 +98,6 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
 
         confirmation = helpers.VALID_CONFIRMATION
 
-        handler = self.request(get_dummy_tenant_desc(), role='admin', headers={'x-confirmation': confirmation})
+        handler = self.request(None, role='admin', headers={'x-confirmation': confirmation})
 
         yield handler.delete(4)

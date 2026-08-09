@@ -4,8 +4,76 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_profile_children
 from globaleaks.orm import db_add, db_del, db_get, transact
 from globaleaks.rest import requests, errors
+
+
+# The configuration a derived channel inherits from its template
+CONTEXT_TEMPLATE_COLUMNS = [
+    'show_steps_navigation_interface',
+    'allow_recipients_selection',
+    'maximum_selectable_receivers',
+    'select_all_receivers',
+    'tip_timetolive',
+    'tip_reminder',
+    'name',
+    'description',
+    'show_receivers_in_alphabetical_order',
+    'score_threshold_high',
+    'score_threshold_medium',
+    'questionnaire_id',
+    'additional_questionnaire_id',
+    'hidden',
+    'order'
+]
+
+
+def db_derive_context(session, tid, template):
+    """
+    Create on a tenant the channel derived from a channel of its profile
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant deriving the channel
+    :param template: The channel of the profile to derive from
+    :return: The derived channel
+    """
+    context = models.Context()
+    context.tid = tid
+    context.template_id = template.id
+    for column in CONTEXT_TEMPLATE_COLUMNS:
+        setattr(context, column, getattr(template, column))
+
+    session.add(context)
+    session.flush()
+
+    return context
+
+
+def db_sync_derived_contexts(session, template):
+    """
+    Align to a channel of a profile the channels the tenants derived from it
+
+    The channels of a tenant profile are templates: the tenants using the
+    profile hold a derived channel for each of them, that inherits its
+    configuration and follows its updates. The receivers of a derived channel
+    are not part of the template: they belong to the tenant and are associated
+    through the user profiles.
+
+    :param session: An ORM session
+    :param template: The channel of the profile
+    """
+    for child_tid in db_get_profile_children(session, template.tid):
+        derived = session.query(models.Context) \
+                         .filter(models.Context.tid == child_tid,
+                                 models.Context.template_id == template.id) \
+                         .one_or_none()
+        if derived is None:
+            db_derive_context(session, child_tid, template)
+            continue
+
+        for column in CONTEXT_TEMPLATE_COLUMNS:
+            setattr(derived, column, getattr(template, column))
 
 
 def admin_serialize_context(session, context, language):
@@ -38,6 +106,7 @@ def admin_serialize_context(session, context, language):
         'show_steps_navigation_interface': context.show_steps_navigation_interface,
         'questionnaire_id': context.questionnaire_id,
         'additional_questionnaire_id': context.additional_questionnaire_id,
+        'template_id': context.template_id,
         'receivers': receivers,
         'picture': picture
     }
@@ -187,6 +256,11 @@ def create_context(session, tid, user_session, request, language):
     """
     context = db_create_context(session, tid, user_session, request, language)
 
+    # The channels of a tenant profile are templates: the tenants using the
+    # profile derive a channel from each of them
+    if tid >= DEFAULT_PROFILE_ID:
+        db_sync_derived_contexts(session, context)
+
     return admin_serialize_context(session, context, language)
 
 
@@ -228,7 +302,17 @@ def update_context(session, tid, context_id, request, language):
                      models.Context,
                      (models.Context.tid == tid,
                       models.Context.id == context_id))
+
+    # The configuration of a derived channel is inherited from its template
+    # and is never written directly: only its receivers belong to the tenant
+    if context.template_id:
+        db_associate_context_receivers(session, context, request['receivers'])
+        return admin_serialize_context(session, context, language)
+
     context = db_update_context(session, tid, context, request, language)
+
+    if tid >= DEFAULT_PROFILE_ID:
+        db_sync_derived_contexts(session, context)
 
     return admin_serialize_context(session, context, language)
 
@@ -257,11 +341,24 @@ def delete_context(session, tid, context_id):
                      (models.Context.tid == tid,
                       models.Context.id == context_id))
 
-    # TODO: After release 5.1.0 it will be possible to delete this code
-    if session.query(models.InternalTip).filter(models.InternalTip.context_id == context_id).count():
+    # The channel derived from a channel of the profile of the tenant follows
+    # its template and is never deleted directly
+    if context.template_id:
         raise errors.ForbiddenOperation
 
-    session.delete(context)
+    # The template is deleted with the channels derived from it: none of them
+    # can be deleted while it holds reports
+    contexts = [context] + session.query(models.Context) \
+                                  .filter(models.Context.template_id == context_id) \
+                                  .all()
+
+    for c in contexts:
+        # TODO: After release 5.1.0 it will be possible to delete this code
+        if session.query(models.InternalTip).filter(models.InternalTip.context_id == c.id).count():
+            raise errors.ForbiddenOperation
+
+    for c in contexts:
+        session.delete(c)
 
 
 class ContextsCollection(OperationHandler):

@@ -31,26 +31,37 @@ export class AuthenticationService {
   permissions: { can_upload_files: boolean }
   loginInProgress = false;
   requireAuthCode = false;
+  requireUsername = false;
   loginData: LoginDataRef = new LoginDataRef();
 
   public reset() {
     this.loginInProgress = false;
     this.requireAuthCode = false;
+    this.requireUsername = false;
     this.loginData = new LoginDataRef();
   };
 
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
-
     this.session = null;
-
     if (role === "whistleblower") {
       window.location.replace("about:blank");
     } else {
-      window.location.hash = "/login";
-      window.location.reload();
+      this.performLogout();
     }
   };
+
+  private getTenantBasePath(): string {
+    const path = window.location.pathname || "";
+    const match = path.match(/^\/t\/[^/]+/);
+    return match ? match[0] : "";
+  }
+
+  private performLogout() {
+    const tenantBasePath = this.getTenantBasePath();
+    const loginPath = tenantBasePath ? `${tenantBasePath}/#/login` : "/#/login";
+    window.location.replace(loginPath);
+  }
 
   setSession(response: Session) {
     this.session = response;
@@ -85,7 +96,7 @@ export class AuthenticationService {
               password = password.replace(/\D/g, "");
             }
 
-            const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""})));
+            const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""}), username !== "whistleblower" ? authHeader : undefined));
             if (res.type == 'key') {
               this.appDataService.updateShowLoadingPanel(true);
               password = await this.cryptoService.hashArgon2(password, res.salt);
@@ -260,7 +271,7 @@ export class AuthenticationService {
       {
         next: () => {
           this.reset();
-	  this.deleteSession();
+          this.deleteSession();
 
           if (callback) {
             callback();

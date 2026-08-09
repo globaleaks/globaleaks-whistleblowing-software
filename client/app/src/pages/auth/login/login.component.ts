@@ -9,7 +9,6 @@ import {SimpleLoginComponent} from "./templates/simple-login/simple-login.compon
 import {DefaultLoginComponent} from "./templates/default-login/default-login.component";
 import {TranslateModule} from "@ngx-translate/core";
 
-
 @Component({
     selector: "app-login",
     templateUrl: "./login.component.html",
@@ -21,7 +20,6 @@ export class LoginComponent implements OnInit {
   router = inject(Router);
   private route = inject(ActivatedRoute);
   protected appDataService = inject(AppDataService);
-
 
   protected readonly location = location;
   loginData = new LoginDataRef();

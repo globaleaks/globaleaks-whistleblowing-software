@@ -12,7 +12,8 @@ import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {RoleSelectionModalComponent} from "@app/shared/modals/role-selection/role-selection-modal.component";
 
 
 @Component({
@@ -31,6 +32,9 @@ export class UserComponent {
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
   private router = inject(Router);
+  private modalService = inject(NgbModal);
+
+  selectedRole = {value: []};
 
   constructor() {
     this.onQueryParameterChangeListener();
@@ -39,6 +43,17 @@ export class UserComponent {
   onChangeLanguage(language: string) {
     this.translationService.setLanguage(language);
     this.appConfigService.reload();
+  }
+  
+  canSwitchUser() {
+    if (this.preferences.dataModel &&
+	this.preferences.dataModel.profile &&
+        Array.isArray(this.preferences.dataModel.profile.roles) &&
+        this.preferences.dataModel.profile.roles.length > 1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   onQueryParameterChangeListener() {
@@ -80,5 +95,24 @@ export class UserComponent {
     };
 
     this.authentication.logout(promise);
+  }
+
+  openSwitchUserModal(): void {
+    const modalRef = this.modalService.open(RoleSelectionModalComponent, { backdrop: 'static', keyboard: false });
+    const roles = this.preferences.dataModel.profile.roles.map((role: string) => {
+      const capitalizedRole = role === 'receiver' ? 'Recipient' : role.charAt(0).toUpperCase() + role.slice(1);
+      return { value: role, role: capitalizedRole };
+    });
+    modalRef.componentInstance.roles = roles;
+    modalRef.result
+      .then((selectedRole: { value: string; role: string }) => {
+        this.httpService.requestRoleSwitch(selectedRole.value).subscribe({
+          next: (response: { redirect: string }) => {
+            if (response.redirect) {
+              window.open(response.redirect);
+            }
+          },
+        });
+      })
   }
 }

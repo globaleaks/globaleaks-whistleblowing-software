@@ -40,6 +40,8 @@ export class TipsComponent implements OnInit {
   private tokenResourceService = inject(TokenResource);
 
   selectedTips: string[] = [];
+  forwardRequestAvailable = false;
+  forwardRequestOptions: any = null;
   index: number;
   date: { year: number; month: number };
 
@@ -70,6 +72,7 @@ export class TipsComponent implements OnInit {
         this.processTips();
       });
       this.table.setItems(this.RTips.dataModel);
+      this.loadForwardRequestOptions();
     }
   }
 
@@ -142,23 +145,48 @@ export class TipsComponent implements OnInit {
     );
   }
 
+  canRequestForward() {
+    return this.forwardRequestAvailable;
+  }
 
+  private loadForwardRequestOptions() {
+    if (this.preferencesService.dataModel.tid === 1 ||
+        !this.preferencesService.dataModel.profile.permissions.can_request_forward) {
+      this.forwardRequestAvailable = false;
+      this.forwardRequestOptions = null;
+      return;
+    }
 
+    this.httpService.requestForwardRequestOptions().subscribe({
+      next: (response: any) => {
+        this.forwardRequestAvailable = response.available !== false;
+        this.forwardRequestOptions = this.forwardRequestAvailable ? response : null;
+      },
+      error: () => {
+        this.forwardRequestAvailable = false;
+        this.forwardRequestOptions = null;
+      }
+    });
+  }
 
   processTips() {
     const statuses = new Set<string>();
     const channels = new Set<string>();
     const scores = new Set<number>();
+    const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
       tip.context_name = tip.context?.name ?? tip.context_name ?? '';
-      tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
+      // A request of forward reports the outcome of the request itself and not
+      // the status of the report on which it has been filed
+      tip.submissionStatusStr = tip.type === "forward-request" && (tip.allow_forward || tip.status === "closed") ?
+        this.translateService.instant(tip.allow_forward ? "Authorized" : "Denied") :
+        this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
 
       statuses.add(tip.submissionStatusStr);
       channels.add(tip.context_name);
       scores.add(tip.score);
-      const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
       tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
 
@@ -200,7 +228,7 @@ export class TipsComponent implements OnInit {
     const output = [...this.table.result];
     return output.map(tip => ({
       id: tip.id,
-      progressive: tip.progressive,
+      progressive: tip.channel_progressive,
       important: tip.important,
       context_name: tip.context_name,
       label: tip.label,

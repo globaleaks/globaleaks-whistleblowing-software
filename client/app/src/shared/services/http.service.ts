@@ -12,8 +12,8 @@ import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {NewUser} from "@app/models/admin/new-user";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
+import {User, UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {NewStep} from "@app/models/admin/new-step";
 import {NewField} from "@app/models/admin/new-field";
@@ -40,6 +40,7 @@ import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistica
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
 import {FlowFile} from "@flowjs/flow.js";
+import {Selectables} from "@app/models/app/selectables";
 
 
 @Injectable({
@@ -66,8 +67,8 @@ export class HttpService {
     return this.httpClient.post<Session>("api/auth/authentication", param,{headers: header});
   }
 
-  requestAuthType(param: string): Observable<any> {
-    return this.httpClient.post<any>("api/auth/type", param);
+  requestAuthType(param: string, header?: HttpHeaders): Observable<any> {
+    return this.httpClient.post<any>("api/auth/type", param, {headers: header});
   }
 
   requestWhistleBlowerLogin(param: string, header: HttpHeaders): Observable<Session> {
@@ -80,6 +81,14 @@ export class HttpService {
 
   requestDeleteUserSession(): Observable<Session> {
     return this.httpClient.delete<Session>("api/auth/session");
+  }
+
+  requestDeleteTenant(url: string, body: any): Observable<tenantResolverModel> {
+    return this.httpClient.request<tenantResolverModel>('delete', url, { body });
+  }
+
+  requestAdminTenantStats(tenantId: number): Observable<{open_reports: number; total_reports: number; last_update: string}> {
+    return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string}>(`api/admin/tenants/${tenantId}/stats`);
   }
 
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
@@ -128,8 +137,8 @@ export class HttpService {
     return this.httpClient.post<void>("api/user/reset/password", param);
   }
 
-  requestSignup(param: string): Observable<void> {
-    return this.httpClient.post<void>("api/signup", param);
+  requestSignup(param: string, headers?: HttpHeaders): Observable<void> {
+    return this.httpClient.post<void>("api/signup", param, headers ? {headers} : {});
   }
 
   requestWizard(param: string): Observable<void> {
@@ -147,6 +156,7 @@ export class HttpService {
   requestReportSubmission(param: string): Observable<{ receipt: string }> {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
+
 
   requestSupport(param: string): Observable<void> {
     return this.httpClient.post<void>("api/support", param);
@@ -172,8 +182,12 @@ export class HttpService {
     return this.httpClient.get<Backup[]>("api/admin/backup/list");
   }
 
-  requestUsersResource(): Observable<userResolverModel[]> {
-    return this.httpClient.get<userResolverModel[]>("api/admin/users");
+  requestUsersResource(): Observable<User[]> {
+    return this.httpClient.get<User[]>("api/admin/users");
+  }
+
+  requestUserProfilesResource(): Observable<UserProfile[]> {
+    return this.httpClient.get<UserProfile[]>("api/admin/users/profiles");
   }
 
   requestContextsResource(): Observable<contextResolverModel> {
@@ -298,6 +312,10 @@ export class HttpService {
     return this.httpClient.get<Record<string, string>>("/data/l10n/" + lang + ".json");
   }
 
+  requestSelectablesResource(): Observable<Selectables> {
+    return this.httpClient.get<Selectables>("api/admin/selectables");
+  }
+
   requestAdminAuditLogResource(): Observable<auditlogResolverModel> {
     return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog");
   }
@@ -411,22 +429,58 @@ export class HttpService {
   addTenant(param: {
     name: string,
     active: boolean,
-    mode: string,
     subdomain: string
   }): Observable<tenantResolverModel> {
     return this.httpClient.post<tenantResolverModel>("api/admin/tenants", param);
+  }
+
+  // Admin invite: reuse signup flow on backend
+  requestAdminInvite(param: any): Observable<any> {
+    return this.httpClient.post<any>("api/admin/invites", param);
+  }
+
+  requestAdminInvites(): Observable<any[]> {
+    return this.httpClient.get<any[]>("api/admin/invites");
+  }
+
+  requestDeleteAdminInvite(id: string): Observable<void> {
+    return this.httpClient.delete<void>("api/admin/invites/" + id);
+  }
+
+  requestUpdateAdminInvite(id: string, action: "accept" | "deny"): Observable<any> {
+    return this.httpClient.put<any>("api/admin/invites/" + id, {action});
   }
 
   accessIdentity(id: string): Observable<void> {
     return this.httpClient.post<void>(`api/recipient/rtips/${id}/iars`, {"request_motivation": ""});
   }
 
-  requestAddAdminUser(param: NewUser): Observable<userResolverModel> {
-    return this.httpClient.post<userResolverModel>("api/admin/users", param);
+  requestAddAdminUser(param: NewUser): Observable<User> {
+    return this.httpClient.post<User>("api/admin/users", param);
   }
 
-  requestUpdateAdminUser(id: string, param: userResolverModel): Observable<userResolverModel> {
-    return this.httpClient.put<userResolverModel>("api/admin/users/" + id, param);
+  requestUpdateAdminUser(id: string, param: User): Observable<User> {
+    return this.httpClient.put<User>("api/admin/users/" + id, param);
+  }
+
+  requestDeleteAdminUser(id: string, body: any): Observable<User> {
+    return this.httpClient.request<User>("delete", "api/admin/users/" + id, { body });
+  }
+
+  requestAdminUserStats(id: string): Observable<{total_reports: number; exclusive_reports: number; last_update: string}> {
+    return this.httpClient.get<{total_reports: number; exclusive_reports: number; last_update: string}>("api/admin/users/" + id + "/stats");
+  }
+
+  requestAddAdminUserProfile(param: NewUserProfile): Observable<UserProfile> {
+    return this.httpClient.post<UserProfile>("api/admin/users/profiles", param);
+  }
+
+  requestUpdateAdminUserProfile(id: string, param: UserProfile): Observable<UserProfile> {
+    return this.httpClient.put<UserProfile>("api/admin/users/profiles/" + id, param);
+  }
+
+  requestDeleteAdminUserProfile(id: string): Observable<UserProfile> {
+    return this.httpClient.delete<UserProfile>("api/admin/users/profiles/" + id);
   }
 
   requestAddAdminContext(param: NewContext): Observable<contextResolverModel> {
@@ -486,6 +540,10 @@ export class HttpService {
     return this.httpClient.put<RedactionData>("api/recipient/redactions/"+ data.id, data);
   }
 
+  requestRoleSwitch(role: string): Observable<{ redirect: string }> {
+    return this.httpClient.get<{ redirect: string }>(`api/auth/roleauthswitch/${role}`);
+  }
+
   runOperation(url: string, operation: string, args: any, refresh: boolean) {
 
     const data = {
@@ -507,6 +565,10 @@ export class HttpService {
         this.router.navigate([currentUrl]).then();
       });
     }));
+  }
+
+  requestForwardRequestOptions(): Observable<any> {
+    return this.httpClient.get("api/recipient/rtips/forward-request");
   }
 
   tipOperation = (operation: string, args: any, tipId: string) => {
@@ -541,8 +603,8 @@ export class HttpService {
     return this.httpClient.get(url, {headers: headers, responseType: "blob"});
   }
 
-  requestDeleteResource(url: string, headers?: HttpHeaders): Observable<void> {
-    return this.httpClient.delete<void>(url, {headers});
+  requestDeleteResource(url: string, headers?: HttpHeaders, body?: unknown): Observable<void> {
+    return this.httpClient.delete<void>(url, {headers, body});
   }
 
   requestAdminFilesResource(): Observable<FlowFile[]> {

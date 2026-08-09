@@ -258,10 +258,7 @@ class TestBackupJob(helpers.TestGL):
         self.assertEqual(backup_job.list_backups(missing), [])
 
 
-class TestBackupList(helpers.TestHandlerWithPopulatedDB):
-    # The isolation of the secondary tenants is asserted here, and the
-    # connection check resolves the tenant from the application state, so the
-    # populated fixture is required to have tenant 2 present.
+class TestBackupList(helpers.TestHandler):
     _handler = backup_job.BackupList
 
     @inlineCallbacks
@@ -279,5 +276,9 @@ class TestBackupList(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get_forbidden_on_non_root_tenant(self):
+        # The connection policy is evaluated before the root-tenant requirement
+        # and needs the tenant to be present in the runtime state
+        self.state.tenants[2] = self.state.tenants[1]
+
         handler = self.request(role='admin', tid=2)
         yield self.assertFailure(handler.get(), errors.ForbiddenOperation)

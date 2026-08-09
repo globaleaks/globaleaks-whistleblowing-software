@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
 import {NgbModal, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
@@ -37,6 +37,8 @@ import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
+import {DatePipe} from "@angular/common";
 
 
 @Component({
@@ -58,6 +60,8 @@ import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-l
       NgbDropdownMenu,
       TipUploadWbFileComponent_1,
       TipCommentsComponent_1,
+      DatePipe,
+      RouterLink,
       TranslateModule
     ],
 })
@@ -84,17 +88,22 @@ export class TipComponent implements OnInit {
   ctx: string;
   showEditLabelInput: boolean;
   loading = true;
-  redactMode = false;
+  redactMode:boolean = false;
   redactOperationTitle: string;
   submission: any;
+  accessCode = "";
 
   ngOnInit() {
-    this.loadTipData();
-    this.cdr.detectChanges();
+    this.activatedRoute.paramMap.subscribe(params => {
+      const tipId = params.get("tip_id");
+      if (tipId && tipId !== this.tip_id) {
+        this.loadTipData(tipId);
+      }
+    });
   }
 
-  loadTipData() {
-    this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
+  loadTipData(tipId: string | null = this.activatedRoute.snapshot.paramMap.get("tip_id")) {
+    this.tip_id = tipId;
     this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
@@ -110,9 +119,7 @@ export class TipComponent implements OnInit {
             this.tip = this.RTipService.tip;
             this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
 
-            this.activatedRoute.queryParams.subscribe((params: Record<string, string>) => {
-              this.tip.tip_id = params["tip_id"];
-            });
+          this.tip.tip_id = this.activatedRoute.snapshot.queryParamMap.get("tip_id") || "";
 
             this.tip.receivers_by_id = this.utils.array_to_map(this.tip.receivers);
             this.score = this.tip.score;
@@ -128,7 +135,151 @@ export class TipComponent implements OnInit {
   }
 
 
+  isForwardManagedReport() {
+    return this.tip?.type === "forward-request" ||
+           this.tip?.type === "forward" ||
+           !!this.tip?.data?.forward_request ||
+           !!this.tip?.data?.forwarded_from ||
+           !!this.tip?.forwards?.length;
+  }
+
+  isForwardMetadataRestricted() {
+    return this.preferencesService.dataModel.tid !== 1 && this.isForwardManagedReport();
+  }
+
+  canChangeStatus() {
+    return this.preferencesService.dataModel.profile.permissions.can_change_status &&
+           !this.isForwardMetadataRestricted();
+  }
+
+  canChangeLabel() {
+    return this.preferencesService.dataModel.profile.permissions.can_change_label &&
+           !this.isForwardMetadataRestricted();
+  }
+
+  canSetReminder() {
+    return !this.isForwardMetadataRestricted();
+  }
+
+  canMarkImportant() {
+    return !this.isForwardMetadataRestricted();
+  }
+
+  isForwardFromRootTenant() {
+    return Number(this.tip?.data?.forwarded_from?.source_tid) === 1;
+  }
+
+  isTenantForwardRequest() {
+    return this.preferencesService.dataModel.tid !== 1 &&
+           Number(this.tip?.data?.forward_request?.source_tid) === this.preferencesService.dataModel.tid;
+  }
+
+  isTenantForwardRequestAuthorized() {
+    return this.isTenantForwardRequest() && !!this.tip?.allow_forward;
+  }
+
+  canForwardReport() {
+    return this.preferencesService.dataModel.profile.permissions.can_forward_reports &&
+           !!this.tip?.can_forward;
+  }
+
+  hasActions() {
+    // The gear is offered only when it opens on something: the reports of the
+    // forwarding workflow leave no action at all to the tenant that follows them
+    return this.canEditExpiration() ||
+           this.canMaskOrRedact() ||
+           this.canChangeStatus() ||
+           this.canForwardReport() ||
+           this.canAuthorizeForward() ||
+           this.canDenyForward() ||
+           this.canGetAccessCode() ||
+           this.canDeleteReport();
+  }
+
+  // The recipients of the tenant that received the request decide on it; the
+  // tenant that issued it follows the outcome without deciding it
+  decidesOnForwardRequest() {
+    return this.tip?.type === "forward-request" && !this.isTenantForwardRequest();
+  }
+
+  canGetAccessCode() {
+    // The receipt handed over to the whistleblower is offered to the tenant that
+    // performed the forward until the whistleblower replaces it with its own
+    return this.isTenantForwardRequest() &&
+           !!this.tip?.data?.forward_receipt &&
+           !!this.tip?.forward_receipt_valid;
+  }
+
+  getAccessCode() {
+    this.accessCode = this.tip?.data?.forward_receipt || "";
+  }
+
+  canAuthorizeForward() {
+    return this.decidesOnForwardRequest() && !this.tip?.allow_forward;
+  }
+
+  canDenyForward() {
+    return this.decidesOnForwardRequest() && this.tip?.status !== "closed";
+  }
+
+  // Until it is decided the request lives its ordinary lifecycle and reports
+  // the status of any other report
+  hasForwardRequestStatus() {
+    return !!this.tip?.data?.forward_request &&
+           (!!this.tip?.allow_forward || this.tip?.status === "closed");
+  }
+
+  forwardRequestStatusLabel() {
+    if (!this.hasForwardRequestStatus()) {
+      return "";
+    }
+
+    return this.tip?.allow_forward ? "Authorized" : "Denied";
+  }
+
+  forwardRequestStatusClass() {
+    return this.tip?.allow_forward ? "bg-success" : "bg-danger";
+  }
+
+  canEditExpiration() {
+    if (!this.tip?.context || !this.preferencesService.dataModel.profile.permissions.can_postpone_expiration) {
+      return false;
+    }
+
+    if (!this.isForwardManagedReport()) {
+      return true;
+    }
+
+    if (this.preferencesService.dataModel.tid !== 1) {
+      return false;
+    }
+
+    return this.tip.type !== "forward" || !this.isForwardFromRootTenant();
+  }
+
+  canDeleteReport() {
+    const permissions = this.preferencesService.dataModel.profile.permissions;
+
+    if ((this.preferencesService.dataModel.tid !== 1 && permissions.can_forward_reports) ||
+        !permissions.can_delete_submission) {
+      return false;
+    }
+
+    return !this.isForwardManagedReport() || this.preferencesService.dataModel.tid === 1;
+  }
+
+  canMaskOrRedact() {
+    const permissions = this.preferencesService.dataModel.profile.permissions;
+
+    return (this.preferencesService.dataModel.tid === 1 || !permissions.can_forward_reports) &&
+           (permissions.can_redact_information || permissions.can_mask_information);
+  }
+
   updateLabel(label: string) {
+    if (!this.canChangeLabel()) {
+      return;
+    }
+
     this.httpService.tipOperation("set", {"key": "label", "value": label}, this.RTipService.tip.id).subscribe();
   }
 
@@ -138,7 +289,7 @@ export class TipComponent implements OnInit {
         const names = response as Record<string, string>;
         const selectableRecipients: Receiver[] = [];
         this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
-          if (receiver.id !== this.authenticationService.session.user_id && (!this.tip.receivers_by_id[receiver.id] || !this.tip.receivers_by_id[receiver.id].active)) {
+          if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
             receiver.name = names[receiver.id];
             selectableRecipients.push(receiver);
           }
@@ -169,7 +320,7 @@ export class TipComponent implements OnInit {
           const names = response as Record<string, string>;
           const selectableRecipients: Receiver[] = [];
           this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
-            if (receiver.id !== this.authenticationService.session.user_id && (this.tip.receivers_by_id[receiver.id] && this.tip.receivers_by_id[receiver.id].active)) {
+            if (receiver.id !== this.authenticationService.session.user_id && this.tip.receivers_by_id[receiver.id]) {
               receiver.name = names[receiver.id];
               selectableRecipients.push(receiver);
             }
@@ -232,7 +383,59 @@ export class TipComponent implements OnInit {
     );
   }
 
+  authorizeForward() {
+    const modalRef = this.modalService.open(ConfirmationComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
+    });
+    modalRef.componentInstance.title = "Authorize forward";
+    modalRef.componentInstance.message = "By confirming, the tenant that issued this request will be allowed to perform a forward.";
+    modalRef.componentInstance.confirmLabel = "Authorize";
+    modalRef.componentInstance.confirmFunction = () => {
+      const req = {
+        operation: "set",
+        args: {
+          key: "allow_forward",
+          value: true
+        }
+      };
+
+      this.httpService.tipOperation(req.operation, req.args, this.tip.id).subscribe(() => {
+        this.reload();
+      });
+    };
+  }
+
+  denyForward() {
+    const modalRef = this.modalService.open(ConfirmationComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      ariaLabelledBy: 'modal-title'
+    });
+    modalRef.componentInstance.title = "Deny forward";
+    modalRef.componentInstance.message = "By confirming, this request of forward will be closed and denied.";
+    modalRef.componentInstance.confirmLabel = "Deny";
+    modalRef.componentInstance.confirmFunction = () => {
+      const req = {
+        operation: "set",
+        args: {
+          key: "allow_forward",
+          value: false
+        }
+      };
+
+      this.httpService.tipOperation(req.operation, req.args, this.tip.id).subscribe(() => {
+        this.reload();
+      });
+    };
+  }
+
   openModalChangeState(){
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(ChangeSubmissionStatusComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.arg={
       tip:this.tip,
@@ -248,6 +451,10 @@ export class TipComponent implements OnInit {
   }
 
   openModalReopen(){
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(ReopenSubmissionComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
       this.tip.status = "opened";
@@ -258,6 +465,10 @@ export class TipComponent implements OnInit {
   }
 
   updateSubmissionStatus() {
+    if (!this.canChangeStatus()) {
+      return;
+    }
+
     const args = {"status":  this.tip.status, "substatus": this.tip.substatus ? this.tip.substatus : ""};
     this.httpService.tipOperation("update_status", args, this.tip.id)
       .subscribe(
@@ -300,6 +511,10 @@ export class TipComponent implements OnInit {
   }
 
   tipToggleStar() {
+    if (!this.canMarkImportant()) {
+      return;
+    }
+
     this.httpService.tipOperation("set", {
       "key": "important",
       "value": !this.RTipService.tip.important
@@ -317,6 +532,10 @@ export class TipComponent implements OnInit {
   }
 
   tipDelete() {
+    if (!this.canDeleteReport()) {
+      return;
+    }
+
     const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
       // The modal performs the deletion itself through args.
@@ -328,6 +547,10 @@ export class TipComponent implements OnInit {
   }
 
   setReminder() {
+    if (!this.canSetReminder()) {
+      return;
+    }
+
     const tip_reminder = this.appDataService.contexts_by_id?.[this.tip.context_id]?.tip_reminder ?? 0;
     const modalRef = this.modalService.open(TipOperationSetReminderComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.args = {
@@ -358,18 +581,7 @@ export class TipComponent implements OnInit {
   }
 
   exportTip(tipId: string) {
-    const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe({
-        next: async token => {
-          this.cryptoService.proofOfWork(token).subscribe(
-            (result: number) => {
-              window.open("api/recipient/rtips/" + tipId + "/export" + "?token=" + token.id + ":" + result);
-              this.appDataService.updateShowLoadingPanel(false);
-            }
-          );
-        }
-      }
-    );
+    this.utils.saveAs(this.authenticationService, "tip.zip", `/api/recipient/rtips/${tipId}/export`);
   }
 
   openLogsModal() {
@@ -385,6 +597,11 @@ export class TipComponent implements OnInit {
   }
 
   toggleRedactMode() {
+    if (!this.canMaskOrRedact()) {
+      this.redactMode = false;
+      return;
+    }
+
     this.redactMode = !this.redactMode;
   }
 

@@ -41,21 +41,25 @@ class TestModels(helpers.TestGL):
         @transact
         def transaction(session):
             session.query(models.Config).filter(models.Config.tid == 1).delete()
-            config.initialize_config(session, 1, 'default')
+            config.initialize_config(session, 1, {})
 
         return transaction()
 
-    def test_config_update_defaults(self):
+    def test_root_tenant_updates_do_not_alter_the_default_profile(self):
         @transact
         def transaction(session):
-            # Rename 'name' variable with the effect of:
-            # - simuulating missing variable
-            # - simulating the presence of a variable not anymore defined
-            session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == u'name').one().var_name = u'removed'
+            factory = config.ConfigFactory(session, 1)
+            self.assertFalse(factory.get_val('enable_signup'))
 
-            # Delete a variable that requires initialization via a constructor
-            session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == u'receipt_salt').delete()
+            factory.update('node', {'enable_signup': True})
+            session.flush()
 
-            config.ConfigFactory(session, 1).update_defaults()
+            self.assertTrue(config.db_get_config_variable(session, 1, 'enable_signup'))
+
+            # The variable has to be stored as an override owned by the root
+            # tenant, leaving the row of the default profile untouched so that
+            # the tenants inheriting from it are not affected
+            self.assertTrue(config.db_get_own_config_variable(session, 1, 'enable_signup'))
+            self.assertFalse(config.db_get_own_config_variable(session, config.DEFAULT_PROFILE_ID, 'enable_signup'))
 
         return transaction()

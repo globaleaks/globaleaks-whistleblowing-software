@@ -1,0 +1,125 @@
+<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()">
+  <span cardTitle>{{ profile.name }}</span>
+  <ng-container cardActions>
+        @if (editing && nodeData.tid === profile.tid) {
+          <button class="btn btn-sm btn-primary" id="save_profile" [disabled]="editProfile.invalid" (click)="saveProfile(profile);toggleEditing();">
+            <span>{{ 'Save' | translate }}</span>
+          </button>
+        }
+        <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportProfile(profile)">
+          <i class="fa-solid fa-file-export"></i>
+          <span>{{ 'Export' | translate }}</span>
+        </button>
+        @if (getUserID() !== profile.id && nodeData.tid === profile.tid) {
+          <button class="btn btn-sm btn-danger" id="delete_profile" (click)="deleteProfile(profile)">
+            <span>{{ 'Delete' | translate }}</span>
+          </button>
+        }
+  </ng-container>
+  @if (editing) {
+    <div class="editor">
+      <hr />
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Name' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input class="form-control" name="name" [(ngModel)]="profile.name" type="text" [disabled]="nodeData.tid !== profile.tid" required />
+            </div>
+          </div>
+
+          <src-selection-editor
+            label="Roles"
+            [required]="true"
+            addButtonClass="add-role-btn"
+            adderId="RoleAdder"
+            [options]="roleOptions"
+            [selected]="heldRoles"
+            [defaultId]="profile.role"
+            (entryAdded)="assignRole($event)"
+            (entryRemoved)="removeRole($event.index, $event.id)"
+            (defaultPicked)="setDefaultRole($event)">
+          </src-selection-editor>
+
+          @if (profile.roles.includes('receiver') && nodeData.tid === profile.tid) {
+            <src-selection-editor
+              label="Channels"
+              addButtonClass="add-profile-channel-btn"
+              adderId="ProfileChannelAdder"
+              [selectableDefault]="false"
+              [options]="channelOptions"
+              [selected]="heldChannels"
+              (entryAdded)="assignChannel($event)"
+              (entryRemoved)="removeChannel($event.id)">
+            </src-selection-editor>
+          }
+
+        </div>
+      </div>
+      @if (profile.roles.includes('receiver')) {
+        <div class="row">
+          <div class="col-md-12">
+              <label class="mb-2">
+                <span class="fw-bold">Recipient</span>
+              </label>
+            <div class="form-group">
+              <input class="form-check-input" name="can_mask_information" [(ngModel)]="profile.permissions.can_mask_information" type="checkbox" [disabled]="nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)}">{{ 'Give this profile ability to mask information' | translate }}</span>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_redact_information" [(ngModel)]="profile.permissions.can_redact_information" type="checkbox" [disabled]="nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)}">{{ 'Give this profile ability to permanently redact masked information' | translate }}</span>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_delete_submission" [(ngModel)]="profile.permissions.can_delete_submission" type="checkbox" [disabled]="nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid || (profile.tid !== 1 && profile.permissions.can_forward_reports)}">{{ 'Allow the recipient to delete reports' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_change_status" [(ngModel)]="profile.permissions.can_change_status" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Allow the recipient to change report status' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_change_label" [(ngModel)]="profile.permissions.can_change_label" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Allow the recipient to change report labels' | translate }}</label>
+            </div>
+            <div class="form-group">
+                <input class="form-check-input" name="can_postpone_expiration" [(ngModel)]="profile.permissions.can_postpone_expiration" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ "Allow the recipient to edit the reports' expiration date" | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_forward_reports" [(ngModel)]="profile.permissions.can_forward_reports" (ngModelChange)="normalizeForwardingProfilePermissions(profile)" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Allow the recipient to forward' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_request_forward" [(ngModel)]="profile.permissions.can_request_forward" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Allow the recipient to perform forward request' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_grant_access_to_reports" [(ngModel)]="profile.permissions.can_grant_access_to_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to grant profile access to reports' | translate }}</label>
+            </div>
+            <div class="form-group">
+              <input class="form-check-input" name="can_transfer_access_to_reports" [(ngModel)]="profile.permissions.can_transfer_access_to_reports" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Give this profile ability to transfer reports to other profiles' | translate }}</label>
+            </div>
+          </div>
+        </div>
+      }
+      @if(userIsNotAdmin(profile)) {
+        <div class="row">
+          <div class="col-md-12">
+            <label class="mb-2">
+              <span class="fw-bold" translate>Other</span>
+            </label>
+            <label>{{ 'Give the profile administrative access to the following features:' | translate }}</label>
+            <div class="form-group">
+              <input class="form-check-input" name="can_edit_general_settings" [(ngModel)]="profile.permissions.can_edit_general_settings" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+              <span [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Settings' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</src-collapsible-card>

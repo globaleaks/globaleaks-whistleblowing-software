@@ -125,7 +125,13 @@
                 }
               </td>
             }
-            <td class="TipInfoSubmissionStatus">{{tipService().tip.submissionStatusStr}}</td>
+            <td class="TipInfoSubmissionStatus">
+              @if (hasForwardRequestStatus()) {
+                {{ forwardRequestStatusLabel() | translate }}
+              } @else {
+                {{tipService().tip.submissionStatusStr}}
+              }
+            </td>
             @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
               <td class="TipInfoScore">
                 @switch (tipService().tip.score) {

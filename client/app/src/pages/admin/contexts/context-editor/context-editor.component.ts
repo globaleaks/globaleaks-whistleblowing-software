@@ -9,18 +9,17 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, FilterPipe, ListItemComponent]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -43,9 +42,10 @@ export class ContextEditorComponent implements OnInit {
   showSelect = false;
   readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
   readonly usersData = computed(() => this.usersResolver.resource.value());
+  readonly receiversData = computed<User[]>(() => this.usersData().filter(user => user.role === "receiver"));
   nodeData: nodeResolverModel;
   selected = {value: []};
-  readonly adminReceiversById = computed<Record<string, userResolverModel>>(() => this.utilsService.array_to_map(this.usersData()));
+  readonly adminReceiversById = computed<Record<string, User>>(() => this.utilsService.array_to_map(this.usersData()));
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
@@ -70,7 +70,7 @@ export class ContextEditorComponent implements OnInit {
     }
   }
 
-  receiverNotSelectedFilter(item: userResolverModel): boolean {
+  receiverNotSelectedFilter(item: User): boolean {
     return this.contextResolver().receivers.indexOf(item.id) === -1;
   }
 
@@ -86,7 +86,7 @@ export class ContextEditorComponent implements OnInit {
     this.showSelect = true;
   }
 
-  moveReceiver(rec: userResolverModel): void {
+  moveReceiver(rec: User): void {
     if (rec && this.contextResolver().receivers.indexOf(rec.id) === -1) {
       this.contextResolver().receivers.push(rec.id);
       this.showSelect = false;
@@ -116,7 +116,9 @@ export class ContextEditorComponent implements OnInit {
     if (context.additional_questionnaire_id === null) {
       context.additional_questionnaire_id = "";
     }
-    this.utilsService.updateAdminContext(context, context.id).subscribe();
+    this.utilsService.updateAdminContext(context, context.id).subscribe(updatedContext => {
+      Object.assign(context, updatedContext);
+    });
   }
 
 }

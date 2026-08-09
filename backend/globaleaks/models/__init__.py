@@ -5,13 +5,32 @@ import copy
 
 from datetime import datetime
 
+from sqlalchemy.orm import relationship
+
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
-    EnumFieldOptionScoreType, EnumStateFile, EnumUserRole, EnumVisibility
+    EnumFieldOptionScoreType, EnumStateFile, \
+    EnumUserRole, EnumUserStatus, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
     UniqueConstraint, declarative_base, declared_attr, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
+
+
+user_permissions = [
+    'can_edit_general_settings',
+    'can_delete_submission',
+    'can_postpone_expiration',
+    'can_grant_access_to_reports',
+    'can_redact_information',
+    'can_mask_information',
+    'can_transfer_access_to_reports',
+    'can_reopen_reports',
+    'can_request_forward',
+    'can_forward_reports',
+    'can_change_status',
+    'can_change_label'
+]
 
 
 field_types = [
@@ -349,6 +368,11 @@ class _Context(Model):
     additional_questionnaire_id = Column(UnicodeText(36), index=True)
     hidden = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
+
+    # The channel of a tenant derived from a channel of its tenant profile
+    # references it here and inherits its configuration; the reference is
+    # written by the derivation alone and never by a request
+    template_id = Column(UnicodeText(36), default='', nullable=False)
 
     unicode_keys = [
         'questionnaire_id',
@@ -900,13 +924,16 @@ class _SubmissionSubStatus(Model):
 class _Subscriber(Model):
     __tablename__ = 'subscriber'
 
+    id = Column(UnicodeText(36), nullable=False, default=uuid4, primary_key=True)
     tid = Column(Integer, primary_key=True)
     subdomain = Column(UnicodeText, unique=True, nullable=False)
     language = Column(UnicodeText(12), nullable=False)
+    user_id = Column(UnicodeText, default='', nullable=False)
     name = Column(UnicodeText, nullable=False)
     surname = Column(UnicodeText, nullable=False)
     phone = Column(UnicodeText, default='', nullable=False)
     email = Column(UnicodeText, nullable=False)
+    tax_code = Column(UnicodeText, nullable=True)
     organization_name = Column(UnicodeText, default='', nullable=False)
     organization_tax_code = Column(UnicodeText, unique=True, nullable=True)
     organization_vat_code = Column(UnicodeText, unique=True, nullable=True)
@@ -917,9 +944,8 @@ class _Subscriber(Model):
     registration_date = Column(DateTime, default=datetime_now, nullable=False)
     tos1 = Column(UnicodeText, default='', nullable=False)
     tos2 = Column(UnicodeText, default='', nullable=False)
-
-    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email',
-                    'organization_name',  'organization_tax_code',
+    unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code',
+                    'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
                     'client_ip_address', 'client_user_agent']
 
@@ -993,6 +1019,8 @@ class _User(Model):
     readonly = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+    profile_id = Column(UnicodeText(36), default='', nullable=False)
+    status = Column(Enum(EnumUserStatus), default='active', nullable=False)
 
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
@@ -1009,8 +1037,8 @@ class _User(Model):
                     'language', 'mail_address',
                     'name', 'public_name',
                     'language', 'change_email_address',
-                    'salt',
-                    'two_factor_secret']
+                    'salt', 'profile_id',
+                    'two_factor_secret', 'status']
 
     localized_keys = ['description']
 
@@ -1071,6 +1099,116 @@ class _ReceiverFile(Model):
     def __table_args__(self):
         return (ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 CheckConstraint(self.visibility.in_(EnumVisibility.keys())))
+
+
+
+class _UserProfile(Model):
+    """
+    This model keeps track of user_profiles.
+    """
+    __tablename__ = 'user_profile'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    name = Column(UnicodeText, default='', nullable=False)
+    role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
+
+    unicode_keys = ['name', 'role']
+
+
+class UserProfile(_UserProfile, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),)
+
+    @declared_attr
+    def permissions(cls):
+        return relationship("UserProfilePermission", cascade="all")
+
+    @property
+    def permissions_list(self):
+        return [p.permission for p in self.permissions] if self.permissions else []
+
+    @declared_attr
+    def roles(cls):
+        return relationship("UserProfileRole", cascade="all")
+
+    @property
+    def roles_list(self):
+        return [r.role for r in self.roles] if self.roles else []
+
+    @declared_attr
+    def contexts(cls):
+        return relationship("UserProfileContext", cascade="all")
+
+    @property
+    def contexts_list(self):
+        return [c.context_id for c in self.contexts] if self.contexts else []
+
+
+class _UserProfileContext(Model):
+    """
+    This model keeps track of the channels associated to a user profile: the
+    users holding the profile are the receivers of the associated channels.
+    """
+    __tablename__ = 'user_profile_context'
+
+    profile_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    context_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+
+    unicode_keys = ['profile_id', 'context_id']
+
+
+class UserProfileContext(_UserProfileContext, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['context_id'], ['context.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('profile_id', 'context_id'))
+
+
+class _UserProfileRole(Model):
+    """
+    This model keeps track of user profiles roles.
+    """
+    __tablename__ = 'user_profile_role'
+
+    profile_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    role = Column(Enum(EnumUserRole), primary_key=True, default='receiver')
+
+    unicode_keys = ['profile_id', 'role']
+
+
+class UserProfileRole(_UserProfileRole, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('profile_id', 'role'),
+                CheckConstraint(self.role.in_(EnumUserRole.keys())))
+
+    @declared_attr
+    def profile(cls):
+        return relationship("UserProfile", back_populates="roles")
+
+
+class _UserProfilePermission(Model):
+    """
+    This model keeps track of user profile permissions.
+    """
+    __tablename__ = 'user_profile_permission'
+
+    profile_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    permission = Column(UnicodeText, primary_key=True, default='')
+
+    unicode_keys = ['profile_id', 'permission']
+
+
+class UserProfilePermission(_UserProfilePermission, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('profile_id', 'permission'),
+                CheckConstraint(self.permission.in_(user_permissions)))
 
 
 class ArchivedSchema(_ArchivedSchema, Base):
@@ -1202,7 +1340,23 @@ class Tenant(_Tenant, Base):
 
 
 class User(_User, Base):
-    pass
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['profile_id'], ['user_profile.id'], deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['profile_id', 'role'], ['user_profile_role.profile_id', 'user_profile_role.role'], deferrable=True, initially='DEFERRED'),
+                CheckConstraint(self.role.in_(EnumUserRole.keys())))
+
+    @declared_attr
+    def profile(cls):
+        return relationship("UserProfile")
+
+    @property
+    def permissions_list(self):
+        return self.profile.permissions_list if self.profile else []
+
+    def has_permission(self, permission):
+        return permission in self.permissions_list
 
 
 class WhistleblowerFile(_WhistleblowerFile, Base):

@@ -1,10 +1,13 @@
 <div class="reveal">
   <src-tabs>
-    <ng-template srcTab="users" title="Users">
+    <ng-template srcTab="users" title="Users" [visible]="isTenant">
       <src-users-tab1></src-users-tab1>
     </ng-template>
-    <ng-template srcTab="options" title="Options">
+    <ng-template srcTab="profiles" title="Profiles">
       <src-users-tab2></src-users-tab2>
+    </ng-template>
+    <ng-template srcTab="options" title="Options" [visible]="isTenant">
+      <src-users-tab3></src-users-tab3>
     </ng-template>
   </src-tabs>
 </div>

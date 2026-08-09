@@ -25,13 +25,12 @@
     @case ('voice') {
       @if (hasAudioFile(field().id)) {
         @if (!iframeUrl) {
-          <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field().id)" type="button"><i class="fas fa-play"></i></button>
+          <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [disabled]="disabled()" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field().id)" type="button"><i class="fas fa-play"></i></button>
         } @else {
           <div class="audio-player-wrapper">
             <iframe #viewer id="{{'audio-file-' + field().id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
           </div>
-        }
-      }
+        }      }
     }
     @case ('selectbox') {
       <div>
@@ -92,7 +91,7 @@
       <span>
         @for (field of field().children | orderBy:['y', 'x']; track field) {
           <div>
-            <src-tip-field [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [fields]=field [fieldAnswers]=entry()></src-tip-field>
+            <src-tip-field [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [disabled]="disabled()" [fields]=field [fieldAnswers]=entry()></src-tip-field>
           </div>
         }
       </span>
@@ -104,9 +103,9 @@
             <span>{{wbfile.name}}</span>
             @if (!maskService.isMasked(wbfile.ifile_id, tipService.tip)) {
               @if (utilsService.supportedViewTypes.includes(wbfile.type)) {
-                <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbfile)" type="button" [attr.aria-label]="'View' | translate"><i class="fas fa-eye"></i></button>
+                <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [disabled]="disabled" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbfile)" type="button" [attr.aria-label]="'View' | translate"><i class="fas fa-eye"></i></button>
               }
-              <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fas fa-download"></i></button>
+              <button class="ml-2 btn btn-sm btn-primary tip-action-download-file" [disabled]="disabled" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fas fa-download"></i></button>
             } @else {
               <span class="ml-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
             }
@@ -119,7 +118,7 @@
         @if (entry()['value']) {
           <span>
             <span class="preformatted">{{maskContent(field().id, entry()['index'], entry()['value'])}}</span>
-            @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+            @if (!disabled() && redactMode() && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
               <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field(), entry()['index'], entry()['value'])" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
                 <i class="fas fa-eraser" aria-hidden="true"></i>
               </button>

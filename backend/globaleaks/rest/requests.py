@@ -18,6 +18,8 @@ key_regexp_or_empty = r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9
 uuid_regexp = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 uuid_regexp_or_empty = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
 user_role_regexp = r'^(admin|analyst|custodian|receiver)$'
+default_user_profile_regexp = r'^(admin|analyst|custodian|recipient)$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
+profile_regexp = r'^default$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 email_regexp = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$'
 email_regexp_or_empty = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$|^$'
 hostname_regexp = r'^[0-9a-z\-\.]+$'
@@ -84,9 +86,15 @@ ContentType = r'(.*)'
 
 AdminTenantDesc = {
     'name': str,
-    'mode': str,
     'active': bool,
-    'subdomain': subdomain_regexp_or_empty
+    'subdomain': subdomain_regexp_or_empty,
+    'profile': profile_regexp,
+}
+
+AdminTenantDeleteDesc = {
+    'total_reports': int,
+    'open_reports': int,
+    'last_update': DateType
 }
 
 FileDesc = {
@@ -126,6 +134,14 @@ SubmissionDesc = {
     'receipt': str
 }
 
+AdminUserProfileDesc = {
+    'name': str,
+    'role': user_role_regexp,
+    'roles': [user_role_regexp],
+    'contexts': [uuid_regexp],
+    'permissions': dict,
+}
+
 AdminUserDesc = {
     'username': str,
     'name': str,
@@ -141,15 +157,16 @@ AdminUserDesc = {
     'pgp_key_public': str,
     'language': str,
     'notification': bool,
-    'can_edit_general_settings': bool,
-    'can_delete_submission': bool,
-    'can_postpone_expiration': bool,
-    'can_grant_access_to_reports': bool,
-    'can_redact_information': bool,
-    'can_mask_information': bool,
-    'can_transfer_access_to_reports': bool,
     'forcefully_selected': bool,
+    'profile_id': str,
+    'profile': dict,
     'send_activation_link': bool
+}
+
+AdminUserDeleteDesc = {
+    'total_reports': int,
+    'exclusive_reports': int,
+    'last_update': DateType
 }
 
 UserUserDesc = {
@@ -165,6 +182,7 @@ UserUserDesc = {
     'pgp_key_expiration': str,
     'pgp_key_public': str,
     'language': str,
+    'profile': dict,
     'notification': bool
 }
 
@@ -217,7 +235,9 @@ AdminNodeDesc = {
     'simplified_login': bool,
     'enable_scoring_system': bool,
     'enable_signup': bool,
-    'mode': str,
+    'enable_onion': bool,
+    'default_tip_timetolive': int,
+    'demo': bool,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
     'signup_tos1_text': str,
@@ -251,6 +271,7 @@ AdminNodeDesc = {
     'backup_time': str,
     'backup_period': int,
     'backup_retention': int,
+    'default_user_profile': default_user_profile_regexp,
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,

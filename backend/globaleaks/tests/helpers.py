@@ -2,6 +2,7 @@
 Utilities and basic TestCases.
 """
 import base64
+import copy
 import json
 import mimetypes
 import os
@@ -34,6 +35,7 @@ from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.admin.tenant import create as create_tenant, db_wizard
 from globaleaks.handlers.admin.user import create_user
+from globaleaks.handlers.admin.user_profile import user_permissions
 from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.handlers.whistleblower.submission import create_submission
@@ -78,6 +80,8 @@ USER_PRV_KEY_ENC = Base64Encoder.encode(GCE.symmetric_encrypt(USER_KEY, USER_PRV
 USER_BKP_KEY, USER_REC_KEY = GCE.generate_recovery_key(USER_PRV_KEY)
 USER_REC_KEY_PLAIN = GCE.asymmetric_decrypt(USER_PRV_KEY, Base64Encoder.decode(USER_REC_KEY))
 USER_REC_KEY_PLAIN = Base32Encoder.encode(USER_REC_KEY_PLAIN).replace(b'=', b'').decode('utf-8')
+
+USER_ESCROW_PRV_KEY = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
 
 GCE_orig_generate_key = GCE.generate_key
 GCE_orig_generate_keypair = GCE.generate_keypair
@@ -225,8 +229,10 @@ def dpop_htu(request):
 _orig_sessions_new = Sessions.new
 
 
-def _test_sessions_new(tid, user_id, user_tid, user_role, cc='', ek='', dpop_jkt=''):
-    return _orig_sessions_new(tid, user_id, user_tid, user_role, cc, ek, dpop_jkt or DPOP_JKT)
+def _test_sessions_new(tid, user_id, user_tid, user_username, user_role, cc='', ek='',
+                       roles=None, permissions=None, dpop_jkt=''):
+    return _orig_sessions_new(tid, user_id, user_tid, user_username, user_role, cc, ek,
+                              roles, permissions, dpop_jkt or DPOP_JKT)
 
 
 Sessions.new = _test_sessions_new
@@ -335,23 +341,25 @@ class MockDict:
             'description': 'King MockDummy',
             'last_login': '1970-01-01 00:00:00.000000',
             'language': 'en',
+            'notification': True,
             'password_change_needed': False,
             'password_change_date': '1970-01-01 00:00:00.000000',
             'pgp_key_fingerprint': '',
             'pgp_key_public': '',
             'pgp_key_expiration': '1970-01-01 00:00:00.000000',
             'pgp_key_remove': False,
-            'notification': True,
+            'profile_id': 'none',
+            'contexts': [],
             'forcefully_selected': True,
             'send_activation_link': False,
             'can_edit_general_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
+            'can_forward_reports': True,
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,
-            'can_redact_information': True,
-            'contexts': []
+            'can_redact_information': True
         }
 
         self.dummyQuestionnaire = {
@@ -409,11 +417,14 @@ class MockDict:
             'disable_privacy_badge': False,
             'default_language': 'en',
             'default_questionnaire': 'default',
+            'default_user_profile': '',
             'admin_language': 'en',
             'simplified_login': False,
             'enable_scoring_system': False,
             'enable_signup': True,
-            'mode': 'default',
+            'signup_auto_authorize': True,
+            'signup_invite_only': False,
+            'signup_profile': 'default',
             'signup_tos1_enable': False,
             'signup_tos1_title': '',
             'signup_tos1_text': '',
@@ -456,6 +467,21 @@ class MockDict:
             'backup_time': '',
             'backup_period': 1,
             'backup_retention': 7,
+            'idp': False,
+            'idp_issuer': '',
+            'idp_client_id': '',
+            'idp_provisioning': False,
+            'enable_onion': True,
+            'default_tip_timetolive': 90,
+            'demo': False,
+            'signup_request_organization': False,
+            'signup_request_subdomain': True,
+            'enable_forwarding_incoming': False,
+            'enable_forwarding_outgoing': False,
+            'require_forward_requests': False,
+            'accept_forwarding_from': [],
+            'forward_channel': '',
+            'forward_request_channel': '',
         }
 
         self.dummyNetwork = {
@@ -503,6 +529,7 @@ class MockDict:
             'phone': '',
             'subdomain': 'anac',
             'organization_name': 'Autorità Nazionale Anticorruzione',
+            'organization_email': 'protocollo@anticorruzione.it',
             'organization_tax_code': '',
             'organization_vat_code': '',
             'organization_location': '',
@@ -668,7 +695,7 @@ class TestGL(unittest.TestCase):
             yield db.create_db()
             yield db.initialize_db()
 
-        yield self.set_hostnames(0)
+        yield self.set_hostnames(1)
 
         yield db.refresh_tenant_cache()
 
@@ -718,7 +745,14 @@ class TestGL(unittest.TestCase):
 
     def get_dummy_user(self, role, username):
         new_u = dict(MockDict().dummyUser)
+        new_u['id'] = username
         new_u['role'] = role
+
+        if role == 'admin':
+            new_u['roles'] = [role, 'custodian']
+        else:
+            new_u['roles'] = [role]
+
         new_u['username'] = username
         new_u['name'] = new_u['public_name'] = new_u['mail_address'] = "%s@%s.xxx" % (username, username)
         new_u['description'] = ''
@@ -851,6 +885,17 @@ class TestGL(unittest.TestCase):
         user.can_mask_information = value
         user.can_redact_information = value
 
+        # The permissions are read from the profile of the user
+        for permission in ('can_mask_information', 'can_redact_information'):
+            row = session.query(models.UserProfilePermission) \
+                         .filter(models.UserProfilePermission.profile_id == user.profile_id,
+                                 models.UserProfilePermission.permission == permission).one_or_none()
+            if value and row is None:
+                session.add(models.UserProfilePermission({'profile_id': user.profile_id,
+                                                          'permission': permission}))
+            elif not value and row is not None:
+                session.delete(row)
+
     @transact
     def get_wbfiles(self, session, rtip_id):
         return [x[0] for x in session.query(models.WhistleblowerFile.id) \
@@ -934,9 +979,9 @@ class TestGLWithPopulatedDB(TestGL):
         OLD_USER_KEY, OLD_USER_KEY_HASH = GCE.calculate_key_and_hash(VALID_PASSWORD, VALID_SALT)
         OLD_USER_PRV_KEY_ENC = Base64Encoder.encode(GCE.symmetric_encrypt(OLD_USER_KEY, USER_PRV_KEY))
 
-        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'receipt_salt').one().value = VALID_SALT
-        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'crypto_escrow_pub_key').one().value = ESCROW_PUB_KEY
-        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'crypto_stat_pub_key').one().value = STAT_PUB_KEY
+        db_set_config_variable(session, 1, 'receipt_salt', VALID_SALT)
+        db_set_config_variable(session, 1, 'crypto_escrow_pub_key', ESCROW_PUB_KEY)
+        db_set_config_variable(session, 1, 'crypto_stat_pub_key', STAT_PUB_KEY)
 
         for user in session.query(models.User):
             if user.id == self.dummyAdmin['id']:
@@ -963,7 +1008,7 @@ class TestGLWithPopulatedDB(TestGL):
         # fill_data/create_admin
         self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
 
-        # fill_data/create_custodian
+        # fill_data/create_analyst
         self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en')
 
         # fill_data/create_custodian
@@ -994,7 +1039,7 @@ class TestGLWithPopulatedDB(TestGL):
         for t in models.field_types:
             field = get_dummy_field(t)
             field['fieldgroup_id'] = fieldgroup_id
-            field = yield create_field(1, field, 'en')
+            yield create_field(1, field, 'en')
 
         # create a second step including the whistleblower identity question
         step = get_dummy_step()
@@ -1009,7 +1054,7 @@ class TestGLWithPopulatedDB(TestGL):
         # fill_data create_tenant
         for i in range(1, self.population_of_tenants):
             name = 'tenant-' + str(i+1)
-            t = yield create_tenant({'mode': 'default', 'name': name, 'active': True, 'subdomain': name})
+            t = yield create_tenant({'name': name, 'active': True, 'subdomain': name, 'profile': 'default'})
             yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
             yield self.set_hostnames(i)
 
@@ -1170,10 +1215,17 @@ class TestHandler(TestGLWithPopulatedDB):
             if role == 'whistleblower' and user_id == None:
                 session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
             else:
-                session = Sessions.new(tid, user_id, 1, role, USER_PRV_KEY, role == 'admin', dpop_jkt=DPOP_JKT)
+                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions, dpop_jkt=DPOP_JKT)
 
             if permissions:
-                session.permissions = permissions
+                for p in user_permissions:
+                    if p not in permissions:
+                        permissions[p] = user_permissions[p]
+
+            session.permissions = copy.deepcopy(user_permissions)
+            if permissions:
+                for p in permissions:
+                    session.permissions[p] = permissions[p]
 
             if properties:
                 session.properties.update(properties)
@@ -1234,7 +1286,20 @@ class TestHandler(TestGLWithPopulatedDB):
         return handler
 
     def get_dummy_request(self):
-        return self._test_desc['model']().dict(u'en')
+        request = self._test_desc['model']().dict(u'en')
+        if isinstance(self._test_desc['model'](), models.User):
+            request['roles'] = [request['role']]
+            request['profile'] = {}
+        elif isinstance(self._test_desc['model'](), models.UserProfile):
+            request['role'] = 'admin'
+            request['roles'] = ['admin', 'recipient']
+            request['contexts'] = []
+            request['permissions'] = {}
+            for p in user_permissions:
+                request['permissions'][p] = False
+
+
+        return request
 
 
 class TestCollectionHandler(TestHandler):
@@ -1251,6 +1316,9 @@ class TestCollectionHandler(TestHandler):
     @inlineCallbacks
     def test_get(self):
         data = self.get_dummy_request()
+
+        for k, v in self._test_desc['data'].items():
+            data[k] = v
 
         yield self._test_desc['create'](1, self.session, data, 'en')
 
@@ -1291,6 +1359,9 @@ class TestInstanceHandler(TestHandler):
     def test_get(self):
         data = self.get_dummy_request()
 
+        for k, v in self._test_desc['data'].items():
+            data[k] = v
+
         data = yield self._test_desc['create'](1, self.session, data, 'en')
 
         handler = self.request(data, role='admin')
@@ -1322,7 +1393,7 @@ class TestInstanceHandler(TestHandler):
 
         data = yield self._test_desc['create'](1, self.session, data, 'en')
 
-        handler = self.request(data, role='admin')
+        handler = self.request(None, role='admin')
 
         if hasattr(handler, 'delete'):
             yield handler.delete(data['id'])

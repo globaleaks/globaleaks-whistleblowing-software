@@ -26,11 +26,16 @@ export class Node {
   enable_custom_privacy_badge: boolean;
   enable_scoring_system: boolean;
   enable_signup: boolean;
+  signup_invite_only: boolean;
+  signup_request_organization: boolean;
+  signup_request_subdomain: boolean;
+  signup_auto_authorize: boolean;
+  support: boolean;
   homepage: string;
   hostname: string;
   https_whistleblower = false;
   maximum_filesize: number;
-  mode: string;
+  demo: boolean;
   name: string;
   onionservice: string;
   rootdomain: string;
@@ -67,6 +72,13 @@ export class Node {
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;
   receipt_salt: string;
+  idp: boolean;
+  idp_issuer: string;
+  idp_client_id: string;
+  signup_idp: boolean;
+  signup_idp_issuer: string;
+  signup_idp_client_id: string;
+  default_user_profile: string;
   antivirus_enabled: boolean;
 }
 
@@ -93,6 +105,7 @@ export interface Status {
 
 export interface Context {
   id: string;
+  slug: string;
   hidden: boolean;
   order: number;
   tip_timetolive: number;

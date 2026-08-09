@@ -2,7 +2,9 @@
   <i class="fas fa-house"></i>
   <span>{{'Home' | translate}}</span>
 </a>
-<a routerLink="/custodian/requests" routerLinkActive="active" id="custodian_requests" [attr.aria-current]="isActive('/custodian/requests') ? 'page' : 'false'">
-  <i class="fas fa-inbox"></i>
-  <span>{{'Requests' | translate}}</span>
-</a>
+@if (!nodeResolver.dataModel.is_profile) {
+  <a routerLink="/custodian/requests" routerLinkActive="active" id="custodian_requests" [attr.aria-current]="isActive('/custodian/requests') ? 'page' : 'false'">
+    <i class="fa fa-inbox"></i>
+    <span>{{'Requests' | translate}}</span>
+  </a>
+}

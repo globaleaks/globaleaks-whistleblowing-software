@@ -13,14 +13,13 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import {NewUser} from "@app/models/admin/new-user";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
+import {User,UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {Field} from "@app/models/resolvers/field-template-model";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {Option} from "@app/models/whistleblower/wb-tip-data";
 import {Status} from "@app/models/app/public-model";
 import {AppDataService} from "@app/app-data.service";
@@ -95,16 +94,6 @@ export class UtilsService {
       return Object.fromEntries(list.map(item => [item, true]));
   }
 
-  getAuditLogCategory(type: string): string {
-    for (const category in this.auditLogCategories) {
-      if (this.auditLogCategories[category][type]) {
-        return category;
-      }
-    }
-
-    return 'Low'; // default
-  }
-
   updateNode(nodeResolverModel:nodeResolverModel) {
     this.httpService.updateNodeResource(nodeResolverModel).subscribe();
   }
@@ -170,6 +159,16 @@ export class UtilsService {
   getDirection(language: string): string {
     const rtlLanguages = ["ar", "dv", "fa", "fa_AF", "he", "ps", "ug", "ur"];
     return rtlLanguages.includes(language) ? "rtl" : "ltr";
+  }
+
+  getAuditLogCategory(type: string): string {
+    for (const category in this.auditLogCategories) {
+      if (this.auditLogCategories[category][type]) {
+        return category;
+      }
+    }
+
+    return 'Low'; // default
   }
 
   view(authenticationService: AuthenticationService, url: string, _: string, callback: (blob: Blob) => void): void {
@@ -326,6 +325,15 @@ export class UtilsService {
     }
   }
 
+  submitSupportRequest(arg: {mail_address: string,text: string} ) {
+    const param = JSON.stringify({
+      "mail_address": arg.mail_address,
+      "text": arg.text,
+      "url": window.location.href.replace("localhost", "127.0.0.1")
+    });
+    this.httpService.requestSupport(param).subscribe();
+  }
+
   array_to_map(receivers: any) {
     const ret: any = {};
 
@@ -415,15 +423,6 @@ export class UtilsService {
     }
   }
 
-  submitSupportRequest(arg: {mail_address: string,text: string} ) {
-    const param = JSON.stringify({
-      "mail_address": arg.mail_address,
-      "text": arg.text,
-      "url": window.location.href.replace("localhost", "127.0.0.1")
-    });
-    this.httpService.requestSupport(param).subscribe();
-  }
-
   runUserOperation(operation: string, args: any, refresh: boolean) {
     return this.httpService.runOperation("api/user/operations", operation, args, refresh);
   }
@@ -434,64 +433,6 @@ export class UtilsService {
 
   go(path: string): void {
     this.router.navigateByUrl(path).then();
-  }
-
-  maskScore(score: number, translateService: TranslateService) {
-    if (score === 1) {
-      return translateService.instant("Low");
-    } else if (score === 2) {
-      return translateService.instant("Medium");
-    } else if (score === 3) {
-      return translateService.instant("High");
-    } else {
-      return translateService.instant("None");
-    }
-  }
-
-  getStaticFilter(data: any[], model:{id: number;label: string;}[], key: string, translateService: TranslateService): any[] {
-    if (model.length === 0) {
-      return data;
-    } else {
-      const rows: any[] = [];
-      data.forEach(data_row => {
-        model.forEach(selected_option => {
-          if (key === "score") {
-            const scoreLabel = this.maskScore(data_row[key], translateService);
-            if (scoreLabel === selected_option.label) {
-              rows.push(data_row);
-            }
-          } else if (key === "status") {
-            if (data_row[key] === selected_option.label) {
-              rows.push(data_row);
-            }
-          } else {
-            if (data_row[key] === selected_option.label) {
-              rows.push(data_row);
-            }
-          }
-        });
-      });
-      return rows;
-    }
-  }
-
-  getDateFilter(Tips: rtipResolverModel[], report_date_filter:[number, number] | null, update_date_filter: [number, number] | null, expiry_date_filter: [number, number] | null): rtipResolverModel[] {
-    const filteredTips: rtipResolverModel[] = [];
-    Tips.forEach(rows => {
-      const m_row_rdate = new Date(rows.last_access).getTime();
-      const m_row_udate = new Date(rows.update_date).getTime();
-      const m_row_edate = new Date(rows.expiration_date).getTime();
-
-      if (
-        (report_date_filter === null || (report_date_filter[0] === 0 || (m_row_rdate > report_date_filter[0] && m_row_rdate < report_date_filter[1]))) &&
-        (update_date_filter === null || (update_date_filter[0] === 0 || (m_row_udate > update_date_filter[0] && m_row_udate < update_date_filter[1]))) &&
-        (expiry_date_filter === null || (expiry_date_filter[0] === 0 || (m_row_edate > expiry_date_filter[0] && m_row_edate < expiry_date_filter[1])))
-      ) {
-        filteredTips.push(rows);
-      }
-    });
-
-    return filteredTips;
   }
 
   print() {
@@ -575,6 +516,7 @@ export class UtilsService {
     const requireConfirmation = [
       "enable_encryption",
       "disable_2fa",
+      "reset_idp_binding",
       "get_recovery_key",
       "toggle_escrow",
       "toggle_user_escrow",
@@ -704,15 +646,19 @@ export class UtilsService {
     return this.httpService.requestDeleteResource(url);
   }
 
-  deleteWithConfirmation(url: string): Observable<any> {
+  deleteWithConfirmation(url: string, body: any = null): Observable<any> {
     return this.getConfirmation((secret: string) => {
       const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
-      return this.httpService.requestDeleteResource(url, headers);
+      return this.httpService.requestDeleteResource(url, headers, body);
     });
   }
 
-  deleteAdminUser(user_id: string) {
-    return this.deleteWithConfirmation("api/admin/users/" + user_id);
+  deleteAdminUser(user_id: string, expectedStats: any) {
+    return this.deleteWithConfirmation("api/admin/users/" + user_id, expectedStats);
+  }
+
+  deleteAdminUserProfile(user_profile_id: string) {
+    return this.httpService.requestDeleteAdminUserProfile(user_profile_id);
   }
 
   deleteAdminContext(context_id: string) {
@@ -731,8 +677,16 @@ export class UtilsService {
     return this.httpService.requestAddAdminUser(user);
   }
 
-  updateAdminUser(id: string, user: userResolverModel) {
+  updateAdminUser(id: string, user: User) {
     return this.httpService.requestUpdateAdminUser(id, user);
+  }
+
+  addAdminUserProfile(user_profile: NewUserProfile) {
+    return this.httpService.requestAddAdminUserProfile(user_profile);
+  }
+
+  updateAdminUserProfile(id: string, user_profile: UserProfile) {
+    return this.httpService.requestUpdateAdminUserProfile(id, user_profile);
   }
 
   addAdminContext(context: NewContext) {
@@ -967,5 +921,11 @@ export class UtilsService {
 
   public getFlowInstance(overrides: Partial<FlowOptions> = {}): Flow {
     return new Flow(this.getFlowOptions(overrides));
+  }
+
+  getRoleDisplayName(role: any): any {
+    if (!role) return [];
+    if (role === 'receiver') return 'Recipient';
+    return role.charAt(0).toUpperCase() + role.slice(1);
   }
 }

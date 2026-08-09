@@ -1,5 +1,6 @@
 export class NewContext {
   id = "";
+  slug = "";
   hidden = true;
   name = "";
   description = "";
