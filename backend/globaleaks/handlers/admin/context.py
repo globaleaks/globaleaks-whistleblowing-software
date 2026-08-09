@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
@@ -25,6 +27,7 @@ CONTEXT_TEMPLATE_COLUMNS = [
     'score_threshold_medium',
     'questionnaire_id',
     'additional_questionnaire_id',
+    'slug',
     'hidden',
     'order'
 ]
@@ -77,6 +80,10 @@ def db_sync_derived_contexts(session, template):
             setattr(derived, column, getattr(template, column))
 
 
+def normalize_context_slug(slug):
+    return re.sub(r'[^a-z0-9]+', '-', (slug or '').lower()).strip('-')
+
+
 def admin_serialize_context(session, context, language):
     """
     Serialize the specified context
@@ -107,6 +114,7 @@ def admin_serialize_context(session, context, language):
         'show_steps_navigation_interface': context.show_steps_navigation_interface,
         'questionnaire_id': context.questionnaire_id,
         'additional_questionnaire_id': context.additional_questionnaire_id,
+        'slug': context.slug,
         'template_id': context.template_id,
         'is_forward_channel': context.id in db_get_forward_channel_ids(session, context.tid),
         'receivers': receivers,
@@ -210,6 +218,7 @@ def fill_context_request(tid, request, language):
     """
     request['tid'] = tid
     fill_localized_keys(request, models.Context.localized_keys, language)
+    request['slug'] = normalize_context_slug(request.get('slug', ''))
 
     if not request['allow_recipients_selection']:
         request['select_all_receivers'] = True

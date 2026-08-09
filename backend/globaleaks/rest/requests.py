@@ -419,6 +419,7 @@ AdminQuestionnaireDescRaw['steps'] = list
 AdminContextDesc = {
     'id': uuid_regexp_or_empty,
     'name': str,
+    'slug': str,
     'hidden': bool,
     'description': str,
     'maximum_selectable_receivers': int,
@@ -520,6 +521,7 @@ ReceiverDesc = {
 ContextDesc = {
     'id': uuid_regexp,
     'name': str,
+    'slug': str,
     'hidden': bool,
     'description': str,
     'order': int,

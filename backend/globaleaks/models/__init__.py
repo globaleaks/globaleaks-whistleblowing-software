@@ -366,6 +366,7 @@ class _Context(Model):
     score_threshold_medium = Column(Integer, default=0, nullable=False)
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
     additional_questionnaire_id = Column(UnicodeText(36), index=True)
+    slug = Column(UnicodeText(100), default='', nullable=False)
     hidden = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
 
@@ -375,6 +376,7 @@ class _Context(Model):
     template_id = Column(UnicodeText(36), default='', nullable=False)
 
     unicode_keys = [
+        'slug',
         'questionnaire_id',
         'additional_questionnaire_id'
     ]

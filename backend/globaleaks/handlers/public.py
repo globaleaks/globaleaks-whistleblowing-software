@@ -318,6 +318,7 @@ def serialize_context(session, context, language, data=None):
     """
     ret = {
         'id': context.id,
+        'slug': context.slug,
         'hidden': context.hidden,
         'order': context.order,
         'tip_timetolive': context.tip_timetolive,
