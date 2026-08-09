@@ -1,5 +1,4 @@
 <form #signupform="ngForm" [ngClass]="{ 'was-validated': validated }" novalidate>
-  @if (organizationRequested) {
     <div class="row mt-2">
       <div class="col-md-12">
         <div class="title">{{'Organization'|translate}}</div>
@@ -16,90 +15,66 @@
         <input id="signup-organization-name" name="organization_name" class="form-control" [class.form-control-readonly]="invitedSignup" [(ngModel)]="signup.organization_name" (ngModelChange)="onOrganizationNameChange()" type="text" [readonly]="invitedSignup" [required]="!invitedSignup">
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6 form-group">
-        <label for="signup-organization-email">
-          <span>{{'Email address'|translate}}</span>
-          @if (!invitedSignup) {
+    @if (subdomainRequested) {
+      <div class="row">
+        <div class="col-md-12 form-group">
+          <label for="signup-subdomain">
+            <span>{{'Site'|translate}}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          }
-        </label>
-        <input id="signup-organization-email" #organization_email="ngModel" name="organization_email" class="form-control" [class.form-control-readonly]="invitedSignup" [(ngModel)]="signup.organization_email" type="email" [ngClass]="{'is-invalid': validated && organization_email.invalid}" [pattern]="emailRegex" [readonly]="invitedSignup" [required]="!invitedSignup">
-        @if (validated && organization_email?.errors?.['pattern']) {
-          <div class="text-danger">
-            <span>{{'Invalid email address'|translate}}</span>
+          </label>
+          <div class="input-group">
+            <input id="signup-subdomain" name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" (ngModelChange)="subdomainEdited = true" type="text" maxlength="40" subdomainvalidators required>
+            <span class="input-group-append">
+              <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+    @if (locationRequested || phoneRequested) {
+      <div class="row">
+        @if (locationRequested) {
+          <div class="col-md-6 form-group">
+            <label for="signup-organization-location">
+              <span>{{'Address'|translate}}</span>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            </label>
+            <input id="signup-organization-location" name="organization_location" class="form-control" [(ngModel)]="signup.organization_location" type="text" required>
+          </div>
+        }
+        @if (phoneRequested) {
+          <div class="col-md-6 form-group">
+            <label for="signup-organization-phone">
+              <span>{{'Phone number'|translate}}</span>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            </label>
+            <input id="signup-organization-phone" name="phone" class="form-control" [(ngModel)]="signup.phone" type="tel" required>
           </div>
         }
       </div>
-      @if (!invitedSignup) {
-        <div class="col-md-6 form-group">
-          <label for="signup-organization-email-confirm">
-            <span>{{'Email address'|translate}} ({{'Confirmation'|translate}})</span>
-            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          </label>
-          <input id="signup-organization-email-confirm" name="organization_email_confirmation" class="form-control" [(ngModel)]="confirmation_organization_email" disableCcp="" type="email" [ngClass]="{'is-invalid': validated && signup.organization_email !== confirmation_organization_email}" required>
-          @if (validated && organization_email.valid && signup.organization_email !== confirmation_organization_email) {
-            <div class="text-danger">
-              <span>{{'Invalid confirmation'|translate}}</span>
-            </div>
-          }
-        </div>
-      }
-    </div>
-    <div class="row">
-      <div class="col-md-6 form-group">
-        <label for="signup-organization-location">
-          <span>{{'Address'|translate}}</span>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-        <input id="signup-organization-location" name="organization_location" class="form-control" [(ngModel)]="signup.organization_location" type="text" required>
+    }
+    @if (taxCodeRequested || vatCodeRequested) {
+      <div class="row">
+        @if (taxCodeRequested) {
+          <div class="col-md-6 form-group">
+            <label for="signup-organization-tax-code">
+              <span>{{'Fiscal code'|translate}}</span>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            </label>
+            <input id="signup-organization-tax-code" name="organization_tax_code" class="form-control" [(ngModel)]="signup.organization_tax_code" type="text" required>
+          </div>
+        }
+        @if (vatCodeRequested) {
+          <div class="col-md-6 form-group">
+            <label for="signup-organization-vat-code">
+              <span>{{'Tax code'|translate}}</span>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            </label>
+            <input id="signup-organization-vat-code" name="organization_vat_code" class="form-control" [(ngModel)]="signup.organization_vat_code" type="text" required>
+          </div>
+        }
       </div>
-      <div class="col-md-6 form-group">
-        <label for="signup-organization-phone">
-          <span>{{'Phone number'|translate}}</span>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-        <input id="signup-organization-phone" name="phone" class="form-control" [(ngModel)]="signup.phone" type="tel" required>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 form-group">
-        <label for="signup-organization-tax-code">
-          <span>{{'Fiscal code'|translate}}</span>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-        <input id="signup-organization-tax-code" name="organization_tax_code" class="form-control" [(ngModel)]="signup.organization_tax_code" type="text" required>
-      </div>
-      <div class="col-md-6 form-group">
-        <label for="signup-organization-vat-code">
-          <span>{{'Tax code'|translate}}</span>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-        <input id="signup-organization-vat-code" name="organization_vat_code" class="form-control" [(ngModel)]="signup.organization_vat_code" type="text" required>
-      </div>
-    </div>
-  }
-  @if (subdomainRequested) {
-    <div class="row mt-2">
-      <div class="col-md-12">
-        <div class="title">{{'Site'|translate}}</div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12 form-group">
-        <label for="signup-subdomain">
-          <span>{{'Address'|translate}}</span>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-        </label>
-        <div class="input-group">
-          <input id="signup-subdomain" name="subdomain" class="form-control" [(ngModel)]="signup.subdomain" (ngModelChange)="subdomainEdited = true" type="text" maxlength="40" subdomainvalidators required>
-          <span class="input-group-append">
-            <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  }
+    }
   <div class="row mt-2">
     <div class="col-md-12">
       <div class="title">{{'User'|translate}}</div>

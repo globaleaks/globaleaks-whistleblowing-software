@@ -94,6 +94,13 @@ user_credentials_keywords = [
     '{Password}'
 ]
 
+signup_invite_keywords = [
+    '{RecipientName}',
+    '{OrganizationName}',
+    '{InviteUrl}',
+    '{ExpirationDate}'
+]
+
 platform_signup_keywords = [
     '{RecipientName}',
     '{ActivationUrl}',
@@ -102,6 +109,7 @@ platform_signup_keywords = [
     '{Surname}',
     '{Email}',
     '{Language}',
+    '{Credentials}',
     '{AdminCredentials}',
     '{RecipientCredentials}'
 ]
@@ -532,6 +540,22 @@ class PlatformSignupKeyword(NodeKeyword):
     def Language(self):
         return self.data['signup']['language']
 
+    def Credentials(self):
+        # The credentials are rendered only when the notification carries the
+        # generated password: the copies delivered to the other addresses and
+        # the other notifications leave the section empty
+        if not self.data.get('password'):
+            return ''
+
+        data = {
+            'type': 'user_credentials',
+            'role': self.data.get('signup_user_role', ''),
+            'username': self.data.get('signup_user_username', ''),
+            'password': self.data['password']
+        }
+
+        return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
+
     def AdminCredentials(self):
         if not self.data['password_admin']:
             return ''
@@ -611,6 +635,28 @@ class IdentityAccessRequestKeyword(UserNodeKeyword):
         return '/#/custodian/requests/'
 
 
+class TenantInviteKeyword(NodeKeyword):
+    keyword_list = NodeKeyword.keyword_list + signup_invite_keywords
+    data_keys = NodeKeyword.data_keys + ['invite']
+
+    def RecipientName(self):
+        return self.data['invite']['organization_email']
+
+    def OrganizationName(self):
+        return self.data['invite']['organization_name']
+
+    def InviteUrl(self):
+        if self.data['node']['hostname']:
+            site = 'https://' + self.data['node']['hostname']
+        else:
+            site = ''
+
+        return site + '/#/signup?token=' + self.data['invite']['token']
+
+    def ExpirationDate(self):
+        return datetime_to_pretty_str(self.data['invite']['expiration_date'])
+
+
 supported_template_types = {
     'null': Keyword,
     'tip': TipKeyword,
@@ -638,7 +684,8 @@ supported_template_types = {
     'user_credentials': UserCredentials,
     'identity_access_request': IdentityAccessRequestKeyword,
     'identity_access_authorized': TipKeyword,
-    'identity_access_denied': TipKeyword
+    'identity_access_denied': TipKeyword,
+    'signup_invite': TenantInviteKeyword
 }
 
 

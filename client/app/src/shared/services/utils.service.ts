@@ -61,11 +61,14 @@ export class UtilsService {
       'whistleblower_logout',
     ],
     Medium: [
+      'activate_signup',
+      'authorize_signup',
       'change_password',
       'create_user',
       'enable_2fa',
       'grant_access',
       'send_password_reset_email',
+      'signup',
       'transfer_access',
       'version_update',
       'update_report_expiration',
@@ -75,6 +78,7 @@ export class UtilsService {
     High: [
       'delete_report',
       'delete_user',
+      'deny_signup',
       'disable_2fa',
       'login_failure',
       'reset_reports',

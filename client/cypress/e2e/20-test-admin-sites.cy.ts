@@ -24,6 +24,8 @@ describe("admin configure, add, configure and delete tenants", () => {
 
   const create_invite = (organizationName: string, email: string, alias: string) => {
     cy.intercept("POST", "/api/admin/invites").as(alias);
+    cy.get('[data-cy="open-invite-modal"]').click();
+    cy.get('[data-cy="invite-mail-template"]').should("not.have.value", "");
     cy.get('[data-cy="invite-organization-name"]').clear().type(organizationName);
     cy.get('[data-cy="invite-email"]').clear().type(email);
     cy.get('[data-cy="create-invite"]').click();

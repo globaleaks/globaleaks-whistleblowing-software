@@ -30,7 +30,6 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
 
   emailRegex: string;
   confirmation_email: string;
-  confirmation_organization_email: string;
   validated = false;
   mail: string;
   subdomainEdited = false;
@@ -46,7 +45,6 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
     // identity provider: the restored addresses were compiled by the user in
     // this same session, so they are not asked for a second time
     this.confirmation_email = this.signup.email;
-    this.confirmation_organization_email = this.signup.organization_email;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,8 +73,20 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
     return !!this.signup.token;
   }
 
-  get organizationRequested(): boolean {
-    return !!this.appDataService.public.node.signup_request_organization;
+  get locationRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_location;
+  }
+
+  get phoneRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_phone;
+  }
+
+  get taxCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_tax_code;
+  }
+
+  get vatCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_vat_code;
   }
 
   // The site of an invited registration is the one created along the invitation

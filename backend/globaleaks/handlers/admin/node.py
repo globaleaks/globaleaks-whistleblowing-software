@@ -8,7 +8,8 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.handlers.support import is_root_admin_session
 from globaleaks.models.enums import EnumStateFile
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, db_set_own_config_variable
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
+    db_get_pid_by_profile, db_set_own_config_variable
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
@@ -140,6 +141,14 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
+    # The sites created via signup can only be assigned to the default profile
+    # or to one of the profiles configured on the platform; any other reference,
+    # like the one of a profile deleted in the meantime, falls back on the default
+    if request.get('signup_profile', 'default') != 'default':
+        pid = db_get_pid_by_profile(session, request['signup_profile'])
+        if pid is None or pid <= DEFAULT_PROFILE_ID:
+            request['signup_profile'] = 'default'
+
     # The channels designated to receive the forwards and the requests of
     # forward are channels of the tenant; any other reference is dropped
     designations = {}
