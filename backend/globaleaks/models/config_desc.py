@@ -159,7 +159,11 @@ ConfigDescriptor = {
     'version': Unicode(default=str(__version__)),
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
-    'uuid': Unicode(default=uuid4)
+    'uuid': Unicode(default=uuid4),
+    'backup_enabled': Bool(default=False),
+    'backup_time': Unicode(default='02:00'),
+    'backup_period': Int(default=24),
+    'backup_retention': Int(default=7)
 }
 
 
@@ -248,7 +252,11 @@ ConfigFilters = {
         'version',
         'version_db',
         'wizard_done',
-        'uuid'
+        'uuid',
+        'backup_enabled',
+        'backup_time',
+        'backup_period',
+        'backup_retention'
     ],
     'admin_node': [
         'acme',
@@ -315,7 +323,11 @@ ConfigFilters = {
         'version_db',
         'wizard_done',
         'uuid',
-        'unread_reminder_time'
+        'unread_reminder_time',
+        'backup_enabled',
+        'backup_period',
+        'backup_retention',
+        'backup_time'
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
@@ -407,8 +419,7 @@ ConfigFilters = {
         'name',
         'onionservice',
         'subdomain',
-        'rootdomain',
-        'uuid'
+        'rootdomain'
     ]
 }
 
