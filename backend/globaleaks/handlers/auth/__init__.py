@@ -9,6 +9,7 @@ from twisted.internet.defer import inlineCallbacks
 import globaleaks.handlers.auth.token
 
 from globaleaks.handlers.base import connection_check, BaseHandler
+from globaleaks.handlers.user import db_reconcile_statistical_key
 from globaleaks.models import InternalTip, User
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, transact, tw
@@ -176,6 +177,11 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
         user.password_change_needed = True
 
     user.last_login = datetime_now()
+
+    # A logging-in holder propagates the statistical key to any admin/analyst
+    # still missing it (covers activation-link and legacy accounts)
+    if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
+        db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 

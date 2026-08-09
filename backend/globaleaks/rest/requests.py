@@ -337,6 +337,7 @@ AdminFieldDesc = {
     'y': int,
     'width': int,
     'required': bool,
+    'statistical': bool,
     'type': field_type_regexp,
     'attrs': dict,
     'options': [AdminFieldOptionDesc],
@@ -582,4 +583,15 @@ SubmissionSubStatusDesc = {
 
 SessionUpdateDesc = {
     'token': str
+}
+
+AdminStatisticalTemplateDesc = {
+    'label': str,
+    'data': dict
+}
+
+AdminStatisticalReportDesc = {
+    'label': str,
+    'template_id': uuid_regexp_or_empty,
+    'data': dict
 }

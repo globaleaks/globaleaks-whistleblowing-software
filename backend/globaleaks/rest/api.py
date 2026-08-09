@@ -111,6 +111,11 @@ api_spec = [
 
     # Analyst Handlers
     ('/api/analyst/stats', analyst.Statistics),
+    ('/api/analyst/templates', analyst.StatisticalReportTemplates),
+    ('/api/analyst/templates', analyst.StatisticalReportTemplateInstance, r'/api/analyst/templates/' + uuid_regexp),
+    ('/api/analyst/reports', analyst.StatisticalReports),
+    ('/api/analyst/reports', analyst.StatisticalReportInstance, r'/api/analyst/reports/' + uuid_regexp),
+    ('/api/analyst/filter-options', analyst.FilterOptions),
 
     # Admin Handlers
     ('/api/admin/node', admin.node.NodeInstance),

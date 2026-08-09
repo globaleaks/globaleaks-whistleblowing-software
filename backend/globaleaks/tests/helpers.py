@@ -69,6 +69,7 @@ VALID_BASE64_IMG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2Ng
 INVALID_PASSWORD = 'antani'
 
 ESCROW_PRV_KEY, ESCROW_PUB_KEY = GCE.generate_keypair()
+STAT_PRV_KEY, STAT_PUB_KEY = GCE.generate_keypair()
 
 KEY = GCE.generate_key()
 USER_KEY = Base64Encoder.decode(GCE.derive_key(VALID_PASSWORD, VALID_SALT).encode())
@@ -275,6 +276,7 @@ def get_dummy_field(type='checkbox'):
         'hint': 'field hint',
         'multi_entry': False,
         'required': False,
+        'statistical': False,
         'attrs': {},
         'options': get_dummy_fieldoption_list(),
         'children': [],
@@ -933,10 +935,12 @@ class TestGLWithPopulatedDB(TestGL):
 
         session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'receipt_salt').one().value = VALID_SALT
         session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'crypto_escrow_pub_key').one().value = ESCROW_PUB_KEY
+        session.query(models.Config).filter(models.Config.tid == 1, models.Config.var_name == 'crypto_stat_pub_key').one().value = STAT_PUB_KEY
 
         for user in session.query(models.User):
             if user.id == self.dummyAdmin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
+                user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
 
             if self.clientside_hashing:
                 user.salt = VALID_SALT

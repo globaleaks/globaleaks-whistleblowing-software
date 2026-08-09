@@ -1,0 +1,58 @@
+<div class="config-item">
+  <div class="editorHeader row">
+    <span class="col-md-7" (click)="toggleEditing()">
+      <span>{{ reportData.label }}</span>
+      @if (isRealtime) {
+        <span class="badge bg-secondary ms-2">{{ 'Realtime' | translate }}</span>
+      } @else {
+        <span class="badge bg-secondary ms-2">{{ reportData.creation_date | date:'dd-MM-yyyy HH:mm' }}</span>
+      }
+    </span>
+    <span class="col-md-5 clearfix">
+      <span class="float-end">
+        @if (!editing) {
+          <button class="btn btn-sm btn-outline-secondary" id="edit_report" (click)="toggleEditing()">
+            <span>{{ 'View' | translate }}</span>
+          </button>
+        }
+        @if (editing) {
+          <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportReportAsPDF()">
+            <i class="fa-solid fa-file-export"></i>
+            <span>{{ 'Export' | translate }}</span>
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing()">
+            <span>{{ 'Close' | translate }}</span>
+          </button>
+        }
+        <button class="btn btn-sm btn-danger" name="delete_report" id="delete_report" (click)="deleteReport(reportData)">
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+      </span>
+    </span>
+  </div>
+  @if (editing) {
+    @if (selectedTemplate) {
+    @if (hasObservation()) {
+    <div id="StatisticsObservation" class="row mb-3 filter-section statistics-filter-bar">
+      <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+        @if (observationDateRange) {
+          <span class="badge bg-secondary">
+            <i class="fas fa-calendar me-1"></i>
+            {{ observationDateRange.fromDate | date:'dd-MM-yyyy' }} - {{ observationDateRange.toDate | date:'dd-MM-yyyy' }}
+          </span>
+        }
+        @for (channel of observationChannels; track channel) {
+          <span class="badge bg-secondary">
+            <i class="fas fa-filter me-1"></i>
+            {{ channel }}
+          </span>
+        }
+      </div>
+    </div>
+    }
+    <div class="mt-3">
+      <src-statistical-template-view [templateData]="selectedTemplate" [templatesData]="templatesData" [refreshKey]="filterRevision"></src-statistical-template-view>
+    </div>
+    }
+  }
+</div>

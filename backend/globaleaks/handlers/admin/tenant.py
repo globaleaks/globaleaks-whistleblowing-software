@@ -205,10 +205,19 @@ def db_wizard(session, tid, hostname, request):
 
     profiles.load_profile(session, tid, request['profile'])
 
+    crypto_stat_prv_key = ""
+    crypto_stat_pub_key = ""
+    if encryption:
+        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
+
     if encryption and escrow:
         crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
 
         node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
+
+        # Keep a recovery copy of the statistical key encrypted to the escrow key
+        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
 
         if  tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
             node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
@@ -228,6 +237,11 @@ def db_wizard(session, tid, hostname, request):
         if encryption and escrow:
             node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
             admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
+
+        # The first admin always becomes a holder of the statistical key so that
+        # it can be propagated to every other admin/analyst (escrow independent)
+        if crypto_stat_prv_key and admin_user.crypto_pub_key:
+            admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
 
     if not request['skip_recipient_account_creation']:
         receiver_desc = models.User().dict(language)
