@@ -31,8 +31,12 @@
   </tbody>
 </table>
 <div class="form-group">
-  <label for="tip-expiration-threshold">{{ 'Number of hours before sending a report expiration alert' | translate }}</label>
-  <input id="tip-expiration-threshold" class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold" type="number" />
+  <label for="tip-expiration-threshold">{{ 'Number of days before sending a report expiration alert' | translate }}</label>
+  <select id="tip-expiration-threshold" class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold">
+      @for (day of [28, 14, 7, 3]; track day) {
+        <option [ngValue]="day">{{ day }}</option>
+      }
+  </select>
   <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
 </div>
 <div class="form-group">

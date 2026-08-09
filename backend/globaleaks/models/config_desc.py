@@ -152,7 +152,7 @@ ConfigDescriptor = {
     'threshold_support_per_hour_per_ip': Int(default=10),
     'threshold_support_per_hour_per_tenant_per_ip': Int(default=5),
     'timestamp_daily_notifications': Int(default=0),
-    'tip_expiration_threshold': Int(default=72),  # Hours
+    'tip_expiration_threshold': Int(default=3),  # Days
     'tor_onion_key': Unicode(),
     'two_factor': Bool(default=False),
     'unread_reminder_time': Int(default=7),  # Days
