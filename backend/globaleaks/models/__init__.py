@@ -243,6 +243,8 @@ class _Comment(Model):
     content = Column(UnicodeText, nullable=False)
     visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -606,6 +608,8 @@ class _InternalFile(Model):
     size = Column(JSON, default='', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
     reference_id = Column(UnicodeText(36), default='', nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -663,6 +667,8 @@ class _InternalTipAnswers(Model):
     questionnaire_hash = Column(UnicodeText(64), primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -676,6 +682,8 @@ class _InternalTipData(Model):
     key = Column(UnicodeText, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     value = Column(JSON, default=dict, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -1043,6 +1051,8 @@ class _ReceiverFile(Model):
     description = Column(UnicodeText, default="", nullable=False)
     visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
     @declared_attr
     def __table_args__(self):
