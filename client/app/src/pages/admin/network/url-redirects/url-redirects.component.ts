@@ -1,16 +1,16 @@
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {Component, OnInit, inject} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-url-redirects",
     templateUrl: "./url-redirects.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule, OrderByPipe]
+    imports: [PaginatedInterfaceComponent, TranslatePipe, FormsModule]
 })
 export class UrlRedirectsComponent implements OnInit {
   private httpService = inject(HttpService);

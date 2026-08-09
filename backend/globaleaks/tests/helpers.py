@@ -394,6 +394,7 @@ class MockDict:
             'disclaimer_text': '',
             'whistleblowing_question': '',
             'whistleblowing_button': '',
+            'whistleblowing_destination': '/submission',
             'homepage': '/',
             'hostname': 'globaleaks.org',
             'rootdomain': 'antani.gov',

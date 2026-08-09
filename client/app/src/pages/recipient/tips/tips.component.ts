@@ -1,13 +1,12 @@
 import {Component, HostListener, OnInit, inject} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
-import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {TranslateService} from "@ngx-translate/core";
-import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
 import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
@@ -17,14 +16,15 @@ import {concatMap, delay, from, tap} from "rxjs";
 import {HttpResponse} from "@angular/common/http";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
+import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
 
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [TranslatePipe, DatePipe, FormsModule, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink]
+    imports: [TranslatePipe, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TableHeaderComponent]
 })
 export class TipsComponent implements OnInit {
   protected authenticationService = inject(AuthenticationService);
@@ -40,55 +40,42 @@ export class TipsComponent implements OnInit {
   private tokenResourceService = inject(TokenResource);
 
   selectedTips: string[] = [];
-  filteredTips: rtipResolverModel[];
-  reportDateFilter: [number, number] | null = null;
-  updateDateFilter: [number, number] | null = null;
-  expiryDateFilter: [number, number] | null = null;
-  reportDateModel: { fromDate: NgbDate | null; toDate: NgbDate | null; } | null = null;
-  updateDateModel: { fromDate: NgbDate | null; toDate: NgbDate | null; } | null = null;
-  expiryDateModel: { fromDate: NgbDate | null; toDate: NgbDate | null; } | null = null;
-  dropdownStatusModel: { id: number; label: string; }[] = [];
-  dropdownStatusData: { id: number; label: string; }[] = [];
-  dropdownContextModel: { id: number; label: string; }[] = [];
-  dropdownContextData: { id: number; label: string; }[] = [];
-  dropdownScoreModel: { id: number; label: string; }[] = [];
-  dropdownScoreData: { id: number; label: string; }[] = [];
-  sortKey: keyof rtipResolverModel = 'creation_date';
-  sortReverse = true;
-  channelDropdownVisible = false;
-  statusDropdownVisible = false;
-  scoreDropdownVisible = false;
   index: number;
   date: { year: number; month: number };
-  reportDatePicker = false;
-  lastUpdatePicker = false;
-  expirationDatePicker = false;
-  dropdownSettings: IDropdownSettings = {
-    idField: "id",
-    textField: "label",
-    itemsShowLimit: 5,
-    allowSearchFilter: true,
-    selectAllText: this.translateService.instant("Select all"),
-    unSelectAllText: this.translateService.instant("Deselect all"),
-    searchPlaceholderText: this.translateService.instant("Search")
-  };
+
+  channelOptions: TableFilterOption[] = [];
+  statusOptions: TableFilterOption[] = [];
+  scoreOptions: TableFilterOption[] = [];
+
+  readonly table = new TableState<rtipResolverModel>({
+    orderBy: "creation_date",
+    orderDesc: true,
+    filters: {
+      context_name: {type: "select"},
+      submissionStatusStr: {type: "select"},
+      score: {type: "select"},
+      creation_date: {type: "daterange"},
+      update_date: {type: "daterange"},
+      expiration_date: {type: "daterange"}
+    }
+  });
 
   ngOnInit() {
     if (!this.RTips.dataModel) {
       this.router.navigate(["/recipient/home"]).then();
     } else {
-      this.filteredTips = this.RTips.dataModel;
       // Reports may reference contexts that are hidden from the public listing;
       // resolve any missing ones so their metadata is available for display.
       this.appConfigServices.loadContexts(this.RTips.dataModel.map(tip => tip.context_id)).subscribe(() => {
         this.processTips();
       });
+      this.table.setItems(this.RTips.dataModel);
     }
   }
 
   selectAll() {
     this.selectedTips = [];
-    this.filteredTips.forEach(tip => {
+    this.table.result.forEach(tip => {
       if (tip.accessible) {
       this.selectedTips.push(tip.id);
       }
@@ -98,6 +85,8 @@ export class TipsComponent implements OnInit {
   deselectAll() {
     this.selectedTips = [];
   }
+
+  filterNewOrUpdated = (obj: { updated?: boolean }) => !!obj.updated;
 
   exportTips() {
     const selectedTips = [...this.selectedTips];
@@ -153,31 +142,31 @@ export class TipsComponent implements OnInit {
     );
   }
 
+
+
+
   processTips() {
-    const uniqueKeys: string[] = [];
+    const statuses = new Set<string>();
+    const channels = new Set<string>();
+    const scores = new Set<number>();
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
-      tip.context_name = tip.context?.name ?? '';
+      tip.context_name = tip.context?.name ?? tip.context_name ?? '';
       tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
 
-      if (!uniqueKeys.includes(tip.submissionStatusStr)) {
-        uniqueKeys.push(tip.submissionStatusStr);
-        this.dropdownStatusData.push({id: this.dropdownStatusData.length + 1, label: tip.submissionStatusStr});
-      }
-
-      if (!uniqueKeys.includes(tip.context_name)) {
-        uniqueKeys.push(tip.context_name);
-        this.dropdownContextData.push({id: this.dropdownContextData.length + 1, label: tip.context_name});
-      }
-
-      const scoreLabel = this.maskScore(tip.score);
-
-      if (!uniqueKeys.includes(scoreLabel)) {
-        uniqueKeys.push(scoreLabel);
-        this.dropdownScoreData.push({id: this.dropdownScoreData.length + 1, label: scoreLabel});
-      }
+      statuses.add(tip.submissionStatusStr);
+      channels.add(tip.context_name);
+      scores.add(tip.score);
+      const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
+      tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
+
+    // The options are matched on the value held by the report, not on their
+    // label: the label follows the language of the interface, the value does not
+    this.statusOptions = Array.from(statuses, status => ({id: status, label: status}));
+    this.channelOptions = Array.from(channels, channel => ({id: channel, label: channel}));
+    this.scoreOptions = Array.from(scores, score => ({id: score, label: this.maskScore(score)}));
   }
 
   maskScore(score: number) {
@@ -192,130 +181,23 @@ export class TipsComponent implements OnInit {
     }
   }
 
-  onChanged(model: { id: number; label: string; }[], type: string) {
-    this.processTips();
-    if (model.length > 0) {
-      this.dropdownContextModel = [];
-      this.dropdownStatusModel = [];
-      this.dropdownScoreModel = [];
-
-      if (type === "Score") {
-        this.dropdownScoreModel = model;
-      } else if (type === "Status") {
-        this.dropdownStatusModel = model;
-      } else if (type === "Context") {
-        this.dropdownContextModel = model;
-      }
-    }
-    this.applyFilter();
-  }
-
-  checkFilter(filter: { id: number; label: string; }[]) {
-    return filter.length > 0;
-  };
-
-  resetFiltersStatus() {
-    this.channelDropdownVisible = false;
-    this.statusDropdownVisible = false;
-    this.scoreDropdownVisible = false;
-    this.reportDatePicker = false;
-    this.lastUpdatePicker = false;
-    this.expirationDatePicker = false;
-  }
-
-  toggleChannelDropdown() {
-    this.resetFiltersStatus();
-    this.channelDropdownVisible = !this.channelDropdownVisible;
-  }
-
-  toggleStatusDropdown() {
-    this.resetFiltersStatus();
-    this.statusDropdownVisible = !this.statusDropdownVisible;
-  }
-
-  toggleScoreDropdown() {
-    this.resetFiltersStatus();
-    this.scoreDropdownVisible = !this.scoreDropdownVisible;
-  }
-
-  orderbyCast(data: rtipResolverModel[]): rtipResolverModel[] {
-    return data;
-  }
-
-  onReportFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
-    const {fromDate, toDate} = event;
-    if (!fromDate && !toDate) {
-      this.reportDateFilter = null;
-      this.closeAllDatePickers();
-    }
-    if (fromDate && toDate) {
-      this.reportDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
-    }
-    this.applyFilter();
-  }
-
-  onUpdateFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
-    const {fromDate, toDate} = event;
-    if (!fromDate && !toDate) {
-      this.updateDateFilter = null;
-      this.closeAllDatePickers();
-    }
-    if (fromDate && toDate) {
-      this.updateDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
-    }
-    this.applyFilter();
-  }
-
-  onExpiryFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
-    const {fromDate, toDate} = event;
-    if (!fromDate && !toDate) {
-      this.expiryDateFilter = null;
-      this.closeAllDatePickers();
-    }
-    if (fromDate && toDate) {
-      this.expiryDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
-    }
-    this.applyFilter();
-  }
-
-  applyFilter() {
-    this.filteredTips = this.utils.getStaticFilter(this.RTips.dataModel, this.dropdownStatusModel, "submissionStatusStr", this.translateService);
-    this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownContextModel, "context_name", this.translateService);
-    this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownScoreModel, "score", this.translateService);
-    this.filteredTips = this.utils.getDateFilter(this.filteredTips, this.reportDateFilter, this.updateDateFilter, this.expiryDateFilter);
-  }
-
   @HostListener("document:click", ["$event"])
   onClick(event: MouseEvent) {
     const clickedElement = event.target as HTMLElement;
     const isContainerClicked = clickedElement.classList.contains("ngb-datepicker-container") || clickedElement.classList.contains("dropdown-multi-select-container") ||
       clickedElement.closest(".ngb-datepicker-container") !== null || clickedElement.closest(".dropdown-multi-select-container") !== null;
     if (!isContainerClicked) {
-      this.closeAllDatePickers();
+      this.table.openFilter = "";
     }
   }
 
-  closeAllDatePickers() {
-    this.reportDatePicker = false;
-    this.lastUpdatePicker = false;
-    this.expirationDatePicker = false;
-    this.scoreDropdownVisible = false;
-    this.channelDropdownVisible = false;
-    this.statusDropdownVisible = false;
-    this.reportDatePicker = false;
-    this.lastUpdatePicker = false;
-    this.expirationDatePicker = false;
-  }
 
   exportToCsv(): void {
     this.utils.generateCSV('reports', this.getDataCsv());
   }
 
   getDataCsv(): any[] {
-    const output = [...this.filteredTips];
+    const output = [...this.table.result];
     return output.map(tip => ({
       id: tip.id,
       progressive: tip.progressive,

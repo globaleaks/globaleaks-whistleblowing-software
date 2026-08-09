@@ -1,3 +1,4 @@
+import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -17,7 +18,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-statistical-report-editor",
     templateUrl: "./statistical-report-editor.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgbTooltipModule, StatisticalTemplateViewComponent, TranslateModule]
+    imports: [CollapsibleCardComponent, DatePipe, FormsModule, NgbTooltipModule, StatisticalTemplateViewComponent, TranslateModule]
 })
 export class StatisticalReportEditorComponent implements OnInit {
   private httpService = inject(HttpService);

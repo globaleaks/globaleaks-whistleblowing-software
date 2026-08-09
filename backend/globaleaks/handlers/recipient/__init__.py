@@ -38,6 +38,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
     comments_by_itip = {}
     files_by_itip = {}
 
+
     # Fetch comments count
     for itip_id, count in session.query(models.InternalTip.id,
                                         func.count(distinct(models.Comment.id))) \
@@ -56,6 +57,7 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                                          models.InternalFile.internaltip_id == models.InternalTip.id) \
                                  .group_by(models.InternalTip.id):
         files_by_itip[itip_id] = count
+
 
     # Retrieve all channels that include this recipient, but only if
     # the recipients of those channels are not selectable.
@@ -133,17 +135,19 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                 'file_count': files_by_itip.get(itip.id, 0),
                 'comment_count': comments_by_itip.get(itip.id, 0),
                 'receiver_count': 0,
+                'receiver_ids': [],
                 'subscription': subscription,
                 'accessible': accessible
             }
 
-    # Fetch number of receivers who have access to each visible report
+    # Fetch the receivers who have access to each visible report: the
+    # aggregation stays scoped to the reports being listed
     if dict_ret:
-        for itip_id, count in session.query(models.ReceiverTip.internaltip_id,
-                                            func.count(models.ReceiverTip.id)) \
-                                     .filter(models.ReceiverTip.internaltip_id.in_(dict_ret.keys())) \
-                                     .group_by(models.ReceiverTip.internaltip_id):
-            dict_ret[itip_id]['receiver_count'] = count
+        for itip_id, rcv_id in session.query(models.ReceiverTip.internaltip_id,
+                                             models.ReceiverTip.receiver_id) \
+                                      .filter(models.ReceiverTip.internaltip_id.in_(dict_ret.keys())):
+            dict_ret[itip_id]['receiver_ids'].append(rcv_id)
+            dict_ret[itip_id]['receiver_count'] += 1
 
     # Mask the returned answers
     if dict_ret and not db_user_can_bypass_masking(session, receiver_id):

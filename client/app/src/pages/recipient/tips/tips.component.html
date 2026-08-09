@@ -1,4 +1,4 @@
-@if (RTips.dataModel && RTips.dataModel && filteredTips) {
+@if (RTips.dataModel) {
   <div id="Toolbar" class="row">
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
@@ -11,6 +11,7 @@
             class="btn btn-outline-secondary">
             <i class="fas fa-file-pen"></i>
           </button>
+
         </div>
 
         <div class="d-flex align-items-center gap-1">
@@ -30,276 +31,39 @@
   </div>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [orderBy]="sortKey" [orderDesc]="sortReverse" [orderDesc]="true">
-        <ng-template #header let-tip="item" let-index="index">
+      <app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+        <ng-template #header>
           <tr>
             <th>
               @if (selectedTips.length !== RTips.dataModel.length ) {
-                <span id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}" (keydown.enter)="selectAll()" tabindex="0" role="button">
+                <span id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}">
                   <i class="fas fa-square"></i>
                 </span>
               }
               @if (selectedTips.length === RTips.dataModel.length) {
-                <span id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}" (keydown.enter)="deselectAll()" tabindex="0" role="button">
+                <span id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}">
                   <i class="fas fa-square-check"></i>
                 </span>
              }
             </th>
-            <th (click)="sortKey = 'important'; sortReverse = !sortReverse">
-              <i class="fas fa-star" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Important' | translate}}</span>
-              @if (sortKey === 'important') {
-                <span>
-                  @if (!sortReverse) {
-                    <i class="fas fa-sort-down" aria-hidden="true"></i>
-                  }
-                  @if (sortReverse) {
-                    <i class="fas fa-sort-up" aria-hidden="true"></i>
-                  }
-                </span>
-              } @else {
-                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
-              }
-            </th>
-            <th (click)="sortKey = 'reminder_date'; sortReverse = !sortReverse">
-              <i class="fas fa-bell" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Reminder date' | translate}}</span>
-              @if (sortKey === 'reminder_date') {
-                <span>
-                  @if (!sortReverse) {
-                    <i class="fas fa-sort-down" aria-hidden="true"></i>
-                  }
-                  @if (sortReverse) {
-                    <i class="fas fa-sort-up" aria-hidden="true"></i>
-                  }
-                </span>
-              } @else {
-                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
-              }
-            </th>
-            <th class="TipInfoID" (click)="sortKey = 'progressive'; sortReverse = !sortReverse">
-              <i class="fas fa-hashtag" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'ID' | translate}}</span>
-              @if (sortKey === 'progressive') {
-                <span>
-                  @if (!sortReverse) {
-                    <i class="fas fa-sort-down" aria-hidden="true"></i>
-                  }
-                  @if (sortReverse) {
-                    <i class="fas fa-sort-up" aria-hidden="true"></i>
-                  }
-                </span>
-              } @else {
-                <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
-              }
-            </th>
+            <th appTableHeader [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
+            <th appTableHeader [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
+            <th appTableHeader class="TipInfoID" [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="channel_progressive_sort_key"></th>
             @if (appDataService.public.contexts.length > 1) {
-              <th class="TipInfoContext">
-                <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'context_name'; sortReverse = !sortReverse" tabindex="0" role="button">
-                  <i class="fas fa-inbox"></i>
-                  <span>{{'Channel' | translate}}</span>
-                  @if (sortKey === 'context_name') {
-                    <span>
-                      @if (!sortReverse) {
-                        <i class="fas fa-sort-down"></i>
-                      }
-                      @if (sortReverse) {
-                        <i class="fas fa-sort-up"></i>
-                      }
-                    </span>
-                  } @else {
-                    <span class="text-muted"><i class="fas fa-sort"></i></span>
-                  }
-                </span>
-                @if (RTips.dataModel.length > 0) {
-                  <span class="dropdown-multi-select-container">
-                    <span id="tip-action-filter-channel" [class.filterSelected]="checkFilter(dropdownContextModel)" (click)="toggleChannelDropdown()" (keydown.enter)="toggleChannelDropdown()" tabindex="0" role="button"><i class="fas fa-filter"></i></span>
-                    <span [class.d-none]="!channelDropdownVisible">
-                      <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Channel' | translate"></ng-multiselect-dropdown>
-                    </span>
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-            </th>
+              <th appTableHeader class="TipInfoContext" [state]="table" [label]="'Channel' | translate" icon="fa-inbox" sortBy="context_name" filter="context_name" [options]="channelOptions"></th>
             }
-            <th class="TipInfoLabel">
-              <span (click)="sortKey = 'label'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'label'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-tag"></i>
-                <span>{{'Label' | translate}}</span>
-                @if (sortKey === 'label') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-            </th>
-            <th class="TipInfoStatus">
-              <span (click)="sortKey = 'submissionStatusStr'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'submissionStatusStr'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-circle-dot"></i>
-                <span>{{'Status' | translate}}</span>
-                @if (sortKey === 'submissionStatusStr') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-              @if (RTips.dataModel.length > 0) {
-                <span class="dropdown-multi-select-container">
-                  <span [class.filterSelected]="checkFilter(dropdownStatusModel)" (click)="toggleStatusDropdown()" (keydown.enter)="toggleStatusDropdown()" tabindex="0" role="button"><i class="fas fa-filter"></i></span>
-                  <span [class.d-none]="!statusDropdownVisible">
-                    <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')" [attr.aria-label]="'Status' | translate"></ng-multiselect-dropdown>
-                  </span>
-                </span>
-              }
-            </th>
-            <th class="TipInfoSubmissionDate">
-              <span (click)="sortKey = 'creation_date'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'creation_date'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-clock"></i>
-                <span>{{'Report date' | translate}}</span>
-                @if (sortKey === 'creation_date') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-              <span class="ngb-datepicker-container ms-1">
-                <span id="tip-action-filter-report-date" [class.calendar-active]="reportDateFilter" (click)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" (keydown.enter)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" tabindex="0" role="button"><i class="fas fa-calendar"></i></span>
-                <div [hidden]="!reportDatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)"></src-date-selector>
-                </div>
-              </span>
-            </th>
-            <th class="TipInfoUpdateDate">
-              <span (click)="sortKey = 'update_date'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'update_date'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-clock"></i>
-                <span>{{'Last update' | translate}}</span>
-                @if (sortKey === 'update_date') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-              <span class="ngb-datepicker-container ms-1">
-                <span [class.calendar-active]="updateDateFilter" (click)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" (keydown.enter)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" tabindex="0" role="button"><i class="fas fa-calendar"></i></span>
-                <div [hidden]="!lastUpdatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)"></src-date-selector>
-                </div>
-              </span>
-            </th>
-            <th class="TipInfoExpirationDate">
-              <span (click)="sortKey = 'expiration_date'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'expiration_date'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-hourglass"></i>
-                <span>{{'Expiration date' | translate}}</span>
-                @if (sortKey === 'expiration_date') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-              <span class="ngb-datepicker-container ms-1">
-                <span [class.calendar-active]="expiryDateFilter" (click)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" (keydown.enter)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;" tabindex="0" role="button"><i class="fas fa-calendar"></i></span>
-                <div [hidden]="!expirationDatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)"></src-date-selector>
-                </div>
-              </span>
-            </th>
-            <th class="TipInfoReadReceipt">
-              <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Read receipt' | translate}}</span>
-            </th>
-            <th class="TipInfoComments">
-              <i class="fas fa-comment" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Comments' | translate}}</span>
-            </th>
-            <th class="TipInfoFiles">
-              <i class="fas fa-file" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Files' | translate}}</span>
-            </th>
-            <th class="TipInfoIdentity">
-              <i class="fas fa-user" aria-hidden="true"></i>
-              <span class="visually-hidden">{{'Identity' | translate}}</span>
-            </th>
-            <th class="TipInfoRecipientCount">
-              <span (click)="sortKey = 'receiver_count'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'receiver_count'; sortReverse = !sortReverse" tabindex="0" role="button">
-                <i class="fas fa-users" aria-hidden="true"></i>
-                <span class="visually-hidden">{{'Recipients' | translate}}</span>
-                @if (sortKey === 'receiver_count') {
-                  <span>
-                    @if (!sortReverse) {
-                      <i class="fas fa-sort-down"></i>
-                    }
-                    @if (sortReverse) {
-                      <i class="fas fa-sort-up"></i>
-                    }
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-              </span>
-            </th>
+            <th appTableHeader class="TipInfoLabel" [state]="table" [label]="'Label' | translate" icon="fa-tag" sortBy="label"></th>
+            <th appTableHeader class="TipInfoStatus" [state]="table" [label]="'Status' | translate" icon="fa-circle-dot" sortBy="submissionStatusStr" filter="submissionStatusStr" [options]="statusOptions"></th>
+            <th appTableHeader class="TipInfoSubmissionDate" [state]="table" [label]="'Report date' | translate" icon="fa-clock" sortBy="creation_date" filter="creation_date"></th>
+            <th appTableHeader class="TipInfoUpdateDate" [state]="table" [label]="'Last update' | translate" icon="fa-clock" sortBy="update_date" filter="update_date"></th>
+            <th appTableHeader class="TipInfoExpirationDate" [state]="table" [label]="'Expiration date' | translate" icon="fa-hourglass" sortBy="expiration_date" filter="expiration_date"></th>
+            <th appTableHeader class="TipInfoReadReceipt" [state]="table" [label]="'Read receipt' | translate" icon="fa-envelope-circle-check" [labelHidden]="true"></th>
+            <th appTableHeader class="TipInfoComments" [state]="table" [label]="'Comments' | translate" icon="fa-comment" [labelHidden]="true"></th>
+            <th appTableHeader class="TipInfoFiles" [state]="table" [label]="'Files' | translate" icon="fa-file" [labelHidden]="true"></th>
+            <th appTableHeader class="TipInfoIdentity" [state]="table" [label]="'Identity' | translate" icon="fa-user" [labelHidden]="true"></th>
+            <th appTableHeader class="TipInfoRecipientCount" [state]="table" [label]="'Recipients' | translate" icon="fa-users" [labelHidden]="true" sortBy="receiver_count"></th>
             @if (appDataService.public.node.enable_scoring_system) {
-              <th class="TipInfoScore">
-                <span (click)="sortKey = 'score'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'score'; sortReverse = !sortReverse" tabindex="0" role="button">
-                  <i class="fas fa-ranking-star"></i>
-                  <span>{{'Score' | translate}}</span>
-                  @if (sortKey === 'score') {
-                    <span>
-                      @if (!sortReverse) {
-                        <i class="fas fa-sort-down"></i>
-                      }
-                      @if (sortReverse) {
-                        <i class="fas fa-sort-up"></i>
-                      }
-                    </span>
-                  } @else {
-                    <span class="text-muted"><i class="fas fa-sort"></i></span>
-                  }
-                </span>
-                @if (RTips.dataModel.length > 0) {
-                  <span class="dropdown-multi-select-container">
-                    <span [class.filterSelected]="checkFilter(dropdownScoreModel)" (click)="toggleScoreDropdown()" (keydown.enter)="toggleScoreDropdown()" tabindex="0" role="button"><i class="fas fa-filter"></i></span>
-                    <span [class.d-none]="!scoreDropdownVisible">
-                      <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')" [attr.aria-label]="'Score' | translate"></ng-multiselect-dropdown>
-                    </span>
-                  </span>
-                }
-              </th>
+              <th appTableHeader class="TipInfoScore" [state]="table" [label]="'Score' | translate" icon="fa-ranking-star" sortBy="score" filter="score" [options]="scoreOptions"></th>
             }
           </tr>
         </ng-template>
@@ -307,12 +71,12 @@
           <tr id="tip-{{index}}" class="tip-action-open" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="utils.go('/reports/' + tip.id)">
             <td>
               @if (isSelected(tip.id)) {
-                <span (click)="tipSwitch(tip.id); $event.stopPropagation();" (keydown.enter)="tipSwitch(tip.id); $event.stopPropagation();" tabindex="0" role="button">
+                <span (click)="tipSwitch(tip.id); $event.stopPropagation();">
                   <i class="fas fa-square-check"></i>
                 </span>
               }
               @if (!isSelected(tip.id)) {
-                <span (click)="tipSwitch(tip.id); $event.stopPropagation();" (keydown.enter)="tipSwitch(tip.id); $event.stopPropagation();" tabindex="0" role="button">
+                <span (click)="tipSwitch(tip.id); $event.stopPropagation();">
                   <i class="fas fa-square"></i>
                 </span>
               }
@@ -326,7 +90,7 @@
                   <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fas fa-bell"></i></span>
                 }
               </td>
-              <td class="TipInfoID">{{tip.progressive}}</td>
+              <td class="TipInfoID">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</td>
               @if (appDataService.public.contexts.length > 1) {
                 <td class="TipInfoContext">{{tip.context_name}}</td>
               }
@@ -370,7 +134,9 @@
                   }
                 }
               </td>
-              <td class="TipInfoRecipientCount">{{tip.receiver_count}}</td>
+              <td class="TipInfoRecipientCount">
+                <span [ngbTooltip]="tip.receiver_names" tooltipClass="receiver-tooltip">{{tip.receiver_count}}</span>
+              </td>
               @if (appDataService.public.node.enable_scoring_system) {
               <td class="TipInfoScore">
                 @switch (tip.score) {
@@ -393,9 +159,9 @@
         </ng-template>
       </app-paginated-interface>
       <div class="float-end">
-        @if (filteredTips.length > 0) {
+        @if (table.result.length > 0) {
           <a class="btn btn-sm btn-link" type="button"
-            (click)="exportToCsv()" (keydown.enter)="exportToCsv()" tabindex="0" role="button">
+            (click)="exportToCsv()">
             <i class="fas fa-download"></i>
             <span>{{ 'Export' | translate }}</span>
           </a>

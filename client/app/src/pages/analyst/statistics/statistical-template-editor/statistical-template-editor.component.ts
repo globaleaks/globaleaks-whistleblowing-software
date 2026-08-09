@@ -1,3 +1,4 @@
+import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbDropdownModule, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,7 +20,7 @@ import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statisti
   templateUrl: "./statistical-template-editor.component.html",
   standalone: true,
   providers: [provideCharts(withDefaultRegisterables())],
-  imports: [
+  imports: [CollapsibleCardComponent,
     FormsModule,
     NgbTooltipModule,
     CommonModule,

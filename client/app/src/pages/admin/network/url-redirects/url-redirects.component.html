@@ -29,28 +29,26 @@
 <br />
 <div class="row">
   <div class="col-md-12">
-    <table class="table">
-      <thead>
+    <app-paginated-interface [mode]="'table'" [items]="redirectData" [orderBy]="'path1'">
+      <ng-template #header>
         <tr>
           <th>{{ 'From' | translate }}</th>
           <th>{{ 'To' | translate }}</th>
           <th><span class="visually-hidden">{{ 'Actions' | translate }}</span></th>
         </tr>
-      </thead>
-      <tbody>
-        @for (redirect of redirectData | orderBy:'path1'; track redirect) {
-          <tr>
-            <td>{{redirectPath(redirect, 1)}}</td>
-            <td>{{redirectPath(redirect, 2)}}</td>
-            <td>
-              <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
-                <i class="fas fa-trash"></i>
-                <span>{{ 'Delete' | translate }}</span>
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+      </ng-template>
+      <ng-template #content let-redirect="item">
+        <tr>
+          <td>{{redirectPath(redirect, 1)}}</td>
+          <td>{{redirectPath(redirect, 2)}}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
+              <i class="fas fa-trash"></i>
+              <span>{{ 'Delete' | translate }}</span>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </app-paginated-interface>
   </div>
 </div>

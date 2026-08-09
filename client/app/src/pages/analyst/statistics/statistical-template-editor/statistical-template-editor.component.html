@@ -1,10 +1,8 @@
-<div class="config-item">
-  <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing()">
+<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()" [chevron]="false">
+  <ng-container cardTitle>
       <span>{{ templateData.label }}</span>
-    </span>
-    <span class="col-md-5 clearfix">
-      <span class="float-end">
+  </ng-container>
+  <ng-container cardActions>
         @if (!editing) {
           <button class="btn btn-sm btn-outline-secondary" id="edit_template" (click)="toggleEditing()">
             <span>{{ 'Edit' | translate }}</span>
@@ -21,9 +19,7 @@
         <button class="btn btn-sm btn-danger" name="delete_template" id="delete_template" (click)="deleteTemplate(templateData)">
           <span>{{ 'Delete' | translate }}</span>
         </button>
-      </span>
-    </span>
-  </div>
+  </ng-container>
   @if (editing) {
     <div>
       <div class="form-group">
@@ -42,4 +38,4 @@
       </src-statistical-template-view>
     </div>
   }
-</div>
+</src-collapsible-card>

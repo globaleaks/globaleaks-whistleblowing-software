@@ -1,15 +1,13 @@
-<div class="config-item">
-  <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing()">
+<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()" [chevron]="false">
+  <ng-container cardTitle>
       <span>{{ reportData.label }}</span>
       @if (isRealtime) {
         <span class="badge bg-secondary ms-2">{{ 'Realtime' | translate }}</span>
       } @else {
         <span class="badge bg-secondary ms-2">{{ reportData.creation_date | date:'dd-MM-yyyy HH:mm' }}</span>
       }
-    </span>
-    <span class="col-md-5 clearfix">
-      <span class="float-end">
+  </ng-container>
+  <ng-container cardActions>
         @if (!editing) {
           <button class="btn btn-sm btn-outline-secondary" id="edit_report" (click)="toggleEditing()">
             <span>{{ 'View' | translate }}</span>
@@ -27,9 +25,7 @@
         <button class="btn btn-sm btn-danger" name="delete_report" id="delete_report" (click)="deleteReport(reportData)">
           <span>{{ 'Delete' | translate }}</span>
         </button>
-      </span>
-    </span>
-  </div>
+  </ng-container>
   @if (editing) {
     @if (selectedTemplate) {
     @if (hasObservation()) {
@@ -55,4 +51,4 @@
     </div>
     }
   }
-</div>
+</src-collapsible-card>

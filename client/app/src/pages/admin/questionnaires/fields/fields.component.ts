@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input, output} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {NgbModal, NgbInputDatepicker, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -35,6 +35,7 @@ export class FieldsComponent implements OnInit {
   nodeResolver = inject(NodeResolver);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
+  private cdr = inject(ChangeDetectorRef);
   private fieldTemplates = inject(FieldTemplatesResolver);
   private fieldUtilities = inject(FieldUtilitiesService);
 
@@ -311,5 +312,38 @@ export class FieldsComponent implements OnInit {
   onUpdate() {
     this.children = [...this.children];
     this.updated.emit();
+  }
+
+  // One label per line: the options already present are renamed in order and
+  // the surplus ones are dropped, so that the file is the list of the options
+  importOptions(files: FileList | null): void {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    this.utilsService.readFileAsText(files[0]).subscribe((txt: string) => {
+      const labels = txt.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+      if (labels.length === 0) {
+        return;
+      }
+
+      const options = this.field().options;
+      let currentOrder = this.utilsService.newItemOrder(options, "order");
+
+      labels.forEach((label, i) => {
+        if (i < options.length) {
+          options[i].label = label;
+        } else {
+          options.push({id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++});
+        }
+      });
+
+      if (options.length > labels.length) {
+        options.splice(labels.length);
+      }
+
+      this.cdr.markForCheck();
+    });
   }
 }

@@ -32,6 +32,7 @@ short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
 homepage_regexp = r'^/(submission)?$'
+whistleblowing_destination_regexp = r'^/(submission|login)$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -204,6 +205,7 @@ AdminNodeDesc = {
     'homepage': homepage_regexp,
     'whistleblowing_question': str,
     'whistleblowing_button': str,
+    'whistleblowing_destination': whistleblowing_destination_regexp,
     'languages_enabled': [str],
     'languages_supported': list,
     'default_language': str,
@@ -451,6 +453,7 @@ NodeDesc = {
     'simplified_login': bool,
     'start_time': DateType,
     'whistleblowing_button': str,
+    'whistleblowing_destination': str,
     'whistleblowing_question': str,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str
