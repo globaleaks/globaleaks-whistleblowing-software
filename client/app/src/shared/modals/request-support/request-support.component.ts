@@ -71,7 +71,8 @@ export class RequestSupportComponent implements OnInit {
    */
   get authenticated(): boolean {
     const session = this.authenticationService.session;
-    return !!session && session.role !== "whistleblower";
+    return (!!session && session.role !== "whistleblower") ||
+      this.authenticationService.idpIdentityBound;
   }
 
   /**

@@ -10,7 +10,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.handlers.user import get_user
-from globaleaks.handlers.user.operation import disable_2fa
+from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
 from globaleaks.models import Config, InternalTip, User
 from globaleaks.models.config import db_get_protected_users, db_set_config_variable, get_default, ConfigDescriptor, ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
@@ -348,6 +348,7 @@ class AdminOperationHandler(OperationHandler):
     require_confirmation = [
         'enable_encryption',
         'disable_2fa',
+        'reset_idp_binding',
         'toggle_escrow',
         'toggle_user_escrow',
         'enable_user_permission_file_upload',
@@ -364,6 +365,21 @@ class AdminOperationHandler(OperationHandler):
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
+
+    def reset_idp_binding(self, req_args, *args, **kwargs):
+        return reset_idp_binding(self.request.tid, self.session.user_id, req_args['value'])
+
+    @inlineCallbacks
+    def validate_idp(self, req_args, *args, **kwargs):
+        # The issuer is validated by performing the OIDC discovery and fetching
+        # its JWKS, and the client by probing the token endpoint, verifying
+        # that the IdP exists, is reachable and recognizes the client before
+        # the configuration is allowed to be enabled.
+        try:
+            yield State.oidcauth.validate_issuer(req_args['issuer'])
+            yield State.oidcauth.validate_client(req_args['issuer'], req_args['client_id'])
+        except Exception as e:
+            raise errors.InputValidationError(str(e))
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -486,6 +502,8 @@ class AdminOperationHandler(OperationHandler):
         return {
             'enable_encryption': AdminOperationHandler.enable_encryption,
             'disable_2fa': AdminOperationHandler.disable_2fa,
+            'reset_idp_binding': AdminOperationHandler.reset_idp_binding,
+            'validate_idp': AdminOperationHandler.validate_idp,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
             'reset_submissions': AdminOperationHandler.reset_submissions,
             'reset_backups': AdminOperationHandler.reset_backups,

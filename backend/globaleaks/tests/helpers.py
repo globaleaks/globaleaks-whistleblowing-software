@@ -621,6 +621,7 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
     request.port = 8443
     request.language = 'en'
     request.multilang = False
+    request.oidc_token = ''
 
     def isSecure():
         return request.port == 8443

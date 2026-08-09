@@ -1040,6 +1040,8 @@ class _User(Model):
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     profile_id = Column(UnicodeText(36), default='', nullable=False)
     status = Column(Enum(EnumUserStatus), default='active', nullable=False)
+    idp_id = Column(UnicodeText, default='', nullable=False)
+    crypto_support_prv_key = Column(UnicodeText, default='', nullable=False)
 
     # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
@@ -1057,7 +1059,7 @@ class _User(Model):
                     'name', 'public_name',
                     'language', 'change_email_address',
                     'salt', 'profile_id',
-                    'two_factor_secret', 'status']
+                    'two_factor_secret', 'status', 'idp_id']
 
     localized_keys = ['description']
 

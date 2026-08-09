@@ -6,7 +6,8 @@ from sqlalchemy import or_
 from globaleaks import models, LANGUAGES_SUPPORTED, LANGUAGES_SUPPORTED_CODES
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, \
+    db_get_signup_idp_config
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
 
@@ -288,7 +289,12 @@ def db_serialize_node(session, tid, language):
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 
-    if tid != 1:
+    if tid == 1:
+        # The signups, handled by the root tenant only, are authenticated
+        # against the IdP configured on the profile assigned to the tenants
+        # created via signup
+        ret.update(db_get_signup_idp_config(session, tid))
+    else:
         root_tenant_node = ConfigFactory(session, 1)
 
         for varname in ['version', 'version_db', 'latest_version']:

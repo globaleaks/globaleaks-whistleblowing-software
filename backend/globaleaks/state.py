@@ -27,6 +27,7 @@ from globaleaks.utils.fs import read_json_file
 from globaleaks.utils.log import log, openLogFile
 from globaleaks.utils.mail import sendmail
 from globaleaks.utils.objectdict import ObjectDict
+from globaleaks.utils.oidc import OIDCAuth
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.ratelimit import RateLimit
 from globaleaks.utils.singleton import Singleton
@@ -121,6 +122,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         # cannot be replayed while it is still considered fresh.
         self.dpop_jti = TempDict(dpop.PROOF_MAX_AGE + dpop.PROOF_MAX_FUTURE, 1000000)
         self.RateLimit = RateLimit(10000)
+        self.oidcauth = OIDCAuth()
 
         self.shutdown = False
 
