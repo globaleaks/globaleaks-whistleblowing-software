@@ -31,9 +31,39 @@ export class TipInfoComponent {
     return current_date > report_date;
   };
 
+  isForward(): boolean {
+    // The request of forward runs between two tenants exactly as the report
+    // created by a forward does, and is presented by the same header
+    const type = this.getReceiverTip()?.type;
+    return type === 'forward' || type === 'forward-request';
+  }
+
+  // The reminder belongs to the recipients of the tenant the report belongs
+  // to: the recipients reading it from the other side of a forward are not
+  // presented it
+  ownsReport(): boolean {
+    return !!this.getReceiverTip()?.owned;
+  }
+
+  // The read receipt reports the counterpart of the report: the whistleblower
+  // on an ordinary report, the other tenant on the report of a forward and on
+  // a request of forward
+  counterpartLastAccess(): string {
+    return this.getReceiverTip()?.counterpart_last_access || '';
+  }
+
+  counterpartHasReadLastUpdate(): boolean {
+    const tip = this.getReceiverTip();
+    return !!tip && tip.counterpart_last_access >= tip.update_date;
+  }
+
+  forwarding() {
+    return this.getReceiverTip()?.forwarding || null;
+  }
+
   getReceiverTip(): RecieverTipData | null {
-    if (this.tipService instanceof ReceiverTipService) {
-      return this.tipService.tip;
+    if (this.tipService() instanceof ReceiverTipService) {
+      return this.tipService().tip as RecieverTipData;
     }
 
     return null;

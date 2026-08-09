@@ -17,6 +17,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.recipient import forward
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_set_internaltip_answers, db_archive_questionnaire_schema, \
     db_set_internaltip_data, db_validate_answers, extract_statistical_data
@@ -284,6 +285,17 @@ class WBTipCommentCollection(BaseHandler):
     def post(self):
         request = self.validate_request(self.request.content.read(), requests.CommentDesc)
         return create_comment(self.request.tid, self.session.user_id, request['content'])
+
+
+class WBTipForwardMessages(BaseHandler):
+    """
+    Interface used by the whistleblower to read the messages written by the
+    recipients of a tenant its report has been forwarded to.
+    """
+    check_roles = 'whistleblower'
+
+    def get(self, itip_id):
+        return forward.get_forward_messages_as_whistleblower(self.session, itip_id)
 
 
 class WhistleblowerFileDownload(BaseHandler):

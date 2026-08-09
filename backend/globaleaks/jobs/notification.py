@@ -212,19 +212,28 @@ class MailGenerator:
         for user, rtip, itip, obj in itertools.chain(results1, results2, results3, results4):
             tid = user.tid
 
+            # On the report created by a forward the public visibility holds
+            # the exchange with the whistleblower, that notifies the recipients
+            # of the tenant that received the forward alone: the recipients
+            # following it from the tenant that performed it stay out of it
             if (tid in silent_tids) or \
                 rtips_ids.get(rtip.id, False) or \
                 rtip.last_notification > rtip.last_access or \
                 (isinstance(obj, models.ReceiverTip) and itip.operator_id == user.id) or \
                 (isinstance(obj, (models.Comment, models.ReceiverFile)) and \
                  (obj.author_id == user.id or
-                  obj.visibility == models.EnumVisibility.personal.name)):
+                  obj.visibility == models.EnumVisibility.personal.name or
+                  (obj.visibility == models.EnumVisibility.public.name and
+                   itip.type == 'forward' and user.tid != itip.tid))):
                 obj.new = False
                 continue
 
             try:
                 if isinstance(obj, models.ReceiverTip):
-                    data = {'type': 'tip'}
+                    # The report created by a forward is announced as the
+                    # forward it is to the recipients of the two tenants it
+                    # runs between, and not as a report newly filed
+                    data = {'type': 'forward' if itip.type == 'forward' else 'tip'}
                 else:
                     data = {'type': 'tip_update'}
 

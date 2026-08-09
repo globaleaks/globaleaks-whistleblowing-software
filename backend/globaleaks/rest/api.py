@@ -88,7 +88,12 @@ api_spec = [
 
     # Receiver Handlers
     ('/api/recipient/rtips', recipient.TipsCollection),
+    ('/api/recipient/rtips/forward-request', recipient.forward.RTipsForwardRequest),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
+    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
+    ('/api/recipient/rtips', recipient.forward.RTipForward, r'/api/recipient/rtips/' + uuid_regexp + r'/forward'),
+    ('/api/recipient/rtips', recipient.forward.RTipForwardAttachment, r'/api/recipient/rtips/' + uuid_regexp + r'/forward/attachment'),
+    ('/api/recipient/rtips', recipient.forward.RTipsForwardRequest, r'/api/recipient/rtips/' + uuid_regexp + r'/forward-request'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
@@ -105,6 +110,7 @@ api_spec = [
     ('/api/whistleblower/wbtip', whistleblower.wbtip.WBTipInstance),
     ('/api/whistleblower/wbtip/auditlog', whistleblower.wbtip.ReportAuditLog),
     ('/api/whistleblower/wbtip/comments', whistleblower.wbtip.WBTipCommentCollection),
+    ('/api/whistleblower/wbtip/forwards', whistleblower.wbtip.WBTipForwardMessages, r'/api/whistleblower/wbtip/forwards/' + uuid_regexp + r'/messages'),
     ('/api/whistleblower/wbtip/rfiles', whistleblower.wbtip.ReceiverFileDownload, r'/api/whistleblower/wbtip/rfiles/' + uuid_regexp),
     ('/api/whistleblower/wbtip/wbfiles',  whistleblower.attachment.PostSubmissionAttachment),
     ('/api/whistleblower/wbtip/wbfiles', whistleblower.wbtip.WhistleblowerFileDownload, r'/api/whistleblower/wbtip/wbfiles/' + uuid_regexp),
@@ -167,6 +173,7 @@ api_spec = [
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
     ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),
+    ('/api/admin/tenants', admin.tenant.TenantForwardingInstance, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/forwarding'),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusCollection),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusInstance, r'/api/admin/statuses/' + uuid_regexp_or_closed),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionSubStatusCollection, r'/api/admin/statuses/' + uuid_regexp_or_closed + r'/substatuses'),

@@ -2,7 +2,7 @@ import copy
 import os
 
 
-from sqlalchemy import func, or_, not_
+from sqlalchemy import and_, func, or_, not_
 from sqlalchemy.orm import aliased
 
 from globaleaks.models import EnumStateFile
@@ -10,7 +10,7 @@ from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
-from globaleaks.utils.utility import datetime_null
+from globaleaks.utils.utility import datetime_never, datetime_null
 
 
 def get_identity_files(data):
@@ -229,6 +229,8 @@ def serialize_itip(session, internaltip, language):
         'update_date': internaltip.update_date,
         'expiration_date': internaltip.expiration_date,
         'context_id': internaltip.context_id,
+        'type': internaltip.type,
+        'allow_forward': internaltip.allow_forward,
         'questionnaires': questionnaires,
         'tor': internaltip.tor,
         'mobile': internaltip.mobile,
@@ -269,6 +271,8 @@ def serialize_rtip(session, itip, rtip, language):
     :return: A serialized description of the model specified
     """
     user_id = rtip.receiver_id
+    viewer = session.query(models.User).get(user_id)
+    viewer_tid = viewer.tid if viewer else itip.tid
 
     ret = serialize_itip(session, itip, language)
 
@@ -282,6 +286,114 @@ def serialize_rtip(session, itip, rtip, language):
     ret['enable_notifications'] = rtip.enable_notifications
     ret['itip_last_access'] = ret['last_access']
     ret['last_access'] = rtip.last_access
+    ret['forwards'] = []
+
+    # The read receipt reports the counterpart of the report: the
+    # whistleblower on an ordinary report, the recipients on the other side
+    # on the report created by a forward and on a request of forward
+    if itip.type in ('forward-request', 'forward'):
+        counterpart_last_access = session.query(func.max(models.ReceiverTip.last_access)) \
+            .filter(models.ReceiverTip.internaltip_id == itip.id,
+                    models.User.id == models.ReceiverTip.receiver_id,
+                    models.User.tid != viewer_tid).scalar()
+        ret['counterpart_last_access'] = counterpart_last_access or datetime_null()
+    else:
+        ret['counterpart_last_access'] = itip.last_access
+
+    # Importance, label and reminder belong to the recipients of the tenant the
+    # report belongs to: they are not serialized to the recipients reading it
+    # from the other side of a forward, that are presented no operation on the
+    # report either
+    ret['owned'] = itip.is_owned_by(viewer_tid)
+    if not ret['owned']:
+        ret['important'] = False
+        ret['label'] = ''
+        ret['reminder_date'] = datetime_never()
+
+    tenant_names = {}
+
+    def get_tenant_name(tid):
+        if tid not in tenant_names:
+            tenant_names[tid] = ConfigFactory(session, tid).get_val('name')
+        return tenant_names[tid]
+
+    forwards = session.query(models.InternalTipForwarding, models.InternalTip) \
+                      .filter(models.InternalTipForwarding.internaltip_id == itip.id,
+                              models.InternalTip.id == models.InternalTipForwarding.forwarding_internaltip_id) \
+                      .order_by(models.InternalTip.creation_date.desc())
+
+    for _, forwarded_itip in forwards:
+        ret['forwards'].append({
+            'id': forwarded_itip.id,
+            'creation_date': forwarded_itip.creation_date,
+            'target_tid': forwarded_itip.tid,
+            'tenant_name': get_tenant_name(forwarded_itip.tid),
+            'progressive': forwarded_itip.progressive,
+            'status': forwarded_itip.status,
+            'substatus': forwarded_itip.substatus,
+            # Whether the viewer follows the report created by the forward: the
+            # tenant that receives a forward decides whether the sender keeps
+            # accessing it, so the access is told by the tip granted, not inferred
+            'accessible': session.query(models.ReceiverTip)
+                                 .filter(models.ReceiverTip.internaltip_id == forwarded_itip.id,
+                                         models.ReceiverTip.receiver_id == user_id)
+                                 .count() > 0
+        })
+
+    # The report created by a forward names the two tenants it runs between.
+    # The exchange with the whistleblower belongs to the receiving tenant
+    # alone: the other recipients are not presented the channel and are handed
+    # instead the report the forward originates from, to walk back to it.
+    ret['forwarding'] = None
+    if itip.type == 'forward':
+        forwarding = session.query(models.InternalTipForwarding) \
+                            .filter(models.InternalTipForwarding.forwarding_internaltip_id == itip.id) \
+                            .one_or_none()
+        if forwarding is not None:
+            # The tenant of origin is the one recorded when the forward was
+            # performed: the tenant of the source report names it only for the
+            # direct forwards, a forward performed upon a request originates
+            # from the requester while the request lives on the receiving tenant
+            forwarded_from = session.query(models.InternalTipData.value) \
+                                    .filter(models.InternalTipData.internaltip_id == itip.id,
+                                            models.InternalTipData.key == 'forwarded_from') \
+                                    .scalar()
+            source_tid = forwarded_from.get('source_tid') if forwarded_from else None
+            if source_tid is None:
+                source_tid = session.query(models.InternalTip.tid) \
+                                    .filter(models.InternalTip.id == forwarding.internaltip_id) \
+                                    .scalar()
+            ret['forwarding'] = {
+                'from_tenant_name': get_tenant_name(source_tid) if source_tid else '',
+                'to_tenant_name': get_tenant_name(itip.tid),
+                'update_date': forwarding.update_date,
+                'messages_enabled': viewer_tid == itip.tid and
+                                    forwarding.messages_enabled(itip),
+                'internaltip_id': forwarding.internaltip_id if viewer_tid != itip.tid else ''
+            }
+    elif itip.type == 'forward-request':
+        # The request of forward names the two tenants it runs between exactly
+        # as the report created by a forward does: it originates from the
+        # tenant that issued it and is received by the tenant it is filed on
+        request_data = session.query(models.InternalTipData.value) \
+                              .filter(models.InternalTipData.internaltip_id == itip.id,
+                                      models.InternalTipData.key == 'forward_request') \
+                              .scalar()
+
+        try:
+            source_tid = int(request_data.get('source_tid'))
+        except (AttributeError, TypeError, ValueError):
+            source_tid = None
+
+        if source_tid is not None:
+            ret['forwarding'] = {
+                'from_tenant_name': get_tenant_name(source_tid),
+                'to_tenant_name': get_tenant_name(itip.tid),
+                'update_date': itip.update_date,
+                'messages_enabled': False,
+                'internaltip_id': ''
+            }
+
     iar = session.query(models.IdentityAccessRequest) \
                  .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
                  .order_by(models.IdentityAccessRequest.request_date.desc()).first()
@@ -315,18 +427,42 @@ def serialize_rtip(session, itip, rtip, language):
                                        models.WhistleblowerFile.receivertip_id == rtip.id):
         ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile))
 
+    # The public visibility holds the space where the whistleblower is: on the
+    # report created by a forward it stays between the whistleblower and the
+    # tenant that received it. The forward visibility holds the space the two
+    # tenants of a forward share; an internal element is confined to the
+    # recipients of the tenant of its author; a personal element to its author.
+    sees_public = itip.type != 'forward' or viewer_tid == itip.tid
+    author = aliased(models.User)
+
+    rfile_clauses = [models.ReceiverFile.visibility == 3,
+                     and_(models.ReceiverFile.visibility == 2,
+                          models.ReceiverFile.author_id == user_id),
+                     and_(models.ReceiverFile.visibility == 1,
+                          or_(models.ReceiverFile.author_id == user_id,
+                              author.tid == viewer_tid))]
+    comment_clauses = [models.Comment.visibility == 3,
+                       and_(models.Comment.visibility == 2,
+                            models.Comment.author_id == user_id),
+                       and_(models.Comment.visibility == 1,
+                            or_(models.Comment.author_id == user_id,
+                                author.tid == viewer_tid))]
+    if sees_public:
+        rfile_clauses.append(models.ReceiverFile.visibility == 0)
+        comment_clauses.append(models.Comment.visibility == 0)
+
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 or_(models.ReceiverFile.visibility != 2,
-                                     models.ReceiverFile.author_id == user_id)):
+                        .outerjoin(author, author.id == models.ReceiverFile.author_id) \
+                        .filter(models.ReceiverFile.internaltip_id == itip.id,
+                                or_(*rfile_clauses)):
         ret['rfiles'].append(serialize_rfile(session, rfile))
         if rfile.author_id:
             other_receiver_ids.add(rfile.author_id)
 
     for comment in session.query(models.Comment) \
+                          .outerjoin(author, author.id == models.Comment.author_id) \
                           .filter(models.Comment.internaltip_id == itip.id,
-                                  or_(models.Comment.visibility != 2,
-                                      models.Comment.author_id == user_id)):
+                                  or_(*comment_clauses)):
         ret['comments'].append(serialize_comment(session, comment))
         if comment.author_id:
             other_receiver_ids.add(comment.author_id)
@@ -340,13 +476,24 @@ def serialize_rtip(session, itip, rtip, language):
     user_map = {user.id: user for user in users}
     for uid in receiver_ids:
         user = user_map.get(uid)
-        if user and user.tid != itip.tid:
+
+        # On the report created by a forward each tenant is presented its own
+        # recipients alone: the other side of the forward is known only by the
+        # name of its tenant
+        if itip.type == 'forward' and (user is None or user.tid != viewer_tid):
             continue
+
+        name = user.name if user else 'Recipient'
+        if user and user.tid != viewer_tid:
+            # The identity of a receiver following the report from the other
+            # tenant of a forward is not disclosed: it is presented by the
+            # name of its tenant
+            name = get_tenant_name(user.tid)
 
         rtip_obj = rtip_map.get(uid)
         ret['receivers'].append({
             'id': uid,
-            'name': user.name if user else 'Recipient',
+            'name': name,
             'active': uid in active_receiver_ids,
             'last_access': rtip_obj.last_access if rtip_obj else None
         })
@@ -356,6 +503,26 @@ def serialize_rtip(session, itip, rtip, language):
 
 def serialize_wbtip(session, itip, language):
     ret = serialize_itip(session, itip, language)
+
+    # The whistleblower is presented the forwards of its report, each carrying
+    # the exchange with the recipients of the tenant that received it; the
+    # tenant is the only identity disclosed
+    ret['forwards'] = []
+    forwards = session.query(models.InternalTipForwarding, models.InternalTip) \
+                      .filter(models.InternalTipForwarding.internaltip_id == itip.id,
+                              models.InternalTip.id == models.InternalTipForwarding.forwarding_internaltip_id) \
+                      .order_by(models.InternalTip.creation_date.desc())
+
+    for forwarding, forwarded_itip in forwards:
+        ret['forwards'].append({
+            'id': forwarded_itip.id,
+            'creation_date': forwarded_itip.creation_date,
+            'update_date': forwarding.update_date,
+            'tenant_name': ConfigFactory(session, forwarded_itip.tid).get_val('name'),
+            'status': forwarded_itip.status,
+            'substatus': forwarded_itip.substatus,
+            'messages_enabled': forwarding.messages_enabled(forwarded_itip)
+        })
 
     active_receiver_ids = session.query(models.ReceiverTip.receiver_id) \
         .filter(models.ReceiverTip.internaltip_id == itip.id) \

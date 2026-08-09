@@ -6,8 +6,9 @@ from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
+from globaleaks.handlers.support import is_root_admin_session
 from globaleaks.models.enums import EnumStateFile
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, db_set_own_config_variable
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
@@ -139,6 +140,22 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
+    # The channels designated to receive the forwards and the requests of
+    # forward are channels of the tenant; any other reference is dropped
+    designations = {}
+    for var in ['forward_channel', 'forward_request_channel']:
+        if var not in request:
+            continue
+
+        designations[var] = request.pop(var)
+
+        if designations[var] and \
+                session.query(models.Context) \
+                       .filter(models.Context.tid == tid,
+                               models.Context.id == designations[var]) \
+                       .one_or_none() is None:
+            designations[var] = ''
+
     # The antivirus and backup features are configurable on the primary tenant
     # only: their variables are dropped from the requests of any other context,
     # secondary tenants and profiles alike
@@ -150,7 +167,23 @@ def db_update_node(session, tid, user_session, request, language):
     config = ConfigFactory(session, tid)
     antivirus_was_enabled = config.get_val('antivirus_enabled')
 
+    # The forwarding puts two tenants in relation and is therefore configured
+    # by the administrators of the platform alone: a tenant decides neither the
+    # ones it receives the reports from nor the ones it hands them over to, and
+    # not even the channels the exchange runs on
+    for var, value in list(designations.items()) + \
+            [(var, request[var]) for var in ['forwarding_relationships',
+                                             'require_forward_requests',
+                                             'forward_source_access'] if var in request]:
+        if value != config.get_val(var) and not is_root_admin_session(user_session):
+            raise errors.ForbiddenOperation
+
     config.update('node', request)
+
+    # The designations reference objects of the tenant and are therefore stored
+    # on the tenant itself and never on the profile from which it inherits
+    for var, value in designations.items():
+        db_set_own_config_variable(session, tid, var, value)
 
     antivirus_is_enabled = request.get('antivirus_enabled', antivirus_was_enabled)
     if antivirus_was_enabled and not antivirus_is_enabled:

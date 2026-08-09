@@ -8,6 +8,7 @@
           </div>
         </div>
       }
+      @if (!readOnly()) {
       <div>
         <div>{{'Upload a file:'|translate}}</div>
         <div class="form">
@@ -38,6 +39,7 @@
             }
           </div>
         </div>
+      }
     </div>
   }
   </div>

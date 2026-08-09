@@ -9,11 +9,12 @@ import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
-import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
+import {Answers, Questionnaire, WbForward} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {WbForwardMessagesComponent} from "@app/shared/modals/wb-forward-messages/wb-forward-messages.component";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
-import {NgClass} from "@angular/common";
+import {DatePipe, NgClass} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
@@ -23,12 +24,11 @@ import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whi
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {TranslateModule} from "@ngx-translate/core";
-
 @Component({
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, DatePipe, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule]
 })
 export class TippageComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);
@@ -226,6 +226,11 @@ export class TippageComponent implements OnInit {
     return tip?.status !== 'closed' &&
            !!tip?.context?.additional_questionnaire_id &&
            tip?.questionnaires?.length === 1;
+  }
+
+  openForwardMessages(forward: WbForward) {
+    const modalRef = this.modalService.open(WbForwardMessagesComponent, {size: "lg"});
+    modalRef.componentInstance.forward = forward;
   }
 
   /**

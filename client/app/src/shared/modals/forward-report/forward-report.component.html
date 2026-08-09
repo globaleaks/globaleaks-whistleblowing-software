@@ -1,0 +1,77 @@
+<div class="modal-header">
+  <h5 id="modal-title" class="modal-title">{{ title | translate }}</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+  </button>
+</div>
+<div class="modal-body">
+  @if (error) {
+    <div id="ForwardError" class="alert alert-danger">{{ error | translate }}</div>
+  }
+  <form #submissionForm="ngForm" id="ForwardForm" autocomplete="off" novalidate>
+    @if (showTenantSelector) {
+    <div class="form-group">
+      <label for="forward-target">{{ 'Tenant' | translate }}</label>
+      <select id="forward-target" class="form-select-custom" name="selectedTenant" [(ngModel)]="selectedTenant" (ngModelChange)="onTenantChange()" required>
+        <option [ngValue]="null"></option>
+        @for (tenant of tenants; track tenant) {
+          <option [ngValue]="tenant.id">{{ tenant.name || tenant.subdomain || tenant.id }}</option>
+        }
+      </select>
+    </div>
+    }
+    @if (selectedTenant !== null) {
+    <div class="tabbable tabs-below">
+      @if (questionnaire.steps.length > 1) {
+        <ul id="ForwardTabsNavigationBox" class="nav nav-tabs" role="tablist">
+          @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+            <li class="nav-item" role="presentation">
+              @if (step.enabled) {
+                <a id="forward-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'forward-step-' + index" role="tab">
+                  <span>{{ index + 1 }} - {{ step.label }}</span>
+                </a>
+              }
+            </li>
+          }
+        </ul>
+      }
+      <div id="ForwardTabsContentBox" class="tab-content">
+        @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+          <div>
+            @if (step && step.enabled) {
+              <div [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'forward-step-' + index + '-link'">
+                <div id="forward-step-{{index}}" ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                  @if (step.description) {
+                    <div class="description">{{ step.description }}</div>
+                  }
+                  <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    }
+  </form>
+</div>
+<div class="modal-footer">
+  @if (hasPreviousStep()) {
+    <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
+      <i class="fas fa-circle-arrow-left"></i>
+      <span>{{ 'Previous' | translate }}</span>
+    </button>
+  }
+  @if (hasNextStep()) {
+    <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
+      <span>{{ 'Next' | translate }}</span>
+      <i class="fas fa-circle-arrow-right"></i>
+    </button>
+  }
+  @if (!hasNextStep()) {
+    <button id="SubmitForwardButton" class="btn btn-primary" [disabled]="done || !selectedTenant" (click)="completeSubmission()" type="submit">
+      <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
+      <span>{{ 'Submit' | translate }}</span>
+    </button>
+  }
+</div>

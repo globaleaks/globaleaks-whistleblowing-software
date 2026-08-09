@@ -99,6 +99,10 @@ export class HttpService {
     return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string}>(`api/admin/tenants/${tenantId}/stats`);
   }
 
+  requestUpdateTenantForwarding(tenantId: number, data: {forward_channel: string, forward_request_channel: string, require_forward_requests: boolean, forward_source_access: boolean}): Observable<void> {
+    return this.httpClient.put<void>(`api/admin/tenants/${tenantId}/forwarding`, data);
+  }
+
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
     return this.httpClient.put<tenantResolverModel>(url, data);
   }
@@ -604,6 +608,10 @@ export class HttpService {
         this.router.navigate([currentUrl]).then();
       });
     }));
+  }
+
+  requestForwardOptions(tipId: string): Observable<any> {
+    return this.httpClient.get("api/recipient/rtips/" + tipId + "/forward");
   }
 
   requestForwardRequestOptions(): Observable<any> {

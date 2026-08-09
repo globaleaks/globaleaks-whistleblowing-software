@@ -4,7 +4,7 @@
       <span class="fw-bold">ID:</span>
       <span>{{tipService().tip.id}}</span>
     </div>
-    <table class="table table-borderless table-striped">
+    <table class="table table-borderless">
       <thead>
         <tr>
           @if (authenticationService.session?.role === 'receiver') {
@@ -23,6 +23,16 @@
             <i class="fas fa-clock"></i>
             <span>{{'Date'|translate}}</span>
           </th>
+          @if (isForward()) {
+            <th class="TipInfoForwardFrom">
+              <i class="fas fa-building"></i>
+              <span>{{'From'|translate}}</span>
+            </th>
+            <th class="TipInfoForwardTo">
+              <i class="fas fa-building"></i>
+              <span>{{'To'|translate}}</span>
+            </th>
+          }
           <th class="TipInfoLastUpdate">
             <i class="fas fa-clock"></i>
             <span>{{'Last update'|translate}}</span>
@@ -31,7 +41,7 @@
             <i class="fas fa-hourglass"></i>
             <span>{{'Expiration date'|translate}}</span>
           </th>
-          @if (authenticationService.session?.role === 'receiver') {
+          @if (authenticationService.session?.role === 'receiver' && ownsReport()) {
             <th class="TipInfoReminderDate">
               <i class="fas fa-bell"></i>
               <span>{{'Reminder date'|translate}}</span>
@@ -43,7 +53,7 @@
               <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
           }
-          @if (authenticationService.session?.role === 'receiver') {
+          @if (authenticationService.session?.role === 'receiver' && !isForward()) {
             <th class="TipInfoConnection">
               <i class="fas fa-network-wired"></i>
               <span>{{'Tor'|translate}}</span>
@@ -80,6 +90,10 @@
               </td>
             }
             <td class="TipInfoCreationDate">{{tipService().tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            @if (isForward()) {
+              <td class="TipInfoForwardFrom">{{ forwarding()?.from_tenant_name }}</td>
+              <td class="TipInfoForwardTo">{{ forwarding()?.to_tenant_name }}</td>
+            }
             <td class="TipInfoUpdateDate">{{tipService().tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
             <td class="TipInfoExpirationDate">
               @if (!utilsService.isNever(tipService().tip.expiration_date)) {
@@ -89,7 +103,7 @@
                 <span>-</span>
               }
             </td>
-            @if (authenticationService.session?.role === 'receiver') {
+            @if (authenticationService.session?.role === 'receiver' && ownsReport()) {
               <td class="TipInfoReminderDate">
                 @if (!utilsService.isNever(tipService().tip.reminder_date)) {
                   <span>
@@ -106,16 +120,15 @@
             }
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoLastAccess">
-                @if (tipService().tip.last_access >= tipService().tip.update_date) {
-                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tipService().tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
-                }
-                @if (tipService().tip.last_access < tipService().tip.update_date) {
-                  <i class="fas fa-xmark" ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}">
+                @if (counterpartHasReadLastUpdate()) {
+                  <span ngbTooltip="{{'The other party has already read the last update' | translate}} ({{counterpartLastAccess() | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
+                } @else {
+                  <i class="fas fa-xmark" ngbTooltip="{{'The other party has not read the last update yet' | translate}}">
                   </i>
                 }
               </td>
             }
-            @if (authenticationService.session?.role === 'receiver') {
+            @if (authenticationService.session?.role === 'receiver' && !isForward()) {
               <td class="TipInfoConnection">
                 @if (tipService().tip.tor) {
                   <i class="fas fa-check"></i>

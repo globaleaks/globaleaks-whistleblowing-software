@@ -11,11 +11,12 @@ from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler, content_disposition_attachment
 from globaleaks.handlers.public import db_get_submission_statuses
+from globaleaks.handlers.recipient.forward import db_get_presented_context_id
 from globaleaks.handlers.recipient.rtip import db_update_submission_status, redact_report
 from globaleaks.handlers.whistleblower.submission import decrypt_tip
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import db_log, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.antivirus import get_av_result, serialize_files_metadata_csv
@@ -111,11 +112,19 @@ def get_tip_export(session, tid, user_id, itip_id, language):
 
     user, context, itip, rtip = row
 
+    # The channel of a report is the one of the tenant it belongs to: the export
+    # of a recipient reading it from the other side of a forward carries the
+    # channel its own tenant designated to the matter, the one it is presented,
+    # and never the definition of a channel of the other tenant
+    context = db_get(session,
+                     models.Context,
+                     models.Context.id == db_get_presented_context_id(session, tid, itip))
+
     rtip.last_access = datetime_now()
     if rtip.access_date == datetime_null():
         rtip.access_date = rtip.last_access
 
-    if itip.status == 'new':
+    if itip.status == 'new' and itip.is_owned_by(tid):
         db_update_submission_status(session, tid, user_id, itip, 'opened', None)
 
     db_log(session, tid=tid, type='export_report', user_id=user_id, object_id=itip.id)

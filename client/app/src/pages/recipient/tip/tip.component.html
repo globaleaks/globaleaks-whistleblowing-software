@@ -6,8 +6,8 @@
           <!-- Left side - All main actions -->
           <div class="d-flex align-items-center gap-1">
             <!-- Navigation and primary actions -->
-            <a id="link-tiplist" href="#/recipient/reports" ngbTooltip="{{'Reports' | translate}}"
-              class="btn btn-outline-secondary" [attr.aria-label]="'Reports' | translate">
+            <a id="link-tiplist" [routerLink]="backLink()" ngbTooltip="{{'Back' | translate}}"
+              class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
               <i class="fas fa-arrow-left"></i>
             </a>
             @if (canMarkImportant()) {
@@ -84,6 +84,16 @@
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
+                @if (canForwardReport()) {
+                  <button id="tip-action-forward" class="dropdown-item" type="button" (click)="openForwardModal()" [attr.aria-label]="'Forward' | translate">
+                    <i class="fas fa-share me-2"></i>{{'Forward' | translate}}
+                  </button>
+                }
+                @if (canMessageWhistleblower()) {
+                  <button id="tip-action-message-whistleblower" class="dropdown-item" type="button" (click)="openWhistleblowerMessagesModal()" [attr.aria-label]="'Contact the reporting person' | translate">
+                    <i class="fas fa-comment-dots me-2"></i>{{'Contact the reporting person' | translate}}
+                  </button>
+                }
                 @if (canAuthorizeForward()) {
                   <button id="tip-action-authorize-forward" class="dropdown-item" type="button" (click)="authorizeForward()" [attr.aria-label]="'Authorize forward' | translate">
                     <i class="fas fa-check me-2"></i>{{'Authorize forward' | translate}}
@@ -144,21 +154,6 @@
         </div>
       </div>
     </div>
-    @if (accessCode) {
-      <div class="row">
-        <div class="col-md-12">
-          <div id="AccessCodeBox" class="alert alert-info d-flex align-items-center justify-content-between">
-            <span>
-              <span>{{ 'Access code of the whistleblower' | translate }}:</span>
-              <strong id="AccessCode" class="ms-2">{{ accessCode }}</strong>
-            </span>
-            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="accessCode = ''" [attr.aria-label]="'Close' | translate">
-              <i class="fa-solid fa-circle-xmark"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    }
     <div class="row justify-content-between">
       <div class="col-md-12">
         @if (canChangeLabel()) {
@@ -197,33 +192,6 @@
         </div>
       }
     </div>
-    @if (tip && tip.forwards && tip.forwards.length) {
-      <div class="row">
-        <div class="col-md-12">
-          <h5>{{ 'Forwards' | translate }}</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>{{ 'Date' | translate }}</th>
-                <th>{{ 'Tenant' | translate }}</th>
-                <th>{{ 'Report' | translate }}</th>
-                <th>{{ 'Status' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (forward of tip.forwards; track forward) {
-                <tr>
-                  <td>{{ forward.creation_date | date:'short' }}</td>
-                  <td>{{ forward.target_tid }}</td>
-                  <td><a [routerLink]="['/reports', forward.id]">#{{ forward.progressive }}</a></td>
-                  <td>{{ forward.status | translate }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    }
     <div class="row">
       <div class="col-md-12">
         <src-tip-files-receiver id="ReportAttachments" [redactMode]="redactMode"></src-tip-files-receiver>
@@ -231,27 +199,68 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <src-tabs id="CommunicationTabs">
-          <ng-template srcTab="everyone" title="Everyone">
-            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
-            }
-          </ng-template>
-          <ng-template srcTab="recipients_only" title="Recipients only">
-            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
+        @if (isReceivedForward()) {
+          <!-- The tenant that received the forward has one space alone: it
+               reads the comments and the files of the forwarding tenant and
+               answers with messages, so no tab bar and no upload are shown -->
+          <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'forward'" [readOnly]="true"></src-tip-upload-wbfile>
+          <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'forward'"></src-tip-comments>
+        } @else {
+          <src-tabs id="CommunicationTabs">
+            <!-- "Everyone" is the space shared with the counterpart of the
+                 report: the whistleblower, or the receiving tenant when the
+                 report is a forward performed from here -->
+            <ng-template srcTab="everyone" title="Everyone">
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="everyoneKey()"></src-tip-upload-wbfile>
+              @if (tip) {
+                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="everyoneKey()"></src-tip-comments>
               }
-          </ng-template>
-          <ng-template srcTab="me_only" title="Me only">
-            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
-            }
-          </ng-template>
-        </src-tabs>
+            </ng-template>
+            <ng-template srcTab="recipients_only" title="Recipients only">
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
+              @if (tip) {
+                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
+              }
+            </ng-template>
+            <ng-template srcTab="me_only" title="Me only">
+              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
+              @if (tip) {
+                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
+              }
+            </ng-template>
+          </src-tabs>
+        }
       </div>
     </div>
+    @if (tip && tip.forwards && tip.forwards.length) {
+      <div class="row">
+        <div class="col-md-12">
+          <div srcCollapsiblePanel id="TipForwardsBox" class="card card-default" [collapsed]="forwardsCollapsed" [label]="'Forwards' | translate" (toggle)="forwardsCollapsed = !forwardsCollapsed">
+            @if (!forwardsCollapsed) {
+              <div class="card-body">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'Date' | translate }}</th>
+                      <th>{{ 'Organization' | translate }}</th>
+                      <th>{{ 'Status' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (forward of tip.forwards; track forward) {
+                      <tr [class.tip-action-open]="canOpenForwardedReport(forward)" [attr.role]="canOpenForwardedReport(forward) ? 'button' : null" (click)="canOpenForwardedReport(forward) && openForwardedReport(forward.id)">
+                        <td>{{ forward.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+                        <td>{{ forward.tenant_name }}</td>
+                        <td>{{ forward.status | translate }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   </div>
 }

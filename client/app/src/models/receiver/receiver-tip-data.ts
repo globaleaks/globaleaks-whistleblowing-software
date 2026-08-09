@@ -32,6 +32,8 @@ export class RecieverTipData {
   identity_provided: boolean;
   last_access: string;
   itip_last_access: string;
+  counterpart_last_access: string;
+  owned: boolean;
   score: number;
   status: string;
   substatus: string;
@@ -57,6 +59,7 @@ export class RecieverTipData {
   tip_id: string;
   redactions: RedactionData[];
   forwards: ForwardReport[];
+  forwarding: ForwardingChannel | null;
 }
 
 export type Answers = Record<string, {
@@ -75,9 +78,29 @@ export interface ForwardReport {
   id: string;
   creation_date: string;
   target_tid: number;
+  tenant_name: string;
   progressive: number;
   status: string;
   substatus: string;
+  accessible: boolean;
+}
+
+export interface ForwardingChannel {
+  from_tenant_name: string;
+  to_tenant_name: string;
+  update_date: string;
+  messages_enabled: boolean;
+  internaltip_id: string;
+}
+
+export interface WbForward {
+  id: string;
+  creation_date: string;
+  update_date: string;
+  tenant_name: string;
+  status: string;
+  substatus: string;
+  messages_enabled: boolean;
 }
 
 export interface Data {

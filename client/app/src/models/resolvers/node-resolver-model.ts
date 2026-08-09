@@ -104,10 +104,9 @@ export class nodeResolverModel {
   enable2FA: boolean;
   enforce2FA: boolean;
   support: boolean;
-  enable_forwarding_incoming: boolean;
-  enable_forwarding_outgoing: boolean;
+  forwarding_relationships: any[];
   require_forward_requests: boolean;
-  accept_forwarding_from: any[];
+  forward_source_access: boolean;
   forward_channel: string;
   forward_request_channel: string;
 }

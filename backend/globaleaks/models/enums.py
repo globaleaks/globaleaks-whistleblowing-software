@@ -37,6 +37,7 @@ class EnumVisibility(_Enum):
     public = 0
     internal = 1
     personal = 2
+    forward = 3
 
 
 class EnumStateFile(_Enum):

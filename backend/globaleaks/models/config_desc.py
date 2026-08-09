@@ -184,6 +184,11 @@ ConfigDescriptor = {
     'antivirus_enabled': Bool(default=False),
     'antivirus_clamd_ip': Unicode(default='localhost'),
     'antivirus_clamd_port': Int(default=3310),
+    'forwarding_relationships': List(default=[]),
+    'require_forward_requests': Bool(default=False),
+    'forward_channel': Unicode(default=''),
+    'forward_request_channel': Unicode(default=''),
+    'forward_source_access': Bool(default=True),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='02:00'),
     'backup_period': Int(default=24),
@@ -299,6 +304,11 @@ ConfigFilters = {
         'antivirus_enabled',
         'antivirus_clamd_ip',
         'antivirus_clamd_port',
+        'forwarding_relationships',
+        'require_forward_requests',
+        'forward_channel',
+        'forward_request_channel',
+        'forward_source_access'
 
     ],
     'admin_node': [
@@ -372,6 +382,11 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'unread_reminder_time',
+        'forwarding_relationships',
+        'require_forward_requests',
+        'forward_channel',
+        'forward_request_channel',
+        'forward_source_access',
         'proxy_idp_enabled',
 
         'backup_enabled',
@@ -485,6 +500,11 @@ ConfigFilters = {
         'subdomain',
         'rootdomain',
         'default_user_profile',
+        'forwarding_relationships',
+        'require_forward_requests',
+        'forward_channel',
+        'forward_request_channel',
+        'forward_source_access'
 
     ]
 }
@@ -534,6 +554,8 @@ ConfigL10NFilters = {
         'export_comment_recipient',
         'export_comment_whistleblower',
         'export_template',
+        'forward_mail_template',
+        'forward_mail_title',
         'https_certificate_expiration_mail_template',
         'https_certificate_expiration_mail_title',
         'https_certificate_renewal_failure_mail_template',

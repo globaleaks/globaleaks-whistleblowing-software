@@ -1,0 +1,118 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="config-section">
+      <div>
+        <span>{{ 'Relationships' | translate }}</span>
+        <button class="btn btn-sm btn-primary add-relationship-btn" (click)="addRelationship()">
+          <i class="fas fa-plus"></i>
+          <span>{{ 'Add' | translate }}</span>
+        </button>
+      </div>
+      <div>{{ 'The relationships name the sites allowed to forward their reports and the sites receiving them.' | translate }}</div>
+      @for (relationship of relationships; track relationship; let index = $index) {
+        <div class="form-group" id="relationship-{{index}}">
+          <div class="row">
+            <div class="col-md-5">
+              <label for="relationship-from-{{index}}">{{ 'From' | translate }}</label>
+              <select id="relationship-from-{{index}}" class="form-select-custom" name="relationship-from-{{index}}" [(ngModel)]="relationship.fromMode">
+                <option value="all">{{ 'All' | translate }}</option>
+                <option value="custom">{{ 'Custom' | translate }}</option>
+              </select>
+              @if (relationship.fromMode === 'custom') {
+                <src-selection-editor
+                  [selectableDefault]="false"
+                  [options]="candidatesOf(relationship.fromSites)"
+                  [selected]="selectedOf(relationship.fromSites)"
+                  adderId="relationship-from-adder-{{index}}"
+                  (entryAdded)="addSite(relationship.fromSites, $event)"
+                  (entryRemoved)="removeSite(relationship.fromSites, $event.id)">
+                </src-selection-editor>
+              }
+            </div>
+            <div class="col-md-5">
+              <label for="relationship-to-{{index}}">{{ 'To' | translate }}</label>
+              <select id="relationship-to-{{index}}" class="form-select-custom" name="relationship-to-{{index}}" [(ngModel)]="relationship.toMode">
+                <option value="all">{{ 'All' | translate }}</option>
+                <option value="custom">{{ 'Custom' | translate }}</option>
+              </select>
+              @if (relationship.toMode === 'custom') {
+                <src-selection-editor
+                  [selectableDefault]="false"
+                  [options]="candidatesOf(relationship.toSites)"
+                  [selected]="selectedOf(relationship.toSites)"
+                  adderId="relationship-to-adder-{{index}}"
+                  (entryAdded)="addSite(relationship.toSites, $event)"
+                  (entryRemoved)="removeSite(relationship.toSites, $event.id)">
+                </src-selection-editor>
+              }
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-danger" name="delete_relationship" (click)="removeRelationship(index)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+      <div class="form-group">
+        <button class="btn btn-primary" id="save_relationships" data-cy="save-relationships" (click)="saveRelationships()" type="submit">
+          <i class="fa-solid fa-check"></i>
+          <span>{{ 'Save' | translate }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="config-section">
+      <div>
+        <span>{{ 'Reception' | translate }}</span>
+      </div>
+      <div>{{ 'The channels receiving the forwarded reports and the requests of forward live on the site that receives them.' | translate }}</div>
+      @for (site of sites; track site.id) {
+        <div class="form-group" id="reception-{{site.id}}">
+          <label>{{ site.name }}</label>
+          <div class="nested">
+            <div class="form-group">
+              <label for="reception-channel-{{site.id}}">{{ 'Channel receiving the forwarded reports' | translate }}</label>
+              <select id="reception-channel-{{site.id}}" class="form-select-custom" name="reception-channel-{{site.id}}" [(ngModel)]="site.forward_channel">
+                <option value=""></option>
+                @for (context of site.contexts; track context.id) {
+                  <option [value]="context.id">{{ context.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>
+                <input class="form-check-input" name="reception-source-access-{{site.id}}" [(ngModel)]="site.forward_source_access" type="checkbox"/>
+                <span>{{ 'Let the senders of the forwards keep accessing them' | translate }}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input class="form-check-input" name="reception-require-requests-{{site.id}}" [(ngModel)]="site.require_forward_requests" type="checkbox"/>
+                <span>{{ 'Forward requests' | translate }}</span>
+              </label>
+            </div>
+            @if (site.require_forward_requests) {
+              <div class="nested">
+                <div class="form-group">
+                  <label for="reception-request-channel-{{site.id}}">{{ 'Channel receiving the requests of forward' | translate }}</label>
+                  <select id="reception-request-channel-{{site.id}}" class="form-select-custom" name="reception-request-channel-{{site.id}}" [(ngModel)]="site.forward_request_channel">
+                    <option value=""></option>
+                    @for (context of site.contexts; track context.id) {
+                      <option [value]="context.id">{{ context.name }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+            <div class="form-group">
+              <button class="btn btn-primary" name="save_reception" (click)="saveReception(site)" type="submit">
+                <i class="fa-solid fa-check"></i>
+                <span>{{ 'Save' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

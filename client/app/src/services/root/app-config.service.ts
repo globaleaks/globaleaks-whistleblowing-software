@@ -191,9 +191,9 @@ export class AppConfigService {
 
         return data.context;
       }),
-      // A context that cannot be resolved must not break the loading of the
-      // whole list of the reports: the report is then presented without the
-      // metadata of its context
+      // The context of a report forwarded to another tenant belongs to that
+      // tenant and cannot be resolved here: the report is then presented
+      // without the metadata of its context
       catchError(() => of(null))
     );
   }

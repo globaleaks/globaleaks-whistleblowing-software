@@ -3,7 +3,7 @@
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-1">
-          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Home' | translate">
+          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Back' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
             <i class="fas fa-arrow-left"></i>
           </a>
 
@@ -11,6 +11,13 @@
             class="btn btn-outline-secondary">
             <i class="fas fa-file-pen"></i>
           </button>
+
+          @if (canRequestForward()) {
+            <button id="tip-action-request-forward" type="button" (click)="requestForward()" ngbTooltip="{{'Request forward' | translate}}" [attr.aria-label]="'Request forward' | translate"
+              class="btn btn-outline-secondary">
+              <i class="fas fa-share"></i>
+            </button>
+          }
         </div>
 
         <div class="d-flex align-items-center gap-1">
@@ -30,7 +37,7 @@
   </div>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header>
           <tr>
             <th>

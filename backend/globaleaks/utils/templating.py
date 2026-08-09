@@ -54,6 +54,10 @@ export_comment_keywords = [
     '{Content}'
 ]
 
+forward_keywords = [
+    '{ForwardTenantName}'
+]
+
 expiration_summary_keywords = [
     '{ExpiringSubmissionCount}',
     '{EarliestExpirationDate}'
@@ -363,6 +367,18 @@ class TipKeyword(UserNodeKeyword):
         return 'Comments\n' + comments + '\n' if comments else ''
 
 
+class ForwardKeyword(TipKeyword):
+    """
+    The report created by a forward announces the forward to the recipients of
+    the two tenants it runs between: the one identity the announcement carries
+    is the name of the tenant the report has been forwarded to.
+    """
+    keyword_list = TipKeyword.keyword_list + forward_keywords
+
+    def ForwardTenantName(self):
+        return (self.data['tip'].get('forwarding') or {}).get('to_tenant_name', '')
+
+
 class ExportMessageKeyword(TipKeyword):
     keyword_list = TipKeyword.keyword_list + export_comment_keywords
     data_keys = TipKeyword.data_keys + ['comment']
@@ -601,6 +617,7 @@ supported_template_types = {
     'tip_access': UserNodeKeyword,
     'tip_reminder': UserNodeKeyword,
     'tip_update': TipKeyword,
+    'forward': ForwardKeyword,
     'tip_expiration_summary': ExpirationSummaryKeyword,
     'unread_tips': UserNodeKeyword,
     'pgp_alert': PGPAlertKeyword,

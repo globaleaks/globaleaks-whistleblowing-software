@@ -22,11 +22,11 @@
         </div>
         @if (nodeResolver.dataModel.escrow) {
           <src-selection-editor
-            label="Administrators authorized to change user passwords:"
+            label="Administrators authorized to change user passwords"
             [selectableDefault]="false"
             [defaultId]="currentUserId"
-            [options]="escrowCandidates()"
-            [selected]="escrowAuthorized()"
+            [options]="escrowCandidates"
+            [selected]="escrowAuthorized"
             (entryAdded)="toggleUserEscrow($event)"
             (entryRemoved)="toggleUserEscrow($event.id)">
           </src-selection-editor>
@@ -43,53 +43,6 @@
       <label>
         <input class="form-check-input" name="node.dataModel.simplified_login" [(ngModel)]="nodeResolver.dataModel.simplified_login" type="checkbox"/>
         <span>{{ 'Enable simplified login' | translate }}</span>
-      </label>
-    </div>
-    <div class="form-group">
-      <label>
-        <input class="form-check-input" name="node.dataModel.enable_forwarding_incoming" [(ngModel)]="nodeResolver.dataModel.enable_forwarding_incoming" type="checkbox"/>
-        <span>{{ 'Incoming' | translate }}</span>
-      </label>
-    </div>
-    @if (nodeResolver.dataModel.enable_forwarding_incoming) {
-      @if (isManagementSession()) {
-        <div class="form-group">
-          <label for="accept-forwarding-from">{{ 'Sites allowed to forward their reports here' | translate }}</label>
-          <input id="accept-forwarding-from" name="node.dataModel.accept_forwarding_from" class="form-control" [(ngModel)]="acceptForwardingFrom" type="text" />
-          <div>{{ 'Comma separated list of site identifiers; use * to allow every site.' | translate }}</div>
-        </div>
-      }
-      <div class="form-group">
-        <label for="forward-channel-select">{{ 'Channel receiving the forwarded reports' | translate }}</label>
-        <select id="forward-channel-select" class="form-select-custom" name="node.dataModel.forward_channel" [(ngModel)]="nodeResolver.dataModel.forward_channel">
-          <option value=""></option>
-          @for (context of contextsData(); track context.id) {
-            <option [value]="context.id">{{ context.name }}</option>
-          }
-        </select>
-      </div>
-      <div class="form-group">
-        <label>
-          <input class="form-check-input" name="node.dataModel.require_forward_requests" [(ngModel)]="nodeResolver.dataModel.require_forward_requests" type="checkbox"/>
-          <span>{{ 'Forward requests' | translate }}</span>
-        </label>
-      </div>
-      @if (nodeResolver.dataModel.require_forward_requests) {
-        <div class="form-group">
-          <label for="forward-request-channel-select">{{ 'Channel receiving the requests of forward' | translate }}</label>
-          <select id="forward-request-channel-select" class="form-select-custom" name="node.dataModel.forward_request_channel" [(ngModel)]="nodeResolver.dataModel.forward_request_channel">
-            <option value=""></option>
-            @for (context of contextsData(); track context.id) {
-              <option [value]="context.id">{{ context.name }}</option>
-            }
-          </select>
-        </div>
-      }
-    }
-    <div class="form-group">
-      <label>
-        <input class="form-check-input" name="node.dataModel.enable_forwarding_outgoing" [(ngModel)]="nodeResolver.dataModel.enable_forwarding_outgoing" type="checkbox"/>
-        <span>{{ 'Outgoing' | translate }}</span>
       </label>
     </div>
     <div class="form-group">
@@ -139,7 +92,7 @@
     <div class="form-group">
       <label for="default-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
       <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
-        @for (item of questionnaireData(); track item) {
+        @for (item of questionnaireData; track item) {
           <option [ngValue]="item.id">{{item.name}}</option>
         }
       </select>
@@ -179,6 +132,9 @@
       <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" required>
         <option value="/">/</option>
         <option value="/submission">/submission</option>
+        @if (nodeResolver.dataModel.enable_signup || nodeResolver.dataModel.homepage === '/signup') {
+          <option value="/signup">/signup</option>
+        }
       </select>
     </div>
     @if (!nodeResolver.dataModel.root_tenant) {

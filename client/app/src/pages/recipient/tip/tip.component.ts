@@ -7,12 +7,14 @@ import {NgbModal, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownM
 import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
+import {WhistleblowerMessagesComponent} from "@app/shared/modals/whistleblower-messages/whistleblower-messages.component";
 import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-access.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {TabsComponent} from "@app/shared/components/tabs/tabs.component";
 import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {TitleService} from "@app/shared/services/title.service";
 import {Observable} from "rxjs";
 import {
   TipOperationSetReminderComponent
@@ -24,7 +26,7 @@ import {
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
+import {ForwardReport, RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {Receiver} from "@app/models/app/public-model";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
@@ -37,8 +39,11 @@ import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {AccessCodeComponent} from "@app/shared/modals/access-code/access-code.component";
+import {ForwardReportComponent} from "@app/shared/modals/forward-report/forward-report.component";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {DatePipe} from "@angular/common";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 
 
 @Component({
@@ -62,6 +67,7 @@ import {DatePipe} from "@angular/common";
       TipCommentsComponent_1,
       DatePipe,
       RouterLink,
+      CollapsiblePanelComponent,
       TranslateModule
     ],
 })
@@ -80,6 +86,7 @@ export class TipComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   protected RTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
+  private titleService = inject(TitleService);
 
 
   tip_id: string | null;
@@ -88,10 +95,10 @@ export class TipComponent implements OnInit {
   ctx: string;
   showEditLabelInput: boolean;
   loading = true;
+  forwardsCollapsed = false;
   redactMode:boolean = false;
   redactOperationTitle: string;
   submission: any;
-  accessCode = "";
 
   ngOnInit() {
     this.activatedRoute.paramMap.subscribe(params => {
@@ -112,6 +119,9 @@ export class TipComponent implements OnInit {
       {
         next: (response: RecieverTipData) => {
           this.loading = false;
+          if (!response) {
+            return;
+          }
           // The report may reference a context hidden from the public listing;
           // resolve it on demand so its metadata is available for display.
           this.appConfigServices.loadContext(response.context_id).subscribe(() => {
@@ -127,6 +137,13 @@ export class TipComponent implements OnInit {
             this.showEditLabelInput = this.tip.label === "";
             this.preprocessTipAnswers(this.tip);
             this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
+            if (this.tip.type === 'forward') {
+              this.appDataService.header_title = "Forward";
+              this.titleService.setTitle();
+            } else if (this.tip.type === 'forward-request') {
+              this.appDataService.header_title = "Forward request";
+              this.titleService.setTitle();
+            }
             this.cdr.markForCheck();
           });
         }
@@ -134,39 +151,72 @@ export class TipComponent implements OnInit {
     );
   }
 
+  // The recipients following the forward from the tenant that performed it
+  // walk back to the report it originates from; everyone else walks back to
+  // the list of the reports
+  backLink() {
+    if (this.tip?.type === "forward" && this.tip.forwarding?.internaltip_id) {
+      return ["/reports", this.tip.forwarding.internaltip_id];
+    }
 
-  isForwardManagedReport() {
-    return this.tip?.type === "forward-request" ||
-           this.tip?.type === "forward" ||
-           !!this.tip?.data?.forward_request ||
-           !!this.tip?.data?.forwarded_from ||
-           !!this.tip?.forwards?.length;
+    return ["/recipient/reports"];
   }
 
-  isForwardMetadataRestricted() {
-    return this.preferencesService.dataModel.tid !== 1 && this.isForwardManagedReport();
+  // The tenant on the other side of the forward relative to the viewer
+  openForwardedReport(id: string) {
+    this.router.navigate(["/reports", id]);
+  }
+
+  // The tenant that receives a forward decides whether the sender keeps
+  // accessing it: the row opens only when the viewer holds that access
+  canOpenForwardedReport(forward: ForwardReport) {
+    return !!forward.accessible;
+  }
+
+  // The space shared with the counterpart of the report: the whistleblower,
+  // or the receiving tenant when the report is a forward performed from here
+  everyoneKey(): string {
+    return this.tip?.type === "forward" ? "forward" : "public";
+  }
+
+  isReceivedForward() {
+    return this.tip?.type === "forward" && !!this.tip.forwarding &&
+           !this.tip.forwarding.internaltip_id;
+  }
+
+  canMessageWhistleblower() {
+    return this.isReceivedForward() && !!this.tip.forwarding?.messages_enabled;
+  }
+
+  openWhistleblowerMessagesModal() {
+    const modalRef = this.modalService.open(WhistleblowerMessagesComponent, {size: "lg"});
+    modalRef.componentInstance.tipService = this.RTipService;
+  }
+
+  // A report belongs to the recipients of the tenant it is filed on, that
+  // operate it as they operate any report of their whistleblowers; the
+  // recipients reading it from the other side of a forward take part in its
+  // exchanges and never operate it
+  ownsReport() {
+    return !!this.tip?.owned;
   }
 
   canChangeStatus() {
     return this.preferencesService.dataModel.profile.permissions.can_change_status &&
-           !this.isForwardMetadataRestricted();
+           this.ownsReport();
   }
 
   canChangeLabel() {
     return this.preferencesService.dataModel.profile.permissions.can_change_label &&
-           !this.isForwardMetadataRestricted();
+           this.ownsReport();
   }
 
   canSetReminder() {
-    return !this.isForwardMetadataRestricted();
+    return this.ownsReport();
   }
 
   canMarkImportant() {
-    return !this.isForwardMetadataRestricted();
-  }
-
-  isForwardFromRootTenant() {
-    return Number(this.tip?.data?.forwarded_from?.source_tid) === 1;
+    return this.ownsReport();
   }
 
   isTenantForwardRequest() {
@@ -192,6 +242,7 @@ export class TipComponent implements OnInit {
            this.canForwardReport() ||
            this.canAuthorizeForward() ||
            this.canDenyForward() ||
+           this.canMessageWhistleblower() ||
            this.canGetAccessCode() ||
            this.canDeleteReport();
   }
@@ -211,7 +262,12 @@ export class TipComponent implements OnInit {
   }
 
   getAccessCode() {
-    this.accessCode = this.tip?.data?.forward_receipt || "";
+    const modalRef = this.modalService.open(AccessCodeComponent, {
+      backdrop: "static",
+      keyboard: false,
+      ariaLabelledBy: "modal-title"
+    });
+    modalRef.componentInstance.code = this.tip?.data?.forward_receipt || "";
   }
 
   canAuthorizeForward() {
@@ -242,37 +298,23 @@ export class TipComponent implements OnInit {
   }
 
   canEditExpiration() {
-    if (!this.tip?.context || !this.preferencesService.dataModel.profile.permissions.can_postpone_expiration) {
-      return false;
-    }
-
-    if (!this.isForwardManagedReport()) {
-      return true;
-    }
-
-    if (this.preferencesService.dataModel.tid !== 1) {
-      return false;
-    }
-
-    return this.tip.type !== "forward" || !this.isForwardFromRootTenant();
+    return !!this.tip?.context &&
+           this.preferencesService.dataModel.profile.permissions.can_postpone_expiration &&
+           this.ownsReport();
   }
 
   canDeleteReport() {
     const permissions = this.preferencesService.dataModel.profile.permissions;
 
-    if ((this.preferencesService.dataModel.tid !== 1 && permissions.can_forward_reports) ||
-        !permissions.can_delete_submission) {
-      return false;
-    }
-
-    return !this.isForwardManagedReport() || this.preferencesService.dataModel.tid === 1;
+    return permissions.can_delete_submission &&
+           this.ownsReport();
   }
 
   canMaskOrRedact() {
     const permissions = this.preferencesService.dataModel.profile.permissions;
 
-    return (this.preferencesService.dataModel.tid === 1 || !permissions.can_forward_reports) &&
-           (permissions.can_redact_information || permissions.can_mask_information);
+    return (permissions.can_redact_information || permissions.can_mask_information) &&
+           this.ownsReport();
   }
 
   updateLabel(label: string) {
@@ -381,6 +423,28 @@ export class TipComponent implements OnInit {
         }
       }
     );
+  }
+
+  openForwardModal() {
+    this.httpService.requestForwardOptions(this.tip.id).subscribe((response: any) => {
+      const modalRef = this.modalService.open(ForwardReportComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false
+      });
+      modalRef.componentInstance.tipId = this.tip.id;
+      modalRef.componentInstance.tenants = response.tenants;
+      modalRef.componentInstance.selectedTenant = response.target_tid;
+      modalRef.componentInstance.questionnaire = response.questionnaire;
+      modalRef.componentInstance.showTenantSelector = this.preferencesService.dataModel.tid === 1;
+      // The forward performed on a request of forward is not accessible to the
+      // tenant that performed it: its interface on the matter stays the request
+      modalRef.componentInstance.navigateOnSuccess = this.tip.type !== "forward-request";
+      modalRef.result.then(
+        () => this.reload(),
+        () => {}
+      );
+    });
   }
 
   authorizeForward() {

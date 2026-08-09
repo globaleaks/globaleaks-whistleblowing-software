@@ -134,9 +134,10 @@ export interface Comment {
   creation_date: string;
   content: string;
   author_id: string;
-  visibility: string;
-  type: string;
-  data: any;
+  author_name?: string;
+  visibility?: string;
+  type?: string;
+  data?: any;
 }
 
 export interface WbFile {

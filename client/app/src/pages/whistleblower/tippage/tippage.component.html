@@ -58,5 +58,42 @@
         }
       </div>
     </div>
+    @if (wbTipService.tip.forwards && wbTipService.tip.forwards.length) {
+      <div class="row">
+        <div class="col-md-12">
+          <div id="TipForwardsBox" class="card card-default">
+            <div class="card-header">{{ 'Forwards' | translate }}</div>
+            <div class="card-body">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>{{ 'Date' | translate }}</th>
+                    <th>{{ 'Organization' | translate }}</th>
+                    <th>{{ 'Status' | translate }}</th>
+                    <th>{{ 'Comments' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (forward of wbTipService.tip.forwards; track forward) {
+                    <tr>
+                      <td>{{ forward.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+                      <td>{{ forward.tenant_name }}</td>
+                      <td>{{ forward.status | translate }}</td>
+                      <td>
+                        @if (forward.messages_enabled) {
+                          <button type="button" (click)="openForwardMessages(forward)" class="btn btn-sm btn-outline-secondary" ngbTooltip="{{'Comments' | translate}}" [attr.aria-label]="'Comments' | translate">
+                            <i class="fas fa-comment-dots"></i>
+                          </button>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 }

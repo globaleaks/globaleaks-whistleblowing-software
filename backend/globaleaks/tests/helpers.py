@@ -476,10 +476,9 @@ class MockDict:
             'demo': False,
             'signup_request_organization': False,
             'signup_request_subdomain': True,
-            'enable_forwarding_incoming': False,
-            'enable_forwarding_outgoing': False,
+            'forwarding_relationships': [],
             'require_forward_requests': False,
-            'accept_forwarding_from': [],
+            'forward_source_access': True,
             'forward_channel': '',
             'forward_request_channel': '',
         }

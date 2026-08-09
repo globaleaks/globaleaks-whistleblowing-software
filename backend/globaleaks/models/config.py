@@ -404,6 +404,19 @@ def db_set_own_config_variable(session, tid, var_name, value):
     session.merge(Config({'tid': tid, 'var_name': var_name, 'value': value}))
 
 
+def db_get_forward_channel_ids(session, tid):
+    """
+    Return the ids of the channels designated to receive forwards and requests of forward
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :return: A set of context IDs
+    """
+    return {channel_id for channel_id in (db_get_own_config_variable(session, tid, 'forward_channel'),
+                                          db_get_own_config_variable(session, tid, 'forward_request_channel'))
+            if channel_id}
+
+
 def initialize_config(session, tid, data):
     variables = {}
 

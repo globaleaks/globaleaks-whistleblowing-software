@@ -10,6 +10,7 @@ from datetime import datetime
 
 from nacl.encoding import Base64Encoder
 from sqlalchemy import and_, or_
+from sqlalchemy.orm import aliased
 from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
@@ -24,7 +25,6 @@ from globaleaks.handlers.whistleblower.submission import db_create_receivertip, 
 from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked, db_notify_report_update
 from globaleaks.handlers.user import serialize_user, user_serialize_user
 from globaleaks.models import UserProfile, serializers
-from globaleaks.models.config import ConfigFactory
 
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
@@ -145,9 +145,14 @@ def db_revoke_tip_access(session, tid, user_id, itip, receiver_id):
     :param itip: An itip on which to perform operation
     :param receiver_id: A user ID of the the user to which revoke access to the report
     """
+    # The access is revocable only within the tenant of the user performing
+    # the operation: on the report created by a forward neither tenant can
+    # remove the recipients of the other
     rtip = session.query(models.ReceiverTip) \
         .filter(models.ReceiverTip.internaltip_id == itip.id,
-                models.ReceiverTip.receiver_id == receiver_id).one_or_none()
+                models.ReceiverTip.receiver_id == receiver_id,
+                models.User.id == models.ReceiverTip.receiver_id,
+                models.User.tid == tid).one_or_none()
 
     if rtip is None:
         return False
@@ -649,6 +654,7 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
     :param substatus_id: A new substatus ID
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, rtip_id)
+    db_enforce_report_ownership(tid, itip)
 
     if itip.status != status_id or itip.substatus != substatus_id:
         itip.update_date = rtip.last_access = datetime_now()
@@ -682,6 +688,9 @@ def db_access_rtip(session, tid, user_id, itip_id):
                                models.ReceiverTip.receiver_id == models.User.id,
                                models.ReceiverTip.internaltip_id == models.InternalTip.id))
 
+    if itip.type == 'forward-request' and tid != 1 and db_get_forward_request_source_tid(session, itip) != tid:
+        raise errors.ForbiddenOperation
+
     return user, rtip, itip
 
 
@@ -695,6 +704,12 @@ def db_access_rfile(session, tid, user_id, rfile_id):
     :param rfile_id: the requested rfile ID
     :return: A model requested
     """
+    # The receivertip is the access capability: it reaches across tenants the
+    # report of a forward, that the recipients of the two tenants share. A
+    # public file is accessible to all of them, an internal file only to the
+    # recipients of the tenant of its author, a personal file to the author.
+    author = aliased(models.User)
+
     return (
         session.query(models.ReceiverFile)
         .join(
@@ -702,16 +717,23 @@ def db_access_rfile(session, tid, user_id, rfile_id):
             models.ReceiverTip.internaltip_id == models.ReceiverFile.internaltip_id
         )
         .join(
-            models.InternalTip,
-            models.InternalTip.id == models.ReceiverFile.internaltip_id
+            models.User,
+            models.User.id == models.ReceiverTip.receiver_id
         )
         .filter(
             models.ReceiverFile.id == rfile_id,
             models.ReceiverTip.receiver_id == user_id,
-            models.InternalTip.tid == tid,
+            models.User.tid == tid,
             or_(
-                models.ReceiverFile.visibility != 2,
-                models.ReceiverFile.author_id == user_id
+                models.ReceiverFile.visibility == 0,
+                models.ReceiverFile.visibility == 3,
+                models.ReceiverFile.author_id == user_id,
+                and_(
+                    models.ReceiverFile.visibility == 1,
+                    models.ReceiverFile.author_id.in_(
+                        session.query(author.id).filter(author.tid == tid)
+                    )
+                )
             )
         )
         .one_or_none()
@@ -733,10 +755,27 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
                         .filter(models.InternalTip.id == itip_id,
                                 models.ReceiverTip.receiver_id == user_id,
                                 models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                models.InternalTip.tid == tid).one()
+                                models.User.id == user_id,
+                                models.User.tid == tid).one()
+
+    visibility = uploaded_file['visibility']
+    if isinstance(visibility, bytes):
+        visibility = visibility.decode()
+    uploaded_file['visibility'] = visibility
+
+    # On the report created by a forward the files are exchanged between the
+    # two tenants under the forward visibility; the public visibility is
+    # refused there until the whistleblower can be delivered the files, and
+    # the tenant that received the forward answers with messages alone so
+    # every upload of its own is refused
+    if visibility not in ('public', 'internal', 'personal', 'forward') or \
+            (visibility == 'forward' and itip.type != 'forward') or \
+            (visibility == 'public' and itip.type == 'forward') or \
+            (itip.type == 'forward' and itip.tid == tid):
+        raise errors.InputValidationError
 
     rtip.last_access = datetime_now()
-    if uploaded_file['visibility'].decode() == 'public':
+    if visibility in ('public', 'forward'):
         itip.update_date = rtip.last_access
 
     if itip.crypto_tip_pub_key:
@@ -781,10 +820,17 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
     if rtip.access_date == datetime_null():
         rtip.access_date = rtip.last_access
 
-    if itip.reminder_date < rtip.last_access:
+    # The reminder belongs to the recipients of the tenant the report belongs
+    # to: the access of a recipient reading it from the other side of a forward
+    # does not resolve it
+    if itip.is_owned_by(tid) and \
+            itip.reminder_date < rtip.last_access:
         itip.reminder_date = datetime_never()
 
-    if itip.status == 'new':
+    # The report created by a forward is marked as opened by the recipients of
+    # the tenant that received it alone: to the tenant that performed the
+    # forward the status stands as the indicator of that opening
+    if itip.status == 'new' and itip.is_owned_by(tid):
         itip.update_date = rtip.last_access
         db_update_submission_status(session, tid, user_id, itip, 'opened')
 
@@ -792,10 +838,26 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
 
     report = serializers.serialize_rtip(session, itip, rtip, language)
     if itip.crypto_tip_pub_key and not rtip.crypto_tip_prv_key:
+        forward_request = report.get('data', {}).get('forward_request')
         report['data'] = {}
+        if forward_request:
+            report['data']['forward_request'] = forward_request
         report['label'] = ''
         for questionnaire in report['questionnaires']:
             questionnaire['answers'] = {}
+
+    from globaleaks.handlers.recipient import forward
+
+    report['context_id'] = forward.db_get_presented_context_id(session, tid, itip)
+
+    # 'allow_forward' carries the authorization of a request of forward, while
+    # the possibility of forwarding the report is a separate computed property
+    report['can_forward'] = forward.db_can_forward_report(session, tid, itip)
+
+    # The receipt handed over to the whistleblower stays valid until they use it
+    # and replace it with one of their own
+    if itip.type == 'forward-request':
+        report['forward_receipt_valid'] = db_forward_receipt_is_valid(session, itip)
 
     return report, Base64Encoder.decode(rtip.crypto_tip_prv_key)
 
@@ -880,6 +942,7 @@ def redact_report(session, user_session, report, enforce=False):
     # without the masking/redaction permission (recipients without it and the
     # whistleblower); the content of a masked file is instead never downloadable
     # by anyone, so masked files are flagged and their name is hidden for everyone.
+    # A forward enforces the redactions regardless of the viewer's permission.
     privileged = not enforce and db_user_can_bypass_masking(session, user_session.user_id)
 
     if not privileged:
@@ -916,6 +979,51 @@ def db_delete_itip(session, itip_id):
     :param itip_id: A submission ID
     """
     db_del(session, models.InternalTip, models.InternalTip.id == itip_id)
+
+
+def db_forward_receipt_is_valid(session, itip):
+    """
+    Check whether the receipt handed over on a request of forward is still valid
+
+    The receipt is issued when the forward is performed and stays valid until
+    the whistleblower accesses the report and replaces it with one of its own.
+
+    :param session: An ORM session
+    :param itip: The internaltip of the request of forward
+    :return: True when the receipt still grants the access to the forwarded report
+    """
+    forwarded = session.query(models.InternalTip) \
+                       .join(models.InternalTipForwarding,
+                             models.InternalTipForwarding.forwarding_internaltip_id == models.InternalTip.id) \
+                       .filter(models.InternalTipForwarding.internaltip_id == itip.id) \
+                       .one_or_none()
+
+    return forwarded is not None and forwarded.receipt_change_needed
+
+
+def db_get_forward_request_source_tid(session, itip):
+    data = session.query(models.InternalTipData) \
+                  .filter(models.InternalTipData.internaltip_id == itip.id,
+                          models.InternalTipData.key == 'forward_request') \
+                  .one_or_none()
+    if data is None:
+        return None
+
+    try:
+        return int(data.value.get('source_tid'))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def db_enforce_report_ownership(tid, itip):
+    """
+    Confine the operations on a report to the recipients of the tenant it
+    belongs to, that operate it as they operate any report of their
+    whistleblowers; the recipients reading it from the other side of a forward
+    take part in its exchanges and never operate it
+    """
+    if not itip.is_owned_by(tid):
+        raise errors.ForbiddenOperation
 
 
 def db_postpone_expiration(session, itip, expiration_date):
@@ -989,6 +1097,7 @@ def delete_rtip(session, tid, user_session, itip_id):
     if not user_session.permissions.can_delete_submission:
         raise errors.ForbiddenOperation
 
+    db_enforce_report_ownership(tid, itip)
 
     db_delete_itip(session, itip.id)
 
@@ -1036,6 +1145,7 @@ def postpone_expiration(session, tid, user_session, itip_id, expiration_date):
     if not user_session.permissions.can_postpone_expiration:
         raise errors.ForbiddenOperation
 
+    db_enforce_report_ownership(tid, itip)
 
     prev_expiration_date, curr_expiration_date = db_postpone_expiration(session, itip, expiration_date)
 
@@ -1059,6 +1169,7 @@ def set_reminder(session, tid, user_id, itip_id, reminder_date):
     :param reminder_date: A new reminder expiration date
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+    db_enforce_report_ownership(tid, itip)
 
     db_set_reminder(session, itip, reminder_date)
 
@@ -1076,6 +1187,50 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     :param value: A value to be assigned to the property
     """
     user, _, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    if key == 'allow_forward':
+        # The request of forward is authorized by the recipients of the tenant
+        # that received it, that are the recipients of the channel on which it
+        # has been filed; the tenant that issued it has access to follow its
+        # outcome and never to decide it
+        if itip.type != 'forward-request' or tid != itip.tid:
+            raise errors.ForbiddenOperation
+
+        forward_request = session.query(models.InternalTipData) \
+                                 .filter(models.InternalTipData.internaltip_id == itip.id,
+                                         models.InternalTipData.key == 'forward_request') \
+                                 .one_or_none()
+        if forward_request is None:
+            raise errors.InputValidationError("Missing forward request metadata")
+
+        try:
+            source_tid = int(forward_request.value.get('source_tid'))
+        except (TypeError, ValueError):
+            raise errors.InputValidationError("Invalid forward request source")
+
+        # The authorization is granted on the single request and enables a
+        # single forward; the request keeps its nature and is never turned
+        # into a report of the tenant that received it
+        itip.allow_forward = bool(value)
+        itip.update_date = datetime_now()
+
+        # The decision drives the lifecycle of the request: denying it closes it
+        # and frees the tenant that issued it to file a new one, authorizing it
+        # brings it back among the open ones
+        db_update_submission_status(session, tid, user_id, itip,
+                                    'opened' if itip.allow_forward else 'closed')
+
+        log_type = 'report_forward_request_authorized' if itip.allow_forward else \
+            'report_forward_request_denied'
+
+        db_log(session, tid=tid, type=log_type,
+               user_id=user_id, object_id=itip.id, data={'source_tid': source_tid})
+        db_log(session, tid=source_tid, type=log_type,
+               user_id=None, object_id=itip.id, data={'authorizing_tid': tid})
+        return
+
+    if key in ('label', 'important'):
+        db_enforce_report_ownership(tid, itip)
 
     if itip.crypto_tip_pub_key and value and key in ['label']:
         value = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, value))
@@ -1208,11 +1363,32 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     :param visibility: The visibility type of the comment
     :return: A serialized descriptor of the comment
     """
-    _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+    user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    # The forward visibility holds the space shared by the two tenants of a
+    # forward; the public visibility keeps holding the space where the
+    # whistleblower is, that on the report created by a forward stays between
+    # the whistleblower and the tenant that received it. The recipients of
+    # that tenant write in those two spaces alone, mirroring the interface
+    # that offers them no other
+    if visibility not in ('public', 'internal', 'personal', 'forward') or \
+            (visibility == 'forward' and itip.type != 'forward') or \
+            (visibility == 'public' and itip.type == 'forward' and user.tid != itip.tid) or \
+            (visibility in ('internal', 'personal') and itip.type == 'forward' and user.tid == itip.tid):
+        raise errors.InputValidationError
 
     rtip.last_access = datetime_now()
-    if visibility == 'public':
+    if visibility in ('public', 'forward'):
         itip.update_date = rtip.last_access
+
+    # The messages of the whistleblower are tracked on the forwarding so that
+    # the whistleblower interface can present the exchanges left to be read
+    if visibility == 'public' and itip.type == 'forward':
+        forwarding = session.query(models.InternalTipForwarding) \
+                            .filter(models.InternalTipForwarding.forwarding_internaltip_id == itip.id) \
+                            .one_or_none()
+        if forwarding is not None:
+            forwarding.update_date = rtip.last_access
 
     hash_sha256 = sha256(content)
     hash_sha512 = sha512(content)
@@ -1276,6 +1452,7 @@ def create_redaction(session, tid, user_session, data):
     user_id = user_session.user_id
 
     user, rtip, itip = db_access_rtip(session, tid, user_id, data['internaltip_id'])
+    db_enforce_report_ownership(tid, itip)
 
     if not user_session.has_permission('can_mask_information'):
         raise errors.ForbiddenOperation
@@ -1293,9 +1470,13 @@ def create_redaction(session, tid, user_session, data):
     # loading at consumption time (see redact_report).
     #
     # In addition, a personal (visibility == 2) recipient file or comment
-    # belongs to a single recipient (author_id); reject any reference to such an
-    # object owned by another user, mirroring the access guard enforced in
-    # db_access_rfile and in serialize_rtip's per-recipient visibility filter.
+    # belongs to a single recipient (author_id) and an internal (visibility == 1)
+    # one to the recipients of the author's tenant; reject any reference to an
+    # object the referencing user is not shown, mirroring the access guard
+    # enforced in db_access_rfile and in serialize_rtip's visibility filter.
+    author = aliased(models.User)
+    same_tenant_authors = session.query(author.id).filter(author.tid == tid)
+
     if reference_id and \
             (session.query(models.InternalFile)
                     .filter(models.InternalFile.id == reference_id,
@@ -1304,12 +1485,18 @@ def create_redaction(session, tid, user_session, data):
                     .filter(models.ReceiverFile.id == reference_id,
                             or_(models.ReceiverFile.internaltip_id != itip.id,
                                 and_(models.ReceiverFile.visibility == 2,
-                                     models.ReceiverFile.author_id != user_id))).first() or
+                                     models.ReceiverFile.author_id != user_id),
+                                and_(models.ReceiverFile.visibility == 1,
+                                     models.ReceiverFile.author_id != user_id,
+                                     ~models.ReceiverFile.author_id.in_(same_tenant_authors)))).first() or
              session.query(models.Comment)
                     .filter(models.Comment.id == reference_id,
                             or_(models.Comment.internaltip_id != itip.id,
                                 and_(models.Comment.visibility == 2,
-                                     models.Comment.author_id != user_id))).first()):
+                                     models.Comment.author_id != user_id),
+                                and_(models.Comment.visibility == 1,
+                                     models.Comment.author_id != user_id,
+                                     ~models.Comment.author_id.in_(same_tenant_authors)))).first()):
         raise errors.InputValidationError
 
     redaction = models.Redaction()
@@ -1347,6 +1534,7 @@ def update_redaction(session, tid, user_session, redaction_id, redaction_data, t
     user_id = user_session.user_id
 
     user, rtip, itip = db_access_rtip(session, tid, user_id, redaction_data['internaltip_id'])
+    db_enforce_report_ownership(tid, itip)
 
     redaction = session.query(models.Redaction).get(redaction_id)
 
@@ -1483,7 +1671,7 @@ class RTipInstance(OperationHandler):
         if key == 'enable_notifications':
             return set_receivertip_variable(self.request.tid, self.session.user_id, itip_id, key, value)
 
-        elif key in ['important', 'label']:
+        elif key in ['important', 'label', 'allow_forward']:
             if key == 'label' and not self.session.has_permission('can_change_label'):
                 raise errors.ForbiddenOperation
 
@@ -1547,11 +1735,10 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.WhistleblowerFile,
                                             models.ReceiverTip),
                                            (models.User.id == user_id,
+                                            models.User.tid == tid,
                                             models.ReceiverTip.receiver_id == models.User.id,
                                             models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
-                                            models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                            models.InternalTip.tid == tid,
                                             models.WhistleblowerFile.id == file_id))
 
         antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
@@ -1668,6 +1855,8 @@ class ReceiverFileDownload(BaseHandler):
 
     @transact
     def download_rfile(self, session, tid, user_id, file_id):
+        author = aliased(models.User)
+
         try:
             user, rfile, rtip = db_get(session,
                                        (models.User,
@@ -1675,12 +1864,15 @@ class ReceiverFileDownload(BaseHandler):
                                         models.ReceiverTip),
                                        (models.User.id == user_id,
                                         models.User.id == models.ReceiverTip.receiver_id,
+                                        models.User.tid == tid,
                                         models.ReceiverFile.id == file_id,
                                         models.ReceiverFile.internaltip_id == models.ReceiverTip.internaltip_id,
-                                        models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                        models.InternalTip.tid == tid,
-                                        or_(models.ReceiverFile.visibility != 2,
-                                            models.ReceiverFile.author_id == user_id)))
+                                        or_(models.ReceiverFile.visibility == 0,
+                                            models.ReceiverFile.visibility == 3,
+                                            models.ReceiverFile.author_id == user_id,
+                                            and_(models.ReceiverFile.visibility == 1,
+                                                 models.ReceiverFile.author_id.in_(
+                                                     session.query(author.id).filter(author.tid == tid))))))
 
             antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
             recheck_needed = prepare_file_download(rfile, antivirus_enabled)

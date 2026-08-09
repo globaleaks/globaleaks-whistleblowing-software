@@ -656,6 +656,8 @@ class _InternalTip(Model):
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
     context_id = Column(UnicodeText(36), nullable=False)
+    type = Column(UnicodeText(24), default='submission', nullable=False)
+    allow_forward = Column(Boolean, default=False, nullable=False)
     operator_id = Column(UnicodeText(33), default='', nullable=False)
     progressive = Column(Integer, default=0, nullable=False)
     access_count = Column(Integer, default=0, nullable=False)
@@ -677,6 +679,19 @@ class _InternalTip(Model):
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
+
+    def is_owned_by(self, tid):
+        """
+        Tell whether the report belongs to a tenant, that is whether it is
+        filed on it. The report created by a forward and the request of forward
+        are the only ones reachable by two tenants: they belong to the one they
+        are filed on, whose recipients operate them as they operate any of
+        their reports, while the recipients of the other tenant read them and
+        take part in their exchanges without operating them.
+
+        :param tid: The tenant ID of the recipient reading the report
+        """
+        return self.type not in ('forward-request', 'forward') or tid == self.tid
 
     @declared_attr
     def __table_args__(self):

@@ -28,7 +28,7 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped" id="fileList">
+          <table class="table" id="fileList">
             <tbody id="fileListBody">
               @for (file of files | orderBy:'name'; track file) {
                 @if (special_files_names.indexOf(file.name) === -1) {

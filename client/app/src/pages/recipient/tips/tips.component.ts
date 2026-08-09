@@ -19,6 +19,7 @@ import {FormsModule} from "@angular/forms";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
+import {ForwardReportComponent} from "@app/shared/modals/forward-report/forward-report.component";
 
 @Component({
     selector: "src-tips",
@@ -151,7 +152,7 @@ export class TipsComponent implements OnInit {
 
   private loadForwardRequestOptions() {
     if (this.preferencesService.dataModel.tid === 1 ||
-        !this.preferencesService.dataModel.profile.permissions.can_request_forward) {
+        !this.preferencesService.dataModel.profile.permissions.can_forward_reports) {
       this.forwardRequestAvailable = false;
       this.forwardRequestOptions = null;
       return;
@@ -167,6 +168,40 @@ export class TipsComponent implements OnInit {
         this.forwardRequestOptions = null;
       }
     });
+  }
+
+  requestForward() {
+    const openModal = (response: any) => {
+      const modalRef = this.modalService.open(ForwardReportComponent, {
+        size: 'xl',
+        backdrop: 'static',
+        keyboard: false
+      });
+      modalRef.componentInstance.tenants = response.tenants;
+      modalRef.componentInstance.questionnaire = response.questionnaire;
+      modalRef.componentInstance.endpoint = "forward-request";
+      modalRef.componentInstance.title = "Request forward";
+      modalRef.componentInstance.navigateOnSuccess = false;
+      modalRef.componentInstance.showTenantSelector = false;
+      modalRef.result.then(
+        () => {
+          this.forwardRequestAvailable = false;
+          this.forwardRequestOptions = null;
+          this.reload();
+        },
+        () => {}
+      );
+    };
+
+    if (this.forwardRequestOptions) {
+      openModal(this.forwardRequestOptions);
+    } else {
+      this.httpService.requestForwardRequestOptions().subscribe((response: any) => {
+        if (response.available !== false) {
+          openModal(response);
+        }
+      });
+    }
   }
 
   processTips() {

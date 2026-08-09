@@ -94,6 +94,13 @@ AdminTenantDesc = {
     'profile': profile_regexp,
 }
 
+AdminTenantForwardingDesc = {
+    'forward_channel': str,
+    'forward_request_channel': str,
+    'require_forward_requests': bool,
+    'forward_source_access': bool
+}
+
 AdminTenantDeleteDesc = {
     'total_reports': int,
     'open_reports': int,
@@ -194,6 +201,11 @@ CommentDesc = {
     'visibility': str
 }
 
+ForwardReportDesc = {
+    'target_tid': int,
+    'answers': dict
+}
+
 OpsDesc = {
     'operation': str,
     'args': dict,
@@ -279,6 +291,11 @@ AdminNodeDesc = {
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,
+    'forwarding_relationships': list,
+    'require_forward_requests': bool,
+    'forward_source_access': bool,
+    'forward_channel': str,
+    'forward_request_channel': str,
 }
 
 AdminNetworkDesc = {

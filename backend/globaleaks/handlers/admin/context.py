@@ -4,7 +4,8 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
-from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_profile_children
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_forward_channel_ids, \
+    db_get_profile_children
 from globaleaks.orm import db_add, db_del, db_get, transact
 from globaleaks.rest import requests, errors
 
@@ -107,6 +108,7 @@ def admin_serialize_context(session, context, language):
         'questionnaire_id': context.questionnaire_id,
         'additional_questionnaire_id': context.additional_questionnaire_id,
         'template_id': context.template_id,
+        'is_forward_channel': context.id in db_get_forward_channel_ids(session, context.tid),
         'receivers': receivers,
         'picture': picture
     }
@@ -347,12 +349,16 @@ def delete_context(session, tid, context_id):
         raise errors.ForbiddenOperation
 
     # The template is deleted with the channels derived from it: none of them
-    # can be deleted while it holds reports
+    # can be deleted while it holds reports or the designation of the channels
+    # receiving the forwards or the requests of forward
     contexts = [context] + session.query(models.Context) \
                                   .filter(models.Context.template_id == context_id) \
                                   .all()
 
     for c in contexts:
+        if c.id in db_get_forward_channel_ids(session, c.tid):
+            raise errors.ForbiddenOperation
+
         # TODO: After release 5.1.0 it will be possible to delete this code
         if session.query(models.InternalTip).filter(models.InternalTip.context_id == c.id).count():
             raise errors.ForbiddenOperation

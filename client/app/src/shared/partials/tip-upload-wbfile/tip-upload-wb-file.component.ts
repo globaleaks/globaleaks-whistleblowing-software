@@ -31,6 +31,10 @@ export class TipUploadWbFileComponent {
   readonly tip = input.required<RecieverTipData>();
   readonly key = input<string>();
   readonly redactMode = input(false);
+
+  // Presents the files of the space without offering the upload, for the
+  // viewers allowed to read the exchange but not to attach to it
+  readonly readOnly = input(false);
   readonly updated = output<void>();
   collapsed = false;
   file_upload_description = "";

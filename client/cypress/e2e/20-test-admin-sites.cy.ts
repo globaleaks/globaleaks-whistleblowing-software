@@ -339,3 +339,27 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.logout();
   });
 });
+
+describe("admin configure forwarding relationships", () => {
+  it("should relate the sites and designate the channels receiving the forwards", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/sites");
+    cy.get('[data-cy="relationships"]').click().should("be.visible").click();
+
+    // every site is allowed to forward to every other one
+    cy.get(".add-relationship-btn").click();
+    cy.get('select[name="relationship-from-0"]').should("have.value", "all");
+    cy.get('select[name="relationship-to-0"]').should("have.value", "all");
+    cy.get("#save_relationships").click();
+
+    // the channel receiving the forwards is designated on the first site,
+    // the one that receives them
+    cy.get('select[name="reception-channel-1"]').select(1);
+    cy.get('button[name="save_reception"]').first().click();
+
+    cy.get('[data-cy="relationships"]').click().should("be.visible").click();
+    cy.get('select[name="relationship-from-0"]').should("have.value", "all");
+    cy.get('select[name="reception-channel-1"]').should("not.have.value", "");
+    cy.logout();
+  });
+});

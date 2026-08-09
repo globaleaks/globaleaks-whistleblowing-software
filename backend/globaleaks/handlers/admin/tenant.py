@@ -16,7 +16,8 @@ from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
-    db_get_config_variable, db_set_config_variable
+    db_get_config_variable, db_set_config_variable, \
+    db_set_own_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -104,12 +105,9 @@ def db_create(session, desc, isTenant = True, **kwargs):
             key, cert = gen_selfsigned_certificate()
             db_set_config_variable(session, 1, 'https_selfsigned_key', key)
             db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
-            # The root tenant accepts the forwards of the other tenants only
-            # once it has authorized their request of forward
-            db_set_config_variable(session, 1, 'require_forward_requests', True)
-            db_set_config_variable(session, 1, 'accept_forwarding_from', ['*'])
-        else:
-            db_set_config_variable(session, t.id, 'accept_forwarding_from', [1])
+            # What the root tenant receives from the other tenants is a content
+            # handed over: the sender keeps no access over it
+            db_set_config_variable(session, 1, 'forward_source_access', False)
 
         if db_subdomain_in_use(session, desc['subdomain'], excluded_tids=[t.id]):
             raise errors.ForbiddenOperation
@@ -214,15 +212,23 @@ def create_and_initialize(session, desc, *args, **kwargs):
     return serializers.serialize_tenant(session, t)
 
 
-def db_get_tenant_list(session):
+def db_get_tenant_list(session, language='en'):
     ret = []
     configs = db_get_configs(session, 'tenant')
+
+    # The channels of each tenant are carried along, so that the relationships
+    # of the forwarding can designate the ones receiving the reports
+    contexts = {}
+    for context in session.query(models.Context):
+        contexts.setdefault(context.tid, []).append(
+            models.get_localized_values({'id': context.id}, context, ['name'], language))
 
     for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != DEFAULT_PROFILE_ID):
         if s and not t.active:
             continue
 
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+        tenant_dict['contexts'] = contexts.get(t.id, [])
 
         ret.append(tenant_dict)
 
@@ -230,8 +236,8 @@ def db_get_tenant_list(session):
 
 
 @transact
-def get_tenant_list(session):
-    return db_get_tenant_list(session)
+def get_tenant_list(session, language='en'):
+    return db_get_tenant_list(session, language)
 
 
 @transact
@@ -488,7 +494,7 @@ class TenantCollection(BaseHandler):
         """
         Return the list of registered tenants
         """
-        return get_tenant_list()
+        return get_tenant_list(self.request.language)
 
     @inlineCallbacks
     def post(self):
@@ -542,6 +548,50 @@ class TenantCollection(BaseHandler):
             is_profile = content.get('is_profile', False)
             t = yield create_and_initialize(request, is_profile=is_profile)
             return t
+
+@transact
+def update_forwarding(session, tid, request):
+    """
+    Update the reception of the forwarding of a tenant
+
+    The channels receiving the forwards and the requests of forward live on the
+    tenant that receives them and are designated, with the rest of the
+    forwarding, by the administrators of the platform.
+    """
+    db_get(session, models.Tenant, models.Tenant.id == tid)
+
+    # The designations reference channels of the tenant; any other reference
+    # is dropped
+    for var in ['forward_channel', 'forward_request_channel']:
+        value = request[var]
+        if value and \
+                session.query(models.Context) \
+                       .filter(models.Context.tid == tid,
+                               models.Context.id == value) \
+                       .one_or_none() is None:
+            value = ''
+
+        db_set_own_config_variable(session, tid, var, value)
+
+    for var in ['require_forward_requests', 'forward_source_access']:
+        db_set_config_variable(session, tid, var, request[var])
+
+
+class TenantForwardingInstance(BaseHandler):
+    """
+    Handler updating the reception of the forwarding of a tenant
+    """
+    check_roles = 'admin'
+    require_permission = 'can_manage_sites'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def put(self, tid):
+        request = self.validate_request(self.request.content.read(),
+                                        requests.AdminTenantForwardingDesc)
+
+        return update_forwarding(int(tid), request)
+
 
 class TenantInstance(BaseHandler):
     check_roles = 'admin'

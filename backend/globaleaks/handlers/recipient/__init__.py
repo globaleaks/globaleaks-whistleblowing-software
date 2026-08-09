@@ -7,6 +7,7 @@ from nacl.encoding import Base64Encoder
 from sqlalchemy.sql.expression import distinct, func, and_, or_
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.recipient.forward
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -17,6 +18,7 @@ from globaleaks.models import get_localized_values
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.utility import datetime_never
 
 
 @transact
@@ -79,6 +81,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
     ]
 
     dict_ret = dict()
+    can_request_forward = globaleaks.handlers.recipient.forward.db_get_forward_request_targets(session, tid) != []
 
     context_cache = {}
 
@@ -114,6 +117,13 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                                   isouter=True) \
                                             .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
                                                         models.ReceiverTip.receiver_id == user_id),
+                                                    # The copy of a report forwarded to another tenant is listed on
+                                                    # that tenant only: the tenant of origin reaches it through the
+                                                    # report the forward has been filed on. The requests of forward
+                                                    # are instead listed on both the tenants, the origin having no
+                                                    # other place to track their outcome
+                                                    or_(models.InternalTip.type != 'forward',
+                                                        models.InternalTip.tid == tid),
                                                     models.InternalTip.update_date >= updated_after,
                                                     models.InternalTip.update_date <= updated_before,
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
@@ -121,7 +131,22 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                             .group_by(models.ReceiverTip.id):
         answers = answers.answers
         label = itip.label
+        important = itip.important
+        reminder_date = itip.reminder_date
+
+        # Importance, label and reminder belong to the recipients of the tenant
+        # the report belongs to: they are not listed to the recipients reading
+        # it from the other side of a forward
+        if not itip.is_owned_by(tid):
+            label = ''
+            important = False
+            reminder_date = datetime_never()
+
         context_id = itip.context_id
+        if itip.type == 'forward-request' and tid != itip.tid:
+            context_id = ConfigFactory(session, tid).get_val('forward_request_channel') or context_id
+        elif itip.type == 'forward':
+            context_id = ConfigFactory(session, tid).get_val('forward_channel') or context_id
 
         accessible = rtip.receiver_id == user_id
         if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
@@ -137,6 +162,8 @@ def get_receivertips(session, tid, user_session, language, args={}):
             answers = ""
             label = ""
 
+        can_forward = globaleaks.handlers.recipient.forward.db_can_forward_report(session, tid, itip)
+
         if data is None:
             subscription = 0
         elif data.creation_date == itip.creation_date:
@@ -145,6 +172,8 @@ def get_receivertips(session, tid, user_session, language, args={}):
             subscription = 2
 
         receiver_count = len(receiver_ids_by_itip.get(itip.id, []))
+        if itip.type == 'forward-request' and tid != itip.tid:
+            receiver_count = 1
 
         context_info = get_context_info(context_id)
         if accessible or itip.id not in dict_ret:
@@ -155,15 +184,18 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'last_access': itip.last_access,
                 'update_date': itip.update_date,
                 'expiration_date': itip.expiration_date,
-                'reminder_date': itip.reminder_date,
+                'reminder_date': reminder_date,
                 'progressive': itip.progressive,
-                'important': itip.important,
+                'important': important,
                 'label': label,
                 'updated': rtip.last_access < itip.update_date,
                 'context_id': context_id,
                 'context_name': context_info['name'],
                 'slug': context_info['slug'],
                 'type': itip.type,
+                'allow_forward': itip.allow_forward,
+                'can_forward': can_forward,
+                'can_request_forward': can_request_forward,
                 'tor': itip.tor,
                 'answers': answers,
                 'score': itip.score,

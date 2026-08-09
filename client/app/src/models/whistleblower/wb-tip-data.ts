@@ -1,5 +1,5 @@
 import {RFile, WbFile, WhistleblowerIdentity, Comment} from "@app/models/app/shared-public-model";
-import {Context, Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
+import {Context, Answers, Questionnaire, WbForward} from "@app/models/receiver/receiver-tip-data";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 export class WbTipData {
@@ -37,6 +37,7 @@ export class WbTipData {
   whistleblower_identity_field: Children;
   answers: Answers;
   redactions: RedactionData[];
+  forwards: WbForward[];
 }
 
 export class Step {

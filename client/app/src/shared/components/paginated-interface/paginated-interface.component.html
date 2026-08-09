@@ -41,7 +41,7 @@
 
 <!-- TABLE MODE -->
 @if (mode() === 'table' && header() && content(); as content) {
-  <table class="table table-striped w-100">
+  <table class="table w-100" [class.table-striped]="!hoverRows()" [class.table-hover]="hoverRows()">
     <thead>
       <ng-container [ngTemplateOutlet]="header()!"></ng-container>
     </thead>
