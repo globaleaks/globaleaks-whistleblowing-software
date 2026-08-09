@@ -3,7 +3,7 @@ import socket
 
 from twisted.internet import abstract
 from twisted.protocols import tls
-
+from urllib.parse import urlparse
 
 def isIPAddress(hostname):
     return abstract.isIPAddress(hostname) or abstract.isIPv6Address(hostname)
@@ -37,6 +37,14 @@ def open_socket_listen(ip, port):
 
     return s
 
+def parse_endpoint(endpoint):
+    parsed = urlparse(endpoint)
+    if parsed.scheme == 'unix':
+        return {'type': 'unix', 'path': parsed.path}
+    elif parsed.scheme == 'tcp':
+        return {'type': 'tcp', 'host': parsed.hostname, 'port': parsed.port}
+    else:
+        raise ValueError(f"Unsupported socket type: {parsed.scheme}")
 
 def reserve_tcp_socket(ip, port):
     try:

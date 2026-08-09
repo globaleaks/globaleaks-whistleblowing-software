@@ -75,6 +75,9 @@ export class nodeResolverModel {
   onionservice: string;
   user_privacy_policy_url: string;
   can_postpone_expiration: boolean;
+  antivirus_enabled: boolean;
+  antivirus_clamd_ip: string;
+  antivirus_clamd_port: number;
   tid: number;
   backup_enabled: boolean;
   backup_time: string;

@@ -163,7 +163,10 @@ ConfigDescriptor = {
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='02:00'),
     'backup_period': Int(default=24),
-    'backup_retention': Int(default=7)
+    'backup_retention': Int(default=7),
+    'antivirus_enabled': Bool(default=False),
+    'antivirus_clamd_ip': Unicode(default='localhost'),
+    'antivirus_clamd_port': Int(default=3310)
 }
 
 
@@ -256,7 +259,10 @@ ConfigFilters = {
         'backup_enabled',
         'backup_time',
         'backup_period',
-        'backup_retention'
+        'backup_retention',
+        'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port'
     ],
     'admin_node': [
         'acme',
@@ -327,7 +333,10 @@ ConfigFilters = {
         'backup_enabled',
         'backup_period',
         'backup_retention',
-        'backup_time'
+        'backup_time',
+        'antivirus_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port'
     ],
     'admin_network': [
         'anonymize_outgoing_connections',

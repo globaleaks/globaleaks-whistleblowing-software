@@ -12,8 +12,11 @@
     <ng-template srcTab="text_customization" title="Text customization" [visible]="isAdmin">
       <src-tab4 [contentForm]="contentForm"></src-tab4>
     </ng-template>
-    <ng-template srcTab="backup" title="Backup" [visible]="isBackupConfigurable">
+    <ng-template srcTab="backup" title="Backup" [visible]="isRootTenantAdmin">
       <src-tab6 [contentForm]="contentForm"></src-tab6>
+    </ng-template>
+    <ng-template srcTab="antivirus" title="Antivirus" [visible]="isRootTenantAdmin">
+      <src-tab7 [contentForm]="contentForm"></src-tab7>
     </ng-template>
     <ng-template srcTab="advanced" title="Advanced" [visible]="isAdmin">
       <src-tab8 [contentForm]="contentForm"></src-tab8>
