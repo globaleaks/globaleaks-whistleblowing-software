@@ -1,24 +1,98 @@
-# -*- coding: UTF-8
+"""
+Migration 68 -> 69: bring a database of the stable branch to the schema of
+the ANAC fork.
+
+The installations of the ANAC fork run on schema 69, that is the schema of the
+stable branch extended with the columns and the tables the fork introduced and
+new-stable retained. The migration adds those extensions to a stable database
+so that, from 69 on, every installation shares the same schema and the same
+migration path:
+
+- Statistical reports: field.statistical, internaltipanswers.stat_answers,
+  user.crypto_global_stat_prv_key and the statistical keys of the tenants in
+  the configuration; the keys are generated here for the stable databases.
+- Antivirus: internalfile.state and internalfile.verification_date.
+- Secondary SMTP: mail.secondary_smtp.
+- Signup accreditation: the accreditation columns of subscriber.
+- Forward: the table internaltip_forwarding.
+
+The columns and the tables the fork added and new-stable did not retain are
+not modeled: a fork database carries them up to 69 and leaves them behind.
+
+The new columns take their defaults. The answers of the reports are stored by
+the fork as raw text where the stable branch stores them JSON-encoded: the
+migration writes them the way the fork does so that the databases are aligned
+and migration 70 can normalize both the same way.
+"""
+import json
+
+from globaleaks import models
+from globaleaks.models.enums import EnumFieldInstance
+from globaleaks.utils.crypto import GCE, Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
-from globaleaks.models import Model, EnumVisibility
-from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText
+from globaleaks.models import Model, EnumVisibility, EnumUserRole
+from globaleaks.models.properties import *
 from globaleaks.utils.utility import datetime_now, datetime_null
-from uuid import uuid4
 
 
-class Comment_v_68(Model):
-    __tablename__ = 'comment'
+class Subscriber_v_68(Model):
+    __tablename__ = 'subscriber'
+
+    tid = Column(Integer, primary_key=True)
+    subdomain = Column(UnicodeText, unique=True, nullable=False)
+    language = Column(UnicodeText(12), nullable=False)
+    name = Column(UnicodeText, nullable=False)
+    surname = Column(UnicodeText, nullable=False)
+    phone = Column(UnicodeText, default='', nullable=False)
+    email = Column(UnicodeText, nullable=False)
+    organization_name = Column(UnicodeText, default='', nullable=False)
+    organization_tax_code = Column(UnicodeText, unique=True, nullable=True)
+    organization_vat_code = Column(UnicodeText, unique=True, nullable=True)
+    organization_location = Column(UnicodeText, default='', nullable=False)
+    activation_token = Column(UnicodeText, unique=True)
+    client_ip_address = Column(UnicodeText, nullable=False)
+    client_user_agent = Column(UnicodeText, nullable=False)
+    registration_date = Column(DateTime, default=datetime_now, nullable=False)
+    tos1 = Column(UnicodeText, default='', nullable=False)
+    tos2 = Column(UnicodeText, default='', nullable=False)
+
+
+class Tenant_v_68(Model):
+    __tablename__ = 'tenant'
+
+    id = Column(Integer, primary_key=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    active = Column(Boolean, default=False, nullable=False)
+
+
+class Field_v_68(Model):
+    __tablename__ = 'field'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    creation_date = Column(DateTime, default=datetime_now, nullable=False)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    author_id = Column(UnicodeText(36))
-    content = Column(UnicodeText, nullable=False)
-    visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
-    new = Column(Boolean, default=True, nullable=False)
+    tid = Column(Integer, default=1, nullable=False)
+    x = Column(Integer, default=0, nullable=False)
+    y = Column(Integer, default=0, nullable=False)
+    width = Column(Integer, default=0, nullable=False)
+    label = Column(JSON, default=dict, nullable=False)
+    description = Column(JSON, default=dict, nullable=False)
+    hint = Column(JSON, default=dict, nullable=False)
+    placeholder = Column(JSON, default=dict, nullable=False)
+    required = Column(Boolean, default=False, nullable=False)
+    multi_entry = Column(Boolean, default=False, nullable=False)
+    triggered_by_score = Column(Integer, default=0, nullable=False)
+    step_id = Column(UnicodeText(36), index=True)
+    fieldgroup_id = Column(UnicodeText(36), index=True)
+    type = Column(UnicodeText, default='inputbox', nullable=False)
+    instance = Column(Enum(EnumFieldInstance),
+                      default='instance', nullable=False)
+    template_id = Column(UnicodeText(36), index=True)
+    template_override_id = Column(UnicodeText(36), index=True)
 
 
 class InternalFile_v_68(Model):
+    """
+    This model keeps track of submission files
+    """
     __tablename__ = 'internalfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -31,7 +105,35 @@ class InternalFile_v_68(Model):
     reference_id = Column(UnicodeText(36), default='', nullable=False)
 
 
+class InternalTipAnswers_v_68(Model):
+    """
+    This is the internal representation of Tip Questionnaire Answers
+    """
+    __tablename__ = 'internaltipanswers'
+
+    internaltip_id = Column(UnicodeText(36), primary_key=True)
+    questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    answers = Column(JSON, default=dict, nullable=False)
+
+
+class Mail_v_68(Model):
+    __tablename__ = 'mail'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    address = Column(UnicodeText, nullable=False)
+    subject = Column(UnicodeText, nullable=False)
+    body = Column(UnicodeText, nullable=False)
+
+
 class ReceiverFile_v_68(Model):
+    """
+    This models stores metadata of files uploaded by recipients intended to bes
+    delivered to the whistleblower. This file is not encrypted and nor is it
+    integrity checked in any meaningful way.
+    """
     __tablename__ = 'receiverfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -47,14 +149,116 @@ class ReceiverFile_v_68(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class MigrationScript(MigrationBase):
+class User_v_68(Model):
     """
-    Evidence hashing.
+    This model keeps track of users.
+    """
+    __tablename__ = 'user'
 
-    Comment, InternalFile and ReceiverFile carry the sha256 and the sha512 of
-    the evidence they refer to, so that it can be attested afterwards. The
-    columns are added empty on the records that predate the feature: the
-    original content is not rehashed here, because a hash computed now would
-    attest the state of the archive at migration time rather than the state at
-    the time the evidence was received, which is what the feature is for.
-    """
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    username = Column(UnicodeText, default='', nullable=False)
+    salt = Column(UnicodeText(24), default='', nullable=False)
+    hash = Column(UnicodeText(44), default='', nullable=False)
+    name = Column(UnicodeText, default='', nullable=False)
+    description = Column(JSON, default=dict, nullable=False)
+    public_name = Column(UnicodeText, default='', nullable=False)
+    role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
+    enabled = Column(Boolean, default=True, nullable=False)
+    last_login = Column(DateTime, default=datetime_null, nullable=False)
+    mail_address = Column(UnicodeText, default='', nullable=False)
+    language = Column(UnicodeText(12), nullable=False)
+    password_change_needed = Column(Boolean, default=True, nullable=False)
+    password_change_date = Column(DateTime, default=datetime_null, nullable=False)
+    crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
+    crypto_rec_key = Column(UnicodeText(80), default='', nullable=False)
+    crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
+    change_email_address = Column(UnicodeText, default='', nullable=False)
+    change_email_token = Column(UnicodeText, unique=True)
+    change_email_date = Column(DateTime, default=datetime_null, nullable=False)
+    notification = Column(Boolean, default=True, nullable=False)
+    forcefully_selected = Column(Boolean, default=False, nullable=False)
+    can_delete_submission = Column(Boolean, default=False, nullable=False)
+    can_postpone_expiration = Column(Boolean, default=True, nullable=False)
+    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_redact_information = Column(Boolean, default=False, nullable=False)
+    can_mask_information = Column(Boolean, default=True, nullable=False)
+    can_reopen_reports = Column(Boolean, default=True, nullable=False)
+    can_edit_general_settings = Column(Boolean, default=False, nullable=False)
+    readonly = Column(Boolean, default=False, nullable=False)
+    two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
+    reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+
+    # BEGIN of PGP key fields
+    pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
+    pgp_key_public = Column(UnicodeText, default='', nullable=False)
+    pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
+    # END of PGP key fields
+
+    accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
+    clicked_recovery_key = Column(Boolean, default=False, nullable=False)
+
+
+class MigrationScript(MigrationBase):
+    # The fork stores the answers of a report as raw text: the ciphertext as
+    # is, or the JSON text of the answers of a report created before the
+    # encryption. The stable branch stores both JSON-encoded. The values are
+    # written the way the fork does, so that a stable database reaches 69
+    # with the same content a fork database has.
+    converted_attrs = {
+        'InternalTipAnswers': {
+            'answers': lambda o: o.answers if isinstance(o.answers, str) else json.dumps(o.answers),
+            'stat_answers': lambda o: '{}'
+        }
+    }
+
+    def add_encryption_keys_for_statistics(self):
+        """
+        Statistical reports: every tenant receives a keypair for the
+        statistical data, whose private key is escrowed to the root tenant and
+        handed to the administrators and the analysts of the tenant.
+        """
+        root_tenant_escrow_pub = self.session_old.query(self.model_from['Config'].value).filter(self.model_from['Config'].tid == 1, self.model_from['Config'].var_name == 'crypto_escrow_pub_key').one()[0]
+
+        keys = {}
+
+        for t in self.session_new.query(self.model_to['Tenant']):
+            crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+
+            config = self.model_to['Config']()
+            config.tid = t.id
+            config.var_name = 'crypto_global_stat_pub_key'
+            config.value = crypto_stat_pub_key
+            self.add_entry('Config', config)
+
+            if t.id != 1 and root_tenant_escrow_pub:
+                _prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_escrow_pub, crypto_stat_prv_key))
+            else:
+                _prv_key = ''
+
+            config = self.model_to['Config']()
+            config.tid = t.id
+            config.var_name = 'crypto_global_stat_prv_key'
+            config.value = _prv_key
+            self.add_entry('Config', config)
+
+            keys[t.id] = crypto_stat_prv_key
+
+        users = self.session_new.query(self.model_from['User']) \
+                                .filter(self.model_from['User'].role.in_([EnumUserRole.admin.name, EnumUserRole.analyst.name]))
+
+        for user in users:
+            crypto_stat_key = Base64Encoder.encode(
+                GCE.asymmetric_encrypt(user.crypto_pub_key, keys[user.tid])).decode()
+            self.session_new.query(self.model_to['User']) \
+                                .filter(self.model_to['User'].id == user.id)\
+                                .update({'crypto_global_stat_prv_key': crypto_stat_key})
+
+    def epilogue(self):
+        self.add_encryption_keys_for_statistics()
