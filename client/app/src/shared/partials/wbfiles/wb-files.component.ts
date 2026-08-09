@@ -13,6 +13,7 @@ import {DatePipe} from "@angular/common";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-wbfiles",
