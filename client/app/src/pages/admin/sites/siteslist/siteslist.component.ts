@@ -1,4 +1,4 @@
-import {Component, inject, input, output} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -18,18 +18,30 @@ import {TranslateModule} from "@ngx-translate/core";
     standalone: true,
     imports: [FormsModule, DatePipe, TranslateModule, ListItemComponent]
 })
-export class SiteslistComponent {
+export class SiteslistComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
   private modalService = inject(NgbModal);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
+  private elementRef = inject(ElementRef);
 
   readonly tenant = input.required<tenantResolverModel>();
   readonly tenants = input<tenantResolverModel[]>();
   readonly index = input<number>();
+  // A link pointing at this site opens its card and brings it into view
+  readonly expanded = input(false);
   readonly deleted = output<number>();
   editing = false;
+
+  ngOnInit(): void {
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
+    }
+  }
 
   toggleActivation(event: Event): void {
     event.stopPropagation();

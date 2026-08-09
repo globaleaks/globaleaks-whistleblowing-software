@@ -1,0 +1,117 @@
+<div id="AdminSupport" class="config-section reveal">
+  <div class="d-flex justify-content-end align-items-center">
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-cy="refresh-support" (click)="loadRequests()">
+      <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+    </button>
+  </div>
+  <app-paginated-interface [mode]="'table'" [items]="table.result" [itemsPerPage]="20" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+    <ng-template #header>
+      <tr>
+        @if (nodeResolver.dataModel.root_tenant) {
+          <th appTableHeader [state]="table" [label]="'Tenant' | translate" sortBy="tid" filter="tid" [options]="tenantOptions"></th>
+        }
+        <th appTableHeader [state]="table" [label]="'ID' | translate" sortBy="progressive"></th>
+        <th appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
+        <th appTableHeader [state]="table" [label]="'Update date' | translate" sortBy="update_date" filter="update_date"></th>
+        <th appTableHeader [state]="table" [label]="'Username' | translate" sortBy="author_username" filter="author_username" [options]="userOptions"></th>
+        <th appTableHeader [state]="table" [label]="'Status' | translate" sortBy="status_order" filter="status" [options]="statusOptions"></th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template #content let-request="item" let-index="index">
+      <tr class="support-request-row" [attr.data-cy]="'support-request-' + index" [class.support-request-open]="expandedRequestId === request.id" [class.fw-bold]="hasUnreadUserMessages(request)" (click)="onRowClick(request, $event)">
+        @if (nodeResolver.dataModel.root_tenant) {
+          <td>
+            @if (canReachTenant()) {
+              <a [routerLink]="['/admin/sites']" [queryParams]="{id: request.tid}">{{ request.tid }}</a>
+            } @else {
+              {{ request.tid }}
+            }
+          </td>
+        }
+        <td>{{ request.progressive }}</td>
+        <td>{{ request.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+        <td>{{ request.update_date | date:'dd-MM-yyyy HH:mm' }}</td>
+        <td>
+          @if (canReachAuthor(request) && isLocalAuthor(request)) {
+            <a [routerLink]="['/admin/users']" [queryParams]="{id: request.author_id}">{{ request.author_username }}</a>
+          } @else if (canReachAuthor(request)) {
+            <button type="button" class="btn btn-link p-0 align-baseline" (click)="openAuthor(request)">{{ request.author_username }}</button>
+          } @else {
+            {{ request.author_username }}
+          }
+        </td>
+        <td><span class="badge" [ngClass]="statusClass(request.status)">{{ statusLabel(request.status) | translate }}</span></td>
+        <td class="text-end">
+          <button type="button" class="btn btn-sm btn-danger" data-cy="delete-support-request" (click)="deleteRequest(request)">
+            <span>{{ 'Delete' | translate }}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary ms-1" name="edit_support" data-cy="toggle-support-request" [attr.aria-expanded]="expandedRequestId === request.id" [attr.aria-label]="(expandedRequestId === request.id ? 'Collapse' : 'Expand') | translate" (click)="toggleRequest(request)">
+            @if (expandedRequestId === request.id) {
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+            } @else {
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            }
+          </button>
+        </td>
+      </tr>
+      @if (expandedRequestId === request.id) {
+        <tr class="support-request-detail" data-cy="support-request-details">
+          <td [attr.colspan]="columnCount">
+            <div class="support-request-box">
+            @if (nodeResolver.dataModel.root_tenant) {
+              <div class="mb-3">
+                <span class="title">{{ 'Tenant' | translate }}:</span>
+                @if (canReachTenant()) {
+                  <a class="ms-1" [routerLink]="['/admin/sites']" [queryParams]="{id: request.tid}">{{ request.tenant_name }}</a>
+                } @else {
+                  <span class="ms-1">{{ request.tenant_name }}</span>
+                }
+              </div>
+            }
+            @if (request.author_username || request.mail_address) {
+              <div class="mb-3">
+                <span class="title">{{ 'From' | translate }}:</span>
+                @if (canReachAuthor(request) && isLocalAuthor(request)) {
+                  <a class="ms-1" [routerLink]="['/admin/users']" [queryParams]="{id: request.author_id}">{{ request.author_username }}</a>
+                } @else if (canReachAuthor(request)) {
+                  <button type="button" class="btn btn-link p-0 ms-1 align-baseline" (click)="openAuthor(request)">{{ request.author_username }}</button>
+                } @else {
+                  <span class="ms-1">{{ request.author_username || request.mail_address }}</span>
+                }
+              </div>
+            }
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="title" [for]="'support-status-' + request.id">{{ 'Status' | translate }}</label>
+                <select [id]="'support-status-' + request.id" class="form-select" [ngModel]="request.status" (ngModelChange)="updateStatus(request, $event)">
+                  @for (status of statuses; track status) {
+                    <option [value]="status" [disabled]="status === 'new' && request.status !== 'new'">{{ statusLabels[status] | translate }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            @if (canResetAuthorPassword(request)) {
+              <div class="mb-3">
+                <span class="title d-block">{{ 'Password' | translate }}</span>
+                <button type="button" class="btn btn-outline-secondary" name="send_reset_link" data-cy="send-support-reset-link" (click)="resetAuthorPassword(request)">
+                  <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+                  <span>{{ 'Send reset link' | translate }}</span>
+                </button>
+              </div>
+            }
+            <src-support-thread [request]="request" viewer="admin" [(draft)]="replyDrafts[request.id]" (send)="sendReply(request, $event)">
+              @if (request.key_available && !request.author_id) {
+                <div class="alert alert-warning" role="alert">
+                  <i class="fas fa-envelope me-1" aria-hidden="true"></i>
+                  <span>{{ "Replies to not authenticated users' requests are sent directly via email." | translate }}</span>
+                </div>
+              }
+            </src-support-thread>
+            </div>
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </app-paginated-interface>
+</div>

@@ -34,12 +34,15 @@ export class UserEditorComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   private cryptoService = inject(CryptoService);
   protected preferenceResolver = inject(PreferenceResolver);
+  private elementRef = inject(ElementRef);
 
   readonly user = input.required<User>();
   readonly users = input<User[]>();
   readonly index = input<number>();
   readonly editUser = input.required<NgForm>();
   readonly profiles = input<UserProfile[]>([]);
+  // A link pointing at this user opens its card and brings it into view
+  readonly expanded = input(false);
   readonly deleted = output<string>();
   readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
@@ -71,6 +74,13 @@ export class UserEditorComponent implements OnInit {
     this.user().profile = this.profiles().filter(profile => profile.id === this.user().profile_id)[0];
     this.normalizeForwardingProfilePermissions(this.user().profile);
     this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
+
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
+    }
   }
 
   disable2FA(user: User) {

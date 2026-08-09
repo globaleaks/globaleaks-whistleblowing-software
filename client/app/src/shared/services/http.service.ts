@@ -41,6 +41,14 @@ import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-
 import {RedactionData} from "@app/models/component-model/redaction";
 import {FlowFile} from "@flowjs/flow.js";
 import {Selectables} from "@app/models/app/selectables";
+import {
+  CreatedSupportRequest,
+  NewSupportMessage,
+  NewSupportRequest,
+  SupportMessage,
+  SupportRequest,
+  SupportRequestStatusUpdate
+} from "@app/models/app/support";
 
 
 @Injectable({
@@ -157,9 +165,40 @@ export class HttpService {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
 
+  requestSupport(param: NewSupportRequest, header?: HttpHeaders): Observable<CreatedSupportRequest> {
+    return this.httpClient.post<CreatedSupportRequest>("api/support", param, {headers: header});
+  }
 
-  requestSupport(param: string): Observable<void> {
-    return this.httpClient.post<void>("api/support", param);
+  requestAdminSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/admin/support");
+  }
+
+  requestUpdateAdminSupport(id: string, param: SupportRequestStatusUpdate): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/admin/support/${id}`, param);
+  }
+
+  requestReadAdminSupport(id: string): Observable<void> {
+    return this.httpClient.put<void>(`api/admin/support/${id}/read`, {});
+  }
+
+  requestDeleteAdminSupport(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`api/admin/support/${id}`);
+  }
+
+  requestAdminSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/admin/support/${id}/message`, param);
+  }
+
+  requestUserSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/user/support");
+  }
+
+  requestUpdateUserSupport(id: string): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/user/support/${id}`, {});
+  }
+
+  requestUserSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/user/support/${id}/message`, param);
   }
 
   requestNewComment(param: string): Observable<Comment> {

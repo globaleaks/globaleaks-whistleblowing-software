@@ -34,7 +34,10 @@ short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
 homepage_regexp = r'^/(submission)?$'
+# Which of the support requests received by a site the root tenant handles
+support_escalation_regexp = r'^(none|admins|all)$'
 whistleblowing_destination_regexp = r'^/(submission|login)$'
+support_status_regexp = r'^(new|opened|closed)$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -233,6 +236,7 @@ AdminNodeDesc = {
     'disable_privacy_badge': bool,
     'disable_submissions': bool,
     'simplified_login': bool,
+    'support_escalation': support_escalation_regexp,
     'enable_scoring_system': bool,
     'enable_signup': bool,
     'enable_onion': bool,
@@ -473,6 +477,7 @@ NodeDesc = {
     'signup_tos2_title': str,
     'simplified_login': bool,
     'start_time': DateType,
+    'support': bool,
     'whistleblowing_button': str,
     'whistleblowing_destination': str,
     'whistleblowing_question': str,
@@ -567,6 +572,18 @@ SignupDesc = {
 SupportDesc = {
     'mail_address': email_regexp,
     'text': str
+}
+
+AuthenticatedSupportDesc = {
+    'text': str
+}
+
+AdminSupportRequestDesc = {
+    'status': support_status_regexp,
+}
+
+SupportMessageDesc = {
+    'content': str
 }
 
 PasswordReset1Desc = {

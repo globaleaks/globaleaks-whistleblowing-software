@@ -1,4 +1,5 @@
 import {Component, OnInit, computed, inject, signal} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NewUser} from "@app/models/admin/new-user";
 import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
@@ -26,8 +27,14 @@ export class UsersTab1Component implements OnInit {
   private tenantsResolver = inject(TenantsResolver);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
+  private activatedRoute = inject(ActivatedRoute);
 
   showAddUser = false;
+
+  // A link may point at one user: the list opens on the page holding it and
+  // shows its card open, so that the user is read where it is configured
+  focusUserId = "";
+
   readonly tenantData = computed(() => this.tenantsResolver.resource.value());
 
   // The profiles of the tenant, by id: an account either points at one of them
@@ -68,6 +75,10 @@ export class UsersTab1Component implements OnInit {
 
   ngOnInit(): void {
     this.loadProfiles();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.focusUserId = params["id"] || "";
+    });
   }
 
   addUser(): void {

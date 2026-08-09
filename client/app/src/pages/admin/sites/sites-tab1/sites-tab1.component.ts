@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
@@ -16,6 +17,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 })
 export class SitesTab1Component implements OnInit {
   private httpService = inject(HttpService);
+  private activatedRoute = inject(ActivatedRoute);
 
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
@@ -29,8 +31,19 @@ export class SitesTab1Component implements OnInit {
   siteProfiles: tenantResolverModel[] = [];
   showAddTenant = false;
 
+  // A link may point at one site: the list opens on the page holding it and
+  // shows its card open, so that the site is read where it is configured. The
+  // link names the site by its identifier or by its uuid
+  focusTenantId = "";
+  private requestedTenant = "";
+
   ngOnInit(): void {
     this.fetchTenants();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.requestedTenant = params["id"] || "";
+      this.resolveFocusTenant();
+    });
   }
 
   fetchTenants() {
@@ -38,8 +51,18 @@ export class SitesTab1Component implements OnInit {
       tenants => {
         this.tenants = tenants.filter(tenant => tenant.id < 1000001);
         this.siteProfiles = tenants.filter(tenant => tenant.id > 1000001);
+        this.resolveFocusTenant();
       }
     );
+  }
+
+  isFocused(tenant: tenantResolverModel): boolean {
+    return this.focusTenantId !== "" && String(tenant.id) === this.focusTenantId;
+  }
+
+  private resolveFocusTenant() {
+    const tenant = this.tenants.find(item => String(item.id) === this.requestedTenant || item.uuid === this.requestedTenant);
+    this.focusTenantId = tenant ? String(tenant.id) : "";
   }
 
   toggleAddTenant() {

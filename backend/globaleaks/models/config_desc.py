@@ -56,9 +56,12 @@ ConfigDescriptor = {
     'custom_support_url': Unicode(default=''),
     'counter_profiles': Int(default=1000000),
     'counter_submissions': Int(default=0),
+    'counter_support_requests': Int(default=0),
     'counter_tenants': Int(default=0),
     'crypto_escrow_prv_key': Unicode(default=''),
     'crypto_escrow_pub_key': Unicode(default=''),
+    'crypto_support_prv_key': Unicode(default=''),
+    'crypto_support_pub_key': Unicode(default=''),
 
     'crypto_stat_prv_key': Unicode(default=''),
     'crypto_stat_pub_key': Unicode(default=''),
@@ -140,6 +143,11 @@ ConfigDescriptor = {
     'smtp2_source_email': Unicode(default='notifications@globaleaks.org'),
     'smtp2_username': Unicode(default='globaleaks'),
     'subdomain': Unicode(default=''),
+    # Which of the support requests received by this site the root tenant is
+    # entitled to handle: 'all' (any request), 'admins' (only the ones written
+    # by the administrators of this site) or 'none'. Meaningless on the root
+    # tenant, which always handles its own.
+    'support_escalation': Unicode(default='all'),
     'threshold_attachments_per_hour_per_report': Int(default=30),
     'threshold_free_disk_megabytes_high': Int(default=200),
     'threshold_free_disk_megabytes_low': Int(default=1000),
@@ -192,9 +200,11 @@ ConfigFilters = {
         'anonymize_outgoing_connections',
         'counter_profiles',
         'counter_submissions',
+        'counter_support_requests',
         'counter_tenants',
         'custom_support_url',
         'crypto_escrow_pub_key',
+        'crypto_support_pub_key',
 
         'crypto_stat_pub_key',
         'default_language',
@@ -250,6 +260,7 @@ ConfigFilters = {
         'signup_tos2_enable',
         'simplified_login',
         'subdomain',
+        'support_escalation',
         'threshold_free_disk_megabytes_high',
         'threshold_free_disk_megabytes_low',
         'threshold_free_disk_percentage_high',
@@ -330,6 +341,7 @@ ConfigFilters = {
         'signup_tos2_enable',
         'simplified_login',
         'subdomain',
+        'support_escalation',
         'threshold_free_disk_megabytes_high',
         'threshold_free_disk_megabytes_low',
         'threshold_free_disk_percentage_high',

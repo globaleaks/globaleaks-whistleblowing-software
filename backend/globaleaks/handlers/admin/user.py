@@ -8,6 +8,9 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_update_user_profile, sync_permissions
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_user_access, \
+                                         decrypt_tenant_support_private_key, \
+                                         is_support_admin
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
                                      serialize_user, \
@@ -118,9 +121,10 @@ def db_create_user(session, tid, user_session, request, language, defer_password
 
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
+    crypto_support_pub_key = config.get_val('crypto_support_pub_key')
 
     if not defer_password_setup and \
-       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password'))):
+       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or crypto_support_pub_key or (encryption and request.get('password'))):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
@@ -131,6 +135,12 @@ def db_create_user(session, tid, user_session, request, language, defer_password
 
             current_user = db_get(session, models.User, models.User.id == user_session.user_id)
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
+
+    if crypto_support_pub_key and user_session:
+        support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
+        db_reconcile_support_user_access(
+            session, tid, user, support_private_key
+        )
 
     # The account holding no password holds no encryption material yet: the
     # keys, and with them the copies kept by the escrows, are generated upon
@@ -289,6 +299,8 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     old_role = user.role
     old_profile_id = user.profile_id
     old_enabled = user.enabled
+    was_support_admin = is_support_admin(user)
+    support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
         # Delete profiles when:
@@ -342,10 +354,14 @@ def db_update_user(session, tid, user_session, user_id, request, language):
 
     permissions_changed = db_update_user_permissions(session, user, request)
 
+    is_now_support_admin = is_support_admin(user)
+    db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=is_now_support_admin)
+
     revoke_session = old_role != user.role or \
         old_profile_id != user.profile_id or \
         old_enabled != user.enabled or \
-        permissions_changed
+        permissions_changed or \
+        was_support_admin != is_now_support_admin
     return serialize_user(session, user, language), revoke_session
 
 

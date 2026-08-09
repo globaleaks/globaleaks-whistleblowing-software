@@ -325,15 +325,6 @@ export class UtilsService {
     }
   }
 
-  submitSupportRequest(arg: {mail_address: string,text: string} ) {
-    const param = JSON.stringify({
-      "mail_address": arg.mail_address,
-      "text": arg.text,
-      "url": window.location.href.replace("localhost", "127.0.0.1")
-    });
-    this.httpService.requestSupport(param).subscribe();
-  }
-
   array_to_map(receivers: any) {
     const ret: any = {};
 

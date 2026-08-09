@@ -284,6 +284,7 @@ def db_serialize_node(session, tid, language):
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
+    ret['support'] = node.get_val('crypto_support_pub_key') != ''
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 

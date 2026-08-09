@@ -12,6 +12,7 @@ from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, impor
 from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
 from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
@@ -369,6 +370,7 @@ def db_wizard(session, tid, hostname, request):
         if default_user.role == 'receiver':
             receiver_user = default_user
 
+    db_initialize_support(session, tid)
 
     # The tenant whose profile carries channels derives one from each of its
     # templates, and the users bound to a shared profile become the receivers
