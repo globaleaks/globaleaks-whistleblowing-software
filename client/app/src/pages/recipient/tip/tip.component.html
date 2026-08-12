@@ -192,6 +192,13 @@
         </div>
       }
     </div>
+    @if (tip && tip.closure_questionnaire) {
+      <div class="row">
+        <div class="col-md-12">
+          <src-tip-closure-questionnaire id="ClosureQuestionnaire" [tip]="tip"></src-tip-closure-questionnaire>
+        </div>
+      </div>
+    }
     <div class="row">
       <div class="col-md-12">
         <src-tip-files-receiver id="ReportAttachments" [redactMode]="redactMode"></src-tip-files-receiver>

@@ -434,7 +434,8 @@ AdminContextDesc = {
     'show_steps_navigation_interface': bool,
     'show_receivers_in_alphabetical_order': bool,
     'questionnaire_id': key_regexp_or_empty,
-    'additional_questionnaire_id': key_regexp_or_empty
+    'additional_questionnaire_id': key_regexp_or_empty,
+    'closure_questionnaire_id': key_regexp_or_empty
 }
 
 AdminTLSCertFilesConfigDesc = {

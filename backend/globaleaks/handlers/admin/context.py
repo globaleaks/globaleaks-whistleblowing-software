@@ -27,6 +27,7 @@ CONTEXT_TEMPLATE_COLUMNS = [
     'score_threshold_medium',
     'questionnaire_id',
     'additional_questionnaire_id',
+    'closure_questionnaire_id',
     'slug',
     'hidden',
     'order'
@@ -114,6 +115,7 @@ def admin_serialize_context(session, context, language):
         'show_steps_navigation_interface': context.show_steps_navigation_interface,
         'questionnaire_id': context.questionnaire_id,
         'additional_questionnaire_id': context.additional_questionnaire_id,
+        'closure_questionnaire_id': context.closure_questionnaire_id,
         'slug': context.slug,
         'template_id': context.template_id,
         'is_forward_channel': context.id in db_get_forward_channel_ids(session, context.tid),
@@ -196,7 +198,7 @@ def check_context_questionnaire_association(session, tid, request):
     :param tid: The tenant ID
     :param request: The request data to be verified
     """
-    for key in ('questionnaire_id', 'additional_questionnaire_id'):
+    for key in ('questionnaire_id', 'additional_questionnaire_id', 'closure_questionnaire_id'):
         qid = request.get(key, '')
         if not qid:
             continue

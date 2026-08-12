@@ -1,0 +1,18 @@
+@if (tip.closure_questionnaire) {
+  <div srcCollapsiblePanel id="TipClosureQuestionnaireBox" class="card card-default" [collapsed]="collapsed" [label]="'Closure questionnaire' | translate" (toggle)="collapsed = !collapsed">
+    @if (!collapsed) {
+      <div class="card-body">
+        <div class="small text-muted">{{ tip.closure_questionnaire.date | date:'dd-MM-yyyy HH:mm' }}</div>
+        @for (step of tip.closure_questionnaire.steps | orderBy:'order'; track step) {
+          @if (step.enabled) {
+            <div>
+              @for (field of step.children | orderBy:['y', 'x']; track field; let index_step = $index) {
+                <src-tip-field [fieldAnswers]="tip.closure_questionnaire.answers" [fields]="field" [index]="index_step" [disabled]="true"></src-tip-field>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+}

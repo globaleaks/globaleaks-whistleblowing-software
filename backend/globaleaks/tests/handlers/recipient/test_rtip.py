@@ -20,6 +20,21 @@ from globaleaks.utils.utility import datetime_never, datetime_now
 
 
 @transact
+def set_closure_questionnaire(session, questionnaire_id):
+    for context in session.query(models.Context).filter(models.Context.tid == 1):
+        context.closure_questionnaire_id = questionnaire_id
+
+
+@transact
+def mark_closure_answered(session, itip_id):
+    data = models.InternalTipData()
+    data.internaltip_id = itip_id
+    data.key = 'closure_questionnaire'
+    data.value = 'hash'
+    session.add(data)
+
+
+@transact
 def create_substatus(session, submissionstatus_id):
     substatus = models.SubmissionSubStatus()
     substatus.tid = 1
@@ -61,6 +76,35 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.get(rtip_desc['id'])
+
+    @inlineCallbacks
+    def test_the_closure_questionnaire_schema_travels_with_the_report(self):
+        """
+        The schema of the closure questionnaire of the channel is bundled with
+        the report for as long as the closure has not been answered: it is the
+        report, not the public data, that offers it to be filled.
+        """
+        yield set_closure_questionnaire('default')
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+            self.assertTrue(response['closure_questionnaire_schema'])
+            self.assertTrue(response['closure_questionnaire_schema']['steps'])
+
+            yield mark_closure_answered(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertIsNone(response['closure_questionnaire_schema'])
+
+    @inlineCallbacks
+    def test_no_closure_questionnaire_schema_without_a_designation(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+            self.assertIsNone(response['closure_questionnaire_schema'])
 
     @inlineCallbacks
     def test_questionnaire_hashes(self):

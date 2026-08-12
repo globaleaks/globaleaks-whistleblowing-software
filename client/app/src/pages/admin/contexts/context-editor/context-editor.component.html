@@ -45,6 +45,19 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="context-closure-questionnaire-select">{{ 'Closure questionnaire' | translate }}</label>
+          <select id="context-closure-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver().closure_questionnaire_id" name="contextResolver.closure_questionnaire_id">
+            @if (contextResolver().closure_questionnaire_id) {
+              <option [value]="null"></option>
+            }
+            @for (item of questionnairesData(); track item) {
+              @if (item.id !== contextResolver().questionnaire_id) {
+                <option [value]="item.id">{{ item.name }}</option>
+              }
+            }
+          </select>
+        </div>
+        <div class="form-group">
           <label>
             <span>{{ 'Recipients' | translate }}</span>
             <button class="btn btn-sm btn-primary add-receiver-btn" (click)="toggleSelect()">

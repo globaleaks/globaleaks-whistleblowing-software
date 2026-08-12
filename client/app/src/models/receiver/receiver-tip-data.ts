@@ -14,6 +14,12 @@ export interface Questionnaire {
   answers: Answers;
 }
 
+export interface ClosureQuestionnaire {
+  steps: Step[];
+  answers: Answers;
+  date: string;
+}
+
 export class RecieverTipData {
   id: string;
   creation_date: string;
@@ -26,6 +32,8 @@ export class RecieverTipData {
   can_forward: boolean;
   forward_receipt_valid: boolean;
   questionnaires: Questionnaire[];
+  closure_questionnaire: ClosureQuestionnaire | null;
+  closure_questionnaire_schema: any | null;
   tor: boolean;
   mobile: boolean;
   reminder_date: string;

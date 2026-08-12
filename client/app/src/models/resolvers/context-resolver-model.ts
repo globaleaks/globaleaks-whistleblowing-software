@@ -15,6 +15,7 @@ export class contextResolverModel {
   show_steps_navigation_interface: boolean;
   questionnaire_id: string;
   additional_questionnaire_id: string;
+  closure_questionnaire_id: string;
   receivers: string[];
   picture: boolean;
   name: string;

@@ -784,6 +784,37 @@ class TestForwardVisibility(helpers.TestGLWithPopulatedDB):
         self.assertTrue((yield can_access_rfile(1, self.dummyReceiver_1['id'], self.personal_rfile)))
 
 
+@transact
+def set_closure_questionnaire(session, itip_id, questionnaire_id):
+    itip = session.query(models.InternalTip).filter(models.InternalTip.id == itip_id).one()
+    context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
+    context.closure_questionnaire_id = questionnaire_id
+
+
+@transact
+def get_serialized_closure_questionnaire(session, itip_id, user_id):
+    return db_serialize_rtip_of(session, itip_id, user_id)['closure_questionnaire']
+
+
+@transact
+def get_wbtip_serialization_keys(session, itip_id):
+    itip = session.query(models.InternalTip).filter(models.InternalTip.id == itip_id).one()
+    return list(serializers.serialize_wbtip(session, itip, 'en').keys())
+
+
+@transact
+def get_stored_closure_answers(session, itip_ids):
+    ret = []
+    for itd in session.query(models.InternalTipData) \
+                      .filter(models.InternalTipData.key == 'closure_questionnaire',
+                              models.InternalTipData.internaltip_id.in_(itip_ids)):
+        ita = session.query(models.InternalTipAnswers) \
+                     .filter(models.InternalTipAnswers.internaltip_id == itd.internaltip_id,
+                             models.InternalTipAnswers.questionnaire_hash == itd.value).one()
+        ret.append(ita.answers)
+    return ret
+
+
 def make_uploaded_file(visibility):
     return {
         'filename': uuid4(),
@@ -933,6 +964,31 @@ class TestForwardMessages(helpers.TestGLWithPopulatedDB):
 
         yield rtip_create_comment(2, self.foreign_id, self.target_id, 'reply', 'forward')
         yield rtip_create_comment(2, self.foreign_id, self.target_id, 'hello', 'public')
+
+    @inlineCallbacks
+    def test_the_closure_questionnaire_gates_the_closing_of_the_report(self):
+        yield set_closure_questionnaire(self.source_id, 'default')
+
+        yield self.assertFailure(
+            update_tip_submission_status(1, self.dummyReceiver_1['id'], self.source_id, 'closed', ''),
+            errors.InputValidationError)
+
+        answers = yield self.fill_random_answers('default')
+        yield update_tip_submission_status(1, self.dummyReceiver_1['id'], self.source_id, 'closed', '', answers)
+
+        closure = yield get_serialized_closure_questionnaire(self.source_id, self.dummyReceiver_1['id'])
+        self.assertTrue(closure['steps'])
+        self.assertEqual(closure['answers'], answers)
+
+        # the answers reach the tenant the report has been forwarded to, and
+        # never the whistleblower
+        closure = yield get_serialized_closure_questionnaire(self.target_id, self.foreign_id)
+        self.assertEqual(closure['answers'], answers)
+        self.assertNotIn('closure_questionnaire', (yield get_wbtip_serialization_keys(self.source_id)))
+
+        # Reopening and closing again does not ask the questionnaire twice
+        yield update_tip_submission_status(1, self.dummyReceiver_1['id'], self.source_id, 'opened', '')
+        yield update_tip_submission_status(1, self.dummyReceiver_1['id'], self.source_id, 'closed', '')
 
     @inlineCallbacks
     def test_the_forward_visibility_is_confined_to_forwarded_reports(self):
@@ -1140,6 +1196,20 @@ class TestForwardMessagesEncryption(helpers.TestGLWithPopulatedDB):
         # what the whistleblower reads is decrypted on the way out and is
         # never stored in the clear
         self.assertNotIn('welcome', (yield self.get_stored_message_contents()))
+
+    @inlineCallbacks
+    def test_the_stored_closure_answers_are_wrapped_with_the_key_of_each_report(self):
+        yield set_closure_questionnaire(self.source_id, 'default')
+
+        answers = yield self.fill_random_answers('default')
+        yield update_tip_submission_status(1, self.dummyReceiver_1['id'], self.source_id, 'closed', '', answers)
+
+        stored = yield get_stored_closure_answers([self.source_id, self.target_id])
+
+        self.assertEqual(len(stored), 2)
+        for blob in stored:
+            self.assertIsInstance(blob, str)
+        self.assertNotEqual(stored[0], stored[1])
 
     @transact
     def get_stored_message_contents(self, session):

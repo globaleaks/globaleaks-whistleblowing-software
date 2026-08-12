@@ -214,8 +214,27 @@ def serialize_itip(session, internaltip, language):
                        models.InternalTipAnswers.internaltip_id == internaltip.id) \
                .order_by(models.InternalTipAnswers.creation_date.asc())
 
+    internaltip_data = session.query(models.InternalTipData) \
+                              .filter(models.InternalTipData.internaltip_id == internaltip.id).all()
+
+    # The closure questionnaire is stored as any questionnaire and presented
+    # apart from those of the whistleblower, to the recipients alone
+    closure_questionnaire_hash = next((itd.value for itd in internaltip_data
+                                       if itd.key == 'closure_questionnaire'), None)
+    closure_questionnaire = None
+
     questionnaires = []
     for ita, aqs in x:
+        if ita.questionnaire_hash == closure_questionnaire_hash:
+            closure_questionnaire = {
+                'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
+                'answers': ita.answers,
+                'date': ita.creation_date,
+                'hash_sha256': ita.hash_sha256 or '',
+                'hash_sha512': ita.hash_sha512 or ''
+            }
+            continue
+
         questionnaires.append({
             'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
             'answers': ita.answers,
@@ -232,6 +251,7 @@ def serialize_itip(session, internaltip, language):
         'type': internaltip.type,
         'allow_forward': internaltip.allow_forward,
         'questionnaires': questionnaires,
+        'closure_questionnaire': closure_questionnaire,
         'tor': internaltip.tor,
         'mobile': internaltip.mobile,
         'reminder_date' : internaltip.reminder_date,
@@ -250,7 +270,10 @@ def serialize_itip(session, internaltip, language):
         "receipt_change_needed": internaltip.receipt_change_needed
     }
 
-    for itd in session.query(models.InternalTipData).filter(models.InternalTipData.internaltip_id == internaltip.id):
+    for itd in internaltip_data:
+        if itd.key == 'closure_questionnaire':
+            continue
+
         ret['data'][itd.key] = itd.value
         ret['data'][itd.key + "_date"] = itd.creation_date
         ret['data'][itd.key + "_hash_sha256"] = itd.hash_sha256 or ''
@@ -503,6 +526,9 @@ def serialize_rtip(session, itip, rtip, language):
 
 def serialize_wbtip(session, itip, language):
     ret = serialize_itip(session, itip, language)
+
+    # The closure questionnaire stays among the recipients
+    del ret['closure_questionnaire']
 
     # The whistleblower is presented the forwards of its report, each carrying
     # the exchange with the recipients of the tenant that received it; the

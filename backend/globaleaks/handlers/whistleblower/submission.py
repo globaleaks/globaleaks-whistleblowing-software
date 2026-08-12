@@ -142,6 +142,11 @@ def decrypt_tip(user_key, tip_prv_key, tip):
     for q in tip['questionnaires']:
         index_answers(q['answers'])
 
+    if tip.get('closure_questionnaire'):
+        tip['closure_questionnaire']['answers'] = json.loads(
+            GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['closure_questionnaire']['answers'].encode())).decode())
+        decrypt_hashes(tip_key, tip['closure_questionnaire'])
+
     for k in ['whistleblower_identity']:
         if k in tip['data'] and tip['data'][k]:
             tip['data'][k] = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['data'][k].encode())).decode())

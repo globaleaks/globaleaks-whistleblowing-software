@@ -8,6 +8,7 @@ import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
 import {WhistleblowerMessagesComponent} from "@app/shared/modals/whistleblower-messages/whistleblower-messages.component";
+import {TipClosureQuestionnaireComponent} from "@app/shared/partials/tip-closure-questionnaire/tip-closure-questionnaire.component";
 import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-access.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
@@ -58,6 +59,7 @@ import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-pane
       TipReceiverListComponent,
       TipQuestionnaireAnswersComponent,
       WhistleBlowerIdentityReceiverComponent,
+      TipClosureQuestionnaireComponent,
       TipFilesReceiverComponent,
       NgbTooltipModule,
       NgbDropdown,
@@ -504,14 +506,26 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.arg={
       tip:this.tip,
       submission_statuses:this.prepareSubmissionStatuses(),
+      closure_questionnaire:this.closureQuestionnaireToFill()
     };
 
-    modalRef.componentInstance.confirmFunction = (status:any) => {
+    modalRef.componentInstance.confirmFunction = (status:any, answers?:any) => {
       this.tip.status = status.status;
       this.tip.substatus = status.substatus;
-      this.updateSubmissionStatus();
+      this.updateSubmissionStatus(answers);
     };
     modalRef.componentInstance.cancelFun = null;
+  }
+
+  // The closure questionnaire of the channel, when one is configured and the
+  // report has not been closed with it yet; its schema travels with the
+  // report itself and is not part of the public data
+  closureQuestionnaireToFill() {
+    if (this.tip.closure_questionnaire) {
+      return null;
+    }
+
+    return this.tip.closure_questionnaire_schema || null;
   }
 
   openModalReopen(){
@@ -528,12 +542,15 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.cancelFun = null;
   }
 
-  updateSubmissionStatus() {
+  updateSubmissionStatus(answers?: any) {
     if (!this.canChangeStatus()) {
       return;
     }
 
-    const args = {"status":  this.tip.status, "substatus": this.tip.substatus ? this.tip.substatus : ""};
+    const args: any = {"status":  this.tip.status, "substatus": this.tip.substatus ? this.tip.substatus : ""};
+    if (answers) {
+      args.answers = answers;
+    }
     this.httpService.tipOperation("update_status", args, this.tip.id)
       .subscribe(
         () => {

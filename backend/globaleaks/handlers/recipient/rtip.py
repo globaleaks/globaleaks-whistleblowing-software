@@ -21,7 +21,9 @@ from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
-from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip, MAX_ANSWERS_DEPTH
+from globaleaks.handlers.public import serialize_questionnaire
+from globaleaks.handlers.whistleblower.submission import data_hashes, db_archive_questionnaire_schema, \
+    db_create_receivertip, db_validate_answers, decrypt_tip, extract_statistical_data, MAX_ANSWERS_DEPTH
 from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked, db_notify_report_update
 from globaleaks.handlers.user import serialize_user, user_serialize_user
 from globaleaks.models import UserProfile, serializers
@@ -641,8 +643,91 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
         itip_whistleblower_identity.value = _content
 
 
+def db_set_closure_answers(session, itip, questionnaire_hash, answers, stat_answers, plaintext=None):
+    """
+    Register on a report the answers of its closure questionnaire
+
+    :param session: An ORM session
+    :param itip: The internaltip the answers are registered on
+    :param questionnaire_hash: The hash of the archived questionnaire schema
+    :param answers: The answers, encrypted with the key of the report when it has one
+    :param stat_answers: The statistical data extracted from the answers
+    """
+    if not session.query(models.InternalTipAnswers) \
+                  .filter(models.InternalTipAnswers.internaltip_id == itip.id,
+                          models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).count():
+        ita = models.InternalTipAnswers()
+        ita.internaltip_id = itip.id
+        ita.questionnaire_hash = questionnaire_hash
+        ita.answers = answers
+        ita.stat_answers = stat_answers
+        ita.hash_sha256, ita.hash_sha512 = data_hashes(answers if plaintext is None else plaintext, itip.crypto_tip_pub_key)
+        session.add(ita)
+
+    itd = models.InternalTipData()
+    itd.internaltip_id = itip.id
+    itd.key = 'closure_questionnaire'
+    itd.value = questionnaire_hash
+    itd.hash_sha256, itd.hash_sha512 = data_hashes(questionnaire_hash)
+    session.add(itd)
+
+
+def db_store_closure_questionnaire_answers(session, tid, user_id, itip, answers):
+    """
+    Require and store the answers of the closure questionnaire of the channel
+
+    The answers are stored as any questionnaire and shared with every
+    recipient of the report; when the report has been forwarded a copy is
+    registered on the report of each forward, wrapped with its own key, so
+    that the recipients of the receiving tenants read them as well.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param user_id: The user ID of the user closing the report
+    :param itip: The internaltip being closed
+    :param answers: The answers of the closure questionnaire
+    """
+    context = session.query(models.Context).get(itip.context_id)
+    if context is None or not context.closure_questionnaire_id:
+        return
+
+    if session.query(models.InternalTipData) \
+              .filter(models.InternalTipData.internaltip_id == itip.id,
+                      models.InternalTipData.key == 'closure_questionnaire').count():
+        return
+
+    if not answers:
+        raise errors.InputValidationError
+
+    steps, _ = db_validate_answers(session, tid, context.closure_questionnaire_id, answers, True)
+    questionnaire_hash = db_archive_questionnaire_schema(session, steps)
+
+    stat_data = extract_statistical_data(session, tid, answers)
+
+    _answers = answers
+    if itip.crypto_tip_pub_key:
+        if stat_data:
+            crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
+            stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
+
+        _answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
+
+    db_set_closure_answers(session, itip, questionnaire_hash, _answers, stat_data, answers)
+
+    db_log(session, tid=tid, type='add_answers', user_id=user_id, object_id=itip.id, data={'questionnaire_hash': questionnaire_hash})
+
+    for forwarded_itip in session.query(models.InternalTip) \
+                                 .filter(models.InternalTipForwarding.internaltip_id == itip.id,
+                                         models.InternalTip.id == models.InternalTipForwarding.forwarding_internaltip_id):
+        _answers = answers
+        if forwarded_itip.crypto_tip_pub_key:
+            _answers = Base64Encoder.encode(GCE.asymmetric_encrypt(forwarded_itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
+
+        db_set_closure_answers(session, forwarded_itip, questionnaire_hash, _answers, {}, answers)
+
+
 @transact
-def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, substatus_id):
+def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, substatus_id, answers=None):
     """
     Transaction for registering a change of status of a submission
 
@@ -652,9 +737,14 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
     :param rtip_id: The ID of the rtip accessed by the user
     :param status_id:  The new status ID
     :param substatus_id: A new substatus ID
+    :param answers: The answers of the closure questionnaire of the channel,
+                    required when one is configured and the report is closed
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, rtip_id)
     db_enforce_report_ownership(tid, itip)
+
+    if status_id == 'closed':
+        db_store_closure_questionnaire_answers(session, tid, user_id, itip, answers)
 
     if itip.status != status_id or itip.substatus != substatus_id:
         itip.update_date = rtip.last_access = datetime_now()
@@ -858,6 +948,23 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
     # and replace it with one of their own
     if itip.type == 'forward-request':
         report['forward_receipt_valid'] = db_forward_receipt_is_valid(session, itip)
+
+    # The closure questionnaire of the channel is compiled from the report
+    # itself: its schema travels with the reports of the recipients entitled
+    # to close them, for as long as the closure has not been answered, and is
+    # never published by the public API
+    report['closure_questionnaire_schema'] = None
+    if not session.query(models.InternalTipData) \
+                  .filter(models.InternalTipData.internaltip_id == itip.id,
+                          models.InternalTipData.key == 'closure_questionnaire').count():
+        context = session.query(models.Context).get(itip.context_id)
+        if context is not None and context.closure_questionnaire_id:
+            questionnaire = session.query(models.Questionnaire) \
+                                   .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
+                                           models.Questionnaire.id == context.closure_questionnaire_id) \
+                                   .one_or_none()
+            if questionnaire is not None:
+                report['closure_questionnaire_schema'] = serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True, include_scoring=False)
 
     return report, Base64Encoder.decode(rtip.crypto_tip_prv_key)
 
@@ -1700,7 +1807,8 @@ class RTipInstance(OperationHandler):
             raise errors.ForbiddenOperation
 
         return update_tip_submission_status(self.request.tid, self.session.user_id, rtip_id,
-                                            req_args['status'], req_args['substatus'])
+                                            req_args['status'], req_args['substatus'],
+                                            req_args.get('answers'))
 
     def delete(self, itip_id):
         """
