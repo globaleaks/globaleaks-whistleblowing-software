@@ -220,9 +220,6 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         idp_id = yield get_idp_id(self.dummyReceiver_1['id'])
         self.assertEqual(idp_id, '')
 
-    def test_admin_reset_smtp_settings(self):
-        return self._test_operation_handler('reset_smtp_settings')
-
     def test_admin_enable_encryption(self):
         return self._test_operation_handler('enable_encryption')
 

@@ -5,7 +5,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
@@ -25,7 +24,6 @@ export class ContextsComponent {
   protected httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
   protected node = inject(NodeResolver);
-  protected users = inject(UsersResolver);
   protected contexts = inject(ContextsResolver);
   protected utilsService = inject(UtilsService);
 

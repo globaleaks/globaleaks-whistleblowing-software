@@ -6,7 +6,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
-from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_update_user_profile, sync_permissions
+from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, db_update_user_profile, sync_permissions
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key, \
@@ -25,6 +25,32 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
+
+
+def db_default_profile_permissions(role, user_session=None):
+    """
+    Build the default permissions of the personal profile of a user
+
+    An administrator is provisioned able to manage every administrative area,
+    so it starts holding the whole set of administrative permissions; they can
+    be removed afterwards to scope the administrator to a subset of the areas.
+    When the provisioning is performed by an operator, the defaults are
+    clamped to the areas the operator itself manages: an administrator
+    confined to a subset of the areas provisions administrators confined the
+    same way. A system operation (no session, e.g. the wizard) provisions the
+    whole set.
+
+    :param role: The role of the user the profile belongs to
+    :param user_session: The session of the operator, or None for a system op
+    :return: The default permissions map for the profile
+    """
+    permissions = copy.deepcopy(user_permissions)
+
+    if role == 'admin':
+        for permission in models.admin_permissions:
+            permissions[permission] = user_session is None or user_session.has_permission(permission)
+
+    return permissions
 
 
 def db_create_user(session, tid, user_session, request, language, defer_password_setup=False):
@@ -63,7 +89,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
           'id': request['id'],
           'role': request['role'],
           'roles':  [request['role']],
-          'permissions':  copy.deepcopy(user_permissions)
+          'permissions':  db_default_profile_permissions(request['role'], user_session)
         }
 
         db_create_user_profile(session, tid, profile)
@@ -214,6 +240,8 @@ def db_delete_user(session, tid, user_session, user_id, check):
         # Prevent deletion of protected users
         raise errors.ForbiddenOperation
 
+    db_enforce_administrable(session, tid, user_session, user.permissions_list, [user.id])
+
     stats = db_get_user_stats(session, tid, user_id)
 
     if check:
@@ -246,6 +274,13 @@ def create_user(session, tid, user_session, request, language):
     :param language: The language of the request
     :return: The serialized descriptor of the created object
     """
+    db_enforce_grantable(user_session,
+                         (request.get('profile') or {}).get('permissions'),
+                         [request['role']] if request.get('role') else None)
+
+    if request.get('profile_id') and request['profile_id'] != 'none':
+        db_enforce_assignable_profile(session, tid, user_session, request['profile_id'], request['role'])
+
     user = db_create_user(session, tid, user_session, request, language)
     return serialize_user(session, user, language)
 
@@ -295,7 +330,21 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     """
     fill_localized_keys(request, models.User.localized_keys, language)
 
+    db_enforce_grantable(user_session,
+                         (request.get('profile') or {}).get('permissions'),
+                         [request['role']] if request.get('role') else None)
+
     user = db_get_user(session, tid, user_id)
+
+    db_enforce_administrable(session, tid, user_session, user.permissions_list, [user.id])
+
+    # A binding to a shared profile is validated whenever it is established or
+    # the role of its user changes: the profile must be assignable by the
+    # operator and the role must be among the ones the profile allows.
+    if request['profile_id'] not in ('', 'none', user_id) and \
+       (request['profile_id'] != user.profile_id or request['role'] != user.role):
+        db_enforce_assignable_profile(session, tid, user_session, request['profile_id'], request['role'])
+
     old_role = user.role
     old_profile_id = user.profile_id
     old_enabled = user.enabled
@@ -316,7 +365,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
           'id': user.id,
           'role': request['role'],
           'roles':  [request['role']],
-          'permissions':  copy.deepcopy(user_permissions)
+          'permissions':  db_default_profile_permissions(request['role'], user_session)
         }
 
         db_create_user_profile(session, tid, profile)
@@ -399,6 +448,7 @@ def get_user(session, tid, id):
 
 class UsersCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_users'
     invalidate_cache = True
 
     def get(self):
@@ -421,6 +471,7 @@ class UsersCollection(BaseHandler):
 
 class UserInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_users'
     invalidate_cache = True
 
     def get(self, user_id):
@@ -475,6 +526,7 @@ class UserInstance(BaseHandler):
 
 class UserStats(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_users'
 
     def get(self, user_id):
         """

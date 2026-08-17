@@ -6,6 +6,7 @@ import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {PermissionGroup, buildPermissionGroups} from "@app/pages/admin/users/permissions";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -54,6 +55,12 @@ export class ProfileEditorComponent implements OnInit {
 
   protected readonly Constants = Constants;
 
+  // The permissions grouped by the role they belong to; the label vocabulary is
+  // shared with the user editor (see permissions.ts)
+  get permissionGroups(): PermissionGroup[] {
+    return buildPermissionGroups(this.profile.roles || [], this.nodeData.tid === 1);
+  }
+
   ngOnInit(): void {
     if (this.nodeResolver.dataModel) {
       this.nodeData = this.nodeResolver.dataModel;
@@ -73,8 +80,6 @@ export class ProfileEditorComponent implements OnInit {
     if (Array.isArray(this.profile.roles)) {
       this.roles = this.roles.filter(r => !this.profile.roles.includes(r.value));
     }
-
-    this.normalizeForwardingProfilePermissions(this.profile);
   }
 
   toggleEditing() {
@@ -82,7 +87,6 @@ export class ProfileEditorComponent implements OnInit {
   }
 
   saveProfile(userData: UserProfile ) {
-    this.normalizeForwardingProfilePermissions(userData);
     const user = userData;
     return this.utilsService.updateAdminUserProfile(userData.id, userData).subscribe({
       next:()=>{
@@ -125,10 +129,6 @@ export class ProfileEditorComponent implements OnInit {
     this.utilsService.saveAs(this.authenticationService, profile.name + ".json", "api/admin/profiles/" + profile.id);
   }
 
-  userIsNotAdmin(profile: any): boolean {
-    return !profile.roles.includes('admin');
-  }
-
   hasSpecificRole(profile: any): boolean {
     return profile.roles && profile.roles.some((role: string) => ['analyst', 'custodian', 'receiver'].includes(role));
   }
@@ -165,16 +165,6 @@ export class ProfileEditorComponent implements OnInit {
 
   setDefaultRole(role: string) {
     this.profile.role = role;
-  }
-
-  normalizeForwardingProfilePermissions(profile: UserProfile) {
-    if (profile.tid === 1 || !profile.permissions.can_forward_reports) {
-      return;
-    }
-
-    profile.permissions.can_mask_information = false;
-    profile.permissions.can_redact_information = false;
-    profile.permissions.can_delete_submission = false;
   }
 
   // The channels associated to the profile: the users holding it are the

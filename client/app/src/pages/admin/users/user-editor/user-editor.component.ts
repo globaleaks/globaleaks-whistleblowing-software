@@ -6,6 +6,7 @@ import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {PermissionGroup, buildPermissionGroups} from "@app/pages/admin/users/permissions";
 import {PasswordSetComponent} from "@app/shared/modals/password-set/password-set.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -54,6 +55,21 @@ export class UserEditorComponent implements OnInit {
   appServiceData: AppDataService;
   protected readonly Constants = Constants;
 
+  // The permissions of the user's personal profile grouped by role; the label
+  // vocabulary is shared with the profile editor (see permissions.ts). The
+  // expiration toggle is hidden when the platform grants it to every recipient
+  get permissionGroups(): PermissionGroup[] {
+    const groups = buildPermissionGroups(this.user().profile?.roles || [], this.nodeData.tid === 1);
+
+    if (this.nodeData.can_postpone_expiration) {
+      for (const group of groups) {
+        group.permissions = group.permissions.filter(perm => perm.key !== "can_postpone_expiration");
+      }
+    }
+
+    return groups;
+  }
+
   ngOnInit(): void {
     if (this.nodeResolver.dataModel) {
       this.nodeData = this.nodeResolver.dataModel;
@@ -72,7 +88,6 @@ export class UserEditorComponent implements OnInit {
     };
 
     this.user().profile = this.profiles().filter(profile => profile.id === this.user().profile_id)[0];
-    this.normalizeForwardingProfilePermissions(this.user().profile);
     this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
 
     if (this.expanded()) {
@@ -114,7 +129,6 @@ export class UserEditorComponent implements OnInit {
   }
 
   saveUser(userData: User) {
-    this.normalizeForwardingProfilePermissions(userData.profile);
     const user = userData;
     if (user.pgp_key_remove) {
       user.pgp_key_public = "";
@@ -234,23 +248,5 @@ export class UserEditorComponent implements OnInit {
         this.user().profile = profile;
         this.user().role = profile.role;
     }
-  }
-
-  toggleUserEscrow(user: User) {
-    this.utilsService.runAdminOperation("toggle_user_escrow", {"value": user.id}, true).subscribe({
-      error:()=>{
-        user.escrow = !user.escrow;
-      }
-    });
-  }
-
-  normalizeForwardingProfilePermissions(profile: UserProfile) {
-    if (profile.tid === 1 || !profile?.permissions?.can_forward_reports) {
-      return;
-    }
-
-    profile.permissions.can_mask_information = false;
-    profile.permissions.can_redact_information = false;
-    profile.permissions.can_delete_submission = false;
   }
 }

@@ -352,7 +352,7 @@ class MockDict:
             'contexts': [],
             'forcefully_selected': True,
             'send_activation_link': False,
-            'can_edit_general_settings': False,
+            'can_manage_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
             'can_forward_reports': True,
@@ -457,6 +457,7 @@ class MockDict:
             'basic_auth_username': '',
             'basic_auth_password': '',
             'custom_support_url': '',
+            'support_escalation': 'all',
             'pgp': False,
             'antivirus_enabled': False,
             'antivirus_clamd_ip': 'localhost',
@@ -672,7 +673,7 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
 
 
 class TestGL(unittest.TestCase):
-    initialize_test_database_using_archived_db = True
+    initialize_test_database_using_archived_db = False
     pgp_configuration = 'ALL'
     clientside_hashing = True
 
@@ -1226,6 +1227,13 @@ class TestHandler(TestGLWithPopulatedDB):
                         permissions[p] = user_permissions[p]
 
             session.permissions = copy.deepcopy(user_permissions)
+            # An administrator is provisioned with the whole set of
+            # administrative permissions, exactly as the wizard does for the
+            # first administrator of a tenant; a test that needs a scoped
+            # administrator overrides them through the permissions argument.
+            if role == 'admin':
+                for p in models.admin_permissions:
+                    session.permissions[p] = True
             if permissions:
                 for p in permissions:
                     session.permissions[p] = permissions[p]

@@ -80,7 +80,6 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.contains(".profileList", profileName).within(() => {
       cy.get('button[name="edit_profile"]').click();
       cy.get('input[name="can_forward_reports"]').check();
-      cy.get('input[name="can_request_forward"]').check();
       cy.get("#save_profile").click();
     });
   };

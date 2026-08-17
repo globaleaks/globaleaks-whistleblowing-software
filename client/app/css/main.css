@@ -857,6 +857,28 @@ p:last-child {
   max-height: 8rem;
 }
 
+/* The permissions of a profile grouped by role: the whole set sits in an
+   indented grey area, each role names an indented subsection and its checkboxes
+   are indented once more below it */
+.permission-groups {
+  margin-left: 1.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  max-height: none;
+}
+
+.permission-group + .permission-group {
+  margin-top: 0.75em;
+}
+
+.permission-group-role {
+  margin-bottom: 0.25em;
+}
+
+.permission-group-items {
+  margin-left: 1.5em;
+}
+
 text.axis-workweek,
 text.axis-worktime {
   fill: #1d1f24;

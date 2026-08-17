@@ -380,6 +380,7 @@ def delete_context(session, tid, context_id):
 
 class ContextsCollection(OperationHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_channels'
     invalidate_cache = True
 
     def get(self):
@@ -408,6 +409,7 @@ class ContextsCollection(OperationHandler):
 
 class ContextInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_channels'
     invalidate_cache = True
 
     def put(self, context_id):

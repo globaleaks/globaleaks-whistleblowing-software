@@ -813,6 +813,7 @@ class SupportHandler(BaseHandler):
 
 class AdminSupportRequests(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_support'
 
     def get(self):
         status = self.request.args.get(b'status', [None])[0]
@@ -832,6 +833,7 @@ class AdminSupportRequests(BaseHandler):
 
 class AdminSupportRequest(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_support'
 
     def put(self, support_request_id):
         request = self.validate_request(self.request.content.read(), requests.AdminSupportRequestDesc)
@@ -843,6 +845,7 @@ class AdminSupportRequest(BaseHandler):
 
 class AdminSupportRequestRead(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_support'
 
     def put(self, support_request_id):
         return mark_admin_support_request_read(self.request.tid, self.session, support_request_id)
@@ -850,6 +853,7 @@ class AdminSupportRequestRead(BaseHandler):
 
 class AdminSupportMessage(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_support'
 
     @inlineCallbacks
     def post(self, support_request_id):

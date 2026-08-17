@@ -111,15 +111,18 @@ export class AdminSupportComponent implements OnInit {
 
   /**
    * The author of a request and the site it comes from are read where they are
-   * configured: the administrative pages of the users and of the sites. An
-   * author that is not authenticated has no account to reach.
+   * configured: the administrative pages of the users and of the sites, which
+   * are offered only to whom holds the permission on that area. An author that
+   * is not authenticated has no account to reach.
    *
    * The account of another tenant is configured on that tenant: it is reached
    * by whom may also enter the sites, through the same switch the sites page
    * performs.
    */
   canReachAuthor(request: SupportRequest): boolean {
-    return !!request.author_id && (this.isLocalAuthor(request) || this.canReachTenant());
+    return !!request.author_id &&
+      !!this.permissions.can_manage_users &&
+      (this.isLocalAuthor(request) || this.canReachTenant());
   }
 
   isLocalAuthor(request: SupportRequest): boolean {
@@ -142,7 +145,11 @@ export class AdminSupportComponent implements OnInit {
   }
 
   canReachTenant(): boolean {
-    return this.nodeResolver.dataModel.root_tenant;
+    return this.nodeResolver.dataModel.root_tenant && !!this.permissions.can_manage_sites;
+  }
+
+  private get permissions() {
+    return this.preferenceResolver.dataModel.profile.permissions;
   }
 
   get columnCount(): number {

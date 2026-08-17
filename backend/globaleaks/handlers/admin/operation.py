@@ -246,12 +246,6 @@ def db_reset_smtp_settings(session, tid):
 
 
 @transact
-def reset_smtp_settings(session, tid, user_id):
-    db_reset_smtp_settings(session, tid)
-    db_log(session, tid=tid, type='reset_smtp_settings', user_id=user_id)
-
-
-@transact
 def reset_templates(session, tid, user_id):
     ConfigL10NFactory(session, tid).reset('notification')
     db_log(session, tid=tid, type='reset_templates', user_id=user_id)
@@ -345,6 +339,29 @@ class AdminOperationHandler(OperationHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
+    # Each operation is gated on the permission of the administrative area it
+    # belongs to, rather than on a single class-wide permission, so that e.g. an
+    # administrator scoped to the settings cannot perform account operations
+    # (password reset, 2FA disable, IdP unbind) on other users.
+    operation_permissions = {
+        'enable_encryption': 'can_manage_settings',
+        'reset_submissions': 'can_manage_settings',
+        'reset_backups': 'can_manage_settings',
+        'toggle_escrow': 'can_manage_settings',
+        'toggle_user_escrow': 'can_manage_settings',
+        'validate_idp': 'can_manage_settings',
+        'set_hostname': 'can_manage_network',
+        'reset_onion_private_key': 'can_manage_network',
+        'test_mail': 'can_manage_notifications',
+        'reset_templates': 'can_manage_notifications',
+        'set_user_password': 'can_manage_users',
+        'send_password_reset_email': 'can_manage_users',
+        'disable_2fa': 'can_manage_users',
+        'reset_idp_binding': 'can_manage_users',
+        'enable_user_permission_file_upload': 'can_manage_users',
+        'disable_user_permission_file_upload': 'can_manage_users'
+    }
+
     require_confirmation = [
         'enable_encryption',
         'disable_2fa',
@@ -359,9 +376,6 @@ class AdminOperationHandler(OperationHandler):
 
     def enable_encryption(self, req_args, *args, **kwargs):
         return enable_encryption(self.request.tid, self.session.user_id)
-
-    def reset_smtp_settings(self, req_args, *args, **kwargs):
-        return reset_smtp_settings(self.request.tid, self.session.user_id)
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])

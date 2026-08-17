@@ -170,6 +170,7 @@ def db_get_invites(session):
 
 class InvitesCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
 
     def get(self):
@@ -237,6 +238,7 @@ def update_invite(session, request_tid, user_session, invite_id, request, langua
 
 class AdminInviteInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
 
     def delete(self, invite_id):

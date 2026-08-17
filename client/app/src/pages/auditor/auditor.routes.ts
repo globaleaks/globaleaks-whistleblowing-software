@@ -1,7 +1,7 @@
 import {Routes} from "@angular/router";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {AuditorUsersResolver} from "@app/shared/resolvers/auditor-users.resolver";
+import {AuditLogUsersResolver} from "@app/shared/resolvers/audit-log-users.resolver";
 import {AuditLogResolver} from "@app/shared/resolvers/audit-log-resolver.service";
 import {JobResolver} from "@app/shared/resolvers/job.resolver";
 import {TipsResolver} from "@app/shared/resolvers/tips.resolver";
@@ -24,9 +24,9 @@ export const auditorRoutes: Routes = [
   },
   {
     path: "auditlog",
-    loadComponent: () => import('@app/pages/auditor/auditlog/audit-log.component').then(m => m.AuditLogComponent),
+    loadComponent: () => import('@app/shared/partials/auditlog/audit-log.component').then(m => m.AuditLogComponent),
     resolve: {
-      NodeResolver, PreferenceResolver, AuditorUsersResolver, AuditlogResolver: AuditLogResolver, JobResolver, TipsResolver
+      NodeResolver, PreferenceResolver, AuditLogUsersResolver, AuditlogResolver: AuditLogResolver, JobResolver, TipsResolver
     },
     pathMatch: "full",
     data: {sidebar: "auditor-sidebar", pageTitle: "Audit log"},

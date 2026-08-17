@@ -4,12 +4,11 @@ import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {SelectableUser} from "@app/models/app/selectables";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
@@ -24,8 +23,7 @@ import {ListItemComponent} from "@app/shared/components/list-item/list-item.comp
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
   protected nodeResolver = inject(NodeResolver);
-  private usersResolver = inject(UsersResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
+  private selectablesResolver = inject(SelectablesResolver);
   private utilsService = inject(UtilsService);
 
   readonly contextsData = input.required<contextResolverModel[]>();
@@ -40,12 +38,12 @@ export class ContextEditorComponent implements OnInit {
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
-  readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
-  readonly usersData = computed(() => this.usersResolver.resource.value());
-  readonly receiversData = computed<User[]>(() => this.usersData().filter(user => user.role === "receiver"));
+  readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);
+  readonly usersData = computed(() => this.selectablesResolver.dataModel.users);
+  readonly receiversData = computed<SelectableUser[]>(() => this.usersData().filter(user => user.role === "receiver"));
   nodeData: nodeResolverModel;
   selected = {value: []};
-  readonly adminReceiversById = computed<Record<string, User>>(() => this.utilsService.array_to_map(this.usersData()));
+  readonly adminReceiversById = computed<Record<string, SelectableUser>>(() => this.utilsService.array_to_map(this.usersData()));
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
@@ -70,7 +68,7 @@ export class ContextEditorComponent implements OnInit {
     }
   }
 
-  receiverNotSelectedFilter(item: User): boolean {
+  receiverNotSelectedFilter(item: SelectableUser): boolean {
     return this.contextResolver().receivers.indexOf(item.id) === -1;
   }
 
@@ -86,7 +84,7 @@ export class ContextEditorComponent implements OnInit {
     this.showSelect = true;
   }
 
-  moveReceiver(rec: User): void {
+  moveReceiver(rec: SelectableUser): void {
     if (rec && this.contextResolver().receivers.indexOf(rec.id) === -1) {
       this.contextResolver().receivers.push(rec.id);
       this.showSelect = false;

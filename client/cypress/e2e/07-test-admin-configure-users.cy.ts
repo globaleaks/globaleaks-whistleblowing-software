@@ -115,9 +115,8 @@ describe("admin add, configure, and delete users", () => {
       cy.get('input[name="can_grant_access_to_reports"]').click();
       cy.get('input[name="can_transfer_access_to_reports"]').click();
       cy.get('input[name="can_delete_submission"]').click();
-      cy.get('input[name="can_edit_general_settings"]').click();
+      cy.get('input[name="can_manage_settings"]').click();
       cy.get('input[name="can_forward_reports"]').check();
-      cy.get('input[name="can_request_forward"]').check();
       cy.get("#save_profile").click();
     });
   });

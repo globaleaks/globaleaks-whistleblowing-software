@@ -252,6 +252,7 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
 
 class QuestionnairesCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self):
@@ -278,6 +279,7 @@ class QuestionnairesCollection(BaseHandler):
 
 class QuestionnaireInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self, questionnaire_id):
@@ -311,6 +313,7 @@ class QuestionnaireInstance(BaseHandler):
 
 class QuestionnareDuplication(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):

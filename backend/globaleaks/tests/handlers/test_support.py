@@ -146,13 +146,15 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         """
         admin = admin if admin is not None else self.root_admin
 
-        return Session(tid, admin['id'], tid, 'admin', 'admin', admin['cc'])
+        return Session(tid, admin['id'], tid, 'admin', 'admin', admin['cc'],
+                       permissions={p: True for p in models.admin_permissions})
 
     def root_management_session(self, tid):
         """
         Session of a root administrator managing the secondary tenant tid
         """
-        return Session(tid, self.root_admin['id'], 1, 'admin', 'admin', self.root_admin['cc'])
+        return Session(tid, self.root_admin['id'], 1, 'admin', 'admin', self.root_admin['cc'],
+                       permissions={p: True for p in models.admin_permissions})
 
     def new_user_desc(self, role, username):
         desc = self.get_dummy_user(role, username)

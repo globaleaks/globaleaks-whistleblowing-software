@@ -5,7 +5,7 @@ describe("support conversation", () => {
 
     cy.login_receiver();
     cy.get("#SupportLink").click();
-    cy.get("#support-action-new").click();
+    // The recipient has never asked for support: the modal opens on the form
     cy.get("#support-request-message").type(request);
     cy.get("#modal-action-ok").click();
     cy.contains(".modal", request).should("be.visible");

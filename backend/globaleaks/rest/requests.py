@@ -655,15 +655,26 @@ PasswordReset2Desc = {
     'auth_code': str
 }
 
-SiteSettingsDesc = {
-    'disclaimer_text': str,
-    'header_title_homepage': str,
-    'footer': str,
-    'footer_privacy_policy': str,
-    'footer_whistleblowing_policy': str,
-    'name': str,
-    'presentation': str,
-}
+# The variables of the first settings tab (General settings), the only ones a
+# non administrator holding can_manage_settings is entitled to configure. This
+# is the single source of truth for that set: it defines what such a user can
+# write (SiteSettingsDesc) and mirrors the fields presented by the first tab, so
+# that everything the tab shows is actually saved and nothing beyond it is.
+SITE_SETTINGS_FIELDS = [
+    'name',
+    'description',
+    'header_title_homepage',
+    'presentation',
+    'whistleblowing_question',
+    'whistleblowing_button',
+    'whistleblowing_destination',
+    'disclaimer_text',
+    'footer',
+    'footer_privacy_policy',
+    'footer_whistleblowing_policy',
+]
+
+SiteSettingsDesc = {field: str for field in SITE_SETTINGS_FIELDS}
 
 QuestionnaireDuplicationDesc = {
     'questionnaire_id': str,

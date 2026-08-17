@@ -494,6 +494,7 @@ def add_or_update_configs(session, model, data):
 
 class TenantCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -602,6 +603,7 @@ class TenantForwardingInstance(BaseHandler):
 
 class TenantInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -671,6 +673,7 @@ def db_delete_tenant(session, request_tid, user_session, tid, check):
 
 class TenantStats(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
 
     def get(self, tid):

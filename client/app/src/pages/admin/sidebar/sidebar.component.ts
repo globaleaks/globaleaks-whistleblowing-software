@@ -3,6 +3,7 @@ import {TranslatePipe} from "@ngx-translate/core";
 import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 
 
 @Component({
@@ -16,7 +17,11 @@ export class AdminSidebarComponent {
   private router = inject(Router);
   protected nodeResolver = inject(NodeResolver);
   protected authenticationService = inject(AuthenticationService);
+  protected preferenceResolver = inject(PreferenceResolver);
 
+  get permissions() {
+    return this.preferenceResolver.dataModel.profile.permissions;
+  }
 
   isActive(route: string): boolean {
     return this.router.isActive(route, {
