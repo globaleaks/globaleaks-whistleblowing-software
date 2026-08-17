@@ -1,16 +1,16 @@
 import {Injectable, inject} from "@angular/core";
+import {User} from "@app/models/resolvers/user-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
 import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class JobResolver extends ResourceResolver<jobResolverModel[]> {
+export class AuditorUsersResolver extends ResourceResolver<User[]> {
   private authenticationService = inject(AuthenticationService);
 
   constructor() {
-    super("api/auditor/auditlog/jobs", []);
+    super("api/auditor/auditlog/users", []);
   }
 
   protected allowed(): boolean {

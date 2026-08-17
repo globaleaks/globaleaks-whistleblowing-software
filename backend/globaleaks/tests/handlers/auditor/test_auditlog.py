@@ -2,7 +2,7 @@ from collections import Counter
 
 from twisted.internet.defer import inlineCallbacks
 
-from globaleaks.handlers.admin import auditlog
+from globaleaks.handlers import auditor as auditlog
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
@@ -13,7 +13,7 @@ class TestAuditLog(helpers.TestHandlerWithPopulatedDB):
     def test_get(self):
         yield self.perform_full_submission_actions()
 
-        handler = self.request({}, role='admin')
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
         response = yield handler.get()
 
         self.assertTrue(isinstance(response, list))
@@ -29,12 +29,29 @@ class TestAuditLog(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(types['add_comment'], 2)
         self.assertEqual(len(response), sum(types.values()))
 
+    def test_get_as_admin_is_refused(self):
+        # The audit log is the domain of the auditor role alone: the
+        # administrators hold no mixed access to it
+        handler = self.request({}, role='admin')
+
+        return self.assertRaises(errors.NotAuthenticated, handler.get)
+
+    @inlineCallbacks
+    def test_the_entries_name_who_acted(self):
+        yield self.perform_full_submission_actions()
+
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
+        response = yield handler.get()
+
+        # The auditor reaches no other API: the entries carry the username
+        self.assertTrue(all('username' in entry for entry in response))
+
 
 class TestAccessLog(helpers.TestHandlerWithPopulatedDB):
     _handler = auditlog.AccessLog
 
     def test_get(self):
-        handler = self.request({}, role='admin')
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
 
         # During tests the file does not exists but this is enought to test
         return self.assertRaises(errors.ResourceNotFound, handler.get)
@@ -44,7 +61,7 @@ class TestDebugLog(helpers.TestHandlerWithPopulatedDB):
     _handler = auditlog.DebugLog
 
     def test_get(self):
-        handler = self.request({}, role='admin')
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
 
         # During tests the file does not exists but this is enought to test
         return self.assertRaises(errors.ResourceNotFound, handler.get)
@@ -57,7 +74,7 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
     def test_get(self):
         yield self.perform_full_submission_actions()
 
-        handler = self.request({}, role='admin')
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
         response = yield handler.get()
 
         self.assertTrue(isinstance(response, list))
@@ -69,6 +86,6 @@ class TestJobsTiming(helpers.TestHandler):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request({}, role='admin')
+        handler = self.request({}, user_id=self.dummyAnalyst['id'], role='auditor')
 
         yield handler.get()

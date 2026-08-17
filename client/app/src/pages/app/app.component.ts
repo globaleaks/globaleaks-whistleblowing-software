@@ -19,6 +19,7 @@ import {MessageConsoleComponent} from "@app/shared/partials/messageconsole/messa
 import {OperationComponent} from "@app/shared/partials/operation/operation.component";
 import {AdminSidebarComponent} from "../admin/sidebar/sidebar.component";
 import {AnalystSidebarComponent} from "../analyst/sidebar/sidebar.component";
+import {AuditorSidebarComponent} from "../auditor/sidebar/sidebar.component";
 import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component";
 import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
 import {registerLocales, localeToBcp47} from "@app/services/helper/locale-provider";
@@ -46,7 +47,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule]
+    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, AuditorSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule]
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private renderScheduler = inject(RenderSchedulerService);

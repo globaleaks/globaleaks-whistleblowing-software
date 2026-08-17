@@ -43,12 +43,6 @@
   </a>
 }
 @if (!nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
-    <i class="fas fa-clipboard-list"></i>
-    <span>{{'Audit log'|translate}}</span>
-  </a>
-}
-@if (!nodeResolver.dataModel.is_profile) {
   <a routerLink="/admin/support" routerLinkActive="active" id="admin_support" [attr.aria-current]="isActive('/admin/support') ? 'page' : 'false'">
     <i class="fas fa-life-ring"></i>
     <span>{{'Support'|translate}}</span>

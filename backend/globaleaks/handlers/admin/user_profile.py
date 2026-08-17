@@ -196,7 +196,7 @@ def db_resolve_default_user_profile(session, tid):
     default_user_profile = config.ConfigFactory(session, tid).get_val('default_user_profile') or \
                            config.ConfigFactory(session, 1).get_val('default_user_profile')
 
-    if default_user_profile in ('admin', 'analyst', 'custodian', 'recipient'):
+    if default_user_profile in ('admin', 'analyst', 'auditor', 'custodian', 'recipient'):
         # Role keyword: create the user with the given role and a
         # standard per-user profile
         return 'receiver' if default_user_profile == 'recipient' else default_user_profile, ''

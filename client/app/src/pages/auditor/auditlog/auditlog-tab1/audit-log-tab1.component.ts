@@ -2,9 +2,7 @@ import {Component, OnInit, inject} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
 import {AuditLogResolver} from "@app/shared/resolvers/audit-log-resolver.service";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
-import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {DatePipe} from "@angular/common";
@@ -31,8 +29,7 @@ interface AuditLogRow extends auditlogResolverModel {
 export class AuditLogTab1Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);
   private auditLogResolver = inject(AuditLogResolver);
-  private usersResolver = inject(UsersResolver);
-  protected nodeResolver = inject(NodeResolver);
+  protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
   private translateService = inject(TranslateService);
   private activatedRoute = inject(ActivatedRoute);
@@ -40,8 +37,6 @@ export class AuditLogTab1Component implements OnInit {
   auditLog: AuditLogRow[] = [];
 
   userOptions: TableFilterOption[] = [];
-
-  users: User[] = [];
 
   readonly severityOptions: TableFilterOption[] = [
     {id: "Low", label: "Low"},
@@ -60,20 +55,15 @@ export class AuditLogTab1Component implements OnInit {
   });
 
   ngOnInit() {
-    this.loadUsersData();
     this.loadAuditLogData();
     // A link may point at the entries of one user: the column filter is the
     // one place holding that selection
     this.activatedRoute.queryParams.subscribe(params => {
-      const user = this.users.find(u => u.id === params["user"]);
-      if (user) {
-        this.table.setSelection("username", [{id: user.username, label: user.username}]);
+      const row = this.auditLog.find(entry => entry.user_id === params["user"]);
+      if (row) {
+        this.table.setSelection("username", [{id: row.username, label: row.username}]);
       }
     });
-  }
-
-  loadUsersData() {
-    this.users = this.usersResolver.dataModel;
   }
 
   loadAuditLogData() {
@@ -81,7 +71,7 @@ export class AuditLogTab1Component implements OnInit {
       this.auditLogResolver.dataModel :
       [this.auditLogResolver.dataModel];
 
-    this.auditLog = entries.map(entry => ({...entry, username: this.getUsername(entry.type, entry.user_id || "")}));
+    this.auditLog = entries.map(entry => ({...entry, username: this.getUsername(entry)}));
 
     this.userOptions = Array.from(new Set(this.auditLog.map(entry => entry.username)))
       .sort((a, b) => a.localeCompare(b))
@@ -91,24 +81,18 @@ export class AuditLogTab1Component implements OnInit {
   }
 
   /**
-   * The audit log of the platform names who acted by its username: it is
-   * unique within the tenant and does not change, while the name is neither
-   * of the two and would make the attribution of an entry ambiguous.
+   * The audit log names who acted by its username, resolved and serialized
+   * by the backend within the entries themselves: the auditor reaches no
+   * other API. The entry falls back on the identifier when the user is gone.
    */
-  getUsername(logType:string, userId: string): string {
-    if (userId === 'system') {
+  getUsername(entry: auditlogResolverModel): string {
+    if (entry.user_id === 'system') {
       return this.translateService.instant('system');
-    } else if (logType.startsWith('whistleblower')) {
+    } else if (entry.type.startsWith('whistleblower')) {
       return this.translateService.instant('Whistleblower');
     }
 
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      return user.username;
-    }
-
-    // Return the ID if user not found (might be deleted user)
-    return userId;
+    return entry.username || entry.user_id || '';
   }
 
   getTypeDotColor(type: string): string {

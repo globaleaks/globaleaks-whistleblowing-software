@@ -4,9 +4,6 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
-import {AuditLogResolver} from "@app/shared/resolvers/audit-log-resolver.service";
-import {JobResolver} from "@app/shared/resolvers/job.resolver";
-import {TipsResolver} from "@app/shared/resolvers/tips.resolver";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {RedirectsResolver} from "@app/shared/resolvers/redirects.resolver";
@@ -63,7 +60,7 @@ export const adminRoutes: Routes = [
     path: "sites",
     loadComponent: () => import('@app/pages/admin/sites/sites.component').then(m => m.SitesComponent),
     resolve: {
-      NodeResolver, PreferenceResolver, UsersResolver, JobResolver, TipsResolver, QuestionnairesResolver, StatusResolver
+      NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver, StatusResolver
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Sites"},
@@ -103,15 +100,6 @@ export const adminRoutes: Routes = [
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Case management"},
-  },
-  {
-    path: "auditlog",
-    loadComponent: () => import('@app/pages/admin/auditlog/audit-log.component').then(m => m.AuditLogComponent),
-    resolve: {
-      NodeResolver, PreferenceResolver, UsersResolver, AuditlogResolver: AuditLogResolver, JobResolver, TipsResolver
-    },
-    pathMatch: "full",
-    data: {sidebar: "admin-sidebar", pageTitle: "Audit log"},
   },
   {
     path: "notifications",

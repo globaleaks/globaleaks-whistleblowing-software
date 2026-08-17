@@ -15,7 +15,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import db_get_report_audit_log
+from globaleaks.handlers.auditor import db_get_report_audit_log
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
@@ -24,7 +24,6 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.handlers.whistleblower.submission import data_hashes, db_archive_questionnaire_schema, \
     db_create_receivertip, db_validate_answers, decrypt_tip, extract_statistical_data, MAX_ANSWERS_DEPTH
-from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked, db_notify_report_update
 from globaleaks.handlers.user import serialize_user, user_serialize_user
 from globaleaks.models import UserProfile, serializers
 
@@ -755,6 +754,8 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
                                models.ReceiverTip.internaltip_id == itip.id,
                                models.ReceiverTip.receiver_id != user_id,
                                models.ReceiverTip.last_notification < models.ReceiverTip.last_access):
+        # Imported here as the module of the whistleblower imports this one
+        from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
         db_notify_report_update(session, user, rtip, itip)
 
     db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id)
@@ -1855,6 +1856,7 @@ class WhistleblowerFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
+        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
         if db_file_is_masked(session, ifile.internaltip_id, ifile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):
@@ -1990,6 +1992,7 @@ class ReceiverFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
+        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
         if db_file_is_masked(session, rfile.internaltip_id, rfile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):

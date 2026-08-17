@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef, computed, effect, inject} from "@angular/core";
 import {DatePipe} from "@angular/common";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {AuditorUsersResolver} from "@app/shared/resolvers/auditor-users.resolver";
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,7 +19,7 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
 export class AuditLogTab2Component {
   private utilsService = inject(UtilsService);
   private cdr = inject(ChangeDetectorRef);
-  protected usersResolver = inject(UsersResolver);
+  protected usersResolver = inject(AuditorUsersResolver);
 
   readonly users = computed(() => this.usersResolver.resource.value());
 
