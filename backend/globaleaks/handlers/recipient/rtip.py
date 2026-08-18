@@ -525,9 +525,15 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction, rang
         ranges = redaction.permanent_redaction
 
     for key in whistleblower_identities:
-        if isinstance(whistleblower_identities[key], bool):
+        # The identity entry carries, besides the answers of the identity
+        # fields, scalar keys of its own (e.g. 'required_status', 'index'):
+        # only the lists of answer entries are traversed, or a string value
+        # would be iterated character by character and indexed as a mapping.
+        if not isinstance(whistleblower_identities[key], list):
             continue
         for inner_idx, whistleblower_identity in enumerate(whistleblower_identities[key]):
+            if not isinstance(whistleblower_identity, dict):
+                continue
             if 'value' in whistleblower_identity:
                 if key == redaction.reference_id:
                     whistleblower_identity['value'] = redact_content(whistleblower_identity['value'], ranges, character)
