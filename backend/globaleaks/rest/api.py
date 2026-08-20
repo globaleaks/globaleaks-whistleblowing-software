@@ -162,6 +162,8 @@ api_spec = [
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
     ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),
+    ('/api/admin/tenants/backup/import', admin.tenant_backup.TenantBackupImport),
+    ('/api/admin/tenants', admin.tenant_backup.TenantBackupExport, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/backup'),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusCollection),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusInstance, r'/api/admin/statuses/' + uuid_regexp_or_closed),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionSubStatusCollection, r'/api/admin/statuses/' + uuid_regexp_or_closed + r'/substatuses'),

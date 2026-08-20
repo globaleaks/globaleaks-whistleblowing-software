@@ -64,6 +64,120 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.logout();
   });
 
+  it("should back up and import a tenant", () => {
+    const tenantName = "Tenant Backup";
+    const profileName = "Backup Recipient Profile";
+    const userName = "Backup Recipient";
+    const userEmail = "backup-recipient@example.org";
+    const footerText = "Tenant backup footer";
+    const backupFilename = `${tenantName}.tenant-backup.tar.gz`;
+    const backupPath = `cypress/downloads/${backupFilename}`;
+    const configureTenant = () => {
+      cy.intercept("GET", "/api/auth/tenantauthswitch/**").as("tenantAuthSwitch");
+      cy.window().then((win: any) => {
+        if (win.open.restore) {
+          win.open.restore();
+        }
+        cy.stub(win, "open").as("windowOpen");
+      });
+      cy.contains(".config-item", tenantName)
+        .find("button[name='configure_tenant']")
+        .click();
+      cy.wait("@tenantAuthSwitch").then((interception: any) => {
+        const redirectUrl = interception.response.body.redirect;
+        cy.get("@windowOpen").should("be.calledWith", redirectUrl);
+        cy.visit(redirectUrl);
+      });
+    };
+
+    cy.login_admin();
+    cy.visit("/#/admin/sites");
+
+    add_tenant(tenantName);
+    configureTenant();
+
+    cy.intercept("PUT", "**/api/admin/node").as("updateTenantSettings");
+    cy.get("#admin_settings").click();
+    cy.get("#node-footer").clear().type(footerText);
+    cy.get("#save_settings").click();
+    cy.wait("@updateTenantSettings");
+
+    cy.get('[data-cy="advanced"]').click();
+    cy.get('input[name="disable_submissions"]').check();
+    cy.get("#scoring_system").check();
+    cy.get("#save").click();
+    cy.wait("@updateTenantSettings");
+
+    cy.get("#admin_users").click();
+    cy.get('[data-cy="profiles"]').click();
+    cy.get(".show-add-profile-btn").click();
+    cy.get('select[name="role"]').select("receiver");
+    cy.get('input[name="name"]').clear().type(profileName);
+    cy.get("#add-btn").click();
+    cy.get(".profileList").contains(profileName).should("exist");
+
+    cy.get('[data-cy="users"]').click();
+    cy.get(".show-add-user-btn").click();
+    cy.get('select[name="profile"]').select(profileName);
+    cy.get('input[name="username"]').clear().type(userName);
+    cy.get('input[name="name"]').clear().type(userName);
+    cy.get('input[name="email"]').clear().type(userEmail);
+    cy.get("#add-btn").click();
+    cy.get(".userList").contains(userName).should("exist");
+
+    cy.visit("/#/admin/sites");
+    cy.contains(".config-item", tenantName).should("exist");
+
+    cy.intercept("GET", "/api/admin/tenants/*/backup").as("backupTenant");
+    cy.contains(".config-item", tenantName)
+      .find("button[name='backup_tenant']")
+      .click();
+    cy.wait("@backupTenant", {timeout: 120000});
+    cy.readFile(backupPath, null, {timeout: 120000}).should("have.length.greaterThan", 0);
+
+    cy.intercept("DELETE", "/api/admin/tenants/*").as("deleteTenant");
+    cy.contains(".config-item", tenantName)
+      .find("button[name='delete_tenant']")
+      .click();
+    cy.get("#modal-action-ok").should("not.be.disabled").click();
+    cy.wait("@deleteTenant");
+    cy.contains(".config-item", tenantName).should("not.exist");
+
+    cy.intercept("POST", "/api/admin/tenants/backup/import*").as("restoreTenant");
+    cy.readFile(backupPath, null).then((backup) => {
+      cy.get("#tenant-backup-import").selectFile({
+        contents: backup,
+        fileName: backupFilename,
+        mimeType: "application/gzip"
+      }, {force: true});
+    });
+    cy.wait("@restoreTenant", {timeout: 120000});
+    cy.get('[data-cy="page-loader-overlay"]', {timeout: 120000}).should("not.exist");
+
+    cy.contains(".config-item", tenantName, {timeout: 120000}).should("exist");
+    configureTenant();
+
+    cy.get("#admin_settings").click();
+    cy.get("#node-footer").should("have.value", footerText);
+    cy.get('[data-cy="advanced"]').click();
+    cy.get('input[name="disable_submissions"]').should("be.checked");
+    cy.get("#scoring_system").should("be.checked");
+
+    cy.get("#admin_users").click();
+    cy.get(".userList").contains(userName).should("exist");
+    cy.get('[data-cy="profiles"]').click();
+    cy.get(".profileList").contains(profileName).should("exist");
+
+    cy.visit("/#/admin/sites");
+    cy.contains(".config-item", tenantName)
+      .find("button[name='delete_tenant']")
+      .click();
+    cy.get("#modal-action-ok").should("not.be.disabled").click();
+    cy.wait("@deleteTenant");
+
+    cy.logout();
+  });
+
   it("should add and configure the profile tenant", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");

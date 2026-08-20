@@ -12,6 +12,7 @@ import {CommonModule, DatePipe} from "@angular/common";
 import {NgForm} from "@angular/forms";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 @Component({
     selector: "src-siteslist",
@@ -25,6 +26,7 @@ export class SiteslistComponent {
   private modalService = inject(NgbModal);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
+  private authenticationService = inject(AuthenticationService);
 
   @Input() editTenant: NgForm;
   @Input() tenant: tenantResolverModel;
@@ -52,6 +54,15 @@ export class SiteslistComponent {
     const url = "api/admin/tenants/" + this.tenant.id;
     this.httpService.requestUpdateTenant(url, this.tenant).subscribe(_ => {
     });
+  }
+
+  backupTenant(event: Event) {
+    event.stopPropagation();
+    this.utilsService.saveAs(
+      this.authenticationService,
+      this.tenant.name + ".tenant-backup.tar.gz",
+      "api/admin/tenants/" + this.tenant.id + "/backup"
+    );
   }
 
   deleteTenant(event: Event, tenant: tenantResolverModel, statsChanged = false) {

@@ -37,6 +37,9 @@
           @if (tenant.active) {
             <button id="action-tenant-configure" class="btn btn-sm btn-outline-secondary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
           }
+          <button class="btn btn-sm btn-outline-secondary" name="backup_tenant" (click)="backupTenant($event)">
+            <span>{{'Backup'|translate}}</span>
+          </button>
           @if (editing) {
             <button id="action-tenant-save" class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
           }
