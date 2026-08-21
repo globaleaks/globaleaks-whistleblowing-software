@@ -36,3 +36,35 @@ export class userResolverModel {
   can_mask_information: boolean;
   can_redact_information: boolean;
 }
+
+export class User {
+  id: string;
+  creation_date: string;
+  username: string;
+  salt: string;
+  role: string;
+  enabled: boolean;
+  last_login: string;
+  name: string;
+  description: string;
+  public_name: string;
+  mail_address: string;
+  change_email_address: string;
+  language: string;
+  password_change_needed: boolean;
+  password_change_date: string;
+  pgp_key_fingerprint: string;
+  pgp_key_public: string;
+  pgp_key_expiration: string;
+  pgp_key_remove: boolean;
+  picture: boolean;
+  tid: number;
+  notification: boolean;
+  encryption: boolean;
+  escrow: boolean;
+  two_factor: boolean;
+  forcefully_selected: boolean;
+  clicked_recovery_key: boolean;
+  contexts: string[];
+  newpassword: boolean;
+}

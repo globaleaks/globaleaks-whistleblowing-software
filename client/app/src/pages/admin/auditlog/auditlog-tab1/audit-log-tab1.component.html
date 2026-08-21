@@ -1,17 +1,21 @@
-<app-paginated-interface [mode]="'table'" [items]="this.auditLog">
+<app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
   <ng-template #header>
     <tr>
-      <th>{{'Date'|translate}}</th>
-      <th>{{'Type'|translate}}</th>
-      <th>{{'User'|translate}}</th>
-      <th>{{'Object'|translate}}</th>
+      <th appTableHeader [state]="table" [label]="'Date' | translate" sortBy="date" filter="date"></th>
+      <th appTableHeader [state]="table" [label]="'Type' | translate" sortBy="type" filter="severity" [options]="severityOptions"></th>
+      <th appTableHeader [state]="table" [label]="'Username' | translate" sortBy="username" filter="username" [options]="userOptions"></th>
+      <th appTableHeader [state]="table" [label]="'Object' | translate"></th>
     </tr>
   </ng-template>
   <ng-template #content let-data="item" let-index="index">
     <tr>
       <td>{{ data.date | date:'dd-MM-yyyy HH:mm' }}</td>
-      <td>{{ data.type }}</td>
-      <td>{{ data.user_id }}</td>
+      <td>
+        <span class="badge bg-light text-dark">
+          <span [class]="getTypeDotColor(data.type)"><i class="fa-solid fa-circle"></i></span> <span>{{ data.type }}</span>
+        </span>
+      </td>
+      <td>{{ data.username }}</td>
       <td>{{ data.object_id }}</td>
     </tr>
   </ng-template>
