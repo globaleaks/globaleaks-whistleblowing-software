@@ -1,15 +1,4 @@
-<div id="TipPageRFileUpload" class="card card-default">
-  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="!collapsed" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keydown.enter)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keydown.space)="$event.preventDefault(); collapsed = !collapsed; utilsService.stopPropagation($event);">
-    <span>{{'Files attached by recipients'|translate}}</span>
-    <span class="float-end">
-      @if (!collapsed) {
-        <span [ngbTooltip]="'Collapse' | translate"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span [ngbTooltip]="'Expand' | translate"><i class="fas fa-chevron-down"></i></span>
-      }
-    </span>
-  </div>
+<div srcCollapsiblePanel id="TipPageRFileUpload" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggle)="collapsed = !collapsed">
   @if (!collapsed) {
     <div class="card-body">
       @for (rfile of tipService.tip.rfiles | filter : 'visibility' : key() | orderBy: 'creation_date'; track rfile; let index = $index) {

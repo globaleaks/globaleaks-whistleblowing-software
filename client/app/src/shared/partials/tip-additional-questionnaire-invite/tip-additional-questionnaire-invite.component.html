@@ -1,7 +1,4 @@
-<div id="TipInfoBox" class="card card.bg-primary">
-  <div class="card-header" [attr.aria-expanded]="!collapsed" (click)="toggleColLapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleColLapse(); utilsService.stopPropagation($event)" (keydown.space)="$event.preventDefault(); toggleColLapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
-    <span>{{'Additional questionnaire'|translate}}</span>
-  </div>
+<div srcCollapsiblePanel id="TipInfoBox" class="card card.bg-primary" [collapsed]="collapsed" [chevron]="false" [label]="'Additional questionnaire' | translate" (toggle)="toggleColLapse()">
   @if (!collapsed) {
     <div class="card-body d-flex justify-content-between">
       <div>{{'Recipients have requested you to fill an additional questionnaire.'|translate}}</div>

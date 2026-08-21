@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -11,7 +12,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-tip-additional-questionnaire-invite",
     templateUrl: "./tip-additional-questionnaire-invite.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [CollapsiblePanelComponent, TranslateModule]
 })
 export class TipAdditionalQuestionnaireInviteComponent {
   protected utilsService = inject(UtilsService);

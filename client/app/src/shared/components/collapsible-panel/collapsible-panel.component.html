@@ -1,0 +1,16 @@
+<div class="card-header d-flex justify-content-between" role="button" tabindex="0" [attr.aria-expanded]="!collapsed()" (click)="toggle.emit()" (keydown.enter)="toggle.emit()" (keydown.space)="$event.preventDefault(); toggle.emit()">
+  <span>
+    <ng-content select="[panelTitle]"></ng-content>
+    {{ label() }}
+  </span>
+  @if (chevron()) {
+    <span [ngbTooltip]="(collapsed() ? 'Expand' : 'Collapse') | translate">
+      @if (collapsed()) {
+        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+      } @else {
+        <i class="fas fa-chevron-up" aria-hidden="true"></i>
+      }
+    </span>
+  }
+</div>
+<ng-content></ng-content>

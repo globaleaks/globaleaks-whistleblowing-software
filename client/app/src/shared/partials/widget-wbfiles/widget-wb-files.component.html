@@ -1,15 +1,4 @@
-<div id="AttachedWBFile" class="card card-default">
-  <div class="card-header clearfix" (click)="toggleCollapse(); utilsService.stopPropagation($event);" (keydown.enter)="toggleCollapse(); utilsService.stopPropagation($event);" tabindex="0" role="button">
-    <span>{{'Files attached by recipients'|translate}}</span>
-    <span class="float-end">
-      @if (!collapsed) {
-        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-      }
-    </span>
-  </div>
+<div srcCollapsiblePanel id="AttachedWBFile" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggle)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @for (wbfile of wbTipService.tip.rfiles | orderBy: 'creation_date'; track wbfile) {

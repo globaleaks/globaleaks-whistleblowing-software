@@ -1,36 +1,22 @@
-<div id="TipInfoBox" class="card card-default">
-  <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleCollapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
-    <div>
-      <span class="d-flex justify-content-between">
-        <span>
-          @if (wbTipService.tip.data.whistleblower_identity) {
-            <span>{{'Identity'|translate}}</span>
-          }
-          @if (!wbTipService.tip.data.whistleblower_identity) {
-            <span>{{wbTipService.tip.whistleblower_identity_field.label}}</span>
-          }
-          @if (wbTipService.tip.data.whistleblower_identity_provided) {
-            <span class="btn btn-sm btn-link">
-              @if (collapsed) {
-                <span>{{'Show'|translate}}</span>
-              }
-              @if (!collapsed) {
-                <span>{{'Hide'|translate}}</span>
-              }
-            </span>
-          }
-        </span>
-        <span class="float-end">
-          @if (!collapsed) {
-            <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-          }
-          @if (collapsed) {
-            <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-          }
-        </span>
+<div srcCollapsiblePanel id="TipInfoBox" class="card card-default" [collapsed]="collapsed" (toggle)="toggleCollapse()">
+  <span panelTitle>
+    @if (wbTipService.tip.data.whistleblower_identity) {
+      <span>{{'Identity'|translate}}</span>
+    }
+    @if (!wbTipService.tip.data.whistleblower_identity) {
+      <span>{{wbTipService.tip.whistleblower_identity_field.label}}</span>
+    }
+    @if (wbTipService.tip.data.whistleblower_identity_provided) {
+      <span class="btn btn-sm btn-link">
+        @if (collapsed) {
+          <span>{{'Show'|translate}}</span>
+        }
+        @if (!collapsed) {
+          <span>{{'Hide'|translate}}</span>
+        }
       </span>
-    </div>
-  </div>
+    }
+  </span>
   @if (!collapsed) {
     <div class="card-body">
       @if (wbTipService.tip.data.whistleblower_identity) {

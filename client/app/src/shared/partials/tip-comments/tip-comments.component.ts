@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {AppDataService} from "@app/app-data.service";
 import {Component, inject, input} from "@angular/core";
 import {WbtipService} from "@app/services/helper/wbtip.service";
@@ -19,7 +20,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-tip-comments",
     templateUrl: "./tip-comments.component.html",
     standalone: true,
-    imports: [AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
+    imports: [CollapsiblePanelComponent, AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
 })
 export class TipCommentsComponent {
   private maskService = inject(MaskService);

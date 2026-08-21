@@ -1,15 +1,4 @@
-<div id="TipInfoBox" class="card card-default">
-  <div class="card-header clearfix" [attr.data-cy]="'identity_toggle'" (click)="toggleCollapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleCollapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
-    <span>{{'Identity' | translate}}</span>
-    <span class="float-end">
-      @if (!collapsed) {
-        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-      }
-    </span>
-  </div>
+<div srcCollapsiblePanel id="TipInfoBox" class="card card-default" [attr.data-cy]="'identity_toggle'" [collapsed]="collapsed" [label]="'Identity' | translate" (toggle)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @if (tipService.tip.iar && tipService.tip.iar.reply !== 'authorized') {

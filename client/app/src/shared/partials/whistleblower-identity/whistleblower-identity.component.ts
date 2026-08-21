@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input, output} from "@angular/core";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {WbtipService} from "@app/services/helper/wbtip.service";
@@ -14,7 +15,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-whistleblower-identity",
     templateUrl: "./whistleblower-identity.component.html",
     standalone: true,
-    imports: [TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule]
+    imports: [CollapsiblePanelComponent, TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule]
 })
 export class WhistleblowerIdentityComponent {
   protected wbTipService = inject(WbtipService);

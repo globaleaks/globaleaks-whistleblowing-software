@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input} from "@angular/core";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
@@ -15,7 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-whistleblower-identity-receiver",
     templateUrl: "./whistleblower-identity-receiver.component.html",
     standalone: true,
-    imports: [TipFieldComponent, NgbTooltipModule, DatePipe, TranslateModule]
+    imports: [CollapsiblePanelComponent, TipFieldComponent, NgbTooltipModule, DatePipe, TranslateModule]
 })
 export class WhistleBlowerIdentityReceiverComponent {
   protected tipService = inject(ReceiverTipService);
