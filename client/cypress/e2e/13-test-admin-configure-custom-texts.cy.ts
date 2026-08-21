@@ -58,7 +58,7 @@ describe("admin enable submissions", () => {
     cy.get("#save").click();
     cy.waitForUrl("/#/admin/settings");
 
-    cy.get('#ngb-nav-12').click();
+    cy.get('[data-cy="advanced"]').click();
     cy.get('input[name="disable_submissions"]').should("be.visible").should("not.be.checked");
     cy.logout();
     cy.waitForUrl("/#/login");
