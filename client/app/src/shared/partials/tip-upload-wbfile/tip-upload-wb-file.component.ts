@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, ElementRef, ChangeDetectorRef, inject, input, viewChild, output} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
@@ -17,7 +18,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-upload-wbfile",
     templateUrl: "./tip-upload-wb-file.component.html",
     standalone: true,
-    imports: [WbFilesComponent, FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, OrderByPipe, FilterPipe]
+    imports: [CollapsiblePanelComponent, WbFilesComponent, FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, OrderByPipe, FilterPipe]
 })
 export class TipUploadWbFileComponent {
   private cdr = inject(ChangeDetectorRef);

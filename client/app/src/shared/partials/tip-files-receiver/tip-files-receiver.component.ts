@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
@@ -20,7 +21,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-receiver",
     templateUrl: "./tip-files-receiver.component.html",
     standalone: true,
-    imports: [DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [CollapsiblePanelComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesReceiverComponent {
   protected maskService = inject(MaskService);

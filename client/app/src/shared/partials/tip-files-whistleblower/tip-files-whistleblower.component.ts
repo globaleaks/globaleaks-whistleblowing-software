@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
@@ -18,7 +19,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-whistleblower",
     templateUrl: "./tip-files-whistleblower.component.html",
     standalone: true,
-    imports: [RFileUploadButtonComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [CollapsiblePanelComponent, RFileUploadButtonComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesWhistleblowerComponent {
   private appDataService = inject(AppDataService);

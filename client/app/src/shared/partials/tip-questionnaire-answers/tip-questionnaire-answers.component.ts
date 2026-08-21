@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
@@ -11,7 +12,7 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     selector: "src-tip-questionnaire-answers",
     templateUrl: "./tip-questionnaire-answers.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, TipFieldComponent, TranslateModule, OrderByPipe]
+    imports: [CollapsiblePanelComponent, NgbTooltipModule, TipFieldComponent, TranslateModule, OrderByPipe]
 })
 export class TipQuestionnaireAnswersComponent {
   protected utilsService = inject(UtilsService);

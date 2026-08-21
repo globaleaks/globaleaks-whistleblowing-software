@@ -1,3 +1,4 @@
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
 import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
@@ -10,7 +11,7 @@ import {FilterPipe} from "@app/shared/pipes/filter.pipe";
     selector: "src-tip-receiver-list",
     templateUrl: "./tip-receiver-list.component.html",
     standalone: true,
-    imports: [FilterPipe, NgbTooltipModule, TranslateModule]
+    imports: [CollapsiblePanelComponent, FilterPipe, NgbTooltipModule, TranslateModule]
 })
 export class TipReceiverListComponent {
   protected utilsService = inject(UtilsService);

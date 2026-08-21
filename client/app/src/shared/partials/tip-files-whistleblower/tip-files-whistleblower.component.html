@@ -1,15 +1,4 @@
-<div id="TipPageFilesInfoBox" class="card card-default">
-  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="!collapsed" (click)="toggleColLapse()" (keydown.enter)="toggleColLapse()" (keydown.space)="$event.preventDefault(); toggleColLapse()">
-    <span>{{'Attachments'|translate}}</span>
-    <span class="float-end">
-      @if (!collapsed) {
-        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-      }
-    </span>
-  </div>
+<div srcCollapsiblePanel id="TipPageFilesInfoBox" class="card card-default" [collapsed]="collapsed" [label]="'Attachments' | translate" (toggle)="toggleColLapse()">
   @if (!collapsed) {
     <div class="card-body">
       <div class="table-responsive">
