@@ -1,3 +1,5 @@
+from collections import Counter
+
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.admin import auditlog
@@ -15,7 +17,17 @@ class TestAuditLog(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.get()
 
         self.assertTrue(isinstance(response, list))
-        self.assertEqual(len(response), 2)
+
+        # A full submission run records, for each of the two reports, its
+        # creation, the files attached to it and the comments exchanged on it
+        types = Counter(entry['type'] for entry in response)
+
+        self.assertEqual(types['whistleblower_new_report'], 2)
+        self.assertEqual(types['whistleblower_add_answers'], 2)
+        self.assertEqual(types['whistleblower_upload_file'], 4)
+        self.assertEqual(types['whistleblower_add_comment'], 2)
+        self.assertEqual(types['add_comment'], 2)
+        self.assertEqual(len(response), sum(types.values()))
 
 
 class TestAccessLog(helpers.TestHandlerWithPopulatedDB):

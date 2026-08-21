@@ -1,0 +1,71 @@
+<div class="modal-header">
+  <div class="modal-title">{{'Audit log' | translate}}</div>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+</div>
+<div class="modal-body">
+  <app-paginated-interface [mode]="'table'" [items]="table.result" [itemsPerPage]="10" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+    <ng-template #header>
+      <tr>
+        <th appTableHeader [state]="table" [label]="'User' | translate" sortBy="user"></th>
+        <th appTableHeader [state]="table" [label]="'Type' | translate" sortBy="action" filter="type" [options]="typeOptions"></th>
+        <th appTableHeader [state]="table" [label]="'Date' | translate" sortBy="timestamp"></th>
+      </tr>
+    </ng-template>
+    <ng-template #content let-entry="item">
+      <tr [class]="entry.isGroup ? 'audit-group-row' : ''"
+          [style.cursor]="entry.isGroup ? 'pointer' : 'default'"
+          (click)="entry.isGroup ? toggleGroupExpansion(entry) : null">
+        <td>{{entry.user}}</td>
+        <td>
+          <span class="badge bg-light text-dark">
+            <span [class]="getTypeDotColor(entry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{entry.action}}</span>
+          </span>
+        </td>
+        <td>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>{{entry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</span>
+            @if (entry.isGroup) {
+              <button class="btn btn-sm btn-link p-0 ms-2 chevron-btn"
+                      (click)="$event.stopPropagation()"
+                      [attr.aria-label]="entry.isExpanded ? ('Collapse' | translate) : ('Expand' | translate)">
+                @if (entry.isExpanded) {
+                  <i class="fas fa-chevron-down"></i>
+                } @else {
+                  <i class="fas fa-chevron-right"></i>
+                }
+              </button>
+            }
+          </div>
+        </td>
+      </tr>
+
+      @if (entry.isGroup && entry.isExpanded && entry.groupedEntries) {
+        @for (childEntry of entry.groupedEntries; track childEntry.id) {
+          <tr>
+            <td>{{childEntry.user}}</td>
+            <td>
+              <span class="badge bg-light text-dark">
+                <span [class]="getTypeDotColor(childEntry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{childEntry.action}}</span>
+              </span>
+            </td>
+            <td>{{childEntry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</td>
+          </tr>
+        }
+      }
+    </ng-template>
+  </app-paginated-interface>
+
+  <!-- Export Button -->
+  <div class="d-flex justify-content-end mt-2">
+    <button class="btn btn-sm btn-link" type="button" (click)="exportTipAuditLog()">
+      <i class="fas fa-download"></i>
+      <span>{{ 'Export' | translate }}</span>
+    </button>
+  </div>
+</div>
+<div class="modal-footer">
+  <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fas fa-times"></i>
+    <span>{{'Close' | translate}}</span>
+  </button>
+</div>

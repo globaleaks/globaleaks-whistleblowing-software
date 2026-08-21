@@ -84,6 +84,7 @@ api_spec = [
     # Receiver Handlers
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
+    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
@@ -98,6 +99,7 @@ api_spec = [
     ('/api/whistleblower/submission', whistleblower.submission.SubmissionInstance),
     ('/api/whistleblower/submission/attachment', whistleblower.attachment.SubmissionAttachment),
     ('/api/whistleblower/wbtip', whistleblower.wbtip.WBTipInstance),
+    ('/api/whistleblower/wbtip/auditlog', whistleblower.wbtip.ReportAuditLog),
     ('/api/whistleblower/wbtip/comments', whistleblower.wbtip.WBTipCommentCollection),
     ('/api/whistleblower/wbtip/rfiles', whistleblower.wbtip.ReceiverFileDownload, r'/api/whistleblower/wbtip/rfiles/' + uuid_regexp),
     ('/api/whistleblower/wbtip/wbfiles',  whistleblower.attachment.PostSubmissionAttachment),

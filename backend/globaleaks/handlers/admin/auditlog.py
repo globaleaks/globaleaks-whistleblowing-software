@@ -1,5 +1,6 @@
 import os
 
+from sqlalchemy import or_
 from sqlalchemy.sql.expression import distinct, func
 
 from globaleaks import models
@@ -22,6 +23,46 @@ def serialize_log(log):
 def get_audit_log(session, tid):
     logs = session.query(models.AuditLog) \
                   .filter(models.AuditLog.tid == tid) \
+                  .order_by(models.AuditLog.date.desc())
+
+    return [serialize_log(log) for log in logs]
+
+
+def db_get_report_audit_log(session, tid, itip_id):
+    """
+    The audit log of a report.
+
+    It holds what happened on the report and what happened on the objects the
+    report is made of: an event on a file or on a comment acts upon that
+    object, and names it, so it is reached through the objects belonging to
+    the report rather than through the report itself.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param itip_id: The ID of the report
+    :return: The serialized entries, most recent first
+    """
+    internalfiles = session.query(models.InternalFile.id) \
+                           .filter(models.InternalFile.internaltip_id == itip_id)
+
+    objects = [
+        models.AuditLog.object_id == itip_id,
+        models.AuditLog.object_id.in_(internalfiles),
+        models.AuditLog.object_id.in_(
+            session.query(models.Comment.id)
+                   .filter(models.Comment.internaltip_id == itip_id)),
+        models.AuditLog.object_id.in_(
+            session.query(models.ReceiverFile.id)
+                   .filter(models.ReceiverFile.internaltip_id == itip_id)),
+        # A file of the report is delivered to each recipient through a row of
+        # its own, that the access to the file names
+        models.AuditLog.object_id.in_(
+            session.query(models.WhistleblowerFile.id)
+                   .filter(models.WhistleblowerFile.internalfile_id.in_(internalfiles)))
+    ]
+
+    logs = session.query(models.AuditLog) \
+                  .filter(models.AuditLog.tid == tid, or_(*objects)) \
                   .order_by(models.AuditLog.date.desc())
 
     return [serialize_log(log) for log in logs]

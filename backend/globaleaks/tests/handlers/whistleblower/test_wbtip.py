@@ -296,3 +296,40 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
 class TestOperationChangeReceiptServersideHashing(TestOperationChangeReceipt):
     clientside_hashing = False
     wb_legacy_receipt_seed = True
+
+
+class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
+    _handler = wbtip.ReportAuditLog
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def test_get(self):
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+
+            yield handler.get()
+
+    #
+    # The log of a report names the objects the report is made of, so that an
+    # entry can be traced back to the file or the comment it acts upon
+    #
+    @inlineCallbacks
+    def test_get_reports_the_events_of_the_objects_of_the_report(self):
+        wbtip_desc = (yield self.get_wbtips())[0]
+
+        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+        logs = yield handler.get()
+
+        objects = {log['object_id'] for log in logs}
+
+        self.assertIn('add_comment', {log['type'] for log in logs})
+
+        # the comments and the files are named by their own id, never by the
+        # one of the report they belong to
+        self.assertTrue({comment['id'] for comment in wbtip_desc['comments']}.issubset(objects))
+        self.assertTrue({wbfile['id'] for wbfile in wbtip_desc['wbfiles']}.issubset(objects))

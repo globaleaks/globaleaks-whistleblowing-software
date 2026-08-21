@@ -14,6 +14,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.admin.auditlog import db_get_report_audit_log
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
@@ -38,6 +39,13 @@ from globaleaks.models.config import db_get_config_variable
 from io import BytesIO
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.zipstream import ZipStream
+
+@transact
+def get_report_audit_log(session, tid, user_id, itip_id):
+    _, _, _ = db_access_rtip(session, tid, user_id, itip_id)
+
+    return db_get_report_audit_log(session, tid, itip_id)
+
 
 def db_notify_grant_access(session, user):
     """
@@ -1199,6 +1207,8 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     session.add(comment)
     session.flush()
 
+    db_log(session, tid=tid, type='add_comment', user_id=user_id, object_id=comment.id, data={'internaltip_id': itip.id})
+
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     ret['hash_sha256'] = hash_sha256
@@ -1721,3 +1731,13 @@ class IdentityAccessRequestsCollection(BaseHandler):
                                             self.session.cc,
                                             itip_id,
                                             request)
+
+
+class ReportAuditLog(BaseHandler):
+    """
+    Handler that provides access to the audit log of a report
+    """
+    check_roles = 'receiver'
+
+    def get(self, itip_id):
+        return get_report_audit_log(self.session.tid, self.session.user_id, itip_id)
