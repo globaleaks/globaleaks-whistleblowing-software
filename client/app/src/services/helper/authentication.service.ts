@@ -180,9 +180,12 @@ export class AuthenticationService {
 	        if (redirect !== "/") {
                   redirect = this.sanitizer.sanitize(SecurityContext.URL, redirect) || '';
 
-                  // Honor only local redirects
-                  if (redirect.startsWith("/")) {
-                    this.router.navigate([redirect]);
+                  // Honor only local redirects; a protocol relative one names
+                  // another host and is not local
+                  if (redirect.startsWith("/") && !redirect.startsWith("//")) {
+                    // The destination may carry its own query string: it is
+                    // navigated as a url and not as a single path segment
+                    this.router.navigateByUrl(redirect);
                   }
                 } else {
                 this.router.navigate([this.session.homepage], {
