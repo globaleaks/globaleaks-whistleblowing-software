@@ -398,7 +398,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
 
   readonly notifyFileUpload = output<any>();
   private audioContext: AudioContext|null;
-  private audioExt: string = 'audio.webm';
+  private audioExt = 'audio.webm';
   iframeUrl: SafeResourceUrl;
   readonly viewerFrame = viewChild<ElementRef>("viewer");
 

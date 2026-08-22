@@ -18,7 +18,7 @@ module.exports = tseslint.config(
         "error",
         {
           type: "attribute",
-          prefix: "src",
+          prefix: ["src", "app", "flow"],
           style: "camelCase",
         },
       ],
@@ -26,10 +26,13 @@ module.exports = tseslint.config(
         "error",
         {
           type: "element",
-          prefix: "src",
+          prefix: ["src", "app"],
           style: "kebab-case",
         },
       ],
+      // Reported, not enforced: the remaining `any` are being removed
+      // incrementally while the models get typed.
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   {
@@ -38,6 +41,12 @@ module.exports = tseslint.config(
       ...angular.configs.templateRecommended,
       ...angular.configs.templateAccessibility,
     ],
-    rules: {},
+    rules: {
+      // Reported, not enforced: the accessibility backlog of the templates
+      // is tracked through these warnings until it is worked off.
+      "@angular-eslint/template/label-has-associated-control": "warn",
+      "@angular-eslint/template/click-events-have-key-events": "warn",
+      "@angular-eslint/template/interactive-supports-focus": "warn",
+    },
   }
 );

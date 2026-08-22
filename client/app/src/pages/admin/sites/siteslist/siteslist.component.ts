@@ -35,8 +35,7 @@ export class SiteslistComponent {
     this.tenant().active = !this.tenant().active;
 
     const url = "api/admin/tenants/" + this.tenant().id;
-    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe(_ => {
-    });
+    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe();
   }
 
   isRemovableTenant(): boolean {
@@ -45,14 +44,12 @@ export class SiteslistComponent {
 
   saveTenant() {
     const url = "api/admin/tenants/" + this.tenant().id;
-    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe(_ => {
-    });
+    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe();
   }
 
   deleteTenant(event: Event, tenant: tenantResolverModel) {
     event.stopPropagation();
-    this.openConfirmableModalDialog(tenant, "").subscribe(_ => {
-    });
+    this.openConfirmableModalDialog(tenant, "").subscribe();
   }
 
   configureTenant($event: Event, tid: number): void {
@@ -65,12 +62,12 @@ export class SiteslistComponent {
 
   openConfirmableModalDialog(arg: tenantResolverModel, scope: any): Observable<string> {
     scope = !scope ? this : scope;
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
-        return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id).subscribe(_ => {
+        return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id).subscribe(() => {
           this.deleted.emit(this.tenant().id);
         });
       };

@@ -38,7 +38,7 @@ export class QuestionnairesListComponent {
   }
 
   saveQuestionnaire(questionnaire: questionnaireResolverModel) {
-    this.httpService.requestUpdateAdminQuestionnaire(questionnaire.id, questionnaire).subscribe(_ => {
+    this.httpService.requestUpdateAdminQuestionnaire(questionnaire.id, questionnaire).subscribe(() => {
       this.editing = false;
     });
   }
@@ -63,13 +63,13 @@ export class QuestionnairesListComponent {
 
   openConfirmableModalDialog(arg: questionnaireResolverModel, scope: any): Observable<string> {
     scope = !scope ? this : scope;
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.httpService.requestDeleteAdminQuestionnaire(arg.id).subscribe(_ => {
+        return this.httpService.requestDeleteAdminQuestionnaire(arg.id).subscribe(() => {
           this.deleted.emit(this.questionnaire().id);
         });
       };

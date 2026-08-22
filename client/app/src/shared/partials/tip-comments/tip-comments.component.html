@@ -14,7 +14,7 @@
     <div class="card-body">
       <div id="TipCommentsInputBox">
         <label for="new-comment-content" class="visually-hidden">{{ 'Comment' | translate }}</label>
-        <textarea id="new-comment-content" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off" autoExpand></textarea>
+        <textarea id="new-comment-content" [(ngModel)]="newCommentContent" name="newCommentContent" maxlength="4096" class="form-control" autocomplete="off" srcAutoExpand></textarea>
         <span class="float-end">{{newCommentContent.length ? newCommentContent.length : '0'}}/4096</span>
         <button id="comment-action-send" class="btn btn-primary mt-2" (click)="newComment()" [disabled]="!newCommentContent">
           <i class="fas fa-comment"></i>

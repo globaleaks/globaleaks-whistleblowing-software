@@ -4,9 +4,6 @@ import {Injectable} from "@angular/core";
   providedIn: "root",
 })
 export class BrowserCheckService {
-  constructor() {
-  }
-
   checkBrowserSupport(): boolean {
     const crawlers = [
       "Googlebot",
@@ -20,8 +17,8 @@ export class BrowserCheckService {
       "ia_archiver"
     ];
 
-    for (let i=0; i < crawlers.length; i++) {
-      if (navigator.userAgent.indexOf(crawlers[i]) !== -1) {
+    for (const crawler of crawlers) {
+      if (navigator.userAgent.indexOf(crawler) !== -1) {
         return true;
       }
     }

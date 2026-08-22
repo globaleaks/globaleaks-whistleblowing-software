@@ -26,8 +26,6 @@ import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transf
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {Receiver} from "@app/models/app/public-model";
-import {TipUploadWbFileComponent} from "@app/shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
-import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
@@ -130,8 +128,7 @@ export class TipComponent implements OnInit {
 
 
   updateLabel(label: string) {
-    this.httpService.tipOperation("set", {"key": "label", "value": label}, this.RTipService.tip.id).subscribe(() => {
-    });
+    this.httpService.tipOperation("set", {"key": "label", "value": label}, this.RTipService.tip.id).subscribe();
   }
 
   openGrantTipAccessModal(): void {
@@ -226,6 +223,7 @@ export class TipComponent implements OnInit {
               }
             },
             () => {
+              // The transfer modal was dismissed: nothing to do.
             }
           );
         }
@@ -320,6 +318,7 @@ export class TipComponent implements OnInit {
   tipDelete() {
     const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = () => {
+      // The modal performs the deletion itself through args.
     };
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
@@ -359,9 +358,7 @@ export class TipComponent implements OnInit {
 
   exportTip(tipId: string) {
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
+    this.httpService.requestToken(param).subscribe({
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
             (result: number) => {

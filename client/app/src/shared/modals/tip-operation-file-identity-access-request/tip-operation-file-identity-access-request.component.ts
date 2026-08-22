@@ -26,7 +26,7 @@ export class TipOperationFileIdentityAccessRequestComponent {
     this.modalService.dismissAll();
     this.httpService.requestIdentityAccess(this.tipsService.tip.id, this.request_motivation)
       .subscribe(
-        _ => {
+        () => {
           this.utils.reloadCurrentRoute();
         }
       );

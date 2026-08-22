@@ -2,7 +2,7 @@ import {Directive, ElementRef, HostListener, inject} from "@angular/core";
 import {NgModel} from "@angular/forms";
 
 @Directive({
-    selector: "[subdomainvalidators]",
+    selector: "[srcSubdomainValidator]",
     standalone: true
 })
 export class SubdomainValidatorDirective {

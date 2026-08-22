@@ -55,7 +55,7 @@
                   </button>
                 }
                 @if (this.subStatusEditing[index]) {
-                  <button id="substatus-save-button" class="btn btn-sm btn-primary" (click)="saveSubmissionsSubStatus(substatus);" [disabled]="substatus && substatus.label.length==0">
+                  <button id="substatus-save-button" class="btn btn-sm btn-primary" (click)="saveSubmissionsSubStatus(substatus);" [disabled]="substatus && substatus.label.length===0">
                     <span>{{'Save'|translate}}</span>
                   </button>
                 }

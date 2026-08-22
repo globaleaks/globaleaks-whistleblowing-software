@@ -1,7 +1,7 @@
 @if (uploading()) {
   <span>{{'Uploading files…'|translate}}</span>
 }
-@if (!uploading() && progress()==100) {
+@if (!uploading() && progress()===100) {
   <span>{{'Upload completed successfully!'|translate}}</span>
 }
 <div id="FileUpoloadsInfo">

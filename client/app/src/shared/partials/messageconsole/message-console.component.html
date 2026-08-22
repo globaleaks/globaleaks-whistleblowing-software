@@ -1,4 +1,4 @@
-@if (appDataService.errorCodes.code != -1 && ![4, 9, 11, 13, 10].includes(appDataService.errorCodes.code)) {
+@if (appDataService.errorCodes.code !== -1 && ![4, 9, 11, 13, 10].includes(appDataService.errorCodes.code)) {
   <div>
     <div class="alert alert-danger alert-danger-console alert-dismissible fade show" (close)="dismissError()">
       <button type="button" class="close close-btn bg-transparent custom-close-button" (click)="dismissError()" data-bs-dismiss="alert" aria-label="Close">

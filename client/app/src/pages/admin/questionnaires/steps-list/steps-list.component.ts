@@ -74,7 +74,7 @@ export class StepsListComponent implements OnInit {
   }
 
   saveStep(step: Step) {
-    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(_ => {
+    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(() => {
       this.toggleEditing();
     });
   }
@@ -85,13 +85,13 @@ export class StepsListComponent implements OnInit {
 
   openConfirmableModalDialog(arg: Step, scope: any): Observable<string> {
     scope = !scope ? this : scope;
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(_ => {
+        return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(() => {
           this.deleted.emit(this.step().id);
         });
       };

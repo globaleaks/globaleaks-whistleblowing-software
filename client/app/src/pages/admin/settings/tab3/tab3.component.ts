@@ -68,7 +68,7 @@ export class Tab3Component implements OnInit {
   updateNode() {
     this.utilsService.update(this.nodeResolver.dataModel).subscribe(res => {
       this.appDataService.public.node.languages_enabled = res["languages_enabled"];
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.utilsService.reloadCurrentRoute();
     });
   }

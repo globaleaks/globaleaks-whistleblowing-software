@@ -47,7 +47,7 @@ export class DeleteConfirmationComponent {
     const selected_tips = this.selected_tips;
     if (selected_tips) {
       return this.utils.runRecipientOperation(operation, {"rtips": selected_tips}, true).subscribe({
-        next: _ => {
+        next: () => {
           this.utils.reloadCurrentRoute();
         }
       });

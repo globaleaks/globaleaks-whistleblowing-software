@@ -31,8 +31,8 @@ export class Tab1Component {
   readonly contentForm = input.required<NgForm>();
 
   updateNode() {
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe(_ => {
-      this.appConfigService.reinit(false);
+    this.utilsService.update(this.nodeResolver.dataModel).subscribe(() => {
+      this.appConfigService.reinit();
       this.utilsService.reloadComponent();
     });
   }

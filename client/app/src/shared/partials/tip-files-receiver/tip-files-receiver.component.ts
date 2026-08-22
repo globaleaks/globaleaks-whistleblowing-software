@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -22,7 +22,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     standalone: true,
     imports: [DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
-export class TipFilesReceiverComponent implements OnInit {
+export class TipFilesReceiverComponent {
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
   protected modalService = inject(NgbModal);
@@ -36,9 +36,6 @@ export class TipFilesReceiverComponent implements OnInit {
   readonly redactMode = input(false);
 
   collapsed = false;
-
-  ngOnInit(): void {
-  }
 
   getSortedWBFiles(data: WbFile[]): WbFile[] {
     return data;

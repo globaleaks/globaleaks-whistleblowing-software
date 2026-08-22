@@ -95,11 +95,11 @@ export class PreferenceTab1Component implements OnInit {
 
           this.httpService.requestOperationsRecovery(data, this.utilsService.encodeString(secret)).subscribe(
             {
-              next: _ => {
+              next: () => {
                 this.preferenceResolver.dataModel.two_factor = !this.preferenceResolver.dataModel.two_factor;
                 this.utilsService.reloadCurrentRoute();
               },
-              error: (_: any) => {
+              error: () => {
                this.toggle2FA(event);
               }
             }
@@ -168,8 +168,7 @@ export class PreferenceTab1Component implements OnInit {
     const requestObservable = this.httpService.updatePreferenceResource(JSON.stringify(this.preferenceResolver.dataModel));
     requestObservable.subscribe(
       {
-        next: _ => {},
-        error: _ =>{
+        error: () =>{
           const uploaderInput = this.uploaderInput();
           if (uploaderInput) {
             uploaderInput.nativeElement.value = "";

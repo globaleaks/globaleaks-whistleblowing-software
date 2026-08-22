@@ -84,12 +84,12 @@ export class Tab2Component implements OnInit {
         query: {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024}
       });
 
-      flowJsInstance.on("fileSuccess", (_) => {
-        this.appConfigService.reinit(false);
+      flowJsInstance.on("fileSuccess", () => {
+        this.appConfigService.reinit();
         this.updateFiles();
       });
 
-      flowJsInstance.on("fileError", (_) => {
+      flowJsInstance.on("fileError", () => {
         const uploaderInput = this.uploaderInput();
         if (uploaderInput) {
           uploaderInput.nativeElement.value = "";
@@ -127,11 +127,11 @@ export class Tab2Component implements OnInit {
   togglePermissionUploadFiles(): void {
     if (!this.authenticationData.session.permissions.can_upload_files) {
       this.utilsService.runAdminOperation("enable_user_permission_file_upload", {}, false).subscribe({
-        next: (_) => {
+        next: () => {
           this.authenticationData.session.permissions.can_upload_files = true;
           this.permissionStatus = true;
         },
-        error: (_) => {
+        error: () => {
           this.authenticationData.session.permissions.can_upload_files = false;
           this.togglePermissionUploadFiles();
           this.permissionStatus = false;

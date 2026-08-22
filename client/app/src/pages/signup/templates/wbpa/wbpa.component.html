@@ -49,7 +49,7 @@
         <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div>
-        <input id="wbpa-signup-email-confirm" name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp type="email" required>
+        <input id="wbpa-signup-email-confirm" name="email" class="form-control" [(ngModel)]="confirmation_email" srcDisableCcp type="email" required>
         @if (validated && signupform && email.valid && signup().email !== confirmation_email) {
           <div class="text-danger">
             <span>{{'Invalid confirmation'|translate}}</span>
@@ -96,7 +96,7 @@
         <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
       <div class="input-group">
-        <input id="wbpa-subdomain" name="subdomain" class="form-control" [(ngModel)]="signup().subdomain" type="text" maxlength="40" subdomainvalidators required>
+        <input id="wbpa-subdomain" name="subdomain" class="form-control" [(ngModel)]="signup().subdomain" type="text" maxlength="40" srcSubdomainValidator required>
         <span class="input-group-append">
           <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
         </span>

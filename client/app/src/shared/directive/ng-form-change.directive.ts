@@ -3,19 +3,19 @@ import {debounceTime, Subscription} from "rxjs";
 import {NgForm} from "@angular/forms";
 
 @Directive({
-    selector: "[ngFormChanges]",
+    selector: "[srcNgFormChanges]",
     standalone: true
 })
 export class NgFormChangeDirective implements OnInit, OnDestroy {
   private ngForm = inject(NgForm);
 
 
-  readonly formChange = output<void>({alias: "ngFormChange"});
+  readonly ngFormChange = output<void>();
   private formSubscription: Subscription;
 
   ngOnInit() {
     this.formSubscription = this.ngForm.form.valueChanges.pipe(debounceTime(150)).subscribe(() => {
-      this.formChange.emit();
+      this.ngFormChange.emit();
     });
   }
 

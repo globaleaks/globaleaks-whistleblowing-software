@@ -178,7 +178,7 @@ export class TippageComponent implements OnInit {
     return progress;
   }
 
-  provideIdentityInformation(_: { param1: string, param2: Answers }) {
+  provideIdentityInformation() {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
@@ -192,9 +192,7 @@ export class TippageComponent implements OnInit {
       this.httpService.whistleBlowerIdentityUpdate({
         "identity_field_id": this.tip.whistleblower_identity_field.id,
         "identity_field_answers": this.answers
-      }).subscribe
-      (
-        {
+      }).subscribe({
           next: () => {
             clearInterval(intervalId);
             this.reload();

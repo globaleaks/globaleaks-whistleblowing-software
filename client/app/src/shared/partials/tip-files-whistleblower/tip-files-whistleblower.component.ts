@@ -34,9 +34,7 @@ export class TipFilesWhistleblowerComponent {
   downloadWBFile(wbFile: WbFile) {
 
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
+    this.httpService.requestToken(param).subscribe({
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {

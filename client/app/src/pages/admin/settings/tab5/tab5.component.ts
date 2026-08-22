@@ -69,7 +69,7 @@ export class Tab5Component implements OnInit {
   }
 
   updateNode() {
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe(_ => {
+    this.utilsService.update(this.nodeResolver.dataModel).subscribe(() => {
       this.appConfigService.reinit();
       if (this.routeReload) {
         this.utilsService.reloadCurrentRoute();

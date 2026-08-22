@@ -70,7 +70,7 @@ export class UserEditorComponent implements OnInit {
   }
 
   disable2FA(user: userResolverModel) {
-    this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, false).subscribe(_ => {
+    this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, false).subscribe(() => {
       user.two_factor = false;
     });
   }
@@ -104,7 +104,6 @@ export class UserEditorComponent implements OnInit {
       user.pgp_key_remove = false;
     }
     return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
-      next:()=>{},
       error:()=>{
         const uploaderInput = this.uploaderInput();
         if (uploaderInput) {
@@ -120,13 +119,13 @@ export class UserEditorComponent implements OnInit {
 
   openConfirmableModalDialog(arg: userResolverModel, scope: any): Observable<string> {
     scope = !scope ? this : scope;
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
+        return this.utilsService.deleteAdminUser(arg.id).subscribe(() => {
           this.deleted.emit(this.user().id);
         });
       };
@@ -153,7 +152,6 @@ export class UserEditorComponent implements OnInit {
 
   toggleUserEscrow(user: userResolverModel) {
     this.utilsService.runAdminOperation("toggle_user_escrow", {"value": user.id}, true).subscribe({
-      next:()=>{},
       error:()=>{
         user.escrow = !user.escrow;
       }

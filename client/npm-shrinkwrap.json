@@ -7,7 +7,6 @@
     "": {
       "name": "globaleaks",
       "version": "5.0.99",
-      "hasInstallScript": true,
       "dependencies": {
         "@angular/common": "21.2.18",
         "@angular/core": "21.2.18",
@@ -66,6 +65,7 @@
         "@angular/compiler-cli": "21.2.18",
         "@cypress/code-coverage": "4.0.3",
         "@cypress/schematic": "5.0.0",
+        "@eslint/js": "^10.0.1",
         "@istanbuljs/nyc-config-typescript": "1.0.2",
         "@lodder/grunt-postcss": "3.1.1",
         "@types/flowjs__flow.js": "2.13.3",
@@ -3635,6 +3635,27 @@
       },
       "engines": {
         "node": "^20.19.0 || ^22.13.0 || >=24"
+      }
+    },
+    "node_modules/@eslint/js": {
+      "version": "10.0.1",
+      "resolved": "https://registry.npmjs.org/@eslint/js/-/js-10.0.1.tgz",
+      "integrity": "sha512-zeR9k5pd4gxjZ0abRoIaxdc7I3nDktoXZk2qOv9gCNWx3mVwEn32VRhyLaRsDiJjTs0xq/T8mfPtyuXu7GWBcA==",
+      "dev": true,
+      "license": "MIT",
+      "engines": {
+        "node": "^20.19.0 || ^22.13.0 || >=24"
+      },
+      "funding": {
+        "url": "https://eslint.org/donate"
+      },
+      "peerDependencies": {
+        "eslint": "^10.0.0"
+      },
+      "peerDependenciesMeta": {
+        "eslint": {
+          "optional": true
+        }
       }
     },
     "node_modules/@eslint/object-schema": {

@@ -6,7 +6,7 @@ import {UserComponent} from "./template/user/user.component";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: "views-header",
+    selector: "src-header",
     templateUrl: "./header.component.html",
     standalone: true,
     imports: [UserComponent, TranslateModule]

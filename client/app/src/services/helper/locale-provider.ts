@@ -158,7 +158,7 @@ import localeKlExtra from '@angular/common/locales/extra/kl';
 // need '_' -> '-'; the POSIX '@modifier' codes map onto BCP 47 script/variant
 // subtags and are listed here. This must stay in sync with the backend
 // LANGUAGES_BCP47_OVERRIDES table.
-const BCP47_OVERRIDES: {[code: string]: string} = {
+const BCP47_OVERRIDES: Record<string, string> = {
   'ca@valencia': 'ca-valencia',
   'sr_ME@latin': 'sr-Latn-ME',
   'sr_RS@latin': 'sr-Latn-RS',

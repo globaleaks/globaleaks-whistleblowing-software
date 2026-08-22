@@ -14,7 +14,7 @@ export class BodyDomObserverService implements OnDestroy {
   private observeBodyChanges(): void {
     const bodyElement = document.body;
 
-    this.bodyObserver = new MutationObserver((mutations) => {
+    this.bodyObserver = new MutationObserver(() => {
       mockEngine.run();
     });
 

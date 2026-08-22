@@ -16,9 +16,7 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   readonly itemsPerPage = input(20);
 
   /** Optional: filter by key-value pairs */
-  readonly filter = input<{
-    [key: string]: any;
-}>();
+  readonly filter = input<Record<string, any>>();
 
   /** Optional: order items by field and direction */
   readonly orderBy = input<keyof T>();
@@ -34,8 +32,6 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   paginatedItems: T[] = [];
 
   private utilsService = inject(UtilsService);
-
-  constructor() {}
 
   ngAfterViewInit(): void {
     this.update();

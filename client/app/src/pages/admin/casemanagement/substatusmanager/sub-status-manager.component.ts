@@ -95,8 +95,7 @@ export class SubStatusManagerComponent {
 
   saveSubmissionsStatus(submissionsStatus: Status): void {
     const url = "api/admin/statuses/" + submissionsStatus.id;
-    this.httpService.requestUpdateStatus(url, submissionsStatus).subscribe(_ => {
-    });
+    this.httpService.requestUpdateStatus(url, submissionsStatus).subscribe();
   }
 
   openConfirmableModalDialog(arg: Status, scope: any): Observable<string> {
@@ -108,7 +107,7 @@ export class SubStatusManagerComponent {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         const url = "api/admin/statuses/" + arg.id;
-        return this.utilsService.deleteStatus(url).subscribe(_ => {
+        return this.utilsService.deleteStatus(url).subscribe(() => {
           this.deleted.emit(arg.id);
         });
       };

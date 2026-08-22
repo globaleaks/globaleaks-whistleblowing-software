@@ -7,7 +7,7 @@
   <div class="form-group d-block mx-auto">
     <div class="input-group">
       <input class="d-none" type="password" name="disable-autocomplete" />
-      <input [autocomplete]="'off'" #receiptinput="ngModel" [(ngModel)]="formattedReceipt" id="receipt-input" class="form-control text-center rounded-start" type="password" autocomplete="receipt" name="receipt" maxlength="19" size="19" customReceiptValidator>
+      <input [autocomplete]="'off'" #receiptinput="ngModel" [(ngModel)]="formattedReceipt" id="receipt-input" class="form-control text-center rounded-start" type="password" autocomplete="receipt" name="receipt" maxlength="19" size="19" srcReceiptValidator>
       <button [disabled]="formattedReceipt.length < 16 || authenticationService.loginInProgress || !receiptinput.errors?.['receiptvalidator']" (click)="viewReport()" id="ReceiptButton" class="btn btn-primary" type="submit">
         <span>
           {{'Log in'|translate}}

@@ -3,7 +3,7 @@ import {NgbDate, NgbDatepickerModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
 @Component({
-  selector: "ngbd-datepicker-range",
+  selector: "src-date-selector",
   standalone: true,
   imports: [NgbDatepickerModule, FormsModule],
   templateUrl: "./date-selector.component.html"

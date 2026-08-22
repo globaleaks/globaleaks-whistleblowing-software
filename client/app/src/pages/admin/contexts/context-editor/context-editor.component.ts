@@ -113,7 +113,7 @@ export class ContextEditorComponent implements OnInit {
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.utilsService.deleteAdminContext(arg.id).subscribe(_ => {
+        return this.utilsService.deleteAdminContext(arg.id).subscribe(() => {
 	  this.deleted.emit(arg.id);
         });
       };
@@ -124,8 +124,7 @@ export class ContextEditorComponent implements OnInit {
     if (context.additional_questionnaire_id === null) {
       context.additional_questionnaire_id = "";
     }
-    this.utilsService.updateAdminContext(context, context.id).subscribe(_ => {
-    });
+    this.utilsService.updateAdminContext(context, context.id).subscribe();
   }
 
 }

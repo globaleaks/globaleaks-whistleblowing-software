@@ -187,7 +187,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <span id="tip-action-filter-report-date" [class.calendar-active]="reportDateFilter" (click)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!reportDatePicker">
-                  <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)"></ngbd-datepicker-range>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)"></src-date-selector>
                 </div>
               </span>
             </th>
@@ -211,7 +211,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <span [class.calendar-active]="updateDateFilter" (click)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!lastUpdatePicker">
-                  <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)"></ngbd-datepicker-range>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)"></src-date-selector>
                 </div>
               </span>
             </th>
@@ -235,7 +235,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <span [class.calendar-active]="expiryDateFilter" (click)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!expirationDatePicker">
-                  <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)"></ngbd-datepicker-range>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)"></src-date-selector>
                 </div>
               </span>
             </th>

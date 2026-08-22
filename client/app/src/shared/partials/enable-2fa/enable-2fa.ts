@@ -47,8 +47,8 @@ export class Enable2fa {
   initialization() {
     window.crypto.getRandomValues(this.array);
 
-    for (let i = 0; i < this.array.length; i++) {
-      this.twoFactorAuthData.totp.secret += this.symbols[this.array[i] % this.symbols.length];
+    for (const value of this.array) {
+      this.twoFactorAuthData.totp.secret += this.symbols[value % this.symbols.length];
     }
 
     this.onSecretKeyChanged();

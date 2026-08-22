@@ -11,9 +11,6 @@ import {Constants} from "@app/shared/constants/constants";
 })
 export class FieldUtilitiesService {
 
-  constructor() {
-  }
-
   parseQuestionnaire(questionnaire: any, parsedFields: ParsedFields) {
     questionnaire.steps.forEach((step: Step)=> {
       parsedFields = this.parseFields(step.children, parsedFields);
@@ -185,7 +182,7 @@ export class FieldUtilitiesService {
       this.updateAnswers(scope, step, step.children, scope.answers, false);
     });
 
-    for (let key in scope.uploads) {
+    for (const key in scope.uploads) {
       if (!scope.uploads[key].field.enabled) {
         delete scope.uploads[key];
       }

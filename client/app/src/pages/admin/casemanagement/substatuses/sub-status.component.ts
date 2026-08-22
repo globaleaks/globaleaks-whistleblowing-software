@@ -86,8 +86,7 @@ export class SubStatusComponent implements OnInit {
       subStatusParam.tip_timetolive_option = subStatusParam.tip_timetolive = -1;
     }
     const url = "api/admin/statuses/" + this.submissionsStatus().id + "/substatuses/" + subStatusParam.id;
-    this.httpService.requestUpdateStatus(url, subStatusParam).subscribe(_ => {
-    });
+    this.httpService.requestUpdateStatus(url, subStatusParam).subscribe();
   }
 
   deleteSubSubmissionStatus(subStatusParam: Substatus): void {
@@ -115,7 +114,7 @@ export class SubStatusComponent implements OnInit {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         const url = "api/admin/statuses/" + arg.submissionstatus_id + "/substatuses/" + arg.id;
-        return this.utilsService.deleteSubStatus(url).subscribe(_ => {
+        return this.utilsService.deleteSubStatus(url).subscribe(() => {
           this.deleted.emit(arg.id);
         });
       };

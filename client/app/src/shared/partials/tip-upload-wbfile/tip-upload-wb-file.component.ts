@@ -45,12 +45,12 @@ export class TipUploadWbFileComponent {
         singleFile: true,
         query: {description: this.file_upload_description, visibility: this.key(), fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024}
       });
-      flowJsInstance.on("fileSuccess", (_) => {
+      flowJsInstance.on("fileSuccess", () => {
         this.updated.emit()
         this.errorFile = null;
         this.cdr.detectChanges();
       });
-      flowJsInstance.on("fileError", (file, _) => {
+      flowJsInstance.on("fileError", (file) => {
         this.showError = true;
         this.errorFile = file;
         const uploaderInput = this.uploaderInput();

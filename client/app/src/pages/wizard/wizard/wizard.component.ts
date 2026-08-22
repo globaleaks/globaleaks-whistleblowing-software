@@ -73,8 +73,7 @@ export class WizardComponent implements OnInit {
 
   ngOnInit() {
     if (this.appDataService.public.node.wizard_done) {
-      this.router.navigate(["/"]).then(_ => {
-      });
+      this.router.navigate(["/"]).then();
       return;
     }
     this.loadLicense();
@@ -99,10 +98,8 @@ export class WizardComponent implements OnInit {
     this.appDataService.updateShowLoadingPanel(false);
 
     const param = JSON.stringify(this.wizard);
-    this.httpService.requestWizard(param).subscribe
-    (
-      {
-        next: _ => {
+    this.httpService.requestWizard(param).subscribe({
+        next: () => {
           this.step += 1;
         }
       }
@@ -112,7 +109,7 @@ export class WizardComponent implements OnInit {
   goToAdminInterface() {
     const promise = () => {
       this.translationService.setLanguage(this.translationService.language);
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.appConfigService.loadAdminRoute("/admin/home");
     };
     this.authenticationService.login(0, this.wizard.admin_username, this.admin_password, "", "", promise);

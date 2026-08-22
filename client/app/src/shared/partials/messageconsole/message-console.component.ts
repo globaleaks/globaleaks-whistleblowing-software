@@ -5,7 +5,7 @@ import {ErrorCodes} from "@app/models/app/error-code";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: "messageconsole",
+    selector: "src-message-console",
     templateUrl: "./message-console.component.html",
     standalone: true,
     imports: [TranslateModule]

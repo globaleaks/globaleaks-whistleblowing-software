@@ -44,7 +44,7 @@
       }
       @if (wbTipService.tip.status !== 'closed' && !wbTipService.tip.data.whistleblower_identity) {
         <div>
-          <form #wbform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+          <form #wbform="ngForm" srcNgFormChanges (ngFormChange)="onFormChange()">
             <src-whistleblower-identity-field [step]="step()" [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit($event)" (stateChanged)="stateChanged($event)" [answers]="answers()" [field]="field()" [index]="0" [submission]=submission() [uploads]="uploads()"></src-whistleblower-identity-field>
             <src-rfiles-upload-status [progress]="uploadProgress()" [estimatedTime]="uploadEstimateTime()" [uploading]="isUploading()"></src-rfiles-upload-status>
             <div id="SubmitBox">

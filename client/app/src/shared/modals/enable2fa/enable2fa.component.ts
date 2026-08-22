@@ -31,11 +31,11 @@ export class Enable2faComponent {
     this.twoFactorAuthData.totp.token = ""
     requestObservable.subscribe(
       {
-        next: _ => {
+        next: () => {
           this.preferenceResolver.dataModel.two_factor = true;
           this.activeModal.dismiss();
         },
-        error: _ => {
+        error: () => {
           // this.utilsService.reloadCurrentRoute();
         }
       }

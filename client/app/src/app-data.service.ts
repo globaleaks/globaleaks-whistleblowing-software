@@ -34,8 +34,6 @@ export class AppDataService {
   public publicSubject: BehaviorSubject<Root> = new BehaviorSubject<Root>({} as Root);
   public$: Observable<Root> = this.publicSubject.asObservable();
 
-  constructor() {}
-
   updateShowLoadingPanel(newValue: boolean) {
     this.showLoadingPanelSubject.next(newValue);
   }

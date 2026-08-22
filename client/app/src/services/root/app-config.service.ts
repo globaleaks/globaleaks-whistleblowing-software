@@ -37,7 +37,7 @@ export class AppConfigService {
   }
 
   init() {
-    this.activatedRoute.paramMap.subscribe(_ => {
+    this.activatedRoute.paramMap.subscribe(() => {
       this.localInitialization();
     });
   }
@@ -51,7 +51,7 @@ export class AppConfigService {
     this.titleService.setTitle();
   };
 
-  public localInitialization(languageInit = true, callback?: () => void) {
+  public localInitialization(callback?: () => void) {
     this.httpService.getPublicResource().subscribe({
       next: data => {
         if (data.body !== null) {
@@ -202,14 +202,14 @@ export class AppConfigService {
     return forkJoin(missing.map(id => this.loadContext(id)));
   }
 
-  reinit(languageInit = true) {
-    this.localInitialization(languageInit);
+  reinit() {
+    this.localInitialization();
   }
 
   reload() {
     const url = this.router.url;
     this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
-      this.localInitialization(true, () => {
+      this.localInitialization(() => {
         this.router.navigateByUrl(url);
       });
     });

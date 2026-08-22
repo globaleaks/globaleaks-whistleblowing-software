@@ -42,7 +42,7 @@ export class WhistleBlowerIdentityReceiverComponent {
 
   accessIdentity() {
     return this.httpService.accessIdentity(this.tipService.tip.id).subscribe(
-      _ => {
+      () => {
         this.utils.reloadCurrentRoute();
       }
     );

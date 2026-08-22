@@ -174,8 +174,7 @@ export class AuthenticationService {
                 } else if (this.session.properties.require_two_factor) {
                   this.router.navigate(['/action/forcedtwofactor']).then();
                 } else {
-                let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || undefined;
-                redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
+                let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
                 redirect = decodeURIComponent(redirect);
 
 	        if (redirect !== "/") {
@@ -218,7 +217,7 @@ export class AuthenticationService {
       );
 
       return requestObservable;
-    } catch (error) {
+    } catch {
       this.appDataService.updateShowLoadingPanel(false);
       return of('Failure');
     }

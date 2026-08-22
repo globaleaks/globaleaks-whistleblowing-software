@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input, output} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -20,7 +20,7 @@ import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
     standalone: true,
     imports: [DatePipe, NgbTooltipModule, TranslateModule, ByteFmtPipe]
 })
-export class WbFilesComponent implements OnInit {
+export class WbFilesComponent {
   private appDataService = inject(AppDataService);
   private cryptoService = inject(CryptoService);
   private httpService = inject(HttpService);
@@ -34,9 +34,6 @@ export class WbFilesComponent implements OnInit {
   readonly redactMode = input(false);
   readonly receivers_by_id = input.required<ReceiversById>();
   readonly updated = output<any>();
-
-  ngOnInit(): void {
-  }
 
   isMasked(): boolean {
     return !!this.wbFile().masked;
@@ -82,9 +79,7 @@ export class WbFilesComponent implements OnInit {
   downloadWBFile(wbFile: RFile) {
 
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
+    this.httpService.requestToken(param).subscribe({
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
             (ans) => {

@@ -1,11 +1,11 @@
-import { Directive, ElementRef, HostListener, AfterViewInit } from '@angular/core';
+import { Directive, ElementRef, HostListener, AfterViewInit, inject } from '@angular/core';
 
 @Directive({
-  selector: '[autoExpand]'
+  selector: '[srcAutoExpand]'
 })
 export class AutoExpandDirective implements AfterViewInit {
 
-  constructor(private el: ElementRef) {}
+  private el = inject(ElementRef);
 
   ngAfterViewInit() {
     this.adjustHeight();

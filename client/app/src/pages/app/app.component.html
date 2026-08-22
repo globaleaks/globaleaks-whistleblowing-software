@@ -32,16 +32,16 @@
             <src-privacybadge></src-privacybadge>
           </div>
         }
-        <views-header></views-header>
+        <src-header></src-header>
 
-        <messageconsole id="MessagesConsoleBox"></messageconsole>
+        <src-message-console id="MessagesConsoleBox"></src-message-console>
 
         @if (appConfig.sidebar && showSidebar) {
           <button class="btn btn-link d-lg-none ms-2 my-2"
               type="button"
               (click)="isNavCollapsed = !isNavCollapsed"
               aria-controls="Sidebar"
-              aria-expanded="!isNavCollapsed"
+              [attr.aria-expanded]="!isNavCollapsed"
               aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
           </button>

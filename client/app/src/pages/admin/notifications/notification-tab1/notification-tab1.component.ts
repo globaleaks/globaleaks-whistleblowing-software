@@ -24,7 +24,7 @@ export class NotificationTab1Component {
   protected readonly Constants = Constants;
 
   updateNotification(notification: notificationResolverModel) {
-    this.utilsService.updateAdminNotification(notification).subscribe(_ => {
+    this.utilsService.updateAdminNotification(notification).subscribe(() => {
       this.utilsService.reloadComponent();
     });
   }

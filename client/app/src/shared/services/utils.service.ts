@@ -59,7 +59,7 @@ export class UtilsService {
 
   routeGuardRedirect(route="login", skipChange = false){
     const loginUrlWithParam = `/${route}?redirect=${encodeURIComponent(location.hash.substring(1))}`;
-    this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange }).then(() => {});
+    this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange }).then();
   }
 
   newItemOrder(objects: any[], key: string): number {
@@ -173,7 +173,6 @@ export class UtilsService {
     const fileNameParts = file.name.split(".");
     const fileExtension = fileNameParts.pop();
     const fileNameWithoutExtension = fileNameParts.join(".");
-    const timestamp = new Date().getTime();
     const fileNameWithTimestamp = `${fileNameWithoutExtension}.${fileExtension}`;
     const modifiedFile = new File([file], fileNameWithTimestamp, {type: file.type});
 
@@ -291,14 +290,14 @@ export class UtilsService {
 
   getSubmissionStatusText(status: string,substatus:string, submission_statuses: Status[]) {
     let text;
-    for (let i = 0; i < submission_statuses.length; i++) {
-      if (submission_statuses[i].id === status) {
-        text = submission_statuses[i].label ? this.translateService.instant(submission_statuses[i].label) : '';
+    for (const submissionStatus of submission_statuses) {
+      if (submissionStatus.id === status) {
+        text = submissionStatus.label ? this.translateService.instant(submissionStatus.label) : '';
 
-        const subStatus = submission_statuses[i].substatuses;
-        for (let j = 0; j < subStatus.length; j++) {
-          if (subStatus[j].id === substatus && subStatus[j].label) {
-            text += ' \u2013 ' + subStatus[j].label;
+        const subStatus = submissionStatus.substatuses;
+        for (const sub of subStatus) {
+          if (sub.id === substatus && sub.label) {
+            text += ' \u2013 ' + sub.label;
             break;
           }
         }
@@ -318,7 +317,7 @@ export class UtilsService {
 
         // Test if the search term is found in the object string
         return regex.test(objString);
-    } catch (error) {
+    } catch {
         // Return false in case of any exception (e.g., cyclic reference or BigInt error)
         return false;
     }
@@ -616,9 +615,7 @@ export class UtilsService {
 
   openPasswordConfirmableDialog(arg: string, scope: any){
     return this.runAdminOperation("reset_submissions", {}, true).subscribe({
-      next: (_) => {
-      },
-      error: (_) => {
+      error: () => {
         this.openPasswordConfirmableDialog(arg, scope)
       }
     });
@@ -705,14 +702,14 @@ export class UtilsService {
   }
 
   moveLeft(elem: any): void {
-    elem[this.getXOrderProperty(elem)] -= 1;
+    elem[this.getXOrderProperty()] -= 1;
   }
 
   moveRight(elem: any): void {
-    elem[this.getXOrderProperty(elem)] += 1;
+    elem[this.getXOrderProperty()] += 1;
   }
 
-  getXOrderProperty(_: Option[]): string {
+  getXOrderProperty(): string {
     return "x";
   }
 
@@ -822,9 +819,7 @@ export class UtilsService {
 
   public downloadRFile(file: WbFile) {
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
+    this.httpService.requestToken(param).subscribe({
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
@@ -886,7 +881,7 @@ export class UtilsService {
         });
       },
       headers:(_file: any, chunk: any) => {
-        const headers: { [key: string]: string } = {"X-Session": this.authenticationService.session.id};
+        const headers: Record<string, string> = {"X-Session": this.authenticationService.session.id};
         if (chunk && chunk.dpopProof) {
           headers["DPoP"] = chunk.dpopProof;
         }

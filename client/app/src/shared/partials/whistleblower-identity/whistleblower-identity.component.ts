@@ -32,7 +32,7 @@ export class WhistleblowerIdentityComponent {
     param1: string;
     param2: Answers;
 }>();
-  readonly onFormUpdate = output<void>();
+  readonly formUpdate = output<void>();
   readonly notifyFileUpload = output<any>();
   readonly uploads = input<Record<string, any>>();
 
@@ -51,7 +51,7 @@ export class WhistleblowerIdentityComponent {
   }
 
   onFormChange() {
-    this.onFormUpdate.emit();
+    this.formUpdate.emit();
   }
 
   stateChanged(status: boolean) {

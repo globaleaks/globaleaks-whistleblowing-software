@@ -116,7 +116,6 @@ export class TipsComponent implements OnInit {
         )
       )
       .subscribe({
-        next: () => {},
         error: (error) => {
           console.error("Export failed", error);
           this.appDataService.updateShowLoadingPanel(false);

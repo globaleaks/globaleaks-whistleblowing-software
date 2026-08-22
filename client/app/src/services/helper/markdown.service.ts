@@ -5,8 +5,6 @@ import { Renderer } from 'marked';
   providedIn: 'root',
 })
 export class MarkdownRendererService {
-  constructor() {}
-
   getCustomRenderer(): Renderer {
     const renderer = new Renderer();
     const defaultLink = Renderer.prototype.link;

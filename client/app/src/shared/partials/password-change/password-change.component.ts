@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AppDataService} from "@app/app-data.service";
@@ -18,7 +18,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     standalone: true,
     imports: [FormsModule, NgbTooltipModule, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule]
 })
-export class PasswordChangeComponent implements OnInit {
+export class PasswordChangeComponent {
   rootDataService = inject(AppDataService);
   private authenticationService = inject(AuthenticationService);
   private router = inject(Router);
@@ -57,7 +57,7 @@ export class PasswordChangeComponent implements OnInit {
     const forced = this.preferencesService.dataModel.password_change_needed;
     this.httpService.requestOperations(data).subscribe(
       {
-        next: _ => {
+        next: () => {
           this.preferencesService.dataModel.password_change_needed = false;
           this.resetForm();
           if (forced) {
@@ -79,9 +79,6 @@ export class PasswordChangeComponent implements OnInit {
     this.changePasswordArgs = {current: "", password: "", confirm: ""};
     this.passwordStrengthScore = 0;
   }
-
-  ngOnInit() {
-  };
 
   onPasswordStrengthChange(score: number) {
     this.passwordStrengthScore = score;

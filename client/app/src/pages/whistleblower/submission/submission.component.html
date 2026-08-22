@@ -61,7 +61,7 @@
                   <div>
                     @if (step?.enabled) {
                       <div id="step-{{index}}"  [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'step-' + index + '-link'">
-                        <div ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                        <div ngForm #stepForm="ngForm" srcNgFormChanges (ngFormChange)="onFormChange()">
                           @if (step.description) {
                             <markdown class="description" [data]="step.description | stripHtml"></markdown>
                           }

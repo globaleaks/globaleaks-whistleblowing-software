@@ -16,7 +16,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
-    selector: "views-user",
+    selector: "src-user",
     templateUrl: "./user.component.html",
     standalone: true,
     imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, OrderByPipe]
@@ -51,7 +51,7 @@ export class UserComponent {
         sessionStorage.setItem("language", langParam);
 
         // Get current hash
-        let hash = window.location.hash; // e.g., "#!/some/path?lang=en&foo=bar"
+        const hash = window.location.hash; // e.g., "#!/some/path?lang=en&foo=bar"
 
         // Split path and query
         const [path, query] = hash.split('?');
@@ -75,7 +75,7 @@ export class UserComponent {
   onLogout(event: Event) {
     event.preventDefault();
     const promise = () => {
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.appConfigService.onValidateInitialConfiguration();
     };
 

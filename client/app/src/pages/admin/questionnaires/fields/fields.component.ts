@@ -10,8 +10,8 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {map, Observable, of} from "rxjs";
-import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import {Observable} from "rxjs";
+import {Step} from "@app/models/resolvers/questionnaire-model";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Children, Option, TriggeredByOption} from "@app/models/app/shared-public-model";
@@ -74,7 +74,7 @@ export class FieldsComponent implements OnInit {
     this.children = this.field().children;
   }
 
-  saveField(field: Step | Field, editing?:boolean) {
+  saveField(field: Step | Field) {
     this.utilsService.assignUniqueOrderIndex(field.options);
     return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe();
   }
@@ -108,7 +108,7 @@ export class FieldsComponent implements OnInit {
   }
 
   openConfirmableModalDialog(arg: Step | Field, scope: any): Observable<string> {
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;

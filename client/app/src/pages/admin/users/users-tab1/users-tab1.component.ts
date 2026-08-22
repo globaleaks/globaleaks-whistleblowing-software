@@ -59,7 +59,7 @@ export class UsersTab1Component implements OnInit {
     user.mail_address = this.new_user.email;
     user.language = this.nodeResolver.dataModel.default_language;
     user.send_activation_link = this.new_user.send_activation_link;
-    this.utilsService.addAdminUser(user).subscribe(_ => {
+    this.utilsService.addAdminUser(user).subscribe(() => {
       this.getResolver();
       this.new_user = {username: "", role: "", name: "", email: "", send_activation_link: true};
     });

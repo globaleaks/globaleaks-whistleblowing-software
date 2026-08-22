@@ -23,7 +23,7 @@
           <div>
             @if (step && step.enabled) {
               <div [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'step-' + index + '-link'">
-                <div id="step-{{index}}" ngForm #stepForm="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
+                <div id="step-{{index}}" ngForm #stepForm="ngForm" srcNgFormChanges (ngFormChange)="onFormChange()">
                   @if (step.description) {
                     <div class="description">{{step.description}}</div>
                   }

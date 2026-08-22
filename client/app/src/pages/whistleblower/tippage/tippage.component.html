@@ -35,7 +35,7 @@
         </div>
         @if (wbTipService.tip.whistleblower_identity_field && wbTipService.tip.whistleblower_identity_field.enabled) {
           <div class="col-md-6">
-            <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (onFormUpdate)="onFormChange()" (provideIdentityInformation)=provideIdentityInformation($event) [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field" [submission]="submission" [uploads]="uploads"></src-whistleblower-identity>
+            <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (formUpdate)="onFormChange()" (provideIdentityInformation)="provideIdentityInformation()" [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field" [submission]="submission" [uploads]="uploads"></src-whistleblower-identity>
           </div>
         }
       </div>

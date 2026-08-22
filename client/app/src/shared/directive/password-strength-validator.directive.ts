@@ -2,7 +2,7 @@ import {Directive, input, output} from "@angular/core";
 import {NG_VALIDATORS, AbstractControl, Validator, ValidationErrors} from "@angular/forms";
 
 @Directive({
-    selector: "[passwordStrengthValidator]",
+    selector: "[srcPasswordStrengthValidator]",
     providers: [{
             provide: NG_VALIDATORS,
             useExisting: PasswordStrengthValidatorDirective,
@@ -11,7 +11,7 @@ import {NG_VALIDATORS, AbstractControl, Validator, ValidationErrors} from "@angu
     standalone: true
 })
 export class PasswordStrengthValidatorDirective implements Validator {
-  readonly passwordStrength = input<string>(undefined, { alias: "passwordStrengthValidator" });
+  readonly passwordStrength = input<string>(undefined, { alias: "srcPasswordStrengthValidator" });
   readonly passwordStrengthChange = output<number>();
 
   validate(control: AbstractControl): ValidationErrors | null {
@@ -43,9 +43,9 @@ export class PasswordStrengthValidatorDirective implements Validator {
       }
 
       /* Score unique symbols */
-      for (let i = 0; i < pwd.length; i++) {
-        if (!letters[pwd[i]]) {
-          letters[pwd[i]] = 1;
+      for (const ch of pwd) {
+        if (!letters[ch]) {
+          letters[ch] = 1;
           variation2 += 1;
         }
       }

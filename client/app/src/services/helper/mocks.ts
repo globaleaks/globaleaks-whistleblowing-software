@@ -61,7 +61,7 @@ class MockEngine {
           for (i in this.mocks[path][selector]) {
             try {
               this.applyMock(this.mocks[path][selector][i]);
-            } catch (e) {
+            } catch {
               continue;
             }
           }

@@ -66,6 +66,7 @@
     "@angular/compiler-cli": "21.2.18",
     "@cypress/code-coverage": "4.0.3",
     "@cypress/schematic": "5.0.0",
+    "@eslint/js": "^10.0.1",
     "@istanbuljs/nyc-config-typescript": "1.0.2",
     "@lodder/grunt-postcss": "3.1.1",
     "@types/flowjs__flow.js": "2.13.3",

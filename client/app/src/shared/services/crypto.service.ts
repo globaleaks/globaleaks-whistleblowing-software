@@ -204,7 +204,7 @@ export class CryptoService {
     const jtiBytes = new Uint8Array(16);
     window.crypto.getRandomValues(jtiBytes);
 
-    const payload: { [key: string]: string | number } = {
+    const payload: Record<string, string | number> = {
       htm,
       htu,
       iat: Math.floor((Date.now() + this.timeOffsetMs) / 1000),

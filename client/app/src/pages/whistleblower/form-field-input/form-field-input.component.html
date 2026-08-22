@@ -11,7 +11,7 @@
           @switch (field().type) {
             @case ('textarea') {
               <div>
-                <textarea id="{{fieldEntry()}}" [name]=fieldEntry() class="form-control" [minlength]="field().attrs.min_len.value" [maxlength]="field().attrs.max_len.value" [(ngModel)]="entry()['value']" [required]="entry().required_status" #textarea="ngModel" [attr.aria-label]="field().label" [placeholder]="field().placeholder" autoExpand></textarea>
+                <textarea id="{{fieldEntry()}}" [name]=fieldEntry() class="form-control" [minlength]="field().attrs.min_len.value" [maxlength]="field().attrs.max_len.value" [(ngModel)]="entry()['value']" [required]="entry().required_status" #textarea="ngModel" [attr.aria-label]="field().label" [placeholder]="field().placeholder" srcAutoExpand></textarea>
                 @if (entry()['value']) {
                   <div class="clearfix">
                     @if (entry()['value'].length && field().attrs.max_len.value > 0 && (field().attrs.max_len.value - entry()['value'].length) <= 50) {

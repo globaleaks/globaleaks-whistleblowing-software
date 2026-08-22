@@ -33,14 +33,14 @@ export class AdminFileComponent {
         query: {fileSizeLimit: this.node.dataModel.maximum_filesize * 1024 * 1024}
       });
 
-      flowJsInstance.on("fileSuccess", (_) => {
-        this.appConfigService.reinit(false);
+      flowJsInstance.on("fileSuccess", () => {
+        this.appConfigService.reinit();
 	const callback = this.callback();
  if (callback) {
           callback();
 	}
       });
-      flowJsInstance.on("fileError", (_) => {
+      flowJsInstance.on("fileError", () => {
         const uploaderInput = this.uploaderInput();
         if (uploaderInput) {
           uploaderInput.nativeElement.value = "";
@@ -53,7 +53,7 @@ export class AdminFileComponent {
   deleteFile(url: string): void {
     this.utilsService.deleteFile(url).subscribe(
       () => {
-        this.appConfigService.reinit(false);
+        this.appConfigService.reinit();
 	const callback = this.callback();
  if (callback) {
           callback();
