@@ -1,8 +1,9 @@
-import {Component, inject} from "@angular/core";
+import {Component, inject, ChangeDetectionStrategy} from "@angular/core";
 import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-custodian-sidebar",
     templateUrl: "./sidebar.component.html",
     standalone: true,

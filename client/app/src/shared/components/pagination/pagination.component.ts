@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import {Component, input, model, ChangeDetectionStrategy} from '@angular/core';
 import {TranslatePipe} from "@ngx-translate/core";
 import {
   NgbPagination,
@@ -10,6 +10,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pagination',
   standalone: true,
   templateUrl: './pagination.component.html',

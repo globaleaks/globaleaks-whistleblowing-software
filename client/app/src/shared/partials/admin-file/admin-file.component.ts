@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, input, viewChild} from "@angular/core";
+import {Component, ElementRef, inject, input, viewChild, ChangeDetectionStrategy} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -8,6 +8,7 @@ import {NgxFlowModule} from "@flowjs/ngx-flow";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-admin-file",
     templateUrl: "./admin-file.component.html",
     standalone: true,

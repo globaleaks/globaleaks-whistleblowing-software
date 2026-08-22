@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {Component, inject, ChangeDetectionStrategy} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -7,6 +7,7 @@ import {TranslateModule} from "@ngx-translate/core";
 
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-delete-confirmation",
     templateUrl: "./delete-confirmation.component.html",
     standalone: true,

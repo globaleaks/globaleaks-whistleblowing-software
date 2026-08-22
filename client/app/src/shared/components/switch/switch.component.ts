@@ -1,8 +1,9 @@
-import {Component, input, model, output} from '@angular/core';
+import {Component, input, model, output, ChangeDetectionStrategy} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'app-switch',
     templateUrl: './switch.component.html',
     standalone: true,

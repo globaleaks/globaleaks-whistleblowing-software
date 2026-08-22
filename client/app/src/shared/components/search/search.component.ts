@@ -1,8 +1,9 @@
-import {Component, input, model} from '@angular/core';
+import {Component, input, model, ChangeDetectionStrategy} from '@angular/core';
 import {TranslatePipe} from "@ngx-translate/core";
 import {FormsModule} from '@angular/forms';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-search-input',
   standalone: true,
   imports: [TranslatePipe, FormsModule],

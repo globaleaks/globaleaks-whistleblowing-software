@@ -1,4 +1,4 @@
-import {Component, inject, input} from "@angular/core";
+import {Component, inject, input, ChangeDetectionStrategy} from "@angular/core";
 import {Receiver} from "@app/models/app/public-model";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {TranslateService} from "@ngx-translate/core";
@@ -7,6 +7,7 @@ import {MarkdownComponent} from "ngx-markdown";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-receiver-card",
     templateUrl: "./receiver-card.component.html",
     standalone: true,
