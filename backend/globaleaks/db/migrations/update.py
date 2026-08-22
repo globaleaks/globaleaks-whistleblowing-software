@@ -9,7 +9,22 @@ class MigrationBase(object):
     """
     skip_model_migration = {}
     skip_count_check = {}
+
+    # Columns renamed between the two schemas: {model: {new_column: old_column}}
     renamed_attrs = {}
+
+    # Columns whose value is computed from the old object rather than copied:
+    # {model: {column: callable(old_obj)}}; a conversion takes precedence over
+    # the copy and the rename of the column
+    converted_attrs = {}
+
+    # Configuration variables renamed between the two schemas:
+    # {old_var_name: new_var_name}
+    renamed_config = {}
+
+    # Configuration values converted between the two schemas, by the new name
+    # of the variable: {var_name: callable(value)}
+    converted_config = {}
 
     def __init__(self, migration_mapping, start_version, session_old, session_new):
         self.appdata = load_appdata()
@@ -57,16 +72,36 @@ class MigrationBase(object):
         model_from_cls = self.model_from[model_name]
         model_to_cls = self.model_to[model_name]
         renamed = self.renamed_attrs.get(model_name, {})
+        converted = self.converted_attrs.get(model_name, {})
         column_keys = [c.key for c in model_to_cls.__table__.columns]
 
         # Build migration mapping efficiently
         mappings = []
 
         for old_obj in self.session_old.query(model_from_cls).yield_per(1000):
-            mappings.append({key: getattr(old_obj, renamed.get(key, key), None) for key in column_keys if hasattr(old_obj, renamed.get(key, key))})
+            mapping = {key: getattr(old_obj, renamed.get(key, key), None) for key in column_keys if hasattr(old_obj, renamed.get(key, key))}
+
+            for key, convert in converted.items():
+                mapping[key] = convert(old_obj)
+
+            if model_name == 'Config':
+                self.convert_config(mapping)
+
+            mappings.append(mapping)
 
         if mappings:
             self.session_new.bulk_insert_mappings(model_to_cls, mappings)
+
+    def convert_config(self, mapping):
+        """
+        Apply to a configuration variable the rename and the conversion of
+        its value declared by the migration
+        """
+        var_name = self.renamed_config.get(mapping['var_name'], mapping['var_name'])
+        mapping['var_name'] = var_name
+
+        if var_name in self.converted_config:
+            mapping['value'] = self.converted_config[var_name](mapping['value'])
 
     def migrate_model(self, model_name):
         if self.entries_count[model_name] <= 0 or self.skip_model_migration.get(model_name, False):

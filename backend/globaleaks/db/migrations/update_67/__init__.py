@@ -109,23 +109,17 @@ class WhistleblowerFile_v_66(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Config(self):
-        for old_obj in self.session_old.query(self.model_from['Config']):
-            new_obj = self.model_to['Config']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
+    renamed_config = {
+        'disable_admin_notification_emails': 'enable_notification_emails_admin',
+        'disable_custodian_notification_emails': 'enable_notification_emails_custodian',
+        'disable_receiver_notification_emails': 'enable_notification_emails_recipient'
+    }
 
-            if old_obj.var_name == 'disable_admin_notification_emails':
-                new_obj.var_name = 'enable_notification_emails_admin'
-                new_obj.value = not old_obj.value
-            elif old_obj.var_name == 'disable_custodian_notification_emails':
-                new_obj.var_name = 'enable_notification_emails_custodian'
-                new_obj.value = not old_obj.value
-            elif old_obj.var_name == 'disable_receiver_notification_emails':
-                new_obj.var_name = 'enable_notification_emails_recipient'
-                new_obj.value = not old_obj.value
-
-            self.session_new.add(new_obj)
+    converted_config = {
+        'enable_notification_emails_admin': lambda v: not v,
+        'enable_notification_emails_custodian': lambda v: not v,
+        'enable_notification_emails_recipient': lambda v: not v
+    }
 
     def epilogue(self):
         # Transform footer_privacy_policy and footer_whistleblowing_policy in localized variables

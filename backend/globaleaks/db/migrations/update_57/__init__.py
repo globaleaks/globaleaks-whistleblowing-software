@@ -51,13 +51,6 @@ class User_v_56(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
-
-            if not old_obj.two_factor_enable:
-                new_obj.two_factor_secret = ''
-
-            self.session_new.add(new_obj)
+    converted_attrs = {
+        'User': {'two_factor_secret': lambda o: o.two_factor_secret if o.two_factor_enable else ''}
+    }

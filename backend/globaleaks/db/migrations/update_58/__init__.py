@@ -65,35 +65,13 @@ class ReceiverFile_v_57(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_InternalTip(self):
-        for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'tor':
-                    setattr(new_obj, key, not getattr(old_obj, 'https'))
-                elif key == 'score':
-                    setattr(new_obj, key, getattr(old_obj, 'total_score'))
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
+    renamed_attrs = {
+        'InternalTip': {'score': 'total_score'},
+        'ReceiverTip': {'access_date': 'last_access'},
+        'ReceiverFile': {'access_date': 'last_access'},
+        'WhistleblowerFile': {'access_date': 'last_access'}
+    }
 
-            self.session_new.add(new_obj)
-
-    def migrate_fix(self, model):
-        for old_obj in self.session_old.query(self.model_from[model]):
-            new_obj = self.model_to[model]()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'access_date':
-                    setattr(new_obj, key, getattr(old_obj, 'last_access'))
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
-    def migrate_ReceiverTip(self):
-        self.migrate_fix('ReceiverTip')
-
-    def migrate_ReceiverFile(self):
-        self.migrate_fix('ReceiverFile')
-
-    def migrate_WhistleblowerFile(self):
-        self.migrate_fix('WhistleblowerFile')
+    converted_attrs = {
+        'InternalTip': {'tor': lambda o: not o.https}
+    }

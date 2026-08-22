@@ -124,18 +124,14 @@ class User_v_52(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Context(self):
-        for old_obj in self.session_old.query(self.model_from['Context']):
-            new_obj = self.model_to['Context']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                value = getattr(old_obj, key)
+    converted_attrs = {
+        'Context': {'tip_timetolive': lambda o: max(o.tip_timetolive, 0)},
+        'User': {'forcefully_selected': lambda o: o.recipient_configuration == 1}
+    }
 
-                if key == 'tip_timetolive' and value < 0:
-                    value = 0
-
-                setattr(new_obj, key, value)
-
-            self.session_new.add(new_obj)
+    renamed_config = {
+        'https_priv_key': 'https_key'
+    }
 
     def migrate_Tenant(self):
         for old_obj in self.session_old.query(self.model_from['Tenant']):
@@ -154,23 +150,8 @@ class MigrationScript(MigrationBase):
 
             self.session_new.add(new_obj)
 
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'forcefully_selected':
-                    new_obj.forcefully_selected = old_obj.recipient_configuration == 1
-                if hasattr(old_obj, key):
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
     def epilogue(self):
         m = self.model_to['Config']
-
-        self.session_new.query(m) \
-                        .filter(m.var_name == 'https_priv_key') \
-                        .update({'var_name': 'https_key'})
 
         for tid in self.session_new.query(m.tid) \
                                    .filter(m.var_name == 'smtp_port',

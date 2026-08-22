@@ -30,27 +30,14 @@ class Subscriber_v_62(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Config(self):
-        for old_obj in self.session_old.query(self.model_from['Config']):
-            new_obj = self.model_to['Config']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
+    converted_config = {
+        'mode': lambda v: 'wbpa' if v == 'whistleblowing.it' else v
+    }
 
-            if old_obj.var_name == 'mode':
-                if old_obj.value == 'whistleblowing.it':
-                    new_obj.value = 'wbpa'
+    renamed_attrs = {
+        'Subscriber': {'organization_location': 'organization_location4'}
+    }
 
-            self.session_new.add(new_obj)
-
-    def migrate_Subscriber(self):
-        for old_obj in self.session_old.query(self.model_from['Subscriber']):
-            new_obj = self.model_to['Subscriber']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'activation_token':
-                    new_obj.activation_token = old_obj.activation_token if old_obj.activation_token else None
-                elif key == 'organization_location':
-                    setattr(new_obj, 'organization_location', getattr(old_obj, 'organization_location4'))
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
+    converted_attrs = {
+        'Subscriber': {'activation_token': lambda o: o.activation_token if o.activation_token else None}
+    }

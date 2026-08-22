@@ -192,23 +192,12 @@ class WhistleblowerFile_v_64(Model):
 class MigrationScript(MigrationBase):
     renamed_attrs = {
         'ReceiverTip': {'deprecated_crypto_files_prv_key': 'crypto_files_prv_key'},
+        'User': {'hash': 'password'}
     }
 
     skip_count_check = {
         'Config': True
     }
-
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'hash':
-                    setattr(new_obj, key, getattr(old_obj, 'password'))
-                elif key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
 
     def migrate_IdentityAccessRequest(self):
         for old_obj, rtip in self.session_old.query(self.model_from['IdentityAccessRequest'], self.model_from['ReceiverTip']) \

@@ -97,25 +97,11 @@ class User_v_61(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_AuditLog(self):
-        for old_obj in self.session_old.query(self.model_from['AuditLog']):
-            new_obj = self.model_to['AuditLog']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key != 'id':
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
-    def migrate_Context(self):
-        for old_obj in self.session_old.query(self.model_from['Context']):
-            new_obj = self.model_to['Context']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'hidden':
-                    setattr(new_obj, key, getattr(old_obj, 'status') != 'enabled')
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
+    converted_attrs = {
+        'AuditLog': {'id': lambda o: None},  # the id is reassigned by the autoincrement
+        'Context': {'hidden': lambda o: o.status != 'enabled'},
+        'User': {'enabled': lambda o: o.state == 1}
+    }
 
     def migrate_InternalTip(self):
         ctx_ids = [c[0] for c in self.session_old.query(self.model_from['Context'].id).all()]
@@ -125,17 +111,6 @@ class MigrationScript(MigrationBase):
             for key in new_obj.__mapper__.column_attrs.keys():
                 if key == 'context_id' and old_obj.context_id not in ctx_ids:
                     setattr(new_obj, key, ctx_ids[0])
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'enabled':
-                    setattr(new_obj, key, getattr(old_obj, 'state') == 1)
                 else:
                     setattr(new_obj, key, getattr(old_obj, key))
 
