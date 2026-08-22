@@ -27,10 +27,10 @@
       </div>
     </div>
   }
-  <app-paginated-interface [items]="contextsData" [filterField]="'name'">
+  <app-paginated-interface [items]="contextsData()" [filterField]="'name'">
     <ng-template #content let-item="item" let-index="index">
       <form id="context-{{index}}" name="editContext" #editContext="ngForm" novalidate>
-        <src-context-editor [contextResolver]="item" [editContext]="editContext" [contextsData]="contextsData" [index]="index" (reorder)="swap($event.index, $event.direction)" (deleted)="onDelete($event)"></src-context-editor>
+        <src-context-editor [contextResolver]="item" [editContext]="editContext" [contextsData]="contextsData()" [index]="index" (reorder)="swap($event.index, $event.direction)" (deleted)="onDelete($event)"></src-context-editor>
       </form>
     </ng-template>
   </app-paginated-interface>

@@ -1,28 +1,19 @@
 import {Injectable, inject} from "@angular/core";
-import {Observable, of} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {map} from "rxjs/operators";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class StatisticsResolver {
-  private httpService = inject(HttpService);
+export class StatisticsResolver extends ResourceResolver<statisticsResolverModel> {
   private authenticationService = inject(AuthenticationService);
 
-  dataModel: statisticsResolverModel;
+  constructor() {
+    super("api/analyst/stats", new statisticsResolverModel());
+  }
 
-  resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "analyst") {
-      return this.httpService.requestStatisticsResource().pipe(
-        map((response) => {
-          this.dataModel = response;
-          return true;
-        })
-      );
-    }
-    return of(true);
+  protected allowed(): boolean {
+    return this.authenticationService.session.role === "analyst";
   }
 }

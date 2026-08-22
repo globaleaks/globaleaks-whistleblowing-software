@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input, output} from "@angular/core";
+import {Component, OnInit, computed, inject, input, output} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -9,7 +9,6 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
@@ -41,18 +40,14 @@ export class ContextEditorComponent implements OnInit {
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
-  questionnairesData: questionnaireResolverModel[] = [];
-  usersData: userResolverModel[] = [];
+  readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
+  readonly usersData = computed(() => this.usersResolver.resource.value());
   nodeData: nodeResolverModel;
   selected = {value: []};
-  adminReceiversById: Record<string, userResolverModel> = {};
+  readonly adminReceiversById = computed<Record<string, userResolverModel>>(() => this.utilsService.array_to_map(this.usersData()));
 
   ngOnInit(): void {
-    this.questionnairesData = this.questionnairesResolver.dataModel;
-
-    this.usersData = this.usersResolver.dataModel;
     this.nodeData = this.nodeResolver.dataModel;
-    this.adminReceiversById = this.utilsService.array_to_map(this.usersResolver.dataModel);
   }
 
   toggleEditing(): void {

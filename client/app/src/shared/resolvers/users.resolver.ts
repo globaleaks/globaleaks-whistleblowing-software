@@ -1,44 +1,16 @@
-import {Injectable, inject} from "@angular/core";
-import {Observable, BehaviorSubject, switchMap, map} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
+import {Injectable} from "@angular/core";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class UsersResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
-
-  private refreshTrigger = new BehaviorSubject<boolean>(true);
-
-  dataModel: userResolverModel[];
-
+export class UsersResolver extends ResourceResolver<userResolverModel[]> {
   constructor() {
-    this.refreshTrigger.pipe(
-      switchMap(() => this.fetchUsers())
-    ).subscribe();
+    super("api/admin/users", []);
   }
 
-  resolve(): Observable<boolean> {
-    return this.refreshTrigger.pipe(
-      switchMap(() => this.fetchUsers())
-    );
-  }
-
-  private fetchUsers(): Observable<boolean> {
-    return this.httpService.requestUsersResource().pipe(
-      map((response: userResolverModel[]) => {
-        this.dataModel = response;
-        return true;
-      })
-    );
-  }
-
-  refresh(): Observable<boolean> {
-    const refresh$ = this.fetchUsers();
-    this.refreshTrigger.next(true);
-    return refresh$;
+  protected allowed(): boolean {
+    return true;
   }
 }

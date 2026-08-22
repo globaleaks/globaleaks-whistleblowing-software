@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
   <label for="trigger-receiver-select">{{ 'Recipients' | translate }}</label>
-  <ng-select id="trigger-receiver-select" [items]="userData | filter: 'role': 'receiver'" [attr.data-cy]="'receiver_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)" [ariaLabel]="'Recipients' | translate">
+  <ng-select id="trigger-receiver-select" [items]="userData() | filter: 'role': 'receiver'" [attr.data-cy]="'receiver_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)" [ariaLabel]="'Recipients' | translate">
     <ng-template ng-label-tmp let-item="item">{{ item.name }}</ng-template>
     <ng-template ng-option-tmp let-item="item">{{item.name}}</ng-template>
   </ng-select>
@@ -18,7 +18,7 @@
                 <i class="fas fa-xmark" aria-hidden="true"></i>
               </span>
             </span>
-            <span>{{ (admin_receivers_by_id[user] || {}).name || "-" }}</span>
+            <span>{{ (admin_receivers_by_id()[user] || {}).name || "-" }}</span>
           </li>
         }
       </ol>

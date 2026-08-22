@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
+import {Component, ElementRef, computed, inject, viewChild} from "@angular/core";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {HttpService} from "@app/shared/services/http.service";
@@ -17,25 +17,20 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslateModule]
 })
-export class MainComponent implements OnInit {
+export class MainComponent {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   protected questionnairesResolver = inject(QuestionnairesResolver);
 
-  questionnairesData: questionnaireResolverModel[] = [];
+  readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
   new_questionnaire: { name: string } = {name: ""};
   showAddQuestionnaire = false;
   readonly keyUploadInput = viewChild<ElementRef<HTMLInputElement>>('keyUploadInput');
 
-  ngOnInit(): void {
-    this.questionnairesData = this.questionnairesResolver.dataModel;
-  }
-
   addQuestionnaire() {
     const questionnaire: NewQuestionare = new NewQuestionare();
     questionnaire.name = this.new_questionnaire.name;
-    this.httpService.addQuestionnaire(questionnaire).subscribe(res => {
-      this.questionnairesData.push(res);
+    this.httpService.addQuestionnaire(questionnaire).subscribe(() => {
       this.new_questionnaire = {name: ""};
       this.getResolver();
     });
@@ -63,11 +58,8 @@ export class MainComponent implements OnInit {
     }
   }
 
-  getResolver() {
-    return this.httpService.requestQuestionnairesResource().subscribe((response: questionnaireResolverModel[]) => {
-      this.questionnairesResolver.dataModel = response;
-      this.questionnairesData = response;
-    });
+  getResolver(): void {
+    this.questionnairesResolver.reload();
   }
 
   trackByFn(_: number, item: questionnaireResolverModel) {
@@ -75,6 +67,6 @@ export class MainComponent implements OnInit {
   }
 
   onDelete(id: string) {
-    this.questionnairesData = this.questionnairesData.filter(i => i.id !== id);
+    this.questionnairesResolver.resource.update(questionnaires => questionnaires.filter(i => i.id !== id));
   }
 }

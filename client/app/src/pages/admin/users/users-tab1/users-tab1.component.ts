@@ -1,13 +1,10 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, computed, inject} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NewUser} from "@app/models/admin/new-user";
-import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {Constants} from "@app/shared/constants/constants";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {TenantsResolver} from "@app/shared/resolvers/tenants.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
-import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
@@ -21,16 +18,15 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, UserEditorComponent]
 })
-export class UsersTab1Component implements OnInit {
-  private httpService = inject(HttpService);
+export class UsersTab1Component {
   protected nodeResolver = inject(NodeResolver);
   private usersResolver = inject(UsersResolver);
   private tenantsResolver = inject(TenantsResolver);
   private utilsService = inject(UtilsService);
 
   showAddUser = false;
-  tenantData: tenantResolverModel;
-  usersData: userResolverModel[] = [];
+  readonly tenantData = computed(() => this.tenantsResolver.resource.value());
+  readonly usersData = computed(() => this.usersResolver.resource.value());
   new_user: { username: string, role: string, name: string, email: string, send_activation_link: boolean } = {
     username: "",
     role: "",
@@ -40,15 +36,6 @@ export class UsersTab1Component implements OnInit {
   };
   editing = false;
   protected readonly Constants = Constants;
-
-  ngOnInit(): void {
-    if (this.usersResolver.dataModel) {
-      this.usersData = this.usersResolver.dataModel;
-    }
-    if (this.nodeResolver.dataModel.root_tenant) {
-      this.tenantData = this.tenantsResolver.dataModel;
-    }
-  }
 
   addUser(): void {
     const user: NewUser = new NewUser();
@@ -65,11 +52,8 @@ export class UsersTab1Component implements OnInit {
     });
   }
 
-  getResolver() {
-    return this.httpService.requestUsersResource().subscribe(response => {
-      this.usersResolver.dataModel = response;
-      this.usersData = response;
-    });
+  getResolver(): void {
+    this.usersResolver.refresh();
   }
 
   toggleAddUser(): void {
@@ -77,6 +61,6 @@ export class UsersTab1Component implements OnInit {
   }
 
   onDelete(id: string) {
-   this.usersData = this.usersData.filter(user => user.id !== id);
+   this.usersResolver.resource.update(users => users.filter(user => user.id !== id));
   }
 }

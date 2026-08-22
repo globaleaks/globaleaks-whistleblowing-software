@@ -1,28 +1,19 @@
 import {Injectable, inject} from "@angular/core";
-import {Observable, of} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {map} from "rxjs/operators";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class QuestionnairesResolver {
-  private httpService = inject(HttpService);
+export class QuestionnairesResolver extends ResourceResolver<questionnaireResolverModel[]> {
   private authenticationService = inject(AuthenticationService);
 
-  dataModel: questionnaireResolverModel[];
+  constructor() {
+    super("api/admin/questionnaires", []);
+  }
 
-  resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
-      return this.httpService.requestQuestionnairesResource().pipe(
-        map((response: questionnaireResolverModel[]) => {
-          this.dataModel = response;
-          return true;
-        })
-      );
-    }
-    return of(true);
+  protected allowed(): boolean {
+    return this.authenticationService.session.role === "admin";
   }
 }

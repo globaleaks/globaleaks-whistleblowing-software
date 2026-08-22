@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input} from "@angular/core";
+import {Component, computed, inject, input} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
@@ -12,17 +12,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
     standalone: true,
     imports: [TranslatePipe, FormsModule]
 })
-export class NotificationTab2Component implements OnInit {
+export class NotificationTab2Component {
   private notificationResolver = inject(NotificationsResolver);
   private utilsService = inject(UtilsService);
 
   readonly notificationForm = input.required<NgForm>();
   template: string;
-  notificationData: notificationResolverModel;
-
-  ngOnInit(): void {
-    this.notificationData = this.notificationResolver.dataModel;
-  }
+  protected readonly notificationData = computed(() => this.notificationResolver.resource.value());
 
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe();

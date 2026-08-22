@@ -1,7 +1,6 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, computed, inject} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NewContext} from "@app/models/admin/new-context";
-import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -21,7 +20,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [TranslatePipe, ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
-export class ContextsComponent implements OnInit {
+export class ContextsComponent {
   protected preference = inject(PreferenceResolver);
   protected httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
@@ -32,27 +31,19 @@ export class ContextsComponent implements OnInit {
 
   showAddContext = false;
   new_context: { name: string; } = {name: ""};
-  contextsData: contextResolverModel[] = [];
+  readonly contextsData = computed(() => this.contexts.resource.value());
 
   toggleAddContext() {
     this.showAddContext = !this.showAddContext;
   };
 
-  ngOnInit(): void {
-    if (Array.isArray(this.contexts.dataModel)) {
-      this.contextsData = this.contexts.dataModel;
-    } else {
-      this.contextsData = [this.contexts.dataModel];
-    }
-  }
-
   addContext() {
     const context: NewContext = new NewContext();
     context.name = this.new_context.name;
     context.questionnaire_id = "default";
-    context.order = this.newItemOrder(this.contextsData, "order");
+    context.order = this.newItemOrder(this.contextsData(), "order");
     this.utilsService.addAdminContext(context).subscribe(res => {
-      this.contextsData = [...this.contextsData, res];
+      this.contexts.resource.update(contexts => [...contexts, res]);
       this.new_context.name = "";
     });
   }
@@ -75,24 +66,24 @@ export class ContextsComponent implements OnInit {
   swap(index: number, n: number): void {
     const target = index + n;
 
-    if (target < 0 || target >= this.contextsData.length) {
+    if (target < 0 || target >= this.contextsData().length) {
       return;
     }
 
-    const updated = [...this.contextsData];
+    const updated = [...this.contextsData()];
 
     [updated[index], updated[target]] =
       [updated[target], updated[index]];
 
-    this.contextsData = updated;
+    this.contexts.resource.set(updated);
 
     this.httpService.requestReorderAdminContexts({
       operation: "order_elements",
-      args: { ids: this.contextsData.map(c => c.id) },
+      args: { ids: updated.map(c => c.id) },
     }).subscribe();
   }
 
   onDelete(id: string) {
-   this.contextsData = this.contextsData.filter(context => context.id !== id);
+   this.contexts.resource.update(contexts => contexts.filter(context => context.id !== id));
   }
 }

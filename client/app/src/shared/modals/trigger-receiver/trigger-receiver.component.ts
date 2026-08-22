@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, OnInit, computed, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -26,17 +26,11 @@ export class TriggerReceiverComponent implements OnInit {
   confirmFunction: (data: Option) => void;
 
   selected: { value: []; name: string };
-  admin_receivers_by_id: Record<string, userResolverModel> = {};
-  userData: userResolverModel[] = [];
+  readonly userData = computed(() => this.users.resource.value());
+  readonly admin_receivers_by_id = computed<Record<string, userResolverModel>>(() => this.utilsService.array_to_map(this.userData()));
 
   ngOnInit(): void {
     this.selected = {value: [], name: ""};
-    if (Array.isArray(this.users.dataModel)) {
-      this.userData = this.users.dataModel;
-    } else {
-      this.userData = [this.users.dataModel];
-    }
-    this.admin_receivers_by_id = this.utilsService.array_to_map(this.users.dataModel);
   }
 
   confirm() {

@@ -1,4 +1,4 @@
-<app-paginated-interface [mode]="'table'" [items]="this.jobs">
+<app-paginated-interface [mode]="'table'" [items]="jobs()">
   <ng-template #header>
      <tr>
         <th><span class="visually-hidden">{{ 'Name' | translate }}</span></th>

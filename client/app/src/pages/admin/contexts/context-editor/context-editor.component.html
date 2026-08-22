@@ -59,7 +59,7 @@
           <div class="form-group">
             <label for="context-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
             <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver().questionnaire_id">
-              @for (item of questionnairesData; track item) {
+              @for (item of questionnairesData(); track item) {
                 <option [value]="item.id">{{ item.name }}</option>
               }
             </select>
@@ -76,7 +76,7 @@
               @if (showSelect) {
                 <div class="col-md-12">
                   <label for="context-receiver-select" class="visually-hidden">{{'Select' | translate}}</label>
-                  <ng-select id="context-receiver-select" [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="usersData | filter:  'role': 'receiver'" [searchable]="true" [placeholder]="'Search' | translate" (change)="moveReceiver($event)" [ariaLabel]="'Select' | translate">
+                  <ng-select id="context-receiver-select" [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="usersData() | filter:  'role': 'receiver'" [searchable]="true" [placeholder]="'Search' | translate" (change)="moveReceiver($event)" [ariaLabel]="'Select' | translate">
                     <ng-template ng-option-tmp let-item="item">
                       {{ item.name }}
                     </ng-template>
@@ -102,10 +102,10 @@
                       }
                     </span>
                   }
-                  <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById[receiver])" ngbTooltip="{{'Remove' | translate}}">
+                  <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}">
                     <i class="fas fa-xmark"></i>
                   </span>
-                  <span>{{adminReceiversById[receiver].name}}</span>
+                  <span>{{adminReceiversById()[receiver].name}}</span>
                 </li>
               }
             </ol>
@@ -195,7 +195,7 @@
                         @if (contextResolver().additional_questionnaire_id) {
                           <option [value]="null"></option>
                         }
-                        @for (item of questionnairesData; track item) {
+                        @for (item of questionnairesData(); track item) {
                           @if (item.id !== contextResolver().questionnaire_id) {
                             <option [value]="item.id">{{ item.name }}</option>
                           }

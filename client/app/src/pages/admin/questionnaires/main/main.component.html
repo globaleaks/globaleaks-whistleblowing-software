@@ -35,10 +35,10 @@
       </div>
     }
 
-    <app-paginated-interface [items]="questionnairesData" [filterField]="'name'" [orderBy]="'name'">
+    <app-paginated-interface [items]="questionnairesData()" [filterField]="'name'" [orderBy]="'name'">
       <ng-template #content let-item="item" let-index="index">
         <form id="questionnaire-{{index}}" class="config-item" #editQuestionnaire="ngForm" novalidate>
-          <src-questionnaires-list [questionnaire]="item" [editQuestionnaire]="editQuestionnaire" [questionnaires]="questionnairesData" (duplicated)="getResolver()" (deleted)="onDelete($event)"></src-questionnaires-list>
+          <src-questionnaires-list [questionnaire]="item" [editQuestionnaire]="editQuestionnaire" [questionnaires]="questionnairesData()" (duplicated)="getResolver()" (deleted)="onDelete($event)"></src-questionnaires-list>
         </form>
       </ng-template>
     </app-paginated-interface>

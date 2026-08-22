@@ -24,7 +24,7 @@
           <div class="form-group">
             <label>{{'Administrators authorized to change user passwords:' | translate}}</label>
             <ol class="selection-list">
-              @for (user of userData; track user) {
+              @for (user of userData(); track user) {
                 <li>
                   <span>{{user.name}}</span>
                 </li>

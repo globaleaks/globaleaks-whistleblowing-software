@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, computed, inject, ChangeDetectionStrategy} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
@@ -8,21 +8,18 @@ import {FormsModule} from "@angular/forms";
 
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-access-control",
     templateUrl: "./access-control.component.html",
     standalone: true,
     imports: [TranslatePipe, FormsModule]
 })
-export class AccessControlComponent implements OnInit {
+export class AccessControlComponent {
   private networkResolver = inject(NetworkResolver);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  networkData: networkResolverModel;
-
-  ngOnInit(): void {
-    this.networkData = this.networkResolver.dataModel;
-  }
+  readonly networkData = computed(() => this.networkResolver.resource.value());
 
   updateAccessControl(network: networkResolverModel) {
     this.httpService.requestUpdateNetworkResource(network).subscribe(() => {

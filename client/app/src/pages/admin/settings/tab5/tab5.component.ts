@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input} from "@angular/core";
+import {Component, computed, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Constants} from "@app/shared/constants/constants";
@@ -10,8 +10,6 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
-import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
@@ -20,7 +18,7 @@ import {TranslateModule} from "@ngx-translate/core";
     standalone: true,
     imports: [FormsModule, TranslateModule]
 })
-export class Tab5Component implements OnInit {
+export class Tab5Component {
   protected authenticationService = inject(AuthenticationService);
   private modalService = inject(NgbModal);
   private appConfigService = inject(AppConfigService);
@@ -31,21 +29,11 @@ export class Tab5Component implements OnInit {
   private questionnairesResolver = inject(QuestionnairesResolver);
 
   readonly contentForm = input.required<NgForm>();
-  userData: userResolverModel[] = [];
-  questionnaireData: questionnaireResolverModel[];
+  readonly userData = computed(() => this.usersResolver.resource.value().filter(user => user.escrow));
+  readonly questionnaireData = computed(() => this.questionnairesResolver.resource.value());
   routeReload = false;
 
   protected readonly Constants = Constants;
-
-  ngOnInit(): void {
-    this.filterUserData();
-
-    this.questionnaireData = this.questionnairesResolver.dataModel;
-  }
-
-  filterUserData(): void {
-    this.userData = this.usersResolver.dataModel.filter((user: { escrow: boolean }) => user.escrow);
-  }
 
   enableEncryption() {
     const node = this.nodeResolver.dataModel;
@@ -62,9 +50,7 @@ export class Tab5Component implements OnInit {
     escrow.checked = this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
     this.utilsService.runAdminOperation("toggle_escrow", {}, false).subscribe(() => {
       this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
-      this.usersResolver.refresh().subscribe(() => {
-        this.filterUserData();
-      });
+      this.usersResolver.refresh();
     });
   }
 
