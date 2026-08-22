@@ -16,12 +16,8 @@ export class TranslatorPipe implements PipeTransform {
       return key;
     }
 
-    let translation = key ? this.translate.instant(key) : '';
-
-    this.translate.onLangChange.subscribe(() => {
-      translation = key ? this.translate.instant(key) : '';
-    });
-
-    return translation;
+    // The pipe is impure: it is re-evaluated on every rendering pass, so a
+    // language change is picked up by the next pass without subscribing.
+    return this.translate.instant(key);
   }
 }
