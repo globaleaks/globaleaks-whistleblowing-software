@@ -1,4 +1,4 @@
-<div class="select-card" [ngClass]="{ 'selected':submission().selected_receivers[receiverModel().id] || receiverModel().forcefully_selected}">
+<div class="select-card" [class.selected]="submission().selected_receivers[receiverModel().id] || receiverModel().forcefully_selected">
   <div class="row mb-1">
     <div class="col-md-12">
       @if (!receiverModel().forcefully_selected) {

@@ -7,7 +7,6 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgClass} from "@angular/common";
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
@@ -21,7 +20,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "views-user",
     templateUrl: "./user.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgClass, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, TranslatorPipe, OrderByPipe]
 })
 export class UserComponent {
   protected activatedRoute = inject(ActivatedRoute);

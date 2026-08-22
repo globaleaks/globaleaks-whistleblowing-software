@@ -2,7 +2,7 @@
   <div class="audio-box">
     <div class="row">
       <div class="col-md-6">
-        <button class="btn" id="start_recording" [ngClass]="{'text-secondary': !activeButton, 'text-danger': activeButton === 'record' }" [disabled]="isRecording || uploads()[fileInput]?.files.length" (click)="triggerRecording(field().id)" aria-label="Record a voice message">
+        <button class="btn" id="start_recording" [class.text-secondary]="!activeButton" [class.text-danger]="activeButton === 'record'" [disabled]="isRecording || uploads()[fileInput]?.files.length" (click)="triggerRecording(field().id)" aria-label="Record a voice message">
           <i class="fas fa-microphone"></i>
         </button>
         @if (activeButton === 'record') {
@@ -13,7 +13,7 @@
       </div>
       <div class="col-md-6 text-end">
         @if (activeButton === 'record') {
-          <button class="btn text-danger" [ngClass]="{'blink': activeButton === 'record'}" aria-label="Recording Indicator">
+          <button class="btn text-danger" [class.blink]="activeButton === 'record'" aria-label="Recording Indicator">
             <i class="fas fa-circle-dot"></i>
           </button>
         }
@@ -35,7 +35,7 @@
     @if (seconds > 0) {
       <div class="row">
         <div class="col-md-12 text-end">
-          <div class="btn" [ngClass]="{'text-danger': seconds < parseInt(field().attrs.min_len.value)}">
+          <div class="btn" [class.text-danger]="seconds < parseInt(field().attrs.min_len.value)">
             {{ seconds }}/{{ field().attrs.max_len.value }}
           </div>
         </div>

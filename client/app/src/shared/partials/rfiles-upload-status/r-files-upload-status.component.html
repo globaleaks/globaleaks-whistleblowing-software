@@ -14,7 +14,7 @@
       <span>{{getEstimatedTimeUnit()|translate}}</span>
       @if (progress(); as progress) {
         <div class="progress progress-striped;active">
-          <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
+          <div class="progress-bar" role="progressbar" [style.width]="progress*105 + '%'"></div>
         </div>
       }
     </div>

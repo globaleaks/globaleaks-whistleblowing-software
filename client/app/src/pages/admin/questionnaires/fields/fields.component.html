@@ -466,23 +466,23 @@
                         </div>
                         <div class="col-md-5">
                           <span>
-                            <button class="btn btn-sm" id="option_hint" [ngClass]="option.hint1 || option.hint2 ? 'btn-primary' : 'btn-outline-secondary'" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
+                            <button class="btn btn-sm" id="option_hint" [class.btn-primary]="option.hint1 || option.hint2" [class.btn-outline-secondary]="!(option.hint1 || option.hint2)" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
                               <i class="fas fa-circle-question"></i>
                             </button>
                           </span>
                           <span>
-                            <button class="btn btn-sm" id="option_block_submission" [ngClass]="option.block_submission ? 'btn-danger' : 'btn-outline-secondary'" (click)="flipBlockSubmission(option)" ngbTooltip="{{'Block the submission' | translate}}">
+                            <button class="btn btn-sm" id="option_block_submission" [class.btn-danger]="option.block_submission" [class.btn-outline-secondary]="!option.block_submission" (click)="flipBlockSubmission(option)" ngbTooltip="{{'Block the submission' | translate}}">
                               <i class="fas fa-ban"></i>
                             </button>
                           </span>
                           <span>
-                            <button class="btn btn-sm" id="option_trigger_receiver" [ngClass]="option.trigger_receiver.length ? 'btn-primary' : 'btn-outline-secondary'" (click)="triggerReceiverDialog(option)" ngbTooltip="{{'Recipients' | translate}}">
+                            <button class="btn btn-sm" id="option_trigger_receiver" [class.btn-primary]="option.trigger_receiver.length" [class.btn-outline-secondary]="!option.trigger_receiver.length" (click)="triggerReceiverDialog(option)" ngbTooltip="{{'Recipients' | translate}}">
                               <i class="fas fa-user"></i>
                             </button>
                           </span>
                           @if (nodeResolver.dataModel.enable_scoring_system) {
                             <span>
-                              <button class="btn btn-sm" id="option_score" [ngClass]="option.score_type !== 'none' ? 'btn-primary' : 'btn-outline-secondary'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" ngbTooltip="{{'Recipients' | translate}}">
+                              <button class="btn btn-sm" id="option_score" [class.btn-primary]="option.score_type !== 'none'" [class.btn-outline-secondary]="option.score_type === 'none'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" ngbTooltip="{{'Recipients' | translate}}">
                                 <i class="fas fa-bolt"></i>
                                 @if (option.score_type !== 'none') {
                                   <span>

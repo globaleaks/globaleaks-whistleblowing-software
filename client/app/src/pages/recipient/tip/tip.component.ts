@@ -32,7 +32,6 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
-import {NgClass} from "@angular/common";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
 import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
@@ -51,7 +50,6 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
       TabsComponent,
       TabDirective,
       FormsModule,
-      NgClass,
       TipInfoComponent,
       TipReceiverListComponent,
       TipQuestionnaireAnswersComponent,

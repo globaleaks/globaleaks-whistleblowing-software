@@ -5,7 +5,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
-import {NgClass} from "@angular/common";
 import {WbFilesComponent} from "../wbfiles/wb-files.component";
 import {FormsModule} from "@angular/forms";
 import {NgxFlowModule} from "@flowjs/ngx-flow";
@@ -19,7 +18,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-upload-wbfile",
     templateUrl: "./tip-upload-wb-file.component.html",
     standalone: true,
-    imports: [WbFilesComponent, FormsModule, NgbTooltipModule, NgClass, NgxFlowModule, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
+    imports: [WbFilesComponent, FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, TranslatorPipe, OrderByPipe, FilterPipe]
 })
 export class TipUploadWbFileComponent {
   private cdr = inject(ChangeDetectorRef);

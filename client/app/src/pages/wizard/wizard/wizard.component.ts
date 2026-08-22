@@ -10,7 +10,6 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {TitleService} from "@app/shared/services/title.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
-import {NgClass} from "@angular/common";
 import {ProfileComponent} from "./template/profile/profile.component";
 import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
 import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
@@ -23,7 +22,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     selector: "src-wizard",
     templateUrl: "./wizard.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
 })
 export class WizardComponent implements OnInit {
   private titleService = inject(TitleService);

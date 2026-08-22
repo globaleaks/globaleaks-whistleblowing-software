@@ -4,7 +4,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {AdminFile} from "@app/models/component-model/admin-file";
-import {NgClass} from "@angular/common";
 import {NgxFlowModule} from "@flowjs/ngx-flow";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -13,7 +12,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-admin-file",
     templateUrl: "./admin-file.component.html",
     standalone: true,
-    imports: [NgClass, NgxFlowModule, TranslateModule, TranslatorPipe]
+    imports: [NgxFlowModule, TranslateModule, TranslatorPipe]
 })
 export class AdminFileComponent {
   protected node = inject(NodeResolver);

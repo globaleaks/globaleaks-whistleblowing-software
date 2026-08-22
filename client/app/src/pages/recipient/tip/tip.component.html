@@ -1,5 +1,5 @@
 @if (tip) {
-  <div class="reveal" [ngClass]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]">
+  <div class="reveal" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]">
     <div id="Toolbar" class="row">
       <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center">
@@ -12,11 +12,11 @@
             </a>
             <button id="tip-action-star" type="button" (click)="tipToggleStar()"
               ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Mark as important' | translate">
-              <i class="fas fa-star" [ngClass]="{'text-warning': tip && tip.important}"></i>
+              <i class="fas fa-star" [class.text-warning]="tip && tip.important"></i>
             </button>
             <button id="tip-action-reminder" type="button" (click)="setReminder()"
               ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-              <i class="fas" [ngClass]="{'fa-bell': !utils.isNever(tip.reminder_date), 'fa-bell-slash': tip && utils.isNever(tip.reminder_date), 'text-warning': tip && utils.isDatePassed(tip.reminder_date)}"></i>
+              <i class="fas" [class.fa-bell]="!utils.isNever(tip.reminder_date)" [class.fa-bell-slash]="tip && utils.isNever(tip.reminder_date)" [class.text-warning]="tip && utils.isDatePassed(tip.reminder_date)"></i>
             </button>
             @if (tip && !tip.enable_notifications) {
               <button id="tip-action-notify" type="button" (click)="tipNotify(true)"
@@ -70,7 +70,7 @@
                   </button>
                 }
                 @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
-                  <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [ngClass]="{'active': redactMode}" [attr.aria-label]="'Mask' | translate">
+                  <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [class.active]="redactMode" [attr.aria-label]="'Mask' | translate">
                     <i class="fas fa-eraser me-2"></i>{{'Mask' | translate}}
                   </button>
                 }
@@ -148,7 +148,7 @@
       </div>
     }
     <div class="row">
-      <div [ngClass]="{'col-md-12': !(tip && tip.identity_provided),'col-md-6': (tip && tip.identity_provided)}">
+      <div [class.col-md-12]="!(tip && tip.identity_provided)" [class.col-md-6]="(tip && tip.identity_provided)">
         <src-tip-questionnaire-answers id="ReportAnswers" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"></src-tip-questionnaire-answers>
       </div>
       @if (tip && tip.identity_provided) {

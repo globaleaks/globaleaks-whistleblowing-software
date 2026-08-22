@@ -17,7 +17,7 @@
       }
       <div class="form-group">
         @for (entry of entries; track entry; let entryIndex = $index; let first = $first; let last = $last) {
-          <div class="field-answer-entry" [ngClass]="{'fieldAnswerEntryFirst': first, 'fieldAnswerEntryLast': last}">
+          <div class="field-answer-entry" [class.fieldAnswerEntryFirst]="first" [class.fieldAnswerEntryLast]="last">
             @if (entries.length > 1) {
               <div class="field-answer-entry-label clearfix">
                 <span class="float-start">
@@ -63,7 +63,7 @@
       }
       <div class="form-group">
         @for (entry of entries; track entry; let entryIndex = $index; let first = $first; let last = $last) {
-          <div class="field-answer-entry" [ngClass]="{'fieldAnswerEntryFirst': first, 'fieldAnswerEntryLast': last}">
+          <div class="field-answer-entry" [class.fieldAnswerEntryFirst]="first" [class.fieldAnswerEntryLast]="last">
             @if (entries.length > 1) {
               <div class="field-answer-entry-label clearfix">
                 <span class="float-start">

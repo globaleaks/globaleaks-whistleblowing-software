@@ -50,7 +50,7 @@
             </thead>
             <tbody>
               @for (item of custom_texts_keys; track item) {
-                <tr [ngClass]="{'bg-danger': !default_texts[item]}" ngbTooltip="{{!default_texts[item] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
+                <tr [class.bg-danger]="!default_texts[item]" ngbTooltip="{{!default_texts[item] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
                   <td class="preformatted">{{ item }}</td>
                   <td class="preformatted">{{ default_texts[item] }}</td>
                   <td class="clearfix">

@@ -28,11 +28,11 @@
               </thead>
               <tbody id="fileListBody">
                 @for (file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
-                  <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
+                  <tr id="file-{{index}}" [class.view-supported]="utilsService.supportedViewTypes.includes(file.type)">
                     <td>{{ displayName(file) }}</td>
                     <td>
                       @if (!maskService.isMasked(file.ifile_id, tipService.tip)) {
-                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}" [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
+                        <button class="btn btn-sm btn-primary tip-action-views-file"  [class.btn-secondary]="!utilsService.supportedViewTypes.includes(file.type)" [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
                           <i class="fas fa-eye"></i>
                         </button>
                       } @else {
@@ -59,7 +59,7 @@
                           @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
                               @if (preferenceResolver.dataModel.can_mask_information) {
-                                <button class="btn btn-sm btn-outline-secondary" [ngClass]="{ 'active': redactMode() }" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
+                                <button class="btn btn-sm btn-outline-secondary" [class.active]="redactMode()" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
                                     <i class="fas fa-eraser"></i>
                                   </button>
                               }

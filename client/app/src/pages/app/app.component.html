@@ -16,7 +16,7 @@
     }
 
     @if (appDataService.public.node) {
-      <div class="reveal flex-shrink-0" [ngClass]="{'public': utilsService.isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
+      <div class="reveal flex-shrink-0" [class.public]="utilsService.isWhistleblowerPage()" [class.block-user-input]="showLoadingPanel">
         @if (authenticationService.session?.properties?.operator_session) {
           <div>
             <src-operation></src-operation>
@@ -71,7 +71,7 @@
                 </nav>
               </div>
             }
-            <main id="Content" [ngClass]="{'col-lg-10 col-md-8 col-sm-12': appConfig.sidebar && showSidebar , 'col-md-12': !appConfig.sidebar}">
+            <main id="Content" [class.col-lg-10]="appConfig.sidebar && showSidebar" [class.col-md-8]="appConfig.sidebar && showSidebar" [class.col-sm-12]="appConfig.sidebar && showSidebar" [class.col-md-12]="!appConfig.sidebar">
               <router-outlet></router-outlet>
             </main>
           </div>

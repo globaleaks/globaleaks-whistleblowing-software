@@ -6,7 +6,6 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
-import {NgClass} from "@angular/common";
 import {HttpsStatusComponent} from "../https-status/https-status.component";
 import {HttpsSetupComponent} from "../https-setup/https-setup.component";
 import {HttpsFilesComponent} from "../https-files/https-files.component";
@@ -16,7 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-https",
     templateUrl: "./https.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, HttpsStatusComponent, HttpsSetupComponent, HttpsFilesComponent, TranslatorPipe]
+    imports: [FormsModule, HttpsStatusComponent, HttpsSetupComponent, HttpsFilesComponent, TranslatorPipe]
 })
 export class HttpsComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);

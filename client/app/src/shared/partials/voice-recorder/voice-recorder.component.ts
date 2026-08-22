@@ -7,7 +7,6 @@ import {Observable} from "rxjs";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {NgClass} from "@angular/common";
 import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
 
 // Filterbank span and resolution. Log-spacing over this range gives a constant-Q filterbank
@@ -361,7 +360,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     templateUrl: "./voice-recorder.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [NgClass, FormsModule]
+    imports: [FormsModule]
 })
 export class VoiceRecorderComponent implements OnInit, OnDestroy {
   private renderScheduler = inject(RenderSchedulerService);

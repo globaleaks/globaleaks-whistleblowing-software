@@ -113,7 +113,7 @@
                 </span>
                 @if (RTips.dataModel.length > 0) {
                   <span class="dropdown-multi-select-container">
-                    <span id="tip-action-filter-channel" [ngClass]="{ filterSelected: checkFilter(dropdownContextModel) }" (click)="toggleChannelDropdown()"><i class="fas fa-filter"></i></span>
+                    <span id="tip-action-filter-channel" [class.filterSelected]="checkFilter(dropdownContextModel)" (click)="toggleChannelDropdown()"><i class="fas fa-filter"></i></span>
                     <span [class.d-none]="!channelDropdownVisible">
                       <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Channel' | translate"></ng-multiselect-dropdown>
                     </span>
@@ -160,7 +160,7 @@
               </span>
               @if (RTips.dataModel.length > 0) {
                 <span class="dropdown-multi-select-container">
-                  <span [ngClass]="{ filterSelected: checkFilter(dropdownStatusModel) }" (click)="toggleStatusDropdown()"><i class="fas fa-filter"></i></span>
+                  <span [class.filterSelected]="checkFilter(dropdownStatusModel)" (click)="toggleStatusDropdown()"><i class="fas fa-filter"></i></span>
                   <span [class.d-none]="!statusDropdownVisible">
                     <ng-multiselect-dropdown [class.dropdown-visible]="statusDropdownVisible" [settings]="dropdownSettings" [data]="dropdownStatusData" [(ngModel)]="dropdownStatusModel" (ngModelChange)="onChanged(dropdownStatusModel,'Status')" [attr.aria-label]="'Status' | translate"></ng-multiselect-dropdown>
                   </span>
@@ -185,7 +185,7 @@
                 }
               </span>
               <span class="ngb-datepicker-container ms-1">
-                <span id="tip-action-filter-report-date" [ngClass]="{'calendar-active':  reportDateFilter}" (click)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
+                <span id="tip-action-filter-report-date" [class.calendar-active]="reportDateFilter" (click)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!reportDatePicker">
                   <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)"></ngbd-datepicker-range>
                 </div>
@@ -209,7 +209,7 @@
                 }
               </span>
               <span class="ngb-datepicker-container ms-1">
-                <span [ngClass]="{'calendar-active':  updateDateFilter}" (click)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
+                <span [class.calendar-active]="updateDateFilter" (click)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!lastUpdatePicker">
                   <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)"></ngbd-datepicker-range>
                 </div>
@@ -233,7 +233,7 @@
                 }
               </span>
               <span class="ngb-datepicker-container ms-1">
-                <span [ngClass]="{'calendar-active':  expiryDateFilter}" (click)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
+                <span [class.calendar-active]="expiryDateFilter" (click)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fas fa-calendar"></i></span>
                 <div [hidden]="!expirationDatePicker">
                   <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)"></ngbd-datepicker-range>
                 </div>
@@ -293,7 +293,7 @@
                 </span>
                 @if (RTips.dataModel.length > 0) {
                   <span class="dropdown-multi-select-container">
-                    <span [ngClass]="{ filterSelected: checkFilter(dropdownScoreModel) }" (click)="toggleScoreDropdown()"><i class="fas fa-filter"></i></span>
+                    <span [class.filterSelected]="checkFilter(dropdownScoreModel)" (click)="toggleScoreDropdown()"><i class="fas fa-filter"></i></span>
                     <span [class.d-none]="!scoreDropdownVisible">
                       <ng-multiselect-dropdown [class.dropdown-visible]="scoreDropdownVisible" [settings]="dropdownSettings" [data]="dropdownScoreData" [(ngModel)]="dropdownScoreModel" (ngModelChange)="onChanged(dropdownScoreModel,'Score')" [attr.aria-label]="'Score' | translate"></ng-multiselect-dropdown>
                     </span>
@@ -304,7 +304,7 @@
           </tr>
         </ng-template>
         <ng-template #content let-tip="item" let-index="index">
-          <tr id="tip-{{index}}" [ngClass]="[tip.updated ? 'fw-bold' : '', isSelected(tip.id) ? 'selectedTip' : '', !tip.accessible ? 'disabled' : '', 'report-status-' + tip.status, 'report-substatus-' + tip.substatus]" class="tip-action-open" (click)="utils.go('/reports/' + tip.id)">
+          <tr id="tip-{{index}}" class="tip-action-open" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="utils.go('/reports/' + tip.id)">
             <td>
               @if (isSelected(tip.id)) {
                 <span (click)="tipSwitch(tip.id); $event.stopPropagation();">
@@ -323,7 +323,7 @@
               }
               <td>
                 @if (!utils.isNever(tip.reminder_date)) {
-                  <span [ngClass]="{'text-warning': utils.isDatePassed(tip.reminder_date)}"><i class="fas fa-bell"></i></span>
+                  <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fas fa-bell"></i></span>
                 }
               </td>
               <td class="TipInfoID">{{tip.progressive}}</td>

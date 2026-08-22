@@ -11,7 +11,6 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import {NgClass} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -21,7 +20,7 @@ import {FilterPipe} from "@app/shared/pipes/filter.pipe";
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe, FilterPipe]
+    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, TranslatorPipe, FilterPipe]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);

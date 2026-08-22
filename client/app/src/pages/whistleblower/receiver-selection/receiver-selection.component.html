@@ -17,7 +17,7 @@
       }
       <div id="ReceiverSelectionBox" class="row">
         @for (receiver of submission().receivers | filter : 'forcefully_selected' : false | orderBy:receiversOrderPredicate(); track receiver; let index = $index) {
-          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission().receivers.length)" (click)="switchSelection.emit(receiver)">
+          <div id="receiver-{{index}}" [class]="utilsService.getCardSize(submission().receivers.length)" (click)="switchSelection.emit(receiver)">
             <src-receiver-card [submission]="submission()" [receiverModel]="receiver"></src-receiver-card>
           </div>
         }
@@ -29,7 +29,7 @@
       <div class="description">{{'The following recipients will receive your report and could not be deselected:'|translate}}</div>
       <div id="ReceiverSelectionBox" class="row">
         @for (receiver of submission().receivers | filter : 'forcefully_selected' : true | orderBy:receiversOrderPredicate(); track receiver; let index = $index) {
-          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission().receivers.length)">
+          <div id="receiver-{{index}}" [class]="utilsService.getCardSize(submission().receivers.length)">
             <src-receiver-card [submission]="submission()" [receiverModel]="receiver"></src-receiver-card>
           </div>
         }

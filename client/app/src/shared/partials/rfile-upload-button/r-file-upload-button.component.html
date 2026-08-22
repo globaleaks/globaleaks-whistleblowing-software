@@ -30,16 +30,18 @@
     </div>
     <div class="transfers">
       <div data-flow-name="flow" class="row">
-        @for (transfer of (flow.transfers$ | async)?.transfers; track transfer) {
-          <div [ngClass]="{'col-md-12': (flow.transfers$ | async)?.transfers?.length === 1, 'col-md-6 col-sm-12': (flow.transfers$ | async)?.transfers?.length !== 1}">
-            <div class="fileUploadBox mt-2 mb-2">
-              @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
-                <div>
-                  <src-rfile-upload-status (updated)="receiveData($event)" [formUploader]="formUploader()" [file]="transfer"></src-rfile-upload-status>
-                </div>
-              }
+        @if (flow.transfers$ | async; as transfers) {
+          @for (transfer of transfers.transfers; track transfer) {
+            <div [class.col-md-12]="transfers.transfers.length === 1" [class.col-md-6]="transfers.transfers.length !== 1" [class.col-sm-12]="transfers.transfers.length !== 1">
+              <div class="fileUploadBox mt-2 mb-2">
+                @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
+                  <div>
+                    <src-rfile-upload-status (updated)="receiveData($event)" [formUploader]="formUploader()" [file]="transfer"></src-rfile-upload-status>
+                  </div>
+                }
+              </div>
             </div>
-          </div>
+          }
         }
       </div>
     </div>

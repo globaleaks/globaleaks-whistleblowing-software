@@ -1,11 +1,10 @@
 import {Component, OnChanges, SimpleChanges, input} from "@angular/core";
-import {NgClass} from "@angular/common";
 
 @Component({
     selector: "src-password-meter",
     templateUrl: "./password-meter.component.html",
     standalone: true,
-    imports: [NgClass]
+    imports: []
 })
 export class PasswordMeterComponent implements OnChanges {
 

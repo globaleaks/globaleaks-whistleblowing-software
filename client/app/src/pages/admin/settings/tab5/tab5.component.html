@@ -99,7 +99,7 @@
     </div>
     <div class="form-group">
       <label for="custom-support-url">{{ 'Custom support URL' | translate }}</label>
-      <input id="custom-support-url" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_support_url" #customSupportURL="ngModel" name="customSupportURL" [pattern]="Constants.httpsRegexp" [ngClass]="{'is-invalid': customSupportURL?.errors?.['pattern']}" type="text" />
+      <input id="custom-support-url" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_support_url" #customSupportURL="ngModel" name="customSupportURL" [pattern]="Constants.httpsRegexp" [class.is-invalid]="customSupportURL?.errors?.['pattern']" type="text" />
     </div>
     <div class="form-group">
       <input id="disable-privacy-badge" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.disable_privacy_badge" type="checkbox" />

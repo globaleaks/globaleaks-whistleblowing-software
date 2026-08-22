@@ -65,7 +65,7 @@
               </div>
               @if (editingEmailAddress) {
                 <div>
-                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
+                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [class.is-invalid]="preferenceForm.form.get('mail_address')?.errors?.['pattern']"/>
                 </div>
               }
               @if (!editingEmailAddress && preferenceResolver.dataModel.change_email_address) {

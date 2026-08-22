@@ -13,7 +13,7 @@ import {Observable} from "rxjs";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
-import {NgClass, DatePipe} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
@@ -22,7 +22,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgClass, DatePipe, TranslatorPipe]
+    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe, TranslatorPipe]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);

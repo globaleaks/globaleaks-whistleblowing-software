@@ -14,7 +14,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {HttpService} from "@app/shared/services/http.service";
 import {concatMap, delay, from, tap} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
-import {formatDate, NgClass, DatePipe} from "@angular/common";
+import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -24,7 +24,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe]
+    imports: [DatePipe, FormsModule, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe]
 })
 export class TipsComponent implements OnInit {
   private http = inject(HttpClient);

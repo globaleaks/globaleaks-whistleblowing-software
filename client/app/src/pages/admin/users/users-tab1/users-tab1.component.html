@@ -41,7 +41,7 @@
           <label>{{ 'Email address' | translate }}</label>
           <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           <div>
-            <input id="new-user-email" class="form-control" [(ngModel)]="new_user.email" #email="ngModel" name="email" [pattern]="Constants.emailRegexp" [ngClass]="{'is-invalid': email.invalid && (email.dirty || email.touched)}" type="email" required />
+            <input id="new-user-email" class="form-control" [(ngModel)]="new_user.email" #email="ngModel" name="email" [pattern]="Constants.emailRegexp" [class.is-invalid]="email.invalid && (email.dirty || email.touched)" type="email" required />
           </div>
           @if (email?.errors?.['pattern'] && email.invalid && (email.dirty || email.touched)) {
             <div class="text-danger">

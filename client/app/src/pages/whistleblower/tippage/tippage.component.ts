@@ -12,7 +12,6 @@ import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
@@ -28,7 +27,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
 })
 export class TippageComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);

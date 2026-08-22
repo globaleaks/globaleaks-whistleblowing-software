@@ -1,5 +1,4 @@
 import {Component, input} from "@angular/core";
-import {NgStyle} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 
@@ -7,7 +6,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-rfiles-upload-status",
     templateUrl: "./r-files-upload-status.component.html",
     standalone: true,
-    imports: [NgStyle, TranslateModule, TranslatorPipe]
+    imports: [TranslateModule, TranslatorPipe]
 })
 export class RFilesUploadStatusComponent {
   readonly uploading = input<boolean>();

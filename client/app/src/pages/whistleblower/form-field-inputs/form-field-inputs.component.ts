@@ -6,7 +6,6 @@ import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
 import {MarkdownComponent} from "ngx-markdown";
 import {FormFieldInputComponent} from "../form-field-input/form-field-input.component";
 import {TranslateModule} from "@ngx-translate/core";
@@ -21,7 +20,6 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     imports: [
     MarkdownComponent,
     NgbTooltipModule,
-    NgClass,
     forwardRef(() => FormFieldInputComponent),
     TranslateModule,
     TranslatorPipe,

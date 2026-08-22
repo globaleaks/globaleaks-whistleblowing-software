@@ -9,7 +9,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
-import {NgClass} from "@angular/common";
 import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
 import {FormComponent} from "@app/pages/whistleblower/form/form.component";
 import {RFilesUploadStatusComponent} from "../../partials/rfiles-upload-status/r-files-upload-status.component";
@@ -21,7 +20,7 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     selector: "src-tip-additional-questionnaire-form",
     templateUrl: "./tip-additional-questionnaire-form.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [FormsModule, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);

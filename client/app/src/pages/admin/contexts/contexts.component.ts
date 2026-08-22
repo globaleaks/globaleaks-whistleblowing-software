@@ -8,7 +8,6 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {NgClass} from "@angular/common";
 import {HttpClient} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {ContextEditorComponent} from "@app/pages/admin/contexts/context-editor/context-editor.component";
@@ -21,7 +20,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-contexts",
     templateUrl: "./contexts.component.html",
     standalone: true,
-    imports: [ContextEditorComponent, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, TranslatorPipe]
+    imports: [ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslatorPipe]
 })
 export class ContextsComponent implements OnInit {
   private http = inject(HttpClient);

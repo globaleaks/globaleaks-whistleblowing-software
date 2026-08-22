@@ -6,7 +6,6 @@ import {HttpService} from "@app/shared/services/http.service";
 import {Router} from "@angular/router";
 import {ErrorCodes} from "@app/models/app/error-code";
 import {FormsModule} from "@angular/forms";
-import {NgClass} from "@angular/common";
 import {PasswordStrengthValidatorDirective} from "../../directive/password-strength-validator.directive";
 import {PasswordMeterComponent} from "../../components/password-meter/password-meter.component";
 import {TranslateModule} from "@ngx-translate/core";
@@ -18,7 +17,7 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     selector: "src-password-change",
     templateUrl: "./password-change.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
 })
 export class PasswordChangeComponent implements OnInit {
   rootDataService = inject(AppDataService);

@@ -1,4 +1,4 @@
-<form #signupform="ngForm" [ngClass]="{ 'was-validated': validated }" novalidate>
+<form #signupform="ngForm" [class.was-validated]="validated" novalidate>
   <div class="row">
     <div class="col-md-12">
       <div class="title">{{'Sign up'|translate}}</div>
@@ -36,7 +36,7 @@
         <span>{{'Email address'|translate}}</span>
         <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
-      <input id="signup-email" #mail_address="ngModel" name="mail_address" class="form-control" [(ngModel)]="signup().email" type="email" [ngClass]="{'is-invalid': validated && mail_address.invalid}" [pattern]="emailRegex" required>
+      <input id="signup-email" #mail_address="ngModel" name="mail_address" class="form-control" [(ngModel)]="signup().email" type="email" [class.is-invalid]="validated && mail_address.invalid" [pattern]="emailRegex" required>
       @if (validated && mail_address?.errors?.['pattern']) {
         <div class="text-danger">
           <span>{{'Invalid email address'|translate}}</span>
@@ -48,7 +48,7 @@
         <span>{{'Email address'|translate}} ({{'Confirmation'|translate}})</span>
         <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       </label>
-      <input id="signup-email-confirm" name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp="" type="email" [ngClass]="{'is-invalid': validated && signup().email !== confirmation_email}" required>
+      <input id="signup-email-confirm" name="email" class="form-control" [(ngModel)]="confirmation_email" disableCcp="" type="email" [class.is-invalid]="validated && signup().email !== confirmation_email" required>
       @if (validated && signupform && mail_address.valid && signup().email !== confirmation_email) {
         <div class="text-danger">
           <span>{{'Invalid confirmation'|translate}}</span>

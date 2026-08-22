@@ -7,7 +7,6 @@ import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Step} from "@app/models/whistleblower/wb-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
 import {WhistleblowerIdentityFieldComponent} from "../fields/whistleblower-identity-field/whistleblower-identity-field.component";
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {MarkdownComponent} from "ngx-markdown";
@@ -25,7 +24,7 @@ import {AutoExpandDirective} from "@app/shared/directive/auto-expand.directive";
     templateUrl: "./form-field-input.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [AutoExpandDirective, FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgClass, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
+    imports: [AutoExpandDirective, FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
 })
 export class FormFieldInputComponent implements OnInit {
   private fieldUtilitiesService = inject(FieldUtilitiesService);

@@ -31,12 +31,12 @@
               </div>
             }
           </div>
-          <div class="file-upload-progress progress progress-striped" [ngClass]="{'invisible': file().paused || file().progress === 0}">
+          <div class="file-upload-progress progress progress-striped" [class.invisible]="file().paused || file().progress === 0">
             @if (file().progress !== 1) {
-              <div class="progress-bar" role="progressbar" [ngStyle]="{'width': (file().progress * 100) + '%'}"></div>
+              <div class="progress-bar" role="progressbar" [style.width]="(file().progress * 100) + '%'"></div>
             }
             @if (file().progress === 1) {
-              <div class="progress-bar progress-bar-complete" [attr.data-cy]="'progress-bar-complete'" role="progressbar" [ngStyle]="{'width': (file().progress * 100) + '%'}"></div>
+              <div class="progress-bar progress-bar-complete" [attr.data-cy]="'progress-bar-complete'" role="progressbar" [style.width]="(file().progress * 100) + '%'"></div>
             }
           </div>
         </div>

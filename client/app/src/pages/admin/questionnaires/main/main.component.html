@@ -22,7 +22,7 @@
               <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             </label>
             <div>
-              <input id="new-questionnaire-name" name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [ngClass]="{'is-invalid': newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']}" required />
+              <input id="new-questionnaire-name" name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [class.is-invalid]="newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']" required />
             </div>
           </div>
           <div class="form-group">

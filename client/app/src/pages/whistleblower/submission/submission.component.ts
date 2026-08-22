@@ -15,7 +15,6 @@ import Flow from "@flowjs/flow.js";
 import {TitleService} from "@app/shared/services/title.service";
 import {Router} from "@angular/router";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
-import {NgClass} from "@angular/common";
 import {ContextSelectionComponent} from "../context-selection/context-selection.component";
 import {ReceiverSelectionComponent} from "../receiver-selection/receiver-selection.component";
 import {NgFormChangeDirective} from "@app/shared/directive/ng-form-change.directive";
@@ -35,7 +34,7 @@ import {firstValueFrom} from "rxjs";
     templateUrl: "./submission.component.html",
     providers: [SubmissionService],
     standalone: true,
-    imports: [ContextSelectionComponent, FormsModule, NgClass, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
+    imports: [ContextSelectionComponent, FormsModule, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
 })
 export class SubmissionComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);

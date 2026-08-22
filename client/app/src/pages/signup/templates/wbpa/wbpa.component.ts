@@ -4,7 +4,6 @@ import {AppDataService} from "@app/app-data.service";
 import {Signup} from "@app/models/component-model/signup";
 import {FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
 import {DisableCcpDirective} from "@app/shared/directive/disable-ccp.directive";
 import {SubdomainValidatorDirective} from "@app/shared/directive/subdomain-validator.directive";
 import {TosComponent} from "../tos/tos.component";
@@ -15,7 +14,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     selector: "src-wbpa",
     templateUrl: "./wbpa.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, DisableCcpDirective, SubdomainValidatorDirective, TosComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, DisableCcpDirective, SubdomainValidatorDirective, TosComponent, TranslateModule, TranslatorPipe]
 })
 export class WbpaComponent {
   protected appDataService = inject(AppDataService);

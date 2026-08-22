@@ -4,7 +4,6 @@ import {ControlContainer, NgForm} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Children, Step} from "@app/models/whistleblower/wb-tip-data";
-import {NgClass} from "@angular/common";
 import {FormFieldInputsComponent} from "../form-field-inputs/form-field-inputs.component";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
@@ -14,7 +13,6 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [
-    NgClass,
     forwardRef(() => FormFieldInputsComponent),
     OrderByPipe
 ],
