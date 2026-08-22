@@ -1,6 +1,6 @@
 <div class="config-item">
   <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing();">
+    <span class="col-md-7" (click)="toggleEditing();" (keydown.enter)="toggleEditing();" tabindex="0" role="button">
       <span>{{ user().name }}</span>
       <span class="badge bg-primary">
         @switch (user().role) {
@@ -104,7 +104,7 @@
             <div class="form-group">
               <label>{{ 'Password' | translate }}</label>
               <div [class.disabled]="user().encryption && !preferenceData.escrow">
-                <span class="btn btn-outline-secondary" id="send_reset_link" (click)="resetUserPassword(user())">
+                <span class="btn btn-outline-secondary" id="send_reset_link" (click)="resetUserPassword(user())" (keydown.enter)="resetUserPassword(user())" tabindex="0" role="button">
                   <i class="fas fa-arrows-rotate"></i>
                   @if (user().last_login === '1970-01-01T00:00:00Z') {
                     <span>{{ 'Send activation link' | translate }}</span>
@@ -113,7 +113,7 @@
                     <span>{{ 'Send reset link' | translate }}</span>
                   }
                 </span>
-                <span class="btn btn-outline-secondary" id="set_password" (click)="setPassword(user())">
+                <span class="btn btn-outline-secondary" id="set_password" (click)="setPassword(user())" (keydown.enter)="setPassword(user())" tabindex="0" role="button">
                   <i class="fas fa-pen-to-square"></i>
                   <span>{{ 'Reset password' | translate }}</span>
                 </span>
@@ -136,7 +136,7 @@
           </div>
           @if (user().two_factor) {
             <div class="form-group">
-              <span class="btn btn-danger" (click)="disable2FA(user())">
+              <span class="btn btn-danger" (click)="disable2FA(user())" (keydown.enter)="disable2FA(user())" tabindex="0" role="button">
                 <i class="fas fa-ban"></i>
                 <span>{{ 'Disable two factor authentication' | translate }}</span>
               </span>

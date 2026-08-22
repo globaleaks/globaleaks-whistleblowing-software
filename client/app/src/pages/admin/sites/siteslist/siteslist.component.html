@@ -1,6 +1,6 @@
 <div class="config-item reveal">
   <div class="editorHeader row">
-    <div class="col-md-6" (click)="toggleEditing($event)">
+    <div class="col-md-6" (click)="toggleEditing($event)" (keydown.enter)="toggleEditing($event)" tabindex="0" role="button">
       <div>
         <span class="badge bg-secondary">{{tenant().id}}</span>
         <span>{{tenant().name}}</span>
@@ -25,7 +25,7 @@
       }
     </div>
     @if (tenant().id !== 1) {
-      <div class="col-md-6 clearfix" (click)="toggleEditing($event)">
+      <div class="col-md-6 clearfix" (click)="toggleEditing($event)" (keydown.enter)="toggleEditing($event)" tabindex="0" role="button">
         <span class="float-end">
           @if (tenant().active) {
             <button class="btn btn-sm btn-primary" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}} </button>

@@ -1,6 +1,6 @@
 <div class="config-item">
   <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing()">
+    <span class="col-md-7" (click)="toggleEditing()" (keydown.enter)="toggleEditing()" tabindex="0" role="button">
       <span>{{ contextResolver().name }}</span>
       @if (contextResolver().hidden) {
         <span class="badge bg-secondary">{{ 'Hidden' | translate }}</span>
@@ -91,18 +91,18 @@
                   @if (!contextResolver().show_receivers_in_alphabetical_order) {
                     <span>
                       @if (index !== 0) {
-                        <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}">
+                        <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}" (keydown.enter)="moveUpReceiver(index)" tabindex="0" role="button">
                           <i class="fas fa-chevron-up"></i>
                         </span>
                       }
                       @if (index !== contextResolver().receivers.length - 1) {
-                        <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}">
+                        <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}" (keydown.enter)="moveDownReceiver(index)" tabindex="0" role="button">
                           <i class="fas fa-chevron-down"></i>
                         </span>
                       }
                     </span>
                   }
-                  <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}">
+                  <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" tabindex="0" role="button">
                     <i class="fas fa-xmark"></i>
                   </span>
                   <span>{{adminReceiversById()[receiver].name}}</span>

@@ -1,5 +1,5 @@
 <div class="editorHeader row">
-  <span class="col-md-7" (click)="toggleEditing(questionnaire())">{{ questionnaire().name }}</span>
+  <span class="col-md-7" (click)="toggleEditing(questionnaire())" (keydown.enter)="toggleEditing(questionnaire())" tabindex="0" role="button">{{ questionnaire().name }}</span>
   <span class="col-md-5 clearfix">
     <span class="float-end">
       @if (questionnaire().editable && !editing) {

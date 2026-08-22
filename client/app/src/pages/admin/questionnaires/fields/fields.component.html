@@ -1,6 +1,6 @@
 <div class="config-item">
     <div class="editorHeader">
-      <div class="row" (click)="field().editable && toggleEditing(); $event.stopPropagation();">
+      <div class="row" (click)="field().editable && toggleEditing(); $event.stopPropagation();" (keydown.enter)="field().editable && toggleEditing(); $event.stopPropagation();" tabindex="0" role="button">
         <div class="col-md-6">
           <span>{{ field().label }}</span>
           @if (field().step_id || field().fieldgroup_id) {

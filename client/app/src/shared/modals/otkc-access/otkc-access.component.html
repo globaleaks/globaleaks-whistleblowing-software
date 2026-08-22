@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-md-12">
       <label for="ReceiptCode">{{ 'For security reasons, the code needs to be changed.' | translate }}.</label>
-      <div class="mt-2 form-inline d-flex justify-content-center" ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(arg.receipt)">
+      <div class="mt-2 form-inline d-flex justify-content-center" ngbTooltip="{{'Copy to clipboard' | translate}}" (click)="utils.copyToClipboard(arg.receipt)" (keydown.enter)="utils.copyToClipboard(arg.receipt)" tabindex="0" role="button">
         <div class="form-group d-block mx-auto">
           <div class="input-group">
             <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" size="19" [(ngModel)]="arg.formatted_receipt" name="receipt-input">
@@ -23,7 +23,7 @@
 </div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">{{ 'Confirm' | translate }}</button>
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()" (keydown.enter)="cancel()" tabindex="0" role="button">
     <i class="fas fa-xmark" aria-hidden="true"></i>
     <span>{{ 'Close' | translate }}</span>
   </a>

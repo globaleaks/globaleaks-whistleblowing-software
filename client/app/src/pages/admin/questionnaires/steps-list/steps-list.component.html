@@ -1,6 +1,6 @@
 <div class="config-item">
   <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing(); $event.stopPropagation();">
+    <span class="col-md-7" (click)="toggleEditing(); $event.stopPropagation();" (keydown.enter)="toggleEditing(); $event.stopPropagation();" tabindex="0" role="button">
       <span class="badge bg-primary">{{index() + 1}}</span>
       <span>{{step().label}}</span>
     </span>

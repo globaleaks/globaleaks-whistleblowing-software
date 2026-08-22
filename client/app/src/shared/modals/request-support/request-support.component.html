@@ -41,7 +41,7 @@
       <span>{{'Submit'|translate}}</span>
     </button>
   }
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()" (keydown.enter)="activeModal.dismiss()" tabindex="0" role="button">
     <i class="fas fa-xmark"></i>
     <span>{{'Close'|translate}}</span>
   </a>

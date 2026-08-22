@@ -14,7 +14,7 @@
         @for (user of arg.trigger_receiver; track user; let i = $index) {
           <li>
             <span class="action-btns">
-              <span (click)="removeReceiver(i)" ngbTooltip="{{'Remove' | translate}}" role="button" tabindex="0" [attr.aria-label]="'Remove' | translate">
+              <span (click)="removeReceiver(i)" ngbTooltip="{{'Remove' | translate}}" role="button" tabindex="0" [attr.aria-label]="'Remove' | translate" (keydown.enter)="removeReceiver(i)">
                 <i class="fas fa-xmark" aria-hidden="true"></i>
               </span>
             </span>

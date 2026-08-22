@@ -34,7 +34,7 @@
         }
         @if (authentication.session && authentication.session.role !== 'whistleblower') {
           <span id="SupportLinkBox">
-            <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
+            <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate" (keydown.enter)="utilsService.openSupportModal($event)">
               <i class="fas fa-life-ring"></i>
             </a>
             <span class="text-separator">|</span>
@@ -42,7 +42,7 @@
         }
       }
       <span id="LogoutLinkBox">
-        <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate">
+        <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate" (keydown.enter)="onLogout($event)">
           <i class="pointer fas fa-right-from-bracket"></i>
           @if (authentication.session.role === 'whistleblower') {
             <span>

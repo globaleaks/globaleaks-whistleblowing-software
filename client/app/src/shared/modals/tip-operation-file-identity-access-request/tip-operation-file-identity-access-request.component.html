@@ -12,7 +12,7 @@
     <i class="fas fa-check" aria-hidden="true"></i>
     <span>{{ 'Send' | translate }}</span>
   </button>
-  <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+  <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()" (keydown.enter)="cancel()" tabindex="0" role="button">
     <i class="fas fa-xmark" aria-hidden="true"></i>
     <span>{{ 'Cancel' | translate }}</span>
   </span>

@@ -17,7 +17,7 @@
       }
       <div id="ReceiverSelectionBox" class="row">
         @for (receiver of submission().receivers | filter : 'forcefully_selected' : false | orderBy:receiversOrderPredicate(); track receiver; let index = $index) {
-          <div id="receiver-{{index}}" [class]="utilsService.getCardSize(submission().receivers.length)" (click)="switchSelection.emit(receiver)">
+          <div id="receiver-{{index}}" [class]="utilsService.getCardSize(submission().receivers.length)" (click)="switchSelection.emit(receiver)" (keydown.enter)="switchSelection.emit(receiver)" tabindex="0" role="button">
             <src-receiver-card [submission]="submission()" [receiverModel]="receiver"></src-receiver-card>
           </div>
         }

@@ -9,11 +9,11 @@
   </div>
 </div>
 <div class="modal-footer">
-  <span id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
+  <span id="modal-action-ok" class="btn btn-primary" (click)="confirm()" (keydown.enter)="confirm()" tabindex="0" role="button">
     <i class="fas fa-check" aria-hidden="true"></i>
     <span>{{ 'Duplicate' | translate }}</span>
   </span>
-  <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+  <span id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()" (keydown.enter)="cancel()" tabindex="0" role="button">
     <i class="fas fa-xmark" aria-hidden="true"></i>
     <span>{{ 'Cancel' | translate }}</span>
   </span>

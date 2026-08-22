@@ -8,7 +8,7 @@
           @if (!tlsConfig().files.key.set) {
             <span>
               <input id="upload-private-key-file" type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
-              <label for="upload-private-key-file" id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+              <label for="upload-private-key-file" id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary" (keydown.enter)="pkInput.click()" tabindex="0" role="button">{{'Upload' | translate}}</label>
             </span>
           }
           @if (!tlsConfig().files.key.set) {
@@ -89,7 +89,7 @@
               @if (!tlsConfig().files.cert.set) {
                 <span>
                   <input id="upload-certificate-file" type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
-                  <label for="upload-certificate-file" id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+                  <label for="upload-certificate-file" id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary" (keydown.enter)="certificateInput.click()" tabindex="0" role="button">{{'Upload' | translate}}</label>
                 </span>
               }
               @if (tlsConfig().files.cert.set) {
@@ -119,7 +119,7 @@
               @if (!tlsConfig().files.chain.set) {
                 <span>
                   <input id="upload-chain-file" type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
-                  <label for="upload-chain-file" id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
+                  <label for="upload-chain-file" id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary" (keydown.enter)="iCertificateInput.click()" tabindex="0" role="button">{{'Upload' | translate}}</label>
                 </span>
               }
               @if (tlsConfig().files.chain.set) {

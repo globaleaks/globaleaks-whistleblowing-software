@@ -1,5 +1,5 @@
 <div id="TipInfoBox" class="card card-default">
-  <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)">
+  <div class="card-header" (click)="toggleCollapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleCollapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
     <div>
       <span class="d-flex justify-content-between">
         <span>

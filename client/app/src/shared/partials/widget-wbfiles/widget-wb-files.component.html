@@ -1,5 +1,5 @@
 <div id="AttachedWBFile" class="card card-default">
-  <div class="card-header clearfix" (click)="toggleCollapse(); utilsService.stopPropagation($event);">
+  <div class="card-header clearfix" (click)="toggleCollapse(); utilsService.stopPropagation($event);" (keydown.enter)="toggleCollapse(); utilsService.stopPropagation($event);" tabindex="0" role="button">
     <span>{{'Files attached by recipients'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {

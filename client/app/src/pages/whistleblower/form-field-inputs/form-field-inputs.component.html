@@ -26,7 +26,7 @@
                   </label>
                 </span>
                 <span class="float-end">
-                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
+                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)" (keydown.enter)="utilsService.deleteFromList(entries, entry)" tabindex="0" role="button">
                     <i class="fas fa-xmark"></i>
                   </span>
                 </span>
@@ -72,7 +72,7 @@
                   </label>
                 </span>
                 <span class="float-end">
-                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
+                  <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)" (keydown.enter)="utilsService.deleteFromList(entries, entry)" tabindex="0" role="button">
                     <i class="fas fa-xmark"></i>
                   </span>
                 </span>

@@ -43,7 +43,7 @@
     @for (substatus of submissionsStatus().substatuses; track substatus; let index = $index; let first = $first; let last = $last) {
       <div class="col-md-12">
         <div class="config-item">
-          <div class="editorHeader row" (click)="toggleSubstatusEditing(index); $event.stopPropagation();">
+          <div class="editorHeader row" (click)="toggleSubstatusEditing(index); $event.stopPropagation();" (keydown.enter)="toggleSubstatusEditing(index); $event.stopPropagation();" tabindex="0" role="button">
             <span class="col-md-7">
               <span class="substatusLabel">{{substatus.label}}</span>
             </span>

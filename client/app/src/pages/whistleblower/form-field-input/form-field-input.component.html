@@ -50,7 +50,7 @@
                       }
                     </ng-select>
                     @if (entry()['value']) {
-                      <span class="input-append" (click)="entry()['value']='';" disabled="!entry()['value']">
+                      <span class="input-append" (click)="entry()['value']='';" disabled="!entry()['value']" (keydown.enter)="entry()['value']='';" tabindex="0" role="button">
                         <i class="input-group-text cross-padding fas fa-circle-xmark"></i>
                       </span>
                     }
@@ -82,7 +82,7 @@
               <div>
                 <div class="input-group">
                   <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()" [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field().label" [(ngModel)]="input_date" [required]="entry().required_status" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" (ngModelChange)="onDateSelection()" />
-                  <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()">
+                  <span class="input-group-append btn btn-light border border-1" (click)="datepicker.toggle()" (keydown.enter)="datepicker.toggle()" tabindex="0" role="button">
                     <i class="fas fa-calendar"></i>
                   </span>
                 </div>
@@ -96,7 +96,7 @@
                 <span class="form-group ms-1">
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()+'-startDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readOnly]="true" [attr.aria-label]="field().label" [(ngModel)]="input_start_date" [required]="entry().required_status" ngbDatepicker #datepickerstart="ngbDatepicker" (click)="datepickerstart.toggle()" (ngModelChange)="onStartDateSelection(input_start_date)" />
-                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()">
+                    <span class="input-group-append btn btn-light border border-1" (click)="datepickerstart.toggle()" (keydown.enter)="datepickerstart.toggle()" tabindex="0" role="button">
                       <i class="fas fa-calendar"></i>
                     </span>
                   </div>
@@ -107,7 +107,7 @@
                 <span class="form-group ms-2">
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()+'-endDate'" [minDate]="input_start_date" [maxDate]="dateOptions2" type="text" [readonly]="true" [attr.aria-label]="field().label" [(ngModel)]="input_end_date" [required]="entry().required_status" ngbDatepicker #datepickerend="ngbDatepicker" (click)="datepickerend.toggle()" (ngModelChange)="onEndDateSelection(input_end_date)" [disabled]="!input_start_date" />
-                    <span class="input-group-append btn btn-light border border-1" (click)="input_start_date && datepickerend.toggle()">
+                    <span class="input-group-append btn btn-light border border-1" (click)="input_start_date && datepickerend.toggle()" (keydown.enter)="input_start_date && datepickerend.toggle()" tabindex="0" role="button">
                       <i class="fas fa-calendar"></i>
                     </span>
                   </div>
