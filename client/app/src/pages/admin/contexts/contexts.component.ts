@@ -9,7 +9,6 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {HttpClient} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {ContextEditorComponent} from "@app/pages/admin/contexts/context-editor/context-editor.component";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -23,7 +22,6 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [TranslatePipe, ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
 export class ContextsComponent implements OnInit {
-  private http = inject(HttpClient);
   protected preference = inject(PreferenceResolver);
   protected httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
@@ -88,7 +86,7 @@ export class ContextsComponent implements OnInit {
 
     this.contextsData = updated;
 
-    this.http.put("api/admin/contexts", {
+    this.httpService.requestReorderAdminContexts({
       operation: "order_elements",
       args: { ids: this.contextsData.map(c => c.id) },
     }).subscribe();

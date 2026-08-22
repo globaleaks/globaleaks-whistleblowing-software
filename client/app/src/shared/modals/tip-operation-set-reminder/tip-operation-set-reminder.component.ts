@@ -1,7 +1,7 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, OnInit, inject} from "@angular/core";
 import {NgbDateStruct, NgbModal, NgbInputDatepicker} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -14,7 +14,7 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class TipOperationSetReminderComponent implements OnInit {
   private modalService = inject(NgbModal);
-  private http = inject(HttpClient);
+  private httpService = inject(HttpService);
   private utils = inject(UtilsService);
 
   args: any;
@@ -52,7 +52,7 @@ export class TipOperationSetReminderComponent implements OnInit {
         }
       };
 
-      return this.http.put("api/recipient/rtips/" + this.args.tip.id, req)
+      return this.httpService.tipOperation(req.operation, req.args, this.args.tip.id)
         .subscribe(() => {
           this.reload();
         });
@@ -68,7 +68,7 @@ export class TipOperationSetReminderComponent implements OnInit {
         "value": 32503680000000
       }
     };
-    this.http.put("api/recipient/rtips/" + this.args.tip.id, req)
+    this.httpService.tipOperation(req.operation, req.args, this.args.tip.id)
       .subscribe(() => {
         this.reload();
       });

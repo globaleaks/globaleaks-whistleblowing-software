@@ -1,4 +1,3 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
@@ -19,7 +18,6 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslateModule]
 })
 export class MainComponent implements OnInit {
-  private http = inject(HttpClient);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   protected questionnairesResolver = inject(QuestionnairesResolver);
@@ -50,7 +48,7 @@ export class MainComponent implements OnInit {
   importQuestionnaire(files: FileList | null) {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
-        return this.http.post("api/admin/questionnaires?multilang=1", txt).subscribe({
+        return this.httpService.requestImportAdminQuestionnaire(txt).subscribe({
           next:()=>{
             this.getResolver();
           },

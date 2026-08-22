@@ -1,4 +1,3 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
@@ -21,7 +20,6 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslateModule]
 })
 export class QuestionsComponent implements OnInit {
-  private httpClient = inject(HttpClient);
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   private fieldTemplates = inject(FieldTemplatesResolver);
@@ -45,7 +43,7 @@ export class QuestionsComponent implements OnInit {
   importQuestion(files: FileList | null): void {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
-        return this.httpClient.post("api/admin/fieldtemplates?multilang=1", txt).subscribe({
+        return this.httpService.requestImportAdminFieldTemplate(txt).subscribe({
           next:()=>{
             this.utilsService.reloadComponent();
           },

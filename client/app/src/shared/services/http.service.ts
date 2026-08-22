@@ -35,6 +35,7 @@ import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
+import {FlowFile} from "@flowjs/flow.js";
 
 
 @Injectable({
@@ -445,5 +446,65 @@ export class HttpService {
     };
     return this.httpClient.put("api/recipient/rtips/" + tipId, req);
   };
+
+  requestDeleteReceiverTip(id: string): Observable<unknown> {
+    return this.httpClient.delete("api/recipient/rtips/" + id);
+  }
+
+  requestIdentityAccess(id: string, request_motivation: string): Observable<unknown> {
+    return this.httpClient.post("api/recipient/rtips/" + id + "/iars", {"request_motivation": request_motivation});
+  }
+
+  requestOperatorAuthSwitch(): Observable<HttpResponse<{ redirect: string }>> {
+    return this.httpClient.get<{ redirect: string }>('/api/auth/operatorauthswitch', { observe: 'response' });
+  }
+
+  requestWhistleblowerOperations(data: { operation: string, args: Record<string, string> }): Observable<unknown> {
+    return this.httpClient.put('api/whistleblower/operations', data);
+  }
+
+  requestRunOperation(api: string, operation: string, args: object, headers?: HttpHeaders): Observable<unknown> {
+    return this.httpClient.put(api, {"operation": operation, "args": args}, {headers});
+  }
+
+  requestBlobResource(url: string, headers: HttpHeaders | Record<string, string>): Observable<Blob> {
+    return this.httpClient.get(url, {headers: headers, responseType: "blob"});
+  }
+
+  requestDeleteResource(url: string, headers?: HttpHeaders): Observable<void> {
+    return this.httpClient.delete<void>(url, {headers});
+  }
+
+  requestAdminFilesResource(): Observable<FlowFile[]> {
+    return this.httpClient.get<FlowFile[]>("api/admin/files");
+  }
+
+  requestImportAdminQuestionnaire(data: string): Observable<unknown> {
+    return this.httpClient.post("api/admin/questionnaires?multilang=1", data);
+  }
+
+  requestImportAdminFieldTemplate(data: string): Observable<unknown> {
+    return this.httpClient.post("api/admin/fieldtemplates?multilang=1", data);
+  }
+
+  requestDuplicateAdminQuestionnaire(param: { questionnaire_id: string, new_name: string }): Observable<unknown> {
+    return this.httpClient.post("api/admin/questionnaires/duplicate", param);
+  }
+
+  requestReorderAdminContexts(param: { operation: string, args: { ids: string[] } }): Observable<unknown> {
+    return this.httpClient.put("api/admin/contexts", param);
+  }
+
+  requestReorderAdminQuestionnaireSteps(param: { operation: string, args: { ids: string[], questionnaire_id: string } }): Observable<unknown> {
+    return this.httpClient.put("api/admin/steps", param);
+  }
+
+  requestAddAdminSubstatus(statusId: string, param: { label: string, order: number, tip_timetolive: number }): Observable<Substatus> {
+    return this.httpClient.post<Substatus>(`api/admin/statuses/${statusId}/substatuses`, param);
+  }
+
+  requestReorderAdminSubstatuses(statusId: string, param: { operation: string, args: { ids: string[] } }): Observable<unknown> {
+    return this.httpClient.put(`api/admin/statuses/${statusId}/substatuses`, param);
+  }
 
 }

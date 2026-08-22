@@ -8,7 +8,7 @@ import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 import {Session} from "@app/models/authentication/session";
 import {TitleService} from "@app/shared/services/title.service";
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
@@ -18,7 +18,6 @@ import {CryptoService} from "@app/shared/services/crypto.service";
   providedIn: "root"
 })
 export class AuthenticationService {
-  private http = inject(HttpClient);
   private modalService = inject(NgbModal);
   private titleService = inject(TitleService);
   private activatedRoute = inject(ActivatedRoute);
@@ -142,7 +141,7 @@ export class AuthenticationService {
                 } else {
                   newReceipt = receipt;
                 }
-                this.http.put('api/whistleblower/operations', {
+                this.httpService.requestWhistleblowerOperations({
                   operation: 'change_receipt',
                   args: {receipt: newReceipt}
                   }).subscribe(() => {

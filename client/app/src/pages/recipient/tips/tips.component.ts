@@ -14,7 +14,7 @@ import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {concatMap, delay, from, tap} from "rxjs";
-import {HttpClient, HttpResponse} from "@angular/common/http";
+import {HttpResponse} from "@angular/common/http";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
@@ -27,7 +27,6 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [TranslatePipe, DatePipe, FormsModule, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink]
 })
 export class TipsComponent implements OnInit {
-  private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
   protected httpService = inject(HttpService);
   private appConfigServices = inject(AppConfigService);
@@ -146,7 +145,7 @@ export class TipsComponent implements OnInit {
   }
 
   actAsWhistleblower() {
-    this.http.get('/api/auth/operatorauthswitch', { observe: 'response' }).subscribe(
+    this.httpService.requestOperatorAuthSwitch().subscribe(
       (response: HttpResponse<any>) => {
         if (response.status === 200) {
           window.open(window.location.origin + response.body.redirect, "_blank", "noopener");

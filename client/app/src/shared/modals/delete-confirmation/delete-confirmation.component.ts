@@ -1,7 +1,7 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {HttpService} from "@app/shared/services/http.service";
 import {Router} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -14,7 +14,7 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class DeleteConfirmationComponent {
   private modalService = inject(NgbActiveModal);
-  private http = inject(HttpClient);
+  private httpService = inject(HttpService);
   private utils = inject(UtilsService);
   private router = inject(Router);
 
@@ -30,7 +30,7 @@ export class DeleteConfirmationComponent {
     const args = this.args;
     if (args) {
       if (args.operation === "delete") {
-        return this.http.delete("api/recipient/rtips/" + args.tip.id)
+        return this.httpService.requestDeleteReceiverTip(args.tip.id)
           .subscribe(() => {
             this.router.navigate(["/recipient/reports"]).then();
           });

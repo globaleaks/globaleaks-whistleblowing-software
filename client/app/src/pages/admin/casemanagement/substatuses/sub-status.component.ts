@@ -1,7 +1,6 @@
 import {Component, OnInit, inject, input, output} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {HttpClient} from "@angular/common/http";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
@@ -20,7 +19,6 @@ export class SubStatusComponent implements OnInit {
   private httpService = inject(HttpService);
   protected modalService = inject(NgbModal);
   protected utilsService = inject(UtilsService);
-  private http = inject(HttpClient);
 
   readonly submissionsStatus = input.required<Status>();
   readonly deleted = output<string>();
@@ -44,8 +42,8 @@ export class SubStatusComponent implements OnInit {
       tip_timetolive: -1
     };
 
-    this.http.post<any>(
-      `api/admin/statuses/${this.submissionsStatus().id}/substatuses`,
+    this.httpService.requestAddAdminSubstatus(
+      this.submissionsStatus().id,
       newSubmissionsSubStatus
     ).subscribe(
       result => {
@@ -74,8 +72,8 @@ export class SubStatusComponent implements OnInit {
 
     const ids = this.submissionsStatus().substatuses.map((c: Substatus) => c.id);
 
-    this.http.put<any>(
-      `api/admin/statuses/${this.submissionsStatus().id}/substatuses`,
+    this.httpService.requestReorderAdminSubstatuses(
+      this.submissionsStatus().id,
       {
         operation: "order_elements",
         args: {ids: ids}

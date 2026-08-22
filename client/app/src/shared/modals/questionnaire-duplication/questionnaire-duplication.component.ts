@@ -1,7 +1,7 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -12,7 +12,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class QuestionnaireDuplicationComponent {
-  private http = inject(HttpClient);
+  private httpService = inject(HttpService);
   private modalService = inject(NgbModal);
 
   questionnaire: questionnaireResolverModel;
@@ -26,8 +26,7 @@ export class QuestionnaireDuplicationComponent {
 
   confirm() {
     if (this.operation === "duplicate" && this.duplicate_questionnaire.name.length > 0) {
-      this.http.post(
-        "api/admin/questionnaires/duplicate",
+      this.httpService.requestDuplicateAdminQuestionnaire(
         {
           questionnaire_id: this.questionnaire.id,
           new_name: this.duplicate_questionnaire.name

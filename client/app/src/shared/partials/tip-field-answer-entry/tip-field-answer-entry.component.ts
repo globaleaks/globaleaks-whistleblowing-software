@@ -1,4 +1,3 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, ElementRef, forwardRef, OnInit, inject, input, viewChild} from "@angular/core";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {AppDataService} from "@app/app-data.service";
@@ -31,7 +30,6 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private http = inject(HttpClient);
   private sanitizer = inject(DomSanitizer);
   protected authenticationService = inject(AuthenticationService);
   private wbTipService = inject(WbtipService);
@@ -82,11 +80,8 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       const id = wbfile.id;
       const url = this.getApiUrl(id);
 
-      this.http.get(url, {
-        headers: {
-          'x-session': this.authenticationService.session.id
-        },
-        responseType: 'blob'
+      this.httpService.requestBlobResource(url, {
+        'x-session': this.authenticationService.session.id
       }).subscribe((response: Blob) => {
         this.audioFiles[reference_id] = response;
         window.addEventListener("message", (message: MessageEvent) => {

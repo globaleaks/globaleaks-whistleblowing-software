@@ -5,7 +5,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpHeaders} from "@angular/common/http";
 import {Observable, map} from "rxjs";
 import {ConfirmationWithPasswordComponent} from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
@@ -46,7 +46,6 @@ export class UtilsService {
   private appDataService = inject(AppDataService);
   private cryptoService = inject(CryptoService);
   private translateService = inject(TranslateService);
-  private http = inject(HttpClient);
   private httpService = inject(HttpService);
   private modalService = inject(NgbModal);
   private preferenceResolver = inject(PreferenceResolver);
@@ -126,10 +125,7 @@ export class UtilsService {
       "x-session": authenticationService.session.id
     });
 
-    this.http.get(url, {
-      headers: headers,
-      responseType: "blob"
-    }).subscribe(
+    this.httpService.requestBlobResource(url, headers).subscribe(
       (response: Blob) => {
         callback(response);
       }
@@ -196,7 +192,7 @@ export class UtilsService {
     [questionnaire.steps[index], questionnaire.steps[target]] =
       [questionnaire.steps[target], questionnaire.steps[index]];
 
-    this.http.put("api/admin/steps", {
+    this.httpService.requestReorderAdminQuestionnaireSteps({
       operation: "order_elements",
       args: {
         ids: questionnaire.steps.map((c: { id: string; }) => c.id),
@@ -448,7 +444,7 @@ export class UtilsService {
       "X-Session": authenticationService.session.id
     });
 
-    this.http.get(url, {responseType: "blob", headers: headers}).subscribe(
+    this.httpService.requestBlobResource(url, headers).subscribe(
       response => {
         this.saveBlobAs(filename, response);
       }
@@ -536,7 +532,7 @@ export class UtilsService {
       // and the operator can retry instead of losing the dialog.
       return this.getConfirmation((secret: string) => {
         const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
-        return this.http.put(api, {"operation": operation, "args": args}, {headers});
+        return this.httpService.requestRunOperation(api, operation, args, headers);
       }).pipe(
         map((response) => {
           if (refresh) {
@@ -546,7 +542,7 @@ export class UtilsService {
         })
       );
     } else {
-      return this.http.put(api, {"operation": operation, "args": args}).pipe(
+      return this.httpService.requestRunOperation(api, operation, args).pipe(
         map((response) => {
           if (refresh) {
             this.reloadComponent();
@@ -629,17 +625,17 @@ export class UtilsService {
   }
 
   getFiles(): Observable<FlowFile[]> {
-    return this.http.get<FlowFile[]>("api/admin/files");
+    return this.httpService.requestAdminFilesResource();
   }
 
   deleteFile(url: string): Observable<void> {
-    return this.http.delete<void>(url);
+    return this.httpService.requestDeleteResource(url);
   }
 
   deleteWithConfirmation(url: string): Observable<any> {
     return this.getConfirmation((secret: string) => {
       const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
-      return this.http.delete(url, {headers});
+      return this.httpService.requestDeleteResource(url, headers);
     });
   }
 
@@ -752,7 +748,7 @@ export class UtilsService {
       });
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.http.put("api/user/operations", {
+        return this.httpService.requestOperations({
           operation: "accepted_privacy_policy",
           args: {}
         }).subscribe(() => {

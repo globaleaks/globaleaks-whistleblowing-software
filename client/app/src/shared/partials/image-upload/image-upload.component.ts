@@ -1,7 +1,7 @@
-import {HttpClient} from "@angular/common/http";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, inject, viewChild} from "@angular/core";
 import {FlowConfig, NgxFlowModule} from "@flowjs/ngx-flow";
+import {HttpService} from "@app/shared/services/http.service";
 import {Subscription} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FlowOptions} from "@flowjs/flow.js";
@@ -19,8 +19,8 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   private renderScheduler = inject(RenderSchedulerService);
-  private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
+  private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
   readonly flow = viewChild.required<FlowConfig>("flowAdvanced");
@@ -82,8 +82,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   deletePicture() {
-    this.http
-      .delete("api/admin/files/" + this.imageUploadId)
+    this.httpService.requestDeleteResource("api/admin/files/" + this.imageUploadId)
       .subscribe(() => {
         if (this.imageUploadModel) {
           this.imageUploadModel[this.imageUploadModelAttr] = "";

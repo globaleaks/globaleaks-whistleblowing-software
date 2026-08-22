@@ -18,7 +18,6 @@ import {
   TipOperationSetReminderComponent
 } from "@app/shared/modals/tip-operation-set-reminder/tip-operation-set-reminder.component";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
-import {HttpClient} from "@angular/common/http";
 import {
   TipOperationPostponeComponent
 } from "@app/shared/modals/tip-operation-postpone/tip-operation-postpone.component";
@@ -75,7 +74,6 @@ export class TipComponent implements OnInit {
   protected modalService = inject(NgbModal);
   private activatedRoute = inject(ActivatedRoute);
   protected httpService = inject(HttpService);
-  protected http = inject(HttpClient);
   protected appDataService = inject(AppDataService);
   protected RTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
@@ -221,8 +219,7 @@ export class TipComponent implements OnInit {
                     receiver: receiverId,
                   },
                 };
-                this.http
-                  .put(`api/recipient/rtips/${this.tip.id}`, req)
+                this.httpService.tipOperation(req.operation, req.args, this.tip.id)
                   .subscribe(() => {
                     this.router.navigate(["recipient", "reports"]).then();
                   });
