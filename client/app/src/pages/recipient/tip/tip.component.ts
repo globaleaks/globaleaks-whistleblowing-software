@@ -1,15 +1,17 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TipService} from "@app/shared/services/tip-service";
-import {NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {GrantAccessComponent} from "@app/shared/modals/grant-access/grant-access.component";
 import {RevokeAccessComponent} from "@app/shared/modals/revoke-access/revoke-access.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
+import {TabsComponent} from "@app/shared/components/tabs/tabs.component";
+import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {
@@ -23,7 +25,6 @@ import {
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {Tab} from "@app/models/component-model/tab";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {Receiver} from "@app/models/app/public-model";
 import {TipUploadWbFileComponent} from "@app/shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
@@ -31,7 +32,7 @@ import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-commen
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
-import {NgClass, NgTemplateOutlet} from "@angular/common";
+import {NgClass} from "@angular/common";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
 import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
@@ -47,6 +48,8 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     templateUrl: "./tip.component.html",
     standalone: true,
     imports: [
+      TabsComponent,
+      TabDirective,
       FormsModule,
       NgClass,
       TipInfoComponent,
@@ -54,14 +57,6 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
       TipQuestionnaireAnswersComponent,
       WhistleBlowerIdentityReceiverComponent,
       TipFilesReceiverComponent,
-      NgbNav,
-      NgbNavItem,
-      NgbNavItemRole,
-      NgbNavLinkButton,
-      NgbNavLinkBase,
-      NgbNavContent,
-      NgTemplateOutlet,
-      NgbNavOutlet,
       NgbTooltipModule,
       NgbDropdown,
       NgbDropdownToggle,
@@ -89,20 +84,15 @@ export class TipComponent implements OnInit {
   protected RTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
 
-  @ViewChild("tab1") tab1!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
-  @ViewChild("tab2") tab2!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
-  @ViewChild("tab3") tab3!: TemplateRef<TipUploadWbFileComponent | TipCommentsComponent>;
 
   tip_id: string | null;
   tip: RecieverTipData;
   score: number;
   ctx: string;
   showEditLabelInput: boolean;
-  active: string;
   loading = true;
   redactMode = false;
   redactOperationTitle: string;
-  tabs: Tab[];
   submission: any;
 
   ngOnInit() {
@@ -137,9 +127,6 @@ export class TipComponent implements OnInit {
             this.showEditLabelInput = this.tip.label === "";
             this.preprocessTipAnswers(this.tip);
             this.tip.submissionStatusStr = this.utils.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-            setTimeout(() => {
-                this.initNavBar();
-            });
             this.cdr.markForCheck();
           });
         }
@@ -147,26 +134,6 @@ export class TipComponent implements OnInit {
     );
   }
 
-  initNavBar() {
-    setTimeout(() => {
-      this.active = this.active || "Everyone";
-      this.tabs = [
-        {
-          title: "Everyone",
-          component: this.tab1
-        },
-        {
-          title: "Recipients only",
-          component: this.tab2
-        },
-        {
-          title: "Me only",
-          component: this.tab3
-        },
-      ];
-      this.cdr.markForCheck();
-    });
-  }
 
   updateLabel(label: string) {
     this.httpService.tipOperation("set", {"key": "label", "value": label}, this.RTipService.tip.id).subscribe(() => {

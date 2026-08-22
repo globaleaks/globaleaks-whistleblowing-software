@@ -164,39 +164,26 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <ul id="CommunicationTabs" ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-          @for (tab of tabs; track tab) {
-            <li [ngbNavItem]="tab.title">
-              <button ngbNavLink>{{ tab.title | translate }}</button>
-              <ng-template ngbNavContent>
-                <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-              </ng-template>
-            </li>
-          }
-        </ul>
-        <div [ngbNavOutlet]="nav" class="mt-2"></div>
-        <div class="row">
-          <div class="col-md-12">
-            <ng-template #tab1>
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
-              @if (tip && tip.context) {
-                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
+        <src-tabs id="CommunicationTabs">
+          <ng-template srcTab="everyone" title="Everyone">
+            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
+            @if (tip && tip.context) {
+              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
+            }
+          </ng-template>
+          <ng-template srcTab="recipients_only" title="Recipients only">
+            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
+            @if (tip && tip.context) {
+              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
               }
-            </ng-template>
-            <ng-template #tab2>
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
-              @if (tip && tip.context) {
-                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
-                }
-            </ng-template>
-            <ng-template #tab3>
-              <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
-              @if (tip && tip.context) {
-                <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
-              }
-            </ng-template>
-         </div>
-        </div>
+          </ng-template>
+          <ng-template srcTab="me_only" title="Me only">
+            <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
+            @if (tip && tip.context) {
+              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
+            }
+          </ng-template>
+        </src-tabs>
       </div>
     </div>
   </div>
