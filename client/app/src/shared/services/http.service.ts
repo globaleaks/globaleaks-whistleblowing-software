@@ -1,6 +1,7 @@
 import {Injectable, inject} from "@angular/core";
 import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {Observable} from "rxjs";
+import {tap} from "rxjs/operators";
 import {PasswordRecoveryResponseModel} from "@app/models/authentication/password-recovery-response-model";
 import {Router} from "@angular/router";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
@@ -427,16 +428,20 @@ export class HttpService {
       args: args
     };
 
-    if (refresh) {
-      setTimeout(() => {
-        const currentUrl = this.router.url;
-        this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
-          this.router.navigate([currentUrl]).then();
-        });
-      }, 150);
+    const request = this.httpClient.put(url, data);
+
+    if (!refresh) {
+      return request;
     }
 
-    return this.httpClient.put(url, data);
+    // Reload the current route once the operation has succeeded, so the
+    // page shows the state the operation produced.
+    return request.pipe(tap(() => {
+      const currentUrl = this.router.url;
+      this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
+        this.router.navigate([currentUrl]).then();
+      });
+    }));
   }
 
   tipOperation = (operation: string, args: any, tipId: string) => {
