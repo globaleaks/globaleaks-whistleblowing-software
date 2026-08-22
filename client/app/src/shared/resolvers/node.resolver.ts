@@ -1,41 +1,39 @@
 import {Injectable, inject} from "@angular/core";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
+import {Router} from "@angular/router";
 import {Observable, of, throwError} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {map, catchError} from "rxjs/operators";
-import {Router} from "@angular/router";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class NodeResolver {
+export class NodeResolver extends ResourceResolver<nodeResolverModel> {
   private router = inject(Router);
-  private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
   private preferenceResolver = inject(PreferenceResolver);
 
-  dataModel: nodeResolverModel = new nodeResolverModel();
+  constructor() {
+    super("api/admin/node", new nodeResolverModel());
+  }
 
-  resolve(): Observable<boolean> {
-    if (
-        this.authenticationService.session.role === "admin" ||
-        (this.authenticationService.session.role === "receiver" &&
-            this.preferenceResolver.dataModel.can_edit_general_settings)
-    ) {
-      return this.httpService.requestNodeResource().pipe(
-          map((response: nodeResolverModel) => {
-            this.dataModel = response;
-            return true;
-          }),
-          catchError((error: any) => {
-            this.authenticationService.deleteSession();
-            this.router.navigateByUrl('/login').then();
-            return throwError(() => error);
-          })
-      );
-    }
-    return of(true);
+  protected allowed(): boolean {
+    const role = this.authenticationService.session.role;
+
+    return role === "admin" ||
+      (role === "receiver" && this.preferenceResolver.dataModel.can_edit_general_settings);
+  }
+
+  // The node configuration decides what the pages render: navigation
+  // waits for it, as it did before.
+  override resolve(): Observable<boolean> {
+    return this.allowed() ? this.resolveAndWait() : of(true);
+  }
+
+  protected override onError(error: unknown): Observable<boolean> {
+    this.authenticationService.deleteSession();
+    this.router.navigateByUrl("/login").then();
+    return throwError(() => error);
   }
 }

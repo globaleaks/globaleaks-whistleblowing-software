@@ -1,37 +1,45 @@
 import {Injectable, inject} from "@angular/core";
-import {Router, RouterStateSnapshot} from "@angular/router";
+import {Router} from "@angular/router";
 import {Observable, of} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
+import {tap} from "rxjs/operators";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {map} from "rxjs/operators";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class PreferenceResolver {
+export class PreferenceResolver extends ResourceResolver<preferenceResolverModel> {
   private router = inject(Router);
-  private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
 
-  dataModel: preferenceResolverModel = new preferenceResolverModel();
+  constructor() {
+    super("api/user/preferences", new preferenceResolverModel());
+  }
 
-  resolve(_route: unknown, state: RouterStateSnapshot): Observable<boolean> {
-    if (this.authenticationService.session) {
-      return this.httpService.requestUserPreferenceResource().pipe(
-        map((response: preferenceResolverModel) => {
-          this.dataModel = response;
-          if (!state.url.startsWith("/action/")) {
-            if (this.dataModel.password_change_needed) {
-              this.router.navigate(["/action/forcedpasswordchange"]).then();
-            } else if (this.dataModel.require_two_factor) {
-              this.router.navigate(["/action/forcedtwofactor"]).then();
-            }
-          }
-          return true;
-        })
-      );
+  protected allowed(): boolean {
+    return !!this.authenticationService.session;
+  }
+
+  // Preferences decide forced password change and 2FA redirects and are
+  // read by components at construction: navigation waits for them.
+  override resolve(): Observable<boolean> {
+    if (!this.allowed()) {
+      return of(true);
     }
-    return of(true);
+
+    const url = this.router.getCurrentNavigation()?.finalUrl?.toString() ?? this.router.url;
+
+    return this.resolveAndWait().pipe(
+      tap(() => {
+        if (!url.startsWith("/action/")) {
+          if (this.dataModel.password_change_needed) {
+            this.router.navigate(["/action/forcedpasswordchange"]).then();
+          } else if (this.dataModel.require_two_factor) {
+            this.router.navigate(["/action/forcedtwofactor"]).then();
+          }
+        }
+      })
+    );
   }
 }
