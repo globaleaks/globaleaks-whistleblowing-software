@@ -128,10 +128,4 @@ class MigrationScript(MigrationBase):
                                                                                  'footer_whistleblowing_policy'])):
            for language in self.session_old.query(self.model_from['EnabledLanguage'].name) \
                                            .filter(self.model_from['EnabledLanguage'].tid == c.tid):
-               x = self.model_to['ConfigL10N']()
-               x.tid = c.tid
-               x.lang = language[0]
-               x.var_name = c.var_name
-               x.value = c.value
-               self.session_new.add(x)
-               self.entries_count['ConfigL10N'] += 1
+               self.add_entry('ConfigL10N', self.model_to['ConfigL10N']({'tid': c.tid, 'lang': language[0], 'var_name': c.var_name, 'value': c.value}))

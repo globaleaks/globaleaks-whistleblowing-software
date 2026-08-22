@@ -51,25 +51,28 @@ class WhistleblowerTip_v_59(Model):
 
 
 class MigrationScript(MigrationBase):
+    converted_attrs = {
+        'InternalTip': {
+            'crypto_files_pub_key': lambda o: o.crypto_tip_pub_key,
+            'last_access': lambda o: o.wb_last_access
+        }
+    }
+
     def migrate_InternalTip(self):
         wbtips_by_id = {}
         for old_obj in self.session_old.query(self.model_from['WhistleblowerTip']):
             wbtips_by_id[old_obj.id] = old_obj
 
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'crypto_files_pub_key':
-                    new_obj.crypto_files_pub_key = old_obj.crypto_tip_pub_key
-                elif key == 'last_access':
-                    new_obj.last_access = old_obj.wb_last_access
-                elif key not in old_obj.__mapper__.column_attrs.keys():
-                    if old_obj.id in wbtips_by_id:
-                       setattr(new_obj, key, getattr(wbtips_by_id[old_obj.id], key))
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTip', old_obj)
 
-                if not new_obj.receipt_hash:
-                    new_obj.receipt_hash = GCE.generate_receipt()
+            # The columns of the whistleblower tip merged into the internal tip
+            if old_obj.id in wbtips_by_id:
+                for key in new_obj.__mapper__.column_attrs.keys():
+                    if key not in old_obj.__mapper__.column_attrs.keys() and key not in self.converted_attrs['InternalTip']:
+                        setattr(new_obj, key, getattr(wbtips_by_id[old_obj.id], key))
+
+            if not new_obj.receipt_hash:
+                new_obj.receipt_hash = GCE.generate_receipt()
 
             self.session_new.add(new_obj)

@@ -1,5 +1,6 @@
 import importlib
 import os
+import re
 import shutil
 import sys
 from collections import OrderedDict
@@ -17,97 +18,75 @@ from globaleaks import __version__, models, \
 from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.orm import db_log
 
-from globaleaks.db.migrations.update_53 import FieldAttr_v_52, InternalTip_v_52, \
-    ReceiverTip_v_52, Subscriber_v_52, \
-    Tenant_v_52, User_v_52
-from globaleaks.db.migrations.update_54 import File_v_53
-from globaleaks.db.migrations.update_55 import SubmissionStatusChange_v_54, User_v_54
-from globaleaks.db.migrations.update_57 import User_v_56
-from globaleaks.db.migrations.update_58 import InternalTip_v_57, \
-    WhistleblowerFile_v_57, ReceiverTip_v_57, ReceiverFile_v_57
-from globaleaks.db.migrations.update_59 import ReceiverTip_v_58
-from globaleaks.db.migrations.update_60 import InternalTip_v_59, ReceiverTip_v_59, WhistleblowerTip_v_59
-from globaleaks.db.migrations.update_62 import AuditLog_v_61, Context_v_61, ReceiverTip_v_61, User_v_61
-from globaleaks.db.migrations.update_63 import Subscriber_v_62
-from globaleaks.db.migrations.update_64 import Context_v_63, InternalTip_v_63
-from globaleaks.db.migrations.update_65 import Comment_v_64, \
-    IdentityAccessRequest_v_64, InternalFile_v_64, InternalTip_v_64, \
-    Message_v_64, ReceiverTip_v_64, \
-    SubmissionStatus_v_64, SubmissionSubStatus_v_64, \
-    User_v_64, ReceiverFile_v_64, WhistleblowerFile_v_64
-from globaleaks.db.migrations.update_66 import SubmissionSubStatus_v_65
-from globaleaks.db.migrations.update_67 import \
-        InternalTip_v_66, ReceiverFile_v_66, Redaction_v_66, User_v_66, WhistleblowerFile_v_66
-from globaleaks.db.migrations.update_68 import Subscriber_v_67
-
 from globaleaks.orm import get_engine, get_session, make_db_uri
-from globaleaks.models import config, Base
+from globaleaks.models import config, Base, Model
 from globaleaks.settings import Settings
 from globaleaks.utils.fs import srm
 from globaleaks.utils.log import log
 from globaleaks.utils.utility import datetime_now
 
 
-migration_mapping = OrderedDict([
-    ('ArchivedSchema', [models._ArchivedSchema, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('AuditLog', [-1, -1, AuditLog_v_61, 0, 0, 0, 0, 0, 0, 0, models._AuditLog, 0, 0, 0, 0, 0, 0]),
-    ('Comment', [Comment_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._Comment, 0, 0, 0]),
-    ('Config', [models._Config, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ConfigL10N', [models._ConfigL10N, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Context', [Context_v_61, 0, 0, 0, 0, 0, 0, 0, 0, 0, Context_v_63, 0, models._Context, 0, 0, 0, 0]),
-    ('CustomTexts', [models._CustomTexts, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('EnabledLanguage', [models._EnabledLanguage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Field', [models._Field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldAttr', [FieldAttr_v_52, models._FieldAttr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOption', [models._FieldOption, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOptionTriggerField', [models._FieldOptionTriggerField, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOptionTriggerStep', [models._FieldOptionTriggerStep, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('File', [File_v_53, 0, models._File, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('IdentityAccessRequest', [IdentityAccessRequest_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._IdentityAccessRequest, 0, 0, 0]),
-    ('IdentityAccessRequestCustodian', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._IdentityAccessRequestCustodian, 0, 0, 0]),
-    ('InternalFile', [InternalFile_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._InternalFile, 0, 0, 0]),
-    ('InternalTip', [InternalTip_v_52, InternalTip_v_57, 0, 0, 0, 0, InternalTip_v_59, 0, InternalTip_v_63, 0, 0, 0, InternalTip_v_64, InternalTip_v_66, 0, models._InternalTip, 0]),
-    ('InternalTipAnswers', [models._InternalTipAnswers, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('InternalTipData', [models._InternalTipData, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Mail', [models._Mail, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Message', [Message_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1]),
-    ('Questionnaire', [models._Questionnaire, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ReceiverContext', [models._ReceiverContext, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ReceiverFile', [ReceiverFile_v_57, 0, 0, 0, 0, 0, ReceiverFile_v_64, 0, 0, 0, 0, 0, 0, ReceiverFile_v_66, 0, models._ReceiverFile, 0]),
-    ('ReceiverTip', [ReceiverTip_v_52, ReceiverTip_v_57, 0, 0, 0, 0, ReceiverTip_v_58, ReceiverTip_v_59, ReceiverTip_v_61, 0, ReceiverTip_v_64, 0, 0, models._ReceiverTip, 0, 0, 0]),
-    ('Redaction', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, Redaction_v_66, 0, models._Redaction, 0]),
-    ('Redirect', [models._Redirect, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('SubmissionStatus', [SubmissionStatus_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._SubmissionStatus, 0, 0]),
-    ('SubmissionSubStatus', [SubmissionSubStatus_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SubmissionSubStatus_v_65, 0, models._SubmissionSubStatus, 0]),
-    ('SubmissionStatusChange', [SubmissionStatusChange_v_54, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]),
-    ('Step', [models._Step, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Subscriber', [Subscriber_v_52, Subscriber_v_62, 0, 0, 0, 0, 0, 0, 0, 0, 0, Subscriber_v_67, 0, 0, 0, 0, models._Subscriber]),
-    ('Tenant', [Tenant_v_52, models._Tenant, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('User', [User_v_52, User_v_54, 0, User_v_56, 0, User_v_61, 0, 0, 0, 0, User_v_64, 0, 0, User_v_66, 0, models._User, 0]),
-    ('WhistleblowerFile', [WhistleblowerFile_v_57, 0, 0, 0, 0, 0, WhistleblowerFile_v_64, 0, 0, 0, 0, 0, 0, WhistleblowerFile_v_66, 0, models._WhistleblowerFile, 0]),
-    ('WhistleblowerTip', [WhistleblowerTip_v_59, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1])
-])
+# The schema of a table at a given version is described by the snapshot of
+# its model archived by the migration that changed it: the class X_v_N in the
+# module update_{N+1} is the model of X up to version N included. A table
+# lacking a snapshot from a version on is described by its current model.
+#
+# The tables that do not exist over the whole range of the supported versions
+# are the only ones needing a declaration: the version they were introduced at
+# (a table missing a current model is dropped after its last snapshot).
+tables_since = {
+    'AuditLog': 54,
+    'IdentityAccessRequestCustodian': 65,
+    'Redaction': 65
+}
 
 
-def get_right_model(migration_mapping, model_name, version):
+def load_snapshots():
+    """
+    Collect the snapshots of the models archived by the migrations
+
+    :return: A dictionary {model_name: {version: snapshot}}
+    """
+    snapshots = {}
+
+    for version in range(FIRST_DATABASE_VERSION_SUPPORTED, DATABASE_VERSION):
+        module = importlib.import_module("globaleaks.db.migrations.update_%d" % (version + 1))
+
+        for name, cls in vars(module).items():
+            match = re.fullmatch(r'(\w+)_v_(\d+)', name)
+            if match and isinstance(cls, type) and issubclass(cls, Model) and cls.__module__ == module.__name__:
+                snapshots.setdefault(match.group(1), {})[int(match.group(2))] = cls
+
+    return snapshots
+
+
+def load_models():
+    """
+    Collect the current models of the application
+
+    :return: A dictionary {model_name: model}
+    """
+    return {name[1:]: cls for name, cls in vars(models).items()
+            if name.startswith('_') and isinstance(cls, type) and issubclass(cls, Model) and '__tablename__' in vars(cls)}
+
+
+def get_right_model(snapshots, current, model_name, version):
     """
     Utility function to retrieve the model corresponding to a specific model name in a specific database version
-    :param migration_mapping: The model mappung table
+    :param snapshots: The snapshots archived by the migrations
+    :param current: The current models
     :param model_name: The model name
     :param version: The database version
     :return: The model corresponding to a specific model name in a specific database version
     """
-    table_index = (version - FIRST_DATABASE_VERSION_SUPPORTED)
-
-    if migration_mapping[model_name][table_index] == -1:
+    if version < tables_since.get(model_name, FIRST_DATABASE_VERSION_SUPPORTED):
         return None
 
-    while table_index >= 0:
-        if migration_mapping[model_name][table_index] != 0:
-            return migration_mapping[model_name][table_index]
-        table_index -= 1
+    archived = [v for v in snapshots.get(model_name, {}) if v >= version]
+    if archived:
+        return snapshots[model_name][min(archived)]
 
-    return None
+    return current.get(model_name)
 
 
 def perform_data_update(db_file):
@@ -271,22 +250,21 @@ def perform_migration(version):
         shutil.rmtree(tmpdir)
 
 
-mp = OrderedDict()
+snapshots = load_snapshots()
+current = load_models()
+
+migration_mapping = OrderedDict()
 Bases = {}
 for i in range(DATABASE_VERSION - FIRST_DATABASE_VERSION_SUPPORTED + 1):
     Bases[i] = declarative_base()
-    for k in migration_mapping:
-        if k not in mp:
-            mp[k] = []
+    for k in sorted(set(snapshots) | set(current)):
+        if k not in migration_mapping:
+            migration_mapping[k] = []
 
-        x = get_right_model(migration_mapping, k,
-                            FIRST_DATABASE_VERSION_SUPPORTED + i)
+        x = get_right_model(snapshots, current, k, FIRST_DATABASE_VERSION_SUPPORTED + i)
         if x is not None:
             class_name = f"MigrationModel_{k}_v{FIRST_DATABASE_VERSION_SUPPORTED + i}"
             y = type(class_name, (x, Bases[i]), {})
-            mp[k].append(y)
+            migration_mapping[k].append(y)
         else:
-            mp[k].append(None)
-
-
-migration_mapping = mp
+            migration_mapping[k].append(None)

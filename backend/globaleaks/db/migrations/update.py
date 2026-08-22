@@ -68,29 +68,62 @@ class MigrationBase(object):
     def epilogue(self):
         pass
 
-    def generic_migration_function(self, model_name):
-        model_from_cls = self.model_from[model_name]
-        model_to_cls = self.model_to[model_name]
+    def mapping(self, model_name, old_obj):
+        """
+        Return the values of the new object corresponding to an old object:
+        the columns the old object has, renamed and converted as declared
+
+        :param model_name: The model name
+        :param old_obj: The object of the old schema
+        :return: A dictionary {column: value}
+        """
         renamed = self.renamed_attrs.get(model_name, {})
         converted = self.converted_attrs.get(model_name, {})
-        column_keys = [c.key for c in model_to_cls.__table__.columns]
+        column_keys = [c.key for c in self.model_to[model_name].__table__.columns]
 
-        # Build migration mapping efficiently
-        mappings = []
+        mapping = {key: getattr(old_obj, renamed.get(key, key)) for key in column_keys if hasattr(old_obj, renamed.get(key, key))}
 
-        for old_obj in self.session_old.query(model_from_cls).yield_per(1000):
-            mapping = {key: getattr(old_obj, renamed.get(key, key), None) for key in column_keys if hasattr(old_obj, renamed.get(key, key))}
+        for key, convert in converted.items():
+            mapping[key] = convert(old_obj)
 
-            for key, convert in converted.items():
-                mapping[key] = convert(old_obj)
+        if model_name == 'Config':
+            self.convert_config(mapping)
 
-            if model_name == 'Config':
-                self.convert_config(mapping)
+        return mapping
 
-            mappings.append(mapping)
+    def copy(self, model_name, old_obj):
+        """
+        Return a new object holding the values of an old object, for the
+        migrations that need to complete it before adding it
+
+        :param model_name: The model name
+        :param old_obj: The object of the old schema
+        :return: The object of the new schema, not yet added to the session
+        """
+        new_obj = self.model_to[model_name]()
+
+        for key, value in self.mapping(model_name, old_obj).items():
+            setattr(new_obj, key, value)
+
+        return new_obj
+
+    def add_entry(self, model_name, new_obj):
+        """
+        Add to the new database an object not corresponding to any object of
+        the old one, accounting for it in the integrity check of the counts
+
+        :param model_name: The model name
+        :param new_obj: The object to add
+        """
+        self.session_new.add(new_obj)
+        self.entries_count[model_name] += 1
+
+    def generic_migration_function(self, model_name):
+        mappings = [self.mapping(model_name, old_obj)
+                    for old_obj in self.session_old.query(self.model_from[model_name]).yield_per(1000)]
 
         if mappings:
-            self.session_new.bulk_insert_mappings(model_to_cls, mappings)
+            self.session_new.bulk_insert_mappings(self.model_to[model_name], mappings)
 
     def convert_config(self, mapping):
         """

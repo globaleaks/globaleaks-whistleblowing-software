@@ -107,11 +107,8 @@ class MigrationScript(MigrationBase):
         ctx_ids = [c[0] for c in self.session_old.query(self.model_from['Context'].id).all()]
 
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'context_id' and old_obj.context_id not in ctx_ids:
-                    setattr(new_obj, key, ctx_ids[0])
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTip', old_obj)
+            if old_obj.context_id not in ctx_ids:
+                new_obj.context_id = ctx_ids[0]
 
             self.session_new.add(new_obj)

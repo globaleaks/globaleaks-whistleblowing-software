@@ -31,18 +31,17 @@ class MigrationScript(MigrationBase):
         used_values = {}
 
         for old_obj in self.session_old.query(self.model_from['Subscriber']):
-            new_obj = self.model_to['Subscriber']()
-            for key in new_obj.__mapper__.column_attrs.keys():
+            new_obj = self.copy('Subscriber', old_obj)
+
+            for key in ['organization_tax_code', 'organization_vat_code']:
                 value = getattr(old_obj, key)
-                if key.endswith('_code'):
-                    if value == '':
-                        value = None
-                    else:
-                        if value in used_values:
-                            used_values[value] += 1
-                            value = value + "_" + str(used_values[value])
-                        else:
-                            used_values[value] = 0
+                if value == '':
+                    value = None
+                elif value in used_values:
+                    used_values[value] += 1
+                    value = value + "_" + str(used_values[value])
+                else:
+                    used_values[value] = 0
 
                 setattr(new_obj, key, value)
 

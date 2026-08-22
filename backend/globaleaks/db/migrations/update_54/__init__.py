@@ -21,10 +21,7 @@ class File_v_53(Model):
 class MigrationScript(MigrationBase):
     def migrate_File(self):
         for old_obj in self.session_old.query(self.model_from['File']):
-            new_obj = self.model_to['File']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if hasattr(old_obj, key):
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('File', old_obj)
 
             if old_obj.id in special_files:
                 new_obj.id = uuid4()

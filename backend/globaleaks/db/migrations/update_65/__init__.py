@@ -119,23 +119,6 @@ class ReceiverFile_v_64(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class SubmissionStatus_v_64(Model):
-    __tablename__ = 'submissionstatus'
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    tid = Column(Integer, primary_key=True, default=1)
-    label = Column(JSON, default=dict, nullable=False)
-    order = Column(Integer, default=0, nullable=False)
-
-
-class SubmissionSubStatus_v_64(Model):
-    __tablename__ = 'submissionsubstatus'
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    tid = Column(Integer, primary_key=True, default=1)
-    submissionstatus_id = Column(UnicodeText(36), nullable=False)
-    label = Column(JSON, default=dict, nullable=False)
-    order = Column(Integer, default=0, nullable=False)
-
-
 class User_v_64(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -191,6 +174,7 @@ class WhistleblowerFile_v_64(Model):
 
 class MigrationScript(MigrationBase):
     renamed_attrs = {
+        'InternalTip': {'deprecated_crypto_files_pub_key': 'crypto_files_pub_key'},
         'ReceiverTip': {'deprecated_crypto_files_prv_key': 'crypto_files_prv_key'},
         'User': {'hash': 'password'}
     }
@@ -202,13 +186,9 @@ class MigrationScript(MigrationBase):
     def migrate_IdentityAccessRequest(self):
         for old_obj, rtip in self.session_old.query(self.model_from['IdentityAccessRequest'], self.model_from['ReceiverTip']) \
                                             .filter(self.model_from['IdentityAccessRequest'].receivertip_id == self.model_from['ReceiverTip'].id):
-            new_obj = self.model_to['IdentityAccessRequest']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'internaltip_id':
-                    setattr(new_obj, key, rtip.internaltip_id)
-                    setattr(new_obj, 'request_user_id', rtip.receiver_id)
-                elif key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('IdentityAccessRequest', old_obj)
+            new_obj.internaltip_id = rtip.internaltip_id
+            new_obj.request_user_id = rtip.receiver_id
 
             self.session_new.add(new_obj)
 
@@ -220,21 +200,11 @@ class MigrationScript(MigrationBase):
             # written on one line to not impact test coverage
             os.path.exists(srcpath) and shutil.move(srcpath, dstpath)
 
-            new_obj = self.model_to['InternalFile']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
+            self.session_new.add(self.copy('InternalFile', old_obj))
 
     def migrate_InternalTip(self):
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
-                elif key == 'deprecated_crypto_files_pub_key':
-                    new_obj.deprecated_crypto_files_pub_key = old_obj.crypto_files_pub_key
+            new_obj = self.copy('InternalTip', old_obj)
 
             if new_obj.crypto_tip_pub_key and new_obj.label:
                 new_obj.label = Base64Encoder.encode(GCE.asymmetric_encrypt(new_obj.crypto_tip_pub_key, new_obj.label))
@@ -245,10 +215,7 @@ class MigrationScript(MigrationBase):
         self.entries_count['WhistleblowerFile'] = 0
         for old_obj, old_ifile in self.session_old.query(self.model_from['WhistleblowerFile'], self.model_from['InternalFile']) \
                                                   .filter(self.model_from['WhistleblowerFile'].internalfile_id == self.model_from['InternalFile'].id):
-            new_obj = self.model_to['WhistleblowerFile']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('WhistleblowerFile', old_obj)
 
             if old_obj.filename != old_ifile.filename:
                 srcpath = os.path.abspath(os.path.join(Settings.attachments_path, old_obj.filename))
@@ -261,12 +228,8 @@ class MigrationScript(MigrationBase):
     def migrate_ReceiverFile(self):
         for old_obj, r in self.session_old.query(self.model_from['ReceiverFile'], self.model_from['ReceiverTip']) \
                                           .filter(self.model_from['ReceiverFile'].receivertip_id == self.model_from['ReceiverTip'].id):
-            new_obj = self.model_to['ReceiverFile']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'internaltip_id':
-                    setattr(new_obj, key, r.internaltip_id)
-                elif key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('ReceiverFile', old_obj)
+            new_obj.internaltip_id = r.internaltip_id
 
             srcpath = os.path.abspath(os.path.join(Settings.attachments_path, old_obj.filename))
             dstpath = os.path.abspath(os.path.join(Settings.attachments_path, old_obj.id))
@@ -277,17 +240,8 @@ class MigrationScript(MigrationBase):
     def epilogue(self):
         key, cert = gen_selfsigned_certificate()
 
-        new_conf = self.model_to['Config']()
-        new_conf.var_name = 'https_selfsigned_key'
-        new_conf.value = key
-        self.session_new.add(new_conf)
-
-        new_conf = self.model_to['Config']()
-        new_conf.var_name = 'https_selfsigned_cert'
-        new_conf.value = cert
-        self.session_new.add(new_conf)
-
-        self.entries_count['Config'] += 2
+        self.add_entry('Config', self.model_to['Config']({'tid': 1, 'var_name': 'https_selfsigned_key', 'value': key}))
+        self.add_entry('Config', self.model_to['Config']({'tid': 1, 'var_name': 'https_selfsigned_cert', 'value': cert}))
 
         Message = self.model_from['Message']
         InternalTip = self.model_from['InternalTip']
@@ -295,18 +249,11 @@ class MigrationScript(MigrationBase):
         for m, i, r in self.session_old.query(Message, InternalTip, ReceiverTip) \
                                        .filter(Message.receivertip_id == ReceiverTip.id,
                                                ReceiverTip.internaltip_id == InternalTip.id):
-            new_obj = self.model_to['Comment']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'internaltip_id':
-                    setattr(new_obj, key, i.id)
-                elif key == 'author_id':
-                    if m.type == 'receiver':
-                        setattr(new_obj, key, r.id)
-                elif key in m.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(m, key))
+            new_obj = self.copy('Comment', m)
+            new_obj.internaltip_id = i.id
+            new_obj.author_id = r.id if m.type == 'receiver' else None
 
-            self.session_new.add(new_obj)
-            self.entries_count['Comment'] += 1
+            self.add_entry('Comment', new_obj)
 
         for old_obj in self.session_old.query(self.model_from['Tenant']):
             srcpath = os.path.abspath(os.path.join(Settings.working_path, 'scripts', str(old_obj.id)))
@@ -327,5 +274,4 @@ class MigrationScript(MigrationBase):
                 iarc = self.model_to['IdentityAccessRequestCustodian']()
                 iarc.identityaccessrequest_id = iar.id
                 iarc.custodian_id = custodian.id
-                self.session_new.add(iarc)
-                self.entries_count['IdentityAccessRequestCustodian'] += 1
+                self.add_entry('IdentityAccessRequestCustodian', iarc)

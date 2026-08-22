@@ -135,20 +135,9 @@ class MigrationScript(MigrationBase):
 
     def migrate_Tenant(self):
         for old_obj in self.session_old.query(self.model_from['Tenant']):
-            self.entries_count['Config'] += 1
+            self.add_entry('Config', self.model_to['Config']({'tid': old_obj.id, 'var_name': 'subdomain', 'value': old_obj.subdomain}))
 
-            new_obj = self.model_to['Tenant']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
-
-            for key in ['subdomain']:
-                x = self.model_to['Config']()
-                x.tid = old_obj.id
-                x.var_name = key
-                x.value = getattr(old_obj, key)
-                self.session_new.add(x)
-
-            self.session_new.add(new_obj)
+            self.session_new.add(self.copy('Tenant', old_obj))
 
     def epilogue(self):
         m = self.model_to['Config']

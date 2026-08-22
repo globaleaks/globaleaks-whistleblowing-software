@@ -22,9 +22,7 @@ class ReceiverTip_v_58(Model):
 class MigrationScript(MigrationBase):
     def migrate_InternalTip(self):
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTip', old_obj)
 
             for old_rtip in self.session_old.query(self.model_from['ReceiverTip']) \
                                             .filter(self.model_from['ReceiverTip'].internaltip_id == old_obj.id):

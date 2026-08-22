@@ -7,6 +7,14 @@ from globaleaks.utils.onion import generate_onion_service_v3
 from globaleaks.models.properties import Column, Integer, JSON, UnicodeText, uuid4
 
 
+class SubmissionStatus_v_65(Model):
+    __tablename__ = 'submissionstatus'
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, primary_key=True, default=1)
+    label = Column(JSON, default=dict, nullable=False)
+    order = Column(Integer, default=0, nullable=False)
+
+
 class SubmissionSubStatus_v_65(Model):
     __tablename__ = 'submissionsubstatus'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -20,10 +28,7 @@ class MigrationScript(MigrationBase):
     def migrate_InternalTipData(self):
         for old_obj, old_tip in self.session_old.query(self.model_from['InternalTipData'], self.model_from['InternalTip']) \
                                        .filter(self.model_from['InternalTipData'].internaltip_id == self.model_from['InternalTip'].id):
-            new_obj = self.model_to['InternalTipData']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTipData', old_obj)
 
             if old_obj.creation_date < old_tip.creation_date + timedelta(minutes=1):
                 new_obj.creation_date = old_tip.creation_date

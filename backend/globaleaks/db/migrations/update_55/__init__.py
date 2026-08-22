@@ -81,5 +81,4 @@ class MigrationScript(MigrationBase):
               'substatus': ssc.substatus
             }
 
-            self.session_new.add(log)
-            self.entries_count['AuditLog'] += 1
+            self.add_entry('AuditLog', log)
