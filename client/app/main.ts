@@ -47,7 +47,6 @@ import { appRoutes } from "@app/app.routes";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
 import { NgSelectModule } from "@ng-select/ng-select";
 import { FormsModule } from "@angular/forms";
-import { provideNgIdleKeepalive } from "@ng-idle/keepalive";
 import { MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
 import { AppComponent } from "@app/pages/app/app.component";
 import { provideRouter } from "@angular/router";
@@ -61,7 +60,6 @@ bootstrapApplication(AppComponent, {
     providers: [
         provideZonelessChangeDetection(),
         provideRouter(appRoutes),
-        provideNgIdleKeepalive(),
         importProvidersFrom(NgbModule,
                             BrowserModule,
                             NgSelectModule,

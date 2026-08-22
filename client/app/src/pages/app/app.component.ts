@@ -1,5 +1,6 @@
-import {AfterViewInit, Component, HostListener, OnDestroy, OnInit, Renderer2, inject} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnInit, Renderer2, inject} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
+import {SessionActivityService} from "@app/services/helper/session-activity.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -23,11 +24,7 @@ import {CustodianSidebarComponent} from "../custodian/sidebar/sidebar.component"
 import {ReceiptSidebarComponent} from "../recipient/sidebar/sidebar.component";
 import {registerLocales, localeToBcp47} from "@app/services/helper/locale-provider";
 import {mockEngine} from "@app/services/helper/mocks";
-import {DEFAULT_INTERRUPTSOURCES, Idle} from "@ng-idle/core";
-import {CryptoService} from "@app/shared/services/crypto.service";
-import {HttpService} from "@app/shared/services/http.service";
 import {BodyDomObserverService} from "@app/shared/services/body-dom-observer.service";
-import {Keepalive} from "@ng-idle/keepalive";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import DOMPurify from 'dompurify';
 
@@ -52,7 +49,7 @@ window.GL = {
     standalone: true,
     imports: [NgClass, HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
 })
-export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
+export class AppComponent implements AfterViewInit, OnInit {
   private renderScheduler = inject(RenderSchedulerService);
   private document = inject<Document>(DOCUMENT);
   private renderer = inject(Renderer2);
@@ -63,10 +60,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
-  private cryptoService = inject(CryptoService);
-  private idle = inject(Idle);
-  private keepalive = inject(Keepalive);
-  private httpService = inject(HttpService);
+  private sessionActivity = inject(SessionActivityService);
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
   private wbTipResolver = inject(WbTipResolver);
@@ -111,7 +105,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
   }
 
   public ngAfterViewInit(): void {
-    this.initIdleState();
+    this.sessionActivity.start();
     this.watchLanguage();
 
     this.appDataService.showLoadingPanel$.subscribe((value:any) => {
@@ -157,39 +151,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
     }
   }
 
-  @HostListener("window:beforeunload")
-  async ngOnDestroy() {
-    this.reset();
-  }
 
-  initIdleState() {
-    this.idle.setIdle(1800);
-    this.idle.setTimeout(false);
-    this.keepalive.interval(30);
-    this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
-
-    this.keepalive.onPing.subscribe(() => {
-      if (this.authenticationService.session) {
-        const token = this.authenticationService.session.token;
-        this.cryptoService.proofOfWork(token).subscribe((result:any) => {
-	  const param = {'token': token.id + ":" + result};
-          this.httpService.requestRefreshUserSession(param).subscribe(((result:any) => {
-            this.authenticationService.session.token = result.token;
-	  }));
-	});
-      }
-    });
-
-    this.idle.onIdleStart.subscribe(() => {
-      this.authenticationService.deleteSession();
-    });
-
-    this.reset();
-  }
-
-  reset() {
-    this.idle.watch();
-  }
 
   protected readonly location = location;
 }

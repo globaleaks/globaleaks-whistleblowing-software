@@ -5,8 +5,7 @@
     "test": "npx cypress run --browser=chromium",
     "eslint": "ng lint",
     "stylelint": "npx stylelint 'app/css/**/*.css'",
-    "analyze": "ng build --configuration=production --stats-json && npx esbuild-visualizer --metadata=dist/stats.json --open=true",
-    "postinstall": "patch-package"
+    "analyze": "ng build --configuration=production --stats-json && npx esbuild-visualizer --metadata=dist/stats.json --open=true"
   },
   "private": true,
   "dependencies": {
@@ -41,8 +40,6 @@
     "@fortawesome/free-brands-svg-icons": "7.3.1",
     "@fortawesome/free-solid-svg-icons": "7.3.1",
     "@ng-bootstrap/ng-bootstrap": "20.0.0",
-    "@ng-idle/core": "16.0.0",
-    "@ng-idle/keepalive": "16.0.0",
     "@ng-select/ng-select": "21.8.2",
     "@ngx-translate/core": "17.0.0",
     "@ngx-translate/http-loader": "17.0.0",
@@ -94,10 +91,8 @@
     "load-grunt-tasks": "5.1.0",
     "npm-check-updates": "22.2.9",
     "nyc": "18.0.0",
-    "patch-package": "8.0.1",
     "postcss": "8.5.23",
     "postcss-rtlcss": "6.0.0",
-    "postinstall-postinstall": "2.1.0",
     "stylelint": "17.14.1",
     "stylelint-config-standard": "40.0.0",
     "superagent": "10.3.0",
