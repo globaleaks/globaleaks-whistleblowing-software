@@ -6,13 +6,12 @@ import {
 } from "@app/shared/modals/tip-additional-questionnaire-form/tip-additional-questionnaire-form.component";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-tip-additional-questionnaire-invite",
     templateUrl: "./tip-additional-questionnaire-invite.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class TipAdditionalQuestionnaireInviteComponent {
   protected utilsService = inject(UtilsService);

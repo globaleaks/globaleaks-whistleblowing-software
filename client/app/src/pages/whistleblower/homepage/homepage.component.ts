@@ -8,14 +8,13 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {MarkdownComponent} from "ngx-markdown";
 import {ReceiptComponent} from "@app/shared/partials/receipt/receipt.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
     selector: "src-homepage",
     templateUrl: "./homepage.component.html",
     standalone: true,
-    imports: [MarkdownComponent, ReceiptComponent, TranslateModule, TranslatorPipe, StripHtmlPipe]
+    imports: [MarkdownComponent, ReceiptComponent, TranslateModule, StripHtmlPipe]
 })
 export class HomepageComponent  implements OnInit {
   protected appConfigService = inject(AppConfigService);

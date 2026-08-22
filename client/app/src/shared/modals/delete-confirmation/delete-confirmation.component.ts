@@ -4,14 +4,13 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Router} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
     selector: "src-delete-confirmation",
     templateUrl: "./delete-confirmation.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class DeleteConfirmationComponent {
   private modalService = inject(NgbActiveModal);

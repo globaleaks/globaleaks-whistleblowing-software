@@ -8,14 +8,13 @@ import {Step} from "@app/models/resolvers/questionnaire-model";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {FormsModule} from "@angular/forms";
 
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-add-field",
     templateUrl: "./add-field.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, TranslateModule]
 })
 export class AddFieldComponent {
   private httpService = inject(HttpService);

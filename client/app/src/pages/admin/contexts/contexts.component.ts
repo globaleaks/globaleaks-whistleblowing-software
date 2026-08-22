@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -11,7 +12,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {ContextEditorComponent} from "@app/pages/admin/contexts/context-editor/context-editor.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
@@ -20,7 +20,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-contexts",
     templateUrl: "./contexts.component.html",
     standalone: true,
-    imports: [ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslatorPipe]
+    imports: [TranslatePipe, ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
 export class ContextsComponent implements OnInit {
   private http = inject(HttpClient);

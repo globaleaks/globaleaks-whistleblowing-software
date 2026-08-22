@@ -8,13 +8,12 @@ import {DisableCcpDirective} from "@app/shared/directive/disable-ccp.directive";
 import {SubdomainValidatorDirective} from "@app/shared/directive/subdomain-validator.directive";
 import {TosComponent} from "../tos/tos.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-wbpa",
     templateUrl: "./wbpa.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, DisableCcpDirective, SubdomainValidatorDirective, TosComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, DisableCcpDirective, SubdomainValidatorDirective, TosComponent, TranslateModule]
 })
 export class WbpaComponent {
   protected appDataService = inject(AppDataService);

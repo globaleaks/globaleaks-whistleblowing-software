@@ -1,7 +1,7 @@
 import {Component, computed, contentChildren, linkedSignal} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgTemplateOutlet} from "@angular/common";
 import {NgbNav, NgbNavContent, NgbNavItem, NgbNavItemRole, NgbNavLinkBase, NgbNavLinkButton, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 
 /**
@@ -14,7 +14,7 @@ import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 @Component({
   selector: "src-tabs",
   standalone: true,
-  imports: [NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgTemplateOutlet, TranslatorPipe],
+  imports: [TranslatePipe, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgTemplateOutlet],
   template: `
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="active()" (activeIdChange)="active.set($event)">
       @for (tab of tabs(); track tab.id()) {

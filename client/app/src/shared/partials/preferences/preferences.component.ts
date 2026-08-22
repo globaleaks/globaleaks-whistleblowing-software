@@ -5,13 +5,12 @@ import {PreferenceTab2Component} from "@app/shared/partials/preference-tabs/pref
 import {PreferenceTab1Component as PreferenceTab1Component_1} from "../preference-tabs/preference-tab1/preference-tab1.component";
 import {PreferenceTab2Component as PreferenceTab2Component_1} from "../preference-tabs/preference-tab2/preference-tab2.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-preferences",
     templateUrl: "./preferences.component.html",
     standalone: true,
-    imports: [PreferenceTab1Component_1, PreferenceTab2Component_1, TranslateModule, TranslatorPipe]
+    imports: [PreferenceTab1Component_1, PreferenceTab2Component_1, TranslateModule]
 })
 export class PreferencesComponent {
   activeTab = "tab1";

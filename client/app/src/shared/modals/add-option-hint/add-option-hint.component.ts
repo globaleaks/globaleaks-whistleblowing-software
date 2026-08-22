@@ -3,13 +3,12 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Option} from "@app/models/app/shared-public-model";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-add-option-hint",
     templateUrl: "./add-option-hint.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class AddOptionHintComponent {
   private activeModal = inject(NgbActiveModal);

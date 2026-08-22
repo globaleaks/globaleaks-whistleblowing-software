@@ -4,13 +4,12 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-questionnaire-duplication",
     templateUrl: "./questionnaire-duplication.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class QuestionnaireDuplicationComponent {
   private http = inject(HttpClient);

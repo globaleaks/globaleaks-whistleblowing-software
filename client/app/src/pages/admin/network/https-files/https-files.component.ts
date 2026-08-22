@@ -1,4 +1,5 @@
 import {Component, ElementRef, OnInit, inject, input, viewChild, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
@@ -10,13 +11,12 @@ import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {FileResource, FileResources} from "@app/models/component-model/file-resources";
 import {DatePipe} from "@angular/common";
 import {HttpsCsrGenComponent} from "../https-csr-gen/https-csr-gen.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-files",
     templateUrl: "./https-files.component.html",
     standalone: true,
-    imports: [HttpsCsrGenComponent, DatePipe, TranslatorPipe]
+    imports: [TranslatePipe, HttpsCsrGenComponent, DatePipe]
 })
 export class HttpsFilesComponent implements OnInit {
   private authenticationService = inject(AuthenticationService);

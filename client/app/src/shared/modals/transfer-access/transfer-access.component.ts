@@ -4,7 +4,6 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-transfer-access",
@@ -15,8 +14,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
         FormsModule,
         NgLabelTemplateDirective,
         TranslateModule,
-        TranslatorPipe,
-    ],
+        ],
 })
 export class TransferAccessComponent {
   private activeModal = inject(NgbActiveModal);

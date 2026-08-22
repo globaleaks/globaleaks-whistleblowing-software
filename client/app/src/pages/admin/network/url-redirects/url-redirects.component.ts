@@ -1,16 +1,16 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-url-redirects",
     templateUrl: "./url-redirects.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe, OrderByPipe]
+    imports: [TranslatePipe, FormsModule, OrderByPipe]
 })
 export class UrlRedirectsComponent implements OnInit {
   private httpService = inject(HttpService);

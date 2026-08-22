@@ -9,7 +9,6 @@ import {AddFieldComponent} from "../add-field/add-field.component";
 import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-field-from-template.component";
 import {FormsModule} from "@angular/forms";
 import {FieldsComponent} from "../fields/fields.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -17,7 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-step",
     templateUrl: "./step.component.html",
     standalone: true,
-    imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, OrderByPipe, TranslateModule]
 })
 export class StepComponent implements OnInit {
   private httpService = inject(HttpService);

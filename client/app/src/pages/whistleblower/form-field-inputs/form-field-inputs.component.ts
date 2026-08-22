@@ -9,7 +9,6 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {MarkdownComponent} from "ngx-markdown";
 import {FormFieldInputComponent} from "../form-field-input/form-field-input.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
@@ -22,7 +21,6 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     NgbTooltipModule,
     forwardRef(() => FormFieldInputComponent),
     TranslateModule,
-    TranslatorPipe,
     StripHtmlPipe
 ],
 })

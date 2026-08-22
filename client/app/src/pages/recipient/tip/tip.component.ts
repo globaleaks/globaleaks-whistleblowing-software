@@ -39,7 +39,6 @@ import {WhistleBlowerIdentityReceiverComponent} from "../whistleblower-identity-
 import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver/tip-files-receiver.component";
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
@@ -61,8 +60,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
       NgbDropdownMenu,
       TipUploadWbFileComponent_1,
       TipCommentsComponent_1,
-      TranslateModule,
-      TranslatorPipe
+      TranslateModule
     ],
 })
 export class TipComponent implements OnInit {

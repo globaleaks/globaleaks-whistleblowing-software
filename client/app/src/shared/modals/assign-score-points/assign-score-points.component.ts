@@ -3,13 +3,12 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-assign-score-points",
     templateUrl: "./assign-score-points.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class AssignScorePointsComponent {
   private activeModal = inject(NgbActiveModal);

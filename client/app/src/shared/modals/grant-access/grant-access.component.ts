@@ -6,13 +6,12 @@ import {cancelFun, ConfirmFunFunction} from "@app/shared/constants/types";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-grant-access",
     templateUrl: "./grant-access.component.html",
     standalone: true,
-    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslateModule, TranslatorPipe]
+    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslateModule]
 })
 export class GrantAccessComponent {
   private modalService = inject(NgbModal);

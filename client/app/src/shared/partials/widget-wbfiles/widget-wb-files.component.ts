@@ -5,14 +5,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {WbFilesComponent} from "../wbfiles/wb-files.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-widget-wbfiles",
     templateUrl: "./widget-wb-files.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, WbFilesComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [NgbTooltipModule, WbFilesComponent, TranslateModule, OrderByPipe]
 })
 export class WidgetWbFilesComponent {
   protected wbTipService = inject(WbtipService);

@@ -5,14 +5,13 @@ import {FormsModule} from "@angular/forms";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
 import {QRCodeComponent} from 'angularx-qrcode';
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: "src-enable-2fa",
     templateUrl: "./enable-2fa.html",
     standalone: true,
-    imports: [QRCodeComponent, FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe],
+    imports: [QRCodeComponent, FormsModule, NgbTooltipModule, TranslateModule],
     styles: [`
       .qrcode-logo {
         position: absolute;

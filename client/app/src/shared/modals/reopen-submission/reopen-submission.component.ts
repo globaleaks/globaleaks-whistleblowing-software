@@ -2,7 +2,6 @@ import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: 'src-reopen-submission',
@@ -11,8 +10,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [
       FormsModule,
       NgbTooltipModule,
-      TranslateModule,
-      TranslatorPipe
+      TranslateModule
     ],
 })
 export class ReopenSubmissionComponent {

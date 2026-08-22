@@ -1,11 +1,11 @@
 import {Component, input, model} from '@angular/core';
+import {TranslatePipe} from "@ngx-translate/core";
 import {FormsModule} from '@angular/forms';
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
   selector: 'app-search-input',
   standalone: true,
-  imports: [FormsModule, TranslatorPipe],
+  imports: [TranslatePipe, FormsModule],
   template: `
     <div class="search-input input-group input-group-sm w-auto">
       <label for="search-filter-input" class="visually-hidden">{{ placeholder() | translate }}</label>

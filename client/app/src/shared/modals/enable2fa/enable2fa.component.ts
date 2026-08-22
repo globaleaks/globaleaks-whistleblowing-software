@@ -5,13 +5,12 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {TwoFactorAuthData} from "@app/services/helper/2fa.data.service";
 import {Enable2fa} from "../../partials/enable-2fa/enable-2fa";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-enable2fa",
     templateUrl: "./enable2fa.component.html",
     standalone: true,
-    imports: [Enable2fa, TranslateModule, TranslatorPipe]
+    imports: [Enable2fa, TranslateModule]
 })
 export class Enable2faComponent {
   private preferenceResolver = inject(PreferenceResolver);

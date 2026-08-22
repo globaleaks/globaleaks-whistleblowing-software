@@ -4,14 +4,13 @@ import {NgbDateStruct, NgbModal, NgbInputDatepicker} from "@ng-bootstrap/ng-boot
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
     selector: "src-tip-operation-set-reminder",
     templateUrl: "./tip-operation-set-reminder.component.html",
     standalone: true,
-    imports: [NgbInputDatepicker, FormsModule, TranslateModule, TranslatorPipe]
+    imports: [NgbInputDatepicker, FormsModule, TranslateModule]
 })
 export class TipOperationSetReminderComponent implements OnInit {
   private modalService = inject(NgbModal);

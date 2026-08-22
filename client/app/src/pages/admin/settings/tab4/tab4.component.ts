@@ -3,7 +3,6 @@ import {NgForm, FormsModule} from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
@@ -11,7 +10,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tab4",
     templateUrl: "./tab4.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class Tab4Component implements OnInit {
   protected utilsService = inject(UtilsService);

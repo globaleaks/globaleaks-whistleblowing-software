@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NewUser} from "@app/models/admin/new-user";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
@@ -11,7 +12,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {UserEditorComponent} from "../user-editor/user-editor.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 
@@ -19,7 +19,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-users-tab1",
     templateUrl: "./users-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslatorPipe, UserEditorComponent, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, UserEditorComponent]
 })
 export class UsersTab1Component implements OnInit {
   private httpService = inject(HttpService);

@@ -6,13 +6,12 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {Router} from "@angular/router";
 import {Enable2fa} from "@app/shared/partials/enable-2fa/enable-2fa";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-forced-two-factor",
     templateUrl: "./forced-two-factor.component.html",
     standalone: true,
-    imports: [Enable2fa, TranslateModule, TranslatorPipe]
+    imports: [Enable2fa, TranslateModule]
 })
 export class ForcedTwoFactorComponent {
   protected twoFactorAuthData = inject(TwoFactorAuthData);

@@ -12,14 +12,13 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tab5",
     templateUrl: "./tab5.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, TranslateModule]
 })
 export class Tab5Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);

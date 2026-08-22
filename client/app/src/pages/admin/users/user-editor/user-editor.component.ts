@@ -1,4 +1,5 @@
 import {Component, ElementRef, OnInit, inject, input, viewChild, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -15,14 +16,13 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {DatePipe} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
 
 @Component({
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe, TranslatorPipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);

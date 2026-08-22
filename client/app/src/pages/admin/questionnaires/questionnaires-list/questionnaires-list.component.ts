@@ -12,14 +12,13 @@ import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-mo
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 import {StepsComponent} from "../steps/steps.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-questionnaires-list",
     templateUrl: "./questionnaires-list.component.html",
     standalone: true,
-    imports: [FormsModule, StepsComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, StepsComponent, TranslateModule]
 })
 export class QuestionnairesListComponent {
   private authenticationService = inject(AuthenticationService);

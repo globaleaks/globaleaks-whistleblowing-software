@@ -7,7 +7,6 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -16,7 +15,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tab3",
     templateUrl: "./tab3.component.html",
     standalone: true,
-    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, TranslatorPipe, FilterPipe, TranslateModule]
+    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, FilterPipe, TranslateModule]
 })
 export class Tab3Component implements OnInit {
   private appConfigService = inject(AppConfigService);

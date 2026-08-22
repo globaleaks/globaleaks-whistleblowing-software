@@ -11,7 +11,6 @@ import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver
 import {AdminFile} from "@app/models/component-model/admin-file";
 import {AdminFileComponent} from "@app/shared/partials/admin-file/admin-file.component";
 import {SwitchComponent} from "@app/shared/components/switch/switch.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -20,7 +19,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tab2",
     templateUrl: "./tab2.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, AdminFileComponent, SwitchComponent, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [NgbTooltipModule, AdminFileComponent, SwitchComponent, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
   private appConfigService = inject(AppConfigService);

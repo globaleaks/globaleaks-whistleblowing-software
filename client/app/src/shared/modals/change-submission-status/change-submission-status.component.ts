@@ -5,15 +5,13 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 @Component({
     selector: 'src-change-submission-status',
     templateUrl: './change-submission-status.component.html',
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class ChangeSubmissionStatusComponent {

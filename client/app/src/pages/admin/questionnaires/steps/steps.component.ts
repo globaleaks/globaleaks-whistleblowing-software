@@ -6,14 +6,13 @@ import {NewStep} from "@app/models/admin/new-step";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {FormsModule} from "@angular/forms";
 import {StepsListComponent} from "../steps-list/steps-list.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-steps",
     templateUrl: "./steps.component.html",
     standalone: true,
-    imports: [FormsModule, StepsListComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, StepsListComponent, TranslateModule]
 })
 export class StepsComponent implements OnInit {
   protected node = inject(NodeResolver);

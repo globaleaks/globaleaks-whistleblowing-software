@@ -12,7 +12,6 @@ import {DOCUMENT} from "@angular/common";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
 import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FooterComponent} from "@app/shared/partials/footer/footer.component";
 import {PrivacyBadgeComponent} from "@app/shared/partials/privacybadge/privacy-badge.component";
 import {DemoComponent} from "@app/shared/partials/demo/demo.component";
@@ -47,7 +46,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
+    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule]
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private renderScheduler = inject(RenderSchedulerService);

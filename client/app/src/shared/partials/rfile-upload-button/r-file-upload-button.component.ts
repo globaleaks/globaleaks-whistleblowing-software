@@ -12,14 +12,13 @@ import {AsyncPipe} from "@angular/common";
 import {RFileUploadStatusComponent} from "../rfile-upload-status/r-file-upload-status.component";
 import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-rfile-upload-button",
     templateUrl: "./r-file-upload-button.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [NgxFlowModule, FormsModule, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule, TranslatorPipe]
+    imports: [NgxFlowModule, FormsModule, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule]
 })
 export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDestroy {
   private renderScheduler = inject(RenderSchedulerService);

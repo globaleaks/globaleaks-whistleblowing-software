@@ -8,7 +8,6 @@ import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-tab1",
@@ -18,8 +17,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [
     ImageUploadDirective,
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class Tab1Component {

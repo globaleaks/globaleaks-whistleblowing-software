@@ -7,7 +7,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
 import {FormsModule} from "@angular/forms";
 import {QuestionnairesListComponent} from "../questionnaires-list/questionnaires-list.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
@@ -17,7 +16,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-main",
     templateUrl: "./main.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslateModule]
 })
 export class MainComponent implements OnInit {
   private http = inject(HttpClient);

@@ -5,14 +5,13 @@ import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TipFieldComponent} from "../tip-field/tip-field.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-tip-questionnaire-answers",
     templateUrl: "./tip-questionnaire-answers.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, TipFieldComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [NgbTooltipModule, TipFieldComponent, TranslateModule, OrderByPipe]
 })
 export class TipQuestionnaireAnswersComponent {
   protected utilsService = inject(UtilsService);

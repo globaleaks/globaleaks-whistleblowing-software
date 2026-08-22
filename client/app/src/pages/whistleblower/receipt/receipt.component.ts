@@ -6,13 +6,12 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-receipt-whistleblower",
     templateUrl: "./receipt.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class ReceiptComponent implements OnInit, OnDestroy {
   private appConfigService = inject(AppConfigService);

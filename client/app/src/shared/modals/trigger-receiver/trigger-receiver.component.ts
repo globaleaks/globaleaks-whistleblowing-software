@@ -7,14 +7,13 @@ import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-trigger-receiver",
     templateUrl: "./trigger-receiver.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgLabelTemplateDirective, NgOptionTemplateDirective, TranslateModule, TranslatorPipe, FilterPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgLabelTemplateDirective, NgOptionTemplateDirective, TranslateModule, FilterPipe]
 })
 export class TriggerReceiverComponent implements OnInit {
   private utilsService = inject(UtilsService);

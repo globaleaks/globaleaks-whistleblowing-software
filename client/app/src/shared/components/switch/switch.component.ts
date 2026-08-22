@@ -1,13 +1,12 @@
 import {Component, input, model, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
-import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'app-switch',
     templateUrl: './switch.component.html',
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class SwitchComponent {
   readonly label = input('Switch');

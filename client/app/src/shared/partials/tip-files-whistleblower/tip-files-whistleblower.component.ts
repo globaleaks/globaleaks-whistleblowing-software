@@ -9,7 +9,6 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {DatePipe} from "@angular/common";
 import {RFileUploadButtonComponent} from "../rfile-upload-button/r-file-upload-button.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,7 +18,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-whistleblower",
     templateUrl: "./tip-files-whistleblower.component.html",
     standalone: true,
-    imports: [RFileUploadButtonComponent, DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [RFileUploadButtonComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesWhistleblowerComponent {
   private appDataService = inject(AppDataService);

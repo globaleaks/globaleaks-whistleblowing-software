@@ -1,4 +1,5 @@
 import {Component, HostListener, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -17,14 +18,13 @@ import {HttpClient, HttpResponse} from "@angular/common/http";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe]
+    imports: [TranslatePipe, DatePipe, FormsModule, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink]
 })
 export class TipsComponent implements OnInit {
   private http = inject(HttpClient);

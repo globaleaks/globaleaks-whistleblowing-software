@@ -19,13 +19,12 @@ import {
 } from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
 import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-preference-tab1",
     templateUrl: "./preference-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, DatePipe, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, DatePipe, TranslateModule]
 })
 export class PreferenceTab1Component implements OnInit {
   private cdr = inject(ChangeDetectorRef);

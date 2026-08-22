@@ -3,7 +3,6 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
 import {AppDataService} from "@app/app-data.service";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 
@@ -12,7 +11,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
     selector: "src-confirmation-with-password",
     templateUrl: "./confirmation-with-password.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class ConfirmationWithPasswordComponent {
   private activeModal = inject(NgbActiveModal);

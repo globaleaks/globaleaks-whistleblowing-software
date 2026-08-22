@@ -6,13 +6,12 @@ import {Constants} from "@app/shared/constants/constants";
 import {FormsModule} from "@angular/forms";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-request-support",
     templateUrl: "./request-support.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, TranslateModule]
 })
 export class RequestSupportComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);

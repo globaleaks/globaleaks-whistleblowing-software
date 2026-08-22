@@ -1,16 +1,16 @@
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-admin-sidebar",
     templateUrl: "./sidebar.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [RouterLink, RouterLinkActive, TranslatorPipe]
+    imports: [TranslatePipe, RouterLink, RouterLinkActive]
 })
 export class AdminSidebarComponent {
   private router = inject(Router);

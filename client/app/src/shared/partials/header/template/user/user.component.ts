@@ -11,7 +11,6 @@ import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
@@ -20,7 +19,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "views-user",
     templateUrl: "./user.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, OrderByPipe]
 })
 export class UserComponent {
   protected activatedRoute = inject(ActivatedRoute);

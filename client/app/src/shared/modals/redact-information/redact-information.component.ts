@@ -7,7 +7,6 @@ import {RedactionData} from "@app/models/component-model/redaction";
 
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
-import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-redact-information',
@@ -15,8 +14,7 @@ import {TranslatorPipe} from '@app/shared/pipes/translate';
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class RedactInformationComponent implements OnInit{

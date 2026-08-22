@@ -1,17 +1,17 @@
 import {Component, inject, input} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {Constants} from "@app/shared/constants/constants";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-csr-gen",
     templateUrl: "./https-csr-gen.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule]
 })
 export class HttpsCsrGenComponent {
   private authenticationService = inject(AuthenticationService);

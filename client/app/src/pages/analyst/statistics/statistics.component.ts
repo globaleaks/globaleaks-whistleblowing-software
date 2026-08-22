@@ -3,7 +3,6 @@ import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
 import {TranslateService, TranslateModule} from '@ngx-translate/core';
 
 import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
-import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-statistics',
@@ -11,8 +10,7 @@ import {TranslatorPipe} from '@app/shared/pipes/translate';
     standalone: true,
     imports: [
     BaseChartDirective,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
     providers: [provideCharts(withDefaultRegisterables())],
 })

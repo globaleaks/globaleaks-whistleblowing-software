@@ -5,7 +5,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "app-default-login",
@@ -15,8 +14,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [
     FormsModule,
     NgbTooltipModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class DefaultLoginComponent {

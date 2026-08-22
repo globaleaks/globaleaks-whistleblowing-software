@@ -6,13 +6,12 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-file-view",
     templateUrl: "./file-view.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class FileViewComponent implements OnInit {
   private authenticationService = inject(AuthenticationService);

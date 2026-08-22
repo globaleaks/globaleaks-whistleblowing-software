@@ -1,4 +1,5 @@
 import {Component, OnInit, inject, input, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -8,13 +9,12 @@ import {Observable} from "rxjs";
 import {Status, Substatus} from "@app/models/app/public-model";
 
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-substatuses",
     templateUrl: "./sub-status.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule]
 })
 export class SubStatusComponent implements OnInit {
   private httpService = inject(HttpService);

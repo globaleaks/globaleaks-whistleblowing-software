@@ -12,14 +12,13 @@ import {TriggeredByOption} from "@app/models/app/shared-public-model";
 
 import {FormsModule} from "@angular/forms";
 import {StepComponent} from "../step/step.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-steps-list",
     templateUrl: "./steps-list.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslateModule]
 })
 export class StepsListComponent implements OnInit {
   private utilsService = inject(UtilsService);

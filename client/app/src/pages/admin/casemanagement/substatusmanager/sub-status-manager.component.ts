@@ -1,4 +1,5 @@
 import {Component, inject, input, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -9,13 +10,12 @@ import {Status} from "@app/models/app/public-model";
 import {FormsModule} from "@angular/forms";
 
 import {SubStatusComponent} from "../substatuses/sub-status.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-substatusmanager",
     templateUrl: "./sub-status-manager.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, SubStatusComponent, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusComponent]
 })
 export class SubStatusManagerComponent {
   private appDataServices = inject(AppDataService);

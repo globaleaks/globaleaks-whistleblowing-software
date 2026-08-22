@@ -1,14 +1,14 @@
 import {Component, inject, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https-setup",
     templateUrl: "./https-setup.component.html",
     standalone: true,
-    imports: [TranslatorPipe]
+    imports: [TranslatePipe]
 })
 export class HttpsSetupComponent {
   private httpService = inject(HttpService);

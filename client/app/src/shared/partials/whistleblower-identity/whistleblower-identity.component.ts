@@ -9,13 +9,12 @@ import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
 import {WhistleblowerIdentityFieldComponent} from "@app/pages/whistleblower/fields/whistleblower-identity-field/whistleblower-identity-field.component";
 import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-whistleblower-identity",
     templateUrl: "./whistleblower-identity.component.html",
     standalone: true,
-    imports: [TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe]
+    imports: [TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule]
 })
 export class WhistleblowerIdentityComponent {
   protected wbTipService = inject(WbtipService);

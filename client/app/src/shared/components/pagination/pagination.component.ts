@@ -1,4 +1,5 @@
 import { Component, input, model } from '@angular/core';
+import {TranslatePipe} from "@ngx-translate/core";
 import {
   NgbPagination,
   NgbPaginationPrevious,
@@ -7,20 +8,18 @@ import {
   NgbPaginationLast,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
   templateUrl: './pagination.component.html',
-  imports: [
+  imports: [TranslatePipe, 
     NgbPagination,
     NgbPaginationPrevious,
     NgbPaginationNext,
     NgbPaginationFirst,
     NgbPaginationLast,
-    NgbTooltipModule,
-    TranslatorPipe
+    NgbTooltipModule
   ],
 })
 export class PaginationComponent {

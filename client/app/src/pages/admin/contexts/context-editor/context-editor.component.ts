@@ -1,4 +1,5 @@
 import {Component, OnInit, inject, input, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
@@ -13,14 +14,13 @@ import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, TranslatorPipe, FilterPipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, FilterPipe]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);

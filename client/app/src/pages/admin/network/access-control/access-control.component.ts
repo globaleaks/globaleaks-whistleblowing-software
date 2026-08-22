@@ -1,17 +1,17 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-access-control",
     templateUrl: "./access-control.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule]
 })
 export class AccessControlComponent implements OnInit {
   private networkResolver = inject(NetworkResolver);

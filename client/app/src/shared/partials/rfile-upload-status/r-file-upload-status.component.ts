@@ -3,14 +3,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {Transfer} from "@flowjs/ngx-flow";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 
 @Component({
     selector: "src-rfile-upload-status",
     templateUrl: "./r-file-upload-status.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe, ByteFmtPipe]
+    imports: [TranslateModule, ByteFmtPipe]
 })
 export class RFileUploadStatusComponent {
   protected utilsService = inject(UtilsService);

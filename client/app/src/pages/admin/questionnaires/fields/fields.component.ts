@@ -19,7 +19,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {DatePipe} from "@angular/common";
 import {AddFieldComponent} from "../add-field/add-field.component";
 import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-field-from-template.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -27,7 +26,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-fields",
     templateUrl: "./fields.component.html",
     standalone: true,
-    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule]
 })
 export class FieldsComponent implements OnInit {
   private authenticationService = inject(AuthenticationService);
