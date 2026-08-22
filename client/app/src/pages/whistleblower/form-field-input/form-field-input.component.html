@@ -138,9 +138,11 @@
               </div>
             }
             @case ('voice') {
-              <div id="{{fieldEntry()}}">
-                <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit($event)" [fileUploadUrl]="fileUploadUrl()" [entry]="entry()" [uploads]="uploads()" [field]="field()" [entryIndex]="entryIndex()" [fieldEntry]="fieldEntry()"></src-voice-recorder>
-              </div>
+              @defer {
+                <div id="{{fieldEntry()}}">
+                  <src-voice-recorder (notifyFileUpload)="notifyFileUpload.emit($event)" [fileUploadUrl]="fileUploadUrl()" [entry]="entry()" [uploads]="uploads()" [field]="field()" [entryIndex]="entryIndex()" [fieldEntry]="fieldEntry()"></src-voice-recorder>
+                </div>
+              }
             }
             @case ('fileupload') {
               <div id="{{fieldEntry()}}">
