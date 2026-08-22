@@ -10,7 +10,7 @@
     <div id="Skip"><a href="#Content" tabindex="0">{{'Skip to content'|translate}}</a></div>
 
     @if (showLoadingPanel) {
-      <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay" [@fadeInOut]="!showLoadingPanel ? 'void' : ''">
+      <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay">
         <div id="Loader"></div>
       </div>
     }

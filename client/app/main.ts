@@ -32,25 +32,21 @@
 })();
 
 import '@app/icons';
-import { ReceiptValidatorDirective } from "@app/shared/directive/receipt-validator.directive";
 import { mockEngine } from "@app/services/helper/mocks";
 import { MarkdownRendererService } from '@app/services/helper/markdown.service';
-import { TranslatorPipe } from "@app/shared/pipes/translate";
-import { TranslateService, TranslateModule } from "@ngx-translate/core";
+import { provideTranslateService } from "@ngx-translate/core";
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from "@angular/common/http";
 import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor } from "@app/services/root/app-interceptor.service";
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from "@angular/common";
-import { FlowInjectionToken, NgxFlowModule } from "@flowjs/ngx-flow";
-import { NgbDatepickerI18n, NgbModule, NgbPaginationConfig, NgbTooltipConfig, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import { FlowInjectionToken } from "@flowjs/ngx-flow";
+import { NgbDatepickerI18n, NgbPaginationConfig, NgbTooltipConfig } from "@ng-bootstrap/ng-bootstrap";
 import { CustomDatepickerI18n } from "@app/shared/services/custom-datepicker-i18n";
 import { appRoutes } from "@app/app.routes";
-import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
-import { NgSelectModule } from "@ng-select/ng-select";
-import { FormsModule } from "@angular/forms";
-import { MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
+import { bootstrapApplication } from "@angular/platform-browser";
+import { provideMarkdown, MARKED_OPTIONS } from "ngx-markdown";
 import { AppComponent } from "@app/pages/app/app.component";
 import { provideRouter } from "@angular/router";
-import { ApplicationRef, enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationRef, enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import Flow from "@flowjs/flow.js";
 
@@ -60,25 +56,19 @@ bootstrapApplication(AppComponent, {
     providers: [
         provideZonelessChangeDetection(),
         provideRouter(appRoutes),
-        importProvidersFrom(NgbModule,
-                            BrowserModule,
-                            NgSelectModule,
-                            NgxFlowModule,
-                            FormsModule,
-                            NgbTooltipModule,
-                            MarkdownModule.forRoot({
-                              markedOptions: {
-                                provide: MARKED_OPTIONS,
-                                useFactory: (rendererService: MarkdownRendererService) => ({
-                                  breaks: true,
-                                  renderer: rendererService.getCustomRenderer(),
-                                }),
-                                deps: [MarkdownRendererService]
-                              }
-                            }),
-                            TranslateModule.forRoot({
-                              loader: provideTranslateHttpLoader({prefix:"l10n/", suffix:""}),
-                            })),
+        provideMarkdown({
+          markedOptions: {
+            provide: MARKED_OPTIONS,
+            useFactory: (rendererService: MarkdownRendererService) => ({
+              breaks: true,
+              renderer: rendererService.getCustomRenderer(),
+            }),
+            deps: [MarkdownRendererService]
+          }
+        }),
+        provideTranslateService({
+          loader: provideTranslateHttpLoader({prefix: "l10n/", suffix: ""}),
+        }),
         { provide: APP_BASE_HREF, useValue: "/" },
         { provide: HTTP_INTERCEPTORS, useClass: appInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorCatchingInterceptor, multi: true },
@@ -110,9 +100,6 @@ bootstrapApplication(AppComponent, {
 	  }
         },
         { provide: 'MockEngine', useValue: mockEngine },
-        ReceiptValidatorDirective,
-        TranslatorPipe,
-        TranslateService,
         provideHttpClient(withInterceptorsFromDi())
     ]
 }).then(moduleRef => {
