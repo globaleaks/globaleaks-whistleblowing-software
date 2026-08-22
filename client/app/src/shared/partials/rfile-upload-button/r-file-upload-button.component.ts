@@ -1,4 +1,5 @@
 import {AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {FlowConfig, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
 import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
@@ -21,6 +22,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [NgxFlowModule, NgClass, FormsModule, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule, TranslatorPipe]
 })
 export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDestroy {
+  private renderScheduler = inject(RenderSchedulerService);
   private cdr = inject(ChangeDetectorRef);
   private utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
@@ -73,6 +75,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
           this.errorFile = file;
         } else if (!file.complete) {
           this.confirmButton = true;
+          this.renderScheduler.schedule();
         }
       });
 

@@ -1,4 +1,5 @@
 import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
@@ -37,6 +38,7 @@ import {firstValueFrom} from "rxjs";
     imports: [ContextSelectionComponent, FormsModule, NgClass, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
 })
 export class SubmissionComponent implements OnInit {
+  private renderScheduler = inject(RenderSchedulerService);
   private route = inject(ActivatedRoute);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
   private titleService = inject(TitleService);
@@ -283,6 +285,9 @@ export class SubmissionComponent implements OnInit {
     this.done = true;
 
     const intervalId = setInterval(() => {
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
+
       if (this.uploading()) {
         return;
       }

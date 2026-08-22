@@ -1,4 +1,5 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import Flow from "@flowjs/flow.js";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -363,6 +364,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     imports: [NgClass, FormsModule]
 })
 export class VoiceRecorderComponent implements OnInit, OnDestroy {
+  private renderScheduler = inject(RenderSchedulerService);
   private cd = inject(ChangeDetectorRef);
   private utilsService = inject(UtilsService);
   private sanitizer = inject(DomSanitizer);
@@ -456,10 +458,11 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
       // privacy (it removes location-identifying background sound), not for voice anonymity.
       navigator.mediaDevices.getUserMedia({audio: {autoGainControl: false, echoCancellation: false, noiseSuppression: true}})
         .then((stream) => {
-          this.startRecording(fileId, stream).then();
+          this.startRecording(fileId, stream).then(() => this.renderScheduler.schedule());
         })
         .catch(() => {
           this.activeButton = null;
+          this.renderScheduler.schedule();
         });
     }
   }

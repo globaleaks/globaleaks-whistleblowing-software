@@ -13,6 +13,7 @@ import {TokenResponse} from "@app/models/authentication/token-response";
 import {CryptoService} from "@app/shared/services/crypto.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppDataService} from "@app/app-data.service";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 import {of} from 'rxjs';
 import {timer} from 'rxjs';
@@ -171,6 +172,7 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
 @Injectable()
 export class CompletedInterceptor implements HttpInterceptor {
   private appDataService = inject(AppDataService);
+  private renderScheduler = inject(RenderSchedulerService);
 
   count = 0;
 
@@ -181,6 +183,18 @@ export class CompletedInterceptor implements HttpInterceptor {
     }
 
     return next.handle(req).pipe(
+      // Zoneless: the subscriber that consumes this response mutates component
+      // state synchronously when the event is delivered; request a rendering
+      // pass right after it so the result is shown without depending on any
+      // later, unrelated trigger (a click, the loader timer, ...).
+      tap({
+        next: (event) => {
+          if (event instanceof HttpResponse) {
+            this.renderScheduler.schedule();
+          }
+        },
+        error: () => this.renderScheduler.schedule()
+      }),
       finalize(() => {
         if (!req.url.includes("api/auth/")) {
           if (this.count > 0) {

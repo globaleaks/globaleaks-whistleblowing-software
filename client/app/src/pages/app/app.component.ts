@@ -1,4 +1,5 @@
-import {AfterViewInit, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Renderer2, inject} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnDestroy, OnInit, Renderer2, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -52,10 +53,10 @@ window.GL = {
     imports: [NgClass, HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, OperationComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule, TranslatorPipe]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
+  private renderScheduler = inject(RenderSchedulerService);
   private document = inject<Document>(DOCUMENT);
   private renderer = inject(Renderer2);
   protected browserCheckService = inject(BrowserCheckService);
-  private changeDetectorRef = inject(ChangeDetectorRef);
   private router = inject(Router);
   protected translate = inject(TranslateService);
   protected appConfig = inject(AppConfigService);
@@ -116,7 +117,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy{
     this.appDataService.showLoadingPanel$.subscribe((value:any) => {
       this.showLoadingPanel = value;
       this.supportedBrowser = this.browserCheckService.checkBrowserSupport();
-      this.changeDetectorRef.detectChanges();
+      this.renderScheduler.schedule();
     });
 
     requestIdleCallback(() => {

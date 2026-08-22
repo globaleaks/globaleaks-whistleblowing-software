@@ -1,4 +1,5 @@
 import {Location} from '@angular/common';
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -9,7 +10,6 @@ import {Router, NavigationEnd, ActivatedRoute} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
-import {NgZone} from "@angular/core";
 import {Observable, forkJoin, of} from "rxjs";
 import {map} from "rxjs/operators";
 
@@ -17,6 +17,7 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class AppConfigService {
+  private renderScheduler = inject(RenderSchedulerService);
   private location = inject(Location);
   private titleService = inject(TitleService);
   authenticationService = inject(AuthenticationService);
@@ -27,7 +28,6 @@ export class AppConfigService {
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private ngZone = inject(NgZone);
   private isRunning = false;
 
   public sidebar = "";
@@ -127,6 +127,7 @@ export class AppConfigService {
     this.router.navigateByUrl(newPath).then(() => {
       this.sidebar = "admin-sidebar";
       this.titleService.setTitle();
+      this.renderScheduler.schedule();
     });
   }
 

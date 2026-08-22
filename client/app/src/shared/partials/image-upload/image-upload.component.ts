@@ -1,4 +1,5 @@
 import {HttpClient} from "@angular/common/http";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
 import {FlowConfig, NgxFlowModule} from "@flowjs/ngx-flow";
 import {Subscription} from "rxjs";
@@ -18,6 +19,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, TranslatorPipe]
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
+  private renderScheduler = inject(RenderSchedulerService);
   private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
   private utilsService = inject(UtilsService);
@@ -48,6 +50,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
     this.autoUploadSubscription = this.flow.events$.subscribe(event => {
       if (event.type === "filesSubmitted") {
         this.imageUploadModel[this.imageUploadModelAttr] = true;
+        this.renderScheduler.schedule();
       }
     });
   }
@@ -68,6 +71,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
       this.filemodel = modifiedFile;
       flowJsInstance.on('complete', () => {
         this.currentTimestamp = new Date().getTime();
+        this.renderScheduler.schedule();
       });
     }
   }

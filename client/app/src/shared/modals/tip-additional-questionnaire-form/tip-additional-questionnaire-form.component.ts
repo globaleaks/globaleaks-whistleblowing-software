@@ -1,4 +1,5 @@
 import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgForm, FormsModule} from "@angular/forms";
@@ -23,6 +24,7 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
+  private renderScheduler = inject(RenderSchedulerService);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
   private wbTipResolver = inject(WbTipResolver);
   private httpService = inject(HttpService);
@@ -164,6 +166,8 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
 
     const intervalId = setInterval(() => {
       this.fieldUtilitiesService.onAnswersUpdate(this);
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
 
       if (this.uploading()) {
         return;

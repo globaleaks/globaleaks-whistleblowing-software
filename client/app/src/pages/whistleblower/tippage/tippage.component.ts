@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
@@ -30,6 +31,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
 })
 export class TippageComponent implements OnInit {
+  private renderScheduler = inject(RenderSchedulerService);
   private fieldUtilities = inject(FieldUtilitiesService);
   private appConfigService = inject(AppConfigService);
   private wbTipResolver = inject(WbTipResolver);
@@ -182,6 +184,9 @@ export class TippageComponent implements OnInit {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
+
       if (this.utilsService.isUploading(this.uploads)) {
         return;
       }
