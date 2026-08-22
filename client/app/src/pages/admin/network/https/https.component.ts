@@ -89,7 +89,7 @@ export class HttpsComponent implements OnInit {
     this.menuState = choice;
   }
 
-  onUpdate(data: string) {
+  onUpdate(data: string | void) {
     if (data) {
       this.menuState = data;
     }

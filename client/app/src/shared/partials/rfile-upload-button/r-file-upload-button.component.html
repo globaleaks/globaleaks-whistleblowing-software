@@ -2,11 +2,11 @@
   <ng-container #flow="flow" [flowConfig]="flowConfig"></ng-container>
   <div class="drag-drop" flowDrop [flow]="flow.flowJs">
     <div class="custom-file">
-        @if(!formUploader){
+        @if(!formUploader()){
           <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" />
         }
         @else{
-          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="entry.required_status"/>
+          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" class="custom-file-input" [required]="entry().required_status"/>
         }
         <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-upload"></i>
@@ -35,7 +35,7 @@
             <div class="fileUploadBox mt-2 mb-2">
               @if (appDataService.public.node.maximum_filesize >= (transfer.size/1000000)) {
                 <div>
-                  <src-rfile-upload-status (updated)="receiveData($event)" [formUploader]="formUploader" [file]="transfer"></src-rfile-upload-status>
+                  <src-rfile-upload-status (updated)="receiveData($event)" [formUploader]="formUploader()" [file]="transfer"></src-rfile-upload-status>
                 </div>
               }
             </div>
@@ -43,13 +43,13 @@
         }
       </div>
     </div>
-    @if (confirmButton && !formUploader) {
+    @if (confirmButton && !formUploader()) {
       <button id="files-action-confirm" class="btn btn-sm btn-outline-secondary" (click)="onConfirmClick()">
         <i class="fas fa-upload"></i>
         <span>{{'Confirm'|translate}}</span>
       </button>
     }
-    @if (!formUploader && (flow.transfers$ | async)?.flow?.files) {
+    @if (!formUploader() && (flow.transfers$ | async)?.flow?.files) {
       <src-rfiles-upload-status [estimatedTime]="(flow.transfers$ | async)?.flow?.timeRemaining()" [progress]="(flow.transfers$ | async)?.totalProgress" [uploading]="(flow.transfers$ | async)?.flow?.isUploading()"></src-rfiles-upload-status>
     }
   </div>

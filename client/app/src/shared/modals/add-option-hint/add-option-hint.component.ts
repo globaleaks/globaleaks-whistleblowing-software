@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Option} from "@app/models/app/shared-public-model";
 import {FormsModule} from "@angular/forms";
@@ -16,7 +16,7 @@ export class AddOptionHintComponent {
   private modalService = inject(NgbModal);
 
   confirmFunction: (data: Option) => void;
-  @Input() arg: Option;
+  arg: Option;
 
   confirm() {
     this.confirmFunction(this.arg);

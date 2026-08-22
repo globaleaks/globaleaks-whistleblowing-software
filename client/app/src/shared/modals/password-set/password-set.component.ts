@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {TranslateModule} from "@ngx-translate/core";
@@ -14,7 +14,7 @@ export class PasswordSetComponent {
   private activeModal = inject(NgbActiveModal);
   protected utilsService = inject(UtilsService);
 
-  @Input() password: string;
+  password: string;
 
   protected visible = false;
 

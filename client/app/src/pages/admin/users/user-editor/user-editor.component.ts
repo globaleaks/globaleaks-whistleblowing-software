@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, viewChild, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -33,12 +33,12 @@ export class UserEditorComponent implements OnInit {
   private utilsService = inject(UtilsService);
   private cryptoService = inject(CryptoService);
 
-  @Input() user: userResolverModel;
-  @Input() users: userResolverModel[];
-  @Input() index: number;
-  @Input() editUser: NgForm;
-  @Output() deleted = new EventEmitter<string>();
-  @ViewChild("uploader") uploaderInput: ElementRef;
+  readonly user = input.required<userResolverModel>();
+  readonly users = input<userResolverModel[]>();
+  readonly index = input<number>();
+  readonly editUser = input.required<NgForm>();
+  readonly deleted = output<string>();
+  readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
   changePasswordArgs: { password_change_needed: string };
   nodeData: nodeResolverModel;
@@ -106,8 +106,9 @@ export class UserEditorComponent implements OnInit {
     return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
       next:()=>{},
       error:()=>{
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
       }
     });
@@ -126,7 +127,7 @@ export class UserEditorComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         return this.utilsService.deleteAdminUser(arg.id).subscribe(_ => {
-          this.deleted.emit(this.user.id);
+          this.deleted.emit(this.user().id);
         });
       };
     });
@@ -140,7 +141,7 @@ export class UserEditorComponent implements OnInit {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0])
         .subscribe((txt: string) => {
-          this.user.pgp_key_public = txt;
+          this.user().pgp_key_public = txt;
           return this.saveUser(user);
         });
     }

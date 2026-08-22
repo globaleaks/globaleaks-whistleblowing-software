@@ -11,7 +11,7 @@ export class WhistleblowerSubmissionService {
     for (let counter = 0; counter <= scope.navigation; counter++) {
       scope.validate[counter] = true;
       if (scope.questionnaire.steps[counter].enabled) {
-        if (scope.stepForms.get(enabled_counter)?.invalid) {
+        if (scope.stepForms().at(enabled_counter)?.invalid) {
           scope.navigation = counter;
           return false;
         }

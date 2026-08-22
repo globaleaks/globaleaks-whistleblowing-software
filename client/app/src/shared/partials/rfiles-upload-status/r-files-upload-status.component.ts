@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, input} from "@angular/core";
 import {NgStyle} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -10,37 +10,39 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [NgStyle, TranslateModule, TranslatorPipe]
 })
 export class RFilesUploadStatusComponent {
-  @Input() uploading: boolean | undefined;
-  @Input() progress: number | undefined;
-  @Input() estimatedTime: number | undefined;
+  readonly uploading = input<boolean>();
+  readonly progress = input<number | undefined>();
+  readonly estimatedTime = input<number | undefined>();
   protected readonly isFinite = isFinite;
 
   protected getEstimatedTimeValue(): number | undefined {
-    if (!this.estimatedTime || !isFinite(this.estimatedTime)) {
-      return this.estimatedTime;
+    const estimatedTime = this.estimatedTime();
+    if (!estimatedTime || !isFinite(estimatedTime)) {
+      return estimatedTime;
     }
 
-    if (this.estimatedTime >= 3600) {
-      return Math.ceil(this.estimatedTime / 3600);
+    if (estimatedTime >= 3600) {
+      return Math.ceil(estimatedTime / 3600);
     }
 
-    if (this.estimatedTime >= 60) {
-      return Math.ceil(this.estimatedTime / 60);
+    if (estimatedTime >= 60) {
+      return Math.ceil(estimatedTime / 60);
     }
 
-    return Math.ceil(this.estimatedTime);
+    return Math.ceil(estimatedTime);
   }
 
   protected getEstimatedTimeUnit(): string {
-    if (!this.estimatedTime || !isFinite(this.estimatedTime)) {
+    const estimatedTime = this.estimatedTime();
+    if (!estimatedTime || !isFinite(estimatedTime)) {
       return "seconds";
     }
 
-    if (this.estimatedTime >= 3600) {
+    if (estimatedTime >= 3600) {
       return "hours";
     }
 
-    if (this.estimatedTime >= 60) {
+    if (estimatedTime >= 60) {
       return "minutes";
     }
 

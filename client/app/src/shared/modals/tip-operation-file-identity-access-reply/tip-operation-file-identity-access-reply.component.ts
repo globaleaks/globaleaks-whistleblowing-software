@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
@@ -17,7 +17,7 @@ export class TipOperationFileIdentityAccessReplyComponent {
 
 
   reply_motivation = "";
-  @Input() iar_id = "";
+  iar_id = "";
 
   cancel() {
     this.modalService.dismissAll();

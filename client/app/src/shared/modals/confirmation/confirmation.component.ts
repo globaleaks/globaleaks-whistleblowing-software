@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
@@ -13,7 +13,7 @@ export class ConfirmationComponent {
   private modalService = inject(NgbModal);
   private activeModal = inject(NgbActiveModal);
 
-  @Input() arg: string;
+  arg: string;
 
   confirmFunction: (secret: string) => void;
 

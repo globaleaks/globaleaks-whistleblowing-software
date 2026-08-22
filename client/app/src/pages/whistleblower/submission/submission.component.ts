@@ -1,4 +1,4 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, OnInit, inject, viewChild, viewChildren} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
@@ -53,8 +53,8 @@ export class SubmissionComponent implements OnInit {
   private cryptoService = inject(CryptoService);
   submission = inject(SubmissionService);
 
-  @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
+  public readonly submissionForm = viewChild<NgForm>("submissionForm");
+  readonly stepForms = viewChildren<NgForm>("stepForm");
   _navigation = -1;
   answers: Answers = {};
   context: Context | undefined = undefined;
@@ -333,8 +333,9 @@ export class SubmissionComponent implements OnInit {
   }
 
   resetForm() {
-    if (this.submissionForm) {
-      this.submissionForm.reset();
+    const submissionForm = this.submissionForm();
+    if (submissionForm) {
+      submissionForm.reset();
     }
   }
 

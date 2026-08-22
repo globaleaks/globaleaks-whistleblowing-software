@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {Constants} from "@app/shared/constants/constants";
 import {HttpService} from "@app/shared/services/http.service";
@@ -19,7 +19,7 @@ export class HttpsCsrGenComponent {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  @Input() fileResources: FileResources;
+  readonly fileResources = input<FileResources>();
   protected readonly Constants = Constants;
   csr_cfg: {
     country: string;

@@ -7,7 +7,7 @@
           <input id="simple-login-password" class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" placeholder="{{'Password' | translate}}" type="password" required />
         </div>
         <div class="form-group">
-          <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
+          <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
             <i class="fas fa-right-to-bracket"></i>
             <span>{{'Log in'|translate}}</span>
           </button>
@@ -34,7 +34,7 @@
               <input id="simple-login-password-selected" class="form-control" name="password" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
             </div>
             <div class="form-group">
-              <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
+              <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
                 <i class="fas fa-right-to-bracket"></i>
                 <span>{{'Log in'|translate}}</span>
               </button>

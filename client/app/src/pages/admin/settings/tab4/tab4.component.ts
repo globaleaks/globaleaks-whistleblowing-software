@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -18,7 +18,7 @@ export class Tab4Component implements OnInit {
   protected utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
 
-  @Input() contentForm: NgForm;
+  readonly contentForm = input<NgForm>();
 
   vars: { language_to_customize: string, text_to_customize: string, custom_text: string } = {
     language_to_customize: "",

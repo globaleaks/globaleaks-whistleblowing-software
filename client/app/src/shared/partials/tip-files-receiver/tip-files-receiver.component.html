@@ -47,7 +47,7 @@
                       } @else {
                         <span class="ml-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
                       }
-                      @if (redactMode) {
+                      @if (redactMode()) {
                         <span>
                           @if (preferenceResolver.dataModel.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
@@ -59,12 +59,12 @@
                           @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
                               @if (preferenceResolver.dataModel.can_mask_information) {
-                                <button class="btn btn-sm btn-outline-secondary" [ngClass]="{ 'active': redactMode }" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
+                                <button class="btn btn-sm btn-outline-secondary" [ngClass]="{ 'active': redactMode() }" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
                                     <i class="fas fa-eraser"></i>
                                   </button>
                               }
                               @if (preferenceResolver.dataModel.can_redact_information) {
-                                <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Redact' | translate" [attr.disabled]="!redactMode ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Redact' | translate">
+                                <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Redact' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Redact' | translate">
                                   <i class="fas fa-trash"></i>
                                 </button>
                               }

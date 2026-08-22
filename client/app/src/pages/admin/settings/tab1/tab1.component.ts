@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -32,7 +32,7 @@ export class Tab1Component {
   private utilsService = inject(UtilsService);
 
   protected readonly Constants = Constants;
-  @Input() contentForm: NgForm;
+  readonly contentForm = input.required<NgForm>();
 
   updateNode() {
     this.utilsService.update(this.nodeResolver.dataModel).subscribe(_ => {

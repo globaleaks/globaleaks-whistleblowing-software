@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -28,11 +28,11 @@ export class StepsListComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   private httpService = inject(HttpService);
 
-  @Input() step: Step;
-  @Input() steps: Step[];
-  @Input() questionnaire: questionnaireResolverModel;
-  @Input() index: number;
-  @Output() deleted = new EventEmitter<string>();
+  readonly step = input.required<Step>();
+  readonly steps = input<Step[]>();
+  readonly questionnaire = input.required<questionnaireResolverModel>();
+  readonly index = input.required<number>();
+  readonly deleted = output<string>();
   editing = false;
   showAddTrigger = false;
   parsedFields: ParsedFields;
@@ -47,7 +47,7 @@ export class StepsListComponent implements OnInit {
   }
 
   recompute(): void {
-    this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire, {
+    this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire(), {
       fields: [],
       fields_by_id: {},
       options_by_id: {}
@@ -55,7 +55,7 @@ export class StepsListComponent implements OnInit {
   }
 
   swap($event: Event, index: number, n: number): void {
-    this.utilsService.swap($event, index, n, this.questionnaire)
+    this.utilsService.swap($event, index, n, this.questionnaire())
   }
 
   moveUp(e: Event, idx: number): void {
@@ -93,22 +93,22 @@ export class StepsListComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(_ => {
-          this.deleted.emit(this.step.id);
+          this.deleted.emit(this.step().id);
         });
       };
     });
   }
 
   addTrigger() {
-    this.step.triggered_by_options.push(this.new_trigger);
+    this.step().triggered_by_options.push(this.new_trigger);
     this.toggleAddTrigger();
     this.new_trigger = {"field": "", "option": "", "sufficient": true};
   }
 
   delTrigger(trigger: TriggeredByOption) {
-    const index = this.step.triggered_by_options.indexOf(trigger);
+    const index = this.step().triggered_by_options.indexOf(trigger);
     if (index !== -1) {
-      this.step.triggered_by_options.splice(index, 1);
+      this.step().triggered_by_options.splice(index, 1);
     }
   }
 }

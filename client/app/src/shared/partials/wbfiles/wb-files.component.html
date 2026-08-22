@@ -3,7 +3,7 @@
 
     <div class="top-row clearfix">
       <span class="float-start">
-        @if (ctx === 'download') {
+        @if (ctx() === 'download') {
           <span class="text-muted">
             <span>{{ 'Filename' | translate }}</span>:
           </span>
@@ -16,11 +16,11 @@
         @if (isMasked()) {
           <span class="btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
 
-          @if (redactMode) {
+          @if (redactMode()) {
             <button
               type="button"
               class="tip-action-download-file download-button btn btn-sm btn-primary"
-              (click)="downloadWBFile(wbFile)"
+              (click)="downloadWBFile(wbFile())"
               [attr.aria-label]="'Download' | translate">
               <i class="fas fa-download"></i>
             </button>
@@ -51,12 +51,12 @@
           <button
             type="button"
             class="tip-action-download-file download-button btn btn-sm btn-primary"
-            (click)="downloadWBFile(wbFile)"
+            (click)="downloadWBFile(wbFile())"
             [attr.aria-label]="'Download' | translate">
             <i class="fas fa-download"></i>
           </button>
 
-          @if (redactMode && preferenceResolver.dataModel.can_mask_information) {
+          @if (redactMode() && preferenceResolver.dataModel.can_mask_information) {
             <button
               type="button"
               class="btn btn-sm btn-outline-secondary"
@@ -71,30 +71,30 @@
     </div>
 
     <div class="file-info-row">
-      @if (receivers_by_id[wbFile.author_id]) {
+      @if (receivers_by_id()[wbFile().author_id]) {
         <span>
           <span>{{ 'From' | translate }}</span>:
-          <span>{{ receivers_by_id[wbFile.author_id].name }}</span>
+          <span>{{ receivers_by_id()[wbFile().author_id].name }}</span>
         </span>
       }
 
       <span class="px-1">
         <span>{{ 'Date' | translate }}</span>:
-        <span>{{ wbFile.creation_date | date:'dd-MM-yyyy HH:MM' }}</span>
+        <span>{{ wbFile().creation_date | date:'dd-MM-yyyy HH:MM' }}</span>
       </span>
 
       <span class="px-1">
         <span>{{ 'Size:' | translate }}</span>
-        <span>{{ wbFile.size | byteFmt:2 }}</span>
+        <span>{{ wbFile().size | byteFmt:2 }}</span>
       </span>
     </div>
 
-    @if (wbFile.description) {
+    @if (wbFile().description) {
       <div>
         <span class="px-1">
           {{ 'Description' | translate }}:
         </span>
-        <span>{{ wbFile.description }}</span>
+        <span>{{ wbFile().description }}</span>
       </div>
     }
 

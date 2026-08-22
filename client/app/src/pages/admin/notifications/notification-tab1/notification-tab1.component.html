@@ -90,7 +90,7 @@
       <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
     </div>
     <div class="form-group">
-      <button class="btn btn-primary" [disabled]="notificationForm.invalid" (click)="updateNotification(notificationResolver.dataModel)" type="submit">
+      <button class="btn btn-primary" [disabled]="notificationForm().invalid" (click)="updateNotification(notificationResolver.dataModel)" type="submit">
         <i class="fas fa-check"></i>
         <span id="save_notification">{{ 'Save' | translate }}</span>
       </button>

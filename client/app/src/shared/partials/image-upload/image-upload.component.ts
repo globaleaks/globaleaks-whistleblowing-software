@@ -1,6 +1,6 @@
 import {HttpClient} from "@angular/common/http";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
-import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, inject, viewChild} from "@angular/core";
 import {FlowConfig, NgxFlowModule} from "@flowjs/ngx-flow";
 import {Subscription} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -24,19 +24,17 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   protected authenticationService = inject(AuthenticationService);
   private utilsService = inject(UtilsService);
 
-  @ViewChild("flowAdvanced")
-  flow: FlowConfig;
-  @ViewChild("uploader") uploaderElementRef!: ElementRef<HTMLInputElement>;
+  readonly flow = viewChild.required<FlowConfig>("flowAdvanced");
 
-  @Input() imageUploadModel: Record<string, any>;
-  @Input() imageUploadModelAttr: string;
-  @Input() imageUploadId: string;
+  imageUploadModel: Record<string, any>;
+  imageUploadModelAttr: string;
+  imageUploadId: string;
   imageUploadObj: { files: [] } = {files: []};
   autoUploadSubscription: Subscription;
   filemodel: any;
   currentTimestamp = new Date().getTime();
   flowConfig: FlowOptions;
-  @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
+  readonly uploaderInput = viewChild.required<ElementRef<HTMLInputElement>>("uploader");
 
   ngOnInit() {
     this.filemodel = this.imageUploadModel[this.imageUploadModelAttr];
@@ -47,7 +45,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   ngAfterViewInit() {
-    this.autoUploadSubscription = this.flow.events$.subscribe(event => {
+    this.autoUploadSubscription = this.flow().events$.subscribe(event => {
       if (event.type === "filesSubmitted") {
         this.imageUploadModel[this.imageUploadModelAttr] = true;
         this.renderScheduler.schedule();
@@ -64,7 +62,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
       const timestamp = new Date().getTime();
       const fileNameWithTimestamp = `${fileNameWithoutExtension}_${timestamp}.${fileExtension}`;
       const modifiedFile = new File([file], fileNameWithTimestamp, {type: file.type});
-      const flowJsInstance = this.flow.flowJs;
+      const flowJsInstance = this.flow().flowJs;
 
       flowJsInstance.addFile(modifiedFile);
       flowJsInstance.upload();
@@ -77,7 +75,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   triggerFileInputClick() {
-    this.uploaderElementRef.nativeElement.click();
+    this.uploaderInput().nativeElement.click();
   }
 
   ngOnDestroy() {
@@ -93,9 +91,7 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
         }
         this.imageUploadObj.files = [];
         this.filemodel = ""
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
-        }
+        this.uploaderInput().nativeElement.value = "";
       });
   }
 

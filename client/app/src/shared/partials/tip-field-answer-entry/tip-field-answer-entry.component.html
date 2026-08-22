@@ -1,14 +1,14 @@
 <div class="nested">
-  @switch (field.type) {
+  @switch (field().type) {
     @case ('checkbox') {
       <div>
-        @if (entry) {
+        @if (entry()) {
           <span>
-            @if (field.type) {
+            @if (field().type) {
               <div>
-                @for (option of field.options; track option) {
+                @for (option of field().options; track option) {
                   <div>
-                    @if (entry[option.id] === true) {
+                    @if (entry()[option.id] === true) {
                       <div>
                         <i class="fas fa-square-check"></i>
                         <span>{{ option.label }}</span>
@@ -23,21 +23,21 @@
       </div>
     }
     @case ('voice') {
-      @if (hasAudioFile(field.id)) {
+      @if (hasAudioFile(field().id)) {
         @if (!iframeUrl) {
-          <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field.id)" type="button"><i class="fas fa-play"></i></button>
+          <button class="ml-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field().id)" type="button"><i class="fas fa-play"></i></button>
         } @else {
           <div class="audio-player-wrapper">
-            <iframe #viewer id="{{'audio-file-' + field.id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+            <iframe #viewer id="{{'audio-file-' + field().id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
           </div>
         }
       }
     }
     @case ('selectbox') {
       <div>
-        @for (option of field.options; track option) {
+        @for (option of field().options; track option) {
           <div>
-            @if (entry['value'] === option.id) {
+            @if (entry()['value'] === option.id) {
               <span>{{option.label}}</span>
             }
           </div>
@@ -46,9 +46,9 @@
     }
     @case ('multichoice') {
       <div>
-        @for (option of field.options; track option) {
+        @for (option of field().options; track option) {
           <div>
-            @if (entry['value'] === option.id) {
+            @if (entry()['value'] === option.id) {
               <span>{{option.label}}</span>
             }
           </div>
@@ -57,31 +57,31 @@
     }
     @case ('date') {
       <span>
-        @if (entry['value']) {
+        @if (entry()['value']) {
           <div>
-            {{entry['value'] | date:'dd-MM-yyyy'}}
+            {{entry()['value'] | date:'dd-MM-yyyy'}}
           </div>
         }
       </span>
     }
     @case ('daterange') {
       <span>
-        @if (entry['value']) {
+        @if (entry()['value']) {
           <span>
-            <span>{{'From:'|translate}}</span> {{entry['value'] | split: [":", 0] | date:'dd-MM-yyyy'}}
-            <span>{{'To:'|translate}}</span> {{entry['value'] | split: [":", 1] |  date:'dd-MM-yyyy'}}
+            <span>{{'From:'|translate}}</span> {{entry()['value'] | split: [":", 0] | date:'dd-MM-yyyy'}}
+            <span>{{'To:'|translate}}</span> {{entry()['value'] | split: [":", 1] |  date:'dd-MM-yyyy'}}
           </span>
         }
       </span>
     }
     @case ('tos') {
       <span>
-        @if (entry['value']) {
+        @if (entry()['value']) {
           <span>
-            @if (entry['value'] === true) {
+            @if (entry()['value'] === true) {
               <i class="fas fa-square-check"></i>
             }
-            @if (entry['value'] === false) {
+            @if (entry()['value'] === false) {
               <i class="fas fa-square"></i>
             }
           </span>
@@ -90,16 +90,16 @@
     }
     @case ('fieldgroup') {
       <span>
-        @for (field of field.children | orderBy:['y', 'x']; track field) {
+        @for (field of field().children | orderBy:['y', 'x']; track field) {
           <div>
-            <src-tip-field [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [fields]=field [fieldAnswers]=entry></src-tip-field>
+            <src-tip-field [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [fields]=field [fieldAnswers]=entry()></src-tip-field>
           </div>
         }
       </span>
     }
     @case ('fileupload') {
       <div>
-        @for (wbfile of filterWbFilesByReferenceId(tipService.tip.wbfiles,entry['index']); track wbfile) {
+        @for (wbfile of filterWbFilesByReferenceId(tipService.tip.wbfiles,entry()['index']); track wbfile) {
           <div class="mb-2">
             <span>{{wbfile.name}}</span>
             @if (!maskService.isMasked(wbfile.ifile_id, tipService.tip)) {
@@ -116,11 +116,11 @@
     }
     @default {
       <span class="entry-text">
-        @if (entry['value']) {
+        @if (entry()['value']) {
           <span>
-            <span class="preformatted">{{maskContent(field.id, entry['index'], entry['value'])}}</span>
-            @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-              <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field, entry['index'], entry['value'])" ngbTooltip="{{redactOperationTitle | translate}}" [attr.aria-label]="redactOperationTitle | translate">
+            <span class="preformatted">{{maskContent(field().id, entry()['index'], entry()['value'])}}</span>
+            @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+              <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field(), entry()['index'], entry()['value'])" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
                 <i class="fas fa-eraser" aria-hidden="true"></i>
               </button>
             }

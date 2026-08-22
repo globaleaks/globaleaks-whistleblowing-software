@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -25,28 +25,28 @@ export class SiteslistComponent {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  @Input() tenant: tenantResolverModel;
-  @Input() tenants: tenantResolverModel[];
-  @Input() index: number;
-  @Output() deleted = new EventEmitter<number>();
+  readonly tenant = input.required<tenantResolverModel>();
+  readonly tenants = input<tenantResolverModel[]>();
+  readonly index = input<number>();
+  readonly deleted = output<number>();
   editing = false;
 
   toggleActivation(event: Event): void {
     event.stopPropagation();
-    this.tenant.active = !this.tenant.active;
+    this.tenant().active = !this.tenant().active;
 
-    const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe(_ => {
+    const url = "api/admin/tenants/" + this.tenant().id;
+    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe(_ => {
     });
   }
 
   isRemovableTenant(): boolean {
-    return this.tenant.id !== 1;
+    return this.tenant().id !== 1;
   }
 
   saveTenant() {
-    const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe(_ => {
+    const url = "api/admin/tenants/" + this.tenant().id;
+    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe(_ => {
     });
   }
 
@@ -72,7 +72,7 @@ export class SiteslistComponent {
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
         return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id).subscribe(_ => {
-          this.deleted.emit(this.tenant.id);
+          this.deleted.emit(this.tenant().id);
         });
       };
     });
@@ -80,7 +80,7 @@ export class SiteslistComponent {
 
   toggleEditing(event: Event): void {
     event.stopPropagation();
-    if (this.tenant.id !== 1) {
+    if (this.tenant().id !== 1) {
       this.editing = !this.editing;
     }
   }

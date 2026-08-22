@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
@@ -30,12 +30,15 @@ export class ContextEditorComponent implements OnInit {
   private questionnairesResolver = inject(QuestionnairesResolver);
   private utilsService = inject(UtilsService);
 
-  @Input() contextsData: contextResolverModel[];
-  @Input() contextResolver: contextResolverModel;
-  @Input() index: number;
-  @Input() editContext: NgForm;
-  @Output() deleted = new EventEmitter<string>();
-  @Output() reorder = new EventEmitter<{ index: number; direction: number }>();
+  readonly contextsData = input.required<contextResolverModel[]>();
+  readonly contextResolver = input.required<contextResolverModel>();
+  readonly index = input.required<number>();
+  readonly editContext = input.required<NgForm>();
+  readonly deleted = output<string>();
+  readonly reorder = output<{
+    index: number;
+    direction: number;
+}>();
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
@@ -69,15 +72,15 @@ export class ContextEditorComponent implements OnInit {
 
   swapReceiver(index: number, n: number): void {
     const target = index + n;
-    if (target > -1 && target < this.contextResolver.receivers.length) {
-      const tmp = this.contextResolver.receivers[target];
-      this.contextResolver.receivers[target] = this.contextResolver.receivers[index];
-      this.contextResolver.receivers[index] = tmp;
+    if (target > -1 && target < this.contextResolver().receivers.length) {
+      const tmp = this.contextResolver().receivers[target];
+      this.contextResolver().receivers[target] = this.contextResolver().receivers[index];
+      this.contextResolver().receivers[index] = tmp;
     }
   }
 
   receiverNotSelectedFilter(item: userResolverModel): boolean {
-    return this.contextResolver.receivers.indexOf(item.id) === -1;
+    return this.contextResolver().receivers.indexOf(item.id) === -1;
   }
 
   moveUpReceiver(index: number): void {
@@ -93,8 +96,8 @@ export class ContextEditorComponent implements OnInit {
   }
 
   moveReceiver(rec: userResolverModel): void {
-    if (rec && this.contextResolver.receivers.indexOf(rec.id) === -1) {
-      this.contextResolver.receivers.push(rec.id);
+    if (rec && this.contextResolver().receivers.indexOf(rec.id) === -1) {
+      this.contextResolver().receivers.push(rec.id);
       this.showSelect = false;
     }
   }

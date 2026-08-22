@@ -52,7 +52,7 @@
       <br />
       @if (wbTipService.tip.status !== 'closed') {
         <div>
-          <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl"></src-rfile-upload-button>
+          <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl()"></src-rfile-upload-button>
         </div>
       }
     </div>

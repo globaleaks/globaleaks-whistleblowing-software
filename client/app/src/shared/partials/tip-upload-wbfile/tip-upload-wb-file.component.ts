@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, EventEmitter, Output, inject} from "@angular/core";
+import {Component, ElementRef, ChangeDetectorRef, inject, input, viewChild, output} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -28,11 +28,11 @@ export class TipUploadWbFileComponent {
   protected appDataService = inject(AppDataService);
   protected tipService = inject(ReceiverTipService);
 
-  @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
-  @Input() tip: RecieverTipData;
-  @Input() key: string;
-  @Input() redactMode = false;
-  @Output() updated = new EventEmitter<string>();
+  readonly uploaderInput = viewChild<ElementRef<HTMLInputElement>>('uploader');
+  readonly tip = input.required<RecieverTipData>();
+  readonly key = input<string>();
+  readonly redactMode = input(false);
+  readonly updated = output<void>();
   collapsed = false;
   file_upload_description = "";
   fileInput = "fileinput";
@@ -43,9 +43,9 @@ export class TipUploadWbFileComponent {
     if (files && files.length > 0) {
       const file = files[0];
       const flowJsInstance = this.utilsService.getFlowInstance({
-        target: "api/recipient/rtips/" + this.tip.id + "/rfiles",
+        target: "api/recipient/rtips/" + this.tip().id + "/rfiles",
         singleFile: true,
-        query: {description: this.file_upload_description, visibility: this.key, fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024}
+        query: {description: this.file_upload_description, visibility: this.key(), fileSizeLimit: this.appDataService.public.node.maximum_filesize * 1024 * 1024}
       });
       flowJsInstance.on("fileSuccess", (_) => {
         this.updated.emit()
@@ -55,8 +55,9 @@ export class TipUploadWbFileComponent {
       flowJsInstance.on("fileError", (file, _) => {
         this.showError = true;
         this.errorFile = file;
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
         this.cdr.detectChanges();
       });
@@ -66,7 +67,7 @@ export class TipUploadWbFileComponent {
   }
 
   listenToWbfiles(id: string) {
-    this.utilsService.deleteResource(this.tip.rfiles, id);
+    this.utilsService.deleteResource(this.tip().rfiles, id);
     this.updated.emit();
   }
 

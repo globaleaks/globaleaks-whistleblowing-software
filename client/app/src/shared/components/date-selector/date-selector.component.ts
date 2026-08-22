@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import {Component, input, output} from "@angular/core";
 import {NgbDate, NgbDatepickerModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
@@ -10,8 +10,14 @@ import {FormsModule} from "@angular/forms";
 })
 export class DateRangeSelectorComponent {
   hoveredDate: NgbDate | null = null;
-  @Output() emitDateSelection = new EventEmitter<{ fromDate: string | null; toDate: string | null }>();
-  @Input() currentDates: { fromDate: NgbDate | null, toDate: NgbDate | null } | null;
+  readonly emitDateSelection = output<{
+    fromDate: string | null;
+    toDate: string | null;
+}>();
+  readonly currentDates = input<{
+    fromDate: NgbDate | null;
+    toDate: NgbDate | null;
+} | null>();
   fromDate: NgbDate | null = null;
   toDate: NgbDate | null = null;
 

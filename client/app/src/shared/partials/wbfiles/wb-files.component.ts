@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -30,34 +30,34 @@ export class WbFilesComponent implements OnInit {
   protected preferenceResolver = inject(PreferenceResolver);
   protected tipService = inject(ReceiverTipService);
 
-  @Input() wbFile: RFile;
-  @Input() ctx: string;
-  @Input() redactMode = false;
-  @Input() receivers_by_id: ReceiversById;
-  @Output() updated = new EventEmitter<any>();
+  readonly wbFile = input.required<RFile>();
+  readonly ctx = input<string>();
+  readonly redactMode = input(false);
+  readonly receivers_by_id = input.required<ReceiversById>();
+  readonly updated = output<any>();
 
   ngOnInit(): void {
   }
 
   isMasked(): boolean {
-    return !!this.wbFile.masked;
+    return !!this.wbFile().masked;
   }
 
   displayName(): string {
     // Privileged recipients receive the real name from the server; cover it
     // with the same placeholder used elsewhere while outside the masking editor.
-    if (this.isMasked() && !this.redactMode &&
+    if (this.isMasked() && !this.redactMode() &&
         (this.preferenceResolver.dataModel?.can_mask_information ||
          this.preferenceResolver.dataModel?.can_redact_information)) {
-      return String.fromCharCode(0x2591).repeat(this.wbFile.name.length);
+      return String.fromCharCode(0x2591).repeat(this.wbFile().name.length);
     }
 
-    return this.wbFile.name;
+    return this.wbFile().name;
   }
 
   redactFileOperation(operation: string) {
     const redactionData: RedactionData = {
-      reference_id: this.wbFile.id,
+      reference_id: this.wbFile().id,
       internaltip_id: this.tipService.tip.id,
       entry: "0",
       operation: operation,
@@ -70,7 +70,7 @@ export class WbFilesComponent implements OnInit {
       redactionData.temporary_redaction = [{start: "-inf", end: "inf"}];
     }
 
-    const redaction = this.maskService.getRedaction(this.wbFile.id, "0", this.tipService.tip);
+    const redaction = this.maskService.getRedaction(this.wbFile().id, "0", this.tipService.tip);
 
     if (redaction) {
       redactionData.id = redaction.id;

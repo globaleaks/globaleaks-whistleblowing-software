@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, forwardRef, OnInit, inject, input, viewChild} from "@angular/core";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {AppDataService} from "@app/app-data.service";
 import {WbFile} from "@app/models/app/shared-public-model";
@@ -38,17 +38,17 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   private wbTipService = inject(WbtipService);
   private rTipService = inject(ReceiverTipService);
 
-  @Input() entry: any;
-  @Input() field: any;
-  @Input() fieldAnswers: any;
-  @Input() redactOperationTitle: string;
-  @Input() redactMode: boolean;
+  readonly entry = input<any>();
+  readonly field = input<any>();
+  readonly fieldAnswers = input<any>();
+  readonly redactOperationTitle = input<string>();
+  readonly redactMode = input<boolean>();
 
   format = "dd/MM/yyyy";
   locale = "en-US";
   audioFiles: Record<string, Blob> = {};
   iframeUrl: SafeResourceUrl;
-  @ViewChild("viewer") viewerFrame: ElementRef;
+  readonly viewerFrame = viewChild<ElementRef>("viewer");
   tipService:WbtipService|ReceiverTipService;
   wbfile:WbFile;
 
@@ -60,7 +60,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       this.tipService = this.rTipService;
     }
     if(this.tipService.tip){
-      this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry['index']);
+      this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry()['index']);
     }
   }
 
@@ -91,7 +91,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       }).subscribe((response: Blob) => {
         this.audioFiles[reference_id] = response;
         window.addEventListener("message", (message: MessageEvent) => {
-          const iframe = this.viewerFrame?.nativeElement;
+          const iframe = this.viewerFrame()?.nativeElement;
           if (message.source !== iframe?.contentWindow) {
             return;
           }
@@ -145,7 +145,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   maskContent(id: string, index: string, value: string) {
     // The masker reads the real content; the masked rendering is shown to
     // them only while editing the masking (redact mode).
-    if (!this.redactMode &&
+    if (!this.redactMode() &&
         (this.preferenceResolver.dataModel?.can_mask_information ||
          this.preferenceResolver.dataModel?.can_redact_information)) {
       return value;
@@ -155,7 +155,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   }
 
   filterWbFilesByReferenceId(wbfiles: WbFile[], index:any): WbFile[] {
-   return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === `${this.field.id}-${index}`);
+   return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === `${this.field().id}-${index}`);
   }
 
   selectedFile(file: WbFile) {

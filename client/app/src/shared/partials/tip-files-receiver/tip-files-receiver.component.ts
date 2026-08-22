@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -33,8 +33,8 @@ export class TipFilesReceiverComponent implements OnInit {
   protected tipService = inject(ReceiverTipService);
   protected appDataService = inject(AppDataService);
 
-  @Input() fileUploadUrl: string;
-  @Input() redactMode: boolean;
+  readonly fileUploadUrl = input<string>();
+  readonly redactMode = input(false);
 
   collapsed = false;
 
@@ -48,7 +48,7 @@ export class TipFilesReceiverComponent implements OnInit {
   displayName(file: WbFile): string {
     // Privileged recipients receive the real name from the server; cover it
     // with the same placeholder used elsewhere while outside the masking editor.
-    if (this.maskService.isMasked(file.ifile_id, this.tipService.tip) && !this.redactMode &&
+    if (this.maskService.isMasked(file.ifile_id, this.tipService.tip) && !this.redactMode() &&
         (this.preferenceResolver.dataModel?.can_mask_information ||
          this.preferenceResolver.dataModel?.can_redact_information)) {
       return String.fromCharCode(0x2591).repeat(file.name.length);
@@ -61,7 +61,7 @@ export class TipFilesReceiverComponent implements OnInit {
     // The content is reachable when the file is not masked, or when a
     // privileged recipient views it inside the masking editor (redact mode).
     return !this.maskService.isMasked(file.ifile_id, this.tipService.tip) ||
-      (this.redactMode &&
+      (this.redactMode() &&
         (this.preferenceResolver.dataModel?.can_mask_information ||
          this.preferenceResolver.dataModel?.can_redact_information));
   }

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -24,12 +24,12 @@ export class SubStatusManagerComponent {
   private utilsService = inject(UtilsService);
 
   editing = false;
-  @Input() submissionsStatus: Status;
-  @Input() submissionStatuses: Status[];
-  @Input() index: number;
-  @Input() first: boolean;
-  @Input() last: boolean;
-  @Output() deleted = new EventEmitter<string>();
+  readonly submissionsStatus = input.required<Status>();
+  readonly submissionStatuses = input<Status[]>();
+  readonly index = input.required<number>();
+  readonly first = input<boolean>();
+  readonly last = input<boolean>();
+  readonly deleted = output<string>();
 
   isSystemDefined(state: Status): boolean {
     return ["new", "opened", "closed"].indexOf(state.id) !== -1;
@@ -119,6 +119,6 @@ export class SubStatusManagerComponent {
   //  this.appDataServices.submissionStatuses = [...this.appDataServices.submissionStatuses.filter(i => i.id !== id)];
   //}
   onDelete(id: string) {
-    this.submissionsStatus.substatuses = [...this.submissionsStatus.substatuses.filter(i => i.id !== id)];
+    this.submissionsStatus().substatuses = [...this.submissionsStatus().substatuses.filter(i => i.id !== id)];
   }
 }

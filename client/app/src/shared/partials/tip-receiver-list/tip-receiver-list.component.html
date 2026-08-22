@@ -12,9 +12,9 @@
   </div>
   @if (!collapsed) {
     <div class="card-body">
-      @for (receiver of tipService.tip.receivers | filter : 'active' : true; track receiver) {
+      @for (receiver of tipService().tip.receivers | filter : 'active' : true; track receiver) {
         <div>
-          <div>{{tipService.tip.receivers_by_id[receiver.id].name | translate}}</div>
+          <div>{{tipService().tip.receivers_by_id[receiver.id].name | translate}}</div>
         </div>
       }
     </div>

@@ -1,28 +1,28 @@
-@if (tlsConfig) {
+@if (tlsConfig()) {
   <div class="info-section">
     <div>
       <div>
         <span>{{'Status'|translate}}</span>
         <span>: </span>
-        @if (tlsConfig.enabled) {
+        @if (tlsConfig().enabled) {
           <span>
             <span>{{'Enabled'|translate}}</span>
           </span>
         }
-        @if (!tlsConfig.enabled) {
+        @if (!tlsConfig().enabled) {
           <span>
             <span>{{'Disabled'|translate}}</span>
           </span>
         }
       </div>
-      @if (tlsConfig.acme) {
+      @if (tlsConfig().acme) {
         <div>
           <span>{{'Auto - renewal'|translate}}</span>: <span>{{'Enabled'|translate}}</span>
         </div>
       }
     </div>
     <div class="hostname">
-      @if (tlsConfig.enabled) {
+      @if (tlsConfig().enabled) {
         <div>
           <span>{{'URL'|translate}}</span>
           <span>:</span>

@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {Constants} from "@app/shared/constants/constants";
@@ -20,7 +20,7 @@ export class NotificationTab1Component {
   protected notificationResolver = inject(NotificationsResolver);
   private utilsService = inject(UtilsService);
 
-  @Input() notificationForm: NgForm;
+  readonly notificationForm = input.required<NgForm>();
   protected readonly Constants = Constants;
 
   updateNotification(notification: notificationResolverModel) {

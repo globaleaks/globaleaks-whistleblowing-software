@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {FormsModule} from "@angular/forms";
@@ -16,9 +16,9 @@ export class QuestionnaireDuplicationComponent {
   private http = inject(HttpClient);
   private modalService = inject(NgbModal);
 
-  @Input() questionnaire: questionnaireResolverModel;
-  @Input() operation: string;
-  @Input() confirmFunction: () => void;
+  questionnaire: questionnaireResolverModel;
+  operation: string;
+  confirmFunction: () => void;
   duplicate_questionnaire: { name: string } = {name: ""};
 
   cancel() {

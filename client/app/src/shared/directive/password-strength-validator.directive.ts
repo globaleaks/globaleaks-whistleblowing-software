@@ -1,4 +1,4 @@
-import {Directive, Input, Output, EventEmitter} from "@angular/core";
+import {Directive, input, output} from "@angular/core";
 import {NG_VALIDATORS, AbstractControl, Validator, ValidationErrors} from "@angular/forms";
 
 @Directive({
@@ -11,8 +11,8 @@ import {NG_VALIDATORS, AbstractControl, Validator, ValidationErrors} from "@angu
     standalone: true
 })
 export class PasswordStrengthValidatorDirective implements Validator {
-  @Input("passwordStrengthValidator") passwordStrength: string;
-  @Output() passwordStrengthChange = new EventEmitter<number>();
+  readonly passwordStrength = input<string>(undefined, { alias: "passwordStrengthValidator" });
+  readonly passwordStrengthChange = output<number>();
 
   validate(control: AbstractControl): ValidationErrors | null {
     const pwd = control.value;

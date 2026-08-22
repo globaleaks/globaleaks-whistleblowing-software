@@ -1,4 +1,4 @@
-import {Component, Input, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {UtilsService} from '@app/shared/services/utils.service';
 import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {FormsModule} from '@angular/forms';
@@ -20,7 +20,7 @@ export class OtkcAccessComponent {
   private modalService = inject(NgbModal);
   protected utils = inject(UtilsService);
 
-  @Input() arg: { receipt: any, formatted_receipt: any };
+  arg: { receipt: any, formatted_receipt: any };
 
   confirmFunction: () => void;
 

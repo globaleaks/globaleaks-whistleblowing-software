@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {
@@ -25,8 +25,8 @@ export class WhistleBlowerIdentityReceiverComponent {
   private modalService = inject(NgbModal);
   private utils = inject(UtilsService);
 
-  @Input() redactOperationTitle: string;
-  @Input() redactMode: boolean;
+  readonly redactOperationTitle = input<string>();
+  readonly redactMode = input<boolean>();
   collapsed = false;
 
   public toggleCollapse() {

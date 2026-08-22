@@ -2,40 +2,40 @@
   <div class="editorHeader row">
     <div class="col-md-6" (click)="toggleEditing($event)">
       <div>
-        <span class="badge bg-secondary">{{tenant.id}}</span>
-        <span>{{tenant.name}}</span>
+        <span class="badge bg-secondary">{{tenant().id}}</span>
+        <span>{{tenant().name}}</span>
       </div>
-      @if (tenant.active && (tenant.onionservice || tenant.hostname || tenant.subdomain)) {
+      @if (tenant().active && (tenant().onionservice || tenant().hostname || tenant().subdomain)) {
         <div class="tenant-badge">
-          @if (tenant.hostname) {
-            <a class="badge bg-primary" [href]="'https://' + tenant.hostname" target="_blank">{{tenant.hostname}}</a>
+          @if (tenant().hostname) {
+            <a class="badge bg-primary" [href]="'https://' + tenant().hostname" target="_blank">{{tenant().hostname}}</a>
           }
-          @if (tenant.onionservice) {
-            <a class="badge bg-primary" [href]="'http://' + tenant.onionservice" target="_blank">{{tenant.onionservice}}</a>
+          @if (tenant().onionservice) {
+            <a class="badge bg-primary" [href]="'http://' + tenant().onionservice" target="_blank">{{tenant().onionservice}}</a>
           }
-          @if (tenant.subdomain) {
+          @if (tenant().subdomain) {
             @if (nodeResolver.dataModel.rootdomain) {
-              <a class="badge bg-primary" [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.rootdomain}}</a>
+              <a class="badge bg-primary" [href]="'https://' + tenant().subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant().subdomain}}.{{nodeResolver.dataModel.rootdomain}}</a>
             }
             @if (nodeResolver.dataModel.onionservice) {
-              <a class="badge bg-primary" [href]="'http://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
+              <a class="badge bg-primary" [href]="'http://' + tenant().subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{tenant().subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
 	    }
           }
         </div>
       }
     </div>
-    @if (tenant.id !== 1) {
+    @if (tenant().id !== 1) {
       <div class="col-md-6 clearfix" (click)="toggleEditing($event)">
         <span class="float-end">
-          @if (tenant.active) {
+          @if (tenant().active) {
             <button class="btn btn-sm btn-primary" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}} </button>
-            <button class="btn btn-sm btn-outline-secondary" (click)="viewTenant(tenant)"><span>{{ 'View' | translate }}</span></button>
+            <button class="btn btn-sm btn-outline-secondary" (click)="viewTenant(tenant())"><span>{{ 'View' | translate }}</span></button>
           }
-          @if (!tenant.active) {
+          @if (!tenant().active) {
             <button class="btn btn-sm btn-danger" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}} </button>
           }
-          @if (tenant.active) {
-            <button class="btn btn-sm btn-outline-secondary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
+          @if (tenant().active) {
+            <button class="btn btn-sm btn-outline-secondary" name="configure_tenant" (click)="configureTenant($event, tenant().id)">{{'Configure'|translate}}</button>
           }
           @if (!editing) {
             <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">{{'Edit'|translate}}</button>
@@ -44,7 +44,7 @@
             <button class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
           }
           @if (isRemovableTenant()) {
-            <button class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
+            <button class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant())">{{'Delete'|translate}}</button>
           }
         </span>
       </div>
@@ -56,56 +56,56 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="tenant-name-{{tenant.id}}">{{'Name'|translate}}</label>
-            <input id="tenant-name-{{tenant.id}}" name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
+            <label for="tenant-name-{{tenant().id}}">{{'Name'|translate}}</label>
+            <input id="tenant-name-{{tenant().id}}" name="name" class="form-control" [(ngModel)]="tenant().name" type="text" required>
           </div>
           <div class="form-group">
-            <label for="tenant-subdomain-{{tenant.id}}">{{'Subdomain'|translate}}</label>
-            <input id="tenant-subdomain-{{tenant.id}}" name="subdomain" class="form-control" [(ngModel)]="tenant.subdomain" type="text" maxlength="40" required>
+            <label for="tenant-subdomain-{{tenant().id}}">{{'Subdomain'|translate}}</label>
+            <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
           <div class="form-group">
-            <label for="tenant-mode-{{tenant.id}}">{{'Mode:'|translate}}</label>
-            <select id="tenant-mode-{{tenant.id}}" name="type" class="form-select-custom" [(ngModel)]="tenant.mode" required>
-              <option value="default" [selected]="tenant.mode === 'default'">DEFAULT</option>
+            <label for="tenant-mode-{{tenant().id}}">{{'Mode:'|translate}}</label>
+            <select id="tenant-mode-{{tenant().id}}" name="type" class="form-select-custom" [(ngModel)]="tenant().mode" required>
+              <option value="default" [selected]="tenant().mode === 'default'">DEFAULT</option>
               <option value="demo">DEMO</option>
               <option value="wbpa">WHISTLEBLOWINGPA</option>
             </select>
           </div>
           <div class="form-group">
             <label>
-              <span>{{'Creation date:'|translate}}</span> {{tenant.creation_date | date:'dd-MM-yyyy'}}
+              <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}
             </label>
           </div>
           <div class="form-group">
             <label>
               <span data-translate>Name</span><span>: </span>
             </label>
-            <span>{{tenant.signup.name}}</span>
+            <span>{{tenant().signup.name}}</span>
           </div>
           <div class="form-group">
             <label>
               <span data-translate>Surname</span><span>: </span>
             </label>
-            <span>{{tenant.signup.surname}}</span>
+            <span>{{tenant().signup.surname}}</span>
           </div>
           <div class="form-group">
             <label>
               <span data-translate>Language</span><span>: </span>
             </label>
-            <span>{{tenant.signup.language}}</span>
+            <span>{{tenant().signup.language}}</span>
           </div>
           <div class="form-group">
             <label>
               <span data-translate>Email address</span><span>: </span>
             </label>
-            <span>{{tenant.signup.email}}</span>
+            <span>{{tenant().signup.email}}</span>
           </div>
-          @if (tenant.signup.mode !== "demo") {
-            <div class="form-group" data-ng-if="tenant.signup.phone">
+          @if (tenant().signup.mode !== "demo") {
+            <div class="form-group" data-ng-if="tenant().signup.phone">
               <label>
                 <span data-translate>Phone number</span><span>: </span>
               </label>
-              <span>{{tenant.signup.phone}}</span>
+              <span>{{tenant().signup.phone}}</span>
             </div>
             <label data-translate>Organization</label>
             <div class="ml-4">
@@ -113,25 +113,25 @@
                 <label>
                   <span data-translate>Name</span><span>: </span>
                 </label>
-                <span>{{tenant.signup.organization_name}}</span>
+                <span>{{tenant().signup.organization_name}}</span>
               </div>
               <div class="form-group">
                 <label>
                   <span data-translate>Address</span><span>: </span>
                 </label>
-                <span>{{tenant.signup.organization_location}}</span>
+                <span>{{tenant().signup.organization_location}}</span>
               </div>
               <div class="form-group">
                 <label>
                   <span data-translate>Fiscal code</span><span>: </span>
                 </label>
-                <span>{{tenant.signup.organization_fiscal_code}}</span>
+                <span>{{tenant().signup.organization_fiscal_code}}</span>
               </div>
               <div class="form-group">
                 <label>
                   <span data-translate>Tax code</span><span>: </span>
                 </label>
-                <span>{{tenant.signup.organization_vat_number}}</span>
+                <span>{{tenant().signup.organization_vat_number}}</span>
               </div>
             </div>
           }

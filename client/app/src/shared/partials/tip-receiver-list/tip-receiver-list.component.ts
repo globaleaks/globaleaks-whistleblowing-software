@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
@@ -17,7 +17,7 @@ export class TipReceiverListComponent {
   protected utilsService = inject(UtilsService);
 
   collapsed = false;
-  @Input() tipService: ReceiverTipService | WbtipService;
+  readonly tipService = input.required<ReceiverTipService | WbtipService>();
 
   public toggleCollapse() {
     this.collapsed = !this.collapsed;

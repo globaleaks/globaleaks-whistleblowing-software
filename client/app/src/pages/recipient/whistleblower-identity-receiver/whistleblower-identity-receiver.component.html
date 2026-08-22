@@ -54,7 +54,7 @@
               <div>
                 @for (field of tipService.tip.whistleblower_identity_field.children ; track field; let index = $index) {
                   <div>
-                    <src-tip-field [fields]=field [fieldAnswers]=tipService.tip.data.whistleblower_identity [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [index]="index"></src-tip-field>
+                    <src-tip-field [fields]=field [fieldAnswers]=tipService.tip.data.whistleblower_identity [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [index]="index"></src-tip-field>
                   </div>
                 }
               </div>

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -47,7 +47,7 @@ export class PreferenceTab1Component implements OnInit {
   editingEmailAddress: boolean;
   languageModel = "";
   role = "";
-  @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
+  readonly uploaderInput = viewChild<ElementRef<HTMLInputElement>>('uploader');
 
   constructor() {
     this.languageModel = this.preferenceResolver.dataModel.language;
@@ -171,8 +171,9 @@ export class PreferenceTab1Component implements OnInit {
       {
         next: _ => {},
         error: _ =>{
-          if (this.uploaderInput) {
-            this.uploaderInput.nativeElement.value = "";
+          const uploaderInput = this.uploaderInput();
+          if (uploaderInput) {
+            uploaderInput.nativeElement.value = "";
           }
         }
       }

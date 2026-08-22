@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbInputDatepicker, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AddOptionHintComponent} from "@app/shared/modals/add-option-hint/add-option-hint.component";
@@ -38,14 +38,14 @@ export class FieldsComponent implements OnInit {
   private fieldTemplates = inject(FieldTemplatesResolver);
   private fieldUtilities = inject(FieldUtilitiesService);
 
-  @Input() editField: NgForm;
-  @Input() field: Children | Step | Field;
-  @Input() fields: Children[] | Field[] | Step[];
-  @Input() type: string;
-  @Input() step: Step;
-  @Input() parsedFields: ParsedFields;
-  @Output() deleted = new EventEmitter<string>();
-  @Output() updated = new EventEmitter<string>();
+  readonly editField = input.required<NgForm>();
+  readonly field = input.required<Children | Step | Field>();
+  readonly fields = input<Children[] | Field[] | Step[]>();
+  readonly type = input<string>();
+  readonly step = input<Step>();
+  readonly parsedFields = input.required<ParsedFields>();
+  readonly deleted = output<string>();
+  readonly updated = output<void>();
   custom = "custom";
   editing = false;
   openMinDate = false;
@@ -70,9 +70,9 @@ export class FieldsComponent implements OnInit {
     } else {
       this.fieldTemplatesData = [this.fieldTemplates.dataModel];
     }
-    this.fieldIsMarkableSubjectToStats = this.isMarkableSubjectToStats(this.field);
-    this.fieldIsMarkableSubjectToPreview = this.isMarkableSubjectToPreview(this.field);
-    this.children = this.field.children;
+    this.fieldIsMarkableSubjectToStats = this.isMarkableSubjectToStats(this.field());
+    this.fieldIsMarkableSubjectToPreview = this.isMarkableSubjectToPreview(this.field());
+    this.children = this.field().children;
   }
 
   saveField(field: Step | Field, editing?:boolean) {
@@ -179,14 +179,14 @@ export class FieldsComponent implements OnInit {
   };
 
   delTrigger(trigger: TriggeredByOption): void {
-    const index = this.field.triggered_by_options.indexOf(trigger);
+    const index = this.field().triggered_by_options.indexOf(trigger);
     if (index !== -1) {
-      this.field.triggered_by_options.splice(index, 1);
+      this.field().triggered_by_options.splice(index, 1);
     }
   }
 
   addTrigger() {
-    this.field.triggered_by_options.push(this.new_trigger);
+    this.field().triggered_by_options.push(this.new_trigger);
     this.toggleAddTrigger();
     this.new_trigger = {"field": "", "option": "", "sufficient": false};
   }
@@ -212,15 +212,15 @@ export class FieldsComponent implements OnInit {
       order: 0,
     };
 
-    new_option.order = this.utilsService.newItemOrder(this.field.options, "order");
+    new_option.order = this.utilsService.newItemOrder(this.field().options, "order");
 
-    this.field.options.push(new_option);
+    this.field().options.push(new_option);
   }
 
   delOption(option: Option): void {
-    const index = this.field.options.indexOf(option);
+    const index = this.field().options.indexOf(option);
     if (index !== -1) {
-      this.field.options.splice(index, 1);
+      this.field().options.splice(index, 1);
     }
   }
 
@@ -250,17 +250,17 @@ export class FieldsComponent implements OnInit {
 
   private swapOption(index: number, n: number): void {
     const target = index + n;
-    if (target < 0 || target >= this.field.options.length) {
+    if (target < 0 || target >= this.field().options.length) {
       return;
     }
 
-    const tmp = this.field.options[target];
+    const tmp = this.field().options[target];
 
-    this.field.options[target] = this.field.options[index];
-    this.field.options[target].order = target;
+    this.field().options[target] = this.field().options[index];
+    this.field().options[target].order = target;
 
-    this.field.options[index] = tmp;
-    this.field.options[index].order = index;
+    this.field().options[index] = tmp;
+    this.field().options[index].order = index;
   }
 
   flipBlockSubmission(option: Option): void {

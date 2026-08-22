@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -20,15 +20,15 @@ export class StepsComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   private httpService = inject(HttpService);
 
-  @Output() deleted = new EventEmitter<string>();
-  @Input() questionnaire: questionnaireResolverModel;
+  readonly deleted = output<string>();
+  readonly questionnaire = input.required<questionnaireResolverModel>();
   showAddStep = false;
   step: Step;
   editing = false;
   new_step: { label: string } = {label: ""};
 
   ngOnInit(): void {
-    this.step = this.questionnaire.steps[0];
+    this.step = this.questionnaire().steps[0];
   }
 
   toggleAddStep() {
@@ -37,17 +37,17 @@ export class StepsComponent implements OnInit {
 
   addStep() {
     const step = new NewStep();
-    step.questionnaire_id = this.questionnaire.id;
+    step.questionnaire_id = this.questionnaire().id;
     step.label = this.new_step.label;
-    step.order = this.utilsService.newItemOrder(this.questionnaire.steps, "order");
+    step.order = this.utilsService.newItemOrder(this.questionnaire().steps, "order");
 
     this.httpService.requestAddAdminQuestionnaireStep(step).subscribe((newStep: Step) => {
-      this.questionnaire.steps.push(newStep);
+      this.questionnaire().steps.push(newStep);
       this.new_step = {label: ""};
     });
   }
 
   onDelete(id: string) {
-    this.questionnaire.steps = this.questionnaire.steps.filter(i => i.id !== id);
+    this.questionnaire().steps = this.questionnaire().steps.filter(i => i.id !== id);
   }
 }

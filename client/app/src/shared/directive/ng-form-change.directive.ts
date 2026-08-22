@@ -1,4 +1,4 @@
-import {Directive, EventEmitter, OnDestroy, OnInit, Output, inject} from "@angular/core";
+import {Directive, OnDestroy, OnInit, inject, output} from "@angular/core";
 import {debounceTime, Subscription} from "rxjs";
 import {NgForm} from "@angular/forms";
 
@@ -10,7 +10,7 @@ export class NgFormChangeDirective implements OnInit, OnDestroy {
   private ngForm = inject(NgForm);
 
 
-  @Output("ngFormChange") formChange: EventEmitter<any> = new EventEmitter<any>();
+  readonly formChange = output<void>({alias: "ngFormChange"});
   private formSubscription: Subscription;
 
   ngOnInit() {

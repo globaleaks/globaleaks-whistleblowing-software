@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, inject, input, viewChild, output} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import Flow from "@flowjs/flow.js";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -252,8 +252,8 @@ function createLowpass(audioContext: AudioContext, freq: number, Q: number): Biq
 //     arXiv:2404.02677.
 function anonymizeSpeaker(audioContext: AudioContext) {
   const input: GainNode = audioContext.createGain();
-  const output: GainNode = audioContext.createGain();
-  input.gain.value = output.gain.value = 1;
+  const outputNode: GainNode = audioContext.createGain();
+  input.gain.value = outputNode.gain.value = 1;
   // The bands sum into mixBus and a limiter guards the output against clipping: even with the
   // carriers given random starting phases (see createPhaseRandomizedSineCarrier, which lowers
   // the peak factor), a loud broadband transient can still drive several bands up at once and
@@ -266,7 +266,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
   limiter.attack.value = 0.003;
   limiter.release.value = 0.25;
   mixBus.connect(limiter);
-  limiter.connect(output);
+  limiter.connect(outputNode);
   const vocoderBands = generateVocoderBands(VOCODER_BAND_MIN_HZ, VOCODER_BAND_MAX_HZ, VOCODER_BAND_COUNT);
   const noiseBuffer = generateNoiseBuffer(audioContext);
   const noiseBufferRMS = 1 / Math.sqrt(3);
@@ -343,7 +343,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     carrier.connect(bandGain);
     bandGain.connect(mixBus);
   }
-  return {input: input, output: output};
+  return {input: input, output: outputNode};
 }
 
 /**
@@ -371,14 +371,15 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
   protected authenticationService = inject(AuthenticationService);
   private submissionService = inject(SubmissionService);
 
-  @Input() uploads: any;
-  @Input() field: Field;
-  @Input() fileUploadUrl: string;
-  @Input() entryIndex: number;
-  @Input() fieldEntry: string;
-  @Input() entry: any;
+  readonly uploads = input<any>();
+  readonly field = input.required<Field>();
+  readonly fileUploadUrl = input<string>();
+  readonly entryIndex = input<number>();
+  readonly fieldEntry = input<string>();
+  readonly entry = input<any>();
   _fakeModel: string;
   fileInput: string;
+  uploadUrl: string;
   seconds = 0;
   activeButton: string | null = null;
   // Stays true from the start of recording until the blob has been committed to the flow in
@@ -396,11 +397,11 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
   stopButton: boolean;
   recordButton: boolean;
 
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+  readonly notifyFileUpload = output<any>();
   private audioContext: AudioContext|null;
   private audioExt: string = 'audio.webm';
   iframeUrl: SafeResourceUrl;
-  @ViewChild("viewer") viewerFrame: ElementRef;
+  readonly viewerFrame = viewChild<ElementRef>("viewer");
 
   ngOnDestroy(): void {
     if (this.secondsTracker) {
@@ -426,12 +427,13 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl("viewer/index.html");
-    this.fileInput = this.field ? this.field.id : "status_page";
+    const field = this.field();
+    this.fileInput = field ? field.id : "status_page";
     // Honour the URL provided by the host form (the initial submission posts to
     // submission/attachment, an existing tip's additional questionnaire to wbtip/wbfiles).
     // Hardcoding the submission endpoint sent additional-questionnaire recordings to the wrong
     // handler, where they were buffered for a never-finalized submission instead of attached.
-    this.fileUploadUrl = this.fileUploadUrl || "api/whistleblower/submission/attachment";
+    this.uploadUrl = this.fileUploadUrl() || "api/whistleblower/submission/attachment";
 
     this.initAudioContext()
   }
@@ -476,15 +478,16 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     const useWebm = MediaRecorder.isTypeSupported('audio/webm;codecs=opus');
     const audioMimeType = useWebm ? 'audio/webm;codecs=opus' : undefined;
     this.audioExt = useWebm ? 'audio.webm' : 'audio.mp4';
+    const field = this.field();
     this.flow = this.utilsService.getFlowInstance({
-      target: this.fileUploadUrl,
-      singleFile: this.field !== undefined && !this.field.multi_entry,
+      target: this.uploadUrl,
+      singleFile: field !== undefined && !field.multi_entry,
       query: {type: this.audioExt, reference_id: fileId}
     });
 
     this.secondsTracker = setInterval(() => {
       this.seconds += 1;
-      if (this.seconds >= parseInt(this.field.attrs.max_len.value)) {
+      if (this.seconds >= parseInt(this.field().attrs.max_len.value)) {
         if (this.secondsTracker) {
           clearInterval(this.secondsTracker);
           this.secondsTracker = null;
@@ -550,7 +553,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
       }
       this.secondsTracker = null;
 
-      if (this.seconds < parseInt(this.field.attrs.min_len.value)) {
+      if (this.seconds < parseInt(this.field().attrs.min_len.value)) {
         this.deleteRecording();
         observer.complete();
         return;
@@ -573,16 +576,17 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     return new Observable<void>((observer) => {
       this.flow.files = [];
 
-      if (Object.prototype.hasOwnProperty.call(this.uploads, this.fileInput)) {
-        delete this.uploads[this.fileInput];
+      const uploads = this.uploads();
+      if (Object.prototype.hasOwnProperty.call(uploads, this.fileInput)) {
+        delete uploads[this.fileInput];
       }
 
-      if (this.seconds >= parseInt(this.field.attrs.min_len.value) && this.seconds <= parseInt(this.field.attrs.max_len.value)) {
+      if (this.seconds >= parseInt(this.field().attrs.min_len.value) && this.seconds <= parseInt(this.field().attrs.max_len.value)) {
         this._fakeModel = "audio";
         this.flow.addFile(this.recording_blob);
         window.addEventListener("message", (message: MessageEvent) => {
-          const iframe = this.viewerFrame.nativeElement;
-          if (message.source !== iframe.contentWindow) {
+          const iframe = this.viewerFrame()?.nativeElement;
+          if (!iframe || message.source !== iframe.contentWindow) {
             return;
           }
           const data = {
@@ -593,10 +597,10 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
         }, { once: true });
 
         this.audioPlayer = true;
-        (this.flow as any).field = this.field;
-        this.uploads[this.fileInput] = this.flow;
+        (this.flow as any).field = this.field();
+        uploads[this.fileInput] = this.flow;
         this.submissionService.setSharedData(this.flow);
-        this.notifyFileUpload.emit(this.uploads);
+        this.notifyFileUpload.emit(uploads);
       }
 
       this.isRecording = false;
@@ -622,7 +626,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     }
     this.initAudioContext()
     this.submissionService.setSharedData(null);
-    delete this.uploads[this.fileInput];
+    delete this.uploads()[this.fileInput];
   }
 
   protected readonly parseInt = parseInt;

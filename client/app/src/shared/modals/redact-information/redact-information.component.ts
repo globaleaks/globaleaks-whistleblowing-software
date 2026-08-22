@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild, inject} from '@angular/core';
+import {Component, ElementRef, OnInit, inject, viewChild} from '@angular/core';
 import {ReceiverTipService} from '@app/services/helper/receiver-tip.service';
 import {PreferenceResolver} from '@app/shared/resolvers/preference.resolver';
 import {MaskService} from '@app/shared/services/mask.service';
@@ -25,8 +25,8 @@ export class RedactInformationComponent implements OnInit{
   private modalService = inject(NgbModal);
   private receiverTipService = inject(ReceiverTipService);
 
-  @ViewChild('redact', { static: false }) redactTextArea: ElementRef;
-  @Input() arg:any;
+  readonly redactTextArea = viewChild.required<ElementRef>('redact');
+  arg: any;
   redaction: any = null;
   forced_visible = false;
   vars = {
@@ -82,7 +82,7 @@ export class RedactInformationComponent implements OnInit{
   }
 
   selectContent() {
-    const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea);
+    const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea());
 
     if (!this.vars.redaction_switch) {
       this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
@@ -100,7 +100,7 @@ export class RedactInformationComponent implements OnInit{
   }
 
   unSelectContent() {
-    const response:any = this.maskService.getSelectedRanges(false, this.ranges_selected,this.redactTextArea);
+    const response:any = this.maskService.getSelectedRanges(false, this.ranges_selected,this.redactTextArea());
     this.ranges_selected = response.new_ranges;
     this.content = this.maskService.onUnHighlight(this.content, this.unmaskedContent, [response.selected_ranges]);
   }

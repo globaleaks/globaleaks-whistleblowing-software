@@ -1,23 +1,23 @@
 <div class="https-file-res">
-  @if (tlsConfig) {
+  @if (tlsConfig()) {
     <div class="card card-default key mb-1">
       <div class="card-body clearfix">
         <span>{{ 'Private Key' | translate }}</span>
         <span>(PEM)</span>
         <span class="float-end">
-          @if (!tlsConfig.files.key.set) {
+          @if (!tlsConfig().files.key.set) {
             <span>
               <input id="upload-private-key-file" type="file" hidden #pkInput (change)="postFile(pkInput.files,fileResources.key)" />
               <label for="upload-private-key-file" id="keyUpload" (click)="pkInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
             </span>
           }
-          @if (!tlsConfig.files.key.set) {
+          @if (!tlsConfig().files.key.set) {
             <button id="pkGen" class="btn btn-sm btn-primary" (click)="genKey()">
               <i class="fas fa-gear"></i>
               <span>{{ 'Generate' | translate }}</span>
             </button>
           }
-          @if (tlsConfig.files.key.set) {
+          @if (tlsConfig().files.key.set) {
             <span>
               <button id="deleteKey" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.key)">
                 <i class="fas fa-xmark"></i>
@@ -28,7 +28,7 @@
         </span>
       </div>
     </div>
-    @if (tlsConfig.files.key.set && !tlsConfig.acme) {
+    @if (tlsConfig().files.key.set && !tlsConfig().acme) {
       <div class="card card-default csr mb-1">
         <div class="card-body clearfix">
           <span>{{ 'Certificate Signing Request' | translate }}</span>
@@ -77,22 +77,22 @@
           <div class="card-body clearfix">
             <span>{{ 'Certificate' | translate }}</span>
             <span>(PEM)</span>
-            @if (tlsConfig.files.cert.set) {
+            @if (tlsConfig().files.cert.set) {
               <span class="badge bg-primary">
-                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.cert.expiration_date |
+                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig().files.cert.expiration_date |
                 date:'dd-MM-yyyy HH:mm' }}
                 <span>{{ 'Issuer:' | translate }}</span>
-                <b>{{ tlsConfig.files.cert.issuer }}</b>
+                <b>{{ tlsConfig().files.cert.issuer }}</b>
               </span>
             }
             <span class="float-end">
-              @if (!tlsConfig.files.cert.set) {
+              @if (!tlsConfig().files.cert.set) {
                 <span>
                   <input id="upload-certificate-file" type="file" hidden #certificateInput (change)="postFile(certificateInput.files,fileResources.cert)" />
                   <label for="upload-certificate-file" id="certUpload" (click)="certificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
                 </span>
               }
-              @if (tlsConfig.files.cert.set) {
+              @if (tlsConfig().files.cert.set) {
                 <span>
                   <button id="deleteCert" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.cert)">
                     <i class="fas fa-xmark"></i>
@@ -107,22 +107,22 @@
           <div class="card-body clearfix">
             <span>{{ 'Intermediate Certificates' | translate }}</span>
             <span>(PEM)</span>
-            @if (tlsConfig.files.chain.set) {
+            @if (tlsConfig().files.chain.set) {
               <span class="badge bg-primary">
-                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig.files.chain.expiration_date |
+                <span>{{ 'Valid until:' | translate }}</span> {{ tlsConfig().files.chain.expiration_date |
                 date:'dd-MM-yyyy HH:mm' }}
                 <span>{{ 'Issuer:' | translate }}</span>
-                <b>{{ tlsConfig.files.chain.issuer }}</b>
+                <b>{{ tlsConfig().files.chain.issuer }}</b>
               </span>
             }
             <div class="float-end">
-              @if (!tlsConfig.files.chain.set) {
+              @if (!tlsConfig().files.chain.set) {
                 <span>
                   <input id="upload-chain-file" type="file" hidden #iCertificateInput (change)="postFile(iCertificateInput.files,fileResources.chain)" />
                   <label for="upload-chain-file" id="chainUpload" (click)="iCertificateInput.click()" class="btn btn-sm btn-primary">{{'Upload' | translate}}</label>
                 </span>
               }
-              @if (tlsConfig.files.chain.set) {
+              @if (tlsConfig().files.chain.set) {
                 <span>
                   <button id="deleteChain" class="btn btn-sm btn-danger" (click)="deleteFile(fileResources.chain)">
                     <i class="fas fa-xmark"></i>
@@ -134,10 +134,10 @@
           </div>
         </div>
       }
-      @if (!tlsConfig.enabled && state > 1) {
+      @if (!tlsConfig().enabled && state() > 1) {
         <button class="btn btn-primary" (click)="toggleCfg()">{{ 'Enable' | translate }}</button>
       }
-      @if (tlsConfig.enabled) {
+      @if (tlsConfig().enabled) {
         <button class="btn btn-danger" (click)="toggleCfg()">{{ 'Disable' | translate }}</button>
       }
       <button class="btn btn-danger" (click)="resetCfg()">{{ 'Reset' | translate }}</button>

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -23,7 +23,7 @@ export class TriggerReceiverComponent implements OnInit {
   private modalService = inject(NgbModal);
 
 
-  @Input() arg: Option;
+  arg: Option;
   confirmFunction: (data: Option) => void;
 
   selected: { value: []; name: string };

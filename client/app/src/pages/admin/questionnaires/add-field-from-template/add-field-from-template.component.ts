@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NewField} from "@app/models/admin/new-field";
@@ -19,17 +19,18 @@ export class AddFieldFromTemplateComponent implements OnInit {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  @Input() fieldTemplatesData: fieldtemplatesResolverModel[];
-  @Input() step: Step;
-  @Input() type: string;
-  @Output() added = new EventEmitter<void>();
+  readonly fieldTemplatesData = input<fieldtemplatesResolverModel[]>();
+  readonly step = input.required<Step>();
+  readonly type = input<string>();
+  readonly added = output<void>();
 
   fields: Step[] | Field[];
   new_field: { template_id: string } = {template_id: ""};
 
   ngOnInit(): void {
-    if (this.step) {
-      this.fields = this.step.children;
+    const step = this.step();
+    if (step) {
+      this.fields = step.children;
     }
   }
 
@@ -37,13 +38,14 @@ export class AddFieldFromTemplateComponent implements OnInit {
     const templateId = this.new_field.template_id;
     if (!templateId) return;
 
-    const isStep = this.type === "step";
-    const isField = this.type === "field";
+    const isStep = this.type() === "step";
+    const isField = this.type() === "field";
     if (!isStep && !isField) return;
 
-    const parentId = this.step?.id;
-    const list = isStep ? (this.fields as any[]) : (this.step.children as any[]);
-    const ySource = isStep ? (this.fields as any[]) : (this.step.children as any[]);
+    const step = this.step();
+    const parentId = step?.id;
+    const list = isStep ? (this.fields as any[]) : (step.children as any[]);
+    const ySource = isStep ? (this.fields as any[]) : (step.children as any[]);
 
     if (isField && templateId === parentId) return;
 

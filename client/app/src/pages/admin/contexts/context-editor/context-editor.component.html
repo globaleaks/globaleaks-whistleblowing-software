@@ -1,8 +1,8 @@
 <div class="config-item">
   <div class="editorHeader row">
     <span class="col-md-7" (click)="toggleEditing()">
-      <span>{{ contextResolver.name }}</span>
-      @if (contextResolver.hidden) {
+      <span>{{ contextResolver().name }}</span>
+      @if (contextResolver().hidden) {
         <span class="badge bg-secondary">{{ 'Hidden' | translate }}</span>
       }
     </span>
@@ -14,7 +14,7 @@
           </button>
         }
         @if (editing) {
-          <button class="btn btn-sm btn-primary" id="save_context" [disabled]="editContext.invalid" (click)="saveContext(contextResolver);toggleEditing()">
+          <button class="btn btn-sm btn-primary" id="save_context" [disabled]="editContext().invalid" (click)="saveContext(contextResolver());toggleEditing()">
             <span>{{ 'Save' | translate }}</span>
           </button>
         }
@@ -23,14 +23,14 @@
             <span>{{ 'Cancel' | translate }}</span>
           </button>
         }
-        <button class="btn btn-sm btn-danger" name="delete_context" id="delete_context" (click)="deleteContext(contextResolver)">
+        <button class="btn btn-sm btn-danger" name="delete_context" id="delete_context" (click)="deleteContext(contextResolver())">
           <span>{{ 'Delete' | translate }}</span>
         </button>
         @if (!nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
-          <button class="btn btn-sm btn-primary" (click)="moveUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="index === 0">
+          <button class="btn btn-sm btn-primary" (click)="moveUp($event, index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
             <i class="fas fa-chevron-up"></i>
           </button>
-          <button class="btn btn-sm btn-primary" (click)="moveDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="index === contextsData.length - 1">
+          <button class="btn btn-sm btn-primary" (click)="moveDown($event, index())" ngbTooltip="{{'Move down' | translate}}" [disabled]="index() === contextsData().length - 1">
             <i class="fas fa-chevron-down"></i>
           </button>
         }
@@ -43,22 +43,22 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <div appImageUpload [imageUploadModel]="contextResolver" [imageUploadModelAttr]="'picture'" [imageUploadId]="contextResolver.id"></div>
+            <div appImageUpload [imageUploadModel]="contextResolver()" [imageUploadModelAttr]="'picture'" [imageUploadId]="contextResolver().id"></div>
           </div>
           <div class="form-group">
             <label for="context-name-input">{{ 'Name' | translate }}</label>
-            <input id="context-name-input" name="name" class="form-control" [(ngModel)]="contextResolver.name" type="text" required>
-            @if (editContext.form.get('name')?.errors?.['required']) {
+            <input id="context-name-input" name="name" class="form-control" [(ngModel)]="contextResolver().name" type="text" required>
+            @if (editContext().form.get('name')?.errors?.['required']) {
               <div class="text-danger">{{ 'This field is mandatory' | translate }}</div>
             }
           </div>
           <div class="form-group">
             <label for="context-description">{{ 'Description' | translate }}</label>
-            <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver.description"></textarea>
+            <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver().description"></textarea>
           </div>
           <div class="form-group">
             <label for="context-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
-            <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver.questionnaire_id">
+            <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver().questionnaire_id">
               @for (item of questionnairesData; track item) {
                 <option [value]="item.id">{{ item.name }}</option>
               }
@@ -86,23 +86,23 @@
               }
             </div>
             <ol class="selection-list">
-              @for (receiver of contextResolver.receivers; track receiver; let index = $index) {
+              @for (receiver of contextResolver().receivers; track receiver; let index = $index) {
                 <li>
-                  @if (!contextResolver.show_receivers_in_alphabetical_order) {
+                  @if (!contextResolver().show_receivers_in_alphabetical_order) {
                     <span>
                       @if (index !== 0) {
                         <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}">
                           <i class="fas fa-chevron-up"></i>
                         </span>
                       }
-                      @if (index !== contextResolver.receivers.length - 1) {
+                      @if (index !== contextResolver().receivers.length - 1) {
                         <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}">
                           <i class="fas fa-chevron-down"></i>
                         </span>
                       }
                     </span>
                   }
-                  <span (click)="contextResolver.receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById[receiver])" ngbTooltip="{{'Remove' | translate}}">
+                  <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById[receiver])" ngbTooltip="{{'Remove' | translate}}">
                     <i class="fas fa-xmark"></i>
                   </span>
                   <span>{{adminReceiversById[receiver].name}}</span>
@@ -111,7 +111,7 @@
             </ol>
           </div>
           <div class="form-group">
-            <div [ngClass]="{'is-invalid': editContext.form.get('reminder')?.errors?.['invalid']}">
+            <div [ngClass]="{'is-invalid': editContext().form.get('reminder')?.errors?.['invalid']}">
               <div class="input-group">
                 <div class="dual_title">
                   <span>{{ 'Reminder date' | translate }}</span> ({{ 'days' | translate }})
@@ -119,7 +119,7 @@
               </div>
               <div class="input-group">
                 <label for="context-tip-reminder" class="visually-hidden">{{ 'Reminder' | translate }}</label>
-                <input id="context-tip-reminder" class="form-control" name="reminder" [(ngModel)]="contextResolver.tip_reminder" type="number" min="0" />
+                <input id="context-tip-reminder" class="form-control" name="reminder" [(ngModel)]="contextResolver().tip_reminder" type="number" min="0" />
               </div>
             </div>
             <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
@@ -127,13 +127,13 @@
           <div class="form-group">
             <label>
               <span>{{ 'Expiration date' | translate }}</span> ({{ 'days' | translate }}) </label>
-              <div [ngClass]="{'is-invalid': editContext.form.get('timetolive')?.errors?.['invalid']}">
-                <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver.tip_timetolive" type="number" min="0" max="3650" />
+              <div [ngClass]="{'is-invalid': editContext().form.get('timetolive')?.errors?.['invalid']}">
+                <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver().tip_timetolive" type="number" min="0" max="3650" />
               </div>
               <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
             </div>
             <div class="form-group">
-              <input id="context-hidden" class="form-check-input" [(ngModel)]="contextResolver.hidden" name="contextResolver.hidden" type="checkbox" />
+              <input id="context-hidden" class="form-check-input" [(ngModel)]="contextResolver().hidden" name="contextResolver.hidden" type="checkbox" />
               <label for="context-hidden">{{ 'Hidden' | translate }}</label>
             </div>
           </div>
@@ -156,34 +156,34 @@
                   <div class="col-md-6">
                     <div class="form-group">
                       <label class="inline-checkbox">
-                        <input class="form-check-input" type="checkbox" name="contextResolver.show_steps_navigation_interface" [(ngModel)]="contextResolver.show_steps_navigation_interface" />
+                        <input class="form-check-input" type="checkbox" name="contextResolver.show_steps_navigation_interface" [(ngModel)]="contextResolver().show_steps_navigation_interface" />
                         <span>{{ 'Show the questionnaire navigation interface' | translate }}</span>
                       </label>
                     </div>
                     <div class="form-group">
                       <label class="inline-checkbox">
-                        <input class="form-check-input" type="checkbox" name="contextResolver.allow_recipients_selection" [(ngModel)]="contextResolver.allow_recipients_selection" />
+                        <input class="form-check-input" type="checkbox" name="contextResolver.allow_recipients_selection" [(ngModel)]="contextResolver().allow_recipients_selection" />
                         <span>{{ 'Allow whistleblowers to select their recipients' | translate }}</span>
                       </label>
                     </div>
-                    @if (contextResolver.allow_recipients_selection) {
+                    @if (contextResolver().allow_recipients_selection) {
                       <div class="form-group well">
                         <div class="form-group">
                           <label class="inline-checkbox">
-                            <input class="form-check-input" type="checkbox" name="contextResolver.select_all_receivers" [(ngModel)]="contextResolver.select_all_receivers" [disabled]="!contextResolver.allow_recipients_selection" (click)="contextResolver.maximum_selectable_receivers = 0" />
+                            <input class="form-check-input" type="checkbox" name="contextResolver.select_all_receivers" [(ngModel)]="contextResolver().select_all_receivers" [disabled]="!contextResolver().allow_recipients_selection" (click)="contextResolver().maximum_selectable_receivers = 0" />
                             <span>{{ 'Select all recipients by default' | translate }}</span>
                           </label>
                         </div>
                         <div class="form-group">
                           <label for="context-max-receivers" class="inline-checkbox">
                             <span>{{ 'Maximum number of selectable recipients:' | translate }}</span>
-                            <input id="context-max-receivers" class="form-control" type="number" name="contextResolver.maximum_selectable_receivers" [(ngModel)]="contextResolver.maximum_selectable_receivers" min="0" [disabled]="contextResolver.select_all_receivers" />
+                            <input id="context-max-receivers" class="form-control" type="number" name="contextResolver.maximum_selectable_receivers" [(ngModel)]="contextResolver().maximum_selectable_receivers" min="0" [disabled]="contextResolver().select_all_receivers" />
                           </label>
                           <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
                         </div>
                         <div class="form-group">
                           <label class="inline-checkbox">
-                            <input class="form-check-input" type="checkbox" [(ngModel)]="contextResolver.show_receivers_in_alphabetical_order" name="contextResolver.show_receivers_in_alphabetical_order" />
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="contextResolver().show_receivers_in_alphabetical_order" name="contextResolver.show_receivers_in_alphabetical_order" />
                             <span>{{ 'Show recipients in alphabetical order' | translate }}</span>
                           </label>
                         </div>
@@ -191,12 +191,12 @@
                     }
                     <div class="form-group">
                       <label for="context-additional-questionnaire-select">{{ 'Additional questionnaire' | translate }}</label>
-                      <select id="context-additional-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver.additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
-                        @if (contextResolver.additional_questionnaire_id) {
+                      <select id="context-additional-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver().additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
+                        @if (contextResolver().additional_questionnaire_id) {
                           <option [value]="null"></option>
                         }
                         @for (item of questionnairesData; track item) {
-                          @if (item.id !== contextResolver.questionnaire_id) {
+                          @if (item.id !== contextResolver().questionnaire_id) {
                             <option [value]="item.id">{{ item.name }}</option>
                           }
                         }
@@ -218,14 +218,14 @@
                                 <td>{{ 'Medium' | translate }}</td>
                                 <td>
                                   <label for="score-threshold-medium" class="visually-hidden">{{ 'Medium' | translate }}</label>
-                                  <input id="score-threshold-medium" class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_medium" name="contextResolver.score_threshold_medium" />
+                                  <input id="score-threshold-medium" class="form-control" type="number" [(ngModel)]="contextResolver().score_threshold_medium" name="contextResolver.score_threshold_medium" />
                                 </td>
                               </tr>
                               <tr>
                                 <td>{{ 'High' | translate }}</td>
                                 <td>
                                   <label for="score-threshold-high" class="visually-hidden">{{ 'High' | translate }}</label>
-                                  <input id="score-threshold-high" class="form-control" type="number" [(ngModel)]="contextResolver.score_threshold_high" name="contextResolver.score_threshold_high" />
+                                  <input id="score-threshold-high" class="form-control" type="number" [(ngModel)]="contextResolver().score_threshold_high" name="contextResolver.score_threshold_high" />
                                 </td>
                               </tr>
                             </tbody>
@@ -240,7 +240,7 @@
           </div>
         </div>
         <hr />
-        <div class="form-group">UUID: <a [href]="'#/submission?context=' + contextResolver.id" target="_blank">{{contextResolver.id}}</a>
+        <div class="form-group">UUID: <a [href]="'#/submission?context=' + contextResolver().id" target="_blank">{{contextResolver().id}}</a>
         </div>
     </div>
 }

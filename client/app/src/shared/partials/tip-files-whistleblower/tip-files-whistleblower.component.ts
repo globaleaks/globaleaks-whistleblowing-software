@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -29,7 +29,7 @@ export class TipFilesWhistleblowerComponent {
   protected utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);
 
-  @Input() fileUploadUrl: string;
+  readonly fileUploadUrl = input<string>();
   collapsed = false;
 
   downloadWBFile(wbFile: WbFile) {

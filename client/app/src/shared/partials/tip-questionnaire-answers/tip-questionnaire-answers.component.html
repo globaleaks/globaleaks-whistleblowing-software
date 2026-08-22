@@ -12,9 +12,9 @@
   </div>
   @if (!collapsed) {
     <div class="card-body">
-      @for (questionnaire of tipService.tip.questionnaires; track questionnaire; let index = $index) {
+      @for (questionnaire of tipService().tip.questionnaires; track questionnaire; let index = $index) {
         <div>
-          @if (tipService.tip.questionnaires.length > 1) {
+          @if (tipService().tip.questionnaires.length > 1) {
             <div>
               <span>{{'Questionnaire'|translate}}</span>
               <span>{{index + 1}}</span>
@@ -22,7 +22,7 @@
           }
           @for (step of questionnaire.steps | orderBy:'order'; track step; let questionare_steps = $index) {
             <div>
-              @if (questionnaire.steps.length > 1 && tipService.tip.context.show_steps_navigation_interface && step.enabled) {
+              @if (questionnaire.steps.length > 1 && tipService().tip.context.show_steps_navigation_interface && step.enabled) {
                 <dt id="step={{questionare_steps}}">
                   <span>{{'Step'|translate}}</span>
                   <span>{{questionare_steps + 1}}: {{step.label}}</span>
@@ -33,7 +33,7 @@
                   @for (field of step.children | orderBy:['y', 'x']; track field; let index_step = $index) {
                     <div>
                       <ng-container>
-                        <src-tip-field [fieldAnswers]="questionnaire.answers" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [fields]="field" [index]="index_step"></src-tip-field>
+                        <src-tip-field [fieldAnswers]="questionnaire.answers" [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [fields]="field" [index]="index_step"></src-tip-field>
                       </ng-container>
                     </div>
                   }

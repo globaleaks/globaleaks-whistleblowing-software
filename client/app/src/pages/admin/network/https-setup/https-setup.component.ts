@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output, inject} from "@angular/core";
+import {Component, inject, output} from "@angular/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -14,7 +14,7 @@ export class HttpsSetupComponent {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
 
-  @Output() updated = new EventEmitter<string>();
+  readonly updated = output<string | void>();
   fileResources: FileResources = {
     key: {name: "key"},
     cert: {name: "cert"},

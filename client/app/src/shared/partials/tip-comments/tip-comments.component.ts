@@ -1,5 +1,5 @@
 import {AppDataService} from "@app/app-data.service";
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -30,10 +30,10 @@ export class TipCommentsComponent {
   protected utilsService = inject(UtilsService);
   appDataService = inject(AppDataService);
 
-  @Input() tipService: ReceiverTipService | WbtipService;
-  @Input() key: string;
-  @Input() redactMode: boolean;
-  @Input() redactOperationTitle: string;
+  readonly tipService = input.required<ReceiverTipService | WbtipService>();
+  readonly key = input.required<string>();
+  readonly redactMode = input<boolean>();
+  readonly redactOperationTitle = input<string>();
 
   collapsed = false;
   newCommentContent = "";
@@ -44,12 +44,12 @@ export class TipCommentsComponent {
   }
 
   newComment() {
-    const response = this.tipService.newComment(this.newCommentContent, this.key);
+    const response = this.tipService().newComment(this.newCommentContent, this.key());
     this.newCommentContent = "";
 
     response.subscribe(
       (data) => {
-        this.tipService.tip.comments = [data, ...this.tipService.tip.comments];
+        this.tipService().tip.comments = [data, ...this.tipService().tip.comments];
       }
     );
   }
@@ -59,18 +59,18 @@ export class TipCommentsComponent {
   }
 
   redactInformation(type:string, id:string, entry:string, content:string){
-    this.maskService.redactInfo(type,id,entry,content,this.tipService.tip)
+    this.maskService.redactInfo(type,id,entry,content,this.tipService().tip)
   }
 
   maskContent(id: string, index: string, value: string) {
     // The masker reads the real content; the masked rendering is shown to
     // them only while editing the masking (redact mode).
-    if (!this.redactMode &&
+    if (!this.redactMode() &&
         (this.preferenceResolver.dataModel?.can_mask_information ||
          this.preferenceResolver.dataModel?.can_redact_information)) {
       return value;
     }
 
-    return this.maskService.maskingContent(id, index, value, this.tipService.tip);
+    return this.maskService.maskingContent(id, index, value, this.tipService().tip);
   }
 }

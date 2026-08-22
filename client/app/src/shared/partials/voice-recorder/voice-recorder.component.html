@@ -2,7 +2,7 @@
   <div class="audio-box">
     <div class="row">
       <div class="col-md-6">
-        <button class="btn" id="start_recording" [ngClass]="{'text-secondary': !activeButton, 'text-danger': activeButton === 'record' }" [disabled]="isRecording || uploads[fileInput]?.files.length" (click)="triggerRecording(field.id)" aria-label="Record a voice message">
+        <button class="btn" id="start_recording" [ngClass]="{'text-secondary': !activeButton, 'text-danger': activeButton === 'record' }" [disabled]="isRecording || uploads()[fileInput]?.files.length" (click)="triggerRecording(field().id)" aria-label="Record a voice message">
           <i class="fas fa-microphone"></i>
         </button>
         @if (activeButton === 'record') {
@@ -26,17 +26,17 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="entry.required_status || isRecording" [name]="'input-' + fileInput" type="text" />
+        <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="entry().required_status || isRecording" [name]="'input-' + fileInput" type="text" />
         @if (audioPlayer) {
-          <iframe #viewer id="{{fieldEntry}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+          <iframe #viewer id="{{fieldEntry()}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
         }
       </div>
     </div>
     @if (seconds > 0) {
       <div class="row">
         <div class="col-md-12 text-end">
-          <div class="btn" [ngClass]="{'text-danger': seconds < parseInt(field.attrs.min_len.value)}">
-            {{ seconds }}/{{ field.attrs.max_len.value }}
+          <div class="btn" [ngClass]="{'text-danger': seconds < parseInt(field().attrs.min_len.value)}">
+            {{ seconds }}/{{ field().attrs.max_len.value }}
           </div>
         </div>
       </div>

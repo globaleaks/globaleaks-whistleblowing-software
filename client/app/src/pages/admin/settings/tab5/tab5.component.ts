@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Constants} from "@app/shared/constants/constants";
@@ -32,7 +32,7 @@ export class Tab5Component implements OnInit {
   private usersResolver = inject(UsersResolver);
   private questionnairesResolver = inject(QuestionnairesResolver);
 
-  @Input() contentForm: NgForm;
+  readonly contentForm = input.required<NgForm>();
   userData: userResolverModel[] = [];
   questionnaireData: questionnaireResolverModel[];
   routeReload = false;

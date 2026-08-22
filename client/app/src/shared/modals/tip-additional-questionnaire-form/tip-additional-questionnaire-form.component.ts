@@ -1,4 +1,4 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, OnInit, inject, viewChild, viewChildren} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -33,8 +33,8 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   protected wbTipService = inject(WbtipService);
   protected activeModal = inject(NgbActiveModal);
 
-  @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
+  public readonly submissionForm = viewChild<NgForm>("submissionForm");
+  readonly stepForms = viewChildren<NgForm>("stepForm");
 
   _navigation = 0;
   validate: boolean[] = [];
@@ -193,8 +193,9 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   }
 
   stepForm(index: number): any {
-    if (this.stepForms && index !== -1) {
-      return this.stepForms.get(index);
+    const stepForms = this.stepForms();
+    if (stepForms && index !== -1) {
+      return stepForms.at(index);
     }
   };
 

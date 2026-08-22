@@ -45,11 +45,11 @@
       @if (wbTipService.tip.status !== 'closed' && !wbTipService.tip.data.whistleblower_identity) {
         <div>
           <form #wbform="ngForm" ngFormChanges (ngFormChange)="onFormChange()">
-            <src-whistleblower-identity-field [step]="step" [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" (stateChanged)="stateChanged($event)" [answers]="answers" [field]="field" [index]="0" [submission]=submission [uploads]="uploads"></src-whistleblower-identity-field>
-            <src-rfiles-upload-status [progress]="uploadProgress" [estimatedTime]="uploadEstimateTime" [uploading]="isUploading"></src-rfiles-upload-status>
+            <src-whistleblower-identity-field [step]="step()" [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit($event)" (stateChanged)="stateChanged($event)" [answers]="answers()" [field]="field()" [index]="0" [submission]=submission() [uploads]="uploads()"></src-whistleblower-identity-field>
+            <src-rfiles-upload-status [progress]="uploadProgress()" [estimatedTime]="uploadEstimateTime()" [uploading]="isUploading()"></src-rfiles-upload-status>
             <div id="SubmitBox">
               @if (identity_provided) {
-                <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field.id, param2: answers })" [disabled]="wbform.invalid" type="submit">
+                <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field().id, param2: answers() })" [disabled]="wbform.invalid" type="submit">
                   <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
                   <span>{{'Submit'|translate}}</span>
                 </button>

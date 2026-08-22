@@ -18,7 +18,7 @@
         <input id="default-login-password" class="form-control" name="password" [attr.aria-label]="'Password' | translate" placeholder="{{'Password' | translate}}" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
       </div>
     </div>
-    <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
+    <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
       <i class="fas fa-right-to-bracket"></i>
       <span>{{'Log in'| translate}}</span>
     </button>
@@ -36,7 +36,7 @@
     <div class="input-group">
       <input id="default-login-2fa" name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="password" size="6" maxlength="6" required />
       <div class="input-group-btn">
-        <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator.invalid || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
+        <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator().invalid || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
           <i class="fas fa-right-to-bracket"></i>
           <span>{{'Log in'|translate}}</span>
         </button>

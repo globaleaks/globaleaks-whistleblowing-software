@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, viewChild} from "@angular/core";
 import {NgForm} from "@angular/forms";
 import type {FlowFile} from "@flowjs/flow.js";
 import {FlowConfig} from "@flowjs/ngx-flow";
@@ -30,9 +30,9 @@ export class Tab2Component implements OnInit {
   private nodeResolver = inject(NodeResolver);
   private authenticationService = inject(AuthenticationService);
 
-  @Input() contentForm: NgForm;
-  @ViewChild("flowAdvanced", {static: true}) flowAdvanced: FlowConfig;
-  @ViewChild("uploader") uploaderInput: ElementRef;
+  readonly contentForm = input<NgForm>();
+  readonly flowAdvanced = viewChild<FlowConfig>("flowAdvanced");
+  readonly uploaderInput = viewChild<ElementRef>("uploader");
 
   files: FlowFile[] = [];
   files_names: string[] = [];
@@ -92,8 +92,9 @@ export class Tab2Component implements OnInit {
       });
 
       flowJsInstance.on("fileError", (_) => {
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
       });
 

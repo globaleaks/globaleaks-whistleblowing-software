@@ -6,8 +6,8 @@
   </div>
 }
 <div id="SubmissionStepContext" class="row">
-  @for (context of (selectable_contexts| orderBy:contextsOrderPredicate); track context; let index = $index) {
-    <div id="context-{{index}}" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts.length)">
+  @for (context of (selectable_contexts()| orderBy:contextsOrderPredicate()); track context; let index = $index) {
+    <div id="context-{{index}}" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts().length)">
       <div class="select-card">
         <div class="row">
           <div class="col-md-12 title">{{context.name}}</div>

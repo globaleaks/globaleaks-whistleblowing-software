@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, input, model, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
 import {TranslatorPipe} from '@app/shared/pipes/translate';
@@ -10,9 +10,9 @@ import {TranslatorPipe} from '@app/shared/pipes/translate';
     imports: [FormsModule, TranslateModule, TranslatorPipe]
 })
 export class SwitchComponent {
-  @Input() label = 'Switch';
-  @Input() isChecked = false;
-  @Input() can_upload_files:boolean
-  @Output() switchChange = new EventEmitter<boolean>();
+  readonly label = input('Switch');
+  readonly isChecked = input(false);
+  readonly can_upload_files = model<boolean>();
+  readonly switchChange = output<boolean>();
 
 }

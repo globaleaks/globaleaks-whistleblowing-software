@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -21,18 +21,21 @@ export class WhistleblowerIdentityComponent {
   protected wbTipService = inject(WbtipService);
   protected utilsService = inject(UtilsService);
 
-  @Input() submission: any;
-  @Input() field: any;
-  @Input() step: any;
-  @Input() answers: Answers;
-  @Input() uploadEstimateTime: number;
-  @Input() isUploading: boolean | undefined;
-  @Input() uploadProgress: number | undefined;
+  readonly submission = input<any>();
+  readonly field = input<any>();
+  readonly step = input<any>();
+  readonly answers = input.required<Answers>();
+  readonly uploadEstimateTime = input<number>();
+  readonly isUploading = input<boolean>();
+  readonly uploadProgress = input<number>();
 
-  @Output() provideIdentityInformation = new EventEmitter<{ param1: string, param2: Answers }>();
-  @Output() onFormUpdate = new EventEmitter<void>();
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-  @Input() uploads: Record<string, any>;
+  readonly provideIdentityInformation = output<{
+    param1: string;
+    param2: Answers;
+}>();
+  readonly onFormUpdate = output<void>();
+  readonly notifyFileUpload = output<any>();
+  readonly uploads = input<Record<string, any>>();
 
   fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
 
@@ -54,6 +57,6 @@ export class WhistleblowerIdentityComponent {
 
   stateChanged(status: boolean) {
     this.identity_provided = status;
-    this.submission.submission.identity_provided = status;
+    this.submission().submission.identity_provided = status;
   }
 }

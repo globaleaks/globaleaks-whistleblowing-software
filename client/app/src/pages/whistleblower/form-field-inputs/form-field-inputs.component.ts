@@ -1,4 +1,4 @@
-import {Component, EventEmitter, forwardRef, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, forwardRef, OnInit, inject, input, output} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -31,49 +31,51 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 export class FormFieldInputsComponent implements OnInit {
   protected utilsService = inject(UtilsService);
 
-  @Input() field: Field;
-  @Input() fieldRow: number;
-  @Input() fieldCol: number;
-  @Input() stepId: string;
-  @Input() step: Step;
-  @Input() entry: string;
-  @Input() answers: Answers;
-  @Input() submission: SubmissionService;
-  @Input() index: number;
-  @Input() displayErrors: boolean;
-  @Input() fields: any;
-  @Input() uploads: Record<string, any>;
-  @Input() fileUploadUrl: string;
-  @Input() fieldEntry: string;
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+  readonly field = input.required<Field>();
+  readonly fieldRow = input<number>();
+  readonly fieldCol = input<number>();
+  readonly stepId = input<string>();
+  readonly step = input<Step>();
+  readonly entry = input<string>();
+  readonly answers = input.required<Answers>();
+  readonly submission = input<SubmissionService>();
+  readonly index = input<number>();
+  readonly displayErrors = input<boolean>();
+  readonly fields = input<any>();
+  readonly uploads = input<Record<string, any>>();
+  readonly fileUploadUrl = input.required<string>();
+  readonly fieldEntry = input<string>();
+  readonly notifyFileUpload = output<any>();
 
   fieldId: string;
+  fieldEntryId: string;
   entries: Record<string, Field>[] = [];
 
   ngOnInit(): void {
-    if(!this.fieldEntry){
-      this.fieldId = this.stepId + "-field-" + this.fieldRow + "-" + this.fieldCol;
-      this.fieldEntry = this.fieldId + "-input-" + this.index;
+    const fieldEntry = this.fieldEntry();
+    if(!fieldEntry){
+      this.fieldId = this.stepId() + "-field-" + this.fieldRow() + "-" + this.fieldCol();
+      this.fieldEntryId = this.fieldId + "-input-" + this.index();
     }else {
-      this.fieldId = "-field-" + this.fieldRow + "-" + this.fieldCol;
-      this.fieldEntry += this.fieldId + "-input-" + this.index;
+      this.fieldId = "-field-" + this.fieldRow() + "-" + this.fieldCol();
+      this.fieldEntryId = fieldEntry + this.fieldId + "-input-" + this.index();
     }
 
-    this.entries = this.getAnswersEntries(this.entry);
+    this.entries = this.getAnswersEntries(this.entry());
 
-    if(!this.fieldEntry){
-      this.fieldEntry = "";
+    if(!this.fieldEntryId){
+      this.fieldEntryId = "";
     }
-    this.indexAnswers(this.answers);
+    this.indexAnswers(this.answers());
     this.indexAnswers(this.entries);
   }
 
   getAnswersEntries(entry: any) {
     if (typeof entry === "undefined") {
-      return this.answers[this.field.id];
+      return this.answers()[this.field().id];
     }
 
-    return entry[this.field.id];
+    return entry[this.field().id];
   };
 
   resetEntries(obj: any) {

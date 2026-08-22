@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -24,7 +24,7 @@ export class Tab3Component implements OnInit {
   private utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
 
-  @Input() contentForm: NgForm;
+  readonly contentForm = input.required<NgForm>();
 
   showLangSelect = false;
   selected = {value: []};

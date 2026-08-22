@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -32,7 +32,7 @@ export class QuestionsComponent implements OnInit {
   parsedFields: Record<string, ParsedFields> = {};
   questionnairesData: questionnaireResolverModel[] = [];
   step: Step;
-  @ViewChild('uploadInput') uploadInput: ElementRef<HTMLInputElement>;
+  readonly uploadInput = viewChild<ElementRef<HTMLInputElement>>('uploadInput');
 
   ngOnInit(): void {
     this.getResolver();
@@ -50,8 +50,9 @@ export class QuestionsComponent implements OnInit {
             this.utilsService.reloadComponent();
           },
           error:()=>{
-            if (this.uploadInput) {
-                this.uploadInput.nativeElement.value = "";
+            const uploadInput = this.uploadInput();
+            if (uploadInput) {
+                uploadInput.nativeElement.value = "";
             }
           }
         });

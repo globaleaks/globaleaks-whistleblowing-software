@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AppDataService} from "@app/app-data.service";
@@ -22,8 +22,8 @@ export class TipInfoComponent {
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
 
-  @Input() tipService: ReceiverTipService | WbtipService;
-  @Input() loading: boolean;
+  readonly tipService = input.required<ReceiverTipService | WbtipService>();
+  readonly loading = input<boolean>();
 
   markReportStatus(date: string) {
     const report_date = new Date(date);

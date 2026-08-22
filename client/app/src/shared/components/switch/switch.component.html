@@ -1,7 +1,7 @@
 <div class="switch-container">
     <span class="switch">
-        <input class="form-check-input" type="checkbox" id="toggleSwitch" name="authenticationData.session.permissions.can_upload_files" [(ngModel)]="can_upload_files" [checked]="isChecked" readonly disabled/>
+        <input class="form-check-input" type="checkbox" id="toggleSwitch" name="authenticationData.session.permissions.can_upload_files" [(ngModel)]="can_upload_files" [checked]="isChecked()" readonly disabled/>
         <span class="slider round"></span>
     </span>
-    &nbsp;<label for="toggleSwitch">{{ label  | translate }}</label>
+    &nbsp;<label for="toggleSwitch">{{ label()  | translate }}</label>
 </div>

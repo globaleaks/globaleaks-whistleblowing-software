@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {ReceiversById} from "@app/models/receiver/receiver-tip-data";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -19,9 +19,9 @@ export class WidgetWbFilesComponent {
   protected utilsService = inject(UtilsService);
 
 
-  @Input() index: number;
-  @Input() ctx: string;
-  @Input() receivers_by_id: ReceiversById;
+  readonly index = input<number>();
+  readonly ctx = input<string>();
+  readonly receivers_by_id = input.required<ReceiversById>();
 
   collapsed = false;
   submission = {};

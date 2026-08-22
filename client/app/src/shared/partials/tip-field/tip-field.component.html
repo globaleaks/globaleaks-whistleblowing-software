@@ -1,29 +1,29 @@
-@if (fields.enabled) {
+@if (fields().enabled) {
   <div class="field-answer">
     <div>
-      @if (!fields) {
-        <span>{{index + 1}})</span>
+      @if (!fields()) {
+        <span>{{(index() ?? 0) + 1}})</span>
       }
-      <span>{{fields.label |translate}}</span>
+      <span>{{fields().label |translate}}</span>
     </div>
-    @if (fieldAnswers && fieldAnswers[fields.id]) {
+    @if (fieldAnswers() && fieldAnswers()[fields().id]) {
       <div>
-        @if (!hasMultipleEntries(fieldAnswers[fields.id])) {
+        @if (!hasMultipleEntries(fieldAnswers()[fields().id])) {
           <div>
-            <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"
-              [field]="fields" [fieldAnswers]=fieldAnswers
-            [entry]="fieldAnswers[fields.id][0]"></src-tip-field-answer-entry>
+            <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()"
+              [field]="fields()" [fieldAnswers]=fieldAnswers()
+            [entry]="fieldAnswers()[fields().id][0]"></src-tip-field-answer-entry>
           </div>
         }
-        @if (hasMultipleEntries(fieldAnswers[fields.id])) {
+        @if (hasMultipleEntries(fieldAnswers()[fields().id])) {
           <div>
-            @for (entry of fieldAnswers[fields.id] | orderBy:['y', 'x']; track entry; let i = $index) {
+            @for (entry of fieldAnswers()[fields().id] | orderBy:['y', 'x']; track entry; let i = $index) {
               <div>
                 <div class="">
                   <span class="text-muted">#{{i + 1}}</span>
                 </div>
-                <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"
-                [field]="fields" class="" [entry]="entry"></src-tip-field-answer-entry>
+                <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()"
+                [field]="fields()" class="" [entry]="entry"></src-tip-field-answer-entry>
               </div>
             }
           </div>

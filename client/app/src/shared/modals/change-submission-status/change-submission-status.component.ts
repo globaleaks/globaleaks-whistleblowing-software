@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {SubmissionStatus} from "@app/models/app/shared-public-model";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -20,7 +20,7 @@ export class ChangeSubmissionStatusComponent {
   private modalService = inject(NgbModal);
   private activeModal = inject(NgbActiveModal);
 
-  @Input() arg: {tip:RecieverTipData, submission_statuses:SubmissionStatus[],status:any};
+  arg: {tip:RecieverTipData, submission_statuses:SubmissionStatus[],status:any};
 
   confirmFunction: (status:SubmissionStatus) => void;
 

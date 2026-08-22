@@ -1,4 +1,4 @@
-import {Component, EventEmitter, forwardRef, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, forwardRef, OnInit, inject, input, output} from "@angular/core";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -31,21 +31,21 @@ export class FormFieldInputComponent implements OnInit {
   private fieldUtilitiesService = inject(FieldUtilitiesService);
 
 
-  @Input() field: any;
-  @Input() index: number;
-  @Input() step: Step;
-  @Input() submission: SubmissionService;
-  @Input() entryIndex: number;
-  @Input() fieldEntry: string;
-  @Input() entry: any;
-  @Input() fieldId: string;
-  @Input() displayErrors: boolean;
-  @Input() answers: Answers;
-  @Input() fields: Field;
-  @Input() uploads: Record<string, any>;
-  @Input() identity_provided: boolean;
-  @Input() fileUploadUrl: string;
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
+  readonly field = input<any>();
+  readonly index = input<number>();
+  readonly step = input<Step>();
+  readonly submission = input<SubmissionService>();
+  readonly entryIndex = input<number>();
+  readonly fieldEntry = input.required<string>();
+  readonly entry = input<any>();
+  readonly fieldId = input<string>();
+  readonly displayErrors = input<boolean>();
+  readonly answers = input.required<Answers>();
+  readonly fields = input<Field>();
+  readonly uploads = input<Record<string, any>>();
+  readonly identity_provided = input<boolean>();
+  readonly fileUploadUrl = input.required<string>();
+  readonly notifyFileUpload = output<any>();
 
   fieldFormVarName: string;
   input_entryIndex = "";
@@ -66,43 +66,43 @@ export class FormFieldInputComponent implements OnInit {
       "start": "",
       "end": ""
     };
-    this.entry.value = "";
+    this.entry().value = "";
   }
 
   initializeFormNames() {
-    this.input_entryIndex = "input-" + this.entryIndex;
+    this.input_entryIndex = "input-" + this.entryIndex();
   }
 
   ngOnInit(): void {
-    this.fieldFormVarName = this.fieldUtilitiesService.fieldFormName(this.field.id + "$" + this.index);
+    this.fieldFormVarName = this.fieldUtilitiesService.fieldFormName(this.field().id + "$" + this.index());
     this.initializeFormNames();
-    this.rows = this.fieldUtilitiesService.splitRows(this.field.children);
-    if (this.field.type === "inputbox") {
-      const validator_regex = this.fieldUtilitiesService.getValidator(this.field);
+    this.rows = this.fieldUtilitiesService.splitRows(this.field().children);
+    if (this.field().type === "inputbox") {
+      const validator_regex = this.fieldUtilitiesService.getValidator(this.field());
       if (validator_regex.length > 0) {
         this.validator = validator_regex;
       }
     }
-    if (this.field.type === "date") {
-      if (this.field.attrs.min_date) {
-        this.dateOptions.min_date = this.field.attrs.min_date.value;
+    if (this.field().type === "date") {
+      if (this.field().attrs.min_date) {
+        this.dateOptions.min_date = this.field().attrs.min_date.value;
       }
-      if (this.field.attrs.max_date) {
-        this.dateOptions.max_date = this.field.attrs.max_date.value;
+      if (this.field().attrs.max_date) {
+        this.dateOptions.max_date = this.field().attrs.max_date.value;
       }
     }
-    if (this.field.type === "daterange") {
-      if (this.field.attrs.min_date) {
-        this.dateOptions1 = this.field.attrs.min_date.value;
+    if (this.field().type === "daterange") {
+      if (this.field().attrs.min_date) {
+        this.dateOptions1 = this.field().attrs.min_date.value;
       }
-      if (this.field.attrs.max_date) {
-        this.dateOptions2 = this.field.attrs.max_date.value;
+      if (this.field().attrs.max_date) {
+        this.dateOptions2 = this.field().attrs.max_date.value;
       }
     }
   }
 
   onDateSelection() {
-    this.entry.value = this.convertNgbDateToISOString(this.input_date);
+    this.entry().value = this.convertNgbDateToISOString(this.input_date);
   }
 
   convertNgbDateToISOString(date: NgbDateStruct): string {
@@ -113,17 +113,18 @@ export class FormFieldInputComponent implements OnInit {
   onStartDateSelection(date: NgbDateStruct): void {
     const startDate = new Date(date.year, date.month - 1, date.day);
     this.dateRange.start = startDate.getTime().toString();
-    this.entry.value = `${this.dateRange.start}:${this.dateRange.end}`;
+    this.entry().value = `${this.dateRange.start}:${this.dateRange.end}`;
   }
 
   onEndDateSelection(date: NgbDateStruct): void {
     const endDate = new Date(date.year, date.month - 1, date.day);
     this.dateRange.end = endDate.getTime().toString();
-    this.entry.value = `${this.dateRange.start}:${this.dateRange.end}`;
+    this.entry().value = `${this.dateRange.start}:${this.dateRange.end}`;
   }
 
   validateUploadSubmission() {
-    return !!(this.uploads && this.uploads[this.field ? this.field.id : "status_page"] !== undefined && (this.field.type === "fileupload" && this.uploads && this.uploads[this.field ? this.field.id : "status_page"] && Object.keys(this.uploads[this.field ? this.field.id : "status_page"]).length === 0));
+    const uploads = this.uploads();
+    return !!(uploads && uploads[this.field() ? this.field().id : "status_page"] !== undefined && (this.field().type === "fileupload" && uploads && uploads[this.field() ? this.field().id : "status_page"] && Object.keys(uploads[this.field() ? this.field().id : "status_page"]).length === 0));
   }
 
 }

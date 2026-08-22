@@ -1,40 +1,42 @@
 <!-- Search bar -->
-<div *ngIf="items.length" class="row mb-3">
-  <div class="col d-flex justify-content-end">
-    <app-search-input
-      [(value)]="searchText"
-      (valueChange)="onSearchUpdate()">
-    </app-search-input>
+@if (items().length) {
+  <div class="row mb-3">
+    <div class="col d-flex justify-content-end">
+      <app-search-input
+        [(value)]="searchText"
+        (valueChange)="onSearchUpdate()">
+      </app-search-input>
+    </div>
   </div>
-</div>
+}
 
 <!-- SIMPLE MODE -->
-<div *ngIf="mode === 'simple' && content" class="row">
-  <ng-container
-    *ngFor="let item of paginatedItems; let i = index"
-    [ngTemplateOutlet]="content"
-    [ngTemplateOutletContext]="{ item: item, index: i }">
-  </ng-container>
-</div>
+@if (mode() === 'simple' && content(); as content) {
+  <div class="row">
+    @for (item of paginatedItems; track item; let i = $index) {
+      <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
+    }
+  </div>
+}
 
 <!-- TABLE MODE -->
-<table *ngIf="mode === 'table' && header && content" class="table table-striped w-100">
-  <thead>
-    <ng-container [ngTemplateOutlet]="header"></ng-container>
-  </thead>
-  <tbody>
-    <ng-container
-      *ngFor="let item of paginatedItems; let i = index"
-      [ngTemplateOutlet]="content"
-      [ngTemplateOutletContext]="{ item: item, index: i }">
-    </ng-container>
-  </tbody>
-</table>
+@if (mode() === 'table' && header() && content(); as content) {
+  <table class="table table-striped w-100">
+    <thead>
+      <ng-container [ngTemplateOutlet]="header()!"></ng-container>
+    </thead>
+    <tbody>
+      @for (item of paginatedItems; track item; let i = $index) {
+        <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
+      }
+    </tbody>
+  </table>
+}
 
 <!-- Pagination -->
 <app-pagination
   [items]="filteredItems"
   [(currentPage)]="currentPage"
-  [itemsPerPage]="itemsPerPage"
+  [itemsPerPage]="itemsPerPage()"
   (currentPageChange)="update()">
 </app-pagination>

@@ -1,4 +1,4 @@
-import {EventEmitter, Injectable, inject} from "@angular/core";
+import {Injectable, OutputEmitterRef, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -205,7 +205,7 @@ export class UtilsService {
     }).subscribe();
   }
 
-  toggleCfg(authenticationService: AuthenticationService, tlsConfig:TlsConfig, updated:EventEmitter<string>) {
+  toggleCfg(authenticationService: AuthenticationService, tlsConfig:TlsConfig, updated: OutputEmitterRef<void>) {
     if (tlsConfig.enabled) {
       const authHeader = authenticationService.getHeader();
       this.httpService.disableTLSConfig(tlsConfig, authHeader).subscribe(() => {

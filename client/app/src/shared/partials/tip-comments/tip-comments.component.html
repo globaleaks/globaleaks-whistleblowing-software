@@ -21,8 +21,8 @@
           <span>{{'Send'|translate}}</span>
         </button>
       </div>
-      @if (tipService.tip.comments && tipService.tip.comments.length) {
-        <app-paginated-interface data-cy="SubmissionComments" id="SubmissionComments" [items]="tipService.tip.comments" [filterField]="'content'" [itemsPerPage]="10"   [filter]="{ visibility: key }" orderBy="creation_date" [orderDesc]="true">
+      @if (tipService().tip.comments && tipService().tip.comments.length) {
+        <app-paginated-interface data-cy="SubmissionComments" id="SubmissionComments" [items]="tipService().tip.comments" [filterField]="'content'" [itemsPerPage]="10"   [filter]="{ visibility: key() }" orderBy="creation_date" [orderDesc]="true">
           <ng-template #content let-comment="item" let-index="index">
             <div id="comment-{{index}}" class="mt-2">
               @if (!comment.author_id && !comment.type) {
@@ -32,18 +32,18 @@
                     <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                   </div>
                   <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
-                  @if (redactMode && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-                    <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{redactOperationTitle | translate}}" [attr.aria-label]="redactOperationTitle | translate">
+                  @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+                    <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
                       <i class="fas fa-eraser" aria-hidden="true"></i>
                     </button>
                   }
                   <br/>
                 </div>
               }
-              @if (tipService.tip.receivers_by_id[comment.author_id]) {
+              @if (tipService().tip.receivers_by_id[comment.author_id]) {
                 <div class="message">
                   <div class="row">
-                    <div class="col-md-6">{{tipService.tip.receivers_by_id[comment.author_id].name | translate}}</div>
+                    <div class="col-md-6">{{tipService().tip.receivers_by_id[comment.author_id].name | translate}}</div>
                     <div class="col-md-6 text-end">{{comment.creation_date | date:'dd-MM-yyyy HH:mm'}}</div>
                   </div>
                   @if (!comment.type) {

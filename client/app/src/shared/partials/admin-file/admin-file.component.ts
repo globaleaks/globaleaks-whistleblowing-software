@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, inject, input, viewChild} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -21,10 +21,10 @@ export class AdminFileComponent {
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
 
-  @Input() adminFile: AdminFile;
-  @Input() present: boolean;
-  @Input() callback!: () => void;
-  @ViewChild("uploader") uploaderInput!: ElementRef<HTMLInputElement>;
+  readonly adminFile = input.required<AdminFile>();
+  readonly present = input<boolean>();
+  readonly callback = input.required<() => void>();
+  readonly uploaderInput = viewChild.required<ElementRef<HTMLInputElement>>("uploader");
 
   onFileSelected(files: FileList | null, filetype: string) {
     if (files && files.length > 0) {
@@ -37,13 +37,15 @@ export class AdminFileComponent {
 
       flowJsInstance.on("fileSuccess", (_) => {
         this.appConfigService.reinit(false);
-	if (this.callback) {
-          this.callback();
+	const callback = this.callback();
+ if (callback) {
+          callback();
 	}
       });
       flowJsInstance.on("fileError", (_) => {
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
       });
       this.utilsService.onFlowUpload(flowJsInstance, file)
@@ -54,8 +56,9 @@ export class AdminFileComponent {
     this.utilsService.deleteFile(url).subscribe(
       () => {
         this.appConfigService.reinit(false);
-	if (this.callback) {
-          this.callback();
+	const callback = this.callback();
+ if (callback) {
+          callback();
 	}
       }
     );

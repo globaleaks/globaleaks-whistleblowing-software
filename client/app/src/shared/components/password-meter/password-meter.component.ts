@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges} from "@angular/core";
+import {Component, OnChanges, SimpleChanges, input} from "@angular/core";
 import {NgClass} from "@angular/common";
 
 @Component({
@@ -9,15 +9,15 @@ import {NgClass} from "@angular/common";
 })
 export class PasswordMeterComponent implements OnChanges {
 
-  @Input() passwordStrengthScore = 0;
+  readonly passwordStrengthScore = input(0);
   strengthType = "";
   strengthText = "";
 
   ngOnChanges(_: SimpleChanges): void {
-    if (this.passwordStrengthScore < 2) {
+    if (this.passwordStrengthScore() < 2) {
       this.strengthType = "bg-danger";
       this.strengthText = "Weak";
-    } else if (this.passwordStrengthScore < 3) {
+    } else if (this.passwordStrengthScore() < 3) {
       this.strengthType = "bg-warning";
       this.strengthText = "Acceptable";
     } else {

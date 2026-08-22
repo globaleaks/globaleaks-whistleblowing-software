@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {Signup} from "@app/models/component-model/signup";
@@ -16,6 +16,6 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 export class TosComponent {
   protected appDataService = inject(AppDataService);
 
-  @Input() signup: Signup;
-  @Input() signupform: NgForm;
+  readonly signup = input.required<Signup>();
+  readonly signupform = input<NgForm>();
 }

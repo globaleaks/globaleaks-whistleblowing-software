@@ -1,32 +1,32 @@
 <div class="editorHeader row">
-  <span class="col-md-7" (click)="toggleEditing(questionnaire)">{{ questionnaire.name }}</span>
+  <span class="col-md-7" (click)="toggleEditing(questionnaire())">{{ questionnaire().name }}</span>
   <span class="col-md-5 clearfix">
     <span class="float-end">
-      @if (questionnaire.editable && !editing) {
-        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire)">
+      @if (questionnaire().editable && !editing) {
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire())">
           <span>{{ 'Edit' | translate }}</span>
         </button>
       }
       @if (editing) {
-        <button class="btn btn-sm btn-primary" (click)="saveQuestionnaire(questionnaire)">
+        <button class="btn btn-sm btn-primary" (click)="saveQuestionnaire(questionnaire())">
           <span>{{ 'Save' | translate }}</span>
         </button>
       }
       @if (editing) {
-        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire)">
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire())">
           <span>{{ 'Cancel' | translate }}</span>
         </button>
       }
-      <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestionnaire(questionnaire)">
+      <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestionnaire(questionnaire())">
         <i class="fas fa-file-export"></i>
         <span>{{ 'Export' | translate }}</span>
       </button>
-      <button class="btn btn-sm btn-outline-secondary" (click)="duplicateQuestionnaire(questionnaire)">
+      <button class="btn btn-sm btn-outline-secondary" (click)="duplicateQuestionnaire(questionnaire())">
         <i class="fas fa-clone"></i>
         <span>{{ 'Duplicate' | translate }}</span>
       </button>
-      @if (questionnaire.editable) {
-        <button class="btn btn-sm btn-danger" name="deleteQuestionnaire" (click)="deleteQuestionnaire(questionnaire)">
+      @if (questionnaire().editable) {
+        <button class="btn btn-sm btn-danger" name="deleteQuestionnaire" (click)="deleteQuestionnaire(questionnaire())">
           <span>{{ 'Delete' | translate }}</span>
         </button>
       }
@@ -39,9 +39,9 @@
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
-          <label for="questionnaire-name-{{questionnaire.id}}">{{ 'Name' | translate }}</label>
-          <input id="questionnaire-name-{{questionnaire.id}}" name="name" class="form-control" [(ngModel)]="questionnaire.name" type="text" required>
-          @if (editQuestionnaire.form.get('name')?.errors?.['required']) {
+          <label for="questionnaire-name-{{questionnaire().id}}">{{ 'Name' | translate }}</label>
+          <input id="questionnaire-name-{{questionnaire().id}}" name="name" class="form-control" [(ngModel)]="questionnaire().name" type="text" required>
+          @if (editQuestionnaire().form.get('name')?.errors?.['required']) {
             <div class="text-danger">
               <span>{{ 'This field is mandatory' | translate }}</span>
             </div>
@@ -49,7 +49,7 @@
         </div>
       </div>
       <div class="col-md-12">
-        <src-steps [questionnaire]="questionnaire" (deleted)="onDelete($event)"></src-steps>
+        <src-steps [questionnaire]="questionnaire()" (deleted)="onDelete($event)"></src-steps>
       </div>
     </div>
   </div>

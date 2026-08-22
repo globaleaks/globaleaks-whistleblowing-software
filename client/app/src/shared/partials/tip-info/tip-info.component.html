@@ -2,7 +2,7 @@
   <div class="card-body">
     <div class="text-center mb-2">
       <span class="fw-bold">ID:</span>
-      <span>{{tipService.tip.id}}</span>
+      <span>{{tipService().tip.id}}</span>
     </div>
     <table class="table table-borderless table-striped">
       <thead>
@@ -63,53 +63,53 @@
       </thead>
       <tbody>
         <tr>
-          @if (loading) {
+          @if (loading()) {
             <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
           }
-          @if (!loading) {
+          @if (!loading()) {
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoID">
-                {{tipService.tip.progressive}}
+                {{tipService().tip.progressive}}
               </td>
             }
             @if (appDataService.public.contexts.length > 1) {
               <td class="TipInfoContext">
-                @if (tipService.tip.context) {
-                  {{tipService.tip.context.name}}
+                @if (tipService().tip.context) {
+                  {{tipService().tip.context.name}}
                 }
               </td>
             }
-            <td class="TipInfoCreationDate">{{tipService.tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-            <td class="TipInfoUpdateDate">{{tipService.tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoCreationDate">{{tipService().tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoUpdateDate">{{tipService().tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
             <td class="TipInfoExpirationDate">
-              @if (!utilsService.isNever(tipService.tip.expiration_date)) {
-                <span>{{tipService.tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
+              @if (!utilsService.isNever(tipService().tip.expiration_date)) {
+                <span>{{tipService().tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
               }
-              @if (utilsService.isNever(tipService.tip.expiration_date)) {
+              @if (utilsService.isNever(tipService().tip.expiration_date)) {
                 <span>-</span>
               }
             </td>
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoReminderDate">
-                @if (!utilsService.isNever(tipService.tip.reminder_date)) {
+                @if (!utilsService.isNever(tipService().tip.reminder_date)) {
                   <span>
-                    <span>{{tipService.tip.reminder_date | date:'dd-MM-yyyy'}}</span>
-                    @if (markReportStatus(tipService.tip.reminder_date)) {
+                    <span>{{tipService().tip.reminder_date | date:'dd-MM-yyyy'}}</span>
+                    @if (markReportStatus(tipService().tip.reminder_date)) {
                       <i class="reminder fas fa-bell"></i>
                     }
                   </span>
                 }
-                @if (utilsService.isNever(tipService.tip.reminder_date)) {
+                @if (utilsService.isNever(tipService().tip.reminder_date)) {
                   <i class="fas fa-minus"></i>
                 }
               </td>
             }
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoLastAccess">
-                @if (tipService.tip.last_access >= tipService.tip.update_date) {
-                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tipService.tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
+                @if (tipService().tip.last_access >= tipService().tip.update_date) {
+                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tipService().tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
                 }
-                @if (tipService.tip.last_access < tipService.tip.update_date) {
+                @if (tipService().tip.last_access < tipService().tip.update_date) {
                   <i class="fas fa-xmark" ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}">
                   </i>
                 }
@@ -117,18 +117,18 @@
             }
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoConnection">
-                @if (tipService.tip.tor) {
+                @if (tipService().tip.tor) {
                   <i class="fas fa-check"></i>
                 }
-                @if (!tipService.tip.tor) {
+                @if (!tipService().tip.tor) {
                   <i class="fas fa-xmark"></i>
                 }
               </td>
             }
-            <td class="TipInfoSubmissionStatus">{{tipService.tip.submissionStatusStr}}</td>
+            <td class="TipInfoSubmissionStatus">{{tipService().tip.submissionStatusStr}}</td>
             @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
               <td class="TipInfoScore">
-                @switch (tipService.tip.score) {
+                @switch (tipService().tip.score) {
                   @case (0) {
                     <span>-</span>
                   }

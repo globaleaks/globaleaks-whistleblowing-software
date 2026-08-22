@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Step} from "@app/models/resolvers/questionnaire-model";
@@ -23,9 +23,9 @@ export class StepComponent implements OnInit {
   private httpService = inject(HttpService);
   protected fieldTemplates = inject(FieldTemplatesResolver);
 
-  @Input() step: Step;
-  @Input() parsedFields: ParsedFields;
-  @Output() updated = new EventEmitter<void>();
+  readonly step = input.required<Step>();
+  readonly parsedFields = input.required<ParsedFields>();
+  readonly updated = output<void>();
   showAddQuestion = false;
   showAddQuestionFromTemplate = false;
   fieldTemplatesData: fieldtemplatesResolverModel[] = [];
@@ -55,12 +55,12 @@ export class StepComponent implements OnInit {
   }
 
   onDelete(id: string) {
-    this.step.children = this.step.children.filter(i => i.id !== id);
+    this.step().children = this.step().children.filter(i => i.id !== id);
     this.updated.emit();
   }
 
   onUpdate() {
-    this.step.children = [...this.step.children];
+    this.step().children = [...this.step().children];
     this.updated.emit();
   }
 }

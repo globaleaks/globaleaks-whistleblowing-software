@@ -1,18 +1,18 @@
-@if (uploading) {
+@if (uploading()) {
   <span>{{'Uploading files…'|translate}}</span>
 }
-@if (!uploading && progress==100) {
+@if (!uploading() && progress()==100) {
   <span>{{'Upload completed successfully!'|translate}}</span>
 }
 <div id="FileUpoloadsInfo">
-  @if (estimatedTime && uploading) {
+  @if (uploading() && estimatedTime(); as estimatedTime) {
     <div>
       <span>{{'Estimated upload time:'|translate}}</span>
       @if (isFinite(estimatedTime)) {
         <span>{{getEstimatedTimeValue()}}</span>
       }
       <span>{{getEstimatedTimeUnit()|translate}}</span>
-      @if (progress) {
+      @if (progress(); as progress) {
         <div class="progress progress-striped;active">
           <div class="progress-bar" role="progressbar" [ngStyle]="{width: progress*105 + '%'}"></div>
         </div>

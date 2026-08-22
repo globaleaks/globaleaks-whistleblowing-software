@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgClass} from "@angular/common";
@@ -17,8 +17,8 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 export class ReceiverSelectionComponent {
   protected utilsService = inject(UtilsService);
 
-  @Input() show_steps_navigation_bar: boolean;
-  @Input() submission: SubmissionService;
-  @Input() receiversOrderPredicate: string;
-  @Output() switchSelection = new EventEmitter<any>();
+  readonly show_steps_navigation_bar = input<boolean>();
+  readonly submission = input.required<SubmissionService>();
+  readonly receiversOrderPredicate = input.required<string>();
+  readonly switchSelection = output<any>();
 }

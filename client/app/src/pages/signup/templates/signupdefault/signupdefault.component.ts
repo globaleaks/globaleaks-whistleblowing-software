@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, output, input} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {Signup} from "@app/models/component-model/signup";
 import * as Constants from "@app/shared/constants/constants";
@@ -21,8 +21,8 @@ export class SignupdefaultComponent implements OnInit {
   protected appDataService = inject(AppDataService);
 
 
-  @Input() signup: Signup;
-  @Output() complete: EventEmitter<any> = new EventEmitter<any>();
+  readonly signup = input.required<Signup>();
+  readonly complete = output<void>();
 
   emailRegex: string;
   confirmation_email: string;

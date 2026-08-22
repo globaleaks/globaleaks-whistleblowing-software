@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {HttpService} from "@app/shared/services/http.service";
@@ -29,7 +29,7 @@ export class MainComponent implements OnInit {
   questionnairesData: questionnaireResolverModel[] = [];
   new_questionnaire: { name: string } = {name: ""};
   showAddQuestionnaire = false;
-  @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
+  readonly keyUploadInput = viewChild<ElementRef<HTMLInputElement>>('keyUploadInput');
 
   ngOnInit(): void {
     this.questionnairesData = this.questionnairesResolver.dataModel;
@@ -57,8 +57,9 @@ export class MainComponent implements OnInit {
             this.getResolver();
           },
           error:()=>{
-            if (this.keyUploadInput) {
-                this.keyUploadInput.nativeElement.value = "";
+            const keyUploadInput = this.keyUploadInput();
+            if (keyUploadInput) {
+                keyUploadInput.nativeElement.value = "";
             }
           }
         });

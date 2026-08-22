@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, viewChild, output} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
@@ -25,12 +25,12 @@ export class HttpsFilesComponent implements OnInit {
   private modalService = inject(NgbModal);
   private utilsService = inject(UtilsService);
 
-  @Output() updated = new EventEmitter<string>();
-  @Input() tlsConfig: TlsConfig;
-  @Input() state = 0;
-  @ViewChild('pkInput') pkInput: ElementRef<HTMLInputElement>;
-  @ViewChild('certificateInput') certificateInput: ElementRef<HTMLInputElement>;
-  @ViewChild('iCertificateInput') iCertificateInput: ElementRef<HTMLInputElement>;
+  readonly updated = output<void>();
+  readonly tlsConfig = input.required<TlsConfig>();
+  readonly state = input(0);
+  readonly pkInput = viewChild<ElementRef<HTMLInputElement>>('pkInput');
+  readonly certificateInput = viewChild<ElementRef<HTMLInputElement>>('certificateInput');
+  readonly iCertificateInput = viewChild<ElementRef<HTMLInputElement>>('iCertificateInput');
 
   nodeData: nodeResolverModel;
   fileResources: FileResources = {
@@ -86,14 +86,17 @@ export class HttpsFilesComponent implements OnInit {
   }
 
   clearInputFields(){
-    if (this.pkInput) {
-      this.pkInput.nativeElement.value = "";
+    const pkInput = this.pkInput();
+    if (pkInput) {
+      pkInput.nativeElement.value = "";
     }
-    if (this.certificateInput) {
-      this.certificateInput.nativeElement.value = "";
+    const certificateInput = this.certificateInput();
+    if (certificateInput) {
+      certificateInput.nativeElement.value = "";
     }
-    if (this.iCertificateInput) {
-      this.iCertificateInput.nativeElement.value = "";
+    const iCertificateInput = this.iCertificateInput();
+    if (iCertificateInput) {
+      iCertificateInput.nativeElement.value = "";
     }
   }
 
@@ -112,7 +115,7 @@ export class HttpsFilesComponent implements OnInit {
   }
 
   toggleCfg() {
-    this.utilsService.toggleCfg(this.authenticationService, this.tlsConfig, this.updated);
+    this.utilsService.toggleCfg(this.authenticationService, this.tlsConfig(), this.updated);
   }
 
   resetCfg() {
@@ -127,6 +130,6 @@ export class HttpsFilesComponent implements OnInit {
   }
 
   isCsrSet(): boolean {
-    return !!this.tlsConfig.files.csr?.set;
+    return !!this.tlsConfig().files.csr?.set;
   }
 }

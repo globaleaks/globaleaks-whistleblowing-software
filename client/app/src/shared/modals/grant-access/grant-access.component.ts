@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Receiver} from "@app/models/app/public-model";
@@ -19,16 +19,17 @@ export class GrantAccessComponent {
   private utils = inject(UtilsService);
 
 
-  @Input() usersNames: Record<string, string> | undefined;
-  @Input() selectableRecipients: Receiver[];
-  @Input() confirmFun: ConfirmFunFunction;
-  @Input() cancelFun: cancelFun;
+  usersNames: Record<string, string>;
+  selectableRecipients: Receiver[];
+  confirmFun: ConfirmFunFunction;
+  cancelFun: cancelFun;
   receiver_id: { id: number };
 
   confirm() {
     this.cancel();
-    if (this.confirmFun) {
-      this.confirmFun(this.receiver_id);
+    const confirmFun = this.confirmFun;
+    if (confirmFun) {
+      confirmFun(this.receiver_id);
     }
   }
 

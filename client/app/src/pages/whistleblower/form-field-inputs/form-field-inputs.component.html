@@ -1,19 +1,19 @@
-@if ((['checkbox', 'fieldgroup', 'multichoice'].indexOf(field.type) === -1) && (['whistleblower_identity'].indexOf(field.template_id) === -1)) {
+@if ((['checkbox', 'fieldgroup', 'multichoice'].indexOf(field().type) === -1) && (['whistleblower_identity'].indexOf(field().template_id) === -1)) {
   <div id="{{fieldId}}" class="question">
     <label class="question-label" for="{{fieldId + '-input-' + 0}}">
-      @if (field.label) {
-        <span class="title">{{field.label|translate}}</span>
+      @if (field().label) {
+        <span class="title">{{field().label|translate}}</span>
       }
-      @if (field.hint) {
-        <span [ngbTooltip]="field.hint"><i class="fas fa-circle-question"></i></span>
+      @if (field().hint) {
+        <span [ngbTooltip]="field().hint"><i class="fas fa-circle-question"></i></span>
       }
-      @if (field.required) {
+      @if (field().required) {
         <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
       }
     </label>
     <div class="question-body">
-      @if (field.description) {
-        <markdown class="description" [data]="field.description | stripHtml"></markdown>
+      @if (field().description) {
+        <markdown class="description" [data]="field().description | stripHtml"></markdown>
       }
       <div class="form-group">
         @for (entry of entries; track entry; let entryIndex = $index; let first = $first; let last = $last) {
@@ -32,10 +32,10 @@
                 </span>
               </div>
             }
-            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
+            <src-form-field-input [fileUploadUrl]="fileUploadUrl()" (notifyFileUpload)="notifyFileUpload.emit($event)" [uploads]="uploads()" [fields]="fields()" [step]="step()" [answers]="answers()" [fieldId]="fieldId" [displayErrors]="displayErrors()" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntryId" [submission]="submission()" [field]="field()" [index]="entryIndex"></src-form-field-input>
           </div>
         }
-        @if (field.multi_entry && field.type === 'fieldgroup') {
+        @if (field().multi_entry && field().type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
               <i class="fas fa-plus"></i>
@@ -46,20 +46,20 @@
     </div>
   </div>
 }
-@if ((['checkbox', 'fieldgroup', 'multichoice'].indexOf(field.type) !== -1) || (['whistleblower_identity'].indexOf(field.template_id) !== -1)) {
+@if ((['checkbox', 'fieldgroup', 'multichoice'].indexOf(field().type) !== -1) || (['whistleblower_identity'].indexOf(field().template_id) !== -1)) {
   <fieldset id="{{fieldId}}" class="question">
-    @if (field.label) {
-      <legend class="title">{{field.label|translate}}</legend>
+    @if (field().label) {
+      <legend class="title">{{field().label|translate}}</legend>
     }
-    @if (field.hint) {
-      <span [ngbTooltip]="field.hint"><i class="fas fa-circle-question"></i></span>
+    @if (field().hint) {
+      <span [ngbTooltip]="field().hint"><i class="fas fa-circle-question"></i></span>
     }
-    @if (field.required) {
+    @if (field().required) {
       <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
     }
     <div class="question-body">
-      @if (field.description) {
-        <markdown class="description" [data]="field.description | stripHtml"></markdown>
+      @if (field().description) {
+        <markdown class="description" [data]="field().description | stripHtml"></markdown>
       }
       <div class="form-group">
         @for (entry of entries; track entry; let entryIndex = $index; let first = $first; let last = $last) {
@@ -78,10 +78,10 @@
                 </span>
               </div>
             }
-            <src-form-field-input [fileUploadUrl]="fileUploadUrl" (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads" [fields]="fields" [step]="step" [answers]="answers" [fieldId]="fieldId" [displayErrors]="displayErrors" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntry" [submission]="submission" [field]="field" [index]="entryIndex"></src-form-field-input>
+            <src-form-field-input [fileUploadUrl]="fileUploadUrl()" (notifyFileUpload)="notifyFileUpload.emit($event)" [uploads]="uploads()" [fields]="fields()" [step]="step()" [answers]="answers()" [fieldId]="fieldId" [displayErrors]="displayErrors()" [entry]="entry" [entryIndex]="entryIndex" [fieldEntry]="fieldEntryId" [submission]="submission()" [field]="field()" [index]="entryIndex"></src-form-field-input>
           </div>
         }
-        @if (field.multi_entry && field.type === 'fieldgroup') {
+        @if (field().multi_entry && field().type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
               <i class="fas fa-plus"></i>

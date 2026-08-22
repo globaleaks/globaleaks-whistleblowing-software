@@ -1,4 +1,4 @@
-import {Component, EventEmitter, forwardRef, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, forwardRef, OnInit, inject, input, output} from "@angular/core";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {SubmissionService} from "@app/services/helper/submission.service";
@@ -22,16 +22,16 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 export class FormComponent implements OnInit {
   protected fieldUtilitiesService = inject(FieldUtilitiesService);
 
-  @Input() step: Step;
-  @Input() index: number;
-  @Input() answers: Answers;
-  @Input() uploads: Record<string, any>;
-  @Input() submission: SubmissionService;
-  @Input() displayErrors: boolean;
-  @Input() entry: string;
-  @Input() fileUploadUrl: string;
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-  @Input() fieldEntry: string;
+  readonly step = input.required<Step>();
+  readonly index = input<number>();
+  readonly answers = input.required<Answers>();
+  readonly uploads = input<Record<string, any>>();
+  readonly submission = input<SubmissionService>();
+  readonly displayErrors = input<boolean>();
+  readonly entry = input<string>();
+  readonly fileUploadUrl = input.required<string>();
+  readonly notifyFileUpload = output<any>();
+  readonly fieldEntry = input("");
 
   fields: Children[];
   stepId: string;
@@ -43,14 +43,15 @@ export class FormComponent implements OnInit {
   }
 
   initialize() {
-    if (this.step.children) {
-      this.fields = this.step.children;
+    const step = this.step();
+    if (step.children) {
+      this.fields = step.children;
       this.rows = this.fieldUtilitiesService.splitRows(this.fields);
     } else {
       this.fields = [];
-      this.rows = this.step;
+      this.rows = step;
     }
-    this.stepId = "step-" + this.index;
+    this.stepId = "step-" + this.index();
     this.status = {
       opened: false,
     };

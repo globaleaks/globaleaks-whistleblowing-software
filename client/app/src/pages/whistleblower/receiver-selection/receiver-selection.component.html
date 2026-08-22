@@ -1,36 +1,36 @@
 <div id="SubmissionStepReceiver" class="receiverCards">
-  @if (!show_steps_navigation_bar) {
+  @if (!show_steps_navigation_bar()) {
     <div id="title">{{'Recipient selection'|translate}}</div>
   }
-  @if (submission.optional_receivers) {
+  @if (submission().optional_receivers) {
     <div>
       <div class="description mb-2"><strong>{{'Select the recipients of your report'|translate}}</strong></div>
-      @if (submission.context.maximum_selectable_receivers !== 0 && !submission.context.select_all_receivers) {
+      @if (submission().context.maximum_selectable_receivers !== 0 && !submission().context.select_all_receivers) {
         <div id="MaxSelectableReceiverBox">
           <div>
-            <span>{{'Recipients selected:'|translate}}</span> {{submission.countSelectedReceivers()}}/{{submission.context.maximum_selectable_receivers}}
+            <span>{{'Recipients selected:'|translate}}</span> {{submission().countSelectedReceivers()}}/{{submission().context.maximum_selectable_receivers}}
           </div>
-          @if (submission.countSelectedReceivers() === submission.context.maximum_selectable_receivers) {
+          @if (submission().countSelectedReceivers() === submission().context.maximum_selectable_receivers) {
             <div class="text-danger">{{'You have reached the maximum number of selectable recipients.'|translate}}</div>
           }
         </div>
       }
       <div id="ReceiverSelectionBox" class="row">
-        @for (receiver of submission.receivers | filter : 'forcefully_selected' : false | orderBy:receiversOrderPredicate; track receiver; let index = $index) {
-          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission.receivers.length)" (click)="switchSelection.emit(receiver)">
-            <src-receiver-card [submission]="submission" [receiverModel]="receiver"></src-receiver-card>
+        @for (receiver of submission().receivers | filter : 'forcefully_selected' : false | orderBy:receiversOrderPredicate(); track receiver; let index = $index) {
+          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission().receivers.length)" (click)="switchSelection.emit(receiver)">
+            <src-receiver-card [submission]="submission()" [receiverModel]="receiver"></src-receiver-card>
           </div>
         }
       </div>
     </div>
   }
-  @if (submission.mandatory_receivers) {
+  @if (submission().mandatory_receivers) {
     <div>
       <div class="description">{{'The following recipients will receive your report and could not be deselected:'|translate}}</div>
       <div id="ReceiverSelectionBox" class="row">
-        @for (receiver of submission.receivers | filter : 'forcefully_selected' : true | orderBy:receiversOrderPredicate; track receiver; let index = $index) {
-          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission.receivers.length)">
-            <src-receiver-card [submission]="submission" [receiverModel]="receiver"></src-receiver-card>
+        @for (receiver of submission().receivers | filter : 'forcefully_selected' : true | orderBy:receiversOrderPredicate(); track receiver; let index = $index) {
+          <div id="receiver-{{index}}" [ngClass]="utilsService.getCardSize(submission().receivers.length)">
+            <src-receiver-card [submission]="submission()" [receiverModel]="receiver"></src-receiver-card>
           </div>
         }
       </div>

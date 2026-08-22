@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
@@ -15,7 +15,7 @@ export class AssignScorePointsComponent {
   private activeModal = inject(NgbActiveModal);
   private modalService = inject(NgbModal);
 
-  @Input() arg = {
+  arg = {
     score_points: 0,
     score_type: 'addition'
   };

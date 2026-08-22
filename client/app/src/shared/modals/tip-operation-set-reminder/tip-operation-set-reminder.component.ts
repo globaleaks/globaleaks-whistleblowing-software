@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {NgbDateStruct, NgbModal, NgbInputDatepicker} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
@@ -18,7 +18,7 @@ export class TipOperationSetReminderComponent implements OnInit {
   private http = inject(HttpClient);
   private utils = inject(UtilsService);
 
-  @Input() args: any;
+  args: any;
 
   request_motivation: string;
   model: NgbDateStruct;

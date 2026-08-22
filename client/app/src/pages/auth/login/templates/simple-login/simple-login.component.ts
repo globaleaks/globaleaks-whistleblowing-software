@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {NgForm, FormsModule} from "@angular/forms";
@@ -24,8 +24,8 @@ export class SimpleLoginComponent implements OnInit {
   protected authentication = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
 
-  @Input() loginData: LoginDataRef;
-  @Input() loginValidator: NgForm;
+  readonly loginData = input<LoginDataRef>();
+  readonly loginValidator = input.required<NgForm>();
 
   ngOnInit() {
     if (this.appDataService.public.receivers.length === 1) {

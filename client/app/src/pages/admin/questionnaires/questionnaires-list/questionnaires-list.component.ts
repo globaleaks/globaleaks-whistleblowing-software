@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -27,11 +27,11 @@ export class QuestionnairesListComponent {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
 
-  @Input() questionnaire: questionnaireResolverModel;
-  @Input() questionnaires: questionnaireResolverModel[];
-  @Input() editQuestionnaire: NgForm;
-  @Output() deleted = new EventEmitter<string>();
-  @Output() duplicated = new EventEmitter<void>();
+  readonly questionnaire = input.required<questionnaireResolverModel>();
+  readonly questionnaires = input<questionnaireResolverModel[]>();
+  readonly editQuestionnaire = input.required<NgForm>();
+  readonly deleted = output<string>();
+  readonly duplicated = output<void>();
   editing = false;
 
   toggleEditing(questionnaire: questionnaireResolverModel) {
@@ -71,13 +71,13 @@ export class QuestionnairesListComponent {
 
       modalRef.componentInstance.confirmFunction = () => {
         return this.httpService.requestDeleteAdminQuestionnaire(arg.id).subscribe(_ => {
-          this.deleted.emit(this.questionnaire.id);
+          this.deleted.emit(this.questionnaire().id);
         });
       };
     });
   }
 
   onDelete(id: string) {
-    this.questionnaire.steps = this.questionnaire.steps.filter(i => i.id !== id);
+    this.questionnaire().steps = this.questionnaire().steps.filter(i => i.id !== id);
   }
 }

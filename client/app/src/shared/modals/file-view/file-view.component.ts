@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -21,12 +21,12 @@ export class FileViewComponent implements OnInit {
   private modalService = inject(NgbModal);
   private cdr = inject(ChangeDetectorRef);
 
-  @Input() args: {
+  args: {
     file: WbFile,
     loaded: boolean,
     iframeHeight: number
   };
-  @ViewChild("viewer") viewerFrame: ElementRef;
+  readonly viewerFrame = viewChild<ElementRef>("viewer");
 
   iframeUrl: SafeResourceUrl;
 
@@ -41,8 +41,8 @@ export class FileViewComponent implements OnInit {
     this.utilsService.view(this.authenticationService, url + this.args.file.id, this.args.file.type, (blob: Blob) => {
       this.args.loaded = true;
       const onReady = (event: MessageEvent) => {
-        const iframeElement = this.viewerFrame.nativeElement;
-        if (event.source !== iframeElement.contentWindow || event.data !== "ready") {
+        const iframeElement = this.viewerFrame()?.nativeElement;
+        if (!iframeElement || event.source !== iframeElement.contentWindow || event.data !== "ready") {
           return;
         }
         window.removeEventListener("message", onReady);
