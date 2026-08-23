@@ -11,7 +11,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {Observable, forkJoin, of} from "rxjs";
-import {map} from "rxjs/operators";
+import {catchError, map} from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
@@ -189,7 +189,11 @@ export class AppConfigService {
         this.appDataService.contexts_by_id[data.context.id] = data.context;
 
         return data.context;
-      })
+      }),
+      // A context that cannot be resolved must not break the loading of the
+      // whole list of the reports: the report is then presented without the
+      // metadata of its context
+      catchError(() => of(null))
     );
   }
 
