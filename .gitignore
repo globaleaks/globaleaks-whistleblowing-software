@@ -1,5 +1,14 @@
+*.pyc
+__pycache__/
+backend/.coverage
+backend/_trial_temp/
 backend/env/
 backend/workingdir/
+backend/workingdir.*/
+client/.angular/
 client/build
+client/cypress/coverage/
+client/cypress/downloads/
+client/cypress/screenshots/
 client/node_modules/
 documentation/_build
