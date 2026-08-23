@@ -37,6 +37,10 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
+  // The items surviving the structural filter alone: the search is offered
+  // only when it has something to narrow down
+  scopedCount = 0;
+
   private utilsService = inject(UtilsService);
 
   ngAfterViewInit(): void {
@@ -45,6 +49,8 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
+      // A shorter list may no longer hold the page in view
+      this.currentPage = 1;
       this.update();
     }
   }
@@ -60,6 +66,8 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
         )
       );
     }
+
+    this.scopedCount = this.filteredItems.length;
 
     // Apply searchText filter
     if (this.searchText) {
@@ -94,6 +102,9 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
     const maxPage = Math.max(Math.ceil(this.filteredItems.length / this.itemsPerPage()), 1);
     if (this.currentPage > maxPage) {
       this.currentPage = maxPage;
+    }
+    if (this.currentPage < 1) {
+      this.currentPage = 1;
     }
 
     // Pagination
