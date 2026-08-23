@@ -53,6 +53,14 @@ export class AddFieldFromTemplateComponent implements OnInit {
     field.instance = "reference";
     field.y = this.utilsService.newItemOrder(ySource, "y");
 
+    // The question references its template: it has to carry its type too, or
+    // the editor presents it as a question of the default type until the
+    // questionnaire is reloaded
+    const template = this.fieldTemplatesData()?.find(fieldTemplate => fieldTemplate.id === templateId);
+    if (template) {
+      field.type = template.type;
+    }
+
     if (isStep) {
       field.step_id = parentId;
     } else {
