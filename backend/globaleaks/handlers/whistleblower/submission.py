@@ -353,8 +353,14 @@ def evaluate_receivers_override(steps, answers):
     """
     Server-side port of the recipients override computed by the client in
     FieldUtilitiesService.updateAnswers: traverse the enabled fields in schema
-    order and return the trigger_receiver list of the last selected option that
-    declares one, or None when no override is triggered.
+    order and return the recipients triggered by the last answer that triggers
+    any, or None when no override is triggered.
+
+    A checkbox accepts more than one answer at a time: the recipients it
+    triggers are the ones of every box ticked, taken together. The fields
+    answered with a single option contribute that option alone, so the same sum
+    leaves them unchanged, and the last field answering with a trigger keeps
+    replacing the previous one.
 
     A triggered override replaces the recipients selection entirely, taking
     precedence over the context configuration including mandatory recipients;
@@ -364,15 +370,21 @@ def evaluate_receivers_override(steps, answers):
     The answers are expected to be already reconciled with the trigger logic
     (see db_clear_disabled_answers), so a disabled field carries no selected
     option and cannot contribute an override; iterating in schema order then
-    yields the same "last selected option wins" precedence as the client (only
+    yields the same "last answer wins" precedence as the client (only
     fieldgroups have children, and they never carry scorable/override options).
     """
     override = None
 
     for field, entry in iterate_answers(steps, answers):
+        triggered = []
+
         for option in evaluate_selected_options(field, entry):
-            if option.get('trigger_receiver'):
-                override = option['trigger_receiver']
+            for receiver in option.get('trigger_receiver') or []:
+                if receiver not in triggered:
+                    triggered.append(receiver)
+
+        if triggered:
+            override = triggered
 
     return override
 

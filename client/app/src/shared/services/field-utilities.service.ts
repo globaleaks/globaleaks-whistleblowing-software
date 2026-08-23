@@ -138,6 +138,12 @@ export class FieldUtilitiesService {
         }
 
         if (["checkbox", "selectbox", "multichoice"].indexOf(field.type) > -1) {
+          // A checkbox accepts more than one answer at a time: the recipients
+          // it triggers are the ones of every box ticked, taken together. The
+          // fields answered with a single option contribute that option alone,
+          // so the same sum leaves them unchanged.
+          const triggered: string[] = [];
+
           for (j = 0; j < field.options.length; j++) {
             option = field.options[j];
             option.set = false;
@@ -156,10 +162,16 @@ export class FieldUtilitiesService {
                 scope.block_submission = true;
               }
 
-              if (scope.submission && option.trigger_receiver.length) {
-                scope.submission.override_receivers = option.trigger_receiver;
+              for (const receiver of option.trigger_receiver) {
+                if (triggered.indexOf(receiver) === -1) {
+                  triggered.push(receiver);
+                }
               }
             }
+          }
+
+          if (scope.submission && triggered.length) {
+            scope.submission.override_receivers = triggered;
           }
         }
       }
