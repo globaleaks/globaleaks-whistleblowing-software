@@ -8,7 +8,7 @@ import {FormsModule} from '@angular/forms';
   standalone: true,
   imports: [TranslatePipe, FormsModule],
   template: `
-    <div class="search-input input-group input-group-sm w-auto">
+    <div class="search-input input-group w-auto">
       <label for="search-filter-input" class="visually-hidden">{{ placeholder() | translate }}</label>
       <input
         id="search-filter-input"

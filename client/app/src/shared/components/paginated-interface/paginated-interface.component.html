@@ -1,13 +1,25 @@
-<!-- Search bar -->
-@if (items().length) {
-  <div class="row mb-3">
-    <div class="col d-flex justify-content-end">
-      <app-search-input
-        [(value)]="searchText"
-        (valueChange)="onSearchUpdate()">
-      </app-search-input>
+<!-- Toolbar: collection actions on the left, search on the right -->
+@if (toolbar() || items().length) {
+  <div class="row mb-3 align-items-center">
+    <div class="col">
+      @if (toolbar()) {
+        <ng-container [ngTemplateOutlet]="toolbar()!"></ng-container>
+      }
     </div>
+    @if (items().length) {
+      <div class="col-auto">
+        <app-search-input
+          [(value)]="searchText"
+          (valueChange)="onSearchUpdate()">
+        </app-search-input>
+      </div>
+    }
   </div>
+}
+
+<!-- Optional creation form, rendered between the toolbar and the list -->
+@if (addForm()) {
+  <ng-container [ngTemplateOutlet]="addForm()!"></ng-container>
 }
 
 <!-- SIMPLE MODE -->

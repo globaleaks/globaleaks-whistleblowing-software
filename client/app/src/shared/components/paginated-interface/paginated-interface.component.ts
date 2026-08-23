@@ -26,6 +26,12 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   readonly header = contentChild<TemplateRef<any>>('header');
   readonly content = contentChild<TemplateRef<any>>('content');
 
+  /** Optional collection actions (e.g. Add, Import) shown on the left of the search input */
+  readonly toolbar = contentChild<TemplateRef<unknown>>('toolbar');
+
+  /** Optional creation form shown between the toolbar and the list */
+  readonly addForm = contentChild<TemplateRef<unknown>>('addForm');
+
   searchText = '';
   currentPage = 1;
   filteredItems: T[] = [];
