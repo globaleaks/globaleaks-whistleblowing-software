@@ -1,0 +1,52 @@
+<div class="form-group" role="group" [attr.aria-labelledby]="labelId">
+  <span [id]="labelId" [class.visually-hidden]="hideLabel()">{{ label() | translate }}</span>
+  @if (required()) {
+    <span class="text-danger" [class.visually-hidden]="hideLabel()" aria-hidden="true" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+    <span class="visually-hidden">{{ 'This field is mandatory' | translate }}</span>
+  }
+  <div class="selection-editor-content" [class.selection-editor-flush]="hideLabel()">
+    <button type="button" class="btn btn-primary selection-editor-add {{ addButtonClass() }}" [attr.aria-expanded]="showSelect" (click)="toggleSelect()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+    @if (showSelect) {
+      <div [id]="adderId()" class="row selection-editor-adder">
+        <div class="col-md-12">
+          <ng-select [(ngModel)]="selection" [ngModelOptions]="{standalone: true}" [items]="stableOptions" bindLabel="label" bindValue="id" [searchable]="true" [placeholder]="'Search' | translate" [ariaLabel]="label() | translate" (ngModelChange)="pick($event)">
+            <ng-template ng-option-tmp let-item="item">
+              <span>{{ item.label }}</span>
+            </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    }
+    <ul class="selection-list">
+      @for (entry of selected(); track entry.id; let index = $index) {
+        <li>
+          <span class="action-btns">
+            @if (selectableDefault() && entry.id === defaultId()) {
+              <span class="default-entry">
+                <i class="fas fa-check" aria-hidden="true"></i>
+                <span class="visually-hidden">{{ 'Default' | translate }}</span>
+              </span>
+            }
+            @if (selectableDefault() && entry.id !== defaultId()) {
+              <button type="button" class="icon-action non-default-entry" ngbTooltip="{{'Use as default' | translate}}" [attr.aria-label]="('Use as default' | translate) + ': ' + entry.label" (click)="defaultPicked.emit(entry.id)">
+                <i class="fas fa-check" aria-hidden="true"></i>
+              </button>
+            }
+            @if (entry.id !== defaultId()) {
+              <button type="button" class="icon-action remove-entry-btn" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="('Remove' | translate) + ': ' + entry.label" (click)="entryRemoved.emit({index: index, id: entry.id})">
+                <i class="fas fa-xmark" aria-hidden="true"></i>
+              </button>
+            }
+            @if (selectableDefault() && entry.id === defaultId()) {
+              <i class="fas fa-xmark disabled-icon" aria-hidden="true"></i>
+            }
+          </span>
+          <span>{{ entry.label }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+</div>
