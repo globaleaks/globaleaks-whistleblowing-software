@@ -2,57 +2,18 @@
   <div class="col-md-6">
     <input name="node.dataModel.languages_enabled" [(ngModel)]="nodeResolver.dataModel.languages_enabled" class="d-none" />
     <input name="node.dataModel.default_language" [(ngModel)]="nodeResolver.dataModel.default_language" class="d-none" />
-    <div class="form-group">
-      <label>{{ 'Languages' | translate }}</label>
-      <button class="btn btn-sm btn-primary add-language-btn" (click)="toggleLangSelect()">
-        <i class="fas fa-plus"></i>
-        <span>{{ 'Add' | translate }}</span>
-      </button>
-      <div>
-        <br />
-        @if (showLangSelect) {
-          <div id="LanguageAdder" class="row">
-            <div class="col-md-12">
-              <label for="language-adder-select" class="visually-hidden">{{'Select language' | translate}}</label>
-              <ng-select id="language-adder-select" [(ngModel)]="selected.value" [items]="languagesNotEnabled | filter:'name':selected.value" bindLabel="name" [searchable]="true" [placeholder]="'Search' | translate" (ngModelChange)="enableLanguage($event)" [ariaLabel]="'Select a language' | translate">
-                <ng-template ng-option-tmp let-item="item">
-                  <span>{{item.name}}</span>
-                  <span>[{{ item.code }}]</span>
-                </ng-template>
-              </ng-select>
-            </div>
-          </div>
-        }
-        <br />
-        <ul class="selection-list">
-          @for (lang_code of nodeResolver.dataModel.languages_enabled; track lang_code; let index = $index) {
-            <li>
-              <span class="action-btns">
-                @if (lang_code === nodeResolver.dataModel.default_language) {
-                  <span class="default-language">
-                    <i class="fas fa-check"></i>
-                  </span>
-                }
-                @if (lang_code !== nodeResolver.dataModel.default_language) {
-                  <span class="non-default-language" ngbTooltip="{{'Use as default' | translate}}" (click)="nodeResolver.dataModel.default_language = lang_code" (keydown.enter)="nodeResolver.dataModel.default_language = lang_code" tabindex="0" role="button">
-                    <i class="fas fa-check"></i>
-                  </span>
-                }
-                @if (lang_code !== nodeResolver.dataModel.default_language) {
-                  <span (click)="removeLang(index, lang_code)" ngbTooltip="{{'Remove' | translate}}" class="remove-lang-btn" (keydown.enter)="removeLang(index, lang_code)" tabindex="0" role="button">
-                    <i class="fas fa-xmark"></i>
-                  </span>
-                }
-                @if (lang_code === nodeResolver.dataModel.default_language) {
-                  <i class="fas fa-xmark disabled-icon"></i>
-                }
-              </span>
-              <label>{{ this.languageUtils.languages_supported[lang_code].name }} [{{ lang_code }}]</label>
-            </li>
-          }
-        </ul>
-      </div>
-    </div>
+    <src-selection-editor
+      label="Languages"
+      [hideLabel]="true"
+      addButtonClass="add-language-btn"
+      adderId="LanguageAdder"
+      [options]="languageOptions"
+      [selected]="enabledLanguages"
+      [defaultId]="nodeResolver.dataModel.default_language"
+      (entryAdded)="enableLanguage($event)"
+      (entryRemoved)="removeLang($event.index, $event.id)"
+      (defaultPicked)="nodeResolver.dataModel.default_language = $event">
+    </src-selection-editor>
     <div class="form-group">
       <button class="btn btn-primary" id="save_language" [disabled]="contentForm().invalid" (click)="updateNode()" type="submit">
         <i class="fas fa-check"></i>

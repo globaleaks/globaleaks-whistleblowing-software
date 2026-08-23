@@ -910,13 +910,11 @@ text.axis-worktime {
   color: inherit;
 }
 
-.non-default-language,
 .non-default-entry,
 .disabled-icon {
   opacity: 0.2;
 }
 
-.non-default-language:hover,
 .non-default-entry:hover,
 .non-default-entry:focus-visible {
   opacity: 1;
