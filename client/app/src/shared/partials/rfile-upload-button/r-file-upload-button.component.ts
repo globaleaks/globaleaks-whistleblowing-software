@@ -39,6 +39,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
 
   autoUploadSubscription: Subscription;
   fileInput: string;
+  uploadKey: string;
   showError = false;
   errorFile: Transfer;
   confirmButton = false;
@@ -55,7 +56,19 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
       query: {reference_id: fieldValue && entry.index !== undefined  ? `${fieldValue.id}-${entry.index}`  : fieldValue ? fieldValue.id : ""}
     });
 
+    // The identifier of the input keeps the position of the field in the form,
+    // that makes it unique in the page, while the uploads are indexed by field
+    // as the validation of the answers expects; the fields accepting more than
+    // one entry keep an upload for each of them
     this.fileInput = this.file_id() || "status_page";
+
+    if (!field) {
+      this.uploadKey = this.fileInput;
+    } else if (field.multi_entry && entry && entry.index !== undefined) {
+      this.uploadKey = `${field.id}-${entry.index}`;
+    } else {
+      this.uploadKey = field.id;
+    }
   }
 
   ngAfterViewInit() {
@@ -82,7 +95,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
       const uploads = this.uploads();
       if (uploads) {
         (this.flow() as any).field = this.field();
-        uploads[this.fileInput] = this.flow();
+        uploads[this.uploadKey] = this.flow();
         this.notifyFileUpload.emit(uploads);
       }
     });
