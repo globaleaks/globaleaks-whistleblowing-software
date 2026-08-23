@@ -1,5 +1,5 @@
 <div id="TipPageFilesInfoBox" class="card card-default">
-  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="toggleColLapse()" (keypress)="toggleColLapse()">
+  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="!collapsed" (click)="toggleColLapse()" (keydown.enter)="toggleColLapse()" (keydown.space)="$event.preventDefault(); toggleColLapse()">
     <span>{{'Attachments'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {

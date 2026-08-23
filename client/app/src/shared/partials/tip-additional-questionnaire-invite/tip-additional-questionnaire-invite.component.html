@@ -1,5 +1,5 @@
-<div id="TipInfoBox" class="card card.bg-primary" [attr.aria-expanded]="collapsed">
-  <div class="card-header" (click)="toggleColLapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleColLapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
+<div id="TipInfoBox" class="card card.bg-primary">
+  <div class="card-header" [attr.aria-expanded]="!collapsed" (click)="toggleColLapse(); utilsService.stopPropagation($event)" (keydown.enter)="toggleColLapse(); utilsService.stopPropagation($event)" (keydown.space)="$event.preventDefault(); toggleColLapse(); utilsService.stopPropagation($event)" tabindex="0" role="button">
     <span>{{'Additional questionnaire'|translate}}</span>
   </div>
   @if (!collapsed) {

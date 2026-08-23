@@ -1,5 +1,5 @@
 <div id="TipPageRFileUpload" class="card card-default">
-  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keypress)="collapsed = !collapsed; utilsService.stopPropagation($event);">
+  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="!collapsed" (click)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keydown.enter)="collapsed = !collapsed; utilsService.stopPropagation($event);" (keydown.space)="$event.preventDefault(); collapsed = !collapsed; utilsService.stopPropagation($event);">
     <span>{{'Files attached by recipients'|translate}}</span>
     <span class="float-end">
       @if (!collapsed) {
