@@ -162,6 +162,27 @@ def trigger_steps(triggered, triggered2=None):
     }]
 
 
+def checkbox_trigger_steps():
+    # A checkbox whose boxes each trigger their own recipients, and a selectbox
+    # answered with a single option
+    return [{
+        'children': [
+            {
+                'id': 'f-check',
+                'type': 'checkbox',
+                'triggered_by_options': [],
+                'options': [
+                    {'id': 'opt-c1', 'trigger_receiver': ['r1']},
+                    {'id': 'opt-c2', 'trigger_receiver': ['r2', 'r3']},
+                    {'id': 'opt-c3', 'trigger_receiver': ['r3', 'r4']},
+                    {'id': 'opt-c4', 'trigger_receiver': []},
+                ],
+                'children': []
+            }
+        ]
+    }]
+
+
 def gated_trigger_steps(triggered):
     # f-gated is enabled only when opt-gate is selected on f-gate
     return [{
@@ -250,6 +271,20 @@ class TestReceiversOverrideEvaluation(unittest.TestCase):
         steps = trigger_steps(['r1'], ['r2', 'r3'])
         answers = {'f-select': [{'value': 'opt-trigger'}], 'f-select-2': [{'value': 'opt-trigger-2'}]}
         self.assertEqual(self.override_for(steps, answers), ['r2', 'r3'])
+
+    def test_ticked_checkboxes_sum_their_triggered_recipients(self):
+        # A checkbox accepts more than one answer: the recipients triggered are
+        # the ones of every box ticked, taken together and without repetitions
+        steps = checkbox_trigger_steps()
+
+        answers = {'f-check': [{'opt-c1': True, 'opt-c2': False, 'opt-c3': False, 'opt-c4': False}]}
+        self.assertEqual(self.override_for(steps, answers), ['r1'])
+
+        answers = {'f-check': [{'opt-c1': True, 'opt-c2': True, 'opt-c3': True, 'opt-c4': True}]}
+        self.assertEqual(self.override_for(steps, answers), ['r1', 'r2', 'r3', 'r4'])
+
+        answers = {'f-check': [{'opt-c1': False, 'opt-c2': False, 'opt-c3': False, 'opt-c4': True}]}
+        self.assertIsNone(self.override_for(steps, answers))
 
     def test_trigger_option_on_disabled_field_is_ignored(self):
         # A trigger option selected on a field that is not enabled by its own
