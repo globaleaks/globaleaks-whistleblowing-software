@@ -1,6 +1,6 @@
 @if (tipService.tip) {
   <div id="TipPageFilesInfoBox" class="card card-default">
-    <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="collapsed = !collapsed; $event.stopPropagation();" (keypress)="collapsed = !collapsed; $event.stopPropagation();">
+    <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="!collapsed" (click)="collapsed = !collapsed; $event.stopPropagation();" (keydown.enter)="collapsed = !collapsed; $event.stopPropagation();" (keydown.space)="$event.preventDefault(); collapsed = !collapsed; $event.stopPropagation();">
       <span>{{ 'Attachments' | translate }}</span>
       <span class="float-end">
         @if (!collapsed) {
