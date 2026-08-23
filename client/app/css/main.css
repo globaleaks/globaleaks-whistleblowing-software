@@ -876,12 +876,49 @@ text.axis-worktime {
   white-space: pre-wrap;
 }
 
+.selection-editor-content {
+  margin: 0.75em 0 0 1.5em;
+}
+
+/* The Add button sits on its own line, indented under the label within the
+   content, and is smaller than a regular small button */
+.selection-editor-add {
+  display: inline-block;
+  margin-bottom: 0.5em;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Without a visible label there is nothing to indent under */
+.selection-editor-flush {
+  margin-left: 0;
+}
+
+.selection-editor-adder {
+  margin-bottom: 0.75em;
+}
+
+/* Icon-only controls of the selection lists are buttons, so that they are
+   reached and activated with the keyboard, but keep the plain look of the
+   icons they wrap */
+.icon-action {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
 .non-default-language,
+.non-default-entry,
 .disabled-icon {
   opacity: 0.2;
 }
 
-.non-default-language:hover {
+.non-default-language:hover,
+.non-default-entry:hover,
+.non-default-entry:focus-visible {
   opacity: 1;
 }
 
