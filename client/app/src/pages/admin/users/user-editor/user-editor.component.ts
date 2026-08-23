@@ -17,12 +17,13 @@ import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver
 import {DatePipe} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe, ListItemComponent]
 })
 export class UserEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -63,10 +64,6 @@ export class UserEditorComponent implements OnInit {
     this.changePasswordArgs = {
       password_change_needed: ""
     };
-  }
-
-  toggleEditing() {
-    this.editing = !this.editing;
   }
 
   disable2FA(user: userResolverModel) {

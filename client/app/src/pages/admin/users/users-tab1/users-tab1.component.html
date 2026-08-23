@@ -1,69 +1,68 @@
-<div class="config-section">
-  <div>
-    <span>{{ 'Users' | translate }}</span>
-    <button class="btn btn-sm btn-primary show-add-user-btn" (click)="toggleAddUser()">
+<app-paginated-interface [items]="usersData()" [filterField]="'name'" [orderBy]="'name'">
+  <ng-template #toolbar>
+    <button class="btn btn-primary show-add-user-btn" (click)="toggleAddUser()">
       <i class="fas fa-plus"></i>
       <span>{{ 'Add' | translate }}</span>
     </button>
-  </div>
-  @if (showAddUser) {
-    <div class="row">
-      <div ngForm="newUser" #newUser="ngForm" class="addUser col-md-6">
-        <div class="form-group">
-          <label for="new-user-role">{{ 'Role' | translate }}</label>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          <div>
-            <select id="new-user-role" name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
-              <option value="admin">{{ 'Admin' | translate }}</option>
-              <option value="analyst">{{ 'Analyst' | translate }}</option>
-              <option value="custodian">{{ 'Custodian' | translate }}</option>
-              <option value="receiver">{{ 'Recipient' | translate }}</option>
-            </select>
-          </div>
-        </div>
-        @if (new_user.role !== 'receiver' || !nodeResolver.dataModel.simplified_login) {
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddUser) {
+      <div class="row config-section">
+        <div ngForm="newUser" #newUser="ngForm" class="addUser col-md-6">
           <div class="form-group">
-            <label for="new-user-username">{{ 'Username' | translate }}</label>
+            <label for="new-user-role">{{ 'Role' | translate }}</label>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             <div>
-              <input id="new-user-username" class="form-control" name="username" [(ngModel)]="new_user.username" type="text" required />
+              <select id="new-user-role" name="role" class="form-select-custom" [(ngModel)]="new_user.role" required>
+                <option value="admin">{{ 'Admin' | translate }}</option>
+                <option value="analyst">{{ 'Analyst' | translate }}</option>
+                <option value="custodian">{{ 'Custodian' | translate }}</option>
+                <option value="receiver">{{ 'Recipient' | translate }}</option>
+              </select>
             </div>
           </div>
-        }
-        <div class="form-group">
-          <label for="new-user-name">{{ 'Name' | translate }}</label>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          <div>
-            <input id="new-user-name" class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>{{ 'Email address' | translate }}</label>
-          <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          <div>
-            <input id="new-user-email" class="form-control" [(ngModel)]="new_user.email" #email="ngModel" name="email" [pattern]="Constants.emailRegexp" [class.is-invalid]="email.invalid && (email.dirty || email.touched)" type="email" required />
-          </div>
-          @if (email?.errors?.['pattern'] && email.invalid && (email.dirty || email.touched)) {
-            <div class="text-danger">
-              {{ 'Invalid email address' | translate }}
+          @if (new_user.role !== 'receiver' || !nodeResolver.dataModel.simplified_login) {
+            <div class="form-group">
+              <label for="new-user-username">{{ 'Username' | translate }}</label>
+              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              <div>
+                <input id="new-user-username" class="form-control" name="username" [(ngModel)]="new_user.username" type="text" required />
+              </div>
             </div>
           }
-        </div>
-        <div class="form-group">
-          <input class="form-check-input" [(ngModel)]="new_user.send_activation_link" type="checkbox" />
-          <label>{{ 'Send activation link' | translate }}</label>
-        </div>
-        <div class="form-group">
-          <button id="add-btn" class="btn btn-primary" [disabled]="newUser.invalid" (click)="addUser(); toggleAddUser()" type="submit">
-            <i class="fas fa-plus"></i>
-            <span>{{ 'Add' | translate }}</span>
-          </button>
+          <div class="form-group">
+            <label for="new-user-name">{{ 'Name' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input id="new-user-name" class="form-control" name="name" [(ngModel)]="new_user.name" type="text" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ 'Email address' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input id="new-user-email" class="form-control" [(ngModel)]="new_user.email" #email="ngModel" name="email" [pattern]="Constants.emailRegexp" [class.is-invalid]="email.invalid && (email.dirty || email.touched)" type="email" required />
+            </div>
+            @if (email?.errors?.['pattern'] && email.invalid && (email.dirty || email.touched)) {
+              <div class="text-danger">
+                {{ 'Invalid email address' | translate }}
+              </div>
+            }
+          </div>
+          <div class="form-group">
+            <input class="form-check-input" [(ngModel)]="new_user.send_activation_link" type="checkbox" />
+            <label>{{ 'Send activation link' | translate }}</label>
+          </div>
+          <div class="form-group">
+            <button id="add-btn" class="btn btn-primary" [disabled]="newUser.invalid" (click)="addUser(); toggleAddUser()" type="submit">
+              <i class="fas fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  }
-</div>
-<app-paginated-interface [items]="usersData()" [filterField]="'name'" [orderBy]="'name'">
+    }
+  </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="user-{{index}}" class="userList" name="editUser" #editUser="ngForm" novalidate>
       <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData()" (deleted)="onDelete($event)"></src-user-editor>

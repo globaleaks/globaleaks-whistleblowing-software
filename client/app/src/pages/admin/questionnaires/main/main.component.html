@@ -1,46 +1,44 @@
-<div class="config-section row">
-  <div class="col-md-12">
-    <div>
-      <span>{{ 'Questionnaires' | translate }}</span>
-      <button class="btn btn-sm btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
+<div class="reveal">
+  <app-paginated-interface [items]="questionnairesData()" [filterField]="'name'" [orderBy]="'name'">
+    <ng-template #toolbar>
+      <button class="btn btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
         <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
         <input id="import-questionnaire-file" type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
-        <label for="import-questionnaire-file" id="keyUpload" class="btn btn-sm btn-outline-secondary">
+        <label for="import-questionnaire-file" id="keyUpload" class="btn btn-outline-secondary">
           <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>
-    </div>
-    @if (showAddQuestionnaire) {
-      <div class="config-section row">
-        <form id="newQuestionnaire" #newQuestionnaire="ngForm" class="addQuestionnaire col-md-6" novalidate>
-          <div class="form-group">
-            <label>
-              <span>{{ 'Name' | translate }}</span>
-              <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-            </label>
-            <div>
-              <input id="new-questionnaire-name" name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [class.is-invalid]="newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']" required />
+    </ng-template>
+    <ng-template #addForm>
+      @if (showAddQuestionnaire) {
+        <div class="config-section row">
+          <form id="newQuestionnaire" #newQuestionnaire="ngForm" class="addQuestionnaire col-md-6" novalidate>
+            <div class="form-group">
+              <label>
+                <span>{{ 'Name' | translate }}</span>
+                <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              </label>
+              <div>
+                <input id="new-questionnaire-name" name="new_questionnaire.name" class="form-control" [(ngModel)]="new_questionnaire.name" type="text" [class.is-invalid]="newQuestionnaire.form.get('new_questionnaire.name')?.errors?.['required']" required />
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
-              <i class="fas fa-plus"></i>
-              <span>{{ 'Add' | translate }}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    }
-
-    <app-paginated-interface [items]="questionnairesData()" [filterField]="'name'" [orderBy]="'name'">
+            <div class="form-group">
+              <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add' | translate }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+    </ng-template>
       <ng-template #content let-item="item" let-index="index">
-        <form id="questionnaire-{{index}}" class="config-item" #editQuestionnaire="ngForm" novalidate>
+        <form id="questionnaire-{{index}}" #editQuestionnaire="ngForm" novalidate>
           <src-questionnaires-list [questionnaire]="item" [editQuestionnaire]="editQuestionnaire" [questionnaires]="questionnairesData()" (duplicated)="getResolver()" (deleted)="onDelete($event)"></src-questionnaires-list>
         </form>
       </ng-template>
-    </app-paginated-interface>
-  </div>
+  </app-paginated-interface>
 </div>

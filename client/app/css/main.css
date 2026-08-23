@@ -837,12 +837,6 @@ p:last-child {
   margin-bottom: 0.5em;
 }
 
-.field {
-  position: relative;
-  border: 1px solid #c8d1e0;
-  margin-bottom: 0.5em;
-}
-
 .field-option {
   margin-bottom: 0.5em;
 }

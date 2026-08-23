@@ -5,6 +5,7 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
@@ -15,7 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-siteslist",
     templateUrl: "./siteslist.component.html",
     standalone: true,
-    imports: [FormsModule, DatePipe, TranslateModule]
+    imports: [FormsModule, DatePipe, TranslateModule, ListItemComponent]
 })
 export class SiteslistComponent {
   protected nodeResolver = inject(NodeResolver);
@@ -47,8 +48,7 @@ export class SiteslistComponent {
     this.httpService.requestUpdateTenant(url, this.tenant()).subscribe();
   }
 
-  deleteTenant(event: Event, tenant: tenantResolverModel) {
-    event.stopPropagation();
+  deleteTenant(tenant: tenantResolverModel) {
     this.openConfirmableModalDialog(tenant, "").subscribe();
   }
 
@@ -72,13 +72,6 @@ export class SiteslistComponent {
         });
       };
     });
-  }
-
-  toggleEditing(event: Event): void {
-    event.stopPropagation();
-    if (this.tenant().id !== 1) {
-      this.editing = !this.editing;
-    }
   }
 
   viewTenant(tenant: tenantResolverModel) {

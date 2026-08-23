@@ -8,7 +8,7 @@ describe("key escrow assignment and revocation", () => {
     const path = `form:contains("${user.name}")`;
 
     cy.get(path).within(() => {
-      cy.get("#edit_user").click();
+      cy.get("[data-action='edit']").click();
 
       cy.get("[name='user.escrow']").click();
 

@@ -14,12 +14,13 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, FilterPipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, FilterPipe, ListItemComponent]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -48,10 +49,6 @@ export class ContextEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
-  }
-
-  toggleEditing(): void {
-    this.editing = !this.editing;
   }
 
   moveUp(e: Event, idx: number): void {

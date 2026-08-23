@@ -12,13 +12,14 @@ import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-mo
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 import {StepsComponent} from "../steps/steps.component";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-questionnaires-list",
     templateUrl: "./questionnaires-list.component.html",
     standalone: true,
-    imports: [FormsModule, StepsComponent, TranslateModule]
+    imports: [FormsModule, StepsComponent, TranslateModule, ListItemComponent]
 })
 export class QuestionnairesListComponent {
   private authenticationService = inject(AuthenticationService);
@@ -33,14 +34,8 @@ export class QuestionnairesListComponent {
   readonly duplicated = output<void>();
   editing = false;
 
-  toggleEditing(questionnaire: questionnaireResolverModel) {
-    this.editing = questionnaire.editable && !this.editing;
-  }
-
   saveQuestionnaire(questionnaire: questionnaireResolverModel) {
-    this.httpService.requestUpdateAdminQuestionnaire(questionnaire.id, questionnaire).subscribe(() => {
-      this.editing = false;
-    });
+    this.httpService.requestUpdateAdminQuestionnaire(questionnaire.id, questionnaire).subscribe();
   }
 
   exportQuestionnaire(questionnaire: questionnaireResolverModel) {

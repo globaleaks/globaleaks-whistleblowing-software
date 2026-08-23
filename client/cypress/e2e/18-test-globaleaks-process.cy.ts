@@ -259,11 +259,11 @@ describe("globaleaks process", function () {
   it("should update default channel", () => {
     cy.login_admin();
     cy.visit("/#/admin/channels");
-    cy.get("#edit_context").first().click();
+    cy.get("[data-action='edit']").first().click();
     cy.get('select[name="contextResolver.questionnaire_id"]').should("be.visible").select('questionnaire 1');
     cy.get("#advance_context").click();
     cy.get('select[name="contextResolver.additional_questionnaire_id"]').should("be.visible").select('questionnaire 2');
-    cy.get("#save_context").click();
+    cy.get("[data-action='save']").click();
     cy.logout();
   });
 
@@ -348,9 +348,9 @@ describe("globaleaks process", function () {
   it("should revert default channel", () => {
     cy.login_admin();
     cy.visit("/#/admin/channels");
-    cy.get("#edit_context").first().click();
+    cy.get("[data-action='edit']").first().click();
     cy.get('select[name="contextResolver.questionnaire_id"]').select('GLOBALEAKS');
-    cy.get("#save_context").click();
+    cy.get("[data-action='save']").click();
     cy.logout();
   });
 });

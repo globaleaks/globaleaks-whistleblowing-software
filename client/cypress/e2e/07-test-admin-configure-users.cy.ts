@@ -56,14 +56,14 @@ describe("admin add, configure, and delete users", () => {
     cy.visit("/#/admin/users");
 
     cy.get(".userList").eq(4).within(() => {
-      cy.get("#edit_user").click();
+      cy.get("[data-action='edit']").click();
       cy.get('input[name="can_mask_information"]').click();
       cy.get('input[name="can_redact_information"]').click();
       cy.get('input[name="can_grant_access_to_reports"]').click();
       cy.get('input[name="can_transfer_access_to_reports"]').click();
       cy.get('input[name="can_delete_submission"]').click();
       cy.get('input[name="can_edit_general_settings"]').click();
-      cy.get("#save_user").click();
+      cy.get("[data-action='save']").click();
     });
   });
 
@@ -74,7 +74,7 @@ describe("admin add, configure, and delete users", () => {
     // Pick the first non-admin user and trigger the reset/activation link.
     // The administrator must confirm the operation with their own password;
     // sending the link does not alter the user's current password.
-    cy.get(".userList").eq(1).find("#edit_user").should("be.visible").click();
+    cy.get(".userList").eq(1).find("[data-action='edit']").should("be.visible").click();
     cy.get(".userList").eq(1).find("#send_reset_link").should("be.visible").click();
 
     cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
@@ -97,7 +97,7 @@ describe("admin add, configure, and delete users", () => {
 
     cy.get(".userList").its("length").then(userListLength => {
       for (let i = 0; i < userListLength; i++) {
-        cy.get(".userList").eq(i).find("#edit_user").should("be.visible").click();
+        cy.get(".userList").eq(i).find("[data-action='edit']").should("be.visible").click();
 
         cy.get(".userList").eq(i).then($row => {
           // The administrator's own account does not expose a password reset.

@@ -1,28 +1,26 @@
-<div class="config-section row">
-  <div class="col-md-12">
-    <div>
-      <span>{{ 'Question templates' | translate }}</span>
-      <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
+<div class="reveal">
+  <app-paginated-interface [items]="fields" [filterField]="'name'" [orderBy]="'label'">
+    <ng-template #toolbar>
+      <button class="btn btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
         <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span class="custom-file">
         <input id="import-question-file" type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
-        <label for="import-question-file" class="btn btn-sm btn-outline-secondary">
+        <label for="import-question-file" class="btn btn-outline-secondary">
           <i class="fas fa-upload"></i>{{'Import' | translate}}
         </label>
       </span>
-    </div>
-  </div>
-  @if (showAddQuestion) {
-    <div class="config-section col-md-6">
-      @if (questionnairesData) {
-        <src-add-field [fields]="fields" [type]="'template'" (added)="onAdd()"></src-add-field>
+    </ng-template>
+    <ng-template #addForm>
+      @if (showAddQuestion) {
+        <div class="config-section col-md-6">
+          @if (questionnairesData) {
+            <src-add-field [fields]="fields" [type]="'template'" (added)="onAdd()"></src-add-field>
+          }
+        </div>
       }
-    </div>
-  }
-
-  <app-paginated-interface [items]="fields" [filterField]="'name'" [orderBy]="'label'">
+    </ng-template>
     <ng-template #content let-item="item" let-index="index">
       <div id="field-{{index}}" class="fieldBox">
         <form #editField="ngForm">
