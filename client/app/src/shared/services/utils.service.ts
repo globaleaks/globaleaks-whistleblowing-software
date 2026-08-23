@@ -307,20 +307,42 @@ export class UtilsService {
     return text?text:"";
   }
 
-  searchInObject(obj: any, searchTerm: string) {
-    try {
-        // Convert object to a string
-        const objString = JSON.stringify(obj);
-
-        // Create a regular expression for the search term with 'i' flag for case-insensitive search
-        const regex = new RegExp(String(searchTerm).trim(), 'i');
-
-        // Test if the search term is found in the object string
-        return regex.test(objString);
-    } catch {
-        // Return false in case of any exception (e.g., cyclic reference or BigInt error)
-        return false;
+  /**
+   * Tell whether the searched text appears in one of the values held by the
+   * object, however deep it is nested.
+   *
+   * The text is searched literally: it is what is typed in a search box, not
+   * an expression, and a parenthesis has to find a parenthesis. Only the
+   * values are searched, never the names of the fields, so that searching
+   * "name" does not return every element.
+   */
+  searchInObject(obj: unknown, searchTerm: string, seen = new Set<unknown>()): boolean {
+    const searched = String(searchTerm).trim().toLowerCase();
+    if (!searched) {
+      return true;
     }
+
+    return this.matchesSearch(obj, searched, seen);
+  }
+
+  private matchesSearch(value: unknown, searched: string, seen: Set<unknown>): boolean {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (typeof value === "object") {
+      // The objects of the models reference each other: a value already
+      // visited would make the visit endless
+      if (seen.has(value)) {
+        return false;
+      }
+
+      seen.add(value);
+
+      return Object.values(value).some(entry => this.matchesSearch(entry, searched, seen));
+    }
+
+    return String(value).toLowerCase().includes(searched);
   }
 
   isDatePassed(time: string) {
