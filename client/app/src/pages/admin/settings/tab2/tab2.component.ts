@@ -125,25 +125,21 @@ export class Tab2Component implements OnInit {
   }
 
   togglePermissionUploadFiles(): void {
-    if (!this.authenticationData.session.permissions.can_upload_files) {
-      this.utilsService.runAdminOperation("enable_user_permission_file_upload", {}, false).subscribe({
-        next: () => {
-          this.authenticationData.session.permissions.can_upload_files = true;
-          this.permissionStatus = true;
-        },
-        error: () => {
-          this.authenticationData.session.permissions.can_upload_files = false;
-          this.togglePermissionUploadFiles();
-          this.permissionStatus = false;
-        }
-      });
-    } else {
-      this.utilsService.runAdminOperation("disable_user_permission_file_upload", {}, false).subscribe(
-        () => {
-          this.authenticationData.session.permissions.can_upload_files = false;
-          this.permissionStatus = false;
-        }
-      );
-    }
+    // The switch shows the permission actually held by the session: the state
+    // changes only once the operation, which is authorized by the password
+    // confirmation, has succeeded. A rejected or dismissed confirmation
+    // therefore leaves the switch where it was.
+    const enable = !this.authenticationData.session.permissions.can_upload_files;
+    const operation = enable ? "enable_user_permission_file_upload" : "disable_user_permission_file_upload";
+
+    this.utilsService.runAdminOperation(operation, {}, false).subscribe({
+      next: () => {
+        this.authenticationData.session.permissions.can_upload_files = enable;
+        this.permissionStatus = enable;
+      },
+      error: () => {
+        this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
+      }
+    });
   }
 }
