@@ -42,7 +42,7 @@ describe("admin add, configure and delete questionnaires", () => {
       }
 
       cy.get('button[name="delOption"]').eq(2).click();
-      cy.get('button[name="save_field"]').filter(':visible').first().click();
+      cy.get(".field [data-action='save']").filter(':visible').first().click();
     }
   };
 
@@ -75,12 +75,12 @@ describe("admin add, configure and delete questionnaires", () => {
 
     cy.contains("Step 2").click();
 
-    cy.get('button[name="delStep"]').eq(2).click();
+    cy.get(".step [data-action='delete']").eq(2).click();
     cy.get("#modal-action-ok").click();
 
     cy.contains("Questionnaire 1").click();
 
-    cy.get('button[name="deleteQuestionnaire"]').each(($button) => {
+    cy.get(".questionnaire [data-action='delete']").each(($button) => {
       cy.wrap($button).click();
       cy.get("#modal-action-ok").click();
     });

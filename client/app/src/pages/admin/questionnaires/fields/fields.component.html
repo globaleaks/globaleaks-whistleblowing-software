@@ -1,575 +1,544 @@
-<div class="config-item">
-    <div class="editorHeader">
-      <div class="row" (click)="field().editable && toggleEditing(); $event.stopPropagation();" (keydown.enter)="field().editable && toggleEditing(); $event.stopPropagation();" tabindex="0" role="button">
-        <div class="col-md-6">
-          <span>{{ field().label }}</span>
-          @if (field().step_id || field().fieldgroup_id) {
-            <span class="fieldIndex badge bg-secondary">
-              <span>{{ 'Row' | translate }}: {{ field().y }}</span>
-              <span>{{ 'Column' | translate }}: {{ field().x }}</span>
-              <span>{{ 'Width' | translate }}: {{ field().width }}</span>
-            </span>
-          }
-          <span class="fieldType badge bg-primary">
-            <span>{{ 'Type' | translate }}:</span>
-            @if (!field().template_id) {
-              @switch (field().type) {
-                @case ('inputbox') {
-                  <span>{{ 'Single-line text input' | translate }}</span>
-                }
-                @case ('textarea') {
-                  <span>{{ 'Multi-line text input' | translate }}</span>
-                }
-                @case ('selectbox') {
-                  <span>{{ 'Selection box' | translate }}</span>
-                }
-                @case ('multichoice') {
-                  <span>{{ 'Multiple choice input' | translate }}</span>
-                }
-                @case ('checkbox') {
-                  <span>{{ 'Checkbox' | translate }}</span>
-                }
-                @case ('fileupload') {
-                  <span>{{ 'Attachment' | translate }}</span>
-                }
-                @case ('tos') {
-                  <span>{{ 'Terms of service' | translate }}</span>
-                }
-                @case ('date') {
-                  <span>{{ 'Date' | translate }}</span>
-                }
-                @case ('daterange') {
-                  <span>{{ 'Date range' | translate }}</span>
-                }
-                @case ('voice') {
-                  <span>{{ 'Voice' | translate }}</span>
-                }
-                @case ('fieldgroup') {
-                  <span>{{ 'Question group' | translate }}</span>
-                }
-                @default {
-                  <span>{{ field().type }}</span>
-                }
-              }
-            }
-            @if (field().template_id) {
-              <span>{{ 'Template' | translate }}</span>
-            }
+<src-list-item class="field" [titleColumns]="6" [(editing)]="editing" [canEdit]="field().editable" [canDelete]="field().editable" (save)="saveField(field())" (deleted)="delField(field())">
+  <ng-container title>
+        <span>{{ field().label }}</span>
+        @if (field().step_id || field().fieldgroup_id) {
+          <span class="fieldIndex badge bg-secondary">
+            <span>{{ 'Row' | translate }}: {{ field().y }}</span>
+            <span>{{ 'Column' | translate }}: {{ field().x }}</span>
+            <span>{{ 'Width' | translate }}: {{ field().width }}</span>
           </span>
-          @if (field().required) {
-            <span class="badge bg-danger">
-              <span ngbTooltip="{{'Mandatory' | translate}}">
-                <i class="fas fa-asterisk"></i>
-              </span>
-            </span>
+        }
+        <span class="fieldType badge bg-primary">
+          <span>{{ 'Type' | translate }}:</span>
+          @if (!field().template_id) {
+            @switch (field().type) {
+              @case ('inputbox') {
+                <span>{{ 'Single-line text input' | translate }}</span>
+              }
+              @case ('textarea') {
+                <span>{{ 'Multi-line text input' | translate }}</span>
+              }
+              @case ('selectbox') {
+                <span>{{ 'Selection box' | translate }}</span>
+              }
+              @case ('multichoice') {
+                <span>{{ 'Multiple choice input' | translate }}</span>
+              }
+              @case ('checkbox') {
+                <span>{{ 'Checkbox' | translate }}</span>
+              }
+              @case ('fileupload') {
+                <span>{{ 'Attachment' | translate }}</span>
+              }
+              @case ('tos') {
+                <span>{{ 'Terms of service' | translate }}</span>
+              }
+              @case ('date') {
+                <span>{{ 'Date' | translate }}</span>
+              }
+              @case ('daterange') {
+                <span>{{ 'Date range' | translate }}</span>
+              }
+              @case ('voice') {
+                <span>{{ 'Voice' | translate }}</span>
+              }
+              @case ('fieldgroup') {
+                <span>{{ 'Question group' | translate }}</span>
+              }
+              @default {
+                <span>{{ field().type }}</span>
+              }
+            }
           }
-        </div>
-        @if (field().editable) {
-          <span class="col-md-6 clearfix">
-            <span class="float-end">
-              @if (!editing) {
-                <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(); $event.stopPropagation();">
-                  <span>{{ 'Edit' | translate }}</span>
-                </button>
-              }
-              @if (editing) {
-                <button name="save_field" class="btn btn-sm btn-primary" (click)="saveField(field())">
-                  <span>{{ 'Save' | translate }}</span>
-                </button>
-              }
-              @if (editing) {
-                <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(); $event.stopPropagation();">
-                  <span>{{ 'Cancel' | translate }}</span>
-                </button>
-              }
-              <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestion(field()); $event.stopPropagation()">
-                <i class="fas fa-file-export"></i>
-                <span>{{ 'Export' | translate }}</span>
-              </button>
-              @if (field().editable) {
-                <button class="btn btn-sm btn-danger" (click)="delField(field()); $event.stopPropagation();">
-                  <span>{{ 'Delete' | translate }}</span>
-                </button>
-              }
-              @if (field().step_id || field().fieldgroup_id) {
-                <span>
-                  <button class="btn btn-sm btn-primary" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
-                    <i class="fas fa-chevron-left"></i>
-                  </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
-                    <i class="fas fa-chevron-right"></i>
-                  </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
-                    <i class="fas fa-chevron-up"></i>
-                  </button>
-                  <button class="btn btn-sm btn-primary" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
-                    <i class="fas fa-chevron-down"></i>
-                  </button>
-                </span>
-              }
+          @if (field().template_id) {
+            <span>{{ 'Template' | translate }}</span>
+          }
+        </span>
+        @if (field().required) {
+          <span class="badge bg-danger">
+            <span ngbTooltip="{{'Mandatory' | translate}}">
+              <i class="fas fa-asterisk"></i>
             </span>
           </span>
         }
-      </div>
-      @if (editing) {
-        <div class="fieldEditor">
-          <hr />
-          <div class="row">
-            @if (field().editable) {
-              <div class="col-md-12">
-                @if (field().instance !== 'reference') {
-                  <div class="form-group">
-                    <label for="field-label-{{field().id}}">{{ 'Name' | translate }}</label>
-                    <input id="field-label-{{field().id}}" name="label" class="form-control" [(ngModel)]="field().label" type="text" required />
-                    @if (editField().form.get('label')?.errors?.['required']) {
-                      <div class="text-danger">
-                        <span>{{ 'This field is mandatory' | translate }}</span>
-                      </div>
-                    }
-                  </div>
-                }
-                @if (field().instance !== 'reference' && (field().type === 'inputbox' || field().type === 'textarea')) {
-                  <div class="form-group">
-                    <label for="field-type-{{field().id}}">
-                      <span>{{ 'Type' | translate }}</span>
-                      <span>:</span>
-                    </label>
-                    <select id="field-type-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().type" required>
-                      <option value="inputbox">{{ 'Single-line text input' | translate }}</option>
-                      <option value="textarea">{{ 'Multi-line text input' | translate }}</option>
-                    </select>
-                  </div>
-                }
-                @if (field().instance !== 'reference' && (field().type === 'selectbox' || field().type === 'checkbox' || field().type === 'multichoice')) {
-                  <div class="form-group">
-                    <label for="field-type-multi-{{field().id}}">
-                      <span>{{ 'Type' | translate }}</span>
-                      <span>:</span>
-                    </label>
-                    <select id="field-type-multi-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().type" required>
-                      <option value="selectbox">{{ 'Selection box' | translate }}</option>
-                      <option value="multichoice">{{ 'Multiple choice input' | translate }}</option>
-                      <option value="checkbox">{{ 'Checkbox' | translate }}</option>
-                    </select>
-                  </div>
-                }
-                @if (field().instance !== 'reference') {
-                  <div class="form-group">
-                    <label for="field-hint-{{field().id}}">{{ 'Hint' | translate }}</label>
-                    <input id="field-hint-{{field().id}}" name="hint" class="form-control" [(ngModel)]="field().hint" type="text">
-                  </div>
-                }
-                @if (field().instance !== 'reference') {
-                  <div class="form-group">
-                    <label for="field-description-{{field().id}}">{{ 'Description' | translate }}</label>
-                    <textarea id="field-description-{{field().id}}" name="description" class="form-control" [(ngModel)]="field().description"></textarea>
-                  </div>
-                }
-                @if (field().instance !== 'reference' && (field().type === 'inputbox' || field().type === 'textarea')) {
-                  <div class="form-group">
-                    <label for="field-placeholder-{{field().id}}">{{ 'Placeholder' | translate }}</label>
-                    <input id="field-placeholder-{{field().id}}" name="hint" class="form-control" [(ngModel)]="field().placeholder" type="text">
-                  </div>
-                }
-                @if (field().type !== 'fieldgroup') {
-                  <div class="form-group">
-                    <input name="field.required" [(ngModel)]="field().required" type="checkbox">
-                    <label>{{ 'Mandatory' | translate }}</label>
-                  </div>
-                }
-                @if ((field().type === 'fieldgroup' || field().type === 'fileupload') && field().template_id === '') {
-                  <div class="form-group">
-                    <div>
-                      @switch (typeSwitch(field().type)) {
-                        @case ('fileupload') {
-                          <input [(ngModel)]="field().multi_entry" type="checkbox">
-                          <label>{{ 'Accept multiple file uploads' | translate }}</label>
-                        }
-                        @default {
-                          <input [(ngModel)]="field().multi_entry" type="checkbox">
-                          <label>{{ 'Accept multiple answers' | translate }}</label>
-                        }
-                      }
-                    </div>
-                </div>
-              }
-              @if (fieldIsMarkableSubjectToPreview) {
-                <div class="form-group">
-                  <input [(ngModel)]="field().preview" type="checkbox">
-                  <label>{{ 'Preview' | translate }}</label>
-                </div>
-              }
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Width' | translate }}</span>
-                  <span>(</span><span>{{ '0 = auto' | translate }}</span><span>)</span>
-                </label>
-                <input id="field-width-{{field().id}}" class="form-control" [(ngModel)]="field().width" type="number" min="0" max="12">
-              </div>
-              @if (field().template_id) {
-                <div class="form-group">
-                  <label for="field-template-override-{{field().id}}">{{ 'Template override' | translate }}</label>
-                  <input id="field-template-override-{{field().id}}" name="template_override_id" class="form-control" [(ngModel)]="field().template_override_id" type="text">
-                </div>
-              }
-            </div>
-          }
-        </div>
-        @if (field().instance !== 'reference') {
-          <div class="row">
-            <div class="col-md-12">
-              @if (field().type === 'inputbox' || field().type === 'textarea' || field().type === 'voice') {
-                <div>
-                  <div class="form-group">
-                    <label for="field-min-len-{{field().id}}">{{ 'Min' | translate }}</label>
-                    <input id="field-min-len-{{field().id}}" [(ngModel)]="field().attrs.min_len.value" type="text" class="form-control" [disabled]="!field().editable" />
-                    <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
-                  </div>
-                  <div class="form-group">
-                    <label for="field-max-len-{{field().id}}">{{ 'Max' | translate }}</label>
-                    <input id="field-max-len-{{field().id}}" [(ngModel)]="field().attrs.max_len.value" type="text" class="form-control" [disabled]="!field().editable" />
-                    <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
-                  </div>
-                  @if (field().attrs.input_validation) {
-                    <div class="form-group">
-                      <label for="field-input-validation-{{field().id}}">{{ 'Input validation' | translate }}</label>
-                      <select id="field-input-validation-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().attrs.input_validation.value" required>
-                        <option value="none">{{ 'None' | translate }}</option>
-                        <option value="email">{{ 'Email address' | translate }}</option>
-                        <option value="number">{{ 'Number' | translate }}</option>
-                        <option value="phonenumber">{{ 'Phone number' | translate }}</option>
-                        <option value="custom">{{ 'Custom' | translate }}</option>
-                      </select>
-                    </div>
-                  }
-                  @if (isCustomValidation(field())) {
-                    <div class="form-group">
-                      <label for="field-regexp-{{field().id}}">{{ 'Regular expression' | translate }}</label>
-                      <input id="field-regexp-{{field().id}}" [(ngModel)]="field().attrs.regexp.value" type="text" class="form-control" [disabled]="!field().editable" />
-                    </div>
-                  }
-                </div>
-              }
-              @if (field().type === 'tos') {
-                <div>
-                  <div class="form-group">
-                    <label for="field-tos-text-{{field().id}}">{{ 'Text' | translate }}</label>
-                    <textarea id="field-tos-text-{{field().id}}" [(ngModel)]="field().attrs.text.value" class="form-control" [disabled]="!field().editable"></textarea>
-                  </div>
-                  <div class="form-group">
-                    <label for="field-checkbox-label-{{field().id}}">{{ 'Checkbox label' | translate }}</label>
-                    <input id="field-checkbox-label-{{field().id}}" [(ngModel)]="field().attrs.checkbox_label.value" type="text" class="form-control" />
-                  </div>
-                  <div class="form-group">
-                    <input [(ngModel)]="field().attrs.attachment.value" type="checkbox" />
-                    <label>{{ 'Attachment' | translate }}</label>
-                  </div>
-                  @if (field().attrs.attachment.value) {
-                    <div class="nested">
-                      <div class="form-group">
-                        <label for="field-attachment-text-{{field().id}}">{{ 'Text' | translate }}</label>
-                        <input id="field-attachment-text-{{field().id}}" [(ngModel)]="field().attrs.attachment_text.value" type="text" class="form-control" />
-                      </div>
-                      <div class="form-group">
-                        <label for="field-attachment-url-{{field().id}}">URL</label>
-                        <input id="field-attachment-url-{{field().id}}" [(ngModel)]="field().attrs.attachment_url.value" type="text" class="form-control" />
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-              @if (field().type === 'fieldgroup') {
-                <div>
-                  <div class="form-group">
-                    <input [(ngModel)]="field().attrs.multimedia.value" type="checkbox">
-                    <label>{{ 'Add multimedia content' | translate }}</label>
-                    @if (field().attrs.multimedia.value) {
-                      <div class="nested">
-                        <div class="form-group">
-                          <label for="field-multimedia-type-{{field().id}}">{{ 'Type' | translate }}</label>
-                          <select id="field-multimedia-type-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().attrs.multimedia_type.value" required>
-                            <option value="image">{{ 'Image' | translate }}</option>
-                            <option value="audio">{{ 'Audio' | translate }}</option>
-                            <option value="video">{{ 'Video' | translate }}</option>
-                          </select>
-                        </div>
-                        <div class="form-group">
-                          <label for="field-multimedia-url-{{field().id}}">URL</label>
-                          <input id="field-multimedia-url-{{field().id}}" [(ngModel)]="field().attrs.multimedia_url.value" type="text" class="form-control" required />
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-              <div>
-                @if (field().type === 'checkbox' || field().type === 'selectbox' || field().type === 'multichoice') {
-                  <div>
-                    <div class="form-group">
-                      <input [(ngModel)]="field().attrs.display_alphabetically.value" type="checkbox" [disabled]="!field().editable">
-                      <label>{{ 'Display options alphabetically' | translate }}</label>
-                    </div>
-                  </div>
-                }
-                @if (field().type === 'date' || field().type === 'daterange') {
-                  <div ngbTooltip="{{'Accept multiple file uploads' | translate}}">
-                    <div class="form-group">
-                      <label for="field-min-date-{{field().id}}" class="visually-hidden">{{ 'Minimum date' | translate }}</label>
-                      <input id="field-min-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="minDate" [(ngModel)]="field().attrs.min_date.value" ngbDatepicker #minDate="ngbDatepicker" (click)="toggleMinDate() ; minDate.toggle()" />
-                      <label>{{ 'Earliest selectable date' | translate }}:</label>
-                      @if (field().attrs.min_date.value) {
-                        <span>
-                          <span>{{minDateFormat(field().attrs.min_date.value) | date:'dd-MM-yyyy'}}</span>
-                          <button class="btn btn-sm btn-danger" (click)="field().attrs.min_date.value = ''; $event.stopPropagation();">
-                            <i class="fas fa-xmark"></i>
-                          </button>
-                        </span>
-                      }
-                      @if (field().attrs.min_date.value === '') {
-                        <button (click)="minDate.toggle()" type="button" class="btn btn-sm btn-outline-secondary">
-                          <i class="fas fa-calendar"></i>
-                        </button>
-                      }
-                    </div>
-                    <div class="form-group">
-                      <label for="field-max-date-{{field().id}}" class="visually-hidden">{{ 'Maximum date' | translate }}</label>
-                      <input id="field-max-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="field().attrs.max_date.value" ngbDatepicker #d="ngbDatepicker" (click)="toggleMaxDate() ; d.toggle()" />
-                      <label>{{ 'Latest selectable date' | translate }}:</label>
-                      @if (field().attrs.max_date.value) {
-                        <span>
-                          <span>{{maxDateFormat(field().attrs.max_date.value) | date:'dd-MM-yyyy' }}</span>
-                          <button class="btn btn-sm btn-danger" (click)="field().attrs.max_date.value = ''">
-                            <i class="fas fa-xmark"></i>
-                          </button>
-                        </span>
-                      }
-                      @if (field().attrs.max_date.value === '') {
-                        <button type="button" (click)="d.toggle()" class="btn btn-sm btn-outline-secondary">
-                          <i class="fas fa-calendar"></i>
-                        </button>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-        <div class="row">
-          @if (field().instance === 'reference') {
-            <div class="col-md-12">
-              @switch (field().template_id) {
-                @case ('whistleblower_identity') {
-                  <div>
-                    <div class="form-group">
-                      <input [(ngModel)]="field().required" type="checkbox">
-                      <label>{{ 'Mandatory' | translate }}</label>
-                    </div>
-                    @if (!field().required) {
-                      <div>
-                        <div class="form-group">
-                          <label for="field-negative-answer-text-{{field().id}}">{{ 'Text shown upon negative answer' | translate }}</label>
-                          <div>
-                            <textarea id="field-negative-answer-text-{{field().id}}" class="form-control" [(ngModel)]="field().attrs.text_shown_upon_negative_answer.value"></textarea>
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
-              }
-            </div>
-          }
-        </div>
-        <div class="row">
-          <div class="col-md-12">
+  </ng-container>
+  <ng-container actions>
+    @if (field().editable) {
+      <button type="button" class="downloadButton btn btn-sm btn-outline-secondary" data-action="export" (click)="exportQuestion(field()); $event.stopPropagation()">
+        <i class="fas fa-file-export"></i>
+        <span>{{ 'Export' | translate }}</span>
+      </button>
+      @if (field().step_id || field().fieldgroup_id) {
+        <button type="button" class="btn btn-sm btn-primary" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
+          <i class="fas fa-chevron-up"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
+          <i class="fas fa-chevron-down"></i>
+        </button>
+      }
+    }
+  </ng-container>
+  <ng-template #body>
+    <div class="row">
+      @if (field().editable) {
+        <div class="col-md-12">
+          @if (field().instance !== 'reference') {
             <div class="form-group">
-              <label>
-                <span>{{ 'Trigger conditions' | translate }}</span>
-                <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddTrigger()">
-                  <i class="fas fa-plus"></i>
-                  <span>{{ 'Add' | translate }}</span>
-                </button>
+              <label for="field-label-{{field().id}}">{{ 'Name' | translate }}</label>
+              <input id="field-label-{{field().id}}" name="label" class="form-control" [(ngModel)]="field().label" type="text" required />
+              @if (editField().form.get('label')?.errors?.['required']) {
+                <div class="text-danger">
+                  <span>{{ 'This field is mandatory' | translate }}</span>
+                </div>
+              }
+            </div>
+          }
+          @if (field().instance !== 'reference' && (field().type === 'inputbox' || field().type === 'textarea')) {
+            <div class="form-group">
+              <label for="field-type-{{field().id}}">
+                <span>{{ 'Type' | translate }}</span>
+                <span>:</span>
               </label>
-              @if (showAddTrigger) {
-                <div>
-                  <div class="form-group">
-                    <label for="field-new-trigger-field-{{field().id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
-                    <select id="field-new-trigger-field-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
-                      @for (triggerField of parsedFields().fields; track triggerField) {
-                        @if (triggerField.id !== field().id) {
-                          <option [value]="triggerField.id">{{triggerField.label}}
-                          </option>
-                        }
-                      }
-                    </select>
-                  </div>
-                  @if (new_trigger.field) {
-                    <div class="form-group">
-                      <label for="field-new-trigger-option-{{field().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
-                      <select id="field-new-trigger-option-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
-                        @for (option of parsedFields().fields_by_id[new_trigger.field].options; track option) {
-                          <option [value]="option.id">{{option.label}}</option>
-                        }
-                      </select>
-                    </div>
-                  }
-                  @if (new_trigger.field) {
-                    <div class="form-group">
-                      <input [(ngModel)]="new_trigger.sufficient" type="checkbox">
-                      <label>{{ 'Sufficient' | translate }}</label>
-                    </div>
-                  }
-                  <div class="form-group">
-                    <button id="add-step-btn" class="btn btn-primary" [disabled]="!new_trigger.field || !new_trigger.option" (click)="addTrigger()">
-                      <i class="fas fa-plus"></i>
-                      <span>{{ 'Add' | translate }}</span>
-                    </button>
-                  </div>
-                </div>
-              }
-              @for (trigger of field().triggered_by_options; track trigger) {
-                <div class="nested">
-                  <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
-                    <i class="fas fa-xmark"></i>
-                  </button>
-                  <span>{{parsedFields().fields_by_id[trigger.field].label}}</span>: <span>{{parsedFields().options_by_id[trigger.option].label}}</span>
-                  @if (trigger.sufficient) {
-                    <span>( <span>{{'Sufficient'|translate}}</span>) </span>
-                  }
-                </div>
-              }
+              <select id="field-type-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().type" required>
+                <option value="inputbox">{{ 'Single-line text input' | translate }}</option>
+                <option value="textarea">{{ 'Multi-line text input' | translate }}</option>
+              </select>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            @if (showOptions(field())) {
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Options' | translate }}</span>
-                  <button name="addOption" class="btn btn-sm btn-primary show-add-question-btn" (click)="addOption()">
-                    <i class="fas fa-plus"></i>
-                    <span>{{ 'Add' | translate }}</span>
-                  </button>
-                </label>
-                <div class="col-md-12">
-                  @for (option of field().options; track option; let i = $index) {
-                    <div class="field-option">
-                      <div class="row">
-                        <div class="col-md-1">
-                          <div class="badge bg-secondary">{{ i + 1 }}</div>
-                        </div>
-                        <div class="col-md-6">
-                          <label for="field-option-label-{{option.id}}" class="visually-hidden">{{ 'Option label' | translate }}</label>
-                          <input id="field-option-label-{{option.id}}" class="form-control" name="option.label" [(ngModel)]="option.label" [attr.placeholder]="'Label' | translate" [placeholder]="'Label' | translate" type="text" [disabled]="!field().editable" required />
-                        </div>
-                        <div class="col-md-5">
-                          <span>
-                            <button class="btn btn-sm" id="option_hint" [class.btn-primary]="option.hint1 || option.hint2" [class.btn-outline-secondary]="!(option.hint1 || option.hint2)" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
-                              <i class="fas fa-circle-question"></i>
-                            </button>
-                          </span>
-                          <span>
-                            <button class="btn btn-sm" id="option_block_submission" [class.btn-danger]="option.block_submission" [class.btn-outline-secondary]="!option.block_submission" (click)="flipBlockSubmission(option)" ngbTooltip="{{'Block the submission' | translate}}">
-                              <i class="fas fa-ban"></i>
-                            </button>
-                          </span>
-                          <span>
-                            <button class="btn btn-sm" id="option_trigger_receiver" [class.btn-primary]="option.trigger_receiver.length" [class.btn-outline-secondary]="!option.trigger_receiver.length" (click)="triggerReceiverDialog(option)" ngbTooltip="{{'Recipients' | translate}}">
-                              <i class="fas fa-user"></i>
-                            </button>
-                          </span>
-                          @if (nodeResolver.dataModel.enable_scoring_system) {
-                            <span>
-                              <button class="btn btn-sm" id="option_score" [class.btn-primary]="option.score_type !== 'none'" [class.btn-outline-secondary]="option.score_type === 'none'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" ngbTooltip="{{'Recipients' | translate}}">
-                                <i class="fas fa-bolt"></i>
-                                @if (option.score_type !== 'none') {
-                                  <span>
-                                    <span> {{ option.score_points }} </span>
-                                    <span>
-                                      @switch (option.score_type) {
-                                        @case ('addition') {
-                                          <span> ( <span>{{ 'Addition' | translate }}</span>) </span>
-                                        }
-                                        @case ('multiplier') {
-                                          <span> ( <span>{{ 'Multiplier' | translate }}</span>) </span>
-                                        }
-                                      }
-                                    </span>
-                                  </span>
-                                }
-                              </button>
-                            </span>
-                          }
-                          <button name="delOption" class="btn btn-sm btn-danger" (click)="delOption(option)">
-                            <i class="fas fa-xmark"></i>
-                          </button>
-                          <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
-                            <i class="fas fa-chevron-up"></i>
-                          </button>
-                          <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
-                            <i class="fas fa-chevron-down"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+          }
+          @if (field().instance !== 'reference' && (field().type === 'selectbox' || field().type === 'checkbox' || field().type === 'multichoice')) {
+            <div class="form-group">
+              <label for="field-type-multi-{{field().id}}">
+                <span>{{ 'Type' | translate }}</span>
+                <span>:</span>
+              </label>
+              <select id="field-type-multi-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().type" required>
+                <option value="selectbox">{{ 'Selection box' | translate }}</option>
+                <option value="multichoice">{{ 'Multiple choice input' | translate }}</option>
+                <option value="checkbox">{{ 'Checkbox' | translate }}</option>
+              </select>
+            </div>
+          }
+          @if (field().instance !== 'reference') {
+            <div class="form-group">
+              <label for="field-hint-{{field().id}}">{{ 'Hint' | translate }}</label>
+              <input id="field-hint-{{field().id}}" name="hint" class="form-control" [(ngModel)]="field().hint" type="text">
+            </div>
+          }
+          @if (field().instance !== 'reference') {
+            <div class="form-group">
+              <label for="field-description-{{field().id}}">{{ 'Description' | translate }}</label>
+              <textarea id="field-description-{{field().id}}" name="description" class="form-control" [(ngModel)]="field().description"></textarea>
+            </div>
+          }
+          @if (field().instance !== 'reference' && (field().type === 'inputbox' || field().type === 'textarea')) {
+            <div class="form-group">
+              <label for="field-placeholder-{{field().id}}">{{ 'Placeholder' | translate }}</label>
+              <input id="field-placeholder-{{field().id}}" name="hint" class="form-control" [(ngModel)]="field().placeholder" type="text">
+            </div>
+          }
+          @if (field().type !== 'fieldgroup') {
+            <div class="form-group">
+              <input name="field.required" [(ngModel)]="field().required" type="checkbox">
+              <label>{{ 'Mandatory' | translate }}</label>
+            </div>
+          }
+          @if ((field().type === 'fieldgroup' || field().type === 'fileupload') && field().template_id === '') {
+            <div class="form-group">
+              <div>
+                @switch (typeSwitch(field().type)) {
+                  @case ('fileupload') {
+                    <input [(ngModel)]="field().multi_entry" type="checkbox">
+                    <label>{{ 'Accept multiple file uploads' | translate }}</label>
                   }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-        @if (field().editable && field().instance !== 'reference' && field().type === 'fieldgroup') {
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <div>
-                  <span>{{ 'Questions' | translate }}</span>
-                  <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
-                    <i class="fas fa-plus"></i>
-                    <span>{{ 'Add new question' | translate }}</span>
-                  </button>
-                  @if (fieldTemplatesData.length > 0) {
-                    <button class="btn btn-sm btn-primary show-add-question-from-template-btn" (click)="toggleAddQuestionFromTemplate()">
-                      <i class="fas fa-plus"></i>
-                      <span>{{ 'Add question from template' | translate }}</span>
-                    </button>
+                  @default {
+                    <input [(ngModel)]="field().multi_entry" type="checkbox">
+                    <label>{{ 'Accept multiple answers' | translate }}</label>
                   }
-                </div>
-                @if (field().editable && field().type === 'fieldgroup') {
-                  <div class="row">
-                    @if (showAddQuestion) {
-                      <div class="col-md-12">
-                        <src-add-field [step]="field()" [type]="'field'" (added)="onUpdate()"></src-add-field>
-                      </div>
-                    }
-                    @if (showAddQuestionFromTemplate) {
-                      <div class="col-md-12">
-                        <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field()" [type]="'field'" (added)="onUpdate()"></src-add-field-from-template>
-                      </div>
-                    }
-                  </div>
                 }
-                <div class="configuredFields">
-                  @for (childField of children | orderBy:['y', 'x']; track childField; let index = $index) {
-                    <div>
-                      <div id="field-{{index}}" class="fieldBox">
-                        <form #editField="ngForm">
-                          <src-fields [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields()" (updated)="onUpdate()"></src-fields>
-                        </form>
-                      </div>
-                    </div>
-                  }
-                </div>
               </div>
-            </div>
           </div>
         }
-        @if (field().instance === 'template') {
-          <div class="form-group">UUID: {{field().id}}</div>
+        @if (fieldIsMarkableSubjectToPreview) {
+          <div class="form-group">
+            <input [(ngModel)]="field().preview" type="checkbox">
+            <label>{{ 'Preview' | translate }}</label>
+          </div>
+        }
+        <div class="form-group">
+          <label>
+            <span>{{ 'Width' | translate }}</span>
+            <span>(</span><span>{{ '0 = auto' | translate }}</span><span>)</span>
+          </label>
+          <input id="field-width-{{field().id}}" class="form-control" [(ngModel)]="field().width" type="number" min="0" max="12">
+        </div>
+        @if (field().template_id) {
+          <div class="form-group">
+            <label for="field-template-override-{{field().id}}">{{ 'Template override' | translate }}</label>
+            <input id="field-template-override-{{field().id}}" name="template_override_id" class="form-control" [(ngModel)]="field().template_override_id" type="text">
+          </div>
         }
       </div>
     }
   </div>
+  @if (field().instance !== 'reference') {
+    <div class="row">
+      <div class="col-md-12">
+        @if (field().type === 'inputbox' || field().type === 'textarea' || field().type === 'voice') {
+          <div>
+            <div class="form-group">
+              <label for="field-min-len-{{field().id}}">{{ 'Min' | translate }}</label>
+              <input id="field-min-len-{{field().id}}" [(ngModel)]="field().attrs.min_len.value" type="text" class="form-control" [disabled]="!field().editable" />
+              <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
+            </div>
+            <div class="form-group">
+              <label for="field-max-len-{{field().id}}">{{ 'Max' | translate }}</label>
+              <input id="field-max-len-{{field().id}}" [(ngModel)]="field().attrs.max_len.value" type="text" class="form-control" [disabled]="!field().editable" />
+              <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
+            </div>
+            @if (field().attrs.input_validation) {
+              <div class="form-group">
+                <label for="field-input-validation-{{field().id}}">{{ 'Input validation' | translate }}</label>
+                <select id="field-input-validation-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().attrs.input_validation.value" required>
+                  <option value="none">{{ 'None' | translate }}</option>
+                  <option value="email">{{ 'Email address' | translate }}</option>
+                  <option value="number">{{ 'Number' | translate }}</option>
+                  <option value="phonenumber">{{ 'Phone number' | translate }}</option>
+                  <option value="custom">{{ 'Custom' | translate }}</option>
+                </select>
+              </div>
+            }
+            @if (isCustomValidation(field())) {
+              <div class="form-group">
+                <label for="field-regexp-{{field().id}}">{{ 'Regular expression' | translate }}</label>
+                <input id="field-regexp-{{field().id}}" [(ngModel)]="field().attrs.regexp.value" type="text" class="form-control" [disabled]="!field().editable" />
+              </div>
+            }
+          </div>
+        }
+        @if (field().type === 'tos') {
+          <div>
+            <div class="form-group">
+              <label for="field-tos-text-{{field().id}}">{{ 'Text' | translate }}</label>
+              <textarea id="field-tos-text-{{field().id}}" [(ngModel)]="field().attrs.text.value" class="form-control" [disabled]="!field().editable"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="field-checkbox-label-{{field().id}}">{{ 'Checkbox label' | translate }}</label>
+              <input id="field-checkbox-label-{{field().id}}" [(ngModel)]="field().attrs.checkbox_label.value" type="text" class="form-control" />
+            </div>
+            <div class="form-group">
+              <input [(ngModel)]="field().attrs.attachment.value" type="checkbox" />
+              <label>{{ 'Attachment' | translate }}</label>
+            </div>
+            @if (field().attrs.attachment.value) {
+              <div class="nested">
+                <div class="form-group">
+                  <label for="field-attachment-text-{{field().id}}">{{ 'Text' | translate }}</label>
+                  <input id="field-attachment-text-{{field().id}}" [(ngModel)]="field().attrs.attachment_text.value" type="text" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="field-attachment-url-{{field().id}}">URL</label>
+                  <input id="field-attachment-url-{{field().id}}" [(ngModel)]="field().attrs.attachment_url.value" type="text" class="form-control" />
+                </div>
+              </div>
+            }
+          </div>
+        }
+        @if (field().type === 'fieldgroup') {
+          <div>
+            <div class="form-group">
+              <input [(ngModel)]="field().attrs.multimedia.value" type="checkbox">
+              <label>{{ 'Add multimedia content' | translate }}</label>
+              @if (field().attrs.multimedia.value) {
+                <div class="nested">
+                  <div class="form-group">
+                    <label for="field-multimedia-type-{{field().id}}">{{ 'Type' | translate }}</label>
+                    <select id="field-multimedia-type-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="field().attrs.multimedia_type.value" required>
+                      <option value="image">{{ 'Image' | translate }}</option>
+                      <option value="audio">{{ 'Audio' | translate }}</option>
+                      <option value="video">{{ 'Video' | translate }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="field-multimedia-url-{{field().id}}">URL</label>
+                    <input id="field-multimedia-url-{{field().id}}" [(ngModel)]="field().attrs.multimedia_url.value" type="text" class="form-control" required />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        <div>
+          @if (field().type === 'checkbox' || field().type === 'selectbox' || field().type === 'multichoice') {
+            <div>
+              <div class="form-group">
+                <input [(ngModel)]="field().attrs.display_alphabetically.value" type="checkbox" [disabled]="!field().editable">
+                <label>{{ 'Display options alphabetically' | translate }}</label>
+              </div>
+            </div>
+          }
+          @if (field().type === 'date' || field().type === 'daterange') {
+            <div ngbTooltip="{{'Accept multiple file uploads' | translate}}">
+              <div class="form-group">
+                <label for="field-min-date-{{field().id}}" class="visually-hidden">{{ 'Minimum date' | translate }}</label>
+                <input id="field-min-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="minDate" [(ngModel)]="field().attrs.min_date.value" ngbDatepicker #minDate="ngbDatepicker" (click)="toggleMinDate() ; minDate.toggle()" />
+                <label>{{ 'Earliest selectable date' | translate }}:</label>
+                @if (field().attrs.min_date.value) {
+                  <span>
+                    <span>{{minDateFormat(field().attrs.min_date.value) | date:'dd-MM-yyyy'}}</span>
+                    <button class="btn btn-sm btn-danger" (click)="field().attrs.min_date.value = ''; $event.stopPropagation();">
+                      <i class="fas fa-xmark"></i>
+                    </button>
+                  </span>
+                }
+                @if (field().attrs.min_date.value === '') {
+                  <button (click)="minDate.toggle()" type="button" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-calendar"></i>
+                  </button>
+                }
+              </div>
+              <div class="form-group">
+                <label for="field-max-date-{{field().id}}" class="visually-hidden">{{ 'Maximum date' | translate }}</label>
+                <input id="field-max-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="field().attrs.max_date.value" ngbDatepicker #d="ngbDatepicker" (click)="toggleMaxDate() ; d.toggle()" />
+                <label>{{ 'Latest selectable date' | translate }}:</label>
+                @if (field().attrs.max_date.value) {
+                  <span>
+                    <span>{{maxDateFormat(field().attrs.max_date.value) | date:'dd-MM-yyyy' }}</span>
+                    <button class="btn btn-sm btn-danger" (click)="field().attrs.max_date.value = ''">
+                      <i class="fas fa-xmark"></i>
+                    </button>
+                  </span>
+                }
+                @if (field().attrs.max_date.value === '') {
+                  <button type="button" (click)="d.toggle()" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-calendar"></i>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+  <div class="row">
+    @if (field().instance === 'reference') {
+      <div class="col-md-12">
+        @switch (field().template_id) {
+          @case ('whistleblower_identity') {
+            <div>
+              <div class="form-group">
+                <input [(ngModel)]="field().required" type="checkbox">
+                <label>{{ 'Mandatory' | translate }}</label>
+              </div>
+              @if (!field().required) {
+                <div>
+                  <div class="form-group">
+                    <label for="field-negative-answer-text-{{field().id}}">{{ 'Text shown upon negative answer' | translate }}</label>
+                    <div>
+                      <textarea id="field-negative-answer-text-{{field().id}}" class="form-control" [(ngModel)]="field().attrs.text_shown_upon_negative_answer.value"></textarea>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    }
   </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group">
+        <label>
+          <span>{{ 'Trigger conditions' | translate }}</span>
+          <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddTrigger()">
+            <i class="fas fa-plus"></i>
+            <span>{{ 'Add' | translate }}</span>
+          </button>
+        </label>
+        @if (showAddTrigger) {
+          <div>
+            <div class="form-group">
+              <label for="field-new-trigger-field-{{field().id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
+              <select id="field-new-trigger-field-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
+                @for (triggerField of parsedFields().fields; track triggerField) {
+                  @if (triggerField.id !== field().id) {
+                    <option [value]="triggerField.id">{{triggerField.label}}
+                    </option>
+                  }
+                }
+              </select>
+            </div>
+            @if (new_trigger.field) {
+              <div class="form-group">
+                <label for="field-new-trigger-option-{{field().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
+                <select id="field-new-trigger-option-{{field().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
+                  @for (option of parsedFields().fields_by_id[new_trigger.field].options; track option) {
+                    <option [value]="option.id">{{option.label}}</option>
+                  }
+                </select>
+              </div>
+            }
+            @if (new_trigger.field) {
+              <div class="form-group">
+                <input [(ngModel)]="new_trigger.sufficient" type="checkbox">
+                <label>{{ 'Sufficient' | translate }}</label>
+              </div>
+            }
+            <div class="form-group">
+              <button id="add-step-btn" class="btn btn-primary" [disabled]="!new_trigger.field || !new_trigger.option" (click)="addTrigger()">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add' | translate }}</span>
+              </button>
+            </div>
+          </div>
+        }
+        @for (trigger of field().triggered_by_options; track trigger) {
+          <div class="nested">
+            <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
+              <i class="fas fa-xmark"></i>
+            </button>
+            <span>{{parsedFields().fields_by_id[trigger.field].label}}</span>: <span>{{parsedFields().options_by_id[trigger.option].label}}</span>
+            @if (trigger.sufficient) {
+              <span>( <span>{{'Sufficient'|translate}}</span>) </span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      @if (showOptions(field())) {
+        <div class="form-group">
+          <label>
+            <span>{{ 'Options' | translate }}</span>
+            <button name="addOption" class="btn btn-sm btn-primary show-add-question-btn" (click)="addOption()">
+              <i class="fas fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </label>
+          <div class="col-md-12">
+            @for (option of field().options; track option; let i = $index) {
+              <div class="field-option">
+                <div class="row">
+                  <div class="col-md-1">
+                    <div class="badge bg-secondary">{{ i + 1 }}</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="field-option-label-{{option.id}}" class="visually-hidden">{{ 'Option label' | translate }}</label>
+                    <input id="field-option-label-{{option.id}}" class="form-control" name="option.label" [(ngModel)]="option.label" [attr.placeholder]="'Label' | translate" [placeholder]="'Label' | translate" type="text" [disabled]="!field().editable" required />
+                  </div>
+                  <div class="col-md-5">
+                    <span>
+                      <button class="btn btn-sm" id="option_hint" [class.btn-primary]="option.hint1 || option.hint2" [class.btn-outline-secondary]="!(option.hint1 || option.hint2)" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
+                        <i class="fas fa-circle-question"></i>
+                      </button>
+                    </span>
+                    <span>
+                      <button class="btn btn-sm" id="option_block_submission" [class.btn-danger]="option.block_submission" [class.btn-outline-secondary]="!option.block_submission" (click)="flipBlockSubmission(option)" ngbTooltip="{{'Block the submission' | translate}}">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                    </span>
+                    <span>
+                      <button class="btn btn-sm" id="option_trigger_receiver" [class.btn-primary]="option.trigger_receiver.length" [class.btn-outline-secondary]="!option.trigger_receiver.length" (click)="triggerReceiverDialog(option)" ngbTooltip="{{'Recipients' | translate}}">
+                        <i class="fas fa-user"></i>
+                      </button>
+                    </span>
+                    @if (nodeResolver.dataModel.enable_scoring_system) {
+                      <span>
+                        <button class="btn btn-sm" id="option_score" [class.btn-primary]="option.score_type !== 'none'" [class.btn-outline-secondary]="option.score_type === 'none'" (click)="assignScorePointsDialog(option)" data-toggle="Assign score points" ngbTooltip="{{'Recipients' | translate}}">
+                          <i class="fas fa-bolt"></i>
+                          @if (option.score_type !== 'none') {
+                            <span>
+                              <span> {{ option.score_points }} </span>
+                              <span>
+                                @switch (option.score_type) {
+                                  @case ('addition') {
+                                    <span> ( <span>{{ 'Addition' | translate }}</span>) </span>
+                                  }
+                                  @case ('multiplier') {
+                                    <span> ( <span>{{ 'Multiplier' | translate }}</span>) </span>
+                                  }
+                                }
+                              </span>
+                            </span>
+                          }
+                        </button>
+                      </span>
+                    }
+                    <button name="delOption" class="btn btn-sm btn-danger" (click)="delOption(option)">
+                      <i class="fas fa-xmark"></i>
+                    </button>
+                    <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  @if (field().editable && field().instance !== 'reference' && field().type === 'fieldgroup') {
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <div>
+            <span>{{ 'Questions' | translate }}</span>
+            <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
+              <i class="fas fa-plus"></i>
+              <span>{{ 'Add new question' | translate }}</span>
+            </button>
+            @if (fieldTemplatesData.length > 0) {
+              <button class="btn btn-sm btn-primary show-add-question-from-template-btn" (click)="toggleAddQuestionFromTemplate()">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add question from template' | translate }}</span>
+              </button>
+            }
+          </div>
+          @if (field().editable && field().type === 'fieldgroup') {
+            <div class="row">
+              @if (showAddQuestion) {
+                <div class="col-md-12">
+                  <src-add-field [step]="field()" [type]="'field'" (added)="onUpdate()"></src-add-field>
+                </div>
+              }
+              @if (showAddQuestionFromTemplate) {
+                <div class="col-md-12">
+                  <src-add-field-from-template [fieldTemplatesData]="fieldTemplatesData" [step]="field()" [type]="'field'" (added)="onUpdate()"></src-add-field-from-template>
+                </div>
+              }
+            </div>
+          }
+          <div class="configuredFields">
+            @for (childField of children | orderBy:['y', 'x']; track childField; let index = $index) {
+              <div>
+                <div id="field-{{index}}" class="fieldBox">
+                  <form #editField="ngForm">
+                    <src-fields [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields()" (updated)="onUpdate()"></src-fields>
+                  </form>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+  @if (field().instance === 'template') {
+    <div class="form-group">UUID: {{field().id}}</div>
+  }
+  </ng-template>
+</src-list-item>

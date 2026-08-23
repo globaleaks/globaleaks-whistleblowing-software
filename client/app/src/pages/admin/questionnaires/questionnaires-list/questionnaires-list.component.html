@@ -1,41 +1,16 @@
-<div class="editorHeader row">
-  <span class="col-md-7" (click)="toggleEditing(questionnaire())" (keydown.enter)="toggleEditing(questionnaire())" tabindex="0" role="button">{{ questionnaire().name }}</span>
-  <span class="col-md-5 clearfix">
-    <span class="float-end">
-      @if (questionnaire().editable && !editing) {
-        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire())">
-          <span>{{ 'Edit' | translate }}</span>
-        </button>
-      }
-      @if (editing) {
-        <button class="btn btn-sm btn-primary" (click)="saveQuestionnaire(questionnaire())">
-          <span>{{ 'Save' | translate }}</span>
-        </button>
-      }
-      @if (editing) {
-        <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(questionnaire())">
-          <span>{{ 'Cancel' | translate }}</span>
-        </button>
-      }
-      <button class="downloadButton btn btn-sm btn-outline-secondary" (click)="exportQuestionnaire(questionnaire())">
-        <i class="fas fa-file-export"></i>
-        <span>{{ 'Export' | translate }}</span>
-      </button>
-      <button class="btn btn-sm btn-outline-secondary" (click)="duplicateQuestionnaire(questionnaire())">
-        <i class="fas fa-clone"></i>
-        <span>{{ 'Duplicate' | translate }}</span>
-      </button>
-      @if (questionnaire().editable) {
-        <button class="btn btn-sm btn-danger" name="deleteQuestionnaire" (click)="deleteQuestionnaire(questionnaire())">
-          <span>{{ 'Delete' | translate }}</span>
-        </button>
-      }
-    </span>
-  </span>
-</div>
-@if (editing) {
-  <div>
-    <hr />
+<src-list-item class="questionnaire" [(editing)]="editing" [canEdit]="questionnaire().editable" [canDelete]="questionnaire().editable" (save)="saveQuestionnaire(questionnaire())" (deleted)="deleteQuestionnaire(questionnaire())">
+  <ng-container title>{{ questionnaire().name }}</ng-container>
+  <ng-container actions>
+    <button type="button" class="downloadButton btn btn-sm btn-outline-secondary" data-action="export" (click)="exportQuestionnaire(questionnaire())">
+      <i class="fas fa-file-export"></i>
+      <span>{{ 'Export' | translate }}</span>
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="duplicate" (click)="duplicateQuestionnaire(questionnaire())">
+      <i class="fas fa-clone"></i>
+      <span>{{ 'Duplicate' | translate }}</span>
+    </button>
+  </ng-container>
+  <ng-template #body>
     <div class="row">
       <div class="col-md-6">
         <div class="form-group">
@@ -52,5 +27,5 @@
         <src-steps [questionnaire]="questionnaire()" (deleted)="onDelete($event)"></src-steps>
       </div>
     </div>
-  </div>
-}
+  </ng-template>
+</src-list-item>

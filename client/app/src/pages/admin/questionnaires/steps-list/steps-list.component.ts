@@ -11,6 +11,7 @@ import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {TriggeredByOption} from "@app/models/app/shared-public-model";
 
 import {FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {StepComponent} from "../step/step.component";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -18,7 +19,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-steps-list",
     templateUrl: "./steps-list.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslateModule, ListItemComponent]
 })
 export class StepsListComponent implements OnInit {
   private utilsService = inject(UtilsService);
@@ -65,18 +66,12 @@ export class StepsListComponent implements OnInit {
     this.swap(e, idx, 1);
   }
 
-  toggleEditing() {
-    this.editing = !this.editing;
-  }
-
   toggleAddTrigger() {
     this.showAddTrigger = !this.showAddTrigger;
   }
 
   saveStep(step: Step) {
-    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(() => {
-      this.toggleEditing();
-    });
+    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe();
   }
 
   deleteStep(step: Step) {

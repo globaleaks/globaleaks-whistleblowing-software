@@ -8,12 +8,13 @@ import {Observable} from "rxjs";
 import {Status, Substatus} from "@app/models/app/public-model";
 
 import {FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-substatuses",
     templateUrl: "./sub-status.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule, NgbTooltipModule]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, ListItemComponent]
 })
 export class SubStatusComponent implements OnInit {
   private httpService = inject(HttpService);
@@ -99,10 +100,6 @@ export class SubStatusComponent implements OnInit {
 
   moveSsDown(e: Event, idx: number): void {
     this.swapSs(e, idx, 1);
-  }
-
-  toggleSubstatusEditing(index: number): void {
-    this.subStatusEditing[index] = !this.subStatusEditing[index];
   }
 
   openConfirmableModalDialog(arg: Substatus, scope: any): Observable<string> {

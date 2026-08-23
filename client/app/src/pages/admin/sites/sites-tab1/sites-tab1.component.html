@@ -1,45 +1,42 @@
-<div class="row">
-  <div class="col-md-12">
-    <div>
-      <span>{{'Sites'|translate}}</span>
-      <button class="btn btn-sm btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
-        <i class="fas fa-plus"></i>
-        <span>{{'Add'|translate}}</span>
-      </button>
-    </div>
-  </div>
-</div>
-@if (showAddTenant) {
-  <div class="row">
-    <div class="col-md-6">
-      <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
-        <div class="form-group">
-          <label>
-            <span>{{'Name'|translate}}</span>
-            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          </label>
-          <div>
-            <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>{{'Mode:'|translate}}</label>
-          <select name="type" class="form-select-custom" [(ngModel)]="newTenant.mode" required>
-            <option value="default" [selected]="newTenant.mode === 'default'">DEFAULT</option>
-            <option value="wbpa">WHISTLEBLOWINGPA</option>
-          </select>
-        </div>
-        <div class="form-group clearfix">
-          <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
-            <i class="fas fa-plus"></i>
-            <span>{{'Add'|translate}}</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
 <app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'">
+  <ng-template #toolbar>
+    <button class="btn btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
+      <i class="fas fa-plus"></i>
+      <span>{{'Add'|translate}}</span>
+    </button>
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddTenant) {
+      <div class="row config-section">
+        <div class="col-md-6">
+          <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
+            <div class="form-group">
+              <label>
+                <span>{{'Name'|translate}}</span>
+                <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              </label>
+              <div>
+                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>{{'Mode:'|translate}}</label>
+              <select name="type" class="form-select-custom" [(ngModel)]="newTenant.mode" required>
+                <option value="default" [selected]="newTenant.mode === 'default'">DEFAULT</option>
+                <option value="wbpa">WHISTLEBLOWINGPA</option>
+              </select>
+            </div>
+            <div class="form-group clearfix">
+              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
+                <i class="fas fa-plus"></i>
+                <span>{{'Add'|translate}}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+  </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="tenant-{{index}}"  #editTenant="ngForm" novalidate>
       <src-siteslist [tenant]="item" [tenants]="tenants" (deleted)="onDelete($event)"></src-siteslist>

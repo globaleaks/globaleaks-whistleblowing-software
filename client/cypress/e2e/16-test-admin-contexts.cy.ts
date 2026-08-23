@@ -6,7 +6,7 @@ describe("admin configure, add, and delete channels", () => {
     cy.visit("#/admin/channels");
 
     cy.get("#context-0").within(() => {
-      cy.get("#edit_context").click();
+      cy.get("[data-action='edit']").click();
 
       cy.get(".add-receiver-btn").click();
       cy.get('ng-select[name="selected.value"]').click();
@@ -17,7 +17,7 @@ describe("admin configure, add, and delete channels", () => {
       cy.get('ng-select[name="selected.value"]').contains("Recipient2").click();
 
       cy.get("#advance_context").click();
-      cy.get("#save_context").click();
+      cy.get("[data-action='save']").click();
     });
   });
 
@@ -43,7 +43,7 @@ describe("admin configure, add, and delete channels", () => {
     cy.login_admin();
 
     cy.visit("#/admin/channels");
-    cy.get("[name='delete_context']").last().click();
+    cy.get("[data-action='delete']").last().click();
     cy.get("#modal-action-ok").click();
     cy.get(".modal [type='password']").type(Cypress.env("user_password"));
     cy.get(".modal .btn-primary").click();
@@ -67,19 +67,19 @@ describe("admin configure, add, and delete channels", () => {
     cy.get("#add-sub-status").click();
     cy.get('input[name="label"]').type("closed 2");
     cy.get("#add-submission-sub-status").click();
-    cy.get('#substatus-edit-button').last().click();
+    cy.get(".substatus [data-action='edit']").last().click();
     cy.get('input[name="substatus.label"]').clear();
     cy.get('input[name="substatus.label"]').type('Test Label').should('have.value', 'Test Label');
     cy.get('select[name="substatus.tip_timetolive_option"]').select(1);
     cy.get('input[name="substatus.tip_timetolive"]').clear();
     const inputValue = 10;
     cy.get('input[name="substatus.tip_timetolive"]').type(inputValue.toString()).should('have.value', inputValue.toString());
-    cy.get('#substatus-save-button').first().click();
-    cy.get('#substatus-delete-button').first().click();
+    cy.get(".substatus [data-action='save']").first().click();
+    cy.get(".substatus [data-action='delete']").first().click();
     cy.get("#modal-action-ok").click();
-    cy.get('#substatus-delete-button').first().click();
+    cy.get(".substatus [data-action='delete']").first().click();
     cy.get("#modal-action-ok").click();
-    cy.get("#delete-submissions-status").last().click();
+    cy.get(".submissionStatus [data-action='delete']").last().click();
     cy.get("#modal-action-ok").click();
    
     cy.get(".show-add-user-btn").click();

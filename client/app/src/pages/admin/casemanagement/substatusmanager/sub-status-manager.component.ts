@@ -10,12 +10,13 @@ import {Status} from "@app/models/app/public-model";
 import {FormsModule} from "@angular/forms";
 
 import {SubStatusComponent} from "../substatuses/sub-status.component";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-substatusmanager",
     templateUrl: "./sub-status-manager.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusComponent]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusComponent, ListItemComponent]
 })
 export class SubStatusManagerComponent {
   private appDataServices = inject(AppDataService);
@@ -33,12 +34,6 @@ export class SubStatusManagerComponent {
 
   isSystemDefined(state: Status): boolean {
     return ["new", "opened", "closed"].indexOf(state.id) !== -1;
-  }
-
-  toggleEditing(submissionsStatus: Status): void {
-    if (this.isEditable(submissionsStatus)) {
-      this.editing = !this.editing;
-    }
   }
 
   isEditable(submissionsStatus: Status): boolean {

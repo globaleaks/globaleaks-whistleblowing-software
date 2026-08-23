@@ -1,5 +1,6 @@
 import {Component, OnInit, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {NgbModal, NgbInputDatepicker, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AddOptionHintComponent} from "@app/shared/modals/add-option-hint/add-option-hint.component";
 import {AssignScorePointsComponent} from "@app/shared/modals/assign-score-points/assign-score-points.component";
@@ -26,7 +27,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-fields",
     templateUrl: "./fields.component.html",
     standalone: true,
-    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule]
+    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule, ListItemComponent]
 })
 export class FieldsComponent implements OnInit {
   private authenticationService = inject(AuthenticationService);
@@ -93,10 +94,6 @@ export class FieldsComponent implements OnInit {
     } else {
       return value;
     }
-  }
-
-  toggleEditing() {
-    this.editing = !this.editing;
   }
 
   exportQuestion(field: Step | Field) {

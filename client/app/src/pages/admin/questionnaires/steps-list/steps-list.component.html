@@ -1,113 +1,88 @@
-<div class="config-item">
-  <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing(); $event.stopPropagation();" (keydown.enter)="toggleEditing(); $event.stopPropagation();" tabindex="0" role="button">
-      <span class="badge bg-primary">{{index() + 1}}</span>
-      <span>{{step().label}}</span>
-    </span>
-    <span class="col-md-5 clearfix">
-      <span class="float-end">
-        @if (!editing) {
-          <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(); $event.stopPropagation();">
-            <span>{{ 'Edit' | translate }}</span>
-          </button>
-        }
-        @if (editing) {
-          <button class="btn btn-sm btn-primary" (click)="saveStep(step())">
-            <span>{{ 'Save' | translate }}</span>
-          </button>
-        }
-        @if (editing) {
-          <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing(); $event.stopPropagation();">
-            <span>{{ 'Cancel' | translate }}</span>
-          </button>
-        }
-        <button name="delStep" class="btn btn-sm btn-danger" (click)="deleteStep(step()); $event.stopPropagation();">
-          <span>{{ 'Delete' | translate }}</span>
-        </button>
-        <button class="actionButton btn btn-sm btn-primary" (click)="moveUp($event,index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
-          <i class="fas fa-chevron-up"></i>
-        </button>
-        <button class="actionButton btn btn-sm btn-primary" (click)="moveDown($event,index())" ngbTooltip="{{'Move down' | translate}}" [disabled]="index() === questionnaire().steps.length - 1">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      </span>
-    </span>
-  </div>
-  @if (editing) {
-    <div>
-      <hr />
-      <div class="row">
-        <div class="form-group col-md-6">
-          <label for="step-label-{{step().id}}">{{ 'Label' | translate }}</label>
-          <input id="step-label-{{step().id}}" name="step.label" class="form-control" [(ngModel)]="step().label" type="text" required />
+<src-list-item class="step" [(editing)]="editing" (save)="saveStep(step())" (deleted)="deleteStep(step())">
+  <ng-container title>
+    <span class="badge bg-primary">{{index() + 1}}</span>
+    <span>{{step().label}}</span>
+  </ng-container>
+  <ng-container actions>
+    <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUp($event,index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
+      <i class="fas fa-chevron-up"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDown($event,index())" ngbTooltip="{{'Move down' | translate}}" [disabled]="index() === questionnaire().steps.length - 1">
+      <i class="fas fa-chevron-down"></i>
+    </button>
+  </ng-container>
+  <ng-template #body>
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="step-label-{{step().id}}">{{ 'Label' | translate }}</label>
+        <input id="step-label-{{step().id}}" name="step.label" class="form-control" [(ngModel)]="step().label" type="text" required />
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="step-description-{{step().id}}">{{ 'Description' | translate }}</label>
+        <div>
+          <textarea id="step-description-{{step().id}}" name="step.description" class="form-control" [(ngModel)]="step().description"></textarea>
         </div>
       </div>
-      <div class="row">
-        <div class="form-group col-md-6">
-          <label for="step-description-{{step().id}}">{{ 'Description' | translate }}</label>
-          <div>
-            <textarea id="step-description-{{step().id}}" name="step.description" class="form-control" [(ngModel)]="step().description"></textarea>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="form-group col-md-12">
-          <label>
-            <span>{{ 'Trigger conditions' | translate }}</span>
-            <button class="btn btn-sm btn-primary show-add-trigger-btn" (click)="toggleAddTrigger()">
-              <i class="fas fa-plus"></i>
-              <span>{{ 'Add' | translate }}</span>
-            </button>
-          </label>
-          @if (showAddTrigger) {
-            <div class="col-md-12">
+    </div>
+    <div class="row">
+      <div class="form-group col-md-12">
+        <label>
+          <span>{{ 'Trigger conditions' | translate }}</span>
+          <button class="btn btn-sm btn-primary show-add-trigger-btn" (click)="toggleAddTrigger()">
+            <i class="fas fa-plus"></i>
+            <span>{{ 'Add' | translate }}</span>
+          </button>
+        </label>
+        @if (showAddTrigger) {
+          <div class="col-md-12">
+            <div class="form-group">
+              <label for="step-trigger-field-{{step().id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
+              <select id="step-trigger-field-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
+                @for (field of parsedFields.fields; track field) {
+                  <option [value]="field.id">{{ field.label }}
+                  </option>
+                }
+              </select>
+            </div>
+            @if (new_trigger.field) {
               <div class="form-group">
-                <label for="step-trigger-field-{{step().id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
-                <select id="step-trigger-field-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
-                  @for (field of parsedFields.fields; track field) {
-                    <option [value]="field.id">{{ field.label }}
-                    </option>
+                <label for="step-trigger-option-{{step().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
+                <select id="step-trigger-option-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
+                  @for (option of parsedFields.fields_by_id[new_trigger.field].options; track option) {
+                    <option [value]="option.id">{{ option.label }}</option>
                   }
                 </select>
               </div>
-              @if (new_trigger.field) {
-                <div class="form-group">
-                  <label for="step-trigger-option-{{step().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
-                  <select id="step-trigger-option-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
-                    @for (option of parsedFields.fields_by_id[new_trigger.field].options; track option) {
-                      <option [value]="option.id">{{ option.label }}</option>
-                    }
-                  </select>
-                </div>
-              }
-              @if (new_trigger.field) {
-                <div class="form-group">
-                  <input id="new-trigger-sufficient" class="form-check-input" name="new_trigger.sufficient" [(ngModel)]="new_trigger.sufficient" type="checkbox">
-                  <label for="new-trigger-sufficient">{{ 'Sufficient' | translate }}</label>
-                </div>
-              }
+            }
+            @if (new_trigger.field) {
               <div class="form-group">
-                <button id="add-step-btn" class="btn btn-primary" [disabled]="!new_trigger.field || !new_trigger.option" (click)="addTrigger()">
-                  <i class="fas fa-plus"></i>
-                  <span>{{ 'Add' | translate }}</span>
-                </button>
+                <input id="new-trigger-sufficient" class="form-check-input" name="new_trigger.sufficient" [(ngModel)]="new_trigger.sufficient" type="checkbox">
+                <label for="new-trigger-sufficient">{{ 'Sufficient' | translate }}</label>
               </div>
-            </div>
-          }
-          @for (trigger of step().triggered_by_options; track trigger) {
-            <div class="nested">
-              <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
-                <i class="fas fa-xmark"></i>
+            }
+            <div class="form-group">
+              <button id="add-step-btn" class="btn btn-primary" [disabled]="!new_trigger.field || !new_trigger.option" (click)="addTrigger()">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add' | translate }}</span>
               </button>
-              <span>{{ parsedFields.fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option].label }}</span>
-              @if (trigger.sufficient) {
-                <span>({{ 'Sufficient' | translate }})</span>
-              }
             </div>
-          }
-        </div>
+          </div>
+        }
+        @for (trigger of step().triggered_by_options; track trigger) {
+          <div class="nested">
+            <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
+              <i class="fas fa-xmark"></i>
+            </button>
+            <span>{{ parsedFields.fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option].label }}</span>
+            @if (trigger.sufficient) {
+              <span>({{ 'Sufficient' | translate }})</span>
+            }
+          </div>
+        }
       </div>
-      <src-step [step]="step()" [parsedFields]="parsedFields" (updated)="recompute()"></src-step>
     </div>
-  }
-</div>
+    <src-step [step]="step()" [parsedFields]="parsedFields" (updated)="recompute()"></src-step>
+  </ng-template>
+</src-list-item>
