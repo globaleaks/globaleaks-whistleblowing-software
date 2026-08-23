@@ -21,16 +21,15 @@
           </label>
         </div>
         @if (nodeResolver.dataModel.escrow) {
-          <div class="form-group">
-            <label>{{'Administrators authorized to change user passwords:' | translate}}</label>
-            <ol class="selection-list">
-              @for (user of userData(); track user) {
-                <li>
-                  <span>{{user.name}}</span>
-                </li>
-              }
-            </ol>
-          </div>
+          <src-selection-editor
+            label="Administrators authorized to change user passwords:"
+            [selectableDefault]="false"
+            [defaultId]="currentUserId"
+            [options]="escrowCandidates()"
+            [selected]="escrowAuthorized()"
+            (entryAdded)="toggleUserEscrow($event)"
+            (entryRemoved)="toggleUserEscrow($event.id)">
+          </src-selection-editor>
         }
       </div>
     }
