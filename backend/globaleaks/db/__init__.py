@@ -3,8 +3,10 @@ import sys
 import traceback
 import sqlalchemy
 
+from sqlalchemy import and_, or_
 from globaleaks import models, DATABASE_VERSION
 from globaleaks.handlers.admin.https import db_load_tls_configs
+from globaleaks.handlers.public import MAX_SERIALIZATION_DEPTH
 from globaleaks.models import Base, Config
 from globaleaks.models.config_desc import ConfigFilters
 from globaleaks.orm import get_engine, get_session, make_db_uri, transact, transact_sync
@@ -188,6 +190,61 @@ def sync_initialize_snimap(session):
         State.snimap.load(cfg['tid'], cfg)
 
 
+def db_get_tenants_using_voice(session, tids):
+    """
+    Identify the tenants making use of questions of type voice.
+
+    The evaluation spans every context of the tenant, hidden ones included:
+    submissions are performed through hidden contexts as well and the
+    microphone permission has therefore to be granted independently of the
+    visibility of the context carrying the question.
+
+    :param session: An ORM session
+    :param tids: The tenant IDs to be evaluated
+    :return: The subset of the tenant IDs using questions of type voice
+    """
+    # The questions of type voice are walked upwards up to the steps
+    # referencing them, following at each level both the question nesting and
+    # the questions inheriting the type from a template, as done in reverse by
+    # the serialization. The walk is bounded by the same cap applied to the
+    # serialization recursion.
+    frontier = {f[0] for f in session.query(models.Field.id).filter(models.Field.type == 'voice')}
+
+    seen = set()
+    step_ids = set()
+    depth = 0
+
+    while frontier and depth < MAX_SERIALIZATION_DEPTH:
+        frontier |= {f[0] for f in session.query(models.Field.id)
+                                          .filter(or_(models.Field.template_override_id.in_(frontier),
+                                                      and_(models.Field.template_override_id.is_(None),
+                                                           models.Field.template_id.in_(frontier))))}
+
+        frontier -= seen
+        seen |= frontier
+
+        parents = set()
+        for step_id, fieldgroup_id in session.query(models.Field.step_id, models.Field.fieldgroup_id) \
+                                             .filter(models.Field.id.in_(frontier)):
+            if step_id is not None:
+                step_ids.add(step_id)
+
+            if fieldgroup_id is not None:
+                parents.add(fieldgroup_id)
+
+        frontier = parents
+        depth += 1
+
+    questionnaire_ids = {s[0] for s in session.query(models.Step.questionnaire_id)
+                                              .filter(models.Step.id.in_(step_ids))}
+
+    return {t[0] for t in session.query(models.Context.tid)
+                                 .filter(models.Context.tid.in_(tids),
+                                         or_(models.Context.questionnaire_id.in_(questionnaire_ids),
+                                             models.Context.additional_questionnaire_id.in_(questionnaire_ids)))
+                                 .distinct()}
+
+
 def db_refresh_tenant_cache(session, to_refresh=None):
     active_tids = set([tid[0] for tid in session.query(models.Tenant.id).filter(models.Tenant.active.is_(True))])
 
@@ -233,6 +290,7 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
         tenant_cache['redirects'] = {}
         tenant_cache['custodian'] = False
+        tenant_cache['microphone'] = False
         tenant_cache['notification'] = ObjectDict()
         tenant_cache['notification'].admin_list = []
         tenant_cache['hostnames'] = []
@@ -267,6 +325,9 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                                  models.User.tid.in_(tids)) \
                          .distinct():
         State.tenants[tid].cache['custodian'] = True
+
+    for tid in db_get_tenants_using_voice(session, tids):
+        State.tenants[tid].cache['microphone'] = True
 
     for redirect in session.query(models.Redirect).filter(models.Redirect.tid.in_(tids)):
         State.tenants[redirect.tid].cache['redirects'][redirect.path1] = redirect.path2

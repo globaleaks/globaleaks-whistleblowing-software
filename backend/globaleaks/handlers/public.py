@@ -437,10 +437,6 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates, include_scoring=include_scoring, depth=depth + 1) for f in data['fields'].get(f_to_serialize.id, [])]
         children.sort(key=lambda f: (f['y'], f['x']))
 
-    # Enable voice features if questions of type voice are enabled
-    if tid in State.tenants and f_to_serialize.type == 'voice':
-        State.tenants[tid].microphone = True
-
     ret = {
         'id': field.id,
         'instance': field.instance,
@@ -556,9 +552,6 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
     :param serialize_templates: A boolean to require template serialization
     :return: A list of contexts descriptors
     """
-    if tid in State.tenants:
-        State.tenants[tid].microphone = False
-
     questionnaires = session.query(models.Questionnaire) \
                             .filter(models.Questionnaire.tid.in_({1, tid}),
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,

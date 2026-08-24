@@ -686,9 +686,8 @@ class APIResourceWrapper(Resource):
         request.setHeader(b'Reporting-Endpoints', "csp-endpoint=\"/api/report\"")
 
         # Disable features that could be used to deanonymize the user
-        microphone = False
-        if request.tid in State.tenants and getattr(State.tenants[request.tid], 'microphone', False):
-            microphone = True
+        microphone = request.tid in State.tenants and \
+                     State.tenants[request.tid].cache.get('microphone', False)
 
         # Prevent usage of the unused permissions listed in: https://developer.mozilla.org/en-US/docs/Web/API/Permissions
         request.setHeader(b'Permissions-Policy', b"accelerometer=(),"
