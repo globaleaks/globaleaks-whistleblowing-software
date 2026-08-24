@@ -1,37 +1,13 @@
 <div id="AdminHomepage" class="reveal">
-  <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav nav-tabs">
-    <li [ngbNavItem]="0">
-      <button ngbNavLink>{{ 'Home' | translate }}</button>
-      <ng-template ngbNavContent>
-        <div class="tab-content">
-          <src-user-home></src-user-home>
-        </div>
-      </ng-template>
-    </li>
-    <li [ngbNavItem]="1">
-      <button ngbNavLink [attr.data-cy]="'changelog'">
-        @if (nodeResolver.dataModel.update_available) {
-          <i class="fas fa-circle-exclamation text-danger"></i>
-        }
-        <span>{{ 'Changelog' | translate }}</span>
-      </button>
-      <ng-template ngbNavContent>
-        <div class="tab-content">
-          <label>
-            <span>{{ 'Software version:' | translate }}</span> {{ nodeResolver.dataModel.version }}
-          </label>
-          <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'Changelog' | translate">{{ nodeResolver.dataModel.changelog }}</div>
-        </div>
-      </ng-template>
-    </li>
-    <li [ngbNavItem]="2">
-      <button ngbNavLink [attr.data-cy]="'license'">{{ 'License' | translate }}</button>
-      <ng-template ngbNavContent>
-        <div class="tab-content">
-          <div class="tos-text" tabindex="0" role="region" [attr.aria-label]="'License' | translate">{{ nodeResolver.dataModel.license }}</div>
-        </div>
-      </ng-template>
-    </li>
-  </ul>
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+  <src-tabs>
+    <ng-template srcTab="home" title="Home">
+      <src-user-home></src-user-home>
+    </ng-template>
+    <ng-template srcTab="changelog" title="Changelog" [icon]="nodeResolver.dataModel.update_available ? 'fas fa-circle-exclamation text-danger' : ''">
+      <src-changelog></src-changelog>
+    </ng-template>
+    <ng-template srcTab="license" title="License">
+      <src-license></src-license>
+    </ng-template>
+  </src-tabs>
 </div>
