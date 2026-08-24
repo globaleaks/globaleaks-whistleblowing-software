@@ -10,7 +10,8 @@ import {Directive, TemplateRef, inject, input} from "@angular/core";
  *   </src-tabs>
  *
  * `srcTab` is the stable identifier (also exposed as data-cy on the tab
- * button), `title` the translatable label, `visible` an optional condition.
+ * button), `title` the translatable label, `visible` an optional condition
+ * and `icon` an optional icon class rendered before the label.
  */
 @Directive({
   selector: "ng-template[srcTab]",
@@ -20,5 +21,6 @@ export class TabDirective {
   readonly id = input.required<string>({alias: "srcTab"});
   readonly title = input.required<string>();
   readonly visible = input(true);
+  readonly icon = input("");
   readonly template = inject<TemplateRef<unknown>>(TemplateRef);
 }
