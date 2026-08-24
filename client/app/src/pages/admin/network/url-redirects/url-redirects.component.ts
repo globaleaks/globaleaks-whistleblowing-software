@@ -4,19 +4,18 @@ import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-mod
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 @Component({
     selector: "src-url-redirects",
     templateUrl: "./url-redirects.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule, NgbTooltipModule, OrderByPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
 export class UrlRedirectsComponent implements OnInit {
   private httpService = inject(HttpService);
 
-  redirectData: redirectResolverModel[];
+  redirectData: redirectResolverModel[] = [];
   showAddRedirect = false;
   new_redirect = {
     path1: "",
@@ -31,21 +30,12 @@ export class UrlRedirectsComponent implements OnInit {
     this.showAddRedirect = !this.showAddRedirect;
   }
 
-  redirectPath(path: redirectResolverModel, index: number) {
-    if (index === 1) {
-      return path.path1;
-    } else {
-      return path.path2;
-    }
-  }
-
   addRedirect() {
     const arg = {
       path1: this.new_redirect.path1,
       path2: this.new_redirect.path2
     };
-    this.httpService.requestPostRedirectsResource(arg).subscribe((res) => {
-      this.redirectData.push(res);
+    this.httpService.requestPostRedirectsResource(arg).subscribe(() => {
       this.new_redirect.path1 = "";
       this.new_redirect.path2 = "";
       this.getResolver();
