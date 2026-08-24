@@ -58,10 +58,15 @@ describe("admin configure network", () => {
 
   it("should configure url redirects", () => {
     cy.get('[data-cy="url_redirects"]').first().click();
+    cy.get('[name="path1"]').should("not.exist");
     for (let i = 0; i < 3; i++) {
+      cy.get(".show-add-redirect-btn").click();
+      cy.get("#add_redirect").should("be.disabled");
       cy.get('[name="path1"]').type(`yyyyyyyy-${i}`);
+      cy.get("#add_redirect").should("be.disabled");
       cy.get('[name="path2"]').type("xxxxxxxx");
-      cy.get("#add_redirect").click();
+      cy.get("#add_redirect").should("not.be.disabled").click();
+      cy.get('[name="path1"]').should("not.exist");
       cy.get("#delete_redirect").first().click();
     }
     cy.logout();

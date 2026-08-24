@@ -3,6 +3,7 @@ import {TranslatePipe} from "@ngx-translate/core";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
@@ -10,12 +11,13 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     selector: "src-url-redirects",
     templateUrl: "./url-redirects.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule, OrderByPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, OrderByPipe]
 })
 export class UrlRedirectsComponent implements OnInit {
   private httpService = inject(HttpService);
 
   redirectData: redirectResolverModel[];
+  showAddRedirect = false;
   new_redirect = {
     path1: "",
     path2: ""
@@ -23,6 +25,10 @@ export class UrlRedirectsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getResolver();
+  }
+
+  toggleAddRedirect(): void {
+    this.showAddRedirect = !this.showAddRedirect;
   }
 
   redirectPath(path: redirectResolverModel, index: number) {
