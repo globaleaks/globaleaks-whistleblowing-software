@@ -1,32 +1,37 @@
-<div class="row">
-  <div class="col-md-12">
-    <form name="redirectAddForm" #redirectAddForm="ngForm" class="form-inline">
-      <div class="form-group d-inline-flex align-items-center">
-        <div class="input-group">
-          <span class="input-group-prepend">
-            <span class="input-group-text rounded-0 rounded-start">{{ 'From' | translate }}</span>
-          </span>
-          <label for="redirect-path-from" class="visually-hidden">{{ 'From path' | translate }}</label>
-          <input id="redirect-path-from" type="text" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" />
-        </div>
-      </div>
-      <div class="form-group d-inline-flex align-items-center ms-2">
-        <span class="input-group">
-          <span class="input-group-prepend">
-            <span class="input-group-text rounded-0 rounded-start">{{ 'To' | translate }}</span>
-          </span>
-          <label for="redirect-path-to" class="visually-hidden">{{ 'To path' | translate }}</label>
-          <input id="redirect-path-to" type="text" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" />
-        </span>
-      </div>
-      <button type="submit" id="add_redirect" class="btn btn-primary ms-2 mb-1" [disabled]="redirectAddForm.invalid" (click)="addRedirect()">
-        <i class="fas fa-plus"></i>
-        <span>{{ 'Add' | translate }}</span>
-      </button>
-    </form>
+<div class="row mb-3 align-items-center">
+  <div class="col">
+    <button type="button" class="btn btn-primary show-add-redirect-btn" (click)="toggleAddRedirect()">
+      <i class="fas fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
   </div>
 </div>
-<br />
+@if (showAddRedirect) {
+  <div class="row config-section">
+    <div ngForm="newRedirect" #newRedirect="ngForm" class="addRedirect col-md-6">
+      <div class="form-group">
+        <label for="redirect-path-from">{{ 'From' | translate }}</label>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+        <div>
+          <input id="redirect-path-from" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" type="text" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="redirect-path-to">{{ 'To' | translate }}</label>
+        <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+        <div>
+          <input id="redirect-path-to" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" type="text" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <button id="add_redirect" class="btn btn-primary" [disabled]="newRedirect.invalid" (click)="addRedirect(); toggleAddRedirect()" type="submit">
+          <i class="fas fa-plus"></i>
+          <span>{{ 'Add' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
 <div class="row">
   <div class="col-md-12">
     <table class="table">
