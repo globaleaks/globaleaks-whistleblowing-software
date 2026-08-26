@@ -9,7 +9,7 @@
         </span>
       </div>
     }
-    @if (preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key) {
+    @if (preferenceResolver.dataModel.encryption && !preferenceResolver.dataModel.clicked_recovery_key && !authentication.session.properties.management_session) {
       <div class="alert alert-secondary">
         <i class="fas fa-circle-exclamation"></i>
         <span>
