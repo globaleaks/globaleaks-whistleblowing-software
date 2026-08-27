@@ -7,16 +7,16 @@
     <table class="table table-borderless table-striped">
       <thead>
         <tr>
+          @if (authenticationService.session?.role === 'receiver' || appDataService.public.contexts.length > 1) {
+            <th class="TipInfoContext">
+              <i class="fas fa-inbox"></i>
+              <span>{{'Channel'|translate}}</span>
+            </th>
+          }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoID">
               <i class="fas fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
-            </th>
-          }
-          @if (appDataService.public.contexts.length > 1) {
-            <th class="TipInfoContext">
-              <i class="fas fa-inbox"></i>
-              <span>{{'Channel'|translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionDate">
@@ -67,16 +67,16 @@
             <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
           }
           @if (!loading()) {
-            @if (authenticationService.session?.role === 'receiver') {
-              <td class="TipInfoID">
-                {{tipService().tip.progressive}}
-              </td>
-            }
-            @if (appDataService.public.contexts.length > 1) {
+            @if (authenticationService.session?.role === 'receiver' || appDataService.public.contexts.length > 1) {
               <td class="TipInfoContext">
                 @if (tipService().tip.context) {
                   {{tipService().tip.context.name}}
                 }
+              </td>
+            }
+            @if (authenticationService.session?.role === 'receiver') {
+              <td class="TipInfoID">
+                {{tipService().tip.progressive}}
               </td>
             }
             <td class="TipInfoCreationDate">{{tipService().tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
