@@ -27,8 +27,10 @@ describe("recipient admin tip actions", () => {
     cy.visit("/#/recipient/reports");
     cy.get('#tip-action-export').click();
 
-    // Act on behalf of whistleblower
-    cy.get("#tip-action-act-as-whistleblower").click();
+    // Enter a report on the site
+    cy.get("#tip-action-enter-report").click();
+    cy.get("#InsertionForm").should("be.visible");
+    cy.get(".modal-header .btn-close").click();
 
     cy.logout();
   });

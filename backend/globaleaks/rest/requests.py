@@ -172,6 +172,12 @@ CommentDesc = {
     'visibility': str
 }
 
+InsertedReportDesc = {
+    'context_id': uuid_regexp,
+    'answers': dict,
+    'receipt': str
+}
+
 OpsDesc = {
     'operation': str,
     'args': dict,

@@ -167,7 +167,7 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
 
 
 @transact
-def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
+def change_receipt(session, itip_id, cc, receipt):
     """
     Transaction for updating old receipt to a new one
     """
@@ -178,7 +178,7 @@ def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
 
     key = db_set_receipt_hash(session, itip.tid, itip, receipt)
 
-    itip.receipt_change_needed = receipt_change_needed
+    itip.receipt_change_needed = False
 
     if cc:
         itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
@@ -199,9 +199,7 @@ class Operations(BaseHandler):
         if not receipt:
             raise errors.InputValidationError("Missing receipt")
 
-        return change_receipt(self.session.user_id, self.session.cc,
-                              receipt,
-                              "operator_session" in self.session.properties)
+        return change_receipt(self.session.user_id, self.session.cc, receipt)
 
 
 def db_file_is_masked(session, itip_id, file_id):

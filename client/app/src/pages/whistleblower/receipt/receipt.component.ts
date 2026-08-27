@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, inject} from "@angular/core";
+import {Component, Input, OnDestroy, OnInit, inject} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppDataService} from "@app/app-data.service";
@@ -19,12 +19,24 @@ export class ReceiptComponent implements OnInit, OnDestroy {
   protected authenticationService = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
 
-  receipt = "";
+  /**
+   * The access code handed over where the interface is embedded elsewhere:
+   * on the page of the reporting person it is the one of the session, which
+   * is consumed here so that it is kept nowhere else.
+   */
+  @Input() receipt = "";
+
   receiptId = "";
+  embedded = false;
 
   public ngOnInit(): void {
-    this.receipt = this.authenticationService.session.receipt;
-    this.authenticationService.session.receipt = undefined;
+    this.embedded = !!this.receipt;
+
+    if (!this.embedded) {
+      this.receipt = this.authenticationService.session.receipt;
+      this.authenticationService.session.receipt = undefined;
+    }
+
     this.receiptId = this.receipt.substring(0, 4) + " " + this.receipt.substring(4, 8) + " " + this.receipt.substring(8, 12) + " " + this.receipt.substring(12, 16);
   }
 
