@@ -328,8 +328,6 @@ export class TipsComponent implements OnInit {
       update_date: formatDate(tip.update_date, 'dd-MM-yyyy HH:mm', 'en-US'),
       expiration_date: formatDate(tip.expiration_date, 'dd-MM-yyyy HH:mm', 'en-US'),
       last_access: formatDate(tip.last_access, 'dd-MM-yyyy HH:mm', 'en-US'),
-      comment_count: tip.comment_count,
-      file_count: tip.file_count,
       subscription: tip.subscription === 0 ? 'Not subscribed' : tip.subscription === 1 ? 'Subscribed' : 'Sottoscritta successivamente',
       receiver_count: tip.receiver_count
     }));
@@ -348,8 +346,6 @@ export class TipsComponent implements OnInit {
       'Last Update',
       'Expiration date',
       'Last Access',
-      'Number of Comments',
-      'Number of Files',
       'Subscription',
       'Number of Recipients'
     ].map(header => header ? this.translateService.instant(header) : '');

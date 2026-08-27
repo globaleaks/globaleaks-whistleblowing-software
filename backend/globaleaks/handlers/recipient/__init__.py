@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 from nacl.encoding import Base64Encoder
-from sqlalchemy.sql.expression import distinct, func, and_, or_
+from sqlalchemy.sql.expression import func, and_, or_
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -35,28 +35,6 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
 
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
-
-    comments_by_itip = {}
-    files_by_itip = {}
-
-    # Fetch comments count
-    for itip_id, count in session.query(models.InternalTip.id,
-                                        func.count(distinct(models.Comment.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == receiver_id,
-                                         models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                         models.Comment.internaltip_id == models.InternalTip.id,
-                                         models.Comment.visibility == 0) \
-                                 .group_by(models.InternalTip.id):
-        comments_by_itip[itip_id] = count
-
-    # Fetch files count
-    for itip_id, count in session.query(models.InternalTip.id,
-                                        func.count(distinct(models.InternalFile.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == receiver_id,
-                                         models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                         models.InternalFile.internaltip_id == models.InternalTip.id) \
-                                 .group_by(models.InternalTip.id):
-        files_by_itip[itip_id] = count
 
     # Retrieve all channels that include this recipient, but only if
     # the recipients of those channels are not selectable.
@@ -131,8 +109,6 @@ def get_receivertips(session, tid, receiver_id, user_key, language, args=None):
                 'score': itip.score,
                 'status': itip.status,
                 'substatus': itip.substatus,
-                'file_count': files_by_itip.get(itip.id, 0),
-                'comment_count': comments_by_itip.get(itip.id, 0),
                 'receiver_count': 0,
                 'subscription': subscription,
                 'accessible': accessible

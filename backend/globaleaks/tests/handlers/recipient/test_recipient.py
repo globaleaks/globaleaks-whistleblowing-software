@@ -17,8 +17,6 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
         handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
         rtips = yield handler.get()
         for idx in range(len(rtips)):
-            self.assertEqual(rtips[idx]['file_count'], 2)
-            self.assertEqual(rtips[idx]['comment_count'], 2)
             self.assertEqual(rtips[idx]['receiver_count'], 2)
 
     @staticmethod
