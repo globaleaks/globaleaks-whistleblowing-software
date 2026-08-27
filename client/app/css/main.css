@@ -157,6 +157,19 @@ table tr td {
   vertical-align: middle;
 }
 
+/* A cell of free text is held within a width of its own and cut with an
+   ellipsis where it exceeds it, so that a long name does not take the room of
+   the columns beside it. The constraint is carried by the element inside the
+   cell because a table laid out automatically does not honour it on the cell
+   itself. The text is read in full in the tooltip. */
+.cell-truncated {
+  display: block;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 
 .filter-selected {
   color: #3679BB;
