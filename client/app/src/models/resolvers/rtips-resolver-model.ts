@@ -24,9 +24,7 @@ export interface rtipResolverModel {
   score: number;
   status: string;
   substatus: string;
-  file_count: number;
   receiver_count: number;
-  comment_count: number;
   accessible: boolean;
   data: Data;
 }
