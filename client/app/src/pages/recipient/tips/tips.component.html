@@ -77,6 +77,34 @@
                 <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
+            <th class="TipInfoContext">
+              <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'context_name'; sortReverse = !sortReverse" tabindex="0" role="button">
+                <i class="fas fa-inbox"></i>
+                <span>{{'Channel' | translate}}</span>
+                @if (sortKey === 'context_name') {
+                  <span>
+                    @if (!sortReverse) {
+                      <i class="fas fa-sort-down"></i>
+                    }
+                    @if (sortReverse) {
+                      <i class="fas fa-sort-up"></i>
+                    }
+                  </span>
+                } @else {
+                  <span class="text-muted"><i class="fas fa-sort"></i></span>
+                }
+              </span>
+              @if (RTips.dataModel.length > 0) {
+                <span class="dropdown-multi-select-container">
+                  <span id="tip-action-filter-channel" [class.filterSelected]="checkFilter(dropdownContextModel)" (click)="toggleChannelDropdown()" (keydown.enter)="toggleChannelDropdown()" tabindex="0" role="button"><i class="fas fa-filter"></i></span>
+                  <span [class.d-none]="!channelDropdownVisible">
+                    <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Channel' | translate"></ng-multiselect-dropdown>
+                  </span>
+                </span>
+              } @else {
+                <span class="text-muted"><i class="fas fa-sort"></i></span>
+              }
+            </th>
             <th class="TipInfoID" (click)="sortKey = 'progressive'; sortReverse = !sortReverse">
               <i class="fas fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
@@ -93,36 +121,6 @@
                 <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
-            @if (appDataService.public.contexts.length > 1) {
-              <th class="TipInfoContext">
-                <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'context_name'; sortReverse = !sortReverse" tabindex="0" role="button">
-                  <i class="fas fa-inbox"></i>
-                  <span>{{'Channel' | translate}}</span>
-                  @if (sortKey === 'context_name') {
-                    <span>
-                      @if (!sortReverse) {
-                        <i class="fas fa-sort-down"></i>
-                      }
-                      @if (sortReverse) {
-                        <i class="fas fa-sort-up"></i>
-                      }
-                    </span>
-                  } @else {
-                    <span class="text-muted"><i class="fas fa-sort"></i></span>
-                  }
-                </span>
-                @if (RTips.dataModel.length > 0) {
-                  <span class="dropdown-multi-select-container">
-                    <span id="tip-action-filter-channel" [class.filterSelected]="checkFilter(dropdownContextModel)" (click)="toggleChannelDropdown()" (keydown.enter)="toggleChannelDropdown()" tabindex="0" role="button"><i class="fas fa-filter"></i></span>
-                    <span [class.d-none]="!channelDropdownVisible">
-                      <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="dropdownSettings" [data]="dropdownContextData" [(ngModel)]="dropdownContextModel" (ngModelChange)="onChanged(dropdownContextModel,'Channel')" [attr.aria-label]="'Channel' | translate"></ng-multiselect-dropdown>
-                    </span>
-                  </span>
-                } @else {
-                  <span class="text-muted"><i class="fas fa-sort"></i></span>
-                }
-            </th>
-            }
             <th class="TipInfoLabel">
               <span (click)="sortKey = 'label'; sortReverse = !sortReverse" (keydown.enter)="sortKey = 'label'; sortReverse = !sortReverse" tabindex="0" role="button">
                 <i class="fas fa-tag"></i>
@@ -326,10 +324,8 @@
                   <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fas fa-bell"></i></span>
                 }
               </td>
+              <td class="TipInfoContext">{{tip.context_name}}</td>
               <td class="TipInfoID">{{tip.progressive}}</td>
-              @if (appDataService.public.contexts.length > 1) {
-                <td class="TipInfoContext">{{tip.context_name}}</td>
-              }
               <td class="TipInfoLabel">{{tip.label}}</td>
               <td class="TipInfoStatus">{{tip.submissionStatusStr}}</td>
               <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
