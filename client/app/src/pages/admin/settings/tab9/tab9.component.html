@@ -1,0 +1,113 @@
+<div class="card card-body">
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+    <h2 class="h5 mb-0">{{ "Default search dashboard" | translate }}</h2>
+    <button type="button" class="btn btn-primary" (click)="addTab()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      <span>{{ "Add tab" | translate }}</span>
+    </button>
+  </div>
+
+  @for (tab of tabs; track tab; let first = $first; let last = $last; let tabIndex = $index) {
+    <div class="config-item w-100">
+      <div class="editorHeader row align-items-center g-2">
+        <div class="col-md-8 d-flex align-items-center gap-2">
+          <span class="badge bg-primary">{{ tabIndex + 1 }}</span>
+          <label class="visually-hidden" [for]="'dashboard-tab-' + tabIndex">{{ "Tab name" | translate }}</label>
+          <input [id]="'dashboard-tab-' + tabIndex" class="form-control" [(ngModel)]="tab.name"
+                 [placeholder]="'Tab name' | translate" maxlength="255" required>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="btn-group" role="group" [attr.aria-label]="'Tab actions' | translate">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="move(tab, -1)" [disabled]="first" [attr.aria-label]="'Move up' | translate">
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="move(tab, 1)" [disabled]="last" [attr.aria-label]="'Move down' | translate">
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="removeTab(tab)" [attr.aria-label]="'Delete' | translate">
+              <i class="fas fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      @for (filter of tab.query.filters; track filter; let filterIndex = $index) {
+        <div class="border rounded p-3 mb-3">
+          <div class="row g-3 align-items-end">
+            <div class="form-group col-lg-3 mb-0">
+              <label [for]="'filter-field-' + tabIndex + '-' + filterIndex">{{ "Field" | translate }}</label>
+              <select [id]="'filter-field-' + tabIndex + '-' + filterIndex" class="form-select-custom"
+                      [ngModel]="filter.field" (ngModelChange)="updateField(filter, $event)">
+                @for (field of fields; track field.id) {
+                  <option [value]="field.id">{{ field.label | translate }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group col-lg-2 mb-0">
+              <label [for]="'filter-operator-' + tabIndex + '-' + filterIndex">{{ "Condition" | translate }}</label>
+              <select [id]="'filter-operator-' + tabIndex + '-' + filterIndex" class="form-select-custom"
+                      [(ngModel)]="filter.operator" [disabled]="isDateField(filter.field)">
+                @if (isDateField(filter.field)) {
+                  <option value="between">{{ "Between" | translate }}</option>
+                } @else {
+                  <option value="in">{{ "Is one of" | translate }}</option>
+                  <option value="contains">{{ "Contains" | translate }}</option>
+                }
+              </select>
+            </div>
+
+            @if (isDateField(filter.field)) {
+              <div class="form-group col-lg-2 mb-0">
+                <label [for]="'filter-from-' + tabIndex + '-' + filterIndex">{{ "From" | translate }}</label>
+                <input [id]="'filter-from-' + tabIndex + '-' + filterIndex" class="form-control" type="date"
+                       [ngModel]="dateValue(filter, 0)" (ngModelChange)="updateDateValue(filter, 0, $event)">
+              </div>
+              <div class="form-group col-lg-2 mb-0">
+                <label [for]="'filter-to-' + tabIndex + '-' + filterIndex">{{ "To" | translate }}</label>
+                <input [id]="'filter-to-' + tabIndex + '-' + filterIndex" class="form-control" type="date"
+                       [ngModel]="dateValue(filter, 1)" (ngModelChange)="updateDateValue(filter, 1, $event)">
+              </div>
+            } @else {
+              <div class="form-group col-lg-4 mb-0">
+                <label [for]="'filter-value-' + tabIndex + '-' + filterIndex">{{ "Value" | translate }}</label>
+                <input [id]="'filter-value-' + tabIndex + '-' + filterIndex" class="form-control"
+                       [ngModel]="filterValue(filter)" (ngModelChange)="updateValue(filter, $event)"
+                       [placeholder]="filter.operator === 'in' ? ('Separate multiple values with commas' | translate) : ('Value' | translate)">
+              </div>
+            }
+
+            <div class="form-group col-auto mb-0 pb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="filter.negated" [id]="'negate-' + tabIndex + '-' + filterIndex">
+                <label class="form-check-label" [for]="'negate-' + tabIndex + '-' + filterIndex">{{ "Not" | translate }}</label>
+              </div>
+            </div>
+
+            <div class="col-auto pb-1 ms-auto">
+              <button type="button" class="btn btn-sm btn-danger" (click)="removeFilter(tab, filter)" [attr.aria-label]="'Delete filter' | translate">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="addFilter(tab)">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <span>{{ "Add filter" | translate }}</span>
+      </button>
+    </div>
+  }
+
+  @if (tabs.length) {
+    <div class="form-group mb-0">
+      <button type="button" class="btn btn-primary" (click)="save()" [disabled]="invalid">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        <span>{{ "Save" | translate }}</span>
+      </button>
+    </div>
+  }
+</div>

@@ -1,6 +1,7 @@
 <div *ngIf="items.length" class="row mt-1 mb-3">
   <div class="col d-flex justify-content-between align-items-center">
     <app-search-input
+      *ngIf="showSearch"
       class="flex-shrink-0"
       [(value)]="searchText"
       (valueChange)="onSearchChange()">

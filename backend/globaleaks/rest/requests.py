@@ -125,6 +125,15 @@ TokenAnswerDesc = {
     'answer': int
 }
 
+SearchDashboardDesc = {
+    'tabs': [dict]
+}
+
+SearchExportAuditDesc = {
+    'filter_types': [str],
+    'result_count': int
+}
+
 SubmissionDesc = {
     'context_id': uuid_regexp,
     'receivers': [uuid_regexp],

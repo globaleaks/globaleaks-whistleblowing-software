@@ -32,6 +32,15 @@ export const recipientRoutes: Routes = [
     data: {pageTitle: "Reports"},
   },
   {
+    path: "search",
+    loadComponent: () => import('@app/pages/recipient/tips/tips.component').then(m => m.TipsComponent),
+    pathMatch: "full",
+    resolve: {
+      PreferenceResolver, RTipsResolver
+    },
+    data: {pageTitle: "Search dashboard"},
+  },
+  {
     path: "settings",
     loadComponent: () => import('@app/pages/recipient/settings/settings.component').then(m => m.RecipientSettingsComponent),
     resolve: {

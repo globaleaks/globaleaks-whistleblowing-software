@@ -37,6 +37,7 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
+import {SearchDashboardState, SearchDashboardTab, SearchQuery} from "@app/models/search/search-query";
 
 
 @Injectable({
@@ -537,6 +538,21 @@ export class HttpService {
 
   requestRoleSwitch(role: string): Observable<{ redirect: string }> {
     return this.httpClient.get<{ redirect: string }>(`api/auth/roleauthswitch/${role}`);
+  }
+
+  getRecipientDashboard(): Observable<SearchDashboardState> {
+    return this.httpClient.get<SearchDashboardState>("api/recipient/search-dashboard");
+  }
+
+  saveRecipientTabs(tabs: SearchDashboardTab[]): Observable<SearchDashboardState> {
+    return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
+  }
+
+  auditSearchExport(query: SearchQuery, resultCount: number): Observable<void> {
+    return this.httpClient.post<void>("api/recipient/search/export-audit", {
+      filter_types: query.filters.map(filter => filter.field),
+      result_count: resultCount
+    });
   }
 
   runOperation(url: string, operation: string, args: any, refresh: boolean) {

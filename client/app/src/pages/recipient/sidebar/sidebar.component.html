@@ -7,6 +7,10 @@
     <i class="fas fa-inbox"></i>
     <span>{{'Reports' | translate}}</span>
   </a>
+  <a routerLink="/recipient/search" routerLinkActive="active" id="recipient_search" [ngClass]="{'active': isActive('/recipient/search')}" [attr.aria-current]="isActive('/recipient/search') ? 'page' : 'false'">
+    <i class="fas fa-magnifying-glass"></i>
+    <span>{{'Search dashboard' | translate}}</span>
+  </a>
 }
 @if (preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
   <a routerLink="/recipient/settings" routerLinkActive="active" id="recipient_settings" [ngClass]="{'active': isActive('/recipient/settings')}" [attr.aria-current]="isActive('/recipient/settings') ? 'page' : 'false'">

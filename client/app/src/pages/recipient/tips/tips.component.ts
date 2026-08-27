@@ -19,12 +19,15 @@ import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {SearchDashboardComponent} from "@app/shared/components/search-dashboard/search-dashboard.component";
+import {SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
+import {SearchQueryService} from "@app/shared/services/search-query.service";
 
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe]
+    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe, SearchDashboardComponent]
 })
 export class TipsComponent implements OnInit {
   private http = inject(HttpClient);
@@ -39,9 +42,12 @@ export class TipsComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   private translateService = inject(TranslateService);
   private tokenResourceService = inject(TokenResource);
+  private searchQueryService = inject(SearchQueryService);
 
   selectedTips: string[] = [];
   filteredTips: rtipResolverModel[];
+  isSearchDashboard = false;
+  searchQuery: SearchQuery = emptySearchQuery();
   reportDateFilter: [number, number] | null = null;
   updateDateFilter: [number, number] | null = null;
   expiryDateFilter: [number, number] | null = null;
@@ -78,6 +84,7 @@ export class TipsComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.isSearchDashboard = this.router.url.startsWith("/recipient/search");
     if (!this.RTips.dataModel) {
       this.router.navigate(["/recipient/home"]).then();
     } else {
@@ -212,22 +219,44 @@ export class TipsComponent implements OnInit {
   }
 
   onChanged(model: { id: number; label: string; }[], type: string) {
-    this.processTips();
-    if (model.length > 0) {
-      this.dropdownContextModel = [];
-      this.dropdownStatusModel = [];
-      this.dropdownScoreModel = [];
-      this.dropdownReportModificationModel = [];
+    if (!this.isSearchDashboard) {
+      this.processTips();
+      if (model.length > 0) {
+        this.dropdownContextModel = [];
+        this.dropdownStatusModel = [];
+        this.dropdownScoreModel = [];
+        this.dropdownReportModificationModel = [];
 
-      if (type === "Score") {
-        this.dropdownScoreModel = model;
-      } else if (type === "Status") {
-        this.dropdownStatusModel = model;
-      } else if (type === "Report") {
-        this.dropdownReportModificationModel = model;
-      } else if (type === "Context") {
-        this.dropdownContextModel = model;
+        if (type === "Score") {
+          this.dropdownScoreModel = model;
+        } else if (type === "Status") {
+          this.dropdownStatusModel = model;
+        } else if (type === "Report") {
+          this.dropdownReportModificationModel = model;
+        } else if (type === "Channel") {
+          this.dropdownContextModel = model;
+        }
       }
+      this.applyFilter();
+      return;
+    }
+
+    const definitions: Record<string, {id: string; field: string; label: string}> = {
+      Score: {id: "score", field: "score", label: "Score"},
+      Status: {id: "status", field: "submissionStatusStr", label: "Status"},
+      Report: {id: "report", field: "reportModificationStr", label: "Report"},
+      Channel: {id: "context", field: "context_name", label: "Channel"}
+    };
+    const definition = definitions[type];
+    if (definition) {
+      this.setFilter(definition.id, model.length ? {
+        id: definition.id,
+        field: definition.field,
+        operator: "in",
+        value: model.map(item => item.label),
+        label: definition.label,
+        negated: this.getFilter(definition.id)?.negated ?? false
+      } : null);
     }
     this.applyFilter();
   }
@@ -271,7 +300,6 @@ export class TipsComponent implements OnInit {
   }
 
   onReportFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
     const {fromDate, toDate} = event;
     if (!fromDate && !toDate) {
       this.reportDateFilter = null;
@@ -280,11 +308,13 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.reportDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
+    if (this.isSearchDashboard) {
+      this.setDateFilter("creation_date", "Report date", this.reportDateFilter);
+    }
     this.applyFilter();
   }
 
   onUpdateFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
     const {fromDate, toDate} = event;
     if (!fromDate && !toDate) {
       this.updateDateFilter = null;
@@ -293,11 +323,13 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.updateDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
+    if (this.isSearchDashboard) {
+      this.setDateFilter("update_date", "Last update", this.updateDateFilter);
+    }
     this.applyFilter();
   }
 
   onExpiryFilterChange(event: { fromDate: string | null; toDate: string | null }) {
-    this.processTips();
     const {fromDate, toDate} = event;
     if (!fromDate && !toDate) {
       this.expiryDateFilter = null;
@@ -306,15 +338,80 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.expiryDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
+    if (this.isSearchDashboard) {
+      this.setDateFilter("expiration_date", "Expiration date", this.expiryDateFilter);
+    }
     this.applyFilter();
   }
 
   applyFilter() {
-    this.filteredTips = this.utils.getStaticFilter(this.RTips.dataModel, this.dropdownStatusModel, "submissionStatusStr", this.translateService);
-    this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownContextModel, "context_name", this.translateService);
-    this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownScoreModel, "score", this.translateService);
-    this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownReportModificationModel, "reportModificationStr", this.translateService);
-    this.filteredTips = this.utils.getDateFilter(this.filteredTips, this.reportDateFilter, this.updateDateFilter, this.expiryDateFilter);
+    if (!this.isSearchDashboard) {
+      this.filteredTips = this.utils.getStaticFilter(this.RTips.dataModel, this.dropdownStatusModel, "submissionStatusStr", this.translateService);
+      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownContextModel, "context_name", this.translateService);
+      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownScoreModel, "score", this.translateService);
+      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownReportModificationModel, "reportModificationStr", this.translateService);
+      this.filteredTips = this.utils.getDateFilter(this.filteredTips, this.reportDateFilter, this.updateDateFilter, this.expiryDateFilter);
+      return;
+    }
+
+    this.filteredTips = this.searchQueryService.execute(this.RTips.dataModel, this.searchQuery, (tip, field) => {
+      if (field === "searchable_content") {
+        return [tip.progressive, tip.label, tip.context_name, tip.submissionStatusStr, tip.receiver_names, tip.answers];
+      }
+      if (field === "status") {
+        return [tip.status, tip.submissionStatusStr];
+      }
+      if (field === "context_id") {
+        return [tip.context_id, tip.context_name];
+      }
+      if (field === "score") {
+        return this.maskScore(tip.score);
+      }
+      return tip[field as keyof rtipResolverModel];
+    });
+  }
+
+  onSearchQueryChange(query: SearchQuery) {
+    this.searchQuery = query;
+    this.syncColumnFilters();
+    this.applyFilter();
+  }
+
+  private setDateFilter(field: string, label: string, value: [number, number] | null) {
+    this.setFilter(field, value ? {
+      id: field,
+      field,
+      operator: "between",
+      value,
+      label,
+      negated: this.getFilter(field)?.negated ?? false
+    } : null);
+  }
+
+  private setFilter(id: string, filter: SearchFilter | null) {
+    const filters = this.searchQuery.filters.filter(item => item.id !== id);
+    if (filter) {
+      filters.push(filter);
+    }
+    this.searchQuery = {...this.searchQuery, filters};
+  }
+
+  private getFilter(id: string): SearchFilter | undefined {
+    return this.searchQuery.filters.find(filter => filter.id === id);
+  }
+
+  private syncColumnFilters() {
+    const selected = (id: string, data: {id: number; label: string}[]) => {
+      const values = this.getFilter(id)?.value as string[] | undefined;
+      return values ? data.filter(item => values.includes(item.label)) : [];
+    };
+    this.dropdownContextModel = selected("context", this.dropdownContextData);
+    this.dropdownStatusModel = selected("status", this.dropdownStatusData);
+    this.dropdownScoreModel = selected("score", this.dropdownScoreData);
+    this.dropdownReportModificationModel = selected("report", this.dropdownReportData);
+    this.reportDateFilter = this.getFilter("creation_date")?.value as [number, number] ?? null;
+    this.updateDateFilter = this.getFilter("update_date")?.value as [number, number] ?? null;
+    this.expiryDateFilter = this.getFilter("expiration_date")?.value as [number, number] ?? null;
   }
 
   @HostListener("document:click", ["$event"])
@@ -341,28 +438,41 @@ export class TipsComponent implements OnInit {
   }
 
   exportToCsv(): void {
+    if (this.isSearchDashboard) {
+      this.httpService.auditSearchExport(this.searchQuery, this.filteredTips.length).subscribe();
+    }
     this.utils.generateCSV('reports', this.getDataCsv());
   }
 
   getDataCsv(): any[] {
     const output = [...this.filteredTips];
-    return output.map(tip => ({
-      id: tip.id,
-      progressive: tip.progressive,
-      important: tip.important,
-      context_name: tip.context_name,
-      label: tip.label,
-      report_status: tip.status === 'new' ? 'New' : tip.updated === false ? 'Updated' : '',
-      status: tip.submissionStatusStr,
-      creation_date: formatDate(tip.creation_date, 'dd-MM-yyyy HH:mm', 'en-US'),
-      update_date: formatDate(tip.update_date, 'dd-MM-yyyy HH:mm', 'en-US'),
-      expiration_date: formatDate(tip.expiration_date, 'dd-MM-yyyy HH:mm', 'en-US'),
-      last_access: formatDate(tip.last_access, 'dd-MM-yyyy HH:mm', 'en-US'),
-      comment_count: tip.comment_count,
-      file_count: tip.file_count,
-      subscription: tip.subscription === 0 ? 'Not subscribed' : tip.subscription === 1 ? 'Subscribed' : 'Sottoscritta successivamente',
-      receiver_count: tip.receiver_count
-    }));
+    return output.map(tip => {
+      const row: Record<string, string | number | boolean> = {
+        progressive: tip.progressive,
+        important: tip.important,
+        reminder_date: this.utils.isNever(tip.reminder_date) ? '' : formatDate(tip.reminder_date, 'dd-MM-yyyy HH:mm', 'en-US')
+      };
+      if (this.appDataService.public.contexts.length > 1) {
+        row['context_name'] = tip.context_name;
+      }
+      Object.assign(row, {
+        label: tip.label,
+        report_status: tip.status === 'new' ? 'New' : tip.updated === false ? 'Updated' : '',
+        status: tip.submissionStatusStr,
+        creation_date: formatDate(tip.creation_date, 'dd-MM-yyyy HH:mm', 'en-US'),
+        update_date: formatDate(tip.update_date, 'dd-MM-yyyy HH:mm', 'en-US'),
+        expiration_date: this.utils.isNever(tip.expiration_date) ? '' : formatDate(tip.expiration_date, 'dd-MM-yyyy HH:mm', 'en-US'),
+        last_access: formatDate(tip.last_access, 'dd-MM-yyyy HH:mm', 'en-US'),
+        comment_count: tip.comment_count,
+        file_count: tip.file_count,
+        subscription: tip.subscription === 0 ? 'Not subscribed' : 'Subscribed',
+        receiver_count: tip.receiver_count
+      });
+      if (this.appDataService.public.node.enable_scoring_system) {
+        row['score'] = this.maskScore(tip.score);
+      }
+      return row;
+    });
   }
 
   getDataCsvHeaders(): string[] {

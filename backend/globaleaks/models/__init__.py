@@ -1179,7 +1179,7 @@ class _User(Model):
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
     profile_id = Column(Integer, default='', nullable=False)
     status = Column(Enum(EnumUserStatus), default='active', nullable=False)
-    idp_id = Column(UnicodeText(18), default='', nullable=False)
+    idp_id = Column(UnicodeText, default='', nullable=False)
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
@@ -1377,4 +1377,31 @@ class StatisticalReport(_StatisticalReport, Base):
         return (
             ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
             ForeignKeyConstraint(['template_id'], ['statisticalreporttemplate.id'], ondelete='SET NULL', deferrable=True, initially='DEFERRED'),
+        )
+
+
+class _SearchDashboardTab(Model):
+    __tablename__ = 'search_dashboard_tab'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False, index=True)
+    user_id = Column('owner_id', UnicodeText(36), nullable=True, index=True)
+    name = Column(UnicodeText, default='', nullable=False)
+    query = Column(JSON, default=dict, nullable=False)
+    encrypted_data = Column(UnicodeText, default='', nullable=False)
+    position = Column(Integer, default=0, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+
+    unicode_keys = ['user_id', 'name', 'encrypted_data']
+    json_keys = ['query']
+    int_keys = ['position']
+
+
+class SearchDashboardTab(_SearchDashboardTab, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (
+            ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+            ForeignKeyConstraint(['owner_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
         )

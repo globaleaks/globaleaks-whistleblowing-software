@@ -7,6 +7,7 @@ from nacl.encoding import Base64Encoder
 from sqlalchemy.sql.expression import distinct, func, and_, or_
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.recipient.search_dashboard
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler

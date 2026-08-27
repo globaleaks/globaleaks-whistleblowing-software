@@ -24,6 +24,7 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   @Input() items: T[] = [];
   @Input() filterField = '';
   @Input() itemsPerPage = 20;
+  @Input() showSearch = true;
 
   /** Optional: filter by key-value pairs */
   @Input() filter?: { [key: string]: any };
