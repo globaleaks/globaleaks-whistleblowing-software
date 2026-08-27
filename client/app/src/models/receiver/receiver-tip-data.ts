@@ -61,6 +61,9 @@ export type Answers = Record<string, {
 export interface Receiver {
   id: string;
   name: string;
+  // A report names, besides the recipients holding it, the ones that took part
+  // in it and hold it no longer: only the former are active
+  active: boolean;
 }
 
 export interface Data {
