@@ -290,6 +290,23 @@ export class TipComponent implements OnInit {
     return output;
   }
 
+  // The space the recipients share among themselves has no place on a report a
+  // single recipient holds: there is nobody there to speak with. It is kept all
+  // the same where something was already exchanged in it, so that what was said
+  // with the recipients that have since been removed does not leave with them.
+  showRecipientsOnly(): boolean {
+    if (!this.tip) {
+      return false;
+    }
+
+    if (this.tip.receivers.filter(receiver => receiver.active).length > 1) {
+      return true;
+    }
+
+    return this.tip.comments.some(comment => comment.visibility === "internal") ||
+           this.tip.rfiles.some(rfile => rfile.visibility === "internal");
+  }
+
   reload(): void {
     this.utils.reloadComponent();
   }
