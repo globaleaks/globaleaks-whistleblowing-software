@@ -177,7 +177,7 @@
               <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
               }
           </ng-template>
-          <ng-template srcTab="me_only" title="Me only">
+          <ng-template srcTab="personal_notes" title="Personal notes">
             <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
             @if (tip && tip.context) {
               <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
