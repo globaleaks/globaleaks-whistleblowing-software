@@ -12,6 +12,7 @@ from globaleaks.orm import transact
 from globaleaks.utils.crypto import GCE
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.recipient.insertion
 
 from globaleaks.handlers.recipient.rtip import db_user_can_bypass_masking, redact_answers
 from globaleaks.handlers.whistleblower.submission import index_answers

@@ -460,10 +460,6 @@ export class HttpService {
     return this.httpClient.post("api/recipient/rtips/" + id + "/iars", {"request_motivation": request_motivation});
   }
 
-  requestOperatorAuthSwitch(): Observable<HttpResponse<{ redirect: string }>> {
-    return this.httpClient.get<{ redirect: string }>('/api/auth/operatorauthswitch', { observe: 'response' });
-  }
-
   requestWhistleblowerOperations(data: { operation: string, args: Record<string, string> }): Observable<unknown> {
     return this.httpClient.put('api/whistleblower/operations', data);
   }

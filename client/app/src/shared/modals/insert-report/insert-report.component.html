@@ -1,0 +1,88 @@
+<div class="modal-header">
+  <h5 id="modal-title" class="modal-title">{{ (receipt ? 'Access code' : title) | translate }}</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+  </button>
+</div>
+<div class="modal-body">
+  @if (error) {
+    <div id="InsertionError" class="alert alert-danger">{{ error | translate }}</div>
+  }
+  @if (receipt) {
+    <div id="InsertionReceipt">
+      <src-receipt-whistleblower [receipt]="receipt"></src-receipt-whistleblower>
+    </div>
+  }
+  <form #submissionForm="ngForm" id="InsertionForm" autocomplete="off" novalidate>
+    @if (showChannelSelector() && !receipt) {
+      <div class="form-group">
+        <label for="insertion-channel">{{ 'Channel' | translate }}</label>
+        <select id="insertion-channel" class="form-select-custom" name="selectedChannel" [(ngModel)]="selectedChannel" (ngModelChange)="onChannelChange()" required>
+          <option value=""></option>
+          @for (channel of channels; track channel.id) {
+            <option [value]="channel.id">{{ channel.name }}</option>
+          }
+        </select>
+      </div>
+    }
+    @if (composing()) {
+      <div class="tabbable tabs-below">
+        @if (questionnaire.steps.length > 1) {
+          <ul id="InsertionTabsNavigationBox" class="nav nav-tabs" role="tablist">
+            @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+              <li class="nav-item" role="presentation">
+                @if (step.enabled) {
+                  <a id="insertion-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'insertion-step-' + index" role="tab">
+                    <span>{{ index + 1 }} - {{ step.label }}</span>
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        }
+        <div id="InsertionTabsContentBox" class="tab-content">
+          @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
+            <div>
+              @if (step && step.enabled) {
+                <div [class.d-none]="navigation !== index" role="tabpanel" [attr.aria-labelledby]="'insertion-step-' + index + '-link'">
+                  <div id="insertion-step-{{index}}" ngForm #stepForm="ngForm" srcNgFormChanges (ngFormChange)="onFormChange()">
+                    @if (step.description) {
+                      <div class="description">{{ step.description }}</div>
+                    }
+                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </form>
+</div>
+<div class="modal-footer">
+  @if (receipt) {
+    <button id="CloseInsertionButton" class="btn btn-primary" (click)="activeModal.close()">
+      <span>{{ 'Close' | translate }}</span>
+    </button>
+  } @else {
+    @if (hasPreviousStep()) {
+      <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
+        <i class="fas fa-circle-arrow-left"></i>
+        <span>{{ 'Previous' | translate }}</span>
+      </button>
+    }
+    @if (hasNextStep()) {
+      <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
+        <span>{{ 'Next' | translate }}</span>
+        <i class="fas fa-circle-arrow-right"></i>
+      </button>
+    }
+    @if (!hasNextStep()) {
+      <button id="SubmitInsertionButton" class="btn btn-primary" [disabled]="done || !composing()" (click)="completeSubmission()" type="submit">
+        <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
+        <span>{{ 'Submit' | translate }}</span>
+      </button>
+    }
+  }
+</div>

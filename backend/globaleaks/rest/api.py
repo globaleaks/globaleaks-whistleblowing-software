@@ -71,7 +71,6 @@ api_spec = [
     ('/api/auth/receiptauth', auth.ReceiptAuthHandler),
     ('/api/auth/session', auth.SessionHandler),
     ('/api/auth/tenantauthswitch/', auth.TenantAuthSwitchHandler, r'/api/auth/tenantauthswitch/' + tid_regexp),
-    ('/api/auth/operatorauthswitch', auth.OperatorAuthSwitchHandler),
 
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
@@ -87,6 +86,8 @@ api_spec = [
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
     ('/api/recipient/rtips', recipient.rtip.ReceiverFileUpload, r'/api/recipient/rtips/' + uuid_regexp + r'/rfiles'),
+    ('/api/recipient/rtips/insertion', recipient.insertion.RTipsInsertion),
+    ('/api/recipient/rtips/insertion/attachment', recipient.insertion.InsertionAttachment),
     ('/api/recipient/redactions', recipient.rtip.RTipRedactionCollection),
     ('/api/recipient/redactions', recipient.rtip.RTipRedactionCollection, r'/api/recipient/redactions/' + uuid_regexp),
     ('/api/recipient/rfiles', recipient.rtip.ReceiverFileDownload, r'/api/recipient/rfiles/' + uuid_regexp),

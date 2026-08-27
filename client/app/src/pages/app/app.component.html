@@ -17,11 +17,6 @@
 
     @if (appDataService.public.node) {
       <div class="reveal flex-shrink-0" [class.public]="utilsService.isWhistleblowerPage()" [class.block-user-input]="showLoadingPanel">
-        @if (authenticationService.session?.properties?.operator_session) {
-          <div>
-            <src-operation></src-operation>
-          </div>
-        }
         @if (!appDataService.public.node.root_tenant && appDataService.public.node.mode === 'demo') {
           <div>
             <src-demo></src-demo>

@@ -12,13 +12,12 @@ import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
 import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {HttpService} from "@app/shared/services/http.service";
 import {concatMap, delay, from, tap} from "rxjs";
-import {HttpResponse} from "@angular/common/http";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {InsertReportComponent} from "@app/shared/modals/insert-report/insert-report.component";
 
 @Component({
     selector: "src-tips",
@@ -28,7 +27,6 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 })
 export class TipsComponent implements OnInit {
   protected authenticationService = inject(AuthenticationService);
-  protected httpService = inject(HttpService);
   private appConfigServices = inject(AppConfigService);
   private router = inject(Router);
   protected RTips = inject(RTipsResolver);
@@ -143,13 +141,18 @@ export class TipsComponent implements OnInit {
     return this.selectedTips.indexOf(id) !== -1;
   }
 
-  actAsWhistleblower() {
-    this.httpService.requestOperatorAuthSwitch().subscribe(
-      (response: HttpResponse<any>) => {
-        if (response.status === 200) {
-          window.open(window.location.origin + response.body.redirect, "_blank", "noopener");
-        }
-      },
+  // The report is entered on the site itself: the channel it is filed on is
+  // chosen in the modal, which composes the questionnaire of that channel
+  enterReport() {
+    const modalRef = this.modalService.open(InsertReportComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false
+    });
+    modalRef.componentInstance.title = "Enter a report";
+    modalRef.result.then(
+      () => this.reload(),
+      () => {}
     );
   }
 

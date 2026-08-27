@@ -17,7 +17,7 @@ from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.log import log
-from globaleaks.utils.utility import datetime_now, uuid4
+from globaleaks.utils.utility import datetime_now
 
 
 def db_receipt_auth_is_legacy(session, tid):
@@ -62,7 +62,7 @@ def db_login_failure(session, tid, whistleblower=False, user_id=None):
 
 
 @transact
-def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=None, dpop_jkt=''):
+def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     """
     Login transaction for whistleblowers' access
 
@@ -96,11 +96,8 @@ def login_whistleblower(session, tid, receipt, client_using_tor, operator_id=Non
         crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(itip.crypto_prv_key))
 
     itip.access_count += 1
-    if operator_id is not None:
-        itip.receipt_change_needed = True
-        itip.operator_id = operator_id
 
-    db_log(session, tid=tid, type='whistleblower_login', user_id=operator_id, object_id=itip.id)
+    db_log(session, tid=tid, type='whistleblower_login', object_id=itip.id)
 
     session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key, dpop_jkt=dpop_jkt)
 
@@ -302,25 +299,17 @@ class ReceiptAuthHandler(BaseHandler):
         connection_check(self.request.tid, 'whistleblower',
                          self.request.client_ip, self.request.client_using_tor)
 
-        operator_id = None
-        if self.session and self.session.properties.get('operator_session', False):
-            # this is actually a recipient operating on behalf of a whistleblower
-            operator_id = self.session.properties.get('operator_session')
-
         dpop_jkt = self.get_dpop_thumbprint()
 
         if request['receipt']:
             session = yield login_whistleblower(self.request.tid, request['receipt'],
-                                                self.request.client_using_tor, operator_id,
+                                                self.request.client_using_tor,
                                                 dpop_jkt=dpop_jkt)
         else:
             if not self.state.accept_submissions or self.state.tenants[self.request.tid].cache['disable_submissions']:
                 raise errors.SubmissionDisabled
 
             session = initialize_submission_session(self.request.tid, dpop_jkt=dpop_jkt)
-
-        if operator_id:
-            session.properties["operator_session"] = self.session.user_id
 
         if self.session and self.session.role == 'whistleblower':
             # The new session replaces the presented one so that a single
@@ -358,8 +347,7 @@ class SessionHandler(BaseHandler):
         Logout
         """
         if self.session.role == 'whistleblower':
-            yield tw(db_log, tid=self.session.tid,  type='whistleblower_logout',
-                     user_id=self.session.properties.get("operator_session"))
+            yield tw(db_log, tid=self.session.tid,  type='whistleblower_logout')
         else:
             yield tw(db_log, tid=self.session.tid,  type='logout', user_id=self.session.user_id)
 
@@ -389,26 +377,3 @@ class TenantAuthSwitchHandler(BaseHandler):
         session.properties['authtoken'] = True
 
         return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
-
-
-class OperatorAuthSwitchHandler(BaseHandler):
-    """
-    Login handler for switching tenant
-    """
-    check_roles = 'receiver'
-
-    def get(self):
-        prv_key, _ = GCE.generate_keypair()
-
-        session = Sessions.new(self.session.user_tid,
-                               uuid4(),
-                               self.session.user_tid,
-                               "whistleblower",
-                               prv_key,
-                               False,
-                               dpop_jkt=self.get_dpop_thumbprint())
-
-        session.properties['operator_session'] = self.session.user_id
-        session.properties['authtoken'] = True
-
-        return {'redirect': '/#/login?token=%s' % session.id}
