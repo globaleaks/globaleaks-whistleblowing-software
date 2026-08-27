@@ -324,10 +324,10 @@
                   <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fas fa-bell"></i></span>
                 }
               </td>
-              <td class="TipInfoContext">{{tip.context_name}}</td>
+              <td class="TipInfoContext"><span class="cell-truncated" [ngbTooltip]="tip.context_name">{{tip.context_name}}</span></td>
               <td class="TipInfoID">{{tip.progressive}}</td>
-              <td class="TipInfoLabel">{{tip.label}}</td>
-              <td class="TipInfoStatus">{{tip.submissionStatusStr}}</td>
+              <td class="TipInfoLabel"><span class="cell-truncated" [ngbTooltip]="tip.label">{{tip.label}}</span></td>
+              <td class="TipInfoStatus"><span class="cell-truncated" [ngbTooltip]="tip.submissionStatusStr">{{tip.submissionStatusStr}}</span></td>
               <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
               <td class="TipInfoUpdateDate">{{tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
               <td class="TipInfoExpirationDate">
