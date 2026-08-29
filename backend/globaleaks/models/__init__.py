@@ -993,6 +993,8 @@ class _User(Model):
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
     # END of PGP key fields
 
+    last_expiration_reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 
