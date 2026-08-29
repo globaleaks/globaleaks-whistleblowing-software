@@ -6,6 +6,7 @@ from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
+from globaleaks.models.enums import EnumStateFile
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
@@ -83,6 +84,50 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
     return ret
 
 
+def db_reset_antivirus_verification(session, tid):
+    for ifile in session.query(models.InternalFile) \
+                        .join(models.InternalTip, models.InternalFile.internaltip_id == models.InternalTip.id) \
+                        .filter(models.InternalTip.tid == tid):
+        ifile.state = EnumStateFile.pending.name
+        ifile.verification_date = None
+
+    for rfile in session.query(models.ReceiverFile) \
+                        .join(models.InternalTip, models.ReceiverFile.internaltip_id == models.InternalTip.id) \
+                        .filter(models.InternalTip.tid == tid):
+        rfile.state = EnumStateFile.pending.name
+        rfile.verification_date = None
+
+
+def clear_queued_antivirus_scans_for_tenant(session, tid):
+    from globaleaks.state import State
+
+    queued_file_ids = {file_id for file_id, _ in State.antivirus_files}
+    if not queued_file_ids:
+        return
+
+    tenant_file_ids = set()
+
+    tenant_file_ids.update(
+        file_id for (file_id,) in session.query(models.InternalFile.id)
+                                     .join(models.InternalTip, models.InternalFile.internaltip_id == models.InternalTip.id)
+                                     .filter(models.InternalTip.tid == tid,
+                                             models.InternalFile.id.in_(queued_file_ids))
+    )
+    tenant_file_ids.update(
+        file_id for (file_id,) in session.query(models.ReceiverFile.id)
+                                     .join(models.InternalTip, models.ReceiverFile.internaltip_id == models.InternalTip.id)
+                                     .filter(models.InternalTip.tid == tid,
+                                             models.ReceiverFile.id.in_(queued_file_ids))
+    )
+
+    if not tenant_file_ids:
+        return
+
+    State.antivirus_files = [(file_id, tip_prv_key) for file_id, tip_prv_key in State.antivirus_files
+                             if file_id not in tenant_file_ids]
+    State.antivirus_file_ids.difference_update(tenant_file_ids)
+
+
 def db_update_node(session, tid, user_session, request, language):
     """
     Transaction to update the node configuration
@@ -94,16 +139,23 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
-    # The backup feature is configurable on the primary tenant only: its
-    # variables are dropped from the requests of any other context,
+    # The antivirus and backup features are configurable on the primary tenant
+    # only: their variables are dropped from the requests of any other context,
     # secondary tenants and profiles alike
     if tid != 1:
-        for var in ['backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
+        for var in ['antivirus_enabled', 'antivirus_clamd_ip', 'antivirus_clamd_port',
+                    'backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
             request.pop(var, None)
 
     config = ConfigFactory(session, tid)
+    antivirus_was_enabled = config.get_val('antivirus_enabled')
 
     config.update('node', request)
+
+    antivirus_is_enabled = request.get('antivirus_enabled', antivirus_was_enabled)
+    if antivirus_was_enabled and not antivirus_is_enabled:
+        db_reset_antivirus_verification(session, tid)
+        clear_queued_antivirus_scans_for_tenant(session, tid)
 
     if 'languages_enabled' in request and 'default_language' in request:
         db_update_enabled_languages(session,
@@ -187,5 +239,11 @@ class NodeInstance(BaseHandler):
                     ret["backup_job_status"] = backup_job["status"]
             else:
                 yield stop_job("Backup")
+
+        tenant = self.state.tenants.get(self.request.tid)
+        if tenant is not None:
+            for key in ('antivirus_enabled', 'antivirus_clamd_ip', 'antivirus_clamd_port'):
+                if key in ret:
+                    tenant.cache[key] = ret[key]
 
         return ret
