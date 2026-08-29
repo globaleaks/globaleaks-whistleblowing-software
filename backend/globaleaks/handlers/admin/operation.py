@@ -415,7 +415,9 @@ class AdminOperationHandler(OperationHandler):
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
-        yield self.state.sendmail(tid, user['mail_address'], subject, body)
+        use_smtp2 = req_args.get('smtp2', False)
+        mail_address = req_args.get('to_mail_address', '')
+        yield self.state.sendmail(tid, mail_address, subject, body, use_smtp2=use_smtp2)
 
     def toggle_escrow(self, req_args, *args, **kwargs):
         return toggle_escrow(self.request.tid, self.session)
@@ -437,7 +439,6 @@ class AdminOperationHandler(OperationHandler):
             'enable_encryption': AdminOperationHandler.enable_encryption,
             'disable_2fa': AdminOperationHandler.disable_2fa,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
-            'reset_smtp_settings': AdminOperationHandler.reset_smtp_settings,
             'reset_submissions': AdminOperationHandler.reset_submissions,
             'set_user_password': AdminOperationHandler.set_user_password,
             'send_password_reset_email': AdminOperationHandler.send_password_reset_email,

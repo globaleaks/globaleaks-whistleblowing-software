@@ -96,6 +96,7 @@ Date of the request
 Date range
 Default mail configuration in use. Please consider using a private mail server.
 Delete
+Deliver the following notifications through the secondary SMTP server
 Denied
 Deny
 Deny access to the reporting person's identity
