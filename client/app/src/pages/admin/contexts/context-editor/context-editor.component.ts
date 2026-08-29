@@ -5,28 +5,27 @@ import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {SelectableEntry} from "@app/models/app/selectables";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, FilterPipe, ListItemComponent]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
   protected nodeResolver = inject(NodeResolver);
-  private usersResolver = inject(UsersResolver);
   private questionnairesResolver = inject(QuestionnairesResolver);
+  private selectablesResolver = inject(SelectablesResolver);
   private utilsService = inject(UtilsService);
 
   readonly contextsData = input.required<contextResolverModel[]>();
@@ -42,10 +41,14 @@ export class ContextEditorComponent implements OnInit {
   showAdvancedSettings = false;
   showSelect = false;
   readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
-  readonly usersData = computed(() => this.usersResolver.resource.value());
+
+  // The users receive on a channel through the profile they hold: a profile
+  // shared among accounts carries them all, the personal profile of an account
+  // carries that one alone and is named by it
+  readonly profilesData = computed<SelectableEntry[]>(() => this.selectablesResolver.dataModel.user_profiles);
+  readonly profilesById = computed<Record<string, SelectableEntry>>(() => this.utilsService.array_to_map(this.profilesData()));
   nodeData: nodeResolverModel;
   selected = {value: []};
-  readonly adminReceiversById = computed<Record<string, userResolverModel>>(() => this.utilsService.array_to_map(this.usersData()));
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
@@ -61,36 +64,33 @@ export class ContextEditorComponent implements OnInit {
     this.reorder.emit({ index: idx, direction: 1 });
   }
 
-  swapReceiver(index: number, n: number): void {
-    const target = index + n;
-    if (target > -1 && target < this.contextResolver().receivers.length) {
-      const tmp = this.contextResolver().receivers[target];
-      this.contextResolver().receivers[target] = this.contextResolver().receivers[index];
-      this.contextResolver().receivers[index] = tmp;
+  profileNotSelectedFilter(item: SelectableEntry): boolean {
+    return this.namedProfiles().indexOf(item.id) === -1;
+  }
+
+  namedProfiles(): string[] {
+    const context = this.contextResolver();
+
+    if (!context.profiles) {
+      context.profiles = [];
     }
-  }
 
-  receiverNotSelectedFilter(item: userResolverModel): boolean {
-    return this.contextResolver().receivers.indexOf(item.id) === -1;
-  }
-
-  moveUpReceiver(index: number): void {
-    this.swapReceiver(index, -1);
-  }
-
-  moveDownReceiver(index: number): void {
-    this.swapReceiver(index, 1);
+    return context.profiles;
   }
 
   toggleSelect(): void {
     this.showSelect = true;
   }
 
-  moveReceiver(rec: userResolverModel): void {
-    if (rec && this.contextResolver().receivers.indexOf(rec.id) === -1) {
-      this.contextResolver().receivers.push(rec.id);
+  addProfile(profile: SelectableEntry): void {
+    if (profile && this.namedProfiles().indexOf(profile.id) === -1) {
+      this.namedProfiles().push(profile.id);
       this.showSelect = false;
     }
+  }
+
+  removeProfile(index: number): void {
+    this.namedProfiles().splice(index, 1);
   }
 
   deleteContext(context: contextResolverModel): void {
@@ -116,7 +116,9 @@ export class ContextEditorComponent implements OnInit {
     if (context.additional_questionnaire_id === null) {
       context.additional_questionnaire_id = "";
     }
-    this.utilsService.updateAdminContext(context, context.id).subscribe();
+    this.utilsService.updateAdminContext(context, context.id).subscribe(updatedContext => {
+      Object.assign(context, updatedContext);
+    });
   }
 
 }

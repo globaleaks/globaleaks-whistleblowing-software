@@ -4,8 +4,9 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import serialize_questionnaire
 from globaleaks.models import fill_localized_keys
 from globaleaks.orm import db_add, db_del, db_get, transact, tw
-from globaleaks.rest import requests
+from globaleaks.rest import errors, requests
 from globaleaks.utils.utility import uuid4
+from globaleaks.state import State
 
 
 def db_get_questionnaires(session, tid, language):
@@ -17,7 +18,16 @@ def db_get_questionnaires(session, tid, language):
     :param language: The language to be used for the serialization
     :return: a dictionary representing the serialization of the questionnaires.
     """
-    questionnaires = session.query(models.Questionnaire).filter(models.Questionnaire.tid.in_({1, tid}))
+    if tid in State.tenants and hasattr(State.tenants[tid].cache, 'ptid'):
+        ptid = State.tenants[tid].cache.ptid
+    else:
+        ptid = None
+
+    tenant_ids = {1, tid}
+    if ptid:
+        tenant_ids.add(ptid)
+
+    questionnaires = session.query(models.Questionnaire).filter(models.Questionnaire.tid.in_(tenant_ids))
 
     return [serialize_questionnaire(session, tid, questionnaire, language) for questionnaire in questionnaires]
 
@@ -25,7 +35,7 @@ def db_get_questionnaires(session, tid, language):
 def db_get_questionnaire(session, tid, questionnaire_id, language, serialize_templates=False):
     questionnaire = db_get(session,
                            models.Questionnaire,
-                           (models.Questionnaire.tid.in_({1, tid}),
+                           (models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
                             models.Questionnaire.id == questionnaire_id))
 
     return serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates)
@@ -89,6 +99,88 @@ def db_update_questionnaire(session, tid, questionnaire_id, request, language):
     return serialize_questionnaire(session, tid, questionnaire, language)
 
 
+def db_import_questionnaire(session, tid, questionnaire):
+    """
+    Duplicate questionnaire for a new tenant
+
+    :param session: An ORM session
+    :param tid: The new tenant ID
+    :param questionnaire: Source questionnaire data
+    """
+    # Create a deep copy of the questionnaire to avoid modifying the original
+    q = questionnaire.copy()
+
+    # Generate new UUID for the questionnaire
+    old_questionnaire_id = q['id']
+    q['id'] = str(uuid4())
+
+    # Update step IDs and field IDs
+    id_map = {old_questionnaire_id: q['id']}
+
+    for step in q['steps']:
+        old_step_id = step['id']
+        new_step_id = str(uuid4())
+        id_map[old_step_id] = new_step_id
+        step['id'] = new_step_id
+        step['questionnaire_id'] = q['id']
+
+        for field in step['children']:
+            old_field_id = field['id']
+            new_field_id = str(uuid4())
+            id_map[old_field_id] = new_field_id
+            field['id'] = new_field_id
+            field['step_id'] = new_step_id
+
+            # Update option IDs
+            for option in field.get('options', []):
+                if 'id' in option:
+                    old_option_id = option['id']
+                    new_option_id = str(uuid4())
+                    id_map[old_option_id] = new_option_id
+                    option['id'] = new_option_id
+
+            # Update field attributes
+            for attr in field.get('attrs', {}).values():
+                if 'id' in attr:
+                    attr['id'] = str(uuid4())
+
+    # Update trigger references
+    for step in q['steps']:
+        for trigger in step.get('triggered_by_options', []):
+            if trigger.get('field') in id_map:
+                trigger['field'] = id_map[trigger['field']]
+            if trigger.get('option') in id_map:
+                trigger['option'] = id_map[trigger['option']]
+
+        for field in step['children']:
+            for trigger in field.get('triggered_by_options', []):
+                if trigger.get('field') in id_map:
+                    trigger['field'] = id_map[trigger['field']]
+                if trigger.get('option') in id_map:
+                    trigger['option'] = id_map[trigger['option']]
+
+    # Create the new questionnaire in the database
+    db_create_questionnaire(session, tid, None, q, 'en')
+
+    # The questionnaire is imported under an identity of its own: what
+    # referenced it - the channels composing their reports with it - is
+    # rewired by the name it had where it came from
+    return old_questionnaire_id, q['id']
+
+
+@transact
+def import_questionnaires(session, tid, questionnaire):
+    """
+    Duplicate questionnaire for a new tenant
+
+    :param session: An ORM session
+    :param tid: The new tenant ID
+    :param questionnaire: Source questionnaire data
+    :return: The identity the questionnaire had and the one it is imported under
+    """
+    return db_import_questionnaire(session, tid, questionnaire)
+
+
 @transact
 def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_name):
     """
@@ -101,8 +193,12 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
     :param new_name: The name to be assigned to the new questionnaire
     """
     id_map = {}
+    questionnaire = session.query(models.Questionnaire).filter(models.Questionnaire.id == questionnaire_id).first()
 
-    q = db_get_questionnaire(session, tid, questionnaire_id, None, False)
+    if questionnaire and questionnaire.tid > 1000000:
+        q = db_get_questionnaire(session, questionnaire.tid, questionnaire_id, None, False)
+    else:
+        q = db_get_questionnaire(session, tid, questionnaire_id, None, False)
 
     # We need to change the primary key references and so this can be reimported
     # as a new questionnaire

@@ -91,6 +91,15 @@ class ForbiddenOperation(GLException):
     status_code = 403  # Forbidden
 
 
+class OperationConflict(GLException):
+    """
+    The state of the resource changed while the operation was being confirmed
+    """
+    reason = "Operation Conflict"
+    error_code = 20
+    status_code = 409  # Conflict
+
+
 class InvalidAuthentication(GLException):
     """
     An invalid request was presented

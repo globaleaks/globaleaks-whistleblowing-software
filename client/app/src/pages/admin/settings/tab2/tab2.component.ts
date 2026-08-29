@@ -66,9 +66,7 @@ export class Tab2Component implements OnInit {
     this.authenticationData.permissions = {
       can_upload_files: false
     };
-    this.preferenceData.permissions = {
-      can_upload_files: false
-    };
+    this.preferenceData.profile.permissions.can_upload_files = false;
     this.updateFiles();
     this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
   }
@@ -124,11 +122,8 @@ export class Tab2Component implements OnInit {
   }
 
   togglePermissionUploadFiles(): void {
-    // The switch shows the permission actually held by the session: the click
-    // does not flip it (the template prevents the default action of the
-    // checkbox) and the state changes only once the operation, which is
-    // authorized by the password confirmation, has succeeded. A rejected or
-    // dismissed confirmation therefore leaves the switch where it was.
+    // The switch shows the permission the session holds: the click asks the backend and the answer
+    // flips it
     const enable = !this.authenticationData.session.permissions.can_upload_files;
     const operation = enable ? "enable_user_permission_file_upload" : "disable_user_permission_file_upload";
 

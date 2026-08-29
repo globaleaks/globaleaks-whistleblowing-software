@@ -34,6 +34,29 @@ export class appInterceptor implements HttpInterceptor {
   private httpClient = inject(HttpClient);
   private cryptoService = inject(CryptoService);
 
+  /**
+   * A proof of work protects the endpoints reachable without authentication;
+   * a user already identified by its session is not asked for it when it
+   * opens a support request.
+   */
+  private requiresProofOfWork(url: string): boolean {
+    const session = this.authenticationService.session;
+
+    if (url.includes("api/signup")) {
+      return true;
+    }
+
+    if (url.endsWith("api/auth/receiptauth")) {
+      return !session;
+    }
+
+    if (url === "api/support") {
+      return !session || session.role === "whistleblower";
+    }
+
+    return protectedUrls.includes(url);
+  }
+
   private getAcceptLanguageHeader(): string | null {
     const language = sessionStorage.getItem("language");
     if (language) {
@@ -126,10 +149,7 @@ export class appInterceptor implements HttpInterceptor {
     authRequest = authRequest.clone({
       headers: authRequest.headers.set("Accept-Language", this.getAcceptLanguageHeader() || ""),
     });
-
-    if (httpRequest.url.includes("api/signup")
-      || (httpRequest.url.endsWith("api/auth/receiptauth") && !this.authenticationService.session)
-      || protectedUrls.includes(httpRequest.url)) {
+    if (this.requiresProofOfWork(httpRequest.url)) {
       return this.httpClient.post("api/auth/token", {}).pipe(
         switchMap((response) =>
           from(this.cryptoService.proofOfWork(Object.assign(new TokenResponse(), response))).pipe(

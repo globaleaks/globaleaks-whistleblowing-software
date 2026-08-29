@@ -57,6 +57,8 @@ export class notificationResolverModel {
   pgp_alert_mail_title: string;
   signup_mail_template: string;
   signup_mail_title: string;
+  signup_invite_mail_template: string;
+  signup_invite_mail_title: string;
   software_update_available_mail_template: string;
   software_update_available_mail_title: string;
   tip_access_mail_template: string;

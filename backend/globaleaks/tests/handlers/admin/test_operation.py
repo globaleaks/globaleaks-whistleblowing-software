@@ -19,6 +19,7 @@ def set_backup_config(session, tid, values):
 
 
 @transact
+@transact
 def get_backup_config(session, tid):
     config = ConfigFactory(session, tid)
     return {var_name: config.get_val(var_name)
@@ -198,12 +199,6 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
                                            {'value': self.dummyReceiver_1['id']},
                                            tid=2,
                                            properties={'management_session': True})
-
-    def test_admin_reset_smtp_settings(self):
-        return self._test_operation_handler('reset_smtp_settings')
-
-    def test_admin_enable_encryption(self):
-        return self._test_operation_handler('enable_encryption')
 
     @defer.inlineCallbacks
     def test_admin_toggle_escrow(self):

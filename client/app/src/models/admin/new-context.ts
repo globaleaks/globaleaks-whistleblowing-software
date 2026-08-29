@@ -1,5 +1,6 @@
 export class NewContext {
   id = "";
+  slug = "";
   hidden = true;
   name = "";
   description = "";
@@ -16,4 +17,5 @@ export class NewContext {
   score_threshold_high = 0;
   tip_reminder = 0;
   receivers = [];
+  profiles = [];
 }

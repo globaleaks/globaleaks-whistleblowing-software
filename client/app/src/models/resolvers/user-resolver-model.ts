@@ -1,4 +1,27 @@
-export class userResolverModel {
+export class UserProfile {
+  id: string;
+  tid: number;
+  name: string;
+  role: string;
+  roles: string[];
+  contexts: string[];
+  permissions: {
+    can_postpone_expiration: boolean;
+    can_delete_submission: boolean;
+    can_grant_access_to_reports: boolean;
+    can_edit_general_settings: boolean;
+    can_transfer_access_to_reports: boolean;
+    can_request_forward: boolean;
+    can_forward_reports: boolean;
+    can_change_status: boolean;
+    can_change_label: boolean;
+    can_mask_information: boolean;
+    can_redact_information: boolean;
+  };
+  custom: boolean;
+}
+
+export class User {
   id: string;
   creation_date: string;
   username: string;
@@ -24,15 +47,12 @@ export class userResolverModel {
   encryption: boolean;
   escrow: boolean;
   two_factor: boolean;
+  idp_binding: boolean;
   forcefully_selected: boolean;
-  can_postpone_expiration: boolean;
-  can_delete_submission: boolean;
-  can_grant_access_to_reports: boolean;
-  can_edit_general_settings: boolean;
   clicked_recovery_key: boolean;
   contexts: string[];
   newpassword: boolean;
-  can_transfer_access_to_reports: boolean;
-  can_mask_information: boolean;
-  can_redact_information: boolean;
+  profile_id: string;
+  profile: UserProfile;
 }
+
