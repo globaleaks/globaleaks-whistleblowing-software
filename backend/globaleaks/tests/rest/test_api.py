@@ -48,6 +48,7 @@ class TestAPI(TestGL):
                                                    'analyst',
                                                    'auditor',
                                                    'receiver',
+                                                   'transmitter',
                                                    'custodian'], check_roles))
             self.assertTrue(len(rest) == 0)
 
