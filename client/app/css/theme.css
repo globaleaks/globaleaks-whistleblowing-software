@@ -416,7 +416,16 @@ progress {
   --bs-alert-link-color: var(--gl-text);
 }
 
-.text-primary {
+.alert-warning {
+  --bs-alert-color: var(--gl-text);
+  --bs-alert-bg: color-mix(in srgb, var(--gl-warning) 20%, var(--gl-surface));
+  --bs-alert-border-color: var(--gl-warning);
+  --bs-alert-link-color: var(--gl-text);
+}
+
+.text-primary,
+.text-info,
+.text-success {
   color: var(--gl-link) !important;
 }
 
@@ -436,7 +445,8 @@ progress {
 }
 
 .text-muted,
-.text-secondary {
+.text-secondary,
+.text-gray {
   color: var(--gl-text-secondary) !important;
 }
 
@@ -448,7 +458,9 @@ progress {
   color: var(--gl-on-button) !important;
 }
 
-.bg-primary {
+.bg-primary,
+.bg-info,
+.bg-success {
   color: var(--gl-on-button) !important;
   background-color: var(--gl-button) !important;
 }
@@ -472,6 +484,15 @@ progress {
 
 .bg-white {
   background-color: var(--gl-surface) !important;
+}
+
+.bg-light {
+  background-color: var(--gl-surface-subtle) !important;
+}
+
+.bg-dark {
+  color: var(--gl-white);
+  background-color: var(--gl-band) !important;
 }
 
 /*
