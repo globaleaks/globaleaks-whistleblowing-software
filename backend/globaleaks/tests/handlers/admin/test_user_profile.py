@@ -1,3 +1,5 @@
+from twisted.internet.defer import inlineCallbacks
+
 from globaleaks import models
 from globaleaks.handlers.admin import context, tenant, user, user_profile
 from globaleaks.models.config import ConfigFactory
@@ -41,6 +43,102 @@ class TestUserProfileInstance(helpers.TestInstanceHandler):
         data['roles'] = ['admin']
         data['permissions'] = user.user_permissions
         return data
+
+
+class TestUserProfileGating(helpers.TestHandlerWithPopulatedDB):
+    """
+    The mutation of the profiles requires the dedicated permission, while the
+    operators entitled to manage users keep reading them to bind them.
+    """
+    _handler = user_profile.UserProfilesCollection
+
+    users_only = {p: p == 'can_manage_users' for p in models.admin_permissions}
+    profiles_only = {p: p == 'can_manage_user_profiles' for p in models.admin_permissions}
+
+    def get_dummy_profile_request(self):
+        request = models.UserProfile().dict('en')
+        request['name'] = 'Gated'
+        request['role'] = 'receiver'
+        request['roles'] = ['receiver']
+        request['contexts'] = []
+        request['permissions'] = {p: False for p in models.user_permissions}
+        return request
+
+    @inlineCallbacks
+    def test_profiles_stay_readable_to_the_user_managers(self):
+        handler = self.request(role='admin', permissions=dict(self.users_only))
+        yield handler.get()
+
+    def test_creation_requires_the_profile_permission(self):
+        data = self.get_dummy_profile_request()
+
+        handler = self.request(data, role='admin', permissions=dict(self.users_only))
+        self.assertRaises(errors.ForbiddenOperation, handler.post)
+
+    @inlineCallbacks
+    def test_creation_allowed_by_the_profile_permission(self):
+        data = self.get_dummy_profile_request()
+
+        handler = self.request(data, role='admin', permissions=dict(self.profiles_only))
+        yield handler.post()
+
+    @inlineCallbacks
+    def test_altering_a_profile_above_the_operator_scope_is_forbidden(self):
+        data = self.get_dummy_profile_request()
+        data['role'] = 'admin'
+        data['roles'] = ['admin']
+        data['permissions']['can_manage_settings'] = True
+        profile = yield user_profile.create_user_profile(1, None, data, 'en')
+
+        # The request strips the permission: conferring nothing, it would pass
+        # the grant gate; the current privilege of the profile blocks it
+        data['permissions']['can_manage_settings'] = False
+
+        operator = dict(self.profiles_only)
+        handler = self.request(data, role='admin', permissions=operator,
+                               handler_cls=user_profile.UserProfileInstance)
+        yield self.assertFailure(handler.put(profile['id']), errors.ForbiddenOperation)
+
+    @inlineCallbacks
+    def test_update_and_deletion_require_the_profile_permission(self):
+        data = self.get_dummy_profile_request()
+        profile = yield user_profile.create_user_profile(1, None, data, 'en')
+
+        handler = self.request(data, role='admin', permissions=dict(self.users_only),
+                               handler_cls=user_profile.UserProfileInstance)
+        self.assertRaises(errors.ForbiddenOperation, handler.put, profile['id'])
+
+        handler = self.request(None, role='admin', permissions=dict(self.users_only),
+                               handler_cls=user_profile.UserProfileInstance)
+        self.assertRaises(errors.ForbiddenOperation, handler.delete, profile['id'])
+
+
+@transact
+def get_profile_uuid(session, tid):
+    return ConfigFactory(session, tid).get_val('uuid')
+
+
+@transact
+def get_derived_contexts(session, tid):
+    return {c.template_id: {'id': c.id, 'name': c.name, 'tip_timetolive': c.tip_timetolive}
+            for c in session.query(models.Context).filter(models.Context.tid == tid,
+                                                          models.Context.template_id != '')}
+
+
+@transact
+def get_receiver_context_ids(session, user_id):
+    return [r.context_id for r in session.query(models.ReceiverContext)
+                                         .filter(models.ReceiverContext.receiver_id == user_id)]
+
+
+@transact
+def file_report_on(session, tid, context_id):
+    itip = models.InternalTip()
+    itip.tid = tid
+    itip.context_id = context_id
+    itip.progressive = 1
+    itip.receipt_hash = 'x' * 64
+    session.add(itip)
 
 
 class TestTenantProfileChannels(helpers.TestGLWithPopulatedDB):
