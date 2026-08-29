@@ -13,6 +13,117 @@ from globaleaks.sessions import Sessions
 from globaleaks.utils.utility import uuid4
 
 
+def session_admin_permissions(user_session):
+    """
+    The administrative areas the operator manages, the single notion of "what
+    the operator holds" the grant and administer gates confine an operation to.
+
+    :param user_session: The session of the operator
+    :return: The set of administrative permissions held by the session
+    """
+    return {perm for perm in models.admin_permissions if user_session.has_permission(perm)}
+
+
+def db_enforce_grantable(user_session, permissions=None, roles=None):
+    """
+    Prevent an operator from conferring, through a user or a profile, an
+    administrative permission it does not itself hold, or the administrator
+    role unless it is itself an administrator. This confines an operator
+    entitled to manage users to its own privilege level: it cannot grant
+    itself (or anyone) an administrative area it lacks, nor mint a new
+    administrator. The operational permissions of the recipients are not
+    administrative privilege and stay freely conferable: an administrator
+    holds none of them and could otherwise not configure a recipient.
+
+    A system operation (no session, e.g. the wizard or a signup provisioning)
+    is unrestricted.
+
+    :param user_session: The session of the operator, or None for a system op
+    :param permissions: The permissions map being conferred, if any
+    :param roles: The roles being conferred, if any
+    """
+    if user_session is None:
+        return
+
+    if permissions:
+        granted = {perm for perm, value in permissions.items() if value and perm in models.admin_permissions}
+        if granted - session_admin_permissions(user_session):
+            raise errors.ForbiddenOperation
+
+    # The privilege of a session is its active role: a session switched to a
+    # secondary tenant or to another role keeps role and permissions, not the
+    # role list of the profile it logged in with.
+    if roles and 'admin' in roles and user_session.role != 'admin':
+        raise errors.ForbiddenOperation
+
+
+def db_enforce_assignable_profile(session, tid, user_session, profile_id, role):
+    """
+    Validate the binding of a user to a shared profile
+
+    The profile must exist on the tenant of the operation or on the tenant it
+    inherits its profiles from, the role given to the user must be one of the
+    roles of the profile, and the profile must confer nothing the operator
+    could not confer directly: the permissions checked are the ones the
+    profile actually holds, not the ones a client claims.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_session: The session of the operator, or None for a system op
+    :param profile_id: The ID of the profile being bound
+    :param role: The role requested for the user
+    :return: The profile object
+    """
+    tids = {tid}
+    pid = config.db_get_pid(session, tid)
+    if pid:
+        tids.add(pid)
+
+    profile = session.query(models.UserProfile) \
+                     .filter(models.UserProfile.id == profile_id,
+                             models.UserProfile.tid.in_(tids)).one_or_none()
+
+    if profile is None or role not in profile.roles_list:
+        raise errors.InputValidationError("Invalid profile reference")
+
+    db_enforce_grantable(user_session,
+                         {perm: True for perm in profile.permissions_list},
+                         profile.roles_list)
+
+    return profile
+
+
+def db_enforce_administrable(session, tid, user_session, permissions, user_ids):
+    """
+    Prevent an operator from administering an account or a profile above its
+    own privilege level
+
+    The administrative permissions the subject holds must all be held by the
+    operator too, so that a privilege can be removed only by an operator
+    entitled to confer it back. When the subject is a protected user, or a
+    profile a protected user is bound to, the operator must additionally be a
+    protected user itself, exactly as the escrow the protected users hold can
+    be dismantled only by them.
+
+    A system operation (no session) is unrestricted.
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_session: The session of the operator, or None for a system op
+    :param permissions: The permissions currently held by the subject
+    :param user_ids: The IDs of the users the operation administers
+    """
+    if user_session is None:
+        return
+
+    if {perm for perm in permissions if perm in models.admin_permissions} - session_admin_permissions(user_session):
+        raise errors.ForbiddenOperation
+
+    protected_users = config.db_get_protected_users(session, tid)
+    if user_session.user_id not in protected_users and set(user_ids) & set(protected_users):
+        raise errors.ForbiddenOperation
+
+
 def sync_roles(session, profile, request, sync_users=True):
     roles = request['roles']
 
@@ -161,12 +272,7 @@ def sync_contexts(session, profile, request, sync_users=True):
 def sync_permissions(session, profile, request):
     permissions = request['permissions']
 
-    if profile.tid != 1 and permissions.get('can_forward_reports'):
-        permissions['can_mask_information'] = False
-        permissions['can_redact_information'] = False
-        permissions['can_delete_submission'] = False
-
-    permissions = [perm for perm, value in permissions.items() if value]
+    permissions = [perm for perm, value in permissions.items() if value and perm in user_permissions]
 
     current_permissions = {p.permission for p in profile.permissions}
     permissions_set = set(permissions)
@@ -264,6 +370,7 @@ def create_user_profile(session, tid, user_session, request, language):
     :param request: The request data
     :return: The serialized descriptor of the created object
     """
+    db_enforce_grantable(user_session, request.get('permissions'), request.get('roles'))
     return db_create_user_profile(session, tid, request)
 
 
@@ -302,10 +409,21 @@ def update_user_profile(session, tid, user_session, profile_id, request):
     :param request: The new data for updating the user profile
     :return: The updated user object
     """
+    db_enforce_grantable(user_session, request.get('permissions'), request.get('roles'))
+
     affected_users = session.query(models.User) \
                             .filter(models.User.tid == tid,
                                     models.User.profile_id == profile_id) \
                             .all()
+
+    current_profile = db_get(session,
+                             models.UserProfile,
+                             (models.UserProfile.tid == tid,
+                              models.UserProfile.id == profile_id))
+
+    db_enforce_administrable(session, tid, user_session,
+                             current_profile.permissions_list,
+                             [user.id for user in affected_users])
     profile = db_update_user_profile(session, tid, profile_id, request)
 
     return profile, [user.id for user in affected_users]
@@ -353,6 +471,10 @@ def get_user_profiles(session, tid):
 
 class UserProfilesCollection(BaseHandler):
     check_roles = 'admin'
+    # The profiles are readable by the operators that bind them to users too,
+    # while their mutation is confined to the profile managers.
+    require_permission = {'get': ('can_manage_users', 'can_manage_user_profiles'),
+                          'post': 'can_manage_user_profiles'}
     invalidate_cache = True
 
     def get(self):
@@ -379,6 +501,9 @@ class UserProfilesCollection(BaseHandler):
 
 class UserProfileInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = {'get': ('can_manage_users', 'can_manage_user_profiles'),
+                          'put': 'can_manage_user_profiles',
+                          'delete': 'can_manage_user_profiles'}
     invalidate_cache = True
 
     def get(self, profile_id):

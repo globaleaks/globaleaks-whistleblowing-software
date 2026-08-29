@@ -11,6 +11,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {ProfileEditorComponent} from "../profile-editor/profile-editor.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {ADMIN_PERMISSION_KEYS} from "@app/pages/admin/users/permissions";
 import {HttpClient} from "@angular/common/http";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -52,6 +53,13 @@ export class UsersTab2Component implements OnInit {
     profile.name = this.new_profile.name;
     profile.role = this.new_profile.role;
     profile.roles = [this.new_profile.role];
+    // An administrator profile starts able to manage every administrative area;
+    // the permissions can be removed afterwards to scope it to a subset
+    if (profile.role === "admin") {
+      for (const p of ADMIN_PERMISSION_KEYS) {
+        profile.permissions[p] = true;
+      }
+    }
     this.utilsService.addAdminUserProfile(profile).subscribe(_ => {
       this.getResolver();
       this.new_profile = {name: "", role: "", roles: [], permissions: []};

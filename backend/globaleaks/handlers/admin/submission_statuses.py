@@ -156,6 +156,7 @@ def order_substatus_elements(session, handler, req_args, *args, **kwargs):
 
 class SubmissionStatusCollection(OperationHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def get(self):
@@ -175,6 +176,7 @@ class SubmissionStatusCollection(OperationHandler):
 
 class SubmissionStatusInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def put(self, status_id):
@@ -193,6 +195,7 @@ class SubmissionStatusInstance(BaseHandler):
 class SubmissionSubStatusCollection(OperationHandler):
     """Manages substatuses for a given status"""
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     @inlineCallbacks
@@ -221,6 +224,7 @@ class SubmissionSubStatusCollection(OperationHandler):
 
 class SubmissionSubStatusInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def put(self, status_id, substatus_id):

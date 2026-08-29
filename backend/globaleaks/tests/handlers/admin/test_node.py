@@ -14,6 +14,7 @@ from globaleaks.utils.utility import datetime_now
 class FakeBackupJob:
     name = "Backup"
     interval = 24 * 3600
+    last_executions = []
 
     def __init__(self):
         self.running = False

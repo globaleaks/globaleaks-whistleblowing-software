@@ -309,6 +309,7 @@ def do_backup():
 
 class BackupList(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_settings'
 
     @inlineCallbacks
     def get(self):

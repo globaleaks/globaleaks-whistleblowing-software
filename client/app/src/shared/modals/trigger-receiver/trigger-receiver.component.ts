@@ -1,9 +1,9 @@
 import {Component, OnInit, computed, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Option} from "@app/models/app/shared-public-model";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {SelectableUser} from "@app/models/app/selectables";
 import {NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
@@ -17,7 +17,7 @@ import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 })
 export class TriggerReceiverComponent implements OnInit {
   private utilsService = inject(UtilsService);
-  private users = inject(UsersResolver);
+  private selectables = inject(SelectablesResolver);
   private activeModal = inject(NgbActiveModal);
   private modalService = inject(NgbModal);
 
@@ -26,8 +26,8 @@ export class TriggerReceiverComponent implements OnInit {
   confirmFunction: (data: Option) => void;
 
   selected: { value: []; name: string };
-  readonly userData = computed(() => this.users.resource.value());
-  readonly admin_receivers_by_id = computed<Record<string, User>>(() => this.utilsService.array_to_map(this.userData()));
+  readonly userData = computed<SelectableUser[]>(() => this.selectables.dataModel.users);
+  readonly admin_receivers_by_id = computed<Record<string, SelectableUser>>(() => this.utilsService.array_to_map(this.userData()));
 
   ngOnInit(): void {
     this.selected = {value: [], name: ""};
@@ -42,7 +42,7 @@ export class TriggerReceiverComponent implements OnInit {
     this.modalService.dismissAll();
   }
 
-  addReceiver(item: User) {
+  addReceiver(item: SelectableUser) {
     if (item && this.arg.trigger_receiver.indexOf(item.id) === -1) {
       this.arg.trigger_receiver.push(item.id);
     }
