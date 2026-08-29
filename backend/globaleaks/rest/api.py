@@ -11,6 +11,7 @@ import secrets
 
 from functools import lru_cache
 from typing import List, Tuple
+from urllib.parse import urlparse
 
 from globaleaks import jobs
 from sqlalchemy.orm.exc import NoResultFound
@@ -46,7 +47,9 @@ from globaleaks.handlers import admin, \
 from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.json import JSONEncoder
+from globaleaks.utils.oidc import extract_bearer_token
 from globaleaks.utils.sock import isIPAddress
+from globaleaks.orm import db_log
 
 tid_regexp = r'([0-9]+)'
 role_regexp = r'(admin|analyst|auditor|custodian|receiver)'
@@ -256,6 +259,25 @@ def parse_accept_language(raw_header: str) -> List[str]:
     return [lang for lang, _, _ in parsed]
 
 
+@lru_cache(maxsize=128)
+def idp_origin_from_issuer(issuer):
+    """Return the scheme://host[:port] origin of the configured IdP issuer"""
+    try:
+        parsed = urlparse(issuer)
+        if parsed.scheme in ('http', 'https') and parsed.netloc:
+            origin = "%s://%s" % (parsed.scheme, parsed.netloc)
+            # Defense in depth: never emit an origin bearing a character that
+            # could break out of the Content-Security-Policy directive it is
+            # concatenated into (validated on input, re-checked here for values
+            # possibly stored before the validator existed).
+            if re.match(r'^https?://[0-9a-zA-Z\-.:]+$', origin):
+                return origin.encode()
+    except:
+        pass
+
+    return None
+
+
 class TrieNode:
     def __init__(self):
         self.children = {}
@@ -452,6 +474,8 @@ class APIResourceWrapper(Resource):
         request.multilang = False
         request.finished = False
         request.nonce = base64.b64encode(secrets.token_bytes(16))
+        request.oidc_token = None
+
         client_address = request.getClientAddress()
         if isinstance(client_address, (address.IPv4Address, address.IPv6Address)):
             request.client_ip = client_address.host
@@ -531,6 +555,23 @@ class APIResourceWrapper(Resource):
             request.tid = None
             request.setResponseCode(400)
             return b''
+
+        # OIDC token verification against the IdP configured on the tenant;
+        # the signups carry a token issued by the IdP inherited from the profile
+        # used for the registrations and are verified by their own handler
+        if State.tenants[request.tid].cache.idp and not request.path.startswith(b'/api/signup'):
+            bearer_token = extract_bearer_token(request)
+            if bearer_token:
+                issuer = State.tenants[request.tid].cache.idp_issuer
+                client_id = State.tenants[request.tid].cache.idp_client_id
+                try:
+                    request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer, client_id)
+                except Exception as e:
+                    try:
+                        db_log(None, tid=request.tid, type='idp_malfunction', object_id=None, details=str(e))
+                    except Exception:
+                        pass
+                    request.oidc_token = None
 
         if self.should_redirect_tor(request):
             self.redirect_tor(request)
@@ -679,9 +720,30 @@ class APIResourceWrapper(Resource):
 
         # CSP Policy on the entry point
         if request.path == b'/':
+            # Allow the client to reach the IdP configured on the tenant and
+            # the one inherited from the profile used for the signups (if any)
+            idp_connect_src = b""
+            if request.tid in State.tenants:
+                tenant_cache = State.tenants[request.tid].cache
+
+                idp_issuers = []
+                if tenant_cache.idp:
+                    idp_issuers.append(tenant_cache.idp_issuer)
+
+                if tenant_cache.get('signup_idp'):
+                    idp_issuers.append(tenant_cache.get('signup_idp_issuer'))
+
+                idp_origins = []
+                for issuer in idp_issuers:
+                    idp_origin = idp_origin_from_issuer(issuer)
+                    if idp_origin and idp_origin not in idp_origins:
+                        idp_origins.append(idp_origin)
+
+                idp_connect_src = b"".join([b" " + idp_origin for idp_origin in idp_origins])
+
             request.setHeader(b'Content-Security-Policy',
                               b"base-uri 'none';"
-                              b"connect-src 'self';"
+                              b"connect-src 'self'" + idp_connect_src + b";"
                               b"default-src 'none';"
                               b"font-src 'self';"
                               b"form-action 'none';"
