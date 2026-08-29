@@ -2,7 +2,7 @@ import copy
 import os
 
 
-from sqlalchemy import func, or_, not_
+from sqlalchemy import and_, func, or_, not_
 from sqlalchemy.orm import aliased
 
 from globaleaks.models import EnumStateFile
@@ -10,7 +10,7 @@ from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
-from globaleaks.utils.utility import datetime_null
+from globaleaks.utils.utility import datetime_never, datetime_null
 
 
 def get_identity_files(data):
@@ -214,9 +214,21 @@ def serialize_itip(session, internaltip, language):
                        models.InternalTipAnswers.internaltip_id == internaltip.id) \
                .order_by(models.InternalTipAnswers.creation_date.asc())
 
+    internaltip_data = session.query(models.InternalTipData) \
+                              .filter(models.InternalTipData.internaltip_id == internaltip.id).all()
+
+    # A report accumulates its questionnaire and the additional ones asked over its life, each named
+    # by the questionnaire it answers
+    answered = list(x)
+
+    names = dict(session.query(models.Questionnaire.id, models.Questionnaire.name)
+                        .filter(models.Questionnaire.id.in_({ita.questionnaire_id for ita, _ in answered})))
+
     questionnaires = []
-    for ita, aqs in x:
+    for ita, aqs in answered:
         questionnaires.append({
+            'questionnaire_id': ita.questionnaire_id,
+            'name': names.get(ita.questionnaire_id, ''),
             'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
             'answers': ita.answers,
             'hash_sha256': ita.hash_sha256 or '',
@@ -229,6 +241,9 @@ def serialize_itip(session, internaltip, language):
         'update_date': internaltip.update_date,
         'expiration_date': internaltip.expiration_date,
         'context_id': internaltip.context_id,
+        'additional_questionnaire_id': internaltip.additional_questionnaire_id,
+        'type': internaltip.type,
+        'allow_transmission': internaltip.allow_transmission,
         'questionnaires': questionnaires,
         'tor': internaltip.tor,
         'mobile': internaltip.mobile,
@@ -248,7 +263,7 @@ def serialize_itip(session, internaltip, language):
         "receipt_change_needed": internaltip.receipt_change_needed
     }
 
-    for itd in session.query(models.InternalTipData).filter(models.InternalTipData.internaltip_id == internaltip.id):
+    for itd in internaltip_data:
         ret['data'][itd.key] = itd.value
         ret['data'][itd.key + "_date"] = itd.creation_date
         ret['data'][itd.key + "_hash_sha256"] = itd.hash_sha256 or ''
@@ -256,6 +271,49 @@ def serialize_itip(session, internaltip, language):
 
     return ret
 
+
+
+def db_exchange_sides(session, itip):
+    """
+    Return the two sites what an exchange created runs between
+
+    :param session: An ORM session
+    :param itip: The internaltip of what an exchange created
+    :return: The tenant ID of the site that filed and of the one that received
+    """
+    recorded = session.query(models.InternalTipData.value) \
+                      .filter(models.InternalTipData.internaltip_id == itip.id,
+                              models.InternalTipData.key.in_(['request', 'transmitted_from'])) \
+                      .first()
+    recorded = recorded[0] if recorded else {}
+
+    try:
+        source_tid = int(recorded.get('source_tid'))
+    except (AttributeError, TypeError, ValueError):
+        source_tid = None
+
+    try:
+        target_tid = int(recorded.get('target_tid'))
+    except (AttributeError, TypeError, ValueError):
+        target_tid = itip.tid if source_tid != itip.tid else None
+
+    return source_tid, target_tid
+
+
+def db_runs_between_sites(session, itip):
+    """
+    Check whether what an exchange created runs between two different sites
+
+    :param session: An ORM session
+    :param itip: The internaltip of what an exchange created
+    :return: True when two sites read it, False when a single one does
+    """
+    if itip.type not in ('request', 'exchange'):
+        return False
+
+    source_tid, target_tid = db_exchange_sides(session, itip)
+
+    return source_tid != target_tid
 
 
 def serialize_rtip(session, itip, rtip, language):
@@ -269,6 +327,8 @@ def serialize_rtip(session, itip, rtip, language):
     :return: A serialized description of the model specified
     """
     user_id = rtip.receiver_id
+    viewer = session.query(models.User).get(user_id)
+    viewer_tid = viewer.tid if viewer else itip.tid
 
     ret = serialize_itip(session, itip, language)
 
@@ -282,6 +342,123 @@ def serialize_rtip(session, itip, rtip, language):
     ret['enable_notifications'] = rtip.enable_notifications
     ret['itip_last_access'] = ret['last_access']
     ret['last_access'] = rtip.last_access
+    ret['exchanges'] = []
+
+    # The read receipt is the counterpart's, any of whom reads for all: the recipients of the other
+    # site on a request or a communication, the whistleblower otherwise, on a transmitted report
+    # through the messages handed to them
+    from globaleaks.handlers.exchange import db_get_report_exchange
+
+    exchange = db_get_report_exchange(session, itip)
+    if db_runs_between_sites(session, itip) and \
+            (itip.type == 'request' or (exchange is not None and exchange.type == 'communication')):
+        counterpart_last_access = session.query(func.max(models.ReceiverTip.last_access)) \
+            .filter(models.ReceiverTip.internaltip_id == itip.id,
+                    models.User.id == models.ReceiverTip.receiver_id,
+                    models.User.tid != viewer_tid).scalar()
+        ret['counterpart_last_access'] = counterpart_last_access or datetime_null()
+    else:
+        ret['counterpart_last_access'] = itip.last_access
+
+    # The channel lives on the owning site: its name travels with the report
+    channel = session.query(models.Context).get(itip.context_id)
+    ret['context_name'] = models.get_localized_values({}, channel, ['name'], language)['name'] \
+        if channel is not None else ''
+
+    # Importance, label and reminder belong to the owning tenant: not serialized to the other side
+    # of an exchange
+    ret['owned'] = itip.is_owned_by(viewer_tid)
+    if not ret['owned']:
+        ret['important'] = False
+        ret['label'] = ''
+        ret['reminder_date'] = datetime_never()
+
+    # Local import to avoid a circular import with handlers.recipient.rtip.
+    from globaleaks.handlers.recipient.rtip import db_get_requestable_questionnaires
+
+    # Requestable while the report is owned and open, and there is something to ask or already asked
+    ret['additional_questionnaire_requestable'] = \
+        ret['owned'] and \
+        itip.status != 'closed' and \
+        (bool(itip.additional_questionnaire_id) or
+         db_get_requestable_questionnaires(session, itip).count() > 0)
+
+    tenant_names = {}
+
+    def get_tenant_name(tid):
+        if tid not in tenant_names:
+            tenant_names[tid] = ConfigFactory(session, tid).get_val('name')
+        return tenant_names[tid]
+
+    # Listed under the report: what was handed over to other sites and what was entered upon a
+    # granted request
+    filed = session.query(models.InternalTipTransmission, models.InternalTip) \
+                   .filter(models.InternalTipTransmission.internaltip_id == itip.id,
+                           models.InternalTip.id == models.InternalTipTransmission.transmitting_internaltip_id) \
+                   .order_by(models.InternalTip.creation_date.desc())
+
+    for _, filed_itip in filed:
+        source_tid, target_tid = db_exchange_sides(session, filed_itip)
+        counterpart_tid = source_tid if viewer_tid == target_tid else target_tid
+        if counterpart_tid is None:
+            counterpart_tid = filed_itip.tid
+
+        # named by the receiving site, or by the channel when it stayed on this one
+        destination = get_tenant_name(counterpart_tid)
+        if source_tid == target_tid:
+            from globaleaks.handlers.exchange import db_get_report_exchange
+            from globaleaks.models.exchanges import db_get_exchange_channel
+
+            exchange = db_get_report_exchange(session, filed_itip)
+            channel = db_get_exchange_channel(session, exchange, viewer_tid) \
+                if exchange is not None else None
+
+            if channel is not None:
+                destination = models.get_localized_values({}, channel, ['name'],
+                                                          language)['name']
+
+        ret['exchanges'].append({
+            'id': filed_itip.id,
+            'creation_date': filed_itip.creation_date,
+            'target_tid': counterpart_tid,
+            'tenant_name': destination,
+            'progressive': filed_itip.progressive,
+            'status': filed_itip.status,
+            'substatus': filed_itip.substatus,
+            # followed by the recipients of the origin that held it when it was filed
+            'accessible': session.query(models.ReceiverTip)
+                                 .filter(models.ReceiverTip.internaltip_id == filed_itip.id,
+                                         models.ReceiverTip.receiver_id == user_id)
+                                 .count() > 0
+        })
+
+    # The exchange with the whistleblower belongs to the owning site alone
+    ret['exchange'] = None
+
+    def origin_held(transmission):
+        return session.query(models.ReceiverTip) \
+                      .filter(models.ReceiverTip.internaltip_id == transmission.internaltip_id,
+                              models.ReceiverTip.receiver_id == user_id) \
+                      .count() > 0
+
+    if db_runs_between_sites(session, itip):
+        source_tid, target_tid = db_exchange_sides(session, itip)
+
+        transmission = session.query(models.InternalTipTransmission) \
+                            .filter(models.InternalTipTransmission.transmitting_internaltip_id == itip.id) \
+                            .one_or_none()
+
+        ret['exchange'] = {
+            # typed by what created it: a transmission or a communication
+            'type': exchange.type if exchange is not None else '',
+            'from_tenant_name': get_tenant_name(source_tid) if source_tid else '',
+            'to_tenant_name': get_tenant_name(target_tid) if target_tid else '',
+            'update_date': itip.update_date,
+            # walked back to the report of origin, or to the request that granted it
+            'internaltip_id': transmission.internaltip_id
+                              if transmission is not None and origin_held(transmission) else ''
+        }
+
     iar = session.query(models.IdentityAccessRequest) \
                  .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
                  .order_by(models.IdentityAccessRequest.request_date.desc()).first()
@@ -315,18 +492,34 @@ def serialize_rtip(session, itip, rtip, language):
                                        models.WhistleblowerFile.receivertip_id == rtip.id):
         ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile))
 
+    # 'public' is shared with the counterpart, 'internal' with the recipients of the viewer's site
+    author = aliased(models.User)
+
+    rfile_clauses = [models.ReceiverFile.visibility == 0,
+                     and_(models.ReceiverFile.visibility == 2,
+                          models.ReceiverFile.author_id == user_id),
+                     and_(models.ReceiverFile.visibility == 1,
+                          or_(models.ReceiverFile.author_id == user_id,
+                              author.tid == viewer_tid))]
+    comment_clauses = [models.Comment.visibility == 0,
+                       and_(models.Comment.visibility == 2,
+                            models.Comment.author_id == user_id),
+                       and_(models.Comment.visibility == 1,
+                            or_(models.Comment.author_id == user_id,
+                                author.tid == viewer_tid))]
+
     for rfile in session.query(models.ReceiverFile) \
-                         .filter(models.ReceiverFile.internaltip_id == itip.id,
-                                 or_(models.ReceiverFile.visibility != 2,
-                                     models.ReceiverFile.author_id == user_id)):
+                        .outerjoin(author, author.id == models.ReceiverFile.author_id) \
+                        .filter(models.ReceiverFile.internaltip_id == itip.id,
+                                or_(*rfile_clauses)):
         ret['rfiles'].append(serialize_rfile(session, rfile))
         if rfile.author_id:
             other_receiver_ids.add(rfile.author_id)
 
     for comment in session.query(models.Comment) \
+                          .outerjoin(author, author.id == models.Comment.author_id) \
                           .filter(models.Comment.internaltip_id == itip.id,
-                                  or_(models.Comment.visibility != 2,
-                                      models.Comment.author_id == user_id)):
+                                  or_(*comment_clauses)):
         ret['comments'].append(serialize_comment(session, comment))
         if comment.author_id:
             other_receiver_ids.add(comment.author_id)
@@ -340,13 +533,21 @@ def serialize_rtip(session, itip, rtip, language):
     user_map = {user.id: user for user in users}
     for uid in receiver_ids:
         user = user_map.get(uid)
-        if user and user.tid != itip.tid:
+
+        # each tenant is presented its own recipients; the other side is known by the name of its
+        # tenant
+        if itip.type == 'exchange' and (user is None or user.tid != viewer_tid):
             continue
+
+        name = user.name if user else 'Recipient'
+        if user and user.tid != viewer_tid:
+            # the identity of a receiver of the other tenant is not disclosed
+            name = get_tenant_name(user.tid)
 
         rtip_obj = rtip_map.get(uid)
         ret['receivers'].append({
             'id': uid,
-            'name': user.name if user else 'Recipient',
+            'name': name,
             'active': uid in active_receiver_ids,
             'last_access': rtip_obj.last_access if rtip_obj else None
         })
@@ -355,7 +556,21 @@ def serialize_rtip(session, itip, rtip, language):
 
 
 def serialize_wbtip(session, itip, language):
+    # Local import to avoid a circular import with handlers.public.
+    from globaleaks.handlers.public import serialize_questionnaire
+
     ret = serialize_itip(session, itip, language)
+
+    # The questionnaire asked of this report is not among the published ones: it travels with the
+    # report
+    if itip.additional_questionnaire_id:
+        questionnaire = session.query(models.Questionnaire) \
+                               .filter(models.Questionnaire.id == itip.additional_questionnaire_id) \
+                               .one_or_none()
+
+        if questionnaire is not None:
+            ret['additional_questionnaire'] = serialize_questionnaire(session, itip.tid, questionnaire, language,
+                                                                      serialize_templates=True, include_scoring=False)
 
     active_receiver_ids = session.query(models.ReceiverTip.receiver_id) \
         .filter(models.ReceiverTip.internaltip_id == itip.id) \

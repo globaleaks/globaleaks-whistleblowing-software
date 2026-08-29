@@ -32,6 +32,15 @@ export const recipientRoutes: Routes = [
     data: {pageTitle: "Reports"},
   },
   {
+    path: "transmissions",
+    loadComponent: () => import('@app/pages/recipient/transmissions/transmissions.component').then(m => m.TransmissionsComponent),
+    pathMatch: "full",
+    resolve: {
+      PreferenceResolver
+    },
+    data: {pageTitle: "Transmissions"},
+  },
+  {
     path: "settings",
     loadComponent: () => import('@app/pages/recipient/settings/settings.component').then(m => m.RecipientSettingsComponent),
     resolve: {

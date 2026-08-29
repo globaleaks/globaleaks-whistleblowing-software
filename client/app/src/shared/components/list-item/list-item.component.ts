@@ -8,8 +8,9 @@ import {TranslatePipe} from "@ngx-translate/core";
  * The header shows the projected [title] on the left and the action buttons
  * on the right: a projected [toggle], the switch that enables or disables the
  * item, comes first; then Edit, or Save and Cancel while editing, then any
- * projected [actions]; then Delete, when the item is deletable; last the
- * projected [move], the arrows that change the place of the item.
+ * projected [actions]; Delete, when the item is deletable, is always the last.
+ * A readOnly item is opened and read but not written: it carries no button of
+ * its own, and what it displays is left to the editor it holds.
  * The editor declared as <ng-template #body> is instantiated only while the
  * item is being edited, so the form controls of the closed items never exist.
  *
@@ -33,13 +34,13 @@ import {TranslatePipe} from "@ngx-translate/core";
         <span class="col-md-{{ 12 - titleColumns() }} clearfix">
           <span class="float-end">
             <ng-content select="[toggle]"></ng-content>
-            @if (canEdit() && !editing()) {
+            @if (canEdit() && !readOnly() && !editing()) {
               <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" (click)="toggle()">
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>{{ 'Edit' | translate }}</span>
               </button>
             }
-            @if (editing()) {
+            @if (editing() && !readOnly()) {
               <button type="button" class="btn btn-sm btn-primary" data-action="save" [disabled]="saveDisabled()" (click)="onSave()">
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span>{{ 'Save' | translate }}</span>
@@ -73,6 +74,9 @@ export class ListItemComponent {
   readonly editing = model(false);
   readonly canEdit = input(true);
   readonly canDelete = input(true);
+
+  /** The item is opened and read, and none of its buttons is offered */
+  readonly readOnly = input(false);
   readonly saveDisabled = input(false);
 
   /** Width of the title column; the actions take the remaining ones */
@@ -85,7 +89,7 @@ export class ListItemComponent {
   readonly body = contentChild<TemplateRef<unknown>>("body");
 
   toggle(): void {
-    if (this.canEdit() || this.editing()) {
+    if (this.canEdit() || this.readOnly() || this.editing()) {
       this.editing.set(!this.editing());
     }
   }

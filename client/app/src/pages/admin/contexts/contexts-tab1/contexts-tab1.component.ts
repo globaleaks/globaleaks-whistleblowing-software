@@ -1,6 +1,8 @@
-import {Component, computed, inject} from "@angular/core";
+import {Component, OnInit, computed, inject} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NewContext} from "@app/models/admin/new-context";
+import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -19,17 +21,31 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     standalone: true,
     imports: [TranslatePipe, ContextEditorComponent, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
-export class ContextsTab1Component {
+export class ContextsTab1Component implements OnInit {
   protected preference = inject(PreferenceResolver);
   protected httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
   protected node = inject(NodeResolver);
   protected contexts = inject(ContextsResolver);
   protected utilsService = inject(UtilsService);
+  private activatedRoute = inject(ActivatedRoute);
 
   showAddContext = false;
   new_context: { name: string; } = {name: ""};
   readonly contextsData = computed(() => this.contexts.resource.value());
+
+  // A link may point at one channel: opened with its card expanded
+  focusContextId = "";
+
+  ngOnInit(): void {
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.focusContextId = params["id"] || "";
+    });
+  }
+
+  isFocused(context: contextResolverModel): boolean {
+    return this.focusContextId !== "" && context.id === this.focusContextId;
+  }
 
   toggleAddContext() {
     this.showAddContext = !this.showAddContext;

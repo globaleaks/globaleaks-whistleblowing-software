@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
@@ -19,7 +19,6 @@ export class SitesTab2Component implements OnInit {
   private httpService = inject(HttpService);
   private utilsService = inject(UtilsService);
   private http = inject(HttpClient);
-  @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
 
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
@@ -47,7 +46,8 @@ export class SitesTab2Component implements OnInit {
     });
   }
 
-  importTenant(files: FileList | null) {
+  importTenant(input: HTMLInputElement) {
+    const files = input.files;
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
         let jsonTxt = JSON.parse(txt);
@@ -58,9 +58,9 @@ export class SitesTab2Component implements OnInit {
             this.getResolver();
           },
           error: () => {
-            if (this.keyUploadInput) {
-              this.keyUploadInput.nativeElement.value = "";
-            }
+            // The file is released, so that a second attempt on the same one
+            // is offered again to the reader
+            input.value = "";
           }
         });
       });

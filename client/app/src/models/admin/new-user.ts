@@ -14,7 +14,7 @@ export class NewUserPermissions {
   can_manage_auditlog = false;
   can_manage_support = false;
   can_transfer_access_to_reports = false;
-  can_forward_reports = false;
+  can_send_communications = false;
   can_change_status = true;
   can_change_label = true;
   can_mask_information = true;
