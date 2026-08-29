@@ -4,7 +4,6 @@ import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
@@ -24,7 +23,6 @@ import {ListItemComponent} from "@app/shared/components/list-item/list-item.comp
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
   protected nodeResolver = inject(NodeResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
   private selectablesResolver = inject(SelectablesResolver);
   private utilsService = inject(UtilsService);
 
@@ -40,7 +38,7 @@ export class ContextEditorComponent implements OnInit {
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
-  readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());
+  readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);
 
   // The users receive on a channel through the profile they hold: a profile
   // shared among accounts carries them all, the personal profile of an account

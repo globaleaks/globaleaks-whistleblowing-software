@@ -38,7 +38,7 @@
             @if (!editingName) {
               <span>
                 <span>{{preferenceResolver.dataModel.name}}</span>
-                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
+                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                   <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
                     <span>{{'Edit'|translate}}</span>
                   </button>
@@ -55,7 +55,7 @@
               @if (!editingPublicName) {
                 <span>
                   <span>{{preferenceResolver.dataModel.public_name}}</span>
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>
@@ -73,7 +73,7 @@
                   @if (!editingEmailAddress) {
                     <span>{{preferenceResolver.dataModel.mail_address}}</span>
                   }
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>

@@ -7,21 +7,6 @@ from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.utility import uuid4
 
-user_permissions = [
-    'can_edit_general_settings',
-    'can_delete_submission',
-    'can_postpone_expiration',
-    'can_grant_access_to_reports',
-    'can_redact_information',
-    'can_mask_information',
-    'can_transfer_access_to_reports',
-    'can_reopen_reports',
-    'can_request_forward',
-    'can_forward_reports',
-    'can_change_status',
-    'can_change_label'
-]
-
 
 class Session(dict):
     def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
@@ -83,6 +68,11 @@ class Session(dict):
         return self.expireCall.getTime() if self.expireCall else 0
 
     def has_permission(self, permission):
+        # The settings are delegated to recipients alone: a profile holding them keeps them out of the
+        # sessions of its other roles
+        if permission == 'can_manage_settings' and self.role not in ('admin', 'receiver'):
+            return False
+
         return self.permissions.get(permission, False)
 
     def serialize(self):

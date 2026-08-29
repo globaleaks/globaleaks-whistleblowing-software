@@ -42,6 +42,7 @@ def db_update_network(session, tid, user_session, request):
 
 class NetworkInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
     invalidate_cache = True
 

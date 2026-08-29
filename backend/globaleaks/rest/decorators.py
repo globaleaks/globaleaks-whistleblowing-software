@@ -122,6 +122,27 @@ def decorator_dpop(f):
     return wrapper
 
 
+def decorator_require_permission(f, permission):
+    # Decorator that enforces the permission declared by the handler on the
+    # authenticated session. It wraps every method, reads included: an area an
+    # administrator does not manage is one it does not read either, its content
+    # being as much part of the area as its configuration. A handler that
+    # declares no permission (permission is None) is left open. The declaration
+    # is a single permission or a collection of alternatives of which the
+    # session must hold at least one. It runs after the authentication
+    # decorator, so the session is present and its tenant already reconciled;
+    # the check fails closed on a missing session.
+    permissions = (permission,) if isinstance(permission, str) else permission
+
+    def wrapper(self, *args, **kwargs):
+        if permissions and not (self.session and any(self.session.has_permission(p) for p in permissions)):
+            raise errors.ForbiddenOperation
+
+        return f(self, *args, **kwargs)
+
+    return wrapper
+
+
 def decorator_cache_get(f):
     # Decorator that checks if the requests resource is cached
     def wrapper(self, *args, **kwargs):
@@ -310,6 +331,12 @@ def decorate_method(h, method):
         elif method in ['delete', 'post', 'put']:
             if h.invalidate_cache:
                 f = decorator_cache_invalidate(f)
+
+    permission = getattr(h, 'require_permission', None)
+    if isinstance(permission, dict):
+        permission = permission.get(method)
+
+    f = decorator_require_permission(f, permission)
 
     if method in ['delete', 'post', 'put']:
         f = decorator_rate_limit(f)

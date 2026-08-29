@@ -146,6 +146,12 @@ api_spec = [
     ('/api/admin/selectables', admin.selectables.SelectablesCollection),
     ('/api/admin/redirects', admin.redirect.RedirectCollection, r'/api/admin/redirects'),
     ('/api/admin/redirects', admin.redirect.RedirectInstance, r'/api/admin/redirects/' + uuid_regexp),
+    ('/api/admin/auditlog', admin.auditlog.AuditLog),
+    ('/api/admin/auditlog/access', admin.auditlog.AccessLog),
+    ('/api/admin/auditlog/debug', admin.auditlog.DebugLog),
+    ('/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
+    ('/api/admin/auditlog/tips', admin.auditlog.TipsCollection),
+    ('/api/admin/auditlog/users', admin.auditlog.UsersAudit),
     ('/api/auditor/auditlog', auditor.AuditLog),
     ('/api/auditor/auditlog/access', auditor.AccessLog),
     ('/api/auditor/auditlog/debug', auditor.DebugLog),
@@ -309,6 +315,22 @@ class APIResourceWrapper(Resource):
         for prefix, handler, regexp in api_spec:
             if not hasattr(handler, '_decorated'):
                 handler._decorated = True
+
+                # An operation handler that gates its operations must map exactly
+                # the ones it serves: an unmapped operation fails closed and is
+                # unreachable, while a mapped operation with no descriptor is
+                # dead configuration gating nothing. Either gap is caught here at
+                # startup rather than surfacing as a silent 403 or a silent no-op
+                # at request time.
+                if getattr(handler, 'operation_permissions', None):
+                    operations = set(handler.operation_descriptors(handler))
+                    mapped = set(handler.operation_permissions)
+                    if operations != mapped:
+                        raise Exception("%s: operations %s are not gated, permissions %s gate nothing"
+                                        % (handler.__name__,
+                                           sorted(operations - mapped),
+                                           sorted(mapped - operations)))
+
                 for m in ['delete', 'get', 'put', 'post']:
                     # head and options method are intentionally not considered here
                     if hasattr(handler, m):

@@ -1,5 +1,6 @@
 import {Injectable, inject} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {auditLogArea} from "@app/shared/partials/auditlog/auditlog-area";
 import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
 import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
@@ -10,10 +11,12 @@ export class JobResolver extends ResourceResolver<jobResolverModel[]> {
   private authenticationService = inject(AuthenticationService);
 
   constructor() {
-    super("api/auditor/auditlog/jobs", []);
+    // The jobs are read on the area of the role in session: the administrator
+    // and the auditor reach the same implementation, each on its own path
+    super(`api/${auditLogArea(inject(AuthenticationService).session.role)}/auditlog/jobs`, []);
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "auditor";
+    return !!auditLogArea(this.authenticationService.session.role);
   }
 }
