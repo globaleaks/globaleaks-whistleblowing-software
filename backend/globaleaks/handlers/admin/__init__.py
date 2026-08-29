@@ -1,3 +1,4 @@
+import globaleaks.handlers.admin.auditlog
 import globaleaks.handlers.admin.context
 import globaleaks.handlers.admin.field
 import globaleaks.handlers.admin.file

@@ -182,7 +182,7 @@ class NodeInstance(BaseHandler):
     def determine_allow_config_filter(self):
         if self.session.role == 'admin':
             node = ('admin_node', requests.AdminNodeDesc)
-        elif self.session.has_permission('can_edit_general_settings'):
+        elif self.session.has_permission('can_manage_settings'):
             node = ('general_settings', requests.SiteSettingsDesc)
         else:
             raise errors.InvalidAuthentication
@@ -215,6 +215,14 @@ class NodeInstance(BaseHandler):
         """
         Update the node infos.
         """
+        # The node configuration is served (GET) to every administrator, but
+        # its update is gated: an administrator needs the can_manage_settings
+        # permission, while the delegated recipient path keeps relying on
+        # can_manage_settings enforced by determine_allow_config_filter.
+        if self.session.role == 'admin' and \
+                not self.session.has_permission('can_manage_settings'):
+            raise errors.ForbiddenOperation
+
         config = yield self.determine_allow_config_filter()
 
         request = yield self.validate_request(self.request.content.read(),

@@ -5,6 +5,7 @@ from globaleaks.handlers.admin import node
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact
+from globaleaks.rest import errors
 from globaleaks.rest.errors import InputValidationError
 from globaleaks.state import State
 from globaleaks.tests import helpers
@@ -14,6 +15,7 @@ from globaleaks.utils.utility import datetime_now
 class FakeBackupJob:
     name = "Backup"
     interval = 24 * 3600
+    last_executions = []
 
     def __init__(self):
         self.running = False
@@ -54,6 +56,18 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.get()
 
         self.assertTrue(response['version'], __version__)
+
+    @inlineCallbacks
+    def test_a_recipient_with_the_settings_permission_reads_the_general_settings(self):
+        handler = self.request(role='receiver', permissions={'can_manage_settings': True})
+        response = yield handler.get()
+
+        self.assertIn('name', response)
+
+    def test_an_analyst_never_reaches_the_settings(self):
+        handler = self.request(role='analyst', permissions={'can_manage_settings': True})
+
+        return self.assertFailure(handler.get(), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_put_update_node(self):

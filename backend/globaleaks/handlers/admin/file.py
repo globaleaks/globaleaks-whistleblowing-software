@@ -119,7 +119,7 @@ class FileInstance(BaseHandler):
 
         else:
             if name not in ['logo'] or \
-                    not self.session.has_permission('can_edit_general_settings'):
+                    not self.session.has_permission('can_manage_settings'):
                 raise errors.InvalidAuthentication
 
     @inlineCallbacks
@@ -167,7 +167,7 @@ class FileCollection(BaseHandler):
         """
         Return the list of files and their info
         """
-        if self.session.role != 'admin' and not self.session.has_permission('can_edit_general_settings'):
+        if self.session.role != 'admin' and not self.session.has_permission('can_manage_settings'):
             raise errors.InvalidAuthentication
 
         return get_files(self.request.tid)

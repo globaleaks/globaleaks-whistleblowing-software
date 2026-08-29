@@ -1,0 +1,38 @@
+<app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+  <ng-template #header>
+    <tr>
+      <th scope="col" appTableHeader [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="progressive"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Date' | translate" sortBy="creation_date" filter="creation_date"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Last update' | translate" sortBy="last_update" filter="last_update"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Expiration date' | translate" sortBy="expiration_date" filter="expiration_date"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Channel' | translate" sortBy="context_id" filter="context_id" [options]="channelOptions"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Status' | translate" sortBy="status"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Tor' | translate" sortBy="tor"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Comments' | translate" sortBy="comments"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Files' | translate" sortBy="files"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Receivers' | translate" sortBy="receiver_count"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Last access' | translate" sortBy="last_access"></th>
+    </tr>
+  </ng-template>
+  <ng-template #content let-data="item" let-index="index">
+    <tr>
+      <td>{{data.progressive}}</td>
+      <td>{{data.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+      <td>{{data.last_update | date:'dd-MM-yyyy HH:mm'}}</td>
+      <td>{{data.expiration_date | date:'dd-MM-yyyy HH:mm'}}</td>
+      @if (appDataService.contexts_by_id[data.context_id]) {
+        <td>{{appDataService.contexts_by_id[data.context_id]['name']}}</td>
+      }
+      @if (!appDataService.contexts_by_id[data.context_id]) {
+        <td></td>
+      }
+      <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>
+      <td>@if (data.tor) {<i class="fas fa-check"></i>} @else {<i class="fas fa-xmark"></i>}</td>
+      <td>{{data.comments}}</td>
+      <td>{{data.files}}</td>
+      <td>{{data.receiver_count}}</td>
+      <td>{{data.last_access}}</td>
+    </tr>
+  </ng-template>
+</app-paginated-interface>
+<div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>
