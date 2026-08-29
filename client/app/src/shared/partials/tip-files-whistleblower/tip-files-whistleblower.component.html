@@ -22,7 +22,6 @@
                 @if (wbTipService.tip.enable_whistleblower_download) {
                   <td>
                     <button class="btn btn-sm btn-primary tip-action-download-file"
-                      [disabled]="file.error"
                       ngbTooltip="{{'Download' | translate}}"
                       [attr.aria-label]="'Download' | translate"
                       (click)="downloadWBFile(file)"

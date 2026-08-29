@@ -1,11 +1,14 @@
 from datetime import timedelta
-from twisted.internet.defer import inlineCallbacks
+import json
+from unittest.mock import patch
+from globaleaks.utils.crypto import GCE
+from twisted.internet.defer import inlineCallbacks, succeed
 
 from globaleaks import models
 from globaleaks.handlers.whistleblower.submission import db_assign_submission_progressive
-from globaleaks.jobs.delivery import Delivery
+from globaleaks.jobs.antivirus_decryptor import update_verification_status
+from globaleaks.jobs.delivery import Delivery, save_antivirus_status
 from globaleaks.jobs.notification import MailGenerator, Notification
-from globaleaks.utils.crypto import GCE
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact, tw
 from globaleaks.tests import helpers
@@ -152,6 +155,77 @@ class TestNotification(helpers.TestGLWithPopulatedDB):
         yield notification.spool_emails()
 
         yield self.test_model_count(models.Mail, 0)
+
+
+class TestAntivirusDeliveryToggle(helpers.TestGLWithPopulatedDB):
+    @transact
+    def set_antivirus_enabled(self, session, enabled):
+        db_set_config_variable(session, 1, 'antivirus_enabled', enabled)
+
+    @transact
+    def get_first_internal_file_id(self, session):
+        return session.query(models.InternalFile.id).order_by(models.InternalFile.creation_date).first()[0]
+
+    @transact
+    def get_internal_file_states(self, session):
+        return [(ifile.state, ifile.verification_date) for ifile in session.query(models.InternalFile).all()]
+
+    @transact
+    def get_internal_file_state(self, session, file_id):
+        ifile = session.query(models.InternalFile).filter_by(id=file_id).one()
+        return ifile.state, ifile.verification_date
+
+    @inlineCallbacks
+    def test_delivery_keeps_files_pending_when_antivirus_disabled(self):
+        yield self.perform_minimal_submission_actions()
+        yield self.set_antivirus_enabled(False)
+        yield Delivery().run()
+
+        file_states = yield self.get_internal_file_states()
+        self.assertTrue(file_states)
+        for state, verification_date in file_states:
+            self.assertEqual(state, 'pending')
+            self.assertIsNone(verification_date)
+
+    @inlineCallbacks
+    def test_delivery_keeps_files_pending_on_scan_error(self):
+        yield self.perform_minimal_submission_actions()
+        yield self.set_antivirus_enabled(True)
+
+        with patch('globaleaks.jobs.delivery.FileAnalysis.scan_file', return_value=succeed('error')):
+            yield Delivery().run()
+
+        file_states = yield self.get_internal_file_states()
+        self.assertTrue(file_states)
+        for state, verification_date in file_states:
+            self.assertEqual(state, 'pending')
+            self.assertIsNone(verification_date)
+
+    @inlineCallbacks
+    def test_delivery_discards_inflight_scan_result_after_antivirus_is_disabled(self):
+        yield self.perform_minimal_submission_actions()
+        yield self.set_antivirus_enabled(True)
+        file_id = yield self.get_first_internal_file_id()
+
+        yield self.set_antivirus_enabled(False)
+        yield save_antivirus_status(file_id, 'safe', 'internal')
+
+        state, verification_date = yield self.get_internal_file_state(file_id)
+        self.assertEqual(state, 'pending')
+        self.assertIsNone(verification_date)
+
+    @inlineCallbacks
+    def test_decryptor_discards_inflight_scan_result_after_antivirus_is_disabled(self):
+        yield self.perform_minimal_submission_actions()
+        yield self.set_antivirus_enabled(True)
+        file_id = yield self.get_first_internal_file_id()
+
+        yield self.set_antivirus_enabled(False)
+        yield update_verification_status(file_id, 'safe')
+
+        state, verification_date = yield self.get_internal_file_state(file_id)
+        self.assertEqual(state, 'pending')
+        self.assertIsNone(verification_date)
 
 
 class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
