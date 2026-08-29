@@ -4,7 +4,8 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import parse_pgp_options, \
+from globaleaks.handlers.user import db_reconcile_statistical_key, \
+                                     parse_pgp_options, \
                                      user_serialize_user
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.models import fill_localized_keys
@@ -86,13 +87,18 @@ def db_create_user(session, tid, user_session, request, language):
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
 
-    if encryption and crypto_escrow_pub_key_tenant_1 or crypto_escrow_pub_key_tenant_n:
+    if (encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password')):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
 
-        if user_session and token:
-            set_tmp_key(session, user_session, user, token, cc)
+        if user_session:
+            if token:
+                set_tmp_key(session, user_session, user, token, cc)
+
+            current_user = db_get(session, models.User, models.User.id == user_session.user_id)
+            db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
+
 
     if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:
         return user

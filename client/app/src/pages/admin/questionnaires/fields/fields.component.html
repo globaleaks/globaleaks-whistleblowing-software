@@ -170,6 +170,12 @@
             <label>{{ 'Preview' | translate }}</label>
           </div>
         }
+        @if (type() === 'template' && ['inputbox', 'selectbox', 'checkbox', 'multichoice'].indexOf(field().type) !== -1) {
+          <div class="form-group">
+            <input [(ngModel)]="field().statistical" type="checkbox">
+            <label>{{ 'Include in statistical reports' | translate }}</label>
+          </div>
+        }
         <div class="form-group">
           <label>
             <span>{{ 'Width' | translate }}</span>
