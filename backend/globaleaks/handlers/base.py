@@ -2,6 +2,7 @@ import json
 import mimetypes
 import os
 import re
+import hashlib
 import unicodedata
 
 from datetime import datetime
@@ -541,6 +542,12 @@ class BaseHandler:
                     raise errors.ForbiddenOperation()
 
             self.state.TempUploadFiles[file_id] = SecureTemporaryFile(Settings.tmp_path)
+            # The digests are accumulated on the cleartext chunks as they
+            # arrive: the temporary file on disk is encrypted with an ephemeral
+            # key, so hashing it afterwards would attest the ciphertext of a
+            # key that dies with the process rather than the evidence itself.
+            self.state.TempUploadFiles[file_id].hash_sha256_ctx = hashlib.sha256()
+            self.state.TempUploadFiles[file_id].hash_sha512_ctx = hashlib.sha512()
 
         f = self.state.TempUploadFiles[file_id]
 
@@ -569,6 +576,8 @@ class BaseHandler:
                 return None
 
             f.write(self.request.args[b'file'][0])
+            f.hash_sha256_ctx.update(self.request.args[b'file'][0])
+            f.hash_sha512_ctx.update(self.request.args[b'file'][0])
             f.written_chunks += 1
 
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
@@ -577,6 +586,8 @@ class BaseHandler:
         filename = sanitize_filename(self.request.args[b'flowFilename'][0].decode())
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
+        sha256_digest = f.hash_sha256_ctx.hexdigest()
+        sha512_digest = f.hash_sha512_ctx.hexdigest()
 
         # Prepare the uploaded file metadata
         self.uploaded_file = {
@@ -589,7 +600,9 @@ class BaseHandler:
             'body': f,
             'description': self.request.args.get(b'description', [''])[0],
             'reference_id': self.request.args.get(b'reference_id', [''])[0],
-            'visibility': self.request.args.get(b'visibility', [''])[0]
+            'visibility': self.request.args.get(b'visibility', [''])[0],
+            'hash_sha256': sha256_digest,
+            'hash_sha512': sha512_digest
         }
 
     def write_upload_plaintext_to_disk(self, destination):

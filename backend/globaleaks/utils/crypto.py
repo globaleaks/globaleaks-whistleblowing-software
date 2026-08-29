@@ -67,6 +67,13 @@ def sha256(data: bytes | str) -> bytes:
     """
     return hashlib.sha256(_convert_to_bytes(data)).hexdigest().encode()
 
+def sha512(data: bytes | str) -> bytes:
+    """
+    Perform the sha512 of the passed data
+    :param data: A data to be hashed
+    :return: A hash value
+    """
+    return hashlib.sha512(_convert_to_bytes(data)).hexdigest().encode()
 
 def generateRandomKey() -> str:
     """
