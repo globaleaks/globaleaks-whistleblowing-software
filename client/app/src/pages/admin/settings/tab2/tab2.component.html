@@ -2,7 +2,8 @@
   <div class="row mt-4">
     <div class="col-md-12">
       <div class="form-check form-switch float-end">
-        <app-switch name="authenticationData.session.permissions.can_upload_files_switch" [isChecked]="permissionStatus" [can_upload_files]="authenticationData.session.permissions.can_upload_files" [label]="authenticationData.session.permissions.can_upload_files ? 'Enabled' : 'Disabled'" (click)="togglePermissionUploadFiles()"></app-switch>
+        <input class="form-check-input" type="checkbox" role="switch" id="toggle-upload-files" [attr.aria-label]="'Enable file upload' | translate" [checked]="permissionStatus" (click)="$event.preventDefault(); togglePermissionUploadFiles()" />
+        <label class="form-check-label" for="toggle-upload-files">{{ (permissionStatus ? 'Enabled' : 'Disabled') | translate }}</label>
       </div>
     </div>
   </div>
