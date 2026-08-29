@@ -703,8 +703,10 @@ class _Mail(Model):
     address = Column(UnicodeText, nullable=False)
     subject = Column(UnicodeText, nullable=False)
     body = Column(UnicodeText, nullable=False)
+    secondary_smtp = Column(Boolean, nullable=False, default=False)
 
     unicode_keys = ['address', 'subject', 'body']
+    bool_keys = ['secondary_smtp']
 
     @declared_attr
     def __table_args__(self):
