@@ -1,48 +1,89 @@
 <div class="modal-header">
-  <h5 id="modal-title" class="modal-title">{{'Request support'|translate}}</h5>
-  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+  <h5 id="modal-title" class="modal-title">{{ 'Request support' | translate }}</h5>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+  </button>
 </div>
 <div class="modal-body">
-  <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
-    @if (!sent) {
-      <div>
-        <div class="form-group">
-          <label for="support-request-email">{{'Email address'|translate}}</label>
-          <input id="support-request-email" class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
-          @if (SupportRequest.form.get('email')?.errors?.['required']) {
-            <div class="text-danger">{{'This field is mandatory'|translate}}</div>
-          }
-          @if (SupportRequest.form.get('email')?.errors?.['pattern']) {
-            <div class="text-danger">{{'Invalid email address'|translate}}</div>
-          }
-        </div>
-        <div class="form-group">
-          <label for="support-request-message">{{'Text'|translate}}</label>
-          <div>
-            <textarea id="support-request-message" class="form-control" name="message" [(ngModel)]="arg.text" required></textarea>
-          </div>
-          @if (SupportRequest.form.get('message')?.errors?.['required']) {
-            <div class="text-danger">{{'This field is mandatory'|translate}}</div>
-          }
-        </div>
-      </div>
-    }
-  </form>
-  @if (sent) {
-    <div id="sent" class="alert alert-secondary">
-      <span>{{'Thank you.'|translate}}</span>
-      <span>{{'We will try to get back to you as soon as possible.'|translate}}</span>
+  @if (!supportAvailable) {
+    <div class="alert alert-warning" data-cy="support-unavailable" role="alert">
+      {{ 'Support requests are currently unavailable.' | translate }}
     </div>
+  } @else if (showTabs) {
+    <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTab">
+      <li [ngbNavItem]="'requests'">
+        <button ngbNavLink data-cy="support-tab-requests">{{ 'Requests' | translate }}</button>
+        <ng-template ngbNavContent>
+          <ng-container *ngTemplateOutlet="requestList"></ng-container>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="'new'">
+        <button ngbNavLink data-cy="support-tab-new">{{ 'New' | translate }}</button>
+        <ng-template ngbNavContent>
+          <ng-container *ngTemplateOutlet="requestForm"></ng-container>
+        </ng-template>
+      </li>
+    </ul>
+    <div [ngbNavOutlet]="nav" class="mt-3"></div>
+  } @else if (showForm) {
+    <ng-container *ngTemplateOutlet="requestForm"></ng-container>
   }
 </div>
 <div class="modal-footer">
-  @if (!sent) {
-    <button id="modal-action-ok" class="btn btn-primary" [disabled]="SupportRequest.form.invalid" (click)="sent=true; utilsService.submitSupportRequest(arg);">
-      <span>{{'Submit'|translate}}</span>
-    </button>
-  }
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="activeModal.dismiss()" (keydown.enter)="activeModal.dismiss()" tabindex="0" role="button">
-    <i class="fas fa-xmark"></i>
-    <span>{{'Close'|translate}}</span>
-  </a>
+  <button id="modal-action-cancel" type="button" class="btn btn-outline-secondary" (click)="activeModal.dismiss()">
+    <i class="fas fa-xmark" aria-hidden="true"></i>
+    <span>{{ 'Close' | translate }}</span>
+  </button>
 </div>
+
+<ng-template #requestForm>
+  <form #SupportRequest="ngForm" name="SupportRequest" id="SupportRequest" novalidate>
+    @if (!authenticated) {
+      <div class="form-group">
+        <label for="support-request-email">{{ 'Email address' | translate }}</label>
+        <input id="support-request-email" class="form-control" name="email" [(ngModel)]="arg.mail_address" type="email" [pattern]="Constants.emailRegexp" required />
+        @if (SupportRequest.form.get('email')?.errors?.['required']) {
+          <div class="text-danger">{{ 'This field is mandatory' | translate }}</div>
+        }
+        @if (SupportRequest.form.get('email')?.errors?.['pattern']) {
+          <div class="text-danger">{{ 'Invalid email address' | translate }}</div>
+        }
+      </div>
+    }
+    <div class="form-group">
+      <label for="support-request-message">{{ 'Text' | translate }}</label>
+      <textarea id="support-request-message" class="form-control" name="message" [(ngModel)]="arg.text" maxlength="4096" rows="6" required></textarea>
+      <div class="text-end">{{ arg.text.length }}/4096</div>
+      @if (SupportRequest.form.get('message')?.errors?.['required']) {
+        <div class="text-danger">{{ 'This field is mandatory' | translate }}</div>
+      }
+    </div>
+  </form>
+  <div class="mb-3">
+    <button id="modal-action-ok" type="button" class="btn btn-primary" [disabled]="!isRequestValid()" (click)="submitRequest()">
+      <span>{{ 'Submit' | translate }}</span>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #requestList>
+  @for (request of requests; track request.id) {
+    <src-collapsible-card [expanded]="expandedRequestId === request.id" [titleColumns]="11" (toggle)="toggleRequest(request)">
+      <span cardTitle class="d-flex justify-content-between align-items-start gap-2">
+        <span class="overflow-hidden">
+          <span class="badge me-2" [ngClass]="statusClass(request.status)">{{ statusLabels[request.status] | translate }}</span>
+          @if (hasUnreadAdminMessages(request)) {
+            <span class="badge bg-warning text-dark me-2">{{ 'Unread reply' | translate }}</span>
+          }
+          <span class="text-truncate">{{ request.preview }}</span>
+        </span>
+        <span class="text-nowrap">{{ request.update_date | date:'dd-MM-yyyy HH:mm' }}</span>
+      </span>
+      @if (expandedRequestId === request.id) {
+        <div class="mt-3 pt-3 border-top">
+          <src-support-thread [request]="request" viewer="user" [(draft)]="replyDrafts[request.id]" (send)="sendFollowup(request, $event)"></src-support-thread>
+        </div>
+      }
+    </src-collapsible-card>
+  }
+</ng-template>
