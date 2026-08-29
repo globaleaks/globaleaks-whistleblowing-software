@@ -17,7 +17,7 @@ export class ReceiverGuard {
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (this.authenticationService.session) {
-      if(this.authenticationService.session.role === "receiver"){
+      if(["receiver", "transmitter"].includes(this.authenticationService.session.role)){
         this.appConfigService.setPage(this.router.url);
       } else {
         this.router.navigateByUrl("/login").then();
