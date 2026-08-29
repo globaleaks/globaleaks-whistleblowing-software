@@ -38,7 +38,7 @@ token_regexp = r'^[a-f0-9]{64}$'
 short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
-homepage_regexp = r'^/(submission)?$'
+homepage_regexp = r'^/(submission|signup)?$'
 # Which of the support requests received by a site the root tenant handles
 support_escalation_regexp = r'^(none|admins|all)$'
 whistleblowing_destination_regexp = r'^/(submission|login)$'
@@ -97,6 +97,21 @@ AdminTenantDesc = {
     'active': bool,
     'subdomain': subdomain_regexp_or_empty,
     'profile': profile_regexp,
+}
+
+AdminExchangeConfigDesc = {
+    'questionnaire': key_regexp_or_empty,
+    'request_questionnaire': key_regexp_or_empty
+}
+
+AdminExchangeDesc = {
+    'type': str,
+    'source': uuid_regexp,
+    'target': uuid_regexp,
+    'channel': uuid_regexp_or_empty,
+    'channel_name': str,
+    'questionnaire': key_regexp_or_empty,
+    'request_questionnaire': key_regexp_or_empty
 }
 
 AdminTenantDeleteDesc = {
@@ -196,6 +211,12 @@ UserUserDesc = {
 CommentDesc = {
     'content': str,
     'visibility': str
+}
+
+ExchangeReportDesc = {
+    'target_tid': int,
+    'exchange_id': uuid_regexp_or_empty,
+    'answers': dict
 }
 
 InsertedReportDesc = {
@@ -442,7 +463,10 @@ AdminContextDesc = {
     'order': int,
     'show_steps_navigation_interface': bool,
     'show_receivers_in_alphabetical_order': bool,
+    'internally_available': bool,
+    'provide_access_code': bool,
     'questionnaire_id': key_regexp_or_empty,
+    'additional_questionnaires': [key_regexp],
     'additional_questionnaire_id': key_regexp_or_empty
 }
 
@@ -530,6 +554,7 @@ ReceiverDesc = {
 ContextDesc = {
     'id': uuid_regexp,
     'name': str,
+    'slug': str,
     'hidden': bool,
     'description': str,
     'order': int,
@@ -693,6 +718,6 @@ AdminStatisticalTemplateDesc = {
 
 AdminStatisticalReportDesc = {
     'label': str,
-    'template_id': uuid_regexp_or_empty,
+    'template_id': key_regexp_or_empty,
     'data': dict
 }

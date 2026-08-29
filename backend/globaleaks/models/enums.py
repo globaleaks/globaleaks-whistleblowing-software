@@ -41,6 +41,16 @@ class EnumVisibility(_Enum):
     personal = 2
 
 
+class EnumExchangeType(_Enum):
+    transmission = 0
+    communication = 1
+
+
+class EnumExchangeOwner(_Enum):
+    source = 0
+    target = 1
+
+
 class EnumStateFile(_Enum):
     pending = 0
     verified = 1

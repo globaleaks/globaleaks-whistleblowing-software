@@ -7,6 +7,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models.config import db_get_signup_profile
 from globaleaks.models.enums import EnumSubscriberStatus
+from globaleaks.models.exchanges import db_forget_exchanges
 from globaleaks.orm import db_del
 from globaleaks.orm import db_log
 from globaleaks.orm import transact
@@ -77,7 +78,10 @@ def db_delete_expired_invites(session):
         .all()
 
     if expired:
-        db_del(session, models.Tenant, models.Tenant.id.in_([tenant.id for _, tenant in expired]))
+        tids = [tenant.id for _, tenant in expired]
+
+        db_forget_exchanges(session, tids)
+        db_del(session, models.Tenant, models.Tenant.id.in_(tids))
 
 
 @transact

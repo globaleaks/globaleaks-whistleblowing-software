@@ -7,7 +7,9 @@ import {TranslatePipe} from "@ngx-translate/core";
  *
  * The header shows the projected [title] on the left and the action buttons
  * on the right: Edit, Save and Cancel follow the editing state, Delete is
- * shown when the item is deletable, and any projected [actions] come last.
+ * shown when the item is deletable, and any projected [actions] come last. A
+ * readOnly item is opened and read but not written: it carries no button of
+ * its own, and what it displays is left to the editor it holds.
  * The editor declared as <ng-template #body> is instantiated only while the
  * item is being edited, so the form controls of the closed items never exist.
  *
@@ -27,12 +29,12 @@ import {TranslatePipe} from "@ngx-translate/core";
         </span>
         <span class="col-md-{{ 12 - titleColumns() }} clearfix">
           <span class="float-end">
-            @if (canEdit() && !editing()) {
+            @if (canEdit() && !readOnly() && !editing()) {
               <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" (click)="toggle()">
                 <span>{{ 'Edit' | translate }}</span>
               </button>
             }
-            @if (editing()) {
+            @if (editing() && !readOnly()) {
               <button type="button" class="btn btn-sm btn-primary" data-action="save" [disabled]="saveDisabled()" (click)="onSave()">
                 <span>{{ 'Save' | translate }}</span>
               </button>
@@ -62,6 +64,9 @@ export class ListItemComponent {
   readonly editing = model(false);
   readonly canEdit = input(true);
   readonly canDelete = input(true);
+
+  /** The item is opened and read, and none of its buttons is offered */
+  readonly readOnly = input(false);
   readonly saveDisabled = input(false);
 
   /** Width of the title column; the actions take the remaining ones */
@@ -74,7 +79,7 @@ export class ListItemComponent {
   readonly body = contentChild<TemplateRef<unknown>>("body");
 
   toggle(): void {
-    if (this.canEdit() || this.editing()) {
+    if (this.canEdit() || this.readOnly() || this.editing()) {
       this.editing.set(!this.editing());
     }
   }

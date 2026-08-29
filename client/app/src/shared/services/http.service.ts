@@ -4,6 +4,7 @@ import {Observable} from "rxjs";
 import {tap} from "rxjs/operators";
 import {PasswordRecoveryResponseModel} from "@app/models/authentication/password-recovery-response-model";
 import {Router} from "@angular/router";
+import {exchangeConfig, exchangeModel} from "@app/models/admin/exchange";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
@@ -96,6 +97,22 @@ export class HttpService {
 
   requestAdminTenantStats(tenantId: number): Observable<{open_reports: number; total_reports: number; last_update: string}> {
     return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string}>(`api/admin/tenants/${tenantId}/stats`);
+  }
+
+  requestExchanges(): Observable<exchangeModel[]> {
+    return this.httpClient.get<exchangeModel[]>("api/admin/exchanges");
+  }
+
+  requestCreateExchange(data: Partial<exchangeModel>): Observable<exchangeModel> {
+    return this.httpClient.post<exchangeModel>("api/admin/exchanges", data);
+  }
+
+  requestUpdateExchange(exchangeId: string, data: exchangeConfig): Observable<exchangeModel> {
+    return this.httpClient.put<exchangeModel>(`api/admin/exchanges/${exchangeId}`, data);
+  }
+
+  requestDeleteExchange(exchangeId: string): Observable<void> {
+    return this.httpClient.delete<void>(`api/admin/exchanges/${exchangeId}`);
   }
 
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
@@ -605,8 +622,16 @@ export class HttpService {
     }));
   }
 
-  requestForwardRequestOptions(): Observable<any> {
-    return this.httpClient.get("api/recipient/rtips/forward-request");
+  requestCommunicationOptions(tipId: string): Observable<any> {
+    return this.httpClient.get("api/recipient/rtips/" + tipId + "/communication");
+  }
+
+  requestTransmitOptions(): Observable<any> {
+    return this.httpClient.get("api/transmitter/transmissions/options");
+  }
+
+  requestTransmissions(): Observable<any> {
+    return this.httpClient.get("api/transmitter/transmissions");
   }
 
   tipOperation = (operation: string, args: any, tipId: string) => {

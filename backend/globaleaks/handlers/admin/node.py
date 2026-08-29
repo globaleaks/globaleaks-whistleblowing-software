@@ -8,7 +8,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
-    db_get_pid_by_profile, db_set_own_config_variable
+    db_get_pid_by_profile
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
@@ -140,33 +140,13 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
-    # The sites created via signup can only be assigned to the default profile
-    # or to one of the profiles configured on the platform; any other reference,
-    # like the one of a profile deleted in the meantime, falls back on the default
+    # Signup sites are assigned to the default profile or to a configured one
     if request.get('signup_profile', 'default') != 'default':
         pid = db_get_pid_by_profile(session, request['signup_profile'])
         if pid is None or pid <= DEFAULT_PROFILE_ID:
             request['signup_profile'] = 'default'
 
-    # The channels designated to receive the forwards and the requests of
-    # forward are channels of the tenant; any other reference is dropped
-    designations = {}
-    for var in ['forward_channel', 'forward_request_channel']:
-        if var not in request:
-            continue
-
-        designations[var] = request.pop(var)
-
-        if designations[var] and \
-                session.query(models.Context) \
-                       .filter(models.Context.tid == tid,
-                               models.Context.id == designations[var]) \
-                       .one_or_none() is None:
-            designations[var] = ''
-
-    # The antivirus and backup features are configurable on the primary tenant
-    # only: their variables are dropped from the requests of any other context,
-    # secondary tenants and profiles alike
+    # Antivirus and backup are configured on the primary tenant only: dropped elsewhere
     if tid != 1:
         for var in ['antivirus_enabled', 'antivirus_clamd_ip', 'antivirus_clamd_port',
                     'backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
@@ -178,14 +158,8 @@ def db_update_node(session, tid, user_session, request, language):
 
     config.update('node', request)
 
-    # The designations reference objects of the tenant and are therefore stored
-    # on the tenant itself and never on the profile from which it inherits
-    for var, value in designations.items():
-        db_set_own_config_variable(session, tid, var, value)
-
-    # The accounts provisioned upon the first authentication of an identity are
-    # created with the profile configured by default on the tenant, that is
-    # therefore required to be configured
+    # Accounts provisioned on the first authentication take the default profile of the tenant, which
+    # is therefore required
     if config.get_val('idp') and config.get_val('idp_provisioning'):
         # Imported here as the profiles import the serialization of the node
         from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
@@ -261,10 +235,7 @@ class NodeInstance(BaseHandler):
         """
         Update the node infos.
         """
-        # The node configuration is served (GET) to every administrator, but
-        # its update is gated: an administrator needs the can_manage_settings
-        # permission, while the delegated recipient path keeps relying on
-        # can_manage_settings enforced by determine_allow_config_filter.
+        # Served to every administrator; updated only with the permission of the settings
         if self.session.role == 'admin' and \
                 not self.session.has_permission('can_manage_settings'):
             raise errors.ForbiddenOperation

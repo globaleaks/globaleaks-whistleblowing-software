@@ -69,7 +69,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     });
   };
 
-  const create_forwarding_recipient_profile = (tenantUrl: string, profileName: string) => {
+  const create_transmitting_recipient_profile = (tenantUrl: string, profileName: string) => {
     cy.get("#admin_users").click();
     cy.get('[data-cy="profiles"]').click().should("be.visible").click();
     cy.get(".show-add-profile-btn").click();
@@ -79,7 +79,7 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     cy.contains(".profileList", profileName).within(() => {
       cy.get('button[name="edit_profile"]').click();
-      cy.get('input[name="can_forward_reports"]').check();
+      cy.get('input[name="can_send_communications"]').check();
       cy.get("#save_profile").click();
     });
   };
@@ -145,19 +145,11 @@ describe("admin configure, add, configure and delete tenants", () => {
     });
   };
 
-  const designate_forward_channel = (tenantUrl: string) => {
-    cy.visit(`${tenantUrl}/#/admin/settings`);
-    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
-    cy.get('select[name="node.dataModel.forward_channel"]').select(1);
-    cy.get("#save").click();
-  };
-
-  const configure_forwarding_recipient = (tenantUrl: string, profileName: string, recipientName: string) => {
-    create_forwarding_recipient_profile(tenantUrl, profileName);
+  const configure_transmitting_recipient = (tenantUrl: string, profileName: string, recipientName: string) => {
+    create_transmitting_recipient_profile(tenantUrl, profileName);
     create_recipient_from_profile(tenantUrl, profileName, recipientName);
     set_recipient_password(tenantUrl, recipientName);
     add_recipient_to_channel(tenantUrl, "Default", recipientName);
-    designate_forward_channel(tenantUrl);
     complete_recipient_first_login(tenantUrl, recipientName);
   };
 
@@ -230,7 +222,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     });
   });
 
-  it("should configure forwarding recipients for two profile tenants", () => {
+  it("should configure transmission recipients for two profile tenants", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
     cy.get('[data-cy="sites"]').click().should("be.visible").click();
@@ -247,7 +239,7 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     configure_site_tenant("Platform F");
     visit_configured_tenant().then((tenantUrl: string) => {
-      configure_forwarding_recipient(tenantUrl, "Platform F Forwarding Profile", "Platform F Recipient");
+      configure_transmitting_recipient(tenantUrl, "Platform F Transmission Profile", "Platform F Recipient");
     });
 
     cy.login_admin();
@@ -261,7 +253,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     });
     configure_site_tenant("Platform G");
     visit_configured_tenant().then((tenantUrl: string) => {
-      configure_forwarding_recipient(tenantUrl, "Platform G Forwarding Profile", "Platform G Recipient");
+      configure_transmitting_recipient(tenantUrl, "Platform G Transmission Profile", "Platform G Recipient");
     });
   });
 
@@ -336,6 +328,90 @@ describe("admin configure, add, configure and delete tenants", () => {
         set_signup_enabled(false);
       }
     });
+
+    cy.logout();
+  });
+});
+
+describe("admin configure exchanges", () => {
+  // An exchange relates a single pair: the type says what the two sites
+  // exchange, the mode what the two sides of the pair are made of, and the
+  // channel of the destination it runs through is named here, where the
+  // exchange is established
+  const add_exchange = (type: string, mode: string, from: string, to: string,
+                        channel: string, name?: string) => {
+    cy.get(".add-exchange-btn").click();
+    cy.get('select[name="exchange-type"]').select(type);
+    cy.get('select[name="exchange-mode"]').select(mode);
+    cy.get('select[name="exchange-from"]').select(from);
+    cy.get('select[name="exchange-to"]').select(to);
+    cy.get('select[name="exchange-channel"]').select(channel);
+
+    if (name) {
+      cy.get('input[name="exchange-channel-name"]').type(name);
+    }
+
+    cy.get("#add-exchange").click();
+  };
+
+  // The configuration of an exchange is written inside its own row: the row
+  // is named by the site and by the type, since a pair exchanges on as many
+  // exchanges as the channels it exchanges on
+  const configure_exchange = (type: string, name: string, configure: () => void) => {
+    cy.get("tr.exchange-row")
+      .filter(`:contains("${name}")`)
+      .filter(`:contains("${type}")`)
+      .first()
+      .find('[data-action="toggle"]')
+      .click();
+    cy.get("tr.exchange-detail").within(configure);
+  };
+
+  it("should relate the sites and run the exchanges through their channels", () => {
+    cy.login_admin();
+
+    cy.visit("/#/admin/sites");
+    cy.get('[data-cy="exchanges"]').click().should("be.visible").click();
+
+    // the two sites carry to the first one what their reports hold: a channel
+    // of the exchanges is born of the first exchange running through it, and
+    // the ones established afterwards run through the same one
+    add_exchange("communication", "site-site", "Platform F", "GLOBALEAKS",
+                 "new", "Exchange channel");
+    add_exchange("communication", "site-site", "Platform G", "GLOBALEAKS",
+                 "Exchange channel");
+
+    // and one of them files its reports on it, upon a request
+    add_exchange("transmission", "site-site", "Platform G", "GLOBALEAKS",
+                 "Exchange channel");
+
+    cy.get("tr.exchange-row").should("have.length", 3);
+
+    // the destination demands an authorization before a report is entered on
+    // it: what is filed first is a request, composed with a questionnaire of
+    // its own
+    configure_exchange("Transmission", "Platform G", () => {
+      cy.get('input[name="exchange-request-authorization"]').check();
+      cy.get('select[name="exchange-request-questionnaire"]').select(0);
+      cy.get('[data-action="save"]').click();
+    });
+
+    // the recipients that take part in the exchanges are named on the channel,
+    // where it lives
+    cy.visit("/#/admin/channels");
+    cy.contains("form[name='editContext']", "Exchange channel").within(() => {
+      cy.get("[data-action='edit']").click();
+      cy.get(".add-receiver-btn").click();
+      cy.get('ng-select[name="selected.value"]').click();
+      cy.get('ng-select[name="selected.value"]').contains("Recipient").click();
+      cy.get("[data-action='save']").click();
+    });
+
+    // the exchanges are read back from the platform with the channel they run
+    // through
+    cy.visit("/#/admin/sites");
+    cy.get('[data-cy="exchanges"]').click().should("be.visible").click();
+    cy.contains("tr.exchange-row", "Exchange channel").should("exist");
 
     cy.logout();
   });

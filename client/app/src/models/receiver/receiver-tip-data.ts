@@ -22,9 +22,10 @@ export class RecieverTipData {
   progressive: number;
   context_id: string;
   type: string;
-  allow_forward: boolean;
-  can_forward: boolean;
-  forward_receipt_valid: boolean;
+  allow_transmission: boolean;
+  can_communicate: boolean;
+  can_decide_request: boolean;
+  receipt_valid: boolean;
   questionnaires: Questionnaire[];
   tor: boolean;
   mobile: boolean;
@@ -32,6 +33,8 @@ export class RecieverTipData {
   identity_provided: boolean;
   last_access: string;
   itip_last_access: string;
+  counterpart_last_access: string;
+  owned: boolean;
   score: number;
   status: string;
   substatus: string;
@@ -56,7 +59,8 @@ export class RecieverTipData {
   whistleblower_identity_field: Children;
   tip_id: string;
   redactions: RedactionData[];
-  forwards: ForwardReport[];
+  exchanges: ExchangeReport[];
+  exchange: ExchangeChannel | null;
 }
 
 export type Answers = Record<string, {
@@ -73,26 +77,36 @@ export interface Receiver {
   last_access: string | null;
 }
 
-export interface ForwardReport {
+export interface ExchangeReport {
   id: string;
   creation_date: string;
   target_tid: number;
+  tenant_name: string;
   progressive: number;
   status: string;
   substatus: string;
+  accessible: boolean;
+}
+
+export interface ExchangeChannel {
+  type: string;
+  from_tenant_name: string;
+  to_tenant_name: string;
+  update_date: string;
+  internaltip_id: string;
 }
 
 export interface Data {
   whistleblower_identity_provided: boolean;
   whistleblower_identity: WhistleblowerIdentity;
   whistleblower_identity_date: string;
-  forwarded_from?: {
+  transmitted_from?: {
     source_tid: number | string;
   };
-  forward_request?: {
+  request?: {
     source_tid: number | string;
   };
-  forward_receipt?: string;
+  receipt?: string;
 }
 
 export interface Context {

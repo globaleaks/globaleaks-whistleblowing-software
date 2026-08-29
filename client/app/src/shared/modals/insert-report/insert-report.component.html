@@ -13,8 +13,11 @@
       <src-receipt-whistleblower [receipt]="receipt"></src-receipt-whistleblower>
     </div>
   }
+  @if (submitted) {
+    <div id="InsertionAcknowledgement">{{ 'The report has been entered.' | translate }}</div>
+  }
   <form #submissionForm="ngForm" id="InsertionForm" autocomplete="off" novalidate>
-    @if (showChannelSelector() && !receipt) {
+    @if (showChannelSelector() && !receipt && !submitted) {
       <div class="form-group">
         <label for="insertion-channel">{{ 'Channel' | translate }}</label>
         <select id="insertion-channel" class="form-select-custom" name="selectedChannel" [(ngModel)]="selectedChannel" (ngModelChange)="onChannelChange()" required>
@@ -61,7 +64,7 @@
   </form>
 </div>
 <div class="modal-footer">
-  @if (receipt) {
+  @if (receipt || submitted) {
     <button id="CloseInsertionButton" class="btn btn-primary" (click)="activeModal.close()">
       <span>{{ 'Close' | translate }}</span>
     </button>
