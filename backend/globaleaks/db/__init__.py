@@ -11,7 +11,7 @@ from globaleaks import models, DATABASE_VERSION
 from globaleaks.handlers.admin.https import db_load_tls_configs
 from globaleaks.handlers.public import MAX_SERIALIZATION_DEPTH
 from globaleaks.models import Base, Config
-from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_pid, db_get_profile_children
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_pid, db_get_profile_children, db_get_signup_idp_config
 from globaleaks.models.config_desc import ConfigFilters
 from globaleaks.orm import get_engine, get_session, make_db_uri, transact, transact_sync
 from globaleaks.settings import Settings
@@ -409,6 +409,13 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
     if getattr(State, 'tor'):
         State.tor.load_all_onion_services()
+
+    # The IdP of the signups is inherited from the signup profile and resolved separately
+    if 1 in State.tenants:
+        signup_idp_config = db_get_signup_idp_config(session, 1)
+        if any(State.tenants[1].cache.get(k) != v for k, v in signup_idp_config.items()):
+            State.tenants[1].cache.update(signup_idp_config)
+            Cache.invalidate(1)
 
     if 1 in tids:
         log.setloglevel(State.tenants[1].cache.log_level)

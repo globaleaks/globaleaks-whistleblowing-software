@@ -27,6 +27,7 @@ from globaleaks.utils.fs import read_json_file
 from globaleaks.utils.log import log, openLogFile
 from globaleaks.utils.mail import sendmail
 from globaleaks.utils.objectdict import ObjectDict
+from globaleaks.utils.oidc import OIDCAuth
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.ratelimit import RateLimit
 from globaleaks.utils.singleton import Singleton
@@ -121,6 +122,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         # cannot be replayed while it is still considered fresh.
         self.dpop_jti = TempDict(dpop.PROOF_MAX_AGE + dpop.PROOF_MAX_FUTURE, 1000000)
         self.RateLimit = RateLimit(10000)
+        self.oidcauth = OIDCAuth()
 
         self.shutdown = False
 
@@ -282,7 +284,6 @@ class StateClass(ObjectDict, metaclass=Singleton):
     def support_url(self, tid, support_request_id=''):
         """
         The address at which the support section of a tenant is reached,
-        pointing at one request when its id is given.
 
         :param tid: The tenant whose site the recipient logs in to
         :param support_request_id: The request to open, if any
@@ -302,17 +303,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
         return url + '?id=' + support_request_id if support_request_id else url
 
     def schedule_support_email(self, tid, support_request_id='', escalate=True):
-        # The notification is content free: the request is persisted encrypted
-        # on the platform and is read from there after the authentication. One
-        # notification serves both a new request and an update of an existing
-        # one, what happened being read on the platform and not in the mail.
+        # Content free: the request is stored encrypted and read after the authentication
         subject = "Support request"
         text = "A support request has been received or updated. Log in to read it."
 
-        # The link points at the site the recipient logs in to: the root tenant
-        # for whom handles the request from there, the tenant that received it
-        # for its own administrators. An address serving both is linked to the
-        # root, the only site from which every request is reachable.
+        # The link points at the site the recipient logs in to
         delivery_lists = []
         if tid != 1 and escalate:
             delivery_lists.append((1, self.tenants[1].cache.notification.admin_list))

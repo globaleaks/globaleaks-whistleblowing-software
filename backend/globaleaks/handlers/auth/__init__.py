@@ -31,6 +31,98 @@ def db_receipt_auth_is_legacy(session, tid):
                                               func.length(InternalTip.receipt_hash) < 64))).scalar()
 
 
+def db_bind_idp_identity(session, tid, user, subject):
+    """
+    Bind a user to the identity of the identity provider
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The user being authenticated
+    :param subject: The subject of the token issued by the identity provider
+    """
+    if not subject:
+        raise errors.InvalidAuthentication
+
+    if user.idp_id:
+        if user.idp_id != subject:
+            raise errors.InvalidAuthentication
+
+        return
+
+    # An identity binds to a single account
+    if session.query(User).filter(User.tid == tid, User.idp_id == subject).count():
+        raise errors.InvalidAuthentication
+
+    user.idp_id = subject
+
+    db_log(session, tid=user.tid, type='idp_identity_binding', user_id=user.id, object_id=user.id)
+
+
+def db_idp_username(session, tid, claims):
+    """
+    Resolve the username to be assigned to the account provisioned for an
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param claims: The claims of the token issued by the identity provider
+    :return: The username to be assigned to the account, empty when the
+    """
+    username = ''
+
+    for claim in ['preferred_username', 'email', 'sub']:
+        username = str(claims.get(claim) or '').strip()
+        if username:
+            break
+
+    if not username:
+        return ''
+
+    # An existing username is never reassigned: the identity binds to it through its own credentials
+    if session.query(User).filter(User.tid == tid, User.username == username).count():
+        return ''
+
+    return username
+
+
+def db_provision_idp_user(session, tid, claims, username):
+    """
+    Provision the account of an identity authenticated by the identity provider
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param claims: The claims of the token issued by the identity provider
+    :param username: The username to be assigned to the account
+    :return: The provisioned user
+    """
+    # An identity binds to a single account, disabled ones included
+    if session.query(User).filter(User.tid == tid, User.idp_id == claims['sub']).count():
+        raise errors.InvalidAuthentication
+
+    role, profile_id = db_resolve_default_user_profile(session, tid)
+
+    # A tenant creating no user by default provisions no account
+    if not role:
+        raise errors.InvalidAuthentication
+
+    language = State.tenants[tid].cache.default_language
+
+    user_desc = User().dict(language)
+    user_desc['username'] = username
+    user_desc['name'] = str(claims.get('name') or '').strip() or username
+    user_desc['mail_address'] = str(claims.get('email') or '').strip()
+    user_desc['language'] = language
+    user_desc['role'] = role
+    user_desc['profile_id'] = profile_id
+    user_desc['idp_id'] = claims['sub']
+    user_desc['password'] = ''
+    user_desc['pgp_key_remove'] = False
+    user_desc = user_desc | user_permissions
+
+    user = db_create_user(session, tid, None, user_desc, language, defer_password_setup=True)
+
+    db_log(session, tid=tid, type='idp_user_provisioning', user_id=user.id, object_id=user.id)
+
+    return user
 
 
 
@@ -119,7 +211,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
 
 
 @transact
-def login(session, tid, username, password, authcode, client_using_tor, client_ip, dpop_jkt=''):
+def login(session, tid, username, password, authcode, client_using_tor, client_ip, dpop_jkt='', idp_subject=None):
 
     """
     Login transaction for users' access
@@ -131,6 +223,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :param authcode: A provided authcode
     :param client_using_tor: A boolean signaling Tor usage
     :param client_ip:  The client IP
+    :param idp_subject: The subject of the token issued by the identity provider
     :return: Returns a user session in case of success
     """
     query = session.query(User) \
@@ -139,6 +232,10 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
                    .filter(User.enabled.is_(True), User.tid == tid)
 
     user = None
+
+    # An account already bound to the identity is resolved by it; the username only binds a new one
+    if tid in State.tenants and State.tenants[tid].cache.idp and idp_subject:
+        user = query.filter(User.idp_id == idp_subject).one_or_none()
 
     if user is None:
         if tid in State.tenants and State.tenants[tid].cache.simplified_login:
@@ -149,8 +246,8 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if user is None:
         db_login_failure(session, tid, 0)
 
-    # An account provisioned by the identity provider and whose user has not
-    # set a password yet is accessible only via the identity bound to it
+    # An account provisioned by the identity provider without a password is accessible via the
+    # identity only
     if not user.hash:
         raise errors.InvalidAuthentication
 
@@ -174,6 +271,11 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
             raise errors.TwoFactorAuthCodeRequired
 
         State.totp_verify(user.two_factor_secret, authcode)
+
+    # Bound only after a successful authentication, so that a third party holding a token cannot pin
+    # an identity on someone else's account
+    if State.tenants[tid].cache.idp:
+        db_bind_idp_identity(session, tid, user, idp_subject)
 
     if len(user.hash) != 64:
         user.password_change_needed = True
@@ -212,22 +314,109 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     user_session.properties['password_change_needed'] = user.password_change_needed
     user_session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
 
+    user_session.idp_id = user.idp_id
+
     return user_session
 
 
+@transact
+def login_idp(session, tid, claims, client_using_tor, client_ip, dpop_jkt=''):
+    """
+    Login transaction for the accounts provisioned by the identity provider
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param claims: The claims of the token issued by the identity provider
+    :param client_using_tor: A boolean signaling Tor usage
+    :param client_ip: The client IP
+    :return: Returns a user session in case of success
+    """
+    subject = claims.get('sub')
+    if not subject:
+        raise errors.InvalidAuthentication
+
+    user = session.query(User) \
+                  .options(joinedload(User.profile).joinedload(UserProfile.permissions),
+                           joinedload(User.profile).joinedload(UserProfile.roles)) \
+                  .filter(User.enabled.is_(True),
+                          User.tid == tid,
+                          User.idp_id == subject).one_or_none()
+
+    # An account holding a password is accessed via the password, never via the identity alone
+    if user is not None and user.hash:
+        raise errors.InvalidAuthentication
+
+    if user is None:
+        if not State.tenants[tid].cache.idp_provisioning:
+            raise errors.InvalidAuthentication
+
+        username = db_idp_username(session, tid, claims)
+
+        # An existing username binds to the identity via its own credentials
+        if not username:
+            raise errors.InvalidAuthentication
+
+        user = db_provision_idp_user(session, tid, claims, username)
+
+    connection_check(tid, user.role, client_ip, client_using_tor)
+
+    crypto_prv_key = ''
+    if State.tenants[tid].cache.encryption or \
+       ConfigFactory(session, tid).get_val('crypto_support_pub_key'):
+        crypto_prv_key, _ = GCE.generate_keypair()
+
+    user.password_change_needed = True
+    user.last_login = datetime_now()
+
+    db_log(session, tid=tid, type='login', user_id=user.id)
+
+    permissions = ObjectDict()
+    for r in user_permissions:
+        permissions[r] = r in user.profile.permissions_list
+
+    user_session = Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions, sk=user.crypto_support_prv_key, dpop_jkt=dpop_jkt)
+
+    user_session.idp_id = user.idp_id
+
+    # No password yet: the session carries the obligation, as on a forced password change
+    user_session.properties['password_change_needed'] = True
+    user_session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
+
+    return user_session
 
 
 @transact
-def get_auth_type(session, tid, username):
+def get_auth_type(session, tid, username, idp_claims=None):
     """
     Resolve the authentication type and the salt to be applied by a client
 
     :param session: An ORM session
     :param tid: A tenant ID
     :param username: A provided username
+    :param idp_claims: The claims of the token issued by the identity provider
     :return: The authentication type to be performed by the client
     """
     salt = ConfigFactory(session, tid).get_val('receipt_salt')
+
+    if idp_claims:
+        # Resolved by the identity and asked for the password alone; an unbound identity is bound
+        # through the username and the credentials
+        user = session.query(User).filter(User.tid == tid, User.idp_id == idp_claims.get('sub')).one_or_none()
+
+        if user is None:
+            if State.tenants[tid].cache.idp_provisioning and db_idp_username(session, tid, idp_claims):
+                return {'type': 'provisioning'}
+
+            return {'type': 'binding'}
+
+        # Setup not completed: resumed instead of asking for a password never set
+        if not user.hash:
+            return {'type': 'provisioning'}
+
+        if len(user.hash) == 64:
+            return {'type': 'key', 'salt': user.salt, 'username': user.username}
+
+        return {'type': 'password', 'username': user.username}
 
     if not username: # whistleblower
         if not db_receipt_auth_is_legacy(session, tid):
@@ -241,8 +430,7 @@ def get_auth_type(session, tid, username):
 
         salt = salt if not user else user.salt
 
-        # An account holding no password is presented as any other account, so
-        # that the accounts still to be set up are not disclosed
+        # Presented as any other account, so that the accounts still to be set up are not disclosed
         if not user or not user.hash or len(user.hash) == 64:
             return {'type': 'key', 'salt': salt}
 
@@ -263,7 +451,13 @@ class AuthTypeHandler(BaseHandler):
     def post(self):
         username = json.loads(self.request.content.read())['username']
 
-        return get_auth_type(self.request.tid, username)
+        idp_claims = None
+
+        # No username with an identity provider configured: resolved by the identity on the request
+        if not username and State.tenants[self.request.tid].cache.idp and self.request.oidc_token:
+            idp_claims = self.request.oidc_token
+
+        return get_auth_type(self.request.tid, username, idp_claims)
 
 
 class AuthenticationHandler(BaseHandler):
@@ -280,13 +474,33 @@ class AuthenticationHandler(BaseHandler):
         if tid == 0:
             tid = self.request.tid
 
-        session = yield login(tid,
-                              request['username'],
-                              request['password'],
-                              request['authcode'],
-                              self.request.client_using_tor,
-                              self.request.client_ip,
-                              self.get_dpop_thumbprint())
+        idp_subject = None
+        session = None
+
+        if State.tenants[tid].cache.idp:
+            if not self.request.oidc_token:
+                raise errors.InvalidAuthentication
+
+            idp_subject = self.request.oidc_token.get('sub')
+
+            # No password: the account was provisioned by the identity provider and the user must
+            # set one
+            if not request['password']:
+                session = yield login_idp(tid,
+                                          self.request.oidc_token,
+                                          self.request.client_using_tor,
+                                          self.request.client_ip,
+                                          self.get_dpop_thumbprint())
+
+        if session is None:
+            session = yield login(tid,
+                                  request['username'],
+                                  request['password'],
+                                  request['authcode'],
+                                  self.request.client_using_tor,
+                                  self.request.client_ip,
+                                  self.get_dpop_thumbprint(),
+                                  idp_subject)
 
 
         if tid != self.request.tid:
@@ -381,6 +595,12 @@ class SessionHandler(BaseHandler):
         """
         request = self.validate_request(self.request.content.read(), requests.SessionUpdateDesc)
 
+        if State.tenants[self.request.tid].cache.idp:
+            # With an identity provider configured the renewal requires a valid token for the
+            # identity bound to the account
+            if not self.request.oidc_token or self.request.oidc_token.get('sub') != self.session.idp_id:
+                raise errors.InvalidAuthentication
+
         try:
             self.session.token.validate(request['token'].encode().split(b":")[1])
             Sessions.reset_timeout(self.session)
@@ -464,10 +684,13 @@ class RoleAuthSwitchHandler(BaseHandler):
                                role,
                                self.session.cc,
                                self.session.ek,
-                               permissions=self.session.permissions)
+                               permissions=self.session.permissions,
+                               sk=self.session.sk)
 
-        # The redirect is spent through the token login, that alone can adopt
-        # the session and bind it to the key of the client presenting it
+        # Same user on the same tenant: the identity binding is kept
+        session.idp_id = self.session.idp_id
+
+        # Spent through the token login, which binds the session to the key of the client
         session.properties['authtoken'] = True
 
         return {'redirect': '/#/login?token=%s' % (session.id)}
