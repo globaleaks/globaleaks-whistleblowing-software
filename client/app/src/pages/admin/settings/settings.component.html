@@ -12,6 +12,9 @@
     <ng-template srcTab="text_customization" title="Text customization" [visible]="isAdmin">
       <src-tab4 [contentForm]="contentForm"></src-tab4>
     </ng-template>
+    <ng-template srcTab="authentication" title="Authentication" [visible]="isAdmin">
+      <src-tab5 [contentForm]="contentForm"></src-tab5>
+    </ng-template>
     <ng-template srcTab="backup" title="Backup" [visible]="isRootTenantAdmin">
       <src-tab6 [contentForm]="contentForm"></src-tab6>
     </ng-template>

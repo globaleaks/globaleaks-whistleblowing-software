@@ -36,7 +36,19 @@
     </button>
     <span id="forgot-button">
       <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
-    </span>  </div>
+    </span>
+    <!--
+      The support is offered where the password is asked to an user already
+      identified by the identity provider: the account is known, so the request
+      reaches the administrators as one of that account and they can answer it
+      by sending it a reset link.
+    -->
+    @if (authentication.idpIdentityBound) {
+      <a class="btn" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
+        <i class="fas fa-life-ring"></i>
+      </a>
+    }
+  </div>
 }
 @if (authentication.requireAuthCode) {
   <div>

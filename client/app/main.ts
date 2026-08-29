@@ -49,6 +49,7 @@ import { provideRouter } from "@angular/router";
 import { ApplicationRef, enableProdMode, provideZonelessChangeDetection } from '@angular/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import Flow from "@flowjs/flow.js";
+import { provideOAuthClient } from "angular-oauth2-oidc";
 
 enableProdMode();
 
@@ -100,6 +101,7 @@ bootstrapApplication(AppComponent, {
 	  }
         },
         { provide: 'MockEngine', useValue: mockEngine },
+        provideOAuthClient(),
         provideHttpClient(withInterceptorsFromDi())
     ]
 }).then(moduleRef => {

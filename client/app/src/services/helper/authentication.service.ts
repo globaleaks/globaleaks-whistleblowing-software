@@ -13,6 +13,8 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {OAuthService} from "angular-oauth2-oidc";
+import {IdpService} from "@app/services/root/idp.service";
 
 @Injectable({
   providedIn: "root"
@@ -26,6 +28,8 @@ export class AuthenticationService {
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
   private cryptoService = inject(CryptoService);
+  private oauthService = inject(OAuthService);
+  private idpService = inject(IdpService);
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }
@@ -40,6 +44,55 @@ export class AuthenticationService {
     this.requireUsername = false;
     this.loginData = new LoginDataRef();
   };
+
+  /**
+   * Resolve the account bound to the identity authenticated on the identity
+   * provider
+   *
+   * The account bound to the identity is resolved by the backend and presented
+   * to its user, that is asked for its password alone; an identity not bound to
+   * any account yet requires instead the user to identify the account that the
+   * identity is going to be bound to on this first authentication, or is
+   * provisioned an account of its own when the site is configured to do so.
+   */
+  async checkIdpBinding() {
+    if (!this.appDataService.public.node.idp || !this.oauthService.hasValidIdToken()) {
+      return;
+    }
+
+    try {
+      const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({"username": ""}), this.getHeader()));
+
+      // An identity for which an account is provisioned is authenticated by the
+      // identity provider alone; its user is then required to set a password
+      if (res.type === "provisioning") {
+        this.requireUsername = false;
+        this.loginData.loginUsername = "";
+        await this.login(0, "", "", "");
+        return;
+      }
+
+      this.requireUsername = res.type === "binding";
+      this.loginData.loginUsername = res.username || "";
+    } catch (_) {
+      this.requireUsername = true;
+    }
+  }
+
+  /**
+   * True when the identity authenticated on the identity provider is bound to
+   * an account of the platform.
+   *
+   * The account is resolved by the backend from the identity itself, so a
+   * request carrying the token of that identity is attributed to it even
+   * before the password completes the login. An identity still to be bound
+   * identifies no account, and whoever presents it is anybody.
+   */
+  get idpIdentityBound(): boolean {
+    return !!this.appDataService.public.node.idp &&
+      this.oauthService.hasValidIdToken() &&
+      !this.requireUsername;
+  }
 
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
@@ -58,6 +111,10 @@ export class AuthenticationService {
   }
 
   private performLogout() {
+    if (this.appDataService.public.node.idp) {
+      this.idpService.restartLogin();
+      return;
+    }
     const tenantBasePath = this.getTenantBasePath();
     const loginPath = tenantBasePath ? `${tenantBasePath}/#/login` : "/#/login";
     window.location.replace(loginPath);
@@ -65,6 +122,9 @@ export class AuthenticationService {
 
   setSession(response: Session) {
     this.session = response;
+    if (this.appDataService.public.node.idp && this.oauthService.hasValidIdToken()) {
+      this.idpService.setupAutomaticRefresh();
+    }
   }
 
   resetPassword(username: string) {
@@ -94,6 +154,14 @@ export class AuthenticationService {
         if (password) {
             if (username === "whistleblower") {
               password = password.replace(/\D/g, "");
+            }
+
+            // An account already bound to the identity authenticated on the
+            // identity provider is resolved by the backend via the identity
+            // itself; the username is submitted only to bind an identity that
+            // is not bound to any account yet
+            if (this.appDataService.public.node.idp && username !== "whistleblower" && !this.requireUsername) {
+              username = "";
             }
 
             const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': username !== "whistleblower" ? username : ""}), username !== "whistleblower" ? authHeader : undefined));
@@ -249,6 +317,14 @@ export class AuthenticationService {
 
   public getHeader(confirmation?: string): HttpHeaders {
     let headers = new HttpHeaders();
+
+    // The identity is attested to the backend by the ID token: the access
+    // token is a credential towards the APIs of the IdP, that the platform
+    // never calls, and with some IdPs it is not even a JWT
+    if (this.oauthService.hasValidIdToken()) {
+      const token = this.oauthService.getIdToken();
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
 
     if (this.session) {
       headers = headers.set('X-Session', this.session.id);
