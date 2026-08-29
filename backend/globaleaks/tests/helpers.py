@@ -446,7 +446,11 @@ class MockDict:
             'custom_support_url': '',
             'pgp': False,
             'user_privacy_policy_text': '',
-            'user_privacy_policy_url': ''
+            'user_privacy_policy_url': '',
+            'backup_enabled': True,
+            'backup_time': '',
+            'backup_period': 1,
+            'backup_retention': 7,
         }
 
         self.dummyNetwork = {

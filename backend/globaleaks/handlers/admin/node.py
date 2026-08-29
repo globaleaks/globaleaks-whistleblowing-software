@@ -1,4 +1,6 @@
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, returnValue
+
+from globaleaks.state import State
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.db.appdata import load_appdata
@@ -92,6 +94,13 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
+    # The backup feature is configurable on the primary tenant only: its
+    # variables are dropped from the requests of any other context,
+    # secondary tenants and profiles alike
+    if tid != 1:
+        for var in ['backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
+            request.pop(var, None)
+
     config = ConfigFactory(session, tid)
 
     config.update('node', request)
@@ -139,6 +148,11 @@ class NodeInstance(BaseHandler):
                        self.request.language,
                        config_desc=config[0])
 
+        if ret.get("backup_enabled"):
+            backup_job = State.jobs_status.get("Backup", None)
+            if backup_job:
+                ret["backup_job_status"] = backup_job["status"]
+
         return ret
 
     @inlineCallbacks
@@ -156,5 +170,22 @@ class NodeInstance(BaseHandler):
                        self.session,
                        request,
                        self.request.language)
+
+        # Backup is a global (tenant 1) feature: keep the Backup job lifecycle
+        # in sync with its configuration so that disabling it actually stops the
+        # running job rather than leaving it looping as a no-op.
+        if self.request.tid == 1 and 'backup_enabled' in request:
+            # Imported lazily: the jobs package imports this module at load time.
+            from globaleaks.jobs.job import reschedule_job, stop_job
+            if request['backup_enabled']:
+                # Re-arm rather than start: the job is already running since
+                # startup, so this is what makes a changed backup time/period
+                # actually take effect (get_delay is recomputed).
+                reschedule_job("Backup")
+                backup_job = State.jobs_status.get("Backup", None)
+                if backup_job:
+                    ret["backup_job_status"] = backup_job["status"]
+            else:
+                yield stop_job("Backup")
 
         return ret
