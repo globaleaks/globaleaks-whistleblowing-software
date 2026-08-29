@@ -1941,6 +1941,12 @@
       "zh_HK": "ID: {TipNum}\n日期：{SubmissionDate}\n標籤：{TipLabel}\n狀態：{TipStatus}\n\n{QuestionnaireAnswers}\n{Comments}",
       "zh_TW": "ID: {TipNum}\n日期: {SubmissionDate}\n標誌: {TipLabel}\n狀態: {TipStatus}\n\n{QuestionnaireAnswers}\n{Comments}"
     },
+    "transmission_mail_template": {
+      "en": "Dear {RecipientName},\n\nThis is an email to notify you that a report has been forwarded to: {TransmissionTenantName}\n\nThe report can be accessed at:\n{Url}\n\nKind regards,\n{NodeName}"
+    },
+    "transmission_mail_title": {
+      "en": "New forward"
+    },
     "https_certificate_expiration_mail_template": {
       "am": "ውድ {RecipientName},\n\nየመሳርያ ስርኣቱ ላይ የተጫነው የኤችቲቲፒኤስ ምስክር መረቀት ተቃጥሏል\n\nወይም ሊቃጠል ነው፡፡\n\nየመቃጠያ ቀን፡- {ExpirationDate}\n\nየሚሠራ ሰርቲፊኬት ከሌለ የመሳርያ ስርኣቱን በተጠበቀ ሁኔታ ለመድረስ\n\nየሚቻለው በቶር ብቻ ነው፡፡\n\nችግሩን ለመፍታት ግቡ፡፡\n\n{LoginUrl}\n\nከትህትና ጋር\n{NodeName}",
       "ar": "عزيزي {RecipientName},\n\nشهادة HTTPS التي تم تحميلها على النظام الأساسي ستنتهي صلاحيتها أو انتهت صلاحيتها بالفعل.\n\nتاريخ إنتهاء الصلوحية : {ExpirationDate}\n\nبدون شهادة صالحة، يمكن الوصول إلى المنصة بطريقة آمنة فقط عبر متصفح تور.\n\nسجل الدخول لحل المشكلة.\n\n{LoginUrl}\n\nأطيب التحيّات،\n{NodeName}",

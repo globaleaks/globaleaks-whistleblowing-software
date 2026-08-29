@@ -3,7 +3,7 @@
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-1">
-          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Home' | translate">
+          <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Back' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
             <i class="fas fa-arrow-left"></i>
           </a>
 
@@ -30,7 +30,7 @@
   </div>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header>
           <tr>
             <th>
@@ -63,7 +63,7 @@
           </tr>
         </ng-template>
         <ng-template #content let-tip="item" let-index="index">
-          <tr id="tip-{{index}}" class="tip-action-open" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="utils.go('/reports/' + tip.id)">
+          <tr id="tip-{{index}}" [class.tip-action-open]="tip.accessible" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="tip.accessible && utils.go('/reports/' + tip.id)">
             <td>
               @if (isSelected(tip.id)) {
                 <span (click)="tipSwitch(tip.id); $event.stopPropagation();">

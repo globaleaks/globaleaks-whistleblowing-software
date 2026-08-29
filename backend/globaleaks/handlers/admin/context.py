@@ -1,10 +1,17 @@
+import re
+
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
-from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_profile_children
+from globaleaks.models.exchanges import db_channel_of_an_exchange, \
+                                        db_exchange_types_of_channel, \
+                                        db_get_exchange_channel_ids, \
+                                        db_is_exchange_channel
+from globaleaks.models.config import DEFAULT_PROFILE_ID, \
+    db_get_profile_children
 from globaleaks.orm import db_add, db_del, db_get, transact
 from globaleaks.rest import requests, errors
 
@@ -24,8 +31,12 @@ CONTEXT_TEMPLATE_COLUMNS = [
     'score_threshold_medium',
     'questionnaire_id',
     'additional_questionnaire_id',
+    'slug',
     'hidden',
-    'order'
+    'order',
+    'exchange',
+    'internally_available',
+    'provide_access_code'
 ]
 
 
@@ -76,6 +87,10 @@ def db_sync_derived_contexts(session, template):
             setattr(derived, column, getattr(template, column))
 
 
+def normalize_context_slug(slug):
+    return re.sub(r'[^a-z0-9]+', '-', (slug or '').lower()).strip('-')
+
+
 def admin_serialize_context(session, context, language):
     """
     Serialize the specified context
@@ -106,10 +121,18 @@ def admin_serialize_context(session, context, language):
         'show_steps_navigation_interface': context.show_steps_navigation_interface,
         'questionnaire_id': context.questionnaire_id,
         'additional_questionnaire_id': context.additional_questionnaire_id,
+        'slug': context.slug,
         'template_id': context.template_id,
         # The user profiles whose users receive on the channel
         'profiles': [p[0] for p in session.query(models.UserProfileContext.profile_id)
                                           .filter(models.UserProfileContext.context_id == context.id)],
+        'exchange': context.exchange,
+        'internally_available': context.internally_available,
+        'provide_access_code': context.provide_access_code,
+        # A channel an exchange runs through is not dropped while it does,
+        # and is known on the site by the kinds of exchange it carries
+        'exchange_in_use': db_channel_of_an_exchange(session, context),
+        'exchange_types': db_exchange_types_of_channel(session, context),
         'receivers': receivers,
         'picture': picture
     }
@@ -275,6 +298,7 @@ def fill_context_request(tid, request, language):
     """
     request['tid'] = tid
     fill_localized_keys(request, models.Context.localized_keys, language)
+    request['slug'] = normalize_context_slug(request.get('slug', ''))
 
     if not request['allow_recipients_selection']:
         request['select_all_receivers'] = True
@@ -332,6 +356,35 @@ def create_context(session, tid, user_session, request, language):
     return admin_serialize_context(session, context, language)
 
 
+def db_update_exchange_channel(session, tid, context, request, language):
+    """
+    Update a channel of the exchanges with what is decided of it
+
+    Such a channel carries the name the exchanges running through it are known
+    by on this side, the recipients that take part in them and, where the
+    reports live here, the questionnaire composing them and how long they
+    last. What a channel configures for the reporting people has no part in
+    it: they neither reach it nor are offered it, and it is not written here.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param context: The channel
+    :param request: The request data
+    :param language: The request language
+    """
+    fill_localized_keys(request, ['name'], language)
+
+    check_context_questionnaire_association(session, tid, request)
+
+    context.name = request['name']
+    context.questionnaire_id = request.get('questionnaire_id') or 'default'
+    context.tip_timetolive = max(0, request.get('tip_timetolive', 0))
+    context.tip_reminder = max(0, request.get('tip_reminder', 0))
+
+    db_associate_context_receivers(session, context, request['receivers'])
+    db_associate_context_profiles(session, context, request.get('profiles'))
+
+
 def db_update_context(session, tid, context, request, language):
     """
     Transaction for updating a context
@@ -356,7 +409,7 @@ def db_update_context(session, tid, context, request, language):
 
 
 @transact
-def update_context(session, tid, context_id, request, language):
+def update_context(session, tid, context_id, request, language, root_session=False):
     """
     Transaction for updating a context
 
@@ -365,6 +418,8 @@ def update_context(session, tid, context_id, request, language):
     :param context_id: The ID of object to be updated
     :param request: The request data
     :param language: The request language
+    :param root_session: Whether the operation is performed by the
+        administrators of the platform
     :return: A serialized descriptor of the context
     """
     context = db_get(session,
@@ -372,10 +427,29 @@ def update_context(session, tid, context_id, request, language):
                      (models.Context.tid == tid,
                       models.Context.id == context_id))
 
+    # A channel of the exchanges belongs to the exchanges that run through it:
+    # it is configured by the administrators of the platform, that established
+    # them, entering the site holding it. The administrators of the site read
+    # it where it lives but do not write it
+    if db_is_exchange_channel(session, context) and not root_session:
+        raise errors.ForbiddenOperation
+
     # The configuration of a derived channel is inherited from its template
     # and is never written directly: only its receivers belong to the tenant
     if context.template_id:
         db_associate_context_receivers(session, context, request['receivers'])
+        return admin_serialize_context(session, context, language)
+
+    # A channel of the exchanges carries the name they are known by, the
+    # recipients that take part in them and the questionnaire and the
+    # retention of what lives here: the rest of what a channel configures is
+    # for the reporting people, that do not reach it, and is not written here
+    if db_is_exchange_channel(session, context):
+        db_update_exchange_channel(session, tid, context, request, language)
+
+        if tid >= DEFAULT_PROFILE_ID:
+            db_sync_derived_contexts(session, context)
+
         return admin_serialize_context(session, context, language)
 
     context = db_update_context(session, tid, context, request, language)
@@ -404,7 +478,7 @@ def order_elements(session, tid, ids, *args, **kwargs):
 
 
 @transact
-def delete_context(session, tid, context_id):
+def delete_context(session, tid, context_id, root_session=False):
     context = db_get(session,
                      models.Context,
                      (models.Context.tid == tid,
@@ -415,13 +489,23 @@ def delete_context(session, tid, context_id):
     if context.template_id:
         raise errors.ForbiddenOperation
 
+    # A channel of the exchanges is dropped by the administrators of the
+    # platform, as it is configured by them
+    if context.exchange and not root_session:
+        raise errors.ForbiddenOperation
+
     # The template is deleted with the channels derived from it: none of them
-    # can be deleted while it holds reports
+    # can be deleted while an exchange runs through it or while it holds
+    # reports
     contexts = [context] + session.query(models.Context) \
                                   .filter(models.Context.template_id == context_id) \
                                   .all()
 
     for c in contexts:
+        if c.id in db_get_exchange_channel_ids(session, c.tid):
+            raise errors.ForbiddenOperation
+
+
         # TODO: After release 5.1.0 it will be possible to delete this code
         if session.query(models.InternalTip).filter(models.InternalTip.context_id == c.id).count():
             raise errors.ForbiddenOperation
@@ -474,7 +558,8 @@ class ContextInstance(BaseHandler):
         return update_context(self.request.tid,
                               context_id,
                               request,
-                              self.request.language)
+                              self.request.language,
+                              self.root_or_management_session())
 
     def delete(self, context_id):
         """
@@ -482,4 +567,5 @@ class ContextInstance(BaseHandler):
         """
         self.check_confirmation()
 
-        return delete_context(self.request.tid, context_id)
+        return delete_context(self.request.tid, context_id,
+                              self.root_or_management_session())

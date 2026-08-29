@@ -1,0 +1,59 @@
+<div id="Toolbar" class="row">
+  <div class="col-md-12">
+    <div class="d-flex align-items-center gap-1">
+      <a id="link-home" routerLink="/recipient/home" ngbTooltip="{{'Back' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+
+      @if (available) {
+        <button id="transmission-action-transmit" type="button" (click)="transmitReport()"
+          class="btn btn-outline-secondary">
+          <i class="fas fa-file-pen"></i>
+          <span>{{'Transmit report' | translate}}</span>
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+<div id="TransmissionList" class="row mt-2">
+  <div class="col-md-12 table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" class="TransmissionDate">
+            <i class="fas fa-clock"></i>
+            <span>{{'Date' | translate}}</span>
+          </th>
+          <th scope="col" class="TransmissionTenantName">
+            <i class="fas fa-sitemap"></i>
+            <span>{{'Organization' | translate}}</span>
+          </th>
+          <th scope="col" class="TransmissionChannel">
+            <i class="fas fa-inbox"></i>
+            <span>{{'Channel' | translate}}</span>
+          </th>
+          <th scope="col" class="TransmissionStatus">
+            <i class="fas fa-circle-dot"></i>
+            <span>{{'Status' | translate}}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (transmission of transmissions; track transmission.id) {
+          <tr [class.tip-action-open]="canOpen(transmission)" [class.disabled]="!canOpen(transmission)"
+              [attr.role]="canOpen(transmission) ? 'button' : null" (click)="open(transmission)">
+            <td class="TransmissionDate">{{transmission.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TransmissionTenantName">{{transmission.tenant_name}}</td>
+            <td class="TransmissionChannel">{{transmission.exchange_name}}</td>
+            <td class="TransmissionStatus">{{transmission.status | translate}}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (!loading && !transmissions.length) {
+      <div class="text-center">{{'No results found' | translate}}</div>
+    }
+  </div>
+</div>

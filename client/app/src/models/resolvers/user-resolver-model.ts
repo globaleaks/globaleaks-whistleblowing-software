@@ -21,7 +21,7 @@ export class UserProfile {
     can_manage_auditlog: boolean;
     can_manage_support: boolean;
     can_transfer_access_to_reports: boolean;
-    can_forward_reports: boolean;
+    can_send_communications: boolean;
     can_change_status: boolean;
     can_change_label: boolean;
     can_mask_information: boolean;

@@ -294,9 +294,7 @@ def db_serialize_node(session, tid, language):
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 
     if tid == 1:
-        # The signups, handled by the root tenant only, are authenticated
-        # against the IdP configured on the profile assigned to the tenants
-        # created via signup
+        # Signups are authenticated against the IdP of the signup profile
         ret.update(db_get_signup_idp_config(session, tid))
     else:
         root_tenant_node = ConfigFactory(session, 1)
@@ -328,6 +326,7 @@ def serialize_context(session, context, language, data=None):
     """
     ret = {
         'id': context.id,
+        'slug': context.slug,
         'hidden': context.hidden,
         'order': context.order,
         'tip_timetolive': context.tip_timetolive,
@@ -564,6 +563,7 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,
                                         models.Context.additional_questionnaire_id == models.Questionnaire.id),
                                     models.Context.tid == tid,
+                                    models.Context.exchange.is_(False),
                                     models.Context.hidden.is_(False))
 
     return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates, include_scoring=False) for questionnaire in questionnaires]
@@ -578,8 +578,10 @@ def db_get_contexts(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of contexts descriptors
     """
+    # A channel of the exchanges is neither reached nor offered to the reporting people
     contexts = session.query(models.Context) \
                       .filter(models.Context.tid == tid,
+                              models.Context.exchange.is_(False),
                               models.Context.hidden.is_(False))
 
     data = db_prepare_contexts_serialization(session, contexts)
@@ -624,6 +626,7 @@ def db_get_context(session, tid, context_id, language):
     context = db_get(session,
                      models.Context,
                      (models.Context.tid == tid,
+                      models.Context.exchange == False,
                       models.Context.id == context_id))
 
     data = db_prepare_contexts_serialization(session, [context])
