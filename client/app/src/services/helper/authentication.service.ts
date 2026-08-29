@@ -156,10 +156,8 @@ export class AuthenticationService {
               password = password.replace(/\D/g, "");
             }
 
-            // An account already bound to the identity authenticated on the
-            // identity provider is resolved by the backend via the identity
-            // itself; the username is submitted only to bind an identity that
-            // is not bound to any account yet
+            // An account bound to the identity is resolved by the backend via the identity; the
+            // username only binds an unbound one
             if (this.appDataService.public.node.idp && username !== "whistleblower" && !this.requireUsername) {
               username = "";
             }
@@ -196,7 +194,7 @@ export class AuthenticationService {
             if (response.role === "whistleblower") {
               response.homepage = "/";
             } else {
-               const role = response.role === "receiver" ? "recipient" : response.role;
+               const role = ["receiver", "transmitter"].includes(response.role) ? "recipient" : response.role;
                response.homepage = "/" + role + "/home";
                response.preferencespage = "/" + role + "/preferences";
             }
@@ -318,9 +316,8 @@ export class AuthenticationService {
   public getHeader(confirmation?: string): HttpHeaders {
     let headers = new HttpHeaders();
 
-    // The identity is attested to the backend by the ID token: the access
-    // token is a credential towards the APIs of the IdP, that the platform
-    // never calls, and with some IdPs it is not even a JWT
+    // The identity is attested by the ID token; the access token is a credential towards the APIs of
+    // the IdP
     if (this.oauthService.hasValidIdToken()) {
       const token = this.oauthService.getIdToken();
       headers = headers.set('Authorization', `Bearer ${token}`);

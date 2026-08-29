@@ -17,7 +17,7 @@ key_regexp = r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^[
 key_regexp_or_empty = r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^[a-z_]{0,100}$|^$'
 uuid_regexp = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 uuid_regexp_or_empty = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
-user_role_regexp = r'^(admin|analyst|auditor|custodian|receiver)$'
+user_role_regexp = r'^(admin|analyst|auditor|custodian|receiver|transmitter)$'
 default_user_profile_regexp = r'^(admin|analyst|custodian|recipient)$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
 profile_regexp = r'^default$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 email_regexp = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$'
@@ -309,6 +309,7 @@ AdminNetworkDesc = {
     'https_custodian': bool,
     'https_whistleblower': bool,
     'https_receiver': bool,
+    'https_transmitter': bool,
     'reachable_via_web': bool,
     'anonymize_outgoing_connections': bool,
     'ip_filter_admin_enable': bool,
@@ -318,7 +319,9 @@ AdminNetworkDesc = {
     'ip_filter_custodian_enable': bool,
     'ip_filter_custodian': str,
     'ip_filter_receiver_enable': bool,
-    'ip_filter_receiver': str
+    'ip_filter_receiver': str,
+    'ip_filter_transmitter_enable': bool,
+    'ip_filter_transmitter': str
 }
 
 AdminNotificationDesc = {
