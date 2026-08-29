@@ -1,12 +1,16 @@
 <div class="modal-header">
-  <h5 id="modal-title" class="modal-title">{{ 'Are you sure?' | translate }}</h5>
+  <h5 id="modal-title" class="modal-title">{{ title | translate }}</h5>
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
-<div class="modal-body"></div>
+<div class="modal-body">
+  @if (message) {
+    <p>{{ message | translate }}</p>
+  }
+</div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm(arg)">
     <i class="fas fa-check" aria-hidden="true"></i>
-    <span>{{ 'Yes' | translate }}</span>
+    <span>{{ confirmLabel | translate }}</span>
   </button>
   <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
     <i class="fas fa-xmark" aria-hidden="true"></i>

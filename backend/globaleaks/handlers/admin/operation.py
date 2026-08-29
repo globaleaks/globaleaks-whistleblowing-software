@@ -253,7 +253,7 @@ def reset_smtp_settings(session, tid, user_id):
 
 @transact
 def reset_templates(session, tid, user_id):
-    ConfigL10NFactory(session, tid).reset('notification', load_appdata())
+    ConfigL10NFactory(session, tid).reset('notification')
     db_log(session, tid=tid, type='reset_templates', user_id=user_id)
 
 

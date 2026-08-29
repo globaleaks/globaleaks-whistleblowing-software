@@ -1,21 +1,53 @@
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label for="user-privacy-policy-text">{{ 'Privacy Policy' | translate }}</label>
+<app-paginated-interface [items]="sharedProfiles" [filterField]="'name'" [orderBy]="'name'">
+  <ng-template #toolbar>
+    <button class="btn btn-primary show-add-profile-btn" (click)="toggleAddProfile()">
+      <i class="fas fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+    <span class="custom-file">
+      <input type="file" hidden #keyUploadInput (change)="importProfile(keyUploadInput)" />
+      <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-outline-secondary">
+        <i class="fas fa-upload"></i>
+        <span>{{ 'Import' | translate }}</span>
+      </label>
+    </span>
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddProfile) {
+      <div class="row config-section">
+        <div ngForm="newProfile" #newProfile="ngForm" class="addUser col-md-6">
+          <div class="form-group">
+            <label for="new-profile-name">{{ 'Name' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             <div>
-                <textarea id="user-privacy-policy-text" name="nodeData.user_privacy_policy_text" class="form-control" [(ngModel)]="nodeData.user_privacy_policy_text"></textarea>
+              <input id="new-profile-name" class="form-control" name="name" [(ngModel)]="new_profile.name" type="text" required />
             </div>
+          </div>
+          <div class="form-group">
+            <label for="new-profile-role">{{ 'Role' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <select id="new-profile-role" name="role" class="form-select-custom" [(ngModel)]="new_profile.role" required>
+                <option value="admin">{{ 'Admin' | translate }}</option>
+                <option value="analyst">{{ 'Analyst' | translate }}</option>
+                <option value="custodian">{{ 'Custodian' | translate }}</option>
+                <option value="receiver">{{ 'Recipient' | translate }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="add-btn" class="btn btn-primary" [disabled]="newProfile.invalid || !new_profile.role" (click)="addProfile(); toggleAddProfile()" type="submit">
+              <i class="fas fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </div>
         </div>
-        <div class="form-group">
-            <label for="user-privacy-policy-url">
-                <span>{{ 'Privacy Policy' | translate }}</span>
-                <span>(URL)</span>
-            </label>
-            <input id="user-privacy-policy-url" class="form-control" name="nodeData.user_privacy_policy_url" [(ngModel)]="nodeData.user_privacy_policy_url" type="text" />
-        </div>
-        <button class="btn btn-primary" id="save_user_policy" (click)="updateNode()">
-            <i class="fas fa-check"></i>
-            <span>{{ 'Save' | translate }}</span>
-        </button>
-    </div>
-</div>
+      </div>
+    }
+  </ng-template>
+  <ng-template #content let-item="item" let-index="index">
+    <form id="profile-{{index}}" class="profileList" name="editProfile" #editProfile="ngForm" novalidate>
+      <src-profile-editor [profile]="item" [editProfile]="editProfile" [index]="index" [profiles]="profilesData" (deleted)="onDelete($event)"></src-profile-editor>
+    </form>
+  </ng-template>
+</app-paginated-interface>

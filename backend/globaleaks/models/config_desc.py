@@ -1,7 +1,7 @@
 
 from globaleaks import __version__, DATABASE_VERSION
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import uuid4
+from globaleaks.utils.utility import datetime_never, uuid4
 
 
 class Item:
@@ -46,20 +46,26 @@ class List(Item):
         Item.__init__(self, *args, **kwargs)
 
 
+
 ConfigDescriptor = {
     'acme': Bool(default=False),
     'acme_accnt_key': Unicode(),
     'adminonly': Bool(default=False),
     'allow_indexing': Bool(default=True),
     'anonymize_outgoing_connections': Bool(default=False),
-    'counter_submissions': Int(default=0),
     'custom_support_url': Unicode(default=''),
+    'counter_profiles': Int(default=1000000),
+    'counter_submissions': Int(default=0),
+    'counter_tenants': Int(default=0),
     'crypto_escrow_prv_key': Unicode(default=''),
     'crypto_escrow_pub_key': Unicode(default=''),
+
     'crypto_stat_prv_key': Unicode(default=''),
     'crypto_stat_pub_key': Unicode(default=''),
     'default_language': Unicode(default='en'),
     'default_questionnaire': Unicode(default='default'),
+    'default_tip_timetolive': Int(default=90),  # Days
+    'demo': Bool(default=False),
     'description': Unicode(default='Secure reporting platform based on GlobaLeaks free and open-source whistleblowing software.'),
     'enable_admin_notification_emails': Bool(default=True),
     'enable_analyst_notification_emails': Bool(default=True),
@@ -70,6 +76,7 @@ ConfigDescriptor = {
     'enable_admin_exception_notification': Bool(default=False),
     'enable_custom_privacy_badge': Bool(default=False),
     'enable_developers_exception_notification': Bool(default=False),
+    'enable_onion': Bool(default=True),
     'enable_privacy_policy': Bool(default=False),
     'enable_scoring_system': Bool(default=False),
     'enable_signup': Bool(default=False),
@@ -79,6 +86,7 @@ ConfigDescriptor = {
     'whistleblowing_destination': Unicode(default='/submission'),
     'hostname': Unicode(default=''),
     'https_admin': Bool(default=True),
+    'https_accreditor': Bool(default=True),
     'https_analyst': Bool(default=True),
     'https_cert': Unicode(),
     'https_chain': Unicode(),
@@ -101,12 +109,13 @@ ConfigDescriptor = {
     'log_accesses_of_internal_users': Bool(default=True),
     'log_level': Unicode(default='ERROR'),
     'maximum_filesize': Int(default=30),
-    'mode': Unicode(default='default'),
     'name': Unicode(default='GLOBALEAKS'),
     'onionservice': Unicode(default=''),
     'password_change_period': Int(default=365),  # Days
     'pgp': Bool(default=False),
     'protected_users': List(),  # List of ids of users protected from deletion and password reset
+    'profile': Unicode(default=uuid4),
+
     'reachable_via_web': Bool(default=True),
     'receipt_salt': Unicode(default=GCE.generate_salt),
     'rootdomain': Unicode(default=''),
@@ -163,13 +172,15 @@ ConfigDescriptor = {
     'version_db': Int(default=DATABASE_VERSION),
     'wizard_done': Bool(default=False),
     'uuid': Unicode(default=uuid4),
+    'default_user_profile': Unicode(default='recipient'),
+    'antivirus_enabled': Bool(default=False),
+    'antivirus_clamd_ip': Unicode(default='localhost'),
+    'antivirus_clamd_port': Int(default=3310),
     'backup_enabled': Bool(default=False),
     'backup_time': Unicode(default='02:00'),
     'backup_period': Int(default=24),
-    'backup_retention': Int(default=7),
-    'antivirus_enabled': Bool(default=False),
-    'antivirus_clamd_ip': Unicode(default='localhost'),
-    'antivirus_clamd_port': Int(default=3310)
+    'backup_retention': Int(default=7)
+
 }
 
 
@@ -179,12 +190,17 @@ ConfigFilters = {
         'adminonly',
         'allow_indexing',
         'anonymize_outgoing_connections',
+        'counter_profiles',
         'counter_submissions',
+        'counter_tenants',
         'custom_support_url',
         'crypto_escrow_pub_key',
+
         'crypto_stat_pub_key',
         'default_language',
         'default_questionnaire',
+        'default_tip_timetolive',
+        'demo',
         'description',
         'disable_privacy_badge',
         'disable_submissions',
@@ -192,6 +208,7 @@ ConfigFilters = {
         'enable_admin_exception_notification',
         'enable_custom_privacy_badge',
         'enable_developers_exception_notification',
+        'enable_onion',
         'enable_privacy_policy',
         'enable_scoring_system',
         'enable_signup',
@@ -202,10 +219,12 @@ ConfigFilters = {
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor',
         'https_custodian',
         'https_enabled',
         'https_receiver',
         'https_whistleblower',
+        'default_user_profile',
         'ip_filter_admin',
         'ip_filter_admin_enable',
         'ip_filter_analyst',
@@ -218,11 +237,11 @@ ConfigFilters = {
         'log_accesses_of_internal_users',
         'log_level',
         'maximum_filesize',
-        'mode',
         'name',
         'onionservice',
         'password_change_period',
         'pgp',
+        'profile',
         'reachable_via_web',
         'receipt_salt',
         'rootdomain',
@@ -262,12 +281,14 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'backup_enabled',
+
         'backup_time',
         'backup_period',
         'backup_retention',
         'antivirus_enabled',
         'antivirus_clamd_ip',
-        'antivirus_clamd_port'
+        'antivirus_clamd_port',
+
     ],
     'admin_node': [
         'acme',
@@ -276,12 +297,16 @@ ConfigFilters = {
         'custom_support_url',
         'default_language',
         'default_questionnaire',
+        'default_tip_timetolive',
+        'demo',
+        'profile',
         'description',
         'disable_privacy_badge',
         'disable_submissions',
         'enable_admin_exception_notification',
         'enable_custom_privacy_badge',
         'enable_developers_exception_notification',
+        'enable_onion',
         'enable_privacy_policy',
         'enable_scoring_system',
         'enable_signup',
@@ -294,7 +319,6 @@ ConfigFilters = {
         'log_accesses_of_internal_users',
         'log_level',
         'maximum_filesize',
-        'mode',
         'name',
         'onionservice',
         'password_change_period',
@@ -336,19 +360,24 @@ ConfigFilters = {
         'wizard_done',
         'uuid',
         'unread_reminder_time',
+        'proxy_idp_enabled',
+
         'backup_enabled',
         'backup_period',
         'backup_retention',
         'backup_time',
         'antivirus_enabled',
         'antivirus_clamd_ip',
-        'antivirus_clamd_port'
+        'antivirus_clamd_port',
+        'default_user_profile',
+
     ],
     'admin_network': [
         'anonymize_outgoing_connections',
         'hostname',
         'https_admin',
         'https_analyst',
+        'https_accreditor',
         'https_custodian',
         'https_receiver',
         'https_whistleblower',
@@ -404,6 +433,7 @@ ConfigFilters = {
     'public_node': [
         'adminonly',
         'custom_support_url',
+        'demo',
         'default_language',
         'default_questionnaire',
         'description',
@@ -418,7 +448,6 @@ ConfigFilters = {
         'https_whistleblower',
         'maximum_filesize',
         'name',
-        'mode',
         'onionservice',
         'pgp',
         'receipt_salt',
@@ -429,14 +458,22 @@ ConfigFilters = {
         'simplified_login',
         'subdomain',
         'wizard_done',
+        'uuid',
+        'proxy_idp_enabled',
+        'antivirus_enabled',
+        'backup_enabled',
+        'antivirus_clamd_ip',
+        'antivirus_clamd_port'
     ],
     'tenant': [
+        'uuid',
         'hostname',
-        'mode',
         'name',
         'onionservice',
         'subdomain',
-        'rootdomain'
+        'rootdomain',
+        'default_user_profile',
+
     ]
 }
 
@@ -460,7 +497,7 @@ ConfigL10NFilters = {
         'signup_tos2_text',
         'signup_tos2_checkbox_label',
         'user_privacy_policy_text',
-        'user_privacy_policy_url',
+        'user_privacy_policy_url'
     ],
 
     'notification': [

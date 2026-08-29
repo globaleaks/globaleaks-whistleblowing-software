@@ -3,7 +3,7 @@ import os
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models.config import ConfigFactory
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_pid
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.fs import directory_traversal_check, read_json_file
@@ -29,17 +29,21 @@ def get_l10n(session, tid, lang):
     :param lang: A requested language
     :return: A dictionary containing the custom texts configured for a specific language
     """
-    if tid != 1:
-        config = ConfigFactory(session, tid)
-
-        if config.get_val('mode') != 'default':
-            tid = 1
-
     path = langfile_path(lang)
     directory_traversal_check(Settings.client_path, path)
 
-    custom_texts = session.query(models.CustomTexts).filter(models.CustomTexts.lang == lang, models.CustomTexts.tid == tid).one_or_none()
-    custom_texts = custom_texts.texts if custom_texts is not None else {}
+    # Custom texts are resolved following the inheritance chain
+    # default profile < tenant profile < tenant
+    lookup_tids = [DEFAULT_PROFILE_ID, db_get_pid(session, tid), tid]
+
+    custom_texts = {}
+    for lookup_tid in lookup_tids:
+        if lookup_tid is None:
+            continue
+
+        texts = session.query(models.CustomTexts).filter(models.CustomTexts.lang == lang, models.CustomTexts.tid == lookup_tid).one_or_none()
+        if texts is not None:
+            custom_texts.update(texts.texts)
 
     texts = read_json_file(path)
 

@@ -10,14 +10,18 @@
               class="btn btn-outline-secondary" [attr.aria-label]="'Reports' | translate">
               <i class="fas fa-arrow-left"></i>
             </a>
-            <button id="tip-action-star" type="button" (click)="tipToggleStar()"
-              ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Mark as important' | translate">
-              <i class="fas fa-star" [class.text-warning]="tip && tip.important"></i>
-            </button>
-            <button id="tip-action-reminder" type="button" (click)="setReminder()"
-              ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
-              <i class="fas" [class.fa-bell]="!utils.isNever(tip.reminder_date)" [class.fa-bell-slash]="tip && utils.isNever(tip.reminder_date)" [class.text-warning]="tip && utils.isDatePassed(tip.reminder_date)"></i>
-            </button>
+            @if (canMarkImportant()) {
+              <button id="tip-action-star" type="button" (click)="tipToggleStar()"
+                ngbTooltip="{{'Mark as important' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Mark as important' | translate">
+                <i class="fas fa-star" [class.text-warning]="tip && tip.important"></i>
+              </button>
+            }
+            @if (canSetReminder()) {
+              <button id="tip-action-reminder" type="button" (click)="setReminder()"
+                ngbTooltip="{{'Set a reminder' | translate}}" class="btn btn-outline-secondary">
+                <i class="fas" [class.fa-bell]="!utils.isNever(tip.reminder_date)" [class.fa-bell-slash]="tip && utils.isNever(tip.reminder_date)" [class.text-warning]="tip && utils.isDatePassed(tip.reminder_date)"></i>
+              </button>
+            }
             @if (tip && !tip.enable_notifications) {
               <button id="tip-action-notify" type="button" (click)="tipNotify(true)"
                 ngbTooltip="{{'Turn on email notifications' | translate}}"
@@ -34,14 +38,14 @@
             }
 
             <!-- Access Management Dropdown -->
-            @if (preferencesService.dataModel.can_grant_access_to_reports || preferencesService.dataModel.can_transfer_access_to_reports) {
+            @if (preferencesService.dataModel.profile.permissions.can_grant_access_to_reports || preferencesService.dataModel.profile.permissions.can_transfer_access_to_reports) {
               <div id="usersDropdown" class="btn-group" ngbDropdown placement="bottom-left">
                 <button id="usersDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
                   ngbTooltip="{{'Users' | translate}}">
                   <i class="fas fa-users"></i>
                 </button>
                 <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="usersDropdownButton">
-                  @if (preferencesService.dataModel.can_grant_access_to_reports) {
+                  @if (preferencesService.dataModel.profile.permissions.can_grant_access_to_reports) {
                     <button id="tip-action-grant-access" class="dropdown-item" type="button" (click)="openGrantTipAccessModal()" [attr.aria-label]="'Grant access' | translate">
                       <i class="fas fa-user-plus me-2"></i>{{'Grant access' | translate}}
                     </button>
@@ -49,7 +53,7 @@
                       <i class="fas fa-user-minus me-2"></i>{{'Revoke access' | translate}}
                     </button>
                   }
-                  @if (preferencesService.dataModel.can_transfer_access_to_reports) {
+                  @if (preferencesService.dataModel.profile.permissions.can_transfer_access_to_reports) {
                     <button id="tip-action-transfer-access" class="dropdown-item" type="button" (click)="openTipTransferModal()" [attr.aria-label]="'Transfer access' | translate">
                       <i class="fas fa-people-arrows me-2"></i>{{'Transfer access' | translate}}
                     </button>
@@ -58,44 +62,60 @@
               </div>
             }
 
+            @if (hasActions()) {
             <div id="actionsDropdown" class="btn-group" ngbDropdown placement="bottom-left">
               <button id="actionsDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
                 ngbTooltip="{{'Options' | translate}}">
                 <i class="fas fa-gear"></i>
               </button>
               <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="actionsDropdownButton">
-                @if (preferencesService.dataModel.can_postpone_expiration) {
-                  <button id="tip-action-postpone" class="dropdown-item" type="button" (click)="tipPostpone()" [attr.aria-label]="'Edit the expiration date' | translate">
-                    <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
-                  </button>
+                @if (canEditExpiration()) {
+                    <button id="tip-action-postpone" class="dropdown-item" type="button" (click)="tipPostpone()" [attr.aria-label]="'Edit the expiration date' | translate">
+                      <i class="fas fa-clock me-2"></i>{{'Edit the expiration date' | translate}}
+                    </button>
                 }
-                @if ((preferencesService.dataModel.can_redact_information || preferencesService.dataModel.can_mask_information)) {
+                @if (canMaskOrRedact()) {
                   <button id="tip-action-mask" class="dropdown-item" type="button" (click)="toggleRedactMode()" [class.active]="redactMode" [attr.aria-label]="'Mask' | translate">
                     <i class="fas fa-eraser me-2"></i>{{'Mask' | translate}}
                   </button>
                 }
-                @if (tip.status !== 'closed') {
+                @if (canChangeStatus() && tip.status !== 'closed') {
                   <button id="tip-action-change-status" class="dropdown-item" type="button" (click)="openModalChangeState()" [attr.aria-label]="'Change status' | translate">
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
-                @if (tip.status === 'closed') {
+                @if (canAuthorizeForward()) {
+                  <button id="tip-action-authorize-forward" class="dropdown-item" type="button" (click)="authorizeForward()" [attr.aria-label]="'Authorize forward' | translate">
+                    <i class="fas fa-check me-2"></i>{{'Authorize forward' | translate}}
+                  </button>
+                }
+                @if (canGetAccessCode()) {
+                  <button id="tip-action-access-code" class="dropdown-item" type="button" (click)="getAccessCode()" [attr.aria-label]="'Get access code' | translate">
+                    <i class="fas fa-key me-2"></i>{{'Get access code' | translate}}
+                  </button>
+                }
+                @if (canDenyForward()) {
+                  <button id="tip-action-deny-forward" class="dropdown-item" type="button" (click)="denyForward()" [attr.aria-label]="'Deny forward' | translate">
+                    <i class="fas fa-xmark me-2"></i>{{'Deny forward' | translate}}
+                  </button>
+                }
+                @if (canChangeStatus() && tip.status === 'closed') {
                   <button id="tip-action-reopen" class="dropdown-item" type="button" (click)="openModalReopen()" [attr.aria-label]="'Reopen' | translate">
                     <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
                   </button>
                 }
-                @if (preferencesService.dataModel.can_delete_submission) {
+                @if (canDeleteReport()) {
                   <button id="tip-action-delete-report" class="dropdown-item text-danger" type="button" (click)="tipDelete()" [attr.aria-label]="'Delete' | translate">
                     <i class="fas fa-trash me-2"></i>{{'Delete' | translate}}
                   </button>
                 }
               </div>
             </div>
+            }
           </div>
 
           <!-- Right side - Export, Logs, and Refresh only -->
           <div class="d-flex align-items-center gap-1">
-
             <!-- Export Dropdown -->
             <div id="exportDropdown" class="btn-group" ngbDropdown placement="bottom-right">
               <button id="exportDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
@@ -121,8 +141,24 @@
         </div>
       </div>
     </div>
+    @if (accessCode) {
+      <div class="row">
+        <div class="col-md-12">
+          <div id="AccessCodeBox" class="alert alert-info d-flex align-items-center justify-content-between">
+            <span>
+              <span>{{ 'Access code of the whistleblower' | translate }}:</span>
+              <strong id="AccessCode" class="ms-2">{{ accessCode }}</strong>
+            </span>
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="accessCode = ''" [attr.aria-label]="'Close' | translate">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
     <div class="row justify-content-between">
       <div class="col-md-12">
+        @if (canChangeLabel()) {
         <div id="TipLabelBox" class="float-start">
           <span class="input-group ms-1">
             <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
@@ -133,6 +169,7 @@
             </span>
           </span>
         </div>
+        }
       </div>
     </div>
     <div class="row mt-2">
@@ -157,6 +194,33 @@
         </div>
       }
     </div>
+    @if (tip && tip.forwards && tip.forwards.length) {
+      <div class="row">
+        <div class="col-md-12">
+          <h5>{{ 'Forwards' | translate }}</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>{{ 'Date' | translate }}</th>
+                <th>{{ 'Tenant' | translate }}</th>
+                <th>{{ 'Report' | translate }}</th>
+                <th>{{ 'Status' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (forward of tip.forwards; track forward) {
+                <tr>
+                  <td>{{ forward.creation_date | date:'short' }}</td>
+                  <td>{{ forward.target_tid }}</td>
+                  <td><a [routerLink]="['/reports', forward.id]">#{{ forward.progressive }}</a></td>
+                  <td>{{ forward.status | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
     <div class="row">
       <div class="col-md-12">
         <src-tip-files-receiver id="ReportAttachments" [redactMode]="redactMode"></src-tip-files-receiver>

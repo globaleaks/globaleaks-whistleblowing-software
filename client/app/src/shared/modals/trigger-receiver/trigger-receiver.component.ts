@@ -3,7 +3,7 @@ import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-boots
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Option} from "@app/models/app/shared-public-model";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User} from "@app/models/resolvers/user-resolver-model";
 import {NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
@@ -27,7 +27,7 @@ export class TriggerReceiverComponent implements OnInit {
 
   selected: { value: []; name: string };
   readonly userData = computed(() => this.users.resource.value());
-  readonly admin_receivers_by_id = computed<Record<string, userResolverModel>>(() => this.utilsService.array_to_map(this.userData()));
+  readonly admin_receivers_by_id = computed<Record<string, User>>(() => this.utilsService.array_to_map(this.userData()));
 
   ngOnInit(): void {
     this.selected = {value: [], name: ""};
@@ -42,7 +42,7 @@ export class TriggerReceiverComponent implements OnInit {
     this.modalService.dismissAll();
   }
 
-  addReceiver(item: userResolverModel) {
+  addReceiver(item: User) {
     if (item && this.arg.trigger_receiver.indexOf(item.id) === -1) {
       this.arg.trigger_receiver.push(item.id);
     }
