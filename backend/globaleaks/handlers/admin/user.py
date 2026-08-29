@@ -8,6 +8,9 @@ from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, db_update_user_profile, sync_permissions
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_user_access, \
+                                         decrypt_tenant_support_private_key, \
+                                         is_support_admin
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
                                      serialize_user, \
@@ -27,15 +30,6 @@ from globaleaks.utils.utility import datetime_null, uuid4
 def db_default_profile_permissions(role, user_session=None):
     """
     Build the default permissions of the personal profile of a user
-
-    An administrator is provisioned able to manage every administrative area,
-    so it starts holding the whole set of administrative permissions; they can
-    be removed afterwards to scope the administrator to a subset of the areas.
-    When the provisioning is performed by an operator, the defaults are
-    clamped to the areas the operator itself manages: an administrator
-    confined to a subset of the areas provisions administrators confined the
-    same way. A system operation (no session, e.g. the wizard) provisions the
-    whole set.
 
     :param role: The role of the user the profile belongs to
     :param user_session: The session of the operator, or None for a system op
@@ -102,10 +96,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     parse_pgp_options(user, request)
 
     if defer_password_setup:
-        # The account holds no password: an empty hash marks an account whose
-        # user is authenticated elsewhere and is required to set a password
-        # before proceeding, the encryption material of the account being
-        # initialized at that point
+        # An empty hash marks an account authenticated elsewhere that must set a password
         user.hash = ''
     else:
         password = request.get('password', '')
@@ -144,9 +135,10 @@ def db_create_user(session, tid, user_session, request, language, defer_password
 
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
+    crypto_support_pub_key = config.get_val('crypto_support_pub_key')
 
     if not defer_password_setup and \
-       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password'))):
+       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or crypto_support_pub_key or (encryption and request.get('password'))):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
@@ -158,9 +150,13 @@ def db_create_user(session, tid, user_session, request, language, defer_password
             current_user = db_get(session, models.User, models.User.id == user_session.user_id)
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
 
-    # The account holding no password holds no encryption material yet: the
-    # keys, and with them the copies kept by the escrows, are generated upon
-    # the setup of the password performed by its user
+    if crypto_support_pub_key and user_session:
+        support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
+        db_reconcile_support_user_access(
+            session, tid, user, support_private_key
+        )
+
+    # No password, no encryption material yet: keys and escrow copies are generated on setup
     if defer_password_setup or (not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n):
         return user
 
@@ -279,10 +275,6 @@ def db_update_user_permissions(session, user, request):
     """
     Apply on the profile of a user the permissions carried by a user update request
 
-    The permissions are stored on the profile of the user that remains their only
-    source of truth; the user editor acts as the interface of the personal profile
-    of the users that do not use a profile shared with other users.
-
     :param session: An ORM session
     :param user: The user object of the update
     :param request: The request data
@@ -328,9 +320,8 @@ def db_update_user(session, tid, user_session, user_id, request, language):
 
     db_enforce_administrable(session, tid, user_session, user.permissions_list, [user.id])
 
-    # A binding to a shared profile is validated whenever it is established or
-    # the role of its user changes: the profile must be assignable by the
-    # operator and the role must be among the ones the profile allows.
+    # A shared profile binding is validated when established or when the role changes: assignable by
+    # the operator and compatible with the role
     if request['profile_id'] not in ('', 'none', user_id) and \
        (request['profile_id'] != user.profile_id or request['role'] != user.role):
         db_enforce_assignable_profile(session, tid, user_session, request['profile_id'], request['role'])
@@ -338,17 +329,17 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     old_role = user.role
     old_profile_id = user.profile_id
     old_enabled = user.enabled
+    was_support_admin = is_support_admin(user)
+    support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
 
     if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
-        # Delete profiles when:
-        # - the user configuration passes from using a standard role to a custom profile
-        # - the user uses a standard role but the role changes
+        # Delete the profile when passing from a standard role to a custom profile, or when the
+        # standard role changes
         db_del(session, models.UserProfile, models.UserProfile.id == user.id)
 
     if ((user.id != user.profile_id and request['profile_id'] == user.id) or (user.role != request['role'])):
-        # Recreate the profile when:
-        # - the user configuration passes from using a custom profile to using a standard role
-        # - the user user changes from a standard role to one other
+        # Recreate the profile when passing from a custom profile to a standard role, or between
+        # standard roles
         profile = {
           'id': user.id,
           'role': request['role'],
@@ -374,9 +365,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     session.flush()
     session.expire(user, ['profile'])
 
-    # A change of profile realigns the channels the user receives on: the ones
-    # of the profile left are detached and the ones of the profile taken are
-    # attached
+    # A change of profile realigns the channels: detached from the old one, attached to the new one
     if old_profile_id != user.profile_id:
         old_profile = session.query(models.UserProfile) \
                              .filter(models.UserProfile.id == old_profile_id).one_or_none()
@@ -391,10 +380,14 @@ def db_update_user(session, tid, user_session, user_id, request, language):
 
     permissions_changed = db_update_user_permissions(session, user, request)
 
+    is_now_support_admin = is_support_admin(user)
+    db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=is_now_support_admin)
+
     revoke_session = old_role != user.role or \
         old_profile_id != user.profile_id or \
         old_enabled != user.enabled or \
-        permissions_changed
+        permissions_changed or \
+        was_support_admin != is_now_support_admin
     return serialize_user(session, user, language), revoke_session
 
 

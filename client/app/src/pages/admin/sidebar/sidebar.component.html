@@ -56,3 +56,9 @@
     <span>{{'Audit log'|translate}}</span>
   </a>
 }
+@if (permissions.can_manage_support && !nodeResolver.dataModel.is_profile) {
+  <a routerLink="/admin/support" routerLinkActive="active" id="admin_support" [attr.aria-current]="isActive('/admin/support') ? 'page' : 'false'">
+    <i class="fas fa-life-ring"></i>
+    <span>{{'Support'|translate}}</span>
+  </a>
+}

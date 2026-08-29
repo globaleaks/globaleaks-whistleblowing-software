@@ -79,6 +79,9 @@ api_spec = [
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
     ('/api/user/operations', user.operation.UserOperationHandler),
+    ('/api/user/support', support.UserSupportRequests),
+    ('/api/user/support', support.UserSupportRequest, r'/api/user/support/' + uuid_regexp),
+    ('/api/user/support', support.UserSupportMessage, r'/api/user/support/' + uuid_regexp + r'/message'),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler, r'/api/user/reset/password/(.+)'),
     ('/api/user/validate/email', user.validate_email.EmailValidation, r'/api/user/validate/email/(.+)'),
@@ -126,6 +129,10 @@ api_spec = [
     # Admin Handlers
     ('/api/admin/node', admin.node.NodeInstance),
     ('/api/admin/network', admin.network.NetworkInstance),
+    ('/api/admin/support', support.AdminSupportRequests),
+    ('/api/admin/support', support.AdminSupportRequest, r'/api/admin/support/' + uuid_regexp),
+    ('/api/admin/support', support.AdminSupportRequestRead, r'/api/admin/support/' + uuid_regexp + r'/read'),
+    ('/api/admin/support', support.AdminSupportMessage, r'/api/admin/support/' + uuid_regexp + r'/message'),
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
     ('/api/admin/users', admin.user.UserStats, r'/api/admin/users/' + uuid_regexp + '/stats'),

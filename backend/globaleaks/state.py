@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
-from twisted.internet.defer import succeed, AlreadyCalledError, CancelledError
+from twisted.internet.defer import DeferredList, inlineCallbacks, succeed, AlreadyCalledError, CancelledError
 from twisted.internet.error import ConnectionLost, ConnectionRefusedError, DNSLookupError, NoRouteError, TimeoutError
 from twisted.mail.smtp import SMTPError
 from twisted.python.failure import Failure
@@ -32,7 +32,7 @@ from globaleaks.utils.ratelimit import RateLimit
 from globaleaks.utils.singleton import Singleton
 from globaleaks.utils.sni import SNIMap
 from globaleaks.utils import dpop
-from globaleaks.utils.sock import reserve_tcp_socket
+from globaleaks.utils.sock import isIPAddress, reserve_tcp_socket
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.token import TokenList
@@ -63,6 +63,28 @@ class TenantState:
 
         # An ACME challenge will have 5 minutes to resolve
         self.acme_tmp_chall_dict = TempDict(300)
+
+
+def db_support_mail_texts(session, tid, mail_type, language):
+    """
+    Compose the subject and the body of a support notice from the templates of a site
+
+    :param session: An ORM session
+    :param tid: The tenant whose templates and language are used
+    :param mail_type: 'support_request' or 'support_reply'
+    :param language: The language of the notice
+    :return: The subject and the body
+    """
+    # the handlers import the state: their functions are reached when needed
+    from globaleaks.handlers.admin.node import db_admin_serialize_node  # noqa: PLC0415
+    from globaleaks.handlers.admin.notification import db_get_notification  # noqa: PLC0415
+    from globaleaks.utils.templating import Templating  # noqa: PLC0415
+
+    return Templating().get_mail_subject_and_body({
+        'type': mail_type,
+        'node': db_admin_serialize_node(session, tid, language),
+        'notification': db_get_notification(session, tid, language)
+    })
 
 
 class StateClass(ObjectDict, metaclass=Singleton):
@@ -279,26 +301,93 @@ class StateClass(ObjectDict, metaclass=Singleton):
             self.settings.socks_socket
         )
 
-    def schedule_support_email(self, tid, text):
-        subject = "Support request"
-        delivery_list = set.union(set(self.tenants[1].cache.notification.admin_list),
-                                  set(self.tenants[tid].cache.notification.admin_list))
+    def support_url(self, tid, support_request_id=''):
+        """
+        The address at which the support section of a tenant is reached,
+        pointing at one request when its id is given.
 
-        for mail_address, pgp_key_public in delivery_list:
-            body = text
+        :param tid: The tenant whose site the recipient logs in to
+        :param support_request_id: The request to open, if any
+        :return: The url, or the empty string when the site has no address
+        """
+        cache = self.tenants[tid].cache
 
-            # Opportunisticly encrypt the mail body.
-            # NOTE that mails will go out unencrypted if one address in
-            #      the list does not have a public key set.
-            if pgp_key_public:
-                try:
-                    body = PGPContext(pgp_key_public).encrypt_message(body)
-                except Exception as e:
-                    log.err("Unable to encrypt the support request email body: %s", e, tid=tid)
+        if cache.hostname:
+            site = ('http://' if isIPAddress(cache.hostname) else 'https://') + cache.hostname
+        elif cache.onionservice:
+            site = 'http://' + cache.onionservice
+        else:
+            return ''
+
+        url = site + '/#/admin/support'
+
+        return url + '?id=' + support_request_id if support_request_id else url
+
+    def support_mail_texts(self, tid, mail_type):
+        """
+        The subject and the body of a support notice, from the templates of the site
+        like every other notice, in the language of the site
+        """
+        return tw(db_support_mail_texts, tid, mail_type, self.tenants[tid].cache.default_language)
+
+    @inlineCallbacks
+    def schedule_support_email(self, tid, support_request_id='', escalate=True):
+        # The notification is content free: the request is persisted encrypted
+        # on the platform and is read from there after the authentication. One
+        # notification serves both a new request and an update of an existing
+        # one, what happened being read on the platform and not in the mail.
+
+        # The link points at the site the recipient logs in to: the root tenant
+        # for whom handles the request from there, the tenant that received it
+        # for its own administrators. An address serving both is linked to the
+        # root, the only site from which every request is reachable.
+        delivery_lists = []
+        if tid != 1 and escalate:
+            delivery_lists.append((1, self.tenants[1].cache.notification.admin_list))
+        delivery_lists.append((tid, self.tenants[tid].cache.notification.admin_list))
+
+        delivered = set()
+        deferreds = []
+        for site_tid, admin_list in delivery_lists:
+            subject, text = yield self.support_mail_texts(site_tid, 'support_request')
+            url = self.support_url(site_tid, support_request_id)
+            text_with_url = text + '\n\n' + url if url else text
+
+            for mail_address, pgp_key_public in admin_list:
+                if mail_address in delivered:
                     continue
 
-            # avoid waiting for the notification to send and instead rely on threads to handle it
-            tw(db_schedule_email, tid, mail_address, subject, body)
+                delivered.add(mail_address)
+
+                body = text_with_url
+
+                if pgp_key_public:
+                    try:
+                        body = PGPContext(pgp_key_public).encrypt_message(body)
+                    except Exception:
+                        body = text_with_url
+
+                deferreds.append(tw(db_schedule_email, tid, mail_address, subject, body))
+
+        result = yield DeferredList(deferreds, consumeErrors=True)
+        return result
+
+    @inlineCallbacks
+    def schedule_support_reply_email(self, tid, mail_address, body='',
+                                     pgp_key_public='', content_free=True):
+        subject, notice = yield self.support_mail_texts(tid, 'support_reply')
+        if content_free:
+            body = notice
+
+        if pgp_key_public:
+            try:
+                body = PGPContext(pgp_key_public).encrypt_message(body)
+            except Exception:
+                if not content_free:
+                    return False
+
+        result = yield tw(db_schedule_email, tid, mail_address, subject, body)
+        return result
 
     def schedule_exception_email(self, tid, exception_text, *args):
         if not hasattr(self.tenants[tid].cache, 'notification'):
