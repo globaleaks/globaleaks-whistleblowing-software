@@ -56,6 +56,7 @@ export class Node {
   signup_tos2_text: string;
   signup_tos2_title: string;
   whistleblowing_button: string;
+  whistleblowing_destination: string;
   whistleblowing_question: string;
   root_tenant: boolean;
   languages_enabled: string[];
