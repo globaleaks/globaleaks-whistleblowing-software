@@ -129,6 +129,11 @@ def toggle_escrow(session, tid, user_session):
 
         config.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
 
+        # Keep a recovery copy of the statistical key encrypted to the escrow key
+        if user.crypto_global_stat_prv_key:
+            stat_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
+            config.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, stat_prv_key)))
+
         if user.tid == tid:
             user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
             user_session.ek = True
@@ -163,6 +168,7 @@ def toggle_escrow(session, tid, user_session):
 
         config.set_val('crypto_escrow_pub_key', '')
         config.set_val('crypto_escrow_prv_key', '')
+        config.set_val('crypto_stat_prv_key', '')
 
     db_log(session, tid=tid, type='toggle_escrow', user_id=user_session.user_id)
 
