@@ -6,12 +6,7 @@ import sys
 from collections import OrderedDict
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-try:
-    from sqlalchemy.orm import declarative_base
-except ImportError:
-    from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from globaleaks import __version__, models, \
     DATABASE_VERSION, FIRST_DATABASE_VERSION_SUPPORTED, LANGUAGES_SUPPORTED_CODES
@@ -38,7 +33,17 @@ from globaleaks.utils.utility import datetime_now
 tables_since = {
     'AuditLog': 54,
     'IdentityAccessRequestCustodian': 65,
-    'Redaction': 65
+    'Redaction': 65,
+    'InternalTipTransmission': 69,
+    'Exchange': 71,
+    'StatisticalReport': 71,
+    'StatisticalReportTemplate': 71,
+    'SupportMessage': 71,
+    'SupportRequest': 71,
+    'UserProfile': 71,
+    'UserProfileContext': 71,
+    'UserProfilePermission': 71,
+    'UserProfileRole': 71
 }
 
 
@@ -115,8 +120,7 @@ def perform_data_update(db_file):
         if original_version != __version__:
             db_mark_invalidated_receipts(session, original_version)
 
-            for tid in [t[0] for t in session.query(models.Tenant.id)]:
-                config.update_defaults(session, tid, appdata)
+            config.load_defaults(session, appdata)
 
             db_load_defaults(session)
 
