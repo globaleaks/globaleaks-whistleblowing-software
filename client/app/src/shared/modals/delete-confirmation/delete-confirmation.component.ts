@@ -73,11 +73,6 @@ export class DeleteConfirmationComponent implements OnInit {
     });
   }
 
-  openAuditLog() {
-    this.cancel();
-    this.router.navigate(["/admin/auditlog"], {queryParams: {user: this.user.id}}).then();
-  }
-
   confirm() {
     this.cancel();
     this.confirmFunction();

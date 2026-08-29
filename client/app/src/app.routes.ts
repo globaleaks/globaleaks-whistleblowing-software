@@ -4,6 +4,7 @@ import {AdminGuard} from "@app/shared/guards/admin.guard";
 import {CustodianGuard} from "@app/shared/guards/custodian.guard";
 import {ReceiverGuard} from "@app/shared/guards/receiver.guard";
 import {AnalystGuard} from "@app/shared/guards/analyst.guard";
+import {AuditorGuard} from "@app/shared/guards/auditor.guard";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {Pageguard} from "@app/shared/guards/pageguard.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -83,6 +84,15 @@ export const appRoutes: Routes = [
     loadChildren: () => import("./pages/analyst/analyst.routes").then(m => m.analystRoutes),
     data: {
       sidebar: "analyst-sidebar",
+      pageTitle: "Home",
+    },
+  },
+  {
+    path: "auditor",
+    canActivate: [AuditorGuard],
+    loadChildren: () => import("./pages/auditor/auditor.routes").then(m => m.auditorRoutes),
+    data: {
+      sidebar: "auditor-sidebar",
       pageTitle: "Home",
     },
   },
