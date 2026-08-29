@@ -134,6 +134,11 @@ class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
         attachment = self.get_dummy_attachment()
         handler = self.request(role='receiver', user_id=receiver_id, attachment=attachment)
         yield handler.post(itip_id)
+
+        # The upload only registers the file: the delivery job is what writes
+        # it to the attachments, after the scan.
+        yield Delivery().run()
+
         self._handler = export.ExportHandler
 
         rtips_desc = yield self.get_rtips()

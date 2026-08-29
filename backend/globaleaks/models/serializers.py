@@ -3,7 +3,9 @@ import os
 
 
 from sqlalchemy import func, or_, not_
+from sqlalchemy.orm import aliased
 
+from globaleaks.models import EnumStateFile
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
@@ -118,15 +120,24 @@ def serialize_redaction(session, redaction):
     }
 
 
-def serialize_ifile(session, ifile):
-    """
-    Transaction for serializing ifiles
+def compute_status(file_obj):
+    state = file_obj.state
 
-    :param session: An ORM session
-    :param ifile: The ifile to be serialized
-    :return: The serialized ifile
-    """
+    if not state:
+        return EnumStateFile.pending.name.upper()
+
+    if isinstance(state, str):
+        for e in EnumStateFile:
+            if e.name.lower() == state.lower():
+                return e.name.upper()
+        return EnumStateFile.pending.name.upper()
+
+    return EnumStateFile(state).name.upper()
+
+
+def serialize_ifile(session, ifile):
     error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id))
+    status = compute_status(ifile)
 
     # A whistleblower's file is considered downloaded as soon as at least one
     # recipient has accessed it (any WhistleblowerFile copy with a set access_date).
@@ -143,6 +154,8 @@ def serialize_ifile(session, ifile):
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
         'masked': False,
+        'status': status,
+        'verification_date': ifile.verification_date,
         'error': error,
         'downloaded': downloaded,
         'hash_sha256': ifile.hash_sha256,
@@ -151,16 +164,10 @@ def serialize_ifile(session, ifile):
 
 
 def serialize_wbfile(session, ifile, wbfile):
-    """
-    Transaction for serializing wbfile
-
-    :param session: An ORM session
-    :param ifile: The ifile to be serialized
-    :param wbfile: The wbfile to be serialized
-    :return: The serialized wbfile
-    """
     error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id)) and \
         not os.path.exists(os.path.join(State.settings.attachments_path, wbfile.id))
+
+    status = compute_status(ifile)
 
     return {
         'id': wbfile.id,
@@ -171,22 +178,17 @@ def serialize_wbfile(session, ifile, wbfile):
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
         'masked': False,
+        'status': status,
+        'verification_date': ifile.verification_date,
         'error': error,
         'downloaded': wbfile.access_date != datetime_null(),
         'hash_sha256': ifile.hash_sha256,
         'hash_sha512': ifile.hash_sha512
     }
 
-
 def serialize_rfile(session, rfile):
-    """
-    Transaction for serializing rfile
-
-    :param session: An ORM session
-    :param rfile: The rfile to be serialized
-    :return: The serialized rfile
-    """
     error = not os.path.exists(os.path.join(State.settings.attachments_path, rfile.id))
+    status = compute_status(rfile)
 
     return {
         'id': rfile.id,
@@ -198,6 +200,8 @@ def serialize_rfile(session, rfile):
         'description': rfile.description,
         'visibility': rfile.visibility,
         'masked': False,
+        'status': status,
+        'verification_date': rfile.verification_date,
         'error': error,
         'downloaded': rfile.access_date != datetime_null(),
         'hash_sha256': rfile.hash_sha256,

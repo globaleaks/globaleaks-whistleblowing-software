@@ -33,6 +33,7 @@ Depends:
   python3-nacl,
   python3-openssl,
   python3-packaging,
+  python3-pyclamd,
   python3-pyotp,
   python3-sqlalchemy,
   python3-twisted,
