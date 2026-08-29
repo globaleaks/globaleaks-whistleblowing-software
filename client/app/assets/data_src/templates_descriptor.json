@@ -518,6 +518,50 @@
     "{ChangeLogUrl}",
     "{UpdateGuideUrl}"
   ],
+  "support_reply_mail_template":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}"
+  ],
+  "support_reply_mail_title":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}"
+  ],
+  "support_request_mail_template":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}"
+  ],
+  "support_request_mail_title":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}"
+  ],
   "tip_expiration_summary_mail_template":[
     "{NodeName}",
     "{TorSite}",

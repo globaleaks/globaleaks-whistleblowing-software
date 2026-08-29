@@ -28,6 +28,9 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   readonly orderBy = input<keyof T>();
   readonly orderDesc = input(false);
 
+  /** Optional: the identifier of the item the interface must open on */
+  readonly focusItemId = input('');
+
   /**
    * Optional: what a row is known by across the updates of the list. A row is
    * the object itself by default, so a list rebuilding its items on every
@@ -54,6 +57,10 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   // only when it has something to narrow down
   scopedCount = 0;
 
+  // The item the interface has already been positioned on: the position is
+  // taken once, so that the pages turned afterwards are the ones of the reader
+  private focusedItemId = '';
+
   private utilsService = inject(UtilsService);
 
   ngAfterViewInit(): void {
@@ -61,7 +68,7 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
+    if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc'] || changes['focusItemId']) {
       // A shorter list may no longer hold the page in view
       this.currentPage = 1;
       this.update();
@@ -121,6 +128,16 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
         if (aVal > bVal) return this.orderDesc() ? -1 : 1;
         return 0;
       });
+    }
+
+    // A link may point at one item: the interface opens on the page holding it
+    const focusItemId = this.focusItemId();
+    if (focusItemId && focusItemId !== this.focusedItemId) {
+      const position = this.filteredItems.findIndex(item => String((item as any).id) === focusItemId);
+      if (position !== -1) {
+        this.currentPage = Math.floor(position / this.itemsPerPage()) + 1;
+        this.focusedItemId = focusItemId;
+      }
     }
 
     // Ensure current page is valid
