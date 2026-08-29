@@ -45,9 +45,8 @@ def change_password(session, tid, user_session, new_password, current_password):
         derived_public_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
         if not user.crypto_pub_key or not GCE.check_equality(
                 user.crypto_pub_key, derived_public_key):
-            # The first password change triggers the generation of the user
-            # encryption private key and its backup; a regenerated keypair
-            # invalidates the support key wrapped to the old public key
+            # The first password change generates the user key and its backup; a regenerated keypair
+            # invalidates the support key wrap
             user.crypto_pub_key = derived_public_key
             user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(user_session.cc)
             user.crypto_support_prv_key = ''
@@ -160,6 +159,23 @@ def disable_2fa(session, tid, user_id, obj_id):
     user.two_factor_secret = ''
 
     db_log(session, tid=tid, type='disable_2fa', user_id=user_id, object_id=obj_id)
+
+
+@transact
+def reset_idp_binding(session, tid, user_id, obj_id):
+    """
+    Transaction for resetting the identity bound to a user
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: A user ID
+    :param obj_id: A user ID
+    """
+    user = db_get_user(session, tid, obj_id)
+
+    user.idp_id = ''
+
+    db_log(session, tid=tid, type='reset_idp_binding', user_id=user_id, object_id=obj_id)
 
 
 @transact

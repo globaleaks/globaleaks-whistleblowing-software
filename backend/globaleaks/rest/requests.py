@@ -26,6 +26,11 @@ hostname_regexp = r'^[0-9a-z\-\.]+$'
 hostname_regexp_or_empty = r'^[0-9a-z\-\.]+$|^$'
 subdomain_regexp = r'^[0-9a-z\-]+$'
 subdomain_regexp_or_empty = r'^[0-9a-z\-]+$|^$'
+# The OIDC issuer is reflected into the Content-Security-Policy header and used
+# to build outbound requests: it must be a bare http(s) origin (+ optional
+# path) with no characters that could break out of the header directive or the
+# URL (no ';', whitespace, quotes, userinfo, query or fragment).
+idp_issuer_regexp = r'^https?://[0-9a-zA-Z\-.]+(:[0-9]{1,5})?(/[0-9a-zA-Z\-._~%/]*)?$|^$'
 url_regexp = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$'
 url_regexp_or_empty = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$|^$'
 tip_operation_regexp = r'^(postpone|set)$'
@@ -280,7 +285,11 @@ AdminNodeDesc = {
     'backup_time': str,
     'backup_period': int,
     'backup_retention': int,
+    'idp': bool,
+    'idp_issuer': idp_issuer_regexp,
     'default_user_profile': default_user_profile_regexp,
+    'idp_client_id': str,
+    'idp_provisioning': bool,
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,

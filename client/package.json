@@ -44,6 +44,7 @@
     "@ngx-translate/core": "18.0.0",
     "@ngx-translate/http-loader": "18.0.0",
     "@popperjs/core": "2.11.8",
+    "angular-oauth2-oidc": "21.0.3",
     "angularx-qrcode": "21.0.5",
     "bootstrap": "5.3.8",
     "chart.js": "4.5.1",
