@@ -39,6 +39,17 @@ export class TabsComponent {
 
   protected readonly tabs = computed(() => this.declared().filter(tab => tab.visible()));
 
-  // First visible tab by default; user selection wins until the list changes.
-  protected readonly active = linkedSignal(() => this.tabs()[0]?.id());
+  // The first visible tab by default. A tab chosen stays chosen while it is visible: a tab
+  // appearing or disappearing - the one of the registrations, as the registration is enabled -
+  // does not take the reader elsewhere.
+  protected readonly active = linkedSignal<TabDirective[], string | undefined>({
+    source: this.tabs,
+    computation: (tabs, previous) => {
+      if (previous && tabs.some(tab => tab.id() === previous.value)) {
+        return previous.value;
+      }
+
+      return tabs[0]?.id();
+    }
+  });
 }

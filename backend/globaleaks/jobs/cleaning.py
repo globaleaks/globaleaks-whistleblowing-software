@@ -8,8 +8,10 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.db import compact_db, db_get_tracked_attachments, db_get_tracked_files, db_refresh_tenant_cache
+from globaleaks.handlers.admin.invite import db_delete_expired_invites
 from globaleaks.jobs.job import DailyJob
 from globaleaks.models.config import DEFAULT_PROFILE_ID
+from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, db_log, transact, tw
 from globaleaks.utils.fs import srm
 from globaleaks.utils.utility import datetime_never, datetime_now, is_expired
@@ -53,13 +55,17 @@ class Cleaning(DailyJob):
         hashes = [h for (h,) in session.query(models.InternalTipAnswers.questionnaire_hash).all()]
         db_del(session, models.ArchivedSchema, not_(models.ArchivedSchema.hash.in_(hashes)))
 
-        # delete the tenants created via signup that has not been completed in 24h
+        # delete the tenants created via signup that has not been completed in 24h; an invitation
+        # lasts longer, and expires on its own
         tids = [tid for (tid,) in session.query(models.Subscriber.tid).filter(
             models.Subscriber.activation_token != '',
+            models.Subscriber.state != EnumSubscriberStatus.invited.value,
             models.Subscriber.tid == models.Tenant.id,
             models.Subscriber.registration_date < datetime_now() - timedelta(days=1)
         ).all()]
         db_del(session, models.Tenant, models.Tenant.id.in_(tids))
+
+        db_delete_expired_invites(session)
 
         # delete expired audit logs older than 5 years and not pertaining any report
         itip_ids = [itip_id for (itip_id,) in session.query(models.InternalTip.id).all()]
