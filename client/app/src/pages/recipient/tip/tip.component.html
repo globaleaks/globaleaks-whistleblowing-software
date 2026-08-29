@@ -133,6 +133,9 @@
             </div>
 
             <!-- Refresh Button -->
+            <button id="tip-action-access-audit-log" type="button" class="btn btn-outline-secondary" ngbTooltip="{{'Logs' | translate}}" [attr.aria-label]="'Logs' | translate" (click)="openLogsModal()">
+              <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+            </button>
             <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
               class="btn btn-outline-secondary" [attr.aria-label]="'Refresh' | translate">
               <i class="fas fa-arrows-rotate"></i>

@@ -3,6 +3,7 @@ export class auditlogResolverModel {
   type: string;
   severity: number;
   user_id?: string;
+  username?: string;
   object_id?: string;
   data?: Data;
 }
