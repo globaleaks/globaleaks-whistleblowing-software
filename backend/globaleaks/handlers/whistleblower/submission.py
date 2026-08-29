@@ -913,7 +913,9 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         itip.crypto_tip_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
 
     # Apply special handling to the whistleblower identity question
+    identity_provided = False
     if itip.enable_whistleblower_identity and request['identity_provided'] and answers[whistleblower_identity.id]:
+        identity_provided = True
 
         identity_data = answers[whistleblower_identity.id][0]
 
@@ -937,6 +939,21 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
 
+    operator_id = user_session.properties.get('operator_session', '')
+    if operator_id:
+        # this is actually an operator which is operating on behalf of a whistleblower
+        itip.receipt_change_needed = True
+        itip.operator_id = operator_id
+
+    # The report is recorded before the files attached to it, so that its log
+    # opens with the report and continues with what it is made of
+    db_log(session, tid=tid, type='whistleblower_new_report', user_id=operator_id, object_id=itip.id)
+
+    db_log(session, tid=tid, type='whistleblower_add_answers', user_id=operator_id, object_id=itip.id, data={'questionnaire_hash': questionnaire_hash})
+
+    if identity_provided:
+        db_log(session, tid=tid, type='whistleblower_provide_identity', user_id=operator_id, object_id=itip.id)
+
     for uploaded_file in user_session.files:
         if crypto_is_available:
             for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
@@ -955,6 +972,10 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         new_file.hash_sha512 = uploaded_file['hash_sha512']
         session.add(new_file)
 
+        # A file attached to the report is tracked as one attached later on:
+        # the log of the report names every file it is made of
+        db_log(session, tid=tid, type='whistleblower_upload_file', user_id=itip.id, object_id=new_file.id, data={'internaltip_id': itip.id})
+
     for user in receivers:
         if crypto_is_available:
             _tip_key = GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_tip_prv_key)
@@ -963,13 +984,6 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         db_create_receivertip(session, user, itip, _tip_key)
 
-    operator_id = user_session.properties.get('operator_session', '')
-    if operator_id:
-        # this is actually an operator which is operating on behalf of a whistleblower
-        itip.receipt_change_needed = True
-        itip.operator_id = operator_id
-
-    db_log(session, tid=tid, type='whistleblower_new_report', user_id=operator_id, object_id=itip.id)
 
 
 @transact
