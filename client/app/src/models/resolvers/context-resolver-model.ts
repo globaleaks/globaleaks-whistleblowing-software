@@ -2,7 +2,13 @@ export class contextResolverModel {
   id: string;
   slug: string;
   hidden: boolean;
-  is_forward_channel: boolean;
+  exchange: boolean;
+  exchange_types: string[];
+  // The channel is offered to the users of the site that file a report on it
+  // themselves, in place of a reporting person
+  internally_available: boolean;
+  provide_access_code: boolean;
+  exchange_in_use: boolean;
   profiles: string[];
   tip_timetolive: number;
   tip_reminder: number;

@@ -34,7 +34,7 @@ def _to_datetime(val):
     if isinstance(val, str):
         try:
             return datetime.fromisoformat(val)
-        except Exception:
+        except ValueError:
             return None
     return None
 
@@ -224,7 +224,9 @@ class MailGenerator:
 
             try:
                 if isinstance(obj, models.ReceiverTip):
-                    data = {'type': 'tip'}
+                    # A report created by an exchange is announced as the exchange, not as a new
+                    # report
+                    data = {'type': 'transmission' if itip.type == 'exchange' else 'tip'}
                 else:
                     data = {'type': 'tip_update'}
 

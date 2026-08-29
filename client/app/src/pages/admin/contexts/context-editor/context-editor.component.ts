@@ -1,8 +1,9 @@
-import {Component, OnInit, computed, inject, input, output} from "@angular/core";
+import {Component, ElementRef, OnInit, computed, inject, input, output} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -13,6 +14,7 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
+import {exchangeType, exchangeTypeLabels} from "@app/models/admin/exchange";
 
 @Component({
     selector: "src-context-editor",
@@ -22,6 +24,8 @@ import {ListItemComponent} from "@app/shared/components/list-item/list-item.comp
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
+  private elementRef = inject(ElementRef);
+  private authenticationService = inject(AuthenticationService);
   protected nodeResolver = inject(NodeResolver);
   private selectablesResolver = inject(SelectablesResolver);
   private utilsService = inject(UtilsService);
@@ -30,6 +34,8 @@ export class ContextEditorComponent implements OnInit {
   readonly contextResolver = input.required<contextResolverModel>();
   readonly index = input.required<number>();
   readonly editContext = input.required<NgForm>();
+  // A link pointing at this channel opens its card and brings it into view
+  readonly expanded = input(false);
   readonly deleted = output<string>();
   readonly reorder = output<{
     index: number;
@@ -38,6 +44,42 @@ export class ContextEditorComponent implements OnInit {
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
+
+  /**
+   * A channel of the exchanges receives what the other sites of the platform
+   * file on this one: it carries the name the exchanges are known by on this
+   * side, the recipients that take part in them, the questionnaire composing
+   * what lives here and how long it lasts, while what a channel configures
+   * for the reporting people has no part in it, since they neither reach it
+   * nor are offered it.
+   */
+  isExchangeChannel(): boolean {
+    return !!this.contextResolver().exchange;
+  }
+
+  // The channel is known by the kinds of exchange running through it: it says
+  // in a word whether what travels here is a report filed on the site or what
+  // a report of another one carries
+  exchangeTypes(): string[] {
+    return this.contextResolver().exchange_types || [];
+  }
+
+  exchangeTypeLabel(type: string): string {
+    return exchangeTypeLabels[type as exchangeType] || type;
+  }
+
+  /**
+   * A channel of the exchanges is configured by the administrators of the
+   * platform, that established the exchanges running through it and enter the
+   * site holding it to configure it. The administrators of the site read it
+   * where it lives but do not write it.
+   */
+  canConfigure(): boolean {
+    return !this.isExchangeChannel() ||
+           this.nodeResolver.dataModel.root_tenant ||
+           !!this.authenticationService.session.properties.management_session;
+  }
+
   readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);
 
   // The users receive on a channel through the profile they hold: a profile
@@ -50,6 +92,13 @@ export class ContextEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;
+
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
+    }
   }
 
   moveUp(e: Event, idx: number): void {
@@ -111,9 +160,6 @@ export class ContextEditorComponent implements OnInit {
   }
 
   saveContext(context: contextResolverModel) {
-    if (context.additional_questionnaire_id === null) {
-      context.additional_questionnaire_id = "";
-    }
     this.utilsService.updateAdminContext(context, context.id).subscribe(updatedContext => {
       Object.assign(context, updatedContext);
     });

@@ -19,8 +19,10 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import serialize_user_profile, user_permissions
 from globaleaks.models import Config, EnabledLanguage, config, serializers
+from globaleaks.models.exchanges import db_forget_exchanges
 from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
-    db_get_config_variable, db_get_signup_profile, db_set_config_variable
+    db_get_config_variable, db_get_signup_profile, db_set_config_variable, \
+    db_set_own_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -108,13 +110,6 @@ def db_create(session, desc, isTenant = True, **kwargs):
             key, cert = gen_selfsigned_certificate()
             db_set_config_variable(session, 1, 'https_selfsigned_key', key)
             db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
-            # The root tenant accepts the forwards of the other tenants only
-            # once it has authorized their request of forward
-            db_set_config_variable(session, 1, 'require_forward_requests', True)
-            db_set_config_variable(session, 1, 'accept_forwarding_from', ['*'])
-        else:
-            db_set_config_variable(session, t.id, 'accept_forwarding_from', [1])
-
         if db_subdomain_in_use(session, desc['subdomain'], excluded_tids=[t.id]):
             raise errors.ForbiddenOperation
 
@@ -223,15 +218,34 @@ def create_and_initialize(session, desc, *args, **kwargs):
     return serializers.serialize_tenant(session, t)
 
 
-def db_get_tenant_list(session):
+def db_get_tenant_list(session, language='en'):
     ret = []
     configs = db_get_configs(session, 'tenant')
+
+    # The channels and the questionnaires of each tenant are carried along, so
+    # that the exchanges can name the ones they run through: a channel of the
+    # exchanges says so, since an exchange runs through those alone
+    contexts = {}
+    for context in session.query(models.Context):
+        contexts.setdefault(context.tid, []).append(
+            models.get_localized_values({'id': context.id,
+                                         'exchange': context.exchange},
+                                        context, ['name'], language))
+
+    questionnaires = {}
+    for questionnaire in session.query(models.Questionnaire):
+        questionnaires.setdefault(questionnaire.tid, []).append({
+            'id': questionnaire.id,
+            'name': questionnaire.name
+        })
 
     for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != DEFAULT_PROFILE_ID):
         if s and not t.active:
             continue
 
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+        tenant_dict['contexts'] = contexts.get(t.id, [])
+        tenant_dict['questionnaires'] = questionnaires.get(t.id, [])
 
         ret.append(tenant_dict)
 
@@ -239,8 +253,8 @@ def db_get_tenant_list(session):
 
 
 @transact
-def get_tenant_list(session):
-    return db_get_tenant_list(session)
+def get_tenant_list(session, language='en'):
+    return db_get_tenant_list(session, language)
 
 
 @transact
@@ -249,7 +263,11 @@ def get(session, self, tid):
     Return what a site or a profile is made of, so that it can be carried elsewhere
 
     What is carried is what the object configures of itself: its variables,
-    its questionnaires, its channels and the user profiles that name them.
+    its questionnaires, its channels - the ones the reporting people reach and
+    the ones the exchanges run through - and the user profiles that name them.
+    What relates it to another object of the platform is not carried: an
+    exchange relates two of them and does not travel with either, and is
+    established again where the object is carried.
     """
     tenant = db_get(session, models.Tenant, models.Tenant.id == tid)
     configs = session.query(models.Config).filter(models.Config.tid == tid).all()
@@ -549,11 +567,16 @@ def db_import_contexts(session, tid, contexts, questionnaire_map):
 
         request['questionnaire_id'] = resolve(request.get('questionnaire_id')) or 'default'
 
-        for key in ['additional_questionnaire_id', 'closure_questionnaire_id']:
-            request[key] = resolve(request.get(key))
+        request['additional_questionnaire_id'] = resolve(request.get('additional_questionnaire_id'))
 
-        context_map[context['id']] = db_create_context(session, tid, None,
-                                                       request, 'en').id
+        created = db_create_context(session, tid, None, request, 'en')
+
+        # What makes a channel one of the exchanges travels with it: no
+        # request declares such a channel, and the one carried here is
+        # recreated for what it is
+        created.exchange = context.get('exchange', False)
+
+        context_map[context['id']] = created.id
 
     return context_map
 
@@ -639,7 +662,7 @@ class TenantCollection(BaseHandler):
         """
         Return the list of registered tenants
         """
-        return get_tenant_list()
+        return get_tenant_list(self.request.language)
 
     @inlineCallbacks
     def post(self):
@@ -729,6 +752,9 @@ def db_delete_tenant(session, request_tid, user_session, tid, check):
 
         if stats_changed:
             raise errors.OperationConflict
+
+    # The exchanges the object was a side of depart with it
+    stats['exchanges'] = db_forget_exchanges(session, [tid])
 
     db_del(session, models.Tenant, models.Tenant.id == tid)
 

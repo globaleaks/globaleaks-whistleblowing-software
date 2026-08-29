@@ -1,21 +1,20 @@
-<div class="row">
-  <div class="col-md-12">
-    <div>
-      <span>{{'Profiles'|translate}}</span>
-      <button class="btn btn-sm btn-primary show-add-profile-btn" (click)="toggleAddTenant()">
-        <i class="fa-solid fa-plus"></i>
-        <span>{{'Add'|translate}}</span>
-      </button>
-      <span class="custom-file">
-        <input type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput.files)" />
-        <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-sm btn-outline-secondary">
-          <i class="fa-solid fa-upload"></i>{{'Import' | translate}}
-        </label>
-      </span>
-    </div>
-
+<app-paginated-interface [items]="tenants" [filterField]="'name'" [itemsPerPage]="10" [orderBy]="'id'">
+  <ng-template #toolbar>
+    <button class="btn btn-primary show-add-profile-btn" type="button" (click)="toggleAddTenant()">
+      <i class="fa-solid fa-plus"></i>
+      <span>{{'Add'|translate}}</span>
+    </button>
+    <span class="custom-file">
+      <input type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput)" />
+      <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-upload"></i>
+        <span>{{'Import' | translate}}</span>
+      </label>
+    </span>
+  </ng-template>
+  <ng-template #addForm>
     @if (showAddTenant) {
-      <div class="row">
+      <div class="row config-section">
         <div class="col-md-6">
           <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
             <div class="form-group">
@@ -32,20 +31,17 @@
               <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid"
                 (click)="addTenant();toggleAddTenant()" type="button">
                 <i class="fa-solid fa-plus"></i>
-                <span>Add</span>
+                <span>{{'Add'|translate}}</span>
               </button>
             </div>
           </form>
         </div>
       </div>
     }
-
-    <app-paginated-interface [items]="tenants" [filterField]="'name'" [itemsPerPage]="10" [orderBy]="'id'">
-      <ng-template #content let-tenant="item" let-index="index">
-        <form id="tenant-{{index}}" #editTenant="ngForm" novalidate>
-          <src-profilelist [editTenant]="editTenant" [index]="index" [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)" (deleted)="onDelete($event)"></src-profilelist>
-        </form>
-      </ng-template>
-    </app-paginated-interface>
-  </div>
-</div>
+  </ng-template>
+  <ng-template #content let-tenant="item" let-index="index">
+    <form id="tenant-{{index}}" #editTenant="ngForm" novalidate>
+      <src-profilelist [editTenant]="editTenant" [index]="index" [tenant]="tenant" [tenants]="tenants" [indexNumber]="(index+1)" (deleted)="onDelete($event)"></src-profilelist>
+    </form>
+  </ng-template>
+</app-paginated-interface>

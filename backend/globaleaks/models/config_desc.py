@@ -605,6 +605,8 @@ ConfigL10NFilters = {
         'export_comment_recipient',
         'export_comment_whistleblower',
         'export_template',
+        'transmission_mail_template',
+        'transmission_mail_title',
         'https_certificate_expiration_mail_template',
         'https_certificate_expiration_mail_title',
         'https_certificate_renewal_failure_mail_template',

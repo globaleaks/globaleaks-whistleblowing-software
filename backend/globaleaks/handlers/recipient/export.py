@@ -15,7 +15,7 @@ from globaleaks.handlers.recipient.rtip import db_update_submission_status, reda
 from globaleaks.handlers.whistleblower.submission import decrypt_tip
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import db_log, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.antivirus import get_av_result, serialize_files_metadata_csv
@@ -111,11 +111,18 @@ def get_tip_export(session, tid, user_id, itip_id, language):
 
     user, context, itip, rtip = row
 
+    # The export carries the channel the reader's site knows the report by
+    from globaleaks.handlers.exchange import db_get_presented_context_id
+
+    context = db_get(session,
+                     models.Context,
+                     models.Context.id == db_get_presented_context_id(session, tid, itip))
+
     rtip.last_access = datetime_now()
     if rtip.access_date == datetime_null():
         rtip.access_date = rtip.last_access
 
-    if itip.status == 'new':
+    if itip.status == 'new' and itip.is_owned_by(tid):
         db_update_submission_status(session, tid, user_id, itip, 'opened', None)
 
     db_log(session, tid=tid, type='export_report', user_id=user_id, object_id=itip.id)
@@ -219,7 +226,7 @@ def prepare_tip_export(user_session, tip_export):
 
 
 class ExportHandler(BaseHandler):
-    check_roles = 'receiver'
+    check_roles = {'receiver', 'transmitter'}
     handler_exec_time_threshold = 3600
 
     def get(self, itip_id):

@@ -17,6 +17,23 @@ protected_keys = ["version", "version_db", "latest_version", "profile", "default
 DEFAULT_PROFILE_ID = 1000001
 
 
+def db_get_tid_by_uuid(session, uuid):
+    """
+    Resolve the tenant ID of the site or of the profile designated by a UUID
+
+    :param session: An ORM session
+    :param uuid: The UUID of a site or of a profile
+    :return: The tenant ID of the designated tenant or None
+    """
+    if not uuid:
+        return None
+
+    return session.query(Config.tid).filter(
+        Config.var_name == 'uuid',
+        Config.value == uuid
+    ).scalar()
+
+
 def db_get_pid_by_profile(session, profile_value):
     """
     Resolve the tenant ID of the profile referenced by the given profile value
@@ -31,10 +48,7 @@ def db_get_pid_by_profile(session, profile_value):
     if profile_value == 'default':
         return DEFAULT_PROFILE_ID
 
-    return session.query(Config.tid).filter(
-        Config.var_name == 'uuid',
-        Config.value == profile_value
-    ).scalar()
+    return db_get_tid_by_uuid(session, profile_value)
 
 
 def db_get_pid(session, tid):
@@ -67,11 +81,6 @@ def db_get_signup_profile(session, tid):
 def db_get_signup_idp_config(session, tid):
     """
     Resolve the IdP configuration inherited by the tenants created via signup
-
-    The signup is authenticated against the IdP configured on the profile
-    assigned to the tenants created via signup, so that every registration
-    is validated with the same identity provider that the created tenant
-    is going to use.
 
     :param session: An ORM session
     :param tid: The tenant ID of the tenant handling the signups
@@ -249,16 +258,12 @@ class ConfigFactory:
         result, t_result, p_result, d_result = self.get_all(filter_name)
         for k, v in result.items():
             if k in data:
-                # An emptied field returns to the inherited value; False and 0
-                # are instead values a tenant holds against its profile, so
-                # that a flag the profile enables can be disabled on the tenant
+                # An emptied field returns to the inherited value; False and 0 are held against the
+                # profile
                 reset = data[k] is None or data[k] == '' or data[k] == []
 
-                # Only the default profile owns a row for every variable and
-                # can be updated in place; any other tenant, the root tenant
-                # included, resolves missing variables to rows owned by its
-                # profile, and updating those in place would leak the change
-                # to every tenant inheriting from it
+                # Only the default profile owns every variable; the other tenants resolve the
+                # missing ones from their profile
                 if self.tid != DEFAULT_PROFILE_ID:
                     if k in t_result:
                         if reset or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
@@ -411,10 +416,6 @@ def db_get_own_config_variable(session, tid, var_name):
     """
     Read a configuration variable of a tenant without inheriting it
 
-    The variables referencing objects of a tenant, like the channels designated
-    to receive the forwards, are meaningful only within the tenant that owns
-    them and are therefore never inherited from the profile of the tenant.
-
     :param session: An ORM session
     :param tid: The tenant ID
     :param var_name: The configuration variable
@@ -446,9 +447,6 @@ def db_set_own_config_variable(session, tid, var_name, value):
     """
     Write a configuration variable on the tenant itself
 
-    The variables referencing objects of a tenant are never stored on the
-    profile of the tenant, that owns objects of its own.
-
     :param session: An ORM session
     :param tid: The tenant ID
     :param var_name: The configuration variable
@@ -471,9 +469,8 @@ def initialize_config(session, tid, data):
         variables['profile'] = data['profile']
         pid = db_get_pid_by_profile(session, data['profile'])
 
-    # The onion service is generated only for the tenants for which it is
-    # enabled by their own profile; the others are reachable as a subdomain
-    # of the onion service of the root tenant.
+    # The onion service is generated only where the profile enables it; the others are subdomains of
+    # the root one
     if db_get_profile_val(session, pid, 'enable_onion'):
         variables['onionservice'], variables['tor_onion_key'] = generate_onion_service_v3()
 
@@ -515,7 +512,9 @@ def load_defaults(session, appdata):
                 data = appdata[d]
 
             for k in keys:
-                value = data[k][lang] if k in data else ''
+                # A template the translation has not reached holds its source language, served
+                # instead of an empty text
+                value = data.get(k, {}).get(lang) or data.get(k, {}).get('en', '')
                 if value:
                     session.add(ConfigL10N({'tid': DEFAULT_PROFILE_ID, 'lang': lang, 'var_name': k, 'value': value}))
 
