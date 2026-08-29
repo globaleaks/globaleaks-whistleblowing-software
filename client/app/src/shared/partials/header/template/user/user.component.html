@@ -40,14 +40,21 @@
             <span class="text-separator">|</span>
           </span>
         }
-        @if (authentication.session && authentication.session.role !== 'whistleblower') {
-          <span id="SupportLinkBox">
-            <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate" (keydown.enter)="utilsService.openSupportModal($event)">
-              <i class="fas fa-life-ring"></i>
-            </a>
-            <span class="text-separator">|</span>
-          </span>
-        }
+      }
+      <!--
+        The support is reachable also by a session that is still completing its
+        access - an user that has authenticated on the identity provider and is
+        being asked for its password, or that has lost it - because it is
+        exactly where the help is needed. The session already identifies the
+        account, so the request reaches the administrators as authenticated.
+      -->
+      @if (authentication.session && authentication.session.role !== 'whistleblower') {
+        <span id="SupportLinkBox">
+          <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate" (keydown.enter)="utilsService.openSupportModal($event)">
+            <i class="fas fa-life-ring"></i>
+          </a>
+          <span class="text-separator">|</span>
+        </span>
       }
       <span id="LogoutLinkBox">
         <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate" (keydown.enter)="onLogout($event)">

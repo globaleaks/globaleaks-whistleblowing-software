@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
     EnumFieldOptionScoreType, EnumStateFile, \
-    EnumUserRole, EnumUserStatus, EnumVisibility
+    EnumSupportRequestStatus, EnumUserRole, EnumUserStatus, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
     UniqueConstraint, declarative_base, declared_attr, uuid4
@@ -1231,6 +1231,119 @@ class UserProfilePermission(_UserProfilePermission, Base):
         return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 UniqueConstraint('profile_id', 'permission'),
                 CheckConstraint(self.permission.in_(user_permissions)))
+
+
+class _SupportRequest(Model):
+    """
+    An encrypted support conversation scoped to one tenant.
+    """
+    __tablename__ = 'supportrequest'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False, index=True)
+    progressive = Column(Integer, default=0, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    crypto_pub_key = Column(UnicodeText, nullable=False)
+    crypto_prv_key = Column(UnicodeText, nullable=False)
+    root_crypto_prv_key = Column(UnicodeText, default='', nullable=False)
+    crypto_author_prv_key = Column(UnicodeText, default='', nullable=False)
+    mail_address = Column(UnicodeText, default='', nullable=False)
+    status = Column(Enum(EnumSupportRequestStatus), default='new', nullable=False, index=True)
+
+    unicode_keys = [
+        'author_id',
+        'crypto_pub_key',
+        'crypto_prv_key',
+        'root_crypto_prv_key',
+        'crypto_author_prv_key',
+        'mail_address',
+        'status'
+    ]
+    int_keys = ['progressive']
+    optional_references = ['author_id']
+
+
+class SupportRequest(_SupportRequest, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('tid', 'progressive'),
+                CheckConstraint(self.status.in_(EnumSupportRequestStatus.keys())))
+
+
+class _SupportMessage(Model):
+    """
+    An encrypted message belonging to a support conversation.
+    """
+    __tablename__ = 'supportmessage'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    support_request_id = Column(UnicodeText(36), nullable=False, index=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    content = Column(UnicodeText, nullable=False)
+    new = Column(Boolean, default=True, nullable=False)
+
+    unicode_keys = ['support_request_id', 'author_id', 'content']
+    optional_references = ['author_id']
+    bool_keys = ['new']
+
+
+class SupportMessage(_SupportMessage, Base):
+    @declared_attr
+    def __table_args__(self):
+        return ForeignKeyConstraint(['support_request_id'], ['supportrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _InternalTipForwarding(Model):
+    """
+    This model keeps track of forward tip.
+    """
+    __tablename__ = 'internaltip_forwarding'
+    internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+
+    # The private key of the report created by the forward, wrapped with the
+    # public key of the report forwarded so that the whistleblower can talk
+    # with the recipients of the tenant that received the forward
+    crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
+
+    def messages_enabled(self, forwarded_itip):
+        """
+        Tell whether the messages of the forward can reach the whistleblower
+
+        The whistleblower reads them through the key of the forwarded report
+        kept, wrapped, here; a forward missing it has no working exchange.
+
+        :param forwarded_itip: The internaltip of the report created by the forward
+        """
+        return not forwarded_itip.crypto_tip_pub_key or bool(self.crypto_tip_prv_key)
+
+    @declared_attr
+    def __table_args__(self):
+        return (
+            ForeignKeyConstraint(
+                ['internaltip_id'],
+                ['internaltip.id'],
+                ondelete='CASCADE',
+                deferrable=True,
+                initially='DEFERRED'
+            ),
+            ForeignKeyConstraint(
+                ['forwarding_internaltip_id'],
+                ['internaltip.id'],
+                ondelete='CASCADE',
+                deferrable=True,
+                initially='DEFERRED'
+            )
+        )
+
+
+class InternalTipForwarding(_InternalTipForwarding, Base):
+    pass
 
 
 class ArchivedSchema(_ArchivedSchema, Base):

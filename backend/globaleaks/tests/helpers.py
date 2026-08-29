@@ -230,9 +230,9 @@ _orig_sessions_new = Sessions.new
 
 
 def _test_sessions_new(tid, user_id, user_tid, user_username, user_role, cc='', ek='',
-                       roles=None, permissions=None, dpop_jkt=''):
+                       roles=None, permissions=None, sk='', dpop_jkt=''):
     return _orig_sessions_new(tid, user_id, user_tid, user_username, user_role, cc, ek,
-                              roles, permissions, dpop_jkt or DPOP_JKT)
+                              roles, permissions, sk, dpop_jkt or DPOP_JKT)
 
 
 Sessions.new = _test_sessions_new
