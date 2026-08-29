@@ -28,7 +28,8 @@ from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.log import log
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
 
@@ -61,7 +62,8 @@ def db_notify_grant_access(session, user):
         'address': data['user']['mail_address'],
         'subject': subject,
         'body': body,
-        'tid': user.tid
+        'tid': user.tid,
+        'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
     }))
 
 
@@ -1095,7 +1097,8 @@ def db_create_identityaccessrequest_notifications(session, itip, rtip, iar):
             'address': data['user']['mail_address'],
             'subject': subject,
             'body': body,
-            'tid': itip.tid
+            'tid': itip.tid,
+            'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
         }))
 
 
