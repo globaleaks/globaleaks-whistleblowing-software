@@ -68,6 +68,10 @@ describe("admin add, configure, and delete users", () => {
     },
   ];
 
+  const grant = (permission: string) => {
+    cy.contains(".permission-group-items .form-group", permission).find("input").check();
+  };
+
   const openUser = (index: number) => {
     cy.get(".userList").eq(index).find("[data-action='edit']").should("be.visible").click();
   };
@@ -115,14 +119,18 @@ describe("admin add, configure, and delete users", () => {
       // A profile card carries no Edit button: it opens on its own title
       cy.get(".editorTitle").click();
 
-      cy.get('input[name="can_mask_information"]').click();
-      cy.get('input[name="can_redact_information"]').click();
-      cy.get('input[name="can_grant_access_to_reports"]').click();
-      cy.get('input[name="can_transfer_access_to_reports"]').click();
-      cy.get('input[name="can_delete_submission"]').click();
-      cy.get('input[name="can_edit_general_settings"]').click();
-      cy.get('input[name="can_forward_reports"]').check();
-      cy.get('input[name="can_request_forward"]').check();
+      // The name of a permission is bound with [name]="perm.key", so it lives
+      // in the directive and never reaches the DOM: the checkbox is reached
+      // through the label naming it. Some of them are granted already, and a
+      // permission is granted rather than toggled
+      grant("Mask information");
+      grant("Redact information");
+      grant("Grant access to reports");
+      grant("Transfer access to reports");
+      grant("Delete reports");
+      grant("Settings");
+      grant("Forward reports");
+
       cy.get("#save_profile").click();
     });
   });
