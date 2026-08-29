@@ -3,15 +3,33 @@ from nacl.utils import random as nacl_random
 from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, GCE
+from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.utility import uuid4
 
+user_permissions = [
+    'can_edit_general_settings',
+    'can_delete_submission',
+    'can_postpone_expiration',
+    'can_grant_access_to_reports',
+    'can_redact_information',
+    'can_mask_information',
+    'can_transfer_access_to_reports',
+    'can_reopen_reports',
+    'can_request_forward',
+    'can_forward_reports',
+    'can_change_status',
+    'can_change_label'
+]
+
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_role, cc='', ek=False):
+    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+                 permissions=None):
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
+          'ek': ek,
           'expireCall': None
         })
 
@@ -19,17 +37,20 @@ class Session(dict):
             'tid': tid,
             'user_id': user_id,
             'user_tid': user_tid,
-            'username': '',
+            'username': user_username,
             'role': user_role,
-            'ek': ek,
+            'roles': roles or [],
             'files': [],
             'token': State.tokens.new(tid),
             'properties': {},
-            'permissions': {},
+            'permissions': ObjectDict(),
             # RFC 9449 DPoP binding: thumbprint (jkt) of the client public key
             # bound to this session.
             'dpop_jkt': ''
         }
+
+        if permissions:
+            self.attrs['permissions'] = permissions
 
     def __getattr__(self, name):
         if name in self or name == 'attrs':
@@ -50,11 +71,13 @@ class Session(dict):
         key = bytes.fromhex(self.id)
         session.id = sha256(self.id)
         session.cc = GCE.symmetric_encrypt(key, self.cc)
+        session.ek = GCE.symmetric_encrypt(key, self.ek)
         return session
 
     def decrypt(self, key):
         key = bytes.fromhex(key)
         self.cc = GCE.symmetric_decrypt(key, self.cc)
+        self.ek = GCE.symmetric_decrypt(key, self.ek)
 
     def getTime(self):
         return self.expireCall.getTime() if self.expireCall else 0
@@ -92,9 +115,16 @@ class SessionsFactory(TempDict):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_role, cc='', ek='', dpop_jkt=''):
+    def revoke_user(self, user_tid, user_id):
+        for k, v in list(self.items()):
+            if v.user_tid == user_tid and v.user_id == user_id:
+                del self[k]
+
+    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+            permissions=None, dpop_jkt=''):
         self.revoke(tid, user_id)
-        session = Session(tid, user_id, user_tid, user_role, cc, ek)
+        session = Session(tid, user_id, user_tid, user_username, user_role,
+                          cc, ek, roles, permissions)
         session.dpop_jkt = dpop_jkt
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
@@ -118,4 +148,4 @@ Sessions = SessionsFactory(timeout=Settings.authentication_lifetime)
 
 def initialize_submission_session(tid, dpop_jkt=''):
     prv_key, pub_key = GCE.generate_keypair()
-    return Sessions.new(tid, uuid4(), tid, 'whistleblower', prv_key, dpop_jkt=dpop_jkt)
+    return Sessions.new(tid, uuid4(), tid, 'whistleblower', 'whistleblower', prv_key, dpop_jkt=dpop_jkt)

@@ -17,7 +17,7 @@ export class RecipientSettingsComponent {
   private router = inject(Router);
 
   constructor() {
-    if (!this.preferenceResolver.dataModel.can_edit_general_settings) {
+    if (!this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
       this.router.navigate(['recipient/home']).then();
     }
   }

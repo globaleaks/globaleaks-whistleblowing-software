@@ -74,10 +74,7 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
         data['iar'] = serializers.serialize_identityaccessrequest(session, iar)
         data['node'] = db_admin_serialize_node(session, user.tid, user.language)
 
-        if data['node']['mode'] == 'default':
-            data['notification'] = db_get_notification(session, user.tid, user.language)
-        else:
-            data['notification'] = db_get_notification(session, 1, user.language)
+        data['notification'] = db_get_notification(session, user.tid, user.language)
 
         data['submission_statuses'] = db_get_submission_statuses(session, user.tid, user.language)
 

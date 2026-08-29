@@ -50,8 +50,8 @@ export class TipFilesReceiverComponent {
     // Privileged recipients receive the real name from the server; cover it
     // with the same placeholder used elsewhere while outside the masking editor.
     if (this.maskService.isMasked(file.ifile_id, this.tipService.tip) && !this.redactMode() &&
-        (this.preferenceResolver.dataModel?.can_mask_information ||
-         this.preferenceResolver.dataModel?.can_redact_information)) {
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information)) {
       return String.fromCharCode(0x2591).repeat(file.name.length);
     }
 
@@ -63,8 +63,8 @@ export class TipFilesReceiverComponent {
     // privileged recipient views it inside the masking editor (redact mode).
     return !this.maskService.isMasked(file.ifile_id, this.tipService.tip) ||
       (this.redactMode() &&
-        (this.preferenceResolver.dataModel?.can_mask_information ||
-         this.preferenceResolver.dataModel?.can_redact_information));
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information));
   }
 
   redactFileOperation(operation: string, content_type: string, file: any, tip_id: string) {

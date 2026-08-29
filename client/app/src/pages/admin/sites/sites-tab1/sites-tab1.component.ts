@@ -17,19 +17,27 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 export class SitesTab1Component implements OnInit {
   private httpService = inject(HttpService);
 
-  newTenant: { name: string, active: boolean, mode: string, subdomain: string } = {
+  newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
     active: true,
-    mode: "default",
-    subdomain: ""
+    profile: "default",
+    subdomain: "",
+    is_profile: false
   };
+
   tenants: tenantResolverModel[] = [];
+  siteProfiles: tenantResolverModel[] = [];
   showAddTenant = false;
 
   ngOnInit(): void {
+    this.fetchTenants();
+  }
+
+  fetchTenants() {
     this.httpService.fetchTenant().subscribe(
-      tenant => {
-        this.tenants = tenant;
+      tenants => {
+        this.tenants = tenants.filter(tenant => tenant.id < 1000001);
+        this.siteProfiles = tenants.filter(tenant => tenant.id > 1000001);
       }
     );
   }
@@ -42,6 +50,7 @@ export class SitesTab1Component implements OnInit {
     this.httpService.addTenant(this.newTenant).subscribe(res => {
       this.tenants = [...this.tenants, res];
       this.newTenant.name = "";
+      this.newTenant.profile = "default";
     });
   }
 

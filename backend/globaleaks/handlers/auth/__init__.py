@@ -2,15 +2,17 @@
 import json
 from datetime import timedelta
 from sqlalchemy import exists, func, or_, and_
-
+from sqlalchemy.orm import joinedload
 from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
 import globaleaks.handlers.auth.token
-
+from globaleaks.handlers.admin.user import db_create_user
+from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
 from globaleaks.handlers.base import connection_check, BaseHandler
-from globaleaks.handlers.user import db_reconcile_statistical_key
-from globaleaks.models import InternalTip, User
+from globaleaks.handlers.user import db_reconcile_statistical_key, user_permissions
+from globaleaks.models import InternalTip, User, UserProfile
+
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
@@ -18,6 +20,7 @@ from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.state import State
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.log import log
+from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.utility import datetime_now
 
 
@@ -25,6 +28,11 @@ def db_receipt_auth_is_legacy(session, tid):
     # Legacy server-hashed mode while any pre-key receipt_hash (length < 64) remains.
     return session.query(exists().where(and_(InternalTip.tid == tid,
                                               func.length(InternalTip.receipt_hash) < 64))).scalar()
+
+
+
+
+
 
 
 def db_set_receipt_hash(session, tid, itip, receipt):
@@ -82,6 +90,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     except Exception:
         db_login_failure(session, tid, 0)
 
+
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
                           InternalTip.receipt_hash == hash).one_or_none()
@@ -100,7 +109,8 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
 
     db_log(session, tid=tid, type='whistleblower_login', object_id=itip.id)
 
-    session = Sessions.new(tid, itip.id, tid, 'whistleblower', crypto_prv_key, dpop_jkt=dpop_jkt)
+    session = Sessions.new(tid, itip.id, tid, itip.id, 'whistleblower', crypto_prv_key, dpop_jkt=dpop_jkt)
+
 
     session.properties["receipt_change_needed"] = itip.receipt_change_needed
 
@@ -109,6 +119,7 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
 
 @transact
 def login(session, tid, username, password, authcode, client_using_tor, client_ip, dpop_jkt=''):
+
     """
     Login transaction for users' access
 
@@ -121,18 +132,26 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :param client_ip:  The client IP
     :return: Returns a user session in case of success
     """
-    if tid in State.tenants and State.tenants[tid].cache.simplified_login:
-        user = session.query(User).filter(or_(User.id == username,
-                                              User.username == username),
-                                          User.enabled.is_(True),
-                                          User.tid == tid).one_or_none()
-    else:
-        user = session.query(User).filter(User.username == username,
-                                          User.enabled.is_(True),
-                                          User.tid == tid).one_or_none()
+    query = session.query(User) \
+                   .options(joinedload(User.profile).joinedload(UserProfile.permissions),
+                            joinedload(User.profile).joinedload(UserProfile.roles)) \
+                   .filter(User.enabled.is_(True), User.tid == tid)
 
-    if not user:
+    user = None
+
+    if user is None:
+        if tid in State.tenants and State.tenants[tid].cache.simplified_login:
+            user = query.filter(or_(User.id == username, User.username == username)).one_or_none()
+        else:
+            user = query.filter(User.username == username).one_or_none()
+
+    if user is None:
         db_login_failure(session, tid, 0)
+
+    # An account provisioned by the identity provider and whose user has not
+    # set a password yet is accessible only via the identity bound to it
+    if not user.hash:
+        raise errors.InvalidAuthentication
 
     connection_check(tid, user.role, client_ip, client_using_tor)
 
@@ -148,6 +167,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if not password or not GCE.check_equality(hash, user.hash):
         db_login_failure(session, tid, 0, user_id=user.id)
 
+
     if user.two_factor_secret:
         if authcode == '':
             raise errors.TwoFactorAuthCodeRequired
@@ -161,14 +181,10 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if user.crypto_prv_key:
         crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(user.crypto_prv_key))
     elif State.tenants[tid].cache.encryption:
-        # Special condition where the user is accessing for the first time via password
-        # on a system with no escrow keys.
         crypto_prv_key, _ = GCE.generate_keypair()
 
-        # Force password change on which the user key will be created
         user.password_change_needed = True
 
-    # Require password change if password change threshold is exceeded
     if State.tenants[tid].cache.password_change_period > 0 and \
        user.password_change_date < datetime_now() - timedelta(days=State.tenants[tid].cache.password_change_period):
         user.password_change_needed = True
@@ -182,17 +198,30 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 
-    session = Sessions.new(tid, user.id, user.tid, user.role, crypto_prv_key, user.crypto_escrow_prv_key != '', dpop_jkt=dpop_jkt)
+    permissions = ObjectDict()
+    for r in user_permissions:
+        permissions[r] = r in user.profile.permissions_list
 
-    session.properties['password_change_needed'] = user.password_change_needed
-    session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
-    session.permissions['can_edit_general_settings'] = user.role == 'receiver' and user.can_edit_general_settings
+    user_session = Sessions.new(tid, user.id, user.tid, user.username, user.role, crypto_prv_key, user.crypto_escrow_prv_key, user.profile.roles_list, permissions, dpop_jkt=dpop_jkt)
 
-    return session
+    user_session.properties['password_change_needed'] = user.password_change_needed
+    user_session.properties['require_two_factor'] = State.tenants[tid].cache.two_factor and not user.two_factor_secret
+
+    return user_session
+
+
 
 
 @transact
 def get_auth_type(session, tid, username):
+    """
+    Resolve the authentication type and the salt to be applied by a client
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param username: A provided username
+    :return: The authentication type to be performed by the client
+    """
     salt = ConfigFactory(session, tid).get_val('receipt_salt')
 
     if not username: # whistleblower
@@ -207,10 +236,17 @@ def get_auth_type(session, tid, username):
 
         salt = salt if not user else user.salt
 
-        if not user or len(user.hash) == 64:
+        # An account holding no password is presented as any other account, so
+        # that the accounts still to be set up are not disclosed
+        if not user or not user.hash or len(user.hash) == 64:
             return {'type': 'key', 'salt': salt}
 
     return {'type': 'password'}
+
+
+@transact
+def get_user_roles(session, tid, user_id):
+    return session.query(User).filter(User.tid == tid, User.id == user_id).one().profile.roles_list
 
 
 class AuthTypeHandler(BaseHandler):
@@ -221,6 +257,7 @@ class AuthTypeHandler(BaseHandler):
 
     def post(self):
         username = json.loads(self.request.content.read())['username']
+
         return get_auth_type(self.request.tid, username)
 
 
@@ -245,6 +282,7 @@ class AuthenticationHandler(BaseHandler):
                               self.request.client_using_tor,
                               self.request.client_ip,
                               self.get_dpop_thumbprint())
+
 
         if tid != self.request.tid:
             # The session is issued for the redirect login flow: a freshly loaded
@@ -311,6 +349,7 @@ class ReceiptAuthHandler(BaseHandler):
             session = yield login_whistleblower(self.request.tid, request['receipt'],
                                                 self.request.client_using_tor,
                                                 dpop_jkt=dpop_jkt)
+
         else:
             if not self.state.accept_submissions or self.state.tenants[self.request.tid].cache['disable_submissions']:
                 raise errors.SubmissionDisabled
@@ -385,12 +424,44 @@ class TenantAuthSwitchHandler(BaseHandler):
         session = Sessions.new(tid,
                                self.session.user_id,
                                self.session.user_tid,
+                               self.session.username,
                                self.session.role,
                                self.session.cc,
                                self.session.ek,
+                               permissions=self.session.permissions,
                                dpop_jkt=self.get_dpop_thumbprint())
+
 
         session.properties['management_session'] = True
         session.properties['authtoken'] = True
 
         return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
+
+
+class RoleAuthSwitchHandler(BaseHandler):
+    """
+    Login handler for switching role
+    """
+    check_roles = 'user'
+
+    @inlineCallbacks
+    def get(self, role):
+        roles = yield get_user_roles(self.request.tid, self.session.user_id)
+
+        if role not in roles:
+            raise errors.InvalidAuthentication
+
+        session = Sessions.new(self.session.tid,
+                               self.session.user_id,
+                               self.session.user_tid,
+                               self.session.username,
+                               role,
+                               self.session.cc,
+                               self.session.ek,
+                               permissions=self.session.permissions)
+
+        # The redirect is spent through the token login, that alone can adopt
+        # the session and bind it to the key of the client presenting it
+        session.properties['authtoken'] = True
+
+        return {'redirect': '/#/login?token=%s' % (session.id)}
