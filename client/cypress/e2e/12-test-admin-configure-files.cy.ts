@@ -6,8 +6,10 @@ describe("Admin configure files", () => {
 
     cy.get('[data-cy="files"]').click();
 
-    cy.get("[name='authenticationData.session.permissions.can_upload_files']").should("not.be.checked");
-    cy.get("[name='authenticationData.session.permissions.can_upload_files_switch']").click();
+    // The permission is offered as one switch, that says what it is and is what
+    // is toggled: the name it used to carry lives in the directive now
+    cy.get("#toggle-upload-files").should("not.be.checked");
+    cy.get("#toggle-upload-files").click();
     cy.get(".modal").should("be.visible");
     cy.get(".modal [type='password']").type("wrongpassword");
     cy.get(".modal .btn-primary").click();
@@ -19,7 +21,7 @@ describe("Admin configure files", () => {
     cy.get(".modal [type='password']").clear().type(Cypress.env("user_password"));
     cy.get(".modal .btn-primary").click();
 
-    cy.get("[name='authenticationData.session.permissions.can_upload_files']").should("be.checked");
+    cy.get("#toggle-upload-files").should("be.checked");
 
     cy.takeScreenshot("admin/site_settings_files");
 
@@ -40,8 +42,8 @@ describe("Admin configure files", () => {
     cy.get("table#fileList").get(".fa-download").last().click();
     cy.get("table#fileList").get(".fa-trash").last().click();
 
-    cy.get("[name='authenticationData.session.permissions.can_upload_files_switch']").click();
-    cy.get("[name='authenticationData.session.permissions.can_upload_files']").should("not.be.checked");
+    cy.get("#toggle-upload-files").click();
+    cy.get("#toggle-upload-files").should("not.be.checked");
 
     cy.logout();
   });

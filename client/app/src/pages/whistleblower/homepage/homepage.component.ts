@@ -1,9 +1,7 @@
-import {ChangeDetectorRef, Component, inject, OnInit} from "@angular/core";
+import {Component, inject, OnInit} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {DisclaimerComponent} from "@app/shared/modals/disclaimer/disclaimer.component";
-import {Observable} from "rxjs";
 import {AppConfigService} from "@app/services/root/app-config.service";
+import {Router} from "@angular/router";
 
 import {MarkdownComponent} from "ngx-markdown";
 import {ReceiptComponent} from "@app/shared/partials/receipt/receipt.component";
@@ -19,8 +17,7 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 export class HomepageComponent  implements OnInit {
   protected appConfigService = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
-  private modalService = inject(NgbModal);
-  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   ngOnInit(): void {
     if (this.appDataService.public.node.homepage === '/submission') {
@@ -28,23 +25,15 @@ export class HomepageComponent  implements OnInit {
     }
   }
 
+  // The disclaimer is presented by the page of the submission itself, so that
+  // it is shown as well to whoever reaches it without passing from here
   openSubmission() {
-    if (this.appDataService.public.node.disclaimer_text) {
-      return this.openDisclaimerModal().subscribe();
+    if (this.appDataService.public.node.whistleblowing_destination === "/login") {
+      this.router.navigate(["/login"]).then();
+      return this.appDataService.page;
     }
+
     this.appConfigService.setPage("submissionpage");
     return this.appDataService.page;
-  }
-
-  openDisclaimerModal(): Observable<string> {
-    return new Observable((observer) => {
-      const modalRef = this.modalService.open(DisclaimerComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.confirmFunction = () => {
-        observer.complete()
-        this.appConfigService.setPage("submissionpage");
-        this.cdr.markForCheck();
-        return this.appDataService.page;
-      };
-    });
   }
 }

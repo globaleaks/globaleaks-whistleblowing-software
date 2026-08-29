@@ -1,0 +1,40 @@
+@if (sortBy) {
+  <button type="button" class="sortable btn btn-link p-0 border-0 text-reset text-decoration-none" (click)="state.toggleSort(sortBy)" [attr.aria-sort]="state.orderBy !== sortBy ? null : (state.orderDesc ? 'descending' : 'ascending')">
+    <ng-container *ngTemplateOutlet="name"></ng-container>
+    @if (state.orderBy !== sortBy) {
+      <i class="fas fa-sort text-muted ms-1" aria-hidden="true"></i>
+    } @else if (state.orderDesc) {
+      <i class="fas fa-sort-down ms-1" aria-hidden="true"></i>
+    } @else {
+      <i class="fas fa-sort-up ms-1" aria-hidden="true"></i>
+    }
+  </button>
+} @else {
+  <ng-container *ngTemplateOutlet="name"></ng-container>
+}
+<ng-template #name>
+  @if (icon) {
+    <i class="fas {{ icon }}" aria-hidden="true"></i>
+  }
+  <span [class.visually-hidden]="labelHidden">{{ label }}</span>
+</ng-template>
+@if (filterType === 'select') {
+  <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
+    <button type="button" class="btn btn-link p-0 border-0 text-reset" [attr.id]="'filter-' + filter" [attr.aria-label]="label" [attr.aria-expanded]="state.openFilter === filter" (click)="state.toggleFilter(filter);$event.stopPropagation();">
+      <i class="fas fa-filter" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" aria-hidden="true"></i>
+    </button>
+    <span [class.d-none]="state.openFilter !== filter" (click)="$event.stopPropagation()">
+      <ng-multiselect-dropdown [class.dropdown-visible]="state.openFilter === filter" [settings]="dropdownSettings" [data]="options" [ngModel]="state.selections[filter]" (ngModelChange)="state.setSelection(filter, $event)"></ng-multiselect-dropdown>
+    </span>
+  </span>
+}
+@if (filterType === 'daterange') {
+  <span class="ngb-datepicker-container ms-1" (click)="$event.stopPropagation()">
+    <button type="button" class="btn btn-link p-0 border-0 text-reset" [attr.id]="'filter-' + filter" [attr.aria-label]="label" [attr.aria-expanded]="state.openFilter === filter" (click)="state.toggleFilter(filter);$event.stopPropagation();">
+      <i class="fas fa-calendar" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" aria-hidden="true"></i>
+    </button>
+    <div [hidden]="state.openFilter !== filter" (click)="$event.stopPropagation()">
+      <src-date-selector class="position-absolute d-block" [currentDates]="null" (emitDateSelection)="state.setRange(filter, $event)"></src-date-selector>
+    </div>
+  </span>
+}

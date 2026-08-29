@@ -1,3 +1,4 @@
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {Component, inject} from "@angular/core";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -13,14 +14,9 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-identity-access-requests",
     templateUrl: "./identity-access-requests.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, TranslateModule]
+    imports: [PaginatedInterfaceComponent, DatePipe, NgbTooltipModule, TranslateModule]
 })
 export class IdentityAccessRequestsComponent {
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  protected iarResolver = inject(IarResolver);
-  protected utilsService = inject(UtilsService);
-
   usersNames: Record<string, string> = {};
 
   constructor() {
@@ -30,6 +26,12 @@ export class IdentityAccessRequestsComponent {
       }
     });
   }
+
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  protected iarResolver = inject(IarResolver);
+  protected utilsService = inject(UtilsService);
+
 
   authorizeIdentityAccessRequest(iar_id: string) {
     this.httpService.authorizeIdentity("api/custodian/iars/" + iar_id, {
