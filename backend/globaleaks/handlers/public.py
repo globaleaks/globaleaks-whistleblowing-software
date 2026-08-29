@@ -288,6 +288,7 @@ def db_serialize_node(session, tid, language):
     # The cost of the key derivation the client has to match
     ret['kdf_opslimit'] = GCE.options['OPSLIMIT']
     ret['kdf_memlimit'] = GCE.options['MEMLIMIT']
+    ret['support'] = node.get_val('crypto_support_pub_key') != ''
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 

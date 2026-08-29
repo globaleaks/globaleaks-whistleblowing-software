@@ -22,7 +22,9 @@ describe("Recipient first login", () => {
     cy.get('#tab2').click();
     cy.takeScreenshot("user/password_change");
     cy.get("#SupportLink").click();
-    cy.get("#support-request-email").clear();
+    // A request made from inside the platform carries the account making it:
+    // the address is asked only of a visitor that is not signed in
+    cy.get("#support-request-message").should("be.visible");
     cy.takeScreenshot("user/modal_support", ".modal-dialog");
     cy.get(".modal #modal-action-cancel").click();
     cy.logout();

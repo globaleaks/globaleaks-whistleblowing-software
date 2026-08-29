@@ -46,6 +46,12 @@ class EnumStateFile(_Enum):
     infected = 2
 
 
+class EnumSupportRequestStatus(_Enum):
+    new = 0
+    opened = 1
+    closed = 2
+
+
 class EnumUserStatus(_Enum):
     active = 0
     suspend = 1

@@ -35,12 +35,15 @@ export class UserEditorComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   private cryptoService = inject(CryptoService);
   protected preferenceResolver = inject(PreferenceResolver);
+  private elementRef = inject(ElementRef);
 
   readonly user = input.required<User>();
   readonly users = input<User[]>();
   readonly index = input<number>();
   readonly editUser = input.required<NgForm>();
   readonly profiles = input<UserProfile[]>([]);
+  // A link pointing at this user opens its card and brings it into view
+  readonly expanded = input(false);
   readonly deleted = output<string>();
   readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
@@ -52,9 +55,7 @@ export class UserEditorComponent implements OnInit {
   appServiceData: AppDataService;
   protected readonly Constants = Constants;
 
-  // The permissions of the user's personal profile grouped by role; the label
-  // vocabulary is shared with the profile editor (see permissions.ts). The
-  // expiration toggle is hidden when the platform grants it to every recipient
+  // Permissions of the personal profile grouped by role; labels shared with the profile editor
   get permissionGroups(): PermissionGroup[] {
     const groups = buildPermissionGroups(this.user().profile?.roles || [], this.nodeData.tid === 1);
 
@@ -86,6 +87,13 @@ export class UserEditorComponent implements OnInit {
 
     this.user().profile = this.profiles().filter(profile => profile.id === this.user().profile_id)[0];
     this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
+
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
+    }
   }
 
   disable2FA(user: User) {
@@ -145,11 +153,14 @@ export class UserEditorComponent implements OnInit {
   openConfirmableModalDialog(arg: User, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.user = arg;
-      modalRef.componentInstance.statsChanged = statsChanged;
+      // The dialog states what the deletion carries away and closes before it is performed: its
+      // counts are read from the instance
+      const dialog = modalRef.componentInstance;
+      dialog.user = arg;
+      dialog.statsChanged = statsChanged;
 
-      modalRef.componentInstance.confirmFunction = () => {
-        const stats = modalRef.componentInstance.userStats;
+      dialog.confirmFunction = () => {
+        const stats = dialog.userStats;
         observer.complete();
 
         return this.utilsService.deleteAdminUser(arg.id, stats).subscribe({

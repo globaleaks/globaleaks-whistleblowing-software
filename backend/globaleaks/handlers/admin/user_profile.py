@@ -3,6 +3,8 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.support import db_reconcile_support_user_access, \
+                                         decrypt_tenant_support_private_key
 from globaleaks.handlers.user import serialize_user_profile, \
                                      user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
@@ -16,7 +18,6 @@ from globaleaks.utils.utility import uuid4
 def session_admin_permissions(user_session):
     """
     The administrative areas the operator manages, the single notion of "what
-    the operator holds" the grant and administer gates confine an operation to.
 
     :param user_session: The session of the operator
     :return: The set of administrative permissions held by the session
@@ -27,16 +28,6 @@ def session_admin_permissions(user_session):
 def db_enforce_grantable(user_session, permissions=None, roles=None):
     """
     Prevent an operator from conferring, through a user or a profile, an
-    administrative permission it does not itself hold, or the administrator
-    role unless it is itself an administrator. This confines an operator
-    entitled to manage users to its own privilege level: it cannot grant
-    itself (or anyone) an administrative area it lacks, nor mint a new
-    administrator. The operational permissions of the recipients are not
-    administrative privilege and stay freely conferable: an administrator
-    holds none of them and could otherwise not configure a recipient.
-
-    A system operation (no session, e.g. the wizard or a signup provisioning)
-    is unrestricted.
 
     :param user_session: The session of the operator, or None for a system op
     :param permissions: The permissions map being conferred, if any
@@ -50,9 +41,7 @@ def db_enforce_grantable(user_session, permissions=None, roles=None):
         if granted - session_admin_permissions(user_session):
             raise errors.ForbiddenOperation
 
-    # The privilege of a session is its active role: a session switched to a
-    # secondary tenant or to another role keeps role and permissions, not the
-    # role list of the profile it logged in with.
+    # The privilege of a session is its active role, not the role list
     if roles and 'admin' in roles and user_session.role != 'admin':
         raise errors.ForbiddenOperation
 
@@ -60,12 +49,6 @@ def db_enforce_grantable(user_session, permissions=None, roles=None):
 def db_enforce_assignable_profile(session, tid, user_session, profile_id, role):
     """
     Validate the binding of a user to a shared profile
-
-    The profile must exist on the tenant of the operation or on the tenant it
-    inherits its profiles from, the role given to the user must be one of the
-    roles of the profile, and the profile must confer nothing the operator
-    could not confer directly: the permissions checked are the ones the
-    profile actually holds, not the ones a client claims.
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -96,16 +79,6 @@ def db_enforce_assignable_profile(session, tid, user_session, profile_id, role):
 def db_enforce_administrable(session, tid, user_session, permissions, user_ids):
     """
     Prevent an operator from administering an account or a profile above its
-    own privilege level
-
-    The administrative permissions the subject holds must all be held by the
-    operator too, so that a privilege can be removed only by an operator
-    entitled to confer it back. When the subject is a protected user, or a
-    profile a protected user is bound to, the operator must additionally be a
-    protected user itself, exactly as the escrow the protected users hold can
-    be dismantled only by them.
-
-    A system operation (no session) is unrestricted.
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -133,9 +106,11 @@ def sync_roles(session, profile, request, sync_users=True):
     current_roles = {r.role for r in profile.roles}
     roles_set = set(roles)
 
-    # Remove old roles
+    # Removed from the collection as well: a row only marked for deletion would still describe the
+    # profile
     for role in list(profile.roles):
         if role.role not in roles_set:
+            profile.roles.remove(role)
             session.delete(role)
 
     # Add new roles
@@ -150,10 +125,6 @@ def sync_roles(session, profile, request, sync_users=True):
 def db_local_context_of(session, tid, template_id):
     """
     Resolve on a tenant the channel a profile association refers to
-
-    The associations of a user profile name the channels of the tenant the
-    profile lives on: on the tenants inheriting the profile they resolve to
-    the derived channels.
 
     :param session: An ORM session
     :param tid: The tenant ID of the user
@@ -212,16 +183,6 @@ def db_detach_user_from_profile_contexts(session, user, profile):
 def sync_contexts(session, profile, request, sync_users=True):
     """
     Align the channels associated to a profile and the receivers they carry
-
-    The channels a profile carries its users to are named on the channels
-    themselves, that is where an administrator composes them: this is the same
-    association read from the other side, and is written by what composes a
-    profile whole - the import of a profile carried from another platform.
-
-    The channels added to a profile gain as receivers every user holding the
-    profile, on every tenant; the channels removed lose them. The reports
-    already received stay with their recipients: attaching and detaching a
-    receiver decides the reports to come, never the ones at rest.
     """
     if 'contexts' not in request:
         return
@@ -236,8 +197,11 @@ def sync_contexts(session, profile, request, sync_users=True):
 
     current = {c.context_id for c in profile.contexts}
 
+    # Removed from the collection as well as from the database, as the roles
+    # and the permissions are: the profile describes itself by what it holds.
     for association in list(profile.contexts):
         if association.context_id not in requested:
+            profile.contexts.remove(association)
             session.delete(association)
 
     for context_id in requested - current:
@@ -277,9 +241,11 @@ def sync_permissions(session, profile, request):
     current_permissions = {p.permission for p in profile.permissions}
     permissions_set = set(permissions)
 
-    # Remove old roles
+    # Removed from the collection as well as from the database, for the same
+    # reason the roles are: what is revoked must not be described as granted.
     for permission in list(profile.permissions):
         if permission.permission not in permissions_set:
+            profile.permissions.remove(permission)
             session.delete(permission)
 
     # Add new roles
@@ -291,14 +257,9 @@ def db_resolve_default_user_profile(session, tid):
     """
     Resolve the profile assigned by default to the users created on a tenant
 
-    The configuration holds either a role keyword, in which case the user is
-    created with the given role and a profile of its own, or the reference of a
-    user profile, in which case the user inherits its role and its permissions.
-
     :param session: An ORM session
     :param tid: A tenant ID
     :return: The role and the profile ID to be assigned to the created user;
-             the role is empty when the tenant creates no user by default
     """
     # Read the tenant specific value (inherited from the tenant profile)
     # falling back on the root tenant configuration set via Settings/Advanced
@@ -424,7 +385,12 @@ def update_user_profile(session, tid, user_session, profile_id, request):
     db_enforce_administrable(session, tid, user_session,
                              current_profile.permissions_list,
                              [user.id for user in affected_users])
+    support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
     profile = db_update_user_profile(session, tid, profile_id, request)
+    admin_capable = 'admin' in request['roles']
+
+    for user in affected_users:
+        db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=admin_capable)
 
     return profile, [user.id for user in affected_users]
 
