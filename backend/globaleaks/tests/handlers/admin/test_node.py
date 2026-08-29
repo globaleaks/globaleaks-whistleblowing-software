@@ -3,7 +3,29 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import __version__
 from globaleaks.handlers.admin import node
 from globaleaks.rest.errors import InputValidationError
+from globaleaks.state import State
 from globaleaks.tests import helpers
+
+
+class FakeBackupJob:
+    name = "Backup"
+    interval = 24 * 3600
+
+    def __init__(self):
+        self.running = False
+        self.scheduled = False
+
+    def get_delay(self):
+        return 0
+
+    def schedule(self):
+        self.scheduled = True
+        self.running = True
+        State.jobs_status["Backup"] = {"status": "running", "execution_time": 0}
+
+    def stop(self):
+        self.running = False
+        State.jobs_status["Backup"]["status"] = "stopped"
 
 
 class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
@@ -46,6 +68,34 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.dummyNode['default_language'] = "fr"
         handler = self.request(self.dummyNode, role='admin')
         yield handler.put()
+
+    @inlineCallbacks
+    def test_put_backup_enabled_reschedules_and_stops_job(self):
+        job = FakeBackupJob()
+        State.jobs = [job]
+        State.jobs_status["Backup"] = {"status": "stopped", "execution_time": 0}
+
+        self.dummyNode['backup_enabled'] = True
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+        self.assertTrue(job.scheduled)
+        self.assertTrue(job.running)
+        self.assertEqual(State.jobs_status["Backup"]["status"], "running")
+
+        self.dummyNode['backup_enabled'] = False
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+        self.assertFalse(job.running)
+        self.assertEqual(State.jobs_status["Backup"]["status"], "stopped")
+
+    @inlineCallbacks
+    def test_put_backup_ignored_on_secondary_tenant(self):
+        self.dummyNode['backup_enabled'] = True
+
+        handler = self.request(self.dummyNode, role='admin', tid=2)
+        response = yield handler.put()
+
+        self.assertFalse(response['backup_enabled'])
 
     @inlineCallbacks
     def test_update_ignored_fields(self):
