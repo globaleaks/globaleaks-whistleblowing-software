@@ -1,3 +1,4 @@
+@if (show) {
 <div class="row">
   @if (step === 1) {
     <div class="col-md-6 wizard-block">
@@ -9,15 +10,11 @@
       <div class="congratulations">
         <div class="title">{{'Success!'|translate}}</div>
         <div>
-          @if (appDataService.public.node.signup_auto_authorize || signup.token) {
-            <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
-            <span>{{'Check your inbox for the credentials.'|translate}}</span>
-          }
-          @if (!appDataService.public.node.signup_auto_authorize && !signup.token) {
-            <span>{{'Your whistleblowing platform registration is waiting for approval.'|translate}}</span>
-          }
+          <span>{{'Sign up completed.'|translate}}</span>
+          <span>{{'Check your inbox.'|translate}}</span>
         </div>
       </div>
     </div>
   }
 </div>
+}
