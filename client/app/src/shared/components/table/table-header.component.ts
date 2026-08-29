@@ -3,7 +3,7 @@ import {Component, Input, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/date-selector.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
-import {TranslateService} from "@ngx-translate/core";
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 
 /**
@@ -17,7 +17,7 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
   selector: "th[appTableHeader]",
   templateUrl: "./table-header.component.html",
   standalone: true,
-  imports: [DateRangeSelectorComponent, FormsModule, NgClass, NgMultiSelectDropDownModule, NgTemplateOutlet]
+  imports: [DateRangeSelectorComponent, FormsModule, NgClass, NgMultiSelectDropDownModule, NgTemplateOutlet, TranslateModule]
 })
 export class TableHeaderComponent {
   private translateService = inject(TranslateService);

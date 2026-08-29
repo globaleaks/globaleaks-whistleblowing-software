@@ -1,14 +1,26 @@
 @if (!authentication.requireAuthCode) {
   <div>
-    <div class="form-group">
-      <label for="default-login-username" class="visually-hidden">{{ 'Username' | translate }}</label>
-      <div class="input-group mb-3">
-        <span class="input-group-text">
-          <i class="fas fa-user"></i>
-        </span>
-        <input id="default-login-username" class="form-control" name="username" [attr.aria-label]="'Username' | translate" placeholder="{{'Username' | translate}}" [(ngModel)]="authentication.loginData.loginUsername" type="text" required />
+    @if (!appDataService.public.node.idp || authentication.requireUsername) {
+      <div class="form-group">
+        <label for="default-login-username" class="visually-hidden">{{ 'Username' | translate }}</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text">
+            <i class="fas fa-user"></i>
+          </span>
+          <input id="default-login-username" class="form-control" name="username" [attr.aria-label]="'Username' | translate" placeholder="{{'Username' | translate}}" [(ngModel)]="authentication.loginData.loginUsername" type="text" required />
+        </div>
       </div>
-    </div>
+    } @else {
+      <div class="form-group">
+        <label for="default-login-username" class="visually-hidden">{{ 'Username' | translate }}</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text">
+            <i class="fas fa-user"></i>
+          </span>
+          <input id="default-login-username" class="form-control" [attr.aria-label]="'Username' | translate" [value]="authentication.loginData.loginUsername" type="text" readonly />
+        </div>
+      </div>
+    }
     <div class="form-group mb-3">
       <label for="default-login-password" class="visually-hidden">{{ 'Password' | translate }}</label>
       <div class="input-group">

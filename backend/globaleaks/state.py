@@ -243,8 +243,6 @@ class StateClass(ObjectDict, metaclass=Singleton):
     def sendmail(self, tid, to_address, subject, body, use_smtp2=False):
         if self.settings.disable_notifications:
             return succeed(True)
-        if self.tenants[tid].cache.mode != 'default':
-            tid = 1
         notification = self.tenants[tid].cache.notification
 
         if notification.smtp2_enabled and use_smtp2:
@@ -356,8 +354,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
     def format_and_send_mail(self, session, tid, mail_address, template_vars):
         mail_subject, mail_body = Templating().get_mail_subject_and_body(template_vars)
 
-        n_tid = tid if self.tenants[tid].cache.mode == 'default' else 1
-        secondary_smtp = mail_uses_smtp2(self.tenants[n_tid].cache.notification,
+        secondary_smtp = mail_uses_smtp2(self.tenants[tid].cache.notification,
                                          template_vars.get('type', ''))
 
         db_schedule_email(session, tid, mail_address, mail_subject, mail_body, secondary_smtp)

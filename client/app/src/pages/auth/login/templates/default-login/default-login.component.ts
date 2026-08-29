@@ -1,4 +1,5 @@
 import {Component, inject, input} from "@angular/core";
+import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -20,6 +21,7 @@ import {TranslateModule} from "@ngx-translate/core";
 export class DefaultLoginComponent {
   protected utilsService = inject(UtilsService);
   protected authentication = inject(AuthenticationService);
+  protected appDataService = inject(AppDataService);
 
   readonly loginData = input<LoginDataRef>();
   readonly loginValidator = input.required<NgForm>();

@@ -1,7 +1,7 @@
 import {ComponentFactoryResolver, Directive, ViewContainerRef, OnInit, inject, input} from "@angular/core";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User} from "@app/models/resolvers/user-resolver-model";
 import {ImageUploadComponent} from "@app/shared/partials/image-upload/image-upload.component";
 
 @Directive({
@@ -12,7 +12,7 @@ export class ImageUploadDirective implements OnInit {
   private viewContainerRef = inject(ViewContainerRef);
   private componentFactoryResolver = inject(ComponentFactoryResolver);
 
-  readonly imageUploadModel = input.required<contextResolverModel | nodeResolverModel | userResolverModel>();
+  readonly imageUploadModel = input.required<contextResolverModel | nodeResolverModel | User>();
   readonly imageUploadModelAttr = input.required<string>();
   readonly imageUploadId = input.required<string>();
   readonly imageSrcUrl = input<string>();

@@ -156,7 +156,7 @@ def prepare_tip_export(user_session, tip_export):
 
     # Flag masked files (and mask redacted text) before assembling the archive
     # so that masked content is never exported, regardless of encryption.
-    tip_export['tip'] = yield redact_report(user_session.user_id, tip_export['tip'])
+    tip_export['tip'] = yield redact_report(user_session, tip_export['tip'])
 
     if tip_export['crypto_tip_prv_key']:
         for file_dict in tip_export['tip']['wbfiles']:

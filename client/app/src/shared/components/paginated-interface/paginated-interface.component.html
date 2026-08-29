@@ -38,7 +38,7 @@
 <!-- SIMPLE MODE -->
 @if (mode() === 'simple' && content(); as content) {
   <div class="row">
-    @for (item of paginatedItems; track item; let i = $index) {
+    @for (item of paginatedItems; track identity(item); let i = $index) {
       <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
     }
   </div>
@@ -51,7 +51,7 @@
       <ng-container [ngTemplateOutlet]="header()!"></ng-container>
     </thead>
     <tbody>
-      @for (item of paginatedItems; track item; let i = $index) {
+      @for (item of paginatedItems; track identity(item); let i = $index) {
         <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
       }
     </tbody>

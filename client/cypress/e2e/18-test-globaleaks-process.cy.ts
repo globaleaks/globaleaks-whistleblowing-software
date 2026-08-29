@@ -350,6 +350,16 @@ describe("globaleaks process", function () {
     cy.logout();
   });
 
+  it("should access report audit log", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.get("#tip-0").first().click();
+    cy.get("#tip-action-access-audit-log").click();
+    cy.takeScreenshot("recipient/report_audit_log", ".modal-dialog");
+    cy.get("#modal-action-cancel").click();
+    cy.logout();
+  });
+
   it("should revert default channel", () => {
     cy.login_admin();
     cy.visit("/#/admin/channels");

@@ -16,6 +16,7 @@ export class TipFieldComponent {
   readonly fieldAnswers = input<any>();
   readonly redactMode = input<boolean>();
   readonly redactOperationTitle = input<string>();
+  readonly disabled = input(false);
 
   hasMultipleEntries(field_answer: any): boolean {
     return Array.isArray(field_answer) && field_answer.length > 1;

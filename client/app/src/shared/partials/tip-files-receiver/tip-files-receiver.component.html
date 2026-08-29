@@ -39,7 +39,7 @@
                       }
                       @if (redactMode()) {
                         <span>
-                          @if (preferenceResolver.dataModel.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
+                          @if (preferenceResolver.dataModel.profile.permissions.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
                               <button class="btn btn-sm btn-outline-secondary" [ngbTooltip]="'Mask' | translate" (click)="redactFileOperation('full-mask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
                                 <i class="fas fa-eraser"></i>
@@ -48,12 +48,12 @@
                           }
                           @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
-                              @if (preferenceResolver.dataModel.can_mask_information) {
-                                <button class="btn btn-sm btn-outline-secondary" [class.active]="redactMode()" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
+                              @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
+                                <button class="btn btn-sm btn-outline-secondary tip-action-mask-file" [class.active]="redactMode()" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
                                     <i class="fas fa-eraser"></i>
                                   </button>
                               }
-                              @if (preferenceResolver.dataModel.can_redact_information) {
+                              @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
                                 <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Redact' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Redact' | translate">
                                   <i class="fas fa-trash"></i>
                                 </button>

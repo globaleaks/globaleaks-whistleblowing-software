@@ -5,6 +5,9 @@ export class nodeResolverModel {
   custom_support_url: string;
   default_language: string;
   default_questionnaire: string;
+  default_tip_timetolive: number;
+  demo: boolean;
+  enable_onion: boolean;
   description: string;
   disable_privacy_badge: boolean;
   disable_submissions: boolean;
@@ -13,6 +16,11 @@ export class nodeResolverModel {
   enable_developers_exception_notification: boolean;
   enable_scoring_system: boolean;
   enable_signup: boolean;
+  signup_invite_only: boolean;
+  signup_request_organization: boolean;
+  signup_request_subdomain: boolean;
+  signup_auto_authorize: boolean;
+  signup_profile: string;
   encryption: boolean;
   escrow: boolean;
   hostname: string;
@@ -21,7 +29,6 @@ export class nodeResolverModel {
   log_accesses_of_internal_users: boolean;
   log_level: string;
   maximum_filesize: number;
-  mode: string;
   name: string;
   password_change_period: number;
   pgp: boolean;
@@ -76,7 +83,9 @@ export class nodeResolverModel {
   onionservice: string;
   user_privacy_policy_url: string;
   can_postpone_expiration: boolean;
-  antivirus_enabled: boolean;
+  profile:boolean;
+  is_profile:boolean;
+  antivirus_enabled:boolean;
   antivirus_clamd_ip: string;
   antivirus_clamd_port: number;
   tid: number;
@@ -85,4 +94,19 @@ export class nodeResolverModel {
   backup_period: number;
   backup_retention: number;
   backup_job_status: string;
+  idp:boolean;
+  idp_issuer: string;
+  idp_client_id: string;
+  idp_provisioning: boolean;
+  default_user_profile: string;
+  auth_type: string;
+  enable2FA: boolean;
+  enforce2FA: boolean;
+  support: boolean;
+  enable_forwarding_incoming: boolean;
+  enable_forwarding_outgoing: boolean;
+  require_forward_requests: boolean;
+  accept_forwarding_from: any[];
+  forward_channel: string;
+  forward_request_channel: string;
 }

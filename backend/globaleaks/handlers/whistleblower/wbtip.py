@@ -50,10 +50,7 @@ def db_notify_report_update(session, user, rtip, itip):
       'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
     }
 
-    if data['node']['mode'] == 'default':
-        data['notification'] = db_get_notification(session, user.tid, user.language)
-    else:
-        data['notification'] = db_get_notification(session, 1, user.language)
+    data['notification'] = db_get_notification(session, user.tid, user.language)
 
     data['submission_statuses'] = db_get_submission_statuses(session, user.tid, user.language)
 
@@ -255,7 +252,7 @@ class WBTipInstance(BaseHandler):
         if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
 
-        tip = yield redact_report(self.session.user_id, tip)
+        tip = yield redact_report(self.session, tip)
 
         return tip
 
