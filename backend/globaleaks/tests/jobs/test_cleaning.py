@@ -1,12 +1,16 @@
 import os
+from datetime import timedelta
 
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.admin import invite
 from globaleaks.jobs import cleaning, delivery
 from globaleaks.orm import transact
+from globaleaks.sessions import Sessions
 from globaleaks.settings import Settings
 from globaleaks.tests import helpers
+from globaleaks.utils.utility import datetime_now
 
 
 class TestCleaning(helpers.TestGLWithPopulatedDB):
@@ -72,3 +76,30 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
 
         # verify cascade deletion when tips expire
         yield self.check2()
+
+    @transact
+    def age_invites(self, session, days):
+        session.query(models.Subscriber) \
+               .update({'registration_date': datetime_now() - timedelta(days=days)})
+
+    @transact
+    def count_invites(self, session):
+        return session.query(models.Subscriber).count()
+
+    @inlineCallbacks
+    def test_an_invitation_lasts_a_week(self):
+        session = Sessions.new(1, self.dummyAdmin['id'], 1, 'admin', 'admin')
+
+        yield invite.create_invite(1, session, {'organization_name': 'Invited Organization',
+                                                'email': 'invited@example.org',
+                                                'mail_template': ''}, 'en')
+
+        yield self.age_invites(6)
+        yield cleaning.Cleaning().run()
+
+        self.assertEqual((yield self.count_invites()), 1)
+
+        yield self.age_invites(8)
+        yield cleaning.Cleaning().run()
+
+        self.assertEqual((yield self.count_invites()), 0)

@@ -1,0 +1,25 @@
+<div class="form-group">
+  <label>
+    <input [name]="keys.enable" class="form-check-input" [(ngModel)]="node[keys.enable]" type="checkbox" />
+    <span>{{'Enable terms of service'|translate}}</span>
+    <span>#{{index}}</span>
+  </label>
+  @if (node[keys.enable]) {
+    <div class="nested">
+      <div class="form-group">
+        <label for="signup-tos{{index}}-title">{{'Title'|translate}}</label>
+        <input id="signup-tos{{index}}-title" [name]="keys.title" class="form-control" [(ngModel)]="node[keys.title]" type="text" />
+      </div>
+      <div class="form-group">
+        <label for="signup-tos{{index}}-text">{{'Text'|translate}}</label>
+        <div>
+          <textarea id="signup-tos{{index}}-text" [name]="keys.text" class="form-control" [(ngModel)]="node[keys.text]" rows="4"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="signup-tos{{index}}-checkbox-label">{{'Checkbox label'|translate}}</label>
+        <input id="signup-tos{{index}}-checkbox-label" [name]="keys.checkbox_label" class="form-control" [(ngModel)]="node[keys.checkbox_label]" type="text" />
+      </div>
+    </div>
+  }
+</div>
