@@ -26,6 +26,16 @@ class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             yield handler.get()
 
+    @inlineCallbacks
+    def test_questionnaire_hashes(self):
+        # The hashes are sealed to the report as the answers they attest are,
+        # so they are read on the report as it is delivered to its holder
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+
+            self.verify_questionnaire_hashes((yield handler.get()))
+
 
 class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = wbtip.WBTipCommentCollection

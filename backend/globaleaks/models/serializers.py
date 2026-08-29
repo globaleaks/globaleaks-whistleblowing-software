@@ -92,7 +92,9 @@ def serialize_comment(session, comment):
         'creation_date': comment.creation_date,
         'content': comment.content,
         'author_id': comment.author_id,
-        'visibility': comment.visibility
+        'visibility': comment.visibility,
+        'hash_sha256': comment.hash_sha256,
+        'hash_sha512': comment.hash_sha512
     }
 
 
@@ -133,7 +135,9 @@ def serialize_ifile(session, ifile):
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
         'masked': False,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -158,7 +162,9 @@ def serialize_wbfile(session, ifile, wbfile):
         'type': ifile.content_type,
         'reference_id': ifile.reference_id,
         'masked': False,
-        'error': error
+        'error': error,
+        'hash_sha256': ifile.hash_sha256,
+        'hash_sha512': ifile.hash_sha512
     }
 
 
@@ -182,7 +188,9 @@ def serialize_rfile(session, rfile):
         'description': rfile.description,
         'visibility': rfile.visibility,
         'masked': False,
-        'error': error
+        'error': error,
+        'hash_sha256': rfile.hash_sha256,
+        'hash_sha512': rfile.hash_sha512
     }
 
 def serialize_itip(session, internaltip, language):
@@ -195,7 +203,9 @@ def serialize_itip(session, internaltip, language):
     for ita, aqs in x:
         questionnaires.append({
             'steps': serialize_archived_questionnaire_schema(aqs.schema, language),
-            'answers': ita.answers
+            'answers': ita.answers,
+            'hash_sha256': ita.hash_sha256 or '',
+            'hash_sha512': ita.hash_sha512 or ''
         })
 
     ret = {
@@ -226,6 +236,8 @@ def serialize_itip(session, internaltip, language):
     for itd in session.query(models.InternalTipData).filter(models.InternalTipData.internaltip_id == internaltip.id):
         ret['data'][itd.key] = itd.value
         ret['data'][itd.key + "_date"] = itd.creation_date
+        ret['data'][itd.key + "_hash_sha256"] = itd.hash_sha256 or ''
+        ret['data'][itd.key + "_hash_sha512"] = itd.hash_sha512 or ''
 
     return ret
 
