@@ -10,6 +10,7 @@ import {IdpService} from "@app/services/root/idp.service";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
 import {TranslateModule} from "@ngx-translate/core";
+import {ErrorCodes} from "@app/models/app/error-code";
 
 @Component({
     selector: "src-signup",
@@ -29,6 +30,7 @@ export class SignupComponent implements OnInit {
 
   hostname = "";
   completed = false;
+  show = false;
   step = 1;
   idpRequired = false;
   idpAuthenticated = false;
@@ -56,10 +58,8 @@ export class SignupComponent implements OnInit {
     this.appConfig.routeChangeListener();
     const queryParams = this.route.snapshot.queryParams;
 
-    // The data compiled before the identification are restored, so that the
-    // round trip towards the identity provider does not lose them; they are
-    // kept in the session of the browser and never submitted until the
-    // registration is completed
+    // Data compiled before the identification are restored after the round trip to the identity
+    // provider
     this.restoreSignup();
 
     this.signup.token = "token" in queryParams ? queryParams["token"] : this.signup.token;
@@ -72,6 +72,36 @@ export class SignupComponent implements OnInit {
     if (this.idpRequired) {
       this.idpService.initialize("signup").then(() => this.setIdpClaims());
       this.oauthService.events.subscribe(() => this.setIdpClaims());
+    }
+
+    // A registration reachable by invitation only presents a completely blank
+    // page when no invitation is carried or when the carried one is not valid
+    if (!this.signup.token) {
+      if (config.signup_invite_only) {
+        window.location.replace("about:blank");
+        return;
+      }
+
+      this.show = true;
+    } else {
+      this.httpService.requestSignupInvite(this.signup.token).subscribe({
+        next: invite => {
+          this.signup.organization_name = invite.organization_name;
+          this.signup.organization_email = invite.organization_email;
+          this.show = true;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          if (config.signup_invite_only) {
+            this.appDataService.errorCodes = new ErrorCodes();
+            window.location.replace("about:blank");
+            return;
+          }
+
+          this.show = true;
+          this.cdr.markForCheck();
+        }
+      });
     }
   }
 

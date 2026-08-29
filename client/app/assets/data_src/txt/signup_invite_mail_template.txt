@@ -1,0 +1,14 @@
+Dear {OrganizationName},
+
+You have been invited to create your whistleblowing platform.
+
+Click the link below to complete your registration:
+
+{InviteUrl}
+
+This invitation expires on:
+{ExpirationDate}
+
+Kind regards,
+
+{NodeName}
