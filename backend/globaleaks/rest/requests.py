@@ -253,7 +253,11 @@ AdminNodeDesc = {
     'pgp': bool,
     'primary_color': hex_color_regexp,
     'user_privacy_policy_text': str,
-    'user_privacy_policy_url': str
+    'user_privacy_policy_url': str,
+    'backup_enabled': bool,
+    'backup_time': str,
+    'backup_period': int,
+    'backup_retention': int,
 }
 
 AdminNetworkDesc = {

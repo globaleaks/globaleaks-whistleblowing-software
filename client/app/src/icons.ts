@@ -77,6 +77,7 @@ const icons = [
   solidIcons.faRightFromBracket,
   solidIcons.faRightToBracket,
   solidIcons.faRotateLeft,
+  solidIcons.faRotateRight,
   solidIcons.faSitemap,
   solidIcons.faSliders,
   solidIcons.faSort,
