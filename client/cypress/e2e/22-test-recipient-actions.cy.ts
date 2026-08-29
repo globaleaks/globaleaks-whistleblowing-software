@@ -22,15 +22,11 @@ describe("recipient admin tip actions", () => {
     // Filter reports
     cy.get('#search-filter-input').type("your search term");
     cy.get('#search-filter-input').clear();
-    cy.get('th.TipInfoID button').click();
-    cy.get('body').then(($body) => {
-      if ($body.find('#tip-action-filter-channel').length) {
-        cy.get('#tip-action-filter-channel').click();
-        cy.get('.multiselect-item-checkbox').eq(1).click();
-        cy.get('.multiselect-item-checkbox').eq(0).click();
-      }
-    });
-    cy.get('#tip-action-filter-report-date').click();
+    cy.get('th.TipInfoID').click();
+    cy.get('#filter-context_name').click();
+    cy.get('.multiselect-item-checkbox').eq(1).click();
+    cy.get('.multiselect-item-checkbox').eq(0).click();
+    cy.get('#filter-creation_date').click();
     cy.get('.custom-date-selector').first().click();
     cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
     // The button that resets the range, found by its place: its text is in the language of the run

@@ -45,7 +45,7 @@ export const adminRoutes: Routes = [
     path: "settings",
     loadComponent: () => import('@app/pages/admin/settings/settings.component').then(m => m.AdminSettingsComponent),
     resolve: {
-      NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver
+      NodeResolver, PreferenceResolver, UsersResolver, QuestionnairesResolver, ContextsResolver
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Settings"},

@@ -23,7 +23,7 @@
                   @if (comment.content) {
                     <div class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
                   }
-                  @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+                  @if (redactMode() && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
                     <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
                       <i class="fa-solid fa-eraser" aria-hidden="true"></i>
                     </button>
@@ -41,7 +41,7 @@
                   </div>
                   @if (!comment.type) {
                     <div class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
-                    @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
+                    @if (redactMode() && (preferenceResolver.dataModel.profile.permissions.can_mask_information || preferenceResolver.dataModel.profile.permissions.can_redact_information)) {
                       <button type="button" class="btn btn-sm float-end edit" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
                         <i class="fa-solid fa-eraser" aria-hidden="true"></i>
                       </button>

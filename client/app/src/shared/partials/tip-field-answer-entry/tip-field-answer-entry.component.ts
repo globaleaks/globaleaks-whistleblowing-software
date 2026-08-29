@@ -39,6 +39,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   readonly field = input<any>();
   readonly fieldAnswers = input<any>();
   readonly redactMode = input<boolean>();
+  readonly disabled = input(false);
 
   format = "dd/MM/yyyy";
   locale = "en-US";

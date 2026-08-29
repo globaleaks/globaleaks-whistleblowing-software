@@ -1,8 +1,11 @@
 <src-list-item class="tenant" [(editing)]="editing" [canEdit]="tenant().id !== 1" [canDelete]="isRemovableTenant()" (save)="saveTenant()" (deleted)="deleteTenant(tenant())">
   <ng-container title>
     <div>
-      <span class="badge bg-secondary">{{tenant().id}}</span>
+      <span class="badge bg-secondary">{{(index() ?? 0) + 1}}</span>
       <span>{{tenant().name}}</span>
+      @if (profileName) {
+        <span class="badge bg-primary">{{profileName}}</span>
+      }
     </div>
     @if (tenant().active && (tenant().onionservice || tenant().hostname || tenant().subdomain)) {
       <div class="tenant-badge">
@@ -50,79 +53,10 @@
             <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
           <div class="form-group">
-            <label for="tenant-mode-{{tenant().id}}">{{'Mode:'|translate}}</label>
-            <select id="tenant-mode-{{tenant().id}}" name="type" class="form-select-custom" [(ngModel)]="tenant().mode" required>
-              <option value="default" [selected]="tenant().mode === 'default'">DEFAULT</option>
-              <option value="demo">DEMO</option>
-              <option value="wbpa">WHISTLEBLOWINGPA</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label>
               <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}
             </label>
           </div>
-          <div class="form-group">
-            <label>
-              <span>{{ 'Name' | translate }}</span><span>: </span>
-            </label>
-            <span>{{tenant().signup.name}}</span>
-          </div>
-          <div class="form-group">
-            <label>
-              <span>{{ 'Surname' | translate }}</span><span>: </span>
-            </label>
-            <span>{{tenant().signup.surname}}</span>
-          </div>
-          <div class="form-group">
-            <label>
-              <span>{{ 'Language' | translate }}</span><span>: </span>
-            </label>
-            <span>{{tenant().signup.language}}</span>
-          </div>
-          <div class="form-group">
-            <label>
-              <span>{{ 'Email address' | translate }}</span><span>: </span>
-            </label>
-            <span>{{tenant().signup.email}}</span>
-          </div>
-          @if (tenant().signup.mode !== "demo") {
-            @if (tenant().signup.phone) {
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Phone number' | translate }}</span><span>: </span>
-                </label>
-                <span>{{tenant().signup.phone}}</span>
-              </div>
-            }
-            <label>{{ 'Organization' | translate }}</label>
-            <div class="ms-4">
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Name' | translate }}</span><span>: </span>
-                </label>
-                <span>{{tenant().signup.organization_name}}</span>
-              </div>
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Address' | translate }}</span><span>: </span>
-                </label>
-                <span>{{tenant().signup.organization_location}}</span>
-              </div>
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Fiscal code' | translate }}</span><span>: </span>
-                </label>
-                <span>{{tenant().signup.organization_fiscal_code}}</span>
-              </div>
-              <div class="form-group">
-                <label>
-                  <span>{{ 'Tax code' | translate }}</span><span>: </span>
-                </label>
-                <span>{{tenant().signup.organization_vat_number}}</span>
-              </div>
-            </div>
-          }
         </div>
       </div>
   </ng-template>

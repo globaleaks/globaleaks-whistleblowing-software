@@ -8,9 +8,9 @@ from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
-from globaleaks.utils.crypto import GCE, generateRandomKey
+from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
+from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.pgp import PGPContext
-from globaleaks.utils.crypto import sha256
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
@@ -35,7 +35,7 @@ def db_grant_statistical_key(session, tid, stat_prv_key):
                            models.User.crypto_global_stat_prv_key == '')
 
     for user in users:
-        if user.role in STATISTICAL_KEY_ROLES:
+        if any(role in user.profile.roles_list for role in STATISTICAL_KEY_ROLES):
             user.crypto_global_stat_prv_key = Base64Encoder.encode(
                 GCE.asymmetric_encrypt(user.crypto_pub_key, stat_prv_key))
 
@@ -59,29 +59,45 @@ def db_reconcile_statistical_key(session, tid, user, cc):
 
 import globaleaks.handlers.user.validate_email
 
+user_permissions = ObjectDict({
+    'can_edit_general_settings': False,
+    'can_delete_submission': False,
+    'can_postpone_expiration': True,
+    'can_grant_access_to_reports': False,
+    'can_mask_information': True,
+    'can_redact_information': False,
+    'can_transfer_access_to_reports': False,
+    'can_request_forward': False,
+    'can_forward_reports': False,
+    'can_change_status': True,
+    'can_change_label': True
+})
 
-def parse_pgp_options(user, request):
+
+def serialize_user_profile(session, profile):
     """
-    Used for parsing PGP key infos and fill related user configurations.
+    Serialize a user profile object into a dictionary format.
 
-    :param user: A user model
-    :param request: A request to be parsed
+    :param user: The user profile object to serialize.
+    :return: A dictionary containing user profile data.
     """
-    pgp_key_public = request['pgp_key_public']
-    remove_key = request['pgp_key_remove']
+    user_profile = {
+        'id': profile.id,
+        'tid': profile.tid,
+        'name': profile.name,
+        'role': profile.role,
+        'roles': sorted(profile.roles_list),
+        'contexts': sorted(profile.contexts_list),
+        'permissions': {}
+    }
 
-    if not remove_key and pgp_key_public:
-        pgpctx = PGPContext(pgp_key_public)
-        user.pgp_key_public = pgp_key_public
-        user.pgp_key_fingerprint = pgpctx.fingerprint
-        user.pgp_key_expiration = pgpctx.expiration
-    else:
-        user.pgp_key_public = ''
-        user.pgp_key_fingerprint = ''
-        user.pgp_key_expiration = datetime_null()
+    for r in user_permissions:
+        user_profile['permissions'][r] = r in profile.permissions_list
+
+    return user_profile
 
 
-def user_serialize_user(session, user, language):
+def serialize_user(session, user, language):
     """
     Serialize user model
 
@@ -95,6 +111,9 @@ def user_serialize_user(session, user, language):
     # take only contexts for the current tenant
     contexts = [x[0] for x in session.query(models.ReceiverContext.context_id)
                                      .filter(models.ReceiverContext.receiver_id == user.id)]
+
+    profile = session.query(models.UserProfile).filter(models.UserProfile.id == user.profile_id).first()
+
     ret = {
         'id': user.id,
         'creation_date': user.creation_date,
@@ -121,19 +140,14 @@ def user_serialize_user(session, user, language):
         'salt': user.salt,
         'escrow': user.crypto_escrow_prv_key != '',
         'two_factor': user.two_factor_secret != '',
-        'forcefully_selected': user.forcefully_selected,
-        'can_postpone_expiration': user.can_postpone_expiration,
-        'can_delete_submission': user.can_delete_submission,
-        'can_grant_access_to_reports': user.can_grant_access_to_reports,
-        'can_redact_information': user.can_redact_information,
-        'can_mask_information': user.can_mask_information,
-        'can_transfer_access_to_reports': user.can_transfer_access_to_reports,
-        'can_edit_general_settings': user.can_edit_general_settings,
+        'idp_binding': user.idp_id != '',
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
         'contexts': contexts,
-        'send_activation_link': False
-
+        'send_activation_link': False,
+        'forcefully_selected': False,
+        'profile_id': user.profile_id,
+        'profile': serialize_user_profile(session, profile)
     }
 
     if State.tenants[user.tid].cache.two_factor and \
@@ -142,6 +156,33 @@ def user_serialize_user(session, user, language):
 
     return get_localized_values(ret, user, user.localized_keys, language)
 
+
+
+def parse_pgp_options(user, request):
+    """
+    Used for parsing PGP key infos and fill related user configurations.
+
+    :param user: A user model
+    :param request: A request to be parsed
+    """
+    pgp_key_public = request['pgp_key_public']
+    remove_key = request['pgp_key_remove']
+
+    if not remove_key and pgp_key_public:
+        pgpctx = PGPContext(pgp_key_public)
+        user.pgp_key_public = pgp_key_public
+        user.pgp_key_fingerprint = pgpctx.fingerprint
+        user.pgp_key_expiration = pgpctx.expiration
+    else:
+        user.pgp_key_public = ''
+        user.pgp_key_fingerprint = ''
+        user.pgp_key_expiration = datetime_null()
+
+
+
+# Compatibility alias: the codebase reaches the user serializer under both
+# names; they are the same function.
+user_serialize_user = serialize_user
 
 @transact
 def get_user(session, tid, user_id, language):
@@ -156,13 +197,13 @@ def get_user(session, tid, user_id, language):
     """
     user = db_get_user(session, tid, user_id)
 
-    return user_serialize_user(session, user, language)
+    return serialize_user(session, user, language)
+
 
 def db_set_email_validation_token(user, email, validation_token):
     user.change_email_date = datetime_now()
     user.change_email_token = sha256(validation_token).decode()
     user.change_email_address = email
-
 
 
 def db_user_update_user(session, tid, user_session, request):
@@ -185,13 +226,16 @@ def db_user_update_user(session, tid, user_session, request):
     user.language = request.get('language', State.tenants[tid].cache.default_language)
     user.notification = request['notification']
 
+    # The identity fields and the role are changed only by an administrator or
+    # by a user entitled to edit the general settings: a self-service update
+    # must not let a user rename itself or escalate its own role.
     if user_session.role == 'admin' or user_session.has_permission('can_edit_general_settings'):
         user.name = request['name']
+        user.role = request['role']
         user.public_name = request['public_name'] or request['name']
 
         # If the email address changes, send a validation email
         if request['mail_address'] != user.mail_address:
-
             # Allow up to 3 changes within an hour
             if State.RateLimit.check(b"email_validations_per_hour_per_user:" + user.id.encode(), 3, 3600) > 0:
                 raise errors.ForbiddenOperation
@@ -235,7 +279,7 @@ def update_user_settings(session, tid, user_session, request, language):
     """
     user = db_user_update_user(session, tid, user_session, request)
 
-    return user_serialize_user(session, user, language)
+    return serialize_user(session, user, language)
 
 
 class UserInstance(BaseHandler):

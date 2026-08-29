@@ -1660,8 +1660,8 @@ msgstr "Switch to the light theme"
 msgid "Switch to the dark theme"
 msgstr "Switch to the dark theme"
 
-msgid "Colors"
-msgstr "Colors"
+msgid "Not in use"
+msgstr "Not in use"
 
 msgid "Skip to content"
 msgstr "Skip to content"

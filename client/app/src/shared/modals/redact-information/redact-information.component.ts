@@ -70,9 +70,21 @@ export class RedactInformationComponent implements OnInit{
     this.forced_visible = !this.forced_visible;
   }
 
-  hideContent() {
-    if (!this.can_hide) {
-      return;
+  selectContent() {
+    const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea());
+
+    if (!this.vars.redaction_switch) {
+      this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
+      this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2588),"");
+    } else {
+      if (!this.preferenceResolver.dataModel.profile.permissions.can_mask_information) {
+        this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
+      } else {
+        this.ranges_selected = response.new_ranges;
+      }
+
+      this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2591),"");
+      this.content = this.maskService.maskContent(this.content, this.permanent_redaction, true, String.fromCharCode(0x2588),"");
     }
 
     const selection = this.selection();

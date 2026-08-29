@@ -68,8 +68,6 @@ export class AppConfigService {
           this.appDataService.updatePublic(data.body);
         }
 
-        this.themeService.setPrimaryColor(this.appDataService.public.node.primary_color);
-
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);

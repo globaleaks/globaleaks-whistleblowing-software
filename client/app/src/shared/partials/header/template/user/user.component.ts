@@ -7,21 +7,21 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgSelectComponent, NgOptionComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
+import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbDropdown, NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {ThemeService} from "@app/shared/theme/theme.service";
-import {NgTemplateOutlet} from "@angular/common";
+import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {RoleSelectionModalComponent} from "@app/shared/modals/role-selection/role-selection-modal.component";
 
 
 @Component({
     selector: "src-user",
     templateUrl: "./user.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgbDropdownModule, NgTemplateOutlet, NgSelectComponent, FormsModule, NgOptionComponent, NgLabelTemplateDirective, ReceiptComponent, TranslatePipe, OrderByPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslatePipe, OrderByPipe]
 })
 export class UserComponent {
   protected activatedRoute = inject(ActivatedRoute);
@@ -34,6 +34,9 @@ export class UserComponent {
   protected translationService = inject(TranslationService);
   protected themeService = inject(ThemeService);
   private router = inject(Router);
+  private modalService = inject(NgbModal);
+
+  selectedRole = {value: []};
 
   // On a phone the sections of the role, shown in the menu before the links of the session
   readonly navItems = input<TemplateRef<unknown> | null>(null);
@@ -43,15 +46,20 @@ export class UserComponent {
     this.onQueryParameterChangeListener();
   }
 
-  // The name of a language in its own words and script, as the list of the languages tells it
-  languageNative(code: string): string {
-    const language = this.appDataService.languages_enabled_selector.find(l => l.code === code);
-    return language ? language.native : code;
-  }
-
   onChangeLanguage(language: string) {
     this.translationService.setLanguage(language);
     this.appConfigService.reload();
+  }
+  
+  canSwitchUser() {
+    if (this.preferences.dataModel &&
+	this.preferences.dataModel.profile &&
+        Array.isArray(this.preferences.dataModel.profile.roles) &&
+        this.preferences.dataModel.profile.roles.length > 1) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   onQueryParameterChangeListener() {
@@ -108,5 +116,24 @@ export class UserComponent {
     };
 
     this.authentication.logout(promise);
+  }
+
+  openSwitchUserModal(): void {
+    const modalRef = this.modalService.open(RoleSelectionModalComponent, { backdrop: 'static', keyboard: false });
+    const roles = this.preferences.dataModel.profile.roles.map((role: string) => {
+      const capitalizedRole = role === 'receiver' ? 'Recipient' : role.charAt(0).toUpperCase() + role.slice(1);
+      return { value: role, role: capitalizedRole };
+    });
+    modalRef.componentInstance.roles = roles;
+    modalRef.result
+      .then((selectedRole: { value: string; role: string }) => {
+        this.httpService.requestRoleSwitch(selectedRole.value).subscribe({
+          next: (response: { redirect: string }) => {
+            if (response.redirect) {
+              window.open(response.redirect);
+            }
+          },
+        });
+      })
   }
 }

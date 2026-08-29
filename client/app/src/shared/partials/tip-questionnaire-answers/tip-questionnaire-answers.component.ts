@@ -19,6 +19,7 @@ export class TipQuestionnaireAnswersComponent {
 
   readonly tipService = input.required<ReceiverTipService | WbtipService>();
   readonly redactMode = input<boolean>();
+  readonly disabled = input(false);
   collapsed = false;
 
   public toggleCollapse() {

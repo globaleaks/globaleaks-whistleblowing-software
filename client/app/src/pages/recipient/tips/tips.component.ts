@@ -145,13 +145,11 @@ export class TipsComponent implements OnInit {
     );
   }
 
-
-
-
   processTips() {
     const statuses = new Set<string>();
     const channels = new Set<string>();
     const scores = new Set<number>();
+    const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
@@ -162,7 +160,6 @@ export class TipsComponent implements OnInit {
       channels.add(tip.context_name);
       scores.add(tip.score);
       tip.lastUpdateRead = tip.last_access >= tip.update_date;
-      const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
       tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
 
@@ -204,7 +201,7 @@ export class TipsComponent implements OnInit {
     const output = [...this.table.result];
     return output.map(tip => ({
       id: tip.id,
-      progressive: tip.progressive,
+      progressive: tip.channel_progressive,
       important: tip.important,
       context_name: tip.context_name,
       label: tip.label,

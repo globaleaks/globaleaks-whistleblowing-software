@@ -282,7 +282,6 @@ def serialize_rtip(session, itip, rtip, language):
     ret['enable_notifications'] = rtip.enable_notifications
     ret['itip_last_access'] = ret['last_access']
     ret['last_access'] = rtip.last_access
-
     iar = session.query(models.IdentityAccessRequest) \
                  .filter(models.IdentityAccessRequest.internaltip_id == itip.id) \
                  .order_by(models.IdentityAccessRequest.request_date.desc()).first()
@@ -341,6 +340,9 @@ def serialize_rtip(session, itip, rtip, language):
     user_map = {user.id: user for user in users}
     for uid in receiver_ids:
         user = user_map.get(uid)
+        if user and user.tid != itip.tid:
+            continue
+
         rtip_obj = rtip_map.get(uid)
         ret['receivers'].append({
             'id': uid,
