@@ -51,12 +51,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   wbfile:WbFile;
 
   ngOnInit(): void {
-    if (this.authenticationService.session?.role === "whistleblower") {
-      this.tipService = this.wbTipService;
-    }
-    if(this.authenticationService.session?.role === "receiver") {
-      this.tipService = this.rTipService;
-    }
+    // The whistleblower reads its own report; every other role reads it as a recipient does
+    this.tipService = this.authenticationService.session?.role === "whistleblower" ?
+      this.wbTipService : this.rTipService;
+
     if(this.tipService.tip){
       this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry()['index']);
     }
