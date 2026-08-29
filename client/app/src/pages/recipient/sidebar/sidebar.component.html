@@ -8,7 +8,7 @@
     <span>{{'Reports' | translate}}</span>
   </a>
 }
-@if (preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
+@if (preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
   <a routerLink="/recipient/settings" routerLinkActive="active" id="recipient_settings" [class.active]="isActive('/recipient/settings')" [attr.aria-current]="isActive('/recipient/settings') ? 'page' : 'false'">
     <i class="fas fa-sliders"></i>
     <span>{{'Settings' | translate}}</span>

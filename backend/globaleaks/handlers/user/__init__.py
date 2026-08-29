@@ -60,14 +60,23 @@ def db_reconcile_statistical_key(session, tid, user, cc):
 import globaleaks.handlers.user.validate_email
 
 user_permissions = ObjectDict({
-    'can_edit_general_settings': False,
+    'can_manage_settings': False,
+    'can_manage_users': False,
+    'can_manage_user_profiles': False,
+    'can_manage_channels': False,
+    'can_manage_questionnaires': False,
+    'can_manage_case_management': False,
+    'can_manage_notifications': False,
+    'can_manage_network': False,
+    'can_manage_sites': False,
+    'can_manage_auditlog': False,
+    'can_manage_support': False,
     'can_delete_submission': False,
     'can_postpone_expiration': True,
     'can_grant_access_to_reports': False,
     'can_mask_information': True,
     'can_redact_information': False,
     'can_transfer_access_to_reports': False,
-    'can_request_forward': False,
     'can_forward_reports': False,
     'can_change_status': True,
     'can_change_label': True
@@ -226,12 +235,13 @@ def db_user_update_user(session, tid, user_session, request):
     user.language = request.get('language', State.tenants[tid].cache.default_language)
     user.notification = request['notification']
 
-    # The identity fields and the role are changed only by an administrator or
-    # by a user entitled to edit the general settings: a self-service update
-    # must not let a user rename itself or escalate its own role.
-    if user_session.role == 'admin' or user_session.has_permission('can_edit_general_settings'):
+    # The identity fields are changed only by an administrator or by a user
+    # entitled to manage the settings: a self-service update must not let a
+    # user rename itself. The role is never self-assignable: it changes only
+    # through the user editor, where the operation is bound to the privilege
+    # of the operator.
+    if user_session.role == 'admin' or user_session.has_permission('can_manage_settings'):
         user.name = request['name']
-        user.role = request['role']
         user.public_name = request['public_name'] or request['name']
 
         # If the email address changes, send a validation email
