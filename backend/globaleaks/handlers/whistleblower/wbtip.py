@@ -11,6 +11,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.auditor import db_get_report_audit_log
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.public import db_get_submission_statuses
@@ -31,6 +32,13 @@ from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
 from globaleaks.models.config import db_get_config_variable
+
+@transact
+def get_report_audit_log(session, tid, user_id):
+    _ = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
+
+    return db_get_report_audit_log(session, tid, user_id)
+
 
 def db_notify_report_update(session, user, rtip, itip):
     """
@@ -115,6 +123,10 @@ def create_comment(session, tid, user_id, content):
     session.add(comment)
     session.flush()
 
+    # The whistleblower is identified by the report it holds the session of,
+    # as for any other action it performs on it
+    db_log(session, tid=tid, type='whistleblower_add_comment', user_id=itip.id, object_id=comment.id, data={'internaltip_id': itip.id})
+
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     ret['hash_sha256'] = hash_sha256
@@ -152,6 +164,8 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
 
     db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, None, identity_data, itip.crypto_tip_pub_key)
 
+    db_log(session, tid=tid, type='whistleblower_provide_identity', user_id=itip.id, object_id=itip.id)
+
     now = datetime_now()
     itip.update_date = now
     itip.last_access = now
@@ -184,6 +198,8 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
 
     db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data, None, plaintext_answers, itip.crypto_tip_pub_key)
+
+    db_log(session, tid=tid, type='whistleblower_add_answers', user_id=itip.id, object_id=itip.id, data={'questionnaire_hash': questionnaire_hash})
 
     db_notify_recipients_of_tip_update(session, itip.id)
 
@@ -437,3 +453,13 @@ class WBTipAdditionalQuestionnaire(BaseHandler):
                                                       self.session.user_id,
                                                       request['answers'],
                                                       self.request.language)
+
+
+class ReportAuditLog(BaseHandler):
+    """
+    Handler that provides access to the audit log of the report of the session
+    """
+    check_roles = 'whistleblower'
+
+    def get(self):
+        return get_report_audit_log(self.session.tid, self.session.user_id)

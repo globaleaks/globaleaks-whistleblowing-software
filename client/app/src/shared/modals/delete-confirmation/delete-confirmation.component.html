@@ -32,19 +32,6 @@
           <strong>{{'Reports with exclusive access' | translate}}:</strong> {{userStats.exclusive_reports}}
         </div>
       }
-
-      @if (userStats.total_reports > 0 || userStats.exclusive_reports > 0) {
-        <div>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary"
-            (click)="openAuditLog()"
-          >
-            <i class="fas fa-clipboard-list" aria-hidden="true"></i>
-            <span>{{'Audit log' | translate}}</span>
-          </button>
-        </div>
-      }
     }
   }
 

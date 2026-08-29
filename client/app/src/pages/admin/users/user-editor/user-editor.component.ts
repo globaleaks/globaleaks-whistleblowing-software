@@ -178,6 +178,7 @@ export class UserEditorComponent implements OnInit {
     const roleMap: { [key: string]: string } = {
       'admin': 'Admin',
       'analyst': 'Analyst',
+      'auditor': 'Auditor',
       'custodian': 'Custodian',
       'receiver': 'Recipient'
     };
@@ -205,6 +206,9 @@ export class UserEditorComponent implements OnInit {
         break;
       case 'analyst':
         roleDisplay = 'Analyst';
+        break;
+      case 'auditor':
+        roleDisplay = 'Auditor';
         break;
       default:
         roleDisplay = '';
