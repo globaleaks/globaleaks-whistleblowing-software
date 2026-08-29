@@ -296,20 +296,6 @@ export class SupportTab1Component implements OnInit {
    * that tenant - and never on the account of the administrator itself, which
    * the backend refuses.
    */
-  canResetAuthorPassword(request: SupportRequest): boolean {
-    return !!request.author_id &&
-      request.author_id !== this.authenticationService.session?.user_id &&
-      request.tid === this.nodeResolver.dataModel.tid &&
-      this.nodeResolver.dataModel.escrow &&
-      this.preferenceResolver.dataModel.escrow;
-  }
-
-  resetAuthorPassword(request: SupportRequest): void {
-    // Nothing of what is displayed changes, so the thread being read is left
-    // open instead of being reloaded
-    this.utilsService.runAdminOperation("send_password_reset_email", {"value": request.author_id}, false).subscribe();
-  }
-
   deleteRequest(request: SupportRequest): void {
     const modalRef = this.modalService.open(DeleteConfirmationComponent, {
       backdrop: "static",

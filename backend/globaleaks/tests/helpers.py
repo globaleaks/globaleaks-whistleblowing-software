@@ -355,7 +355,6 @@ class MockDict:
             'can_manage_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
-            'can_forward_reports': True,
             'can_delete_submission': True,
             'can_postpone_expiration': True,
             'can_mask_information': True,
@@ -382,6 +381,8 @@ class MockDict:
             'show_context': True,
             'allow_recipients_selection': False,
             'show_receivers_in_alphabetical_order': False,
+            'internally_available': True,
+            'provide_access_code': True,
         }
 
         self.dummySubmission = {
@@ -480,12 +481,6 @@ class MockDict:
             'signup_request_tax_code': True,
             'signup_request_vat_code': True,
             'signup_request_subdomain': True,
-            'enable_forwarding_incoming': False,
-            'enable_forwarding_outgoing': False,
-            'require_forward_requests': False,
-            'accept_forwarding_from': [],
-            'forward_channel': '',
-            'forward_request_channel': '',
         }
 
         self.dummyNetwork = {
@@ -495,6 +490,7 @@ class MockDict:
             'https_analyst': True,
             'https_custodian': True,
             'https_receiver': True,
+            'https_transmitter': True,
             'https_whistleblower': True,
             'ip_filter_admin': '',
             'ip_filter_admin_enable': False,
@@ -504,6 +500,8 @@ class MockDict:
             'ip_filter_custodian_enable': False,
             'ip_filter_receiver': '',
             'ip_filter_receiver_enable': False,
+            'ip_filter_transmitter': '',
+            'ip_filter_transmitter_enable': False,
             'reachable_via_web': True
         }
 

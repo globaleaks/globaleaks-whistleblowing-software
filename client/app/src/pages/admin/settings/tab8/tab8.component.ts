@@ -1,19 +1,17 @@
-import {Component, OnInit, computed, inject, input} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {Constants} from "@app/shared/constants/constants";
 import {EnableEncryptionComponent} from "@app/shared/modals/enable-encryption/enable-encryption.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
 import {UserProfile} from "@app/models/resolvers/user-resolver-model";
-import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
+import {SelectableEntry, SelectableUser} from "@app/models/app/selectables";
 import {HttpService} from "@app/shared/services/http.service";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -30,43 +28,27 @@ export class Tab8Component implements OnInit {
   private utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
   protected preferenceResolver = inject(PreferenceResolver);
-  private usersResolver = inject(UsersResolver);
-  private contextsResolver = inject(ContextsResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
+  private selectablesResolver = inject(SelectablesResolver);
   private httpService = inject(HttpService);
 
   readonly contentForm = input.required<NgForm>();
-  readonly questionnaireData = computed(() => this.questionnairesResolver.resource.value());
-  readonly contextsData = computed<contextResolverModel[]>(() => {
-    const contexts = this.contextsResolver.resource.value();
-    return Array.isArray(contexts) ? contexts : [contexts];
-  });
 
+  // Every administrator can read the entities offered by the choices, whatever
+  // the areas it administers: they are served by their own endpoint
+  userData: SelectableUser[] = [];
   userProfiles: UserProfile[] = [];
+  questionnaireData: SelectableEntry[] = [];
   routeReload = false;
 
   protected readonly Constants = Constants;
 
   ngOnInit(): void {
+    this.userData = this.selectablesResolver.dataModel.users;
+    this.questionnaireData = this.selectablesResolver.dataModel.questionnaires;
+
     this.httpService.requestUserProfilesResource().subscribe((profiles: UserProfile[]) => {
       this.userProfiles = profiles.filter(profile => profile.name !== "");
     });
-  }
-
-  isManagementSession(): boolean {
-    return this.nodeResolver.dataModel.tid === 1 ||
-      !!this.authenticationService.session?.properties?.management_session;
-  }
-
-  get acceptForwardingFrom(): string {
-    return (this.nodeResolver.dataModel.accept_forwarding_from || []).join(", ");
-  }
-
-  set acceptForwardingFrom(value: string) {
-    this.nodeResolver.dataModel.accept_forwarding_from = value.split(",")
-      .map(entry => entry.trim())
-      .filter(entry => entry !== "")
-      .map(entry => entry === "*" ? entry : Number(entry));
   }
 
   // The administrators authorized to change user passwords (i.e. holding the
@@ -76,18 +58,24 @@ export class Tab8Component implements OnInit {
     return this.authenticationService.session?.user_id || "";
   }
 
-  readonly escrowAuthorized = computed<SelectionEntry[]>(() => this.usersResolver.resource.value()
-    .filter(user => user.escrow)
-    .map(user => ({id: user.id, label: user.name})));
+  get escrowAuthorized(): SelectionEntry[] {
+    return this.userData
+      .filter(user => user.escrow)
+      .map(user => ({id: user.id, label: user.name}));
+  }
 
-  readonly escrowCandidates = computed<SelectionEntry[]>(() => this.usersResolver.resource.value()
-    .filter(user => user.role === "admin" && user.encryption && !user.escrow && user.id !== this.currentUserId)
-    .map(user => ({id: user.id, label: user.name})));
+  get escrowCandidates(): SelectionEntry[] {
+    return this.userData
+      .filter(user => user.role === "admin" && user.encryption && !user.escrow && user.id !== this.currentUserId)
+      .map(user => ({id: user.id, label: user.name}));
+  }
 
   // Adding and removing an authorization both toggle the escrow of the user
-  toggleUserEscrow(userId: string) {
-    this.utilsService.runAdminOperation("toggle_user_escrow", {"value": userId}, false).subscribe(() => {
-      this.usersResolver.refresh();
+  toggleUserEscrow(userId: string): void {
+    this.utilsService.runAdminOperation("toggle_user_escrow", {"value": userId}, true).subscribe(() => {
+      this.selectablesResolver.refresh().subscribe(() => {
+        this.userData = this.selectablesResolver.dataModel.users;
+      });
     });
   }
 
@@ -106,7 +94,9 @@ export class Tab8Component implements OnInit {
     escrow.checked = this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
     this.utilsService.runAdminOperation("toggle_escrow", {}, false).subscribe(() => {
       this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
-      this.usersResolver.refresh();
+      this.selectablesResolver.refresh().subscribe(() => {
+        this.userData = this.selectablesResolver.dataModel.users;
+      });
     });
   }
 

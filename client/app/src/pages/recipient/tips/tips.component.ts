@@ -15,9 +15,10 @@ import {concatMap, delay, from, tap} from "rxjs";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
-import {InsertReportComponent} from "@app/shared/modals/insert-report/insert-report.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
+import {HttpService} from "@app/shared/services/http.service";
+import {InsertReportComponent} from "@app/shared/modals/insert-report/insert-report.component";
 
 @Component({
     selector: "src-tips",
@@ -27,6 +28,7 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
 })
 export class TipsComponent implements OnInit {
   protected authenticationService = inject(AuthenticationService);
+  protected httpService = inject(HttpService);
   private appConfigServices = inject(AppConfigService);
   private router = inject(Router);
   protected RTips = inject(RTipsResolver);
@@ -154,7 +156,11 @@ export class TipsComponent implements OnInit {
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
       tip.context_name = tip.context?.name ?? tip.context_name ?? '';
-      tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
+      // A request reports the outcome of the request itself and not the
+      // status of any report
+      tip.submissionStatusStr = tip.type === "request" && (tip.allow_transmission || tip.status === "closed") ?
+        this.translateService.instant(tip.allow_transmission ? "Authorized" : "Denied") :
+        this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
 
       statuses.add(tip.submissionStatusStr);
       channels.add(tip.context_name);

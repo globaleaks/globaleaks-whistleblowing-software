@@ -54,6 +54,10 @@ export_comment_keywords = [
     '{Content}'
 ]
 
+exchange_keywords = [
+    '{OriginTenantName}'
+]
+
 expiration_summary_keywords = [
     '{ExpiringSubmissionCount}',
     '{EarliestExpirationDate}'
@@ -371,6 +375,17 @@ class TipKeyword(UserNodeKeyword):
         return 'Comments\n' + comments + '\n' if comments else ''
 
 
+class ExchangeKeyword(TipKeyword):
+    """
+    What an exchange files is announced to the site that receives it, and names the site it comes
+    from
+    """
+    keyword_list = TipKeyword.keyword_list + exchange_keywords
+
+    def OriginTenantName(self):
+        return (self.data['tip'].get('exchange') or {}).get('from_tenant_name', '')
+
+
 class ExportMessageKeyword(TipKeyword):
     keyword_list = TipKeyword.keyword_list + export_comment_keywords
     data_keys = TipKeyword.data_keys + ['comment']
@@ -525,9 +540,7 @@ class PlatformSignupKeyword(NodeKeyword):
         return self.data['signup']['language']
 
     def Credentials(self):
-        # The credentials are rendered only when the notification carries the
-        # generated password: the copies delivered to the other addresses and
-        # the other notifications leave the section empty
+        # Credentials are rendered only in the notification carrying the generated password
         if not self.data.get('password'):
             return ''
 
@@ -647,6 +660,9 @@ supported_template_types = {
     'tip_access': UserNodeKeyword,
     'tip_reminder': UserNodeKeyword,
     'tip_update': TipKeyword,
+    'transmission': ExchangeKeyword,
+    'transmission_request': ExchangeKeyword,
+    'communication': ExchangeKeyword,
     'tip_expiration_summary': ExpirationSummaryKeyword,
     'unread_tips': UserNodeKeyword,
     'pgp_alert': PGPAlertKeyword,
@@ -675,11 +691,8 @@ supported_template_types = {
 def mail_uses_smtp2(notification, mail_type):
     """
     Return True if emails of the given template type must be delivered via the
-    secondary SMTP server (smtp2).
 
     :param notification: The notification configuration, either the tenant cache
-                         ObjectDict or the serialized notification dict; both
-                         expose a dict-like .get() interface.
     :param mail_type: The template type of the email being sent
     """
     return bool(notification.get('smtp2_enabled', False)) and \

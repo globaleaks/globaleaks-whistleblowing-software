@@ -12,6 +12,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
 from globaleaks.models.config import ConfigFactory, db_get_signup_idp_config, db_get_signup_profile, db_set_config_variable
 from globaleaks.models.enums import EnumSubscriberStatus
+from globaleaks.models.exchanges import db_forget_exchanges
 from globaleaks.orm import db_del, db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
@@ -24,9 +25,6 @@ from globaleaks.utils.utility import datetime_now
 def db_verify_signup_token(session, tid, bearer_token):
     """
     Verify the OIDC ID token carried by a signup request
-
-    The token is validated against the IdP inherited from the profile
-    configured for the tenants created via signup.
 
     :param session: An ORM session
     :param tid: The tenant ID of the tenant handling the signups
@@ -66,19 +64,8 @@ def signup(session, request, language, bearer_token=None):
 
     oidc_token = db_verify_signup_token(session, 1, bearer_token)
 
-    # The data of the user are the sole data always collected on the
-    # registration; the identity provider, when configured, is the source
-    # trusted for them, so that they cannot be forged by a client.
-    #
-    # The claims are published by a third party and are therefore validated as
-    # any other input: the request has been validated before them and a claim
-    # not conforming to the format expected for the field is discarded, the
-    # value compiled by the user being kept in its place.
-    #
-    # The email is deliberately not among them: the identity provider may not
-    # publish it, and when it does the address only prefills the form, the
-    # user being free to be notified on an address different from the one
-    # registered on the identity provider.
+    # The user data always come from the registration; with an identity provider they come from its
+    # claims, validated as any other input
     if oidc_token:
         for claim, key in [('given_name', 'name'),
                            ('family_name', 'surname')]:
@@ -105,13 +92,11 @@ def signup(session, request, language, bearer_token=None):
         invite, invited_tenant = ret
 
         if invite.registration_date < datetime_now() - timedelta(hours=24):
+            db_forget_exchanges(session, [invited_tenant.id])
             db_del(session, models.Tenant, models.Tenant.id == invited_tenant.id)
             raise errors.ForbiddenOperation
 
-        # The organization is the one the invitation has been issued to: its
-        # identity is taken from the invitation and never from the request, so
-        # that an invited registration cannot be performed on an organization
-        # different from the invited one
+        # The organization is the invited one: taken from the invitation, never from the request
         request['subdomain'] = ''
         request['organization_name'] = invite.organization_name
         request['organization_email'] = invite.organization_email
@@ -120,21 +105,15 @@ def signup(session, request, language, bearer_token=None):
     elif config.get_val('signup_request_subdomain') and not request['subdomain']:
         raise errors.InputValidationError
 
-    # The name of the organization is always asked for and is therefore
-    # mandatory; on an invited registration it is the one the invitation has
-    # been issued to
+    # The organization name is mandatory; on an invited registration it is the invited one
     if not request['organization_name']:
         raise errors.InputValidationError
 
-    # The email address of the organization is not collected on the
-    # registration: it is known only through an invitation, as the address
-    # the invitation was delivered to
+    # The organization email is known only through the invitation
     if invite is None:
         request['organization_email'] = ''
 
-    # The other details of the organization are asked for only when so
-    # configured, and are then mandatory; the ones not asked for are dropped
-    # so that they cannot be planted by a client
+    # Details not asked for are dropped, so a client cannot plant them
     for var, key in [('signup_request_location', 'organization_location'),
                      ('signup_request_phone', 'phone'),
                      ('signup_request_tax_code', 'organization_tax_code'),
@@ -164,12 +143,11 @@ def signup(session, request, language, bearer_token=None):
             models.Tenant.id == models.Subscriber.tid
         ).all()]
 
+    db_forget_exchanges(session, tids)
     db_del(session, models.Tenant, models.Tenant.id.in_(tids))
 
-    # The tenant is always created upon the registration; it is activated
-    # right away only when the automatic authorization of the newly registered
-    # sites is enabled, and is otherwise activated when an administrator
-    # authorizes the platform
+    # The tenant is created now; it is activated at once only with the automatic authorization,
+    # otherwise when an administrator authorizes it
     active = config.get_val('signup_auto_authorize')
 
     if invite is not None:
@@ -189,9 +167,7 @@ def signup(session, request, language, bearer_token=None):
 
         signup = models.Subscriber(request)
 
-        # The subdomain of a registration performed on a platform not asking
-        # for one is a placeholder, the column being unique: the site is
-        # reached via the hostname configured on it afterwards
+        # The subdomain column is unique: a placeholder when none is asked for
         signup.subdomain = request['subdomain'] or generateRandomKey()
 
         signup.tid = tenant.id
@@ -200,17 +176,13 @@ def signup(session, request, language, bearer_token=None):
 
     session.flush()
 
-    # The request of registration is the event opening the accreditation of an
-    # organization and is recorded on the audit log of the root tenant, that
-    # holds every other event of the accreditation
+    # Logged on the root tenant, which holds the events of the accreditation
     db_log(session, tid=1, type='signup', object_id=signup.id, data={'tid': tenant.id})
 
     if active:
         db_signup_activation(session, activation_token, language, oidc_token)
     else:
-        # Notify the administrators that a new platform is waiting for the
-        # authorization; the notification carries the raw token performing it,
-        # the database storing only its hash
+        # The notification carries the raw token; the database stores its hash
         signup_dict = serializers.serialize_signup(signup)
         signup_dict['activation_token'] = activation_token
 
@@ -232,9 +204,8 @@ def signup(session, request, language, bearer_token=None):
 
                 State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
 
-        # The registration of a platform not activated right away is confirmed
-        # on its own; when the activation is automatic and contextual to the
-        # registration the confirmation of the activation is the only one sent
+        # Confirmed on its own unless activated at once, when the confirmation of the activation is
+        # the only one sent
         signup_dict = serializers.serialize_signup(signup)
         signup_dict['activation_token'] = ''
 
@@ -252,8 +223,6 @@ def signup(session, request, language, bearer_token=None):
 def signup_notification_addresses(signup):
     """
     Return the addresses to be notified about a registration: the user and,
-    when the registration originates from an invitation, the address the
-    invitation was delivered to; a single address is returned when they match
 
     :param signup: The subscriber of the registration
     :return: The list of the addresses to be notified
@@ -280,21 +249,17 @@ def db_signup_provision(session, signup, language, username, password, idp_claim
     """
     config = ConfigFactory(session, 1)
 
-    # The IdP configuration is not copied on the created tenant as it is
-    # inherited from the profile assigned to the tenants created via signup
+    # The IdP configuration is inherited from the signup profile, not copied
     node = ConfigFactory(session, signup.tid)
 
-    # The subdomain configured on the tenant is empty when the registration
-    # does not ask for one, the value held by the subscriber being a placeholder
+    # The configured subdomain is empty when none is asked for; the subscriber holds a placeholder
     node_name = signup.organization_name or node.get_val('subdomain') or signup.email
 
     salt = node.get_val('receipt_salt')
 
     default_role, default_profile_id = db_resolve_default_user_profile(session, signup.tid)
 
-    # A registered platform always provisions the account of its user: when no
-    # default user profile is configured the user is created as the
-    # administrator of its own platform
+    # Without a default user profile the user is the administrator of its own platform
     if not default_role:
         default_role = 'admin'
         default_profile_id = ''
@@ -302,8 +267,6 @@ def db_signup_provision(session, signup, language, username, password, idp_claim
     default_username = username
     default_salt = GCE.generate_salt(salt + ":" + default_username)
 
-    # The generated password reaches the account only through its usual
-    # derivation, as any other password
     default_key = GCE.derive_key(password, default_salt).encode()
 
     skip_admin_account_creation = default_role != 'admin'
@@ -344,9 +307,8 @@ def db_signup_provision(session, signup, language, username, password, idp_claim
 
     db_wizard(session, signup.tid, '', wizard)
 
-    # The account is bound to the registration so that the notifications can
-    # reference it; its password has been provisioned on behalf of the user
-    # and must therefore be changed on first login
+    # Bound to the registration for the notifications; the provisioned password must be changed on
+    # first login
     user = session.query(models.User) \
                   .filter(models.User.tid == signup.tid,
                           models.User.username == default_username).one_or_none()
@@ -376,11 +338,6 @@ def db_signup_activation(session, token, language, idp_claims=None):
 def db_signup_activation_by_hash(session, token_hash, language, idp_claims=None):
     """
     Transaction registering the activation of a platform via the hash of its
-    activation token, as stored at rest.
-
-    The activation makes the site active and provisions the account of its
-    user, whose generated credentials are delivered via email only to the
-    address of the user.
     """
     config = ConfigFactory(session, 1)
 
@@ -403,17 +360,14 @@ def db_signup_activation_by_hash(session, token_hash, language, idp_claims=None)
 
     signup.activation_token = None
 
-    # The account is provisioned upon the activation with a generated
-    # password, using the email address of the user as its username
+    # Provisioned on activation with a generated password and the email as username
     default_password = generateRandomPassword(16)
     default_role, default_username = db_signup_provision(session, signup, language, signup.email, default_password, idp_claims)
 
     signup_dict = serializers.serialize_signup(signup)
 
-    # The activation is confirmed, with the link to access the platform, to
-    # the user and, for an invited registration, to the address the invitation
-    # was delivered to; a single confirmation is sent when the addresses
-    # match and the credentials are delivered only to the address of the user
+    # Confirmed to the user and, on an invited registration, to the invitation address; once when
+    # they match
     for address in signup_notification_addresses(signup):
         template_vars = {
             'type': 'activation',

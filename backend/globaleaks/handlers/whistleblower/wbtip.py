@@ -11,7 +11,7 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.auditlog import db_get_report_audit_log
+from globaleaks.handlers.auditlog import db_get_report_audit_log, decrypt_log_hashes
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.public import db_get_submission_statuses
@@ -28,6 +28,7 @@ from globaleaks.state import State
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
@@ -35,9 +36,9 @@ from globaleaks.models.config import db_get_config_variable
 
 @transact
 def get_report_audit_log(session, tid, user_id):
-    _ = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
+    itip = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
 
-    return db_get_report_audit_log(session, tid, user_id)
+    return db_get_report_audit_log(session, tid, user_id), Base64Encoder.decode(itip.crypto_tip_prv_key)
 
 
 def db_notify_report_update(session, user, rtip, itip):
@@ -175,16 +176,18 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
 
 @transact
 def store_additional_questionnaire_answers(session, tid, user_id, answers, language):
-    itip, context = session.query(models.InternalTip, models.Context) \
-                           .filter(models.InternalTip.id == user_id,
-                                   models.InternalTip.status != 'closed',
-                                   models.InternalTip.tid == tid,
-                                   models.Context.id == models.InternalTip.context_id).one()
+    itip = session.query(models.InternalTip) \
+                  .filter(models.InternalTip.id == user_id,
+                          models.InternalTip.status != 'closed',
+                          models.InternalTip.tid == tid).one()
 
-    if not context.additional_questionnaire_id:
+    # The additional questionnaire asked of the report: the automatic one of the channel, or the one
+    # the recipients asked
+    questionnaire_id = itip.additional_questionnaire_id
+    if not questionnaire_id:
         return
 
-    steps, _ = db_validate_answers(session, tid, context.additional_questionnaire_id, answers, True)
+    steps, _ = db_validate_answers(session, tid, questionnaire_id, answers, True)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     stat_data = extract_statistical_data(session, tid, answers)
@@ -195,9 +198,14 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
             crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
             stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
 
-        answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
+        answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data, None, plaintext_answers, itip.crypto_tip_pub_key)
+    db_set_internaltip_answers(session, itip.id, questionnaire_id, questionnaire_hash, answers, stat_data, None, plaintext_answers, itip.crypto_tip_pub_key)
+
+    # The questionnaire has been answered and is no longer asked: the report
+    # carries no request until the recipients make another one
+    itip.additional_questionnaire_id = ''
+    itip.update_date = datetime_now()
 
     db_log(session, tid=tid, type='whistleblower_add_answers', user_id=itip.id, object_id=itip.id, data={'questionnaire_hash': questionnaire_hash})
 
@@ -461,5 +469,11 @@ class ReportAuditLog(BaseHandler):
     """
     check_roles = 'whistleblower'
 
+    @inlineCallbacks
     def get(self):
-        return get_report_audit_log(self.session.tid, self.session.user_id)
+        logs, crypto_tip_prv_key = yield get_report_audit_log(self.session.tid, self.session.user_id)
+
+        if crypto_tip_prv_key:
+            decrypt_log_hashes(self.session.cc, crypto_tip_prv_key, logs)
+
+        return logs

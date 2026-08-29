@@ -3,7 +3,7 @@
     <div class="col-md-12">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-1">
-          <a id="link-tiplist" href="#/custodian/home" ngbTooltip="{{'Home' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Home' | translate">
+          <a id="link-tiplist" href="#/custodian/home" ngbTooltip="{{'Back' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
             <i class="fas fa-arrow-left"></i>
           </a>
         </div>
@@ -18,7 +18,7 @@
   </div>
   <div class="row mt-2">
     <div class="col-md-12">
-      <app-paginated-interface [mode]="'table'" [items]="iarResolver.dataModel" [orderBy]="'request_date'" [orderDesc]="true">
+      <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="iarResolver.dataModel" [orderBy]="'request_date'" [orderDesc]="true">
         <ng-template #header>
           <tr>
             <th>{{'Request date'|translate}}</th>

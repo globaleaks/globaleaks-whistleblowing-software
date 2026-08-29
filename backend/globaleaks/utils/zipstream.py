@@ -47,7 +47,7 @@ class ZipInfo:
         null_byte = filename.find(chr(0))
         if null_byte >= 0:
             filename = filename[0:null_byte]
-        # Normalize all path separators to forward slash and strip
+        # Normalize all path separators to transmission slash and strip
         # directory-traversal sequences to prevent Zip Slip attacks.
         filename = filename.replace('\\', '/')
         filename = '/'.join(p for p in filename.split('/') if p not in ('', '.', '..'))
