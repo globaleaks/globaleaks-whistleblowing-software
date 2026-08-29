@@ -9,6 +9,7 @@ from datetime import datetime
 from nacl.encoding import Base64Encoder
 from nacl.exceptions import CryptoError
 from nacl.public import PrivateKey
+from sqlalchemy.orm import aliased
 
 
 from globaleaks import models
@@ -54,6 +55,78 @@ def decrypt_hashes(tip_key, holder, prefix=''):
         if holder.get(k):
             with contextlib.suppress(CryptoError, ValueError):
                 holder[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(holder[k].encode())).decode()
+
+
+# Field types whose answers are aggregable as option distributions
+STATISTICAL_CHOICE_TYPES = ('selectbox', 'multichoice', 'checkbox')
+
+
+def _entry_is_option_selected(flag):
+    return flag is True or (isinstance(flag, str) and flag.strip().lower() == 'true')
+
+
+def _extract_entry_answer_value(field_type, entry):
+    if field_type == 'checkbox':
+        # A checkbox answer has no single 'value': each option is stored as a
+        # separate flag keyed by its option id (bool True or the string 'True').
+        return [option_id for option_id, flag in entry.items()
+                if re.match(requests.uuid_regexp, option_id) and _entry_is_option_selected(flag)]
+
+    return entry.get('value')
+
+
+def extract_statistical_data(session, tid:int, answers:dict):
+    def collect_answer_entries(answer_map):
+        collected = {}
+        if not isinstance(answer_map, dict):
+            return collected
+
+        for field_id, entries in answer_map.items():
+            if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
+                continue
+
+            first_entry = entries[0]
+            if isinstance(first_entry, dict):
+                collected[field_id] = first_entry
+
+                nested = collect_answer_entries(first_entry)
+                if nested:
+                    collected.update(nested)
+
+        return collected
+
+    answer_entries = collect_answer_entries(answers)
+    answer_field_ids = list(answer_entries.keys())
+    if not answer_field_ids:
+        return {}
+
+    template_field = aliased(models.Field)
+    statistical_fields = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical).outerjoin(template_field, template_field.id == models.Field.template_id).filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(answer_field_ids)).all()
+
+    statistical_fields_by_id = {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical} for field_id, field_type, template_id, instance, field_statistical, template_statistical in statistical_fields}
+    answers_dict = dict()
+    for k, entry in answer_entries.items():
+        if k not in statistical_fields_by_id:
+            continue
+
+        field_data = statistical_fields_by_id[k]
+        is_template_choice = (field_data['type'] in STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
+        include_in_statistical_data = bool(field_data['field_statistical']) or (is_template_choice and bool(field_data['template_statistical']))
+        if not include_in_statistical_data:
+            continue
+
+        answer_value = _extract_entry_answer_value(field_data['type'], entry)
+        if answer_value in (None, '', []):
+            continue
+
+        answers_dict[k] = answer_value
+
+        if is_template_choice and field_data['template_statistical']:
+            template_key = 'template:%s' % field_data['template_id']
+            if template_key not in answers_dict:
+                answers_dict[template_key] = answer_value
+
+    return answers_dict
 
 
 def decrypt_tip(user_key, tip_prv_key, tip):
@@ -127,7 +200,7 @@ def data_hashes(value, crypto_tip_pub_key=''):
            Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_tip_pub_key, hash_sha512)).decode()
 
 
-def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, date=None, plaintext=None, crypto_tip_pub_key=''):
+def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, stat_answers, date=None, plaintext=None, crypto_tip_pub_key=''):
     x = session.query(models.InternalTipAnswers) \
                .filter(models.InternalTipAnswers.internaltip_id == itip_id,
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
@@ -139,6 +212,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, da
     ita.internaltip_id = itip_id
     ita.questionnaire_hash = questionnaire_hash
     ita.answers = answers
+    ita.stat_answers = stat_answers
     ita.hash_sha256, ita.hash_sha512 = data_hashes(answers if plaintext is None else plaintext, crypto_tip_pub_key)
 
     if date:
@@ -852,11 +926,16 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date, identity_data, itip.crypto_tip_pub_key)
 
+    stat_data = extract_statistical_data(session, tid, answers)
     plaintext_answers = answers
     if crypto_is_available:
+        if stat_data:
+            crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
+            stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
+
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
 
     for uploaded_file in user_session.files:
         if crypto_is_available:

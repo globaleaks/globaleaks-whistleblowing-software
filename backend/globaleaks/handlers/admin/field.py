@@ -284,6 +284,9 @@ def db_create_field(session, tid, request, language):
 
     check_field_association(session, tid, request)
 
+    if request['instance'] != 'template':
+        request['statistical'] = False
+
     if not request.get('template_id'):
         field = db_add(session, models.Field, request)
 
@@ -315,9 +318,10 @@ def db_create_field(session, tid, request, language):
             if field is not None:
                 raise errors.InputValidationError("Whistleblower identity field already present")
 
-        field = db_add(session, models.Field, request)
-
         template = session.query(models.Field).filter(models.Field.id == request['template_id']).one()
+        request['statistical'] = template.statistical
+
+        field = db_add(session, models.Field, request)
 
         field.label = template.label
         field.description = template.description
@@ -373,6 +377,9 @@ def db_update_field(session, tid, field_id, request, language):
     check_field_association(session, tid, request, field_id)
 
     fill_localized_keys(request, models.Field.localized_keys, language)
+
+    if field.instance != 'template':
+        request['statistical'] = field.statistical
 
     if field.instance != 'reference' or field.template_id == 'whistleblower_identity':
         db_update_fieldattrs(session, field.id, request['attrs'], language)

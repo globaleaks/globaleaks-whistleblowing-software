@@ -62,6 +62,7 @@ export class Children {
   fieldgroup_id: string;
   multi_entry: boolean;
   required: boolean;
+  statistical: boolean;
   preview: boolean;
   attrs: Attrs;
   x: number;

@@ -1,0 +1,61 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Manage' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+</div>
+<div class="modal-body">
+  <div class="selection-section">
+    <div class="form-group">
+      <label for="metric-select">{{ 'Metric' | translate }}</label>
+      <ng-select
+        id="metric-select" [(ngModel)]="selectedMetricId" name="selectedMetricId" bindLabel="title" bindValue="id" [items]="filteredMetricList" groupBy="group" [searchable]="true" [clearable]="false" [placeholder]="'Search' | translate" (search)="onMetricSearch($event.term)" (ngModelChange)="selectMetric($event)">
+        <ng-template ng-optgroup-tmp let-item="item">
+          <span>{{ item.group | translate }}</span>
+        </ng-template>
+        <ng-template ng-option-tmp let-item="item">
+          <span>{{ item.title | translate }}</span>
+          @if (item.id === currentMetricCard?.id) {
+            <span class="current-badge">
+              {{ 'Current' | translate }}
+            </span>
+          }
+        </ng-template>
+      </ng-select>
+    </div>
+  </div>
+  @if (selectedMetricId) {
+    <div class="display-section">
+      <div class="display-types">
+        @if (isDisplayTypeCompatible('number')) {
+          <div class="btn btn-outline-secondary" [ngClass]="{'active': selectedChartType === 'number'}" (click)="selectChartType('number')">
+            <div>{{ 'Number' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('percentage')) {
+          <div class="btn btn-outline-secondary" [ngClass]="{'active': selectedChartType === 'percentage'}" (click)="selectChartType('percentage')">
+            <div>{{ 'Percentage' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('bar')) {
+          <div class="btn btn-outline-secondary" [ngClass]="{'active': selectedChartType === 'bar'}" (click)="selectChartType('bar')">
+            <div>{{ 'Bar Chart' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('pie')) {
+          <div class="btn btn-outline-secondary" [ngClass]="{'active': selectedChartType === 'pie'}" (click)="selectChartType('pie')">
+            <div>{{ 'Pie Chart' | translate }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+<div class="modal-footer">
+  <button type="button" id="modal-action-cancel" class="btn btn-secondary" (click)="cancel()">
+    {{ 'Cancel' | translate }}
+  </button>
+  <button type="button" id="modal-action-ok" class="btn btn-primary" (click)="save()" [disabled]="!hasChanges">
+    {{ 'Apply' | translate }}
+  </button>
+</div>

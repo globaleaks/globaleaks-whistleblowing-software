@@ -1,0 +1,85 @@
+<div id="Content">
+  <div class="metrics-section mb-4">
+    <div class="row g-3">
+      @for (card of metricCards; track card.id) {
+        <div class="col-md-4">
+          <div class="card metric-card h-100">
+            <div class="card-header" [class.d-flex]="editable" [class.justify-content-between]="editable" [class.align-items-center]="editable">
+              <span class="card-title">{{ card.title | translate }}</span>
+              @if (editable) {
+                <div class="dropdown" ngbDropdown placement="bottom-end">
+                  <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" type="button"
+                    ngbDropdownToggle [attr.aria-label]="'Actions' | translate" ngbTooltip="{{ 'Actions' | translate }}">
+                    <i class="fas fa-ellipsis-vertical"></i>
+                  </button>
+                  <div class="dropdown-menu" ngbDropdownMenu>
+                    <button class="dropdown-item text-danger" (click)="onRemoveMetric(card.id)">
+                      <i class="fas fa-times me-2"></i>
+                      {{ 'Remove' | translate }}
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" (click)="onManageMetric(card.id)">
+                      <i class="fas fa-pen-to-square me-2"></i>
+                      {{ 'Edit' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+              <div class="metric-value">{{ card.value }}</div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @for (chart of chartConfigs; track chart.id; let i = $index) {
+        <div class="col-md-4">
+          <div class="card chart-card h-100">
+            <div class="card-header" [class.d-flex]="editable" [class.justify-content-between]="editable" [class.align-items-center]="editable">
+              <span>{{ chart.title | translate }}</span>
+              @if (editable) {
+                <div class="dropdown" ngbDropdown placement="bottom-end">
+                  <button class="btn btn-sm btn-link text-muted p-0 dropdown-toggle-no-caret" type="button"
+                    ngbDropdownToggle [attr.aria-label]="'Actions' | translate" ngbTooltip="{{ 'Actions' | translate }}">
+                    <i class="fas fa-ellipsis-vertical"></i>
+                  </button>
+                  <div class="dropdown-menu" ngbDropdownMenu>
+                    <button class="dropdown-item text-danger"
+                      (click)="onRemoveMetric(getMetricIdFromChartId(chart.id))">
+                      <i class="fas fa-times me-2"></i>
+                      {{ 'Remove' | translate }}
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" (click)="onManageMetric(getMetricIdFromChartId(chart.id))">
+                      <i class="fas fa-pen-to-square me-2"></i>
+                      {{ 'Edit' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="card-body analyst-graph p-3">
+              <div class="chart-container" style="height: 300px;">
+                <canvas baseChart class="chart" [type]="chart.type" [data]="chart.data" [options]="chart.options"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (editable && canAddMoreMetrics()) {
+        <div class="col-md-4">
+          <div class="card add-metric-card h-100" (click)="onAddNewMetric()">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-muted">
+              <div class="add-icon mb-2">
+                <i class="fas fa-plus fa-2x"></i>
+              </div>
+              <span class="add-text">{{ 'Add' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

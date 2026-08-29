@@ -452,6 +452,7 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'fieldgroup_id': field.fieldgroup_id if field.fieldgroup_id else '',
         'multi_entry': field.multi_entry,
         'required': field.required,
+        'statistical': field.statistical,
         'attrs': attrs,
         'x': field.x,
         'y': field.y,

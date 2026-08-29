@@ -1,6 +1,11 @@
 import {Component, computed, inject} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
 import {TranslateService, TranslateModule} from '@ngx-translate/core';
+import {TabsComponent} from '@app/shared/components/tabs/tabs.component';
+import {TabDirective} from '@app/shared/components/tabs/tab.directive';
+import {StatisticalReportsTabComponent} from '@app/pages/analyst/statistics/statistical-reports-tab/statistical-reports-tab.component';
+import {StatisticalTemplatesTabComponent} from '@app/pages/analyst/statistics/statistical-templates-tab/statistical-templates-tab.component';
 
 import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
 
@@ -10,6 +15,11 @@ import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-c
     standalone: true,
     imports: [
     BaseChartDirective,
+    FormsModule,
+    TabsComponent,
+    TabDirective,
+    StatisticalReportsTabComponent,
+    StatisticalTemplatesTabComponent,
     TranslateModule
 ],
     providers: [provideCharts(withDefaultRegisterables())],

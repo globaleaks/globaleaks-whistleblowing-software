@@ -438,6 +438,7 @@ class _Field(Model):
     instance = Column(Enum(EnumFieldInstance), default='instance', nullable=False)
     template_id = Column(UnicodeText(36), index=True)
     template_override_id = Column(UnicodeText(36), index=True)
+    statistical = Column(Boolean, default=False, nullable=False)
 
     @declared_attr
     def __table_args__(self):
@@ -671,6 +672,7 @@ class _InternalTipAnswers(Model):
     questionnaire_hash = Column(UnicodeText(64), primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
+    stat_answers = Column(JSON, default=dict, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
@@ -971,6 +973,7 @@ class _User(Model):
     crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
     crypto_rec_key = Column(UnicodeText(80), default='', nullable=False)
     crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_global_stat_prv_key = Column(UnicodeText(84), default='', nullable=True)
     crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
@@ -1203,4 +1206,55 @@ class User(_User, Base):
 
 
 class WhistleblowerFile(_WhistleblowerFile, Base):
-    pass
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['internalfile_id'], ['internalfile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['receivertip_id'], ['receivertip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
+
+
+class _StatisticalReportTemplate(Model):
+    """
+    Stores configuration for statistical report templates.
+    """
+    __tablename__ = 'statisticalreporttemplate'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    label = Column(UnicodeText, default='', nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    data = Column(JSON, default=dict, nullable=False)
+
+    unicode_keys = ['label']
+    json_keys = ['data']
+
+
+class StatisticalReportTemplate(_StatisticalReportTemplate, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),)
+
+
+class _StatisticalReport(Model):
+    """
+    Stores generated statistical reports based on a template.
+    """
+    __tablename__ = 'statisticalreport'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    label = Column(UnicodeText, default='', nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    template_id = Column(UnicodeText(36), index=True)
+    data = Column(JSON, default=dict, nullable=False)
+
+    unicode_keys = ['label', 'template_id']
+    json_keys = ['data']
+
+
+class StatisticalReport(_StatisticalReport, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (
+            ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+            ForeignKeyConstraint(['template_id'], ['statisticalreporttemplate.id'], ondelete='SET NULL', deferrable=True, initially='DEFERRED'),
+        )
