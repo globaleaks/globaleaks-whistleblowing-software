@@ -33,7 +33,7 @@ from globaleaks.utils.sni import SNIMap
 from globaleaks.utils import dpop
 from globaleaks.utils.sock import reserve_tcp_socket
 from globaleaks.utils.tempdict import TempDict
-from globaleaks.utils.templating import Templating
+from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.token import TokenList
 from globaleaks.utils.tor_exit_set import TorExitSet
 from globaleaks.utils.utility import datetime_now
@@ -234,27 +234,46 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.exceptions.clear()
         self.exceptions_email_count = 0
 
-    def sendmail(self, tid, to_address, subject, body):
+    def sendmail(self, tid, to_address, subject, body, use_smtp2=False):
         if self.settings.disable_notifications:
             return succeed(True)
-
         if self.tenants[tid].cache.mode != 'default':
             tid = 1
+        notification = self.tenants[tid].cache.notification
 
-        return sendmail(tid,
-                        self.tenants[tid].cache.notification.smtp_server,
-                        self.tenants[tid].cache.notification.smtp_port,
-                        self.tenants[tid].cache.notification.smtp_security,
-                        self.tenants[tid].cache.notification.smtp_authentication,
-                        self.tenants[tid].cache.notification.smtp_username,
-                        self.tenants[tid].cache.notification.smtp_password,
-                        self.tenants[tid].cache.name,
-                        self.tenants[tid].cache.notification.smtp_source_email,
-                        to_address,
-                        self.tenants[tid].cache.name + ' - ' + subject,
-                        body,
-                        self.tenants[1].cache.anonymize_outgoing_connections,
-                        self.settings.socks_socket)
+        if notification.smtp2_enabled and use_smtp2:
+            smtp_server = notification.smtp2_server
+            smtp_port = notification.smtp2_port
+            smtp_security = notification.smtp2_security
+            smtp_authentication = notification.smtp2_authentication
+            smtp_username = notification.smtp2_username
+            smtp_password = notification.smtp2_password
+            smtp_source_email = notification.smtp2_source_email
+        else:
+            smtp_server = notification.smtp_server
+            smtp_port = notification.smtp_port
+            smtp_security = notification.smtp_security
+            smtp_authentication = notification.smtp_authentication
+            smtp_username = notification.smtp_username
+            smtp_password = notification.smtp_password
+            smtp_source_email = notification.smtp_source_email
+
+        return sendmail(
+            tid,
+            smtp_server,
+            smtp_port,
+            smtp_security,
+            smtp_authentication,
+            smtp_username,
+            smtp_password,
+            self.tenants[tid].cache.name,
+            smtp_source_email,
+            to_address,
+            self.tenants[tid].cache.name + ' - ' + subject,
+            body,
+            self.tenants[1].cache.anonymize_outgoing_connections,
+            self.settings.socks_socket
+        )
 
     def schedule_support_email(self, tid, text):
         subject = "Support request"
@@ -331,7 +350,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
     def format_and_send_mail(self, session, tid, mail_address, template_vars):
         mail_subject, mail_body = Templating().get_mail_subject_and_body(template_vars)
 
-        db_schedule_email(session, tid, mail_address, mail_subject, mail_body)
+        n_tid = tid if self.tenants[tid].cache.mode == 'default' else 1
+        secondary_smtp = mail_uses_smtp2(self.tenants[n_tid].cache.notification,
+                                         template_vars.get('type', ''))
+
+        db_schedule_email(session, tid, mail_address, mail_subject, mail_body, secondary_smtp)
 
     def get_tmp_file_by_name(self, filename):
         for k, v in self.TempUploadFiles.items():

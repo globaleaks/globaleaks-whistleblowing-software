@@ -20,7 +20,7 @@ def db_get_user(session, tid, user_id):
                    models.User.tid == tid))
 
 
-def db_schedule_email(session, tid, address, subject, body):
+def db_schedule_email(session, tid, address, subject, body, secondary_smtp=False):
     return db_add(session,
                   models.Mail,
                   {
@@ -28,4 +28,5 @@ def db_schedule_email(session, tid, address, subject, body):
                     'subject': subject,
                     'body': body,
                     'tid': tid,
+                    'secondary_smtp': secondary_smtp,
                   })

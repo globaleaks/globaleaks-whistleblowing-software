@@ -23,4 +23,8 @@ export class NotificationTab2Component {
   updateNotification(notification: notificationResolverModel) {
     this.utilsService.updateAdminNotification(notification).subscribe();
   }
+
+  resetTemplates() {
+    this.utilsService.runAdminOperation("reset_templates", {}, true).subscribe();
+  }
 }
