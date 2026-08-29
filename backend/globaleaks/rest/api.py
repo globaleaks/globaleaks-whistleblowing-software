@@ -27,6 +27,7 @@ from globaleaks.handlers import admin, \
                                 auditor, \
                                 auth, \
                                 custodian, \
+                                exchange, \
                                 file, \
                                 health, \
                                 l10n, \
@@ -52,7 +53,7 @@ from globaleaks.utils.sock import isIPAddress
 from globaleaks.orm import db_log
 
 tid_regexp = r'([0-9]+)'
-role_regexp = r'(admin|analyst|auditor|custodian|receiver)'
+role_regexp = r'(admin|analyst|auditor|custodian|receiver|transmitter)'
 uuid_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 uuid_regexp_or_closed = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|closed)'
 key_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|[a-z_]{0,100})'
@@ -93,6 +94,8 @@ api_spec = [
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
     ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
+    ('/api/recipient/rtips', exchange.RTipCommunication, r'/api/recipient/rtips/' + uuid_regexp + r'/communication'),
+    ('/api/recipient/rtips', exchange.CommunicationAttachment, r'/api/recipient/rtips/' + uuid_regexp + r'/communication/attachment'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
@@ -103,6 +106,11 @@ api_spec = [
     ('/api/recipient/redactions', recipient.rtip.RTipRedactionCollection, r'/api/recipient/redactions/' + uuid_regexp),
     ('/api/recipient/rfiles', recipient.rtip.ReceiverFileDownload, r'/api/recipient/rfiles/' + uuid_regexp),
     ('/api/recipient/wbfiles', recipient.rtip.WhistleblowerFileDownload, r'/api/recipient/wbfiles/' + uuid_regexp),
+
+    # Transmitter Handlers
+    ('/api/transmitter/transmissions', exchange.Transmissions),
+    ('/api/transmitter/transmissions/options', exchange.TransmissionOptions),
+    ('/api/transmitter/transmissions/attachment', exchange.TransmissionAttachment),
 
     # Whistleblower Handlers
     ('/api/whistleblower/operations', whistleblower.wbtip.Operations),
@@ -177,6 +185,8 @@ api_spec = [
     ('/api/admin/config/tls/files/', admin.https.FileHandler, r'/api/admin/config/tls/files/(cert|chain|key)'),
     ('/api/admin/files', admin.file.FileCollection),
     ('/api/admin/files', admin.file.FileInstance, r'/api/admin/files/(.+)'),
+    ('/api/admin/exchanges', admin.exchange.ExchangeCollection),
+    ('/api/admin/exchanges', admin.exchange.ExchangeInstance, r'/api/admin/exchanges/' + uuid_regexp),
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
     ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),
