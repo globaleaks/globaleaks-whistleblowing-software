@@ -19,6 +19,15 @@ def set_backup_config(session, tid, values):
 
 
 @transact
+def set_idp_id(session, user_id, idp_id):
+    session.query(models.User).filter(models.User.id == user_id).one().idp_id = idp_id
+
+
+@transact
+def get_idp_id(session, user_id):
+    return session.query(models.User).filter(models.User.id == user_id).one().idp_id
+
+
 @transact
 def get_backup_config(session, tid):
     config = ConfigFactory(session, tid)
@@ -199,6 +208,20 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
                                            {'value': self.dummyReceiver_1['id']},
                                            tid=2,
                                            properties={'management_session': True})
+
+    @defer.inlineCallbacks
+    def test_admin_reset_idp_binding(self):
+        yield set_idp_id(self.dummyReceiver_1['id'], 'subject1')
+
+        yield self._test_operation_handler('reset_idp_binding',
+                                           {'value': self.dummyReceiver_1['id']})
+
+        # The account is bound again on its next authentication
+        idp_id = yield get_idp_id(self.dummyReceiver_1['id'])
+        self.assertEqual(idp_id, '')
+
+    def test_admin_enable_encryption(self):
+        return self._test_operation_handler('enable_encryption')
 
     @defer.inlineCallbacks
     def test_admin_toggle_escrow(self):

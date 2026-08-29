@@ -12,6 +12,7 @@ import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {Observable, forkJoin, of} from "rxjs";
 import {catchError, map} from "rxjs/operators";
+import {IdpService} from "@app/services/root/idp.service";
 
 @Injectable({
   providedIn: "root"
@@ -27,6 +28,7 @@ export class AppConfigService {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
+  private idpService = inject(IdpService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private isRunning = false;
 
@@ -56,6 +58,16 @@ export class AppConfigService {
       next: data => {
         if (data.body !== null) {
           this.appDataService.updatePublic(data.body);
+        }
+
+        if (this.appDataService.public.node.idp || this.appDataService.public.node.signup_idp) {
+          this.idpService.initialize().then(authenticated => {
+            if (authenticated && this.authenticationService.session) {
+              this.idpService.setupAutomaticRefresh();
+            }
+          });
+        } else {
+          this.idpService.disable();
         }
 
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
