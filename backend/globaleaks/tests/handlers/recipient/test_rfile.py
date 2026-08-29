@@ -4,9 +4,13 @@ from globaleaks import models
 from globaleaks.handlers.recipient import rtip
 from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
+from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+from globaleaks.utils.utility import datetime_now
+import io
+import zipfile
 
 file_content = b'Hello World'
 
@@ -53,7 +57,21 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
             for rfile_desc in rfiles_desc:
                 handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
                 yield handler.get(rfile_desc['id'])
-                self.assertEqual(handler.request.getResponseBody(), file_content)
+                body = handler.request.getResponseBody()
+                if body.startswith(b'PK\x03\x04'):
+                    z = zipfile.ZipFile(io.BytesIO(body))
+                    content = None
+                    for info in z.infolist():
+                        # The archive carries the file beside the entries the
+                        # application adds to describe it.
+                        if info.filename.upper() not in ('README.TXT', 'METADATA.CSV'):
+                            content = z.read(info)
+                            break
+                    if content is None and z.infolist():
+                        content = z.read(z.infolist()[0])
+                else:
+                    content = body
+                self.assertEqual(content, file_content)
 
         # A recipient masks every recipient file.
         rtips_desc = yield self.get_rtips()
@@ -101,6 +119,10 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
         handler = self.request(role='receiver', user_id=self.dummyReceiver_1['id'], attachment=attachment)
         yield handler.post(rtip_desc['id'])
 
+        # The upload only registers the file: the delivery job is what writes
+        # it to the attachments, after the scan.
+        yield Delivery().run()
+
         rtips_desc = yield self.get_rtips()
         rfile_id = rtips_desc[0]['rfiles'][0]['id']
 
@@ -113,3 +135,82 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
         # Another recipient on the same report cannot, even knowing its UUID.
         handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
         yield self.assertFailure(handler.get(rfile_id), errors.ResourceNotFound)
+
+
+class TestReceiverFileDownloadAntivirus(helpers.TestHandlerWithPopulatedDB):
+    _handler = rtip.ReceiverFileDownload
+
+    @transact
+    def set_antivirus_enabled(self, session, enabled):
+        db_set_config_variable(session, 1, 'antivirus_enabled', enabled)
+
+    @transact
+    def set_rfile_antivirus_state(self, session, file_id, state):
+        db_set_config_variable(session, 1, 'antivirus_enabled', True)
+        rfile = session.query(models.ReceiverFile).filter_by(id=file_id).one()
+        rfile.state = state
+        rfile.verification_date = datetime_now()
+
+    @inlineCallbacks
+    def create_receiver_file(self):
+        yield self.perform_full_submission_actions()
+
+        rtip_desc = (yield self.get_rtips())[0]
+        attachment = self.get_dummy_attachment(content=file_content)
+        handler = self.request(role='receiver',
+                               user_id=rtip_desc['receiver_id'],
+                               attachment=attachment,
+                               handler_cls=rtip.ReceiverFileUpload)
+        yield handler.post(rtip_desc['id'])
+        yield Delivery().run()
+
+        rtip_desc = (yield self.get_rtips())[0]
+        return rtip_desc['receiver_id'], rtip_desc['rfiles'][0]['id']
+
+
+class TestWhistleblowerReceiverFileDownloadAntivirus(helpers.TestHandlerWithPopulatedDB):
+    _handler = wbtip.ReceiverFileDownload
+
+    @transact
+    def set_rfile_antivirus_state(self, session, file_id, state):
+        db_set_config_variable(session, 1, 'antivirus_enabled', True)
+        rfile = session.query(models.ReceiverFile).filter_by(id=file_id).one()
+        rfile.state = state
+        rfile.verification_date = datetime_now()
+
+    @inlineCallbacks
+    def create_receiver_file(self):
+        yield self.perform_full_submission_actions()
+
+        rtip_desc = (yield self.get_rtips())[0]
+        attachment = self.get_dummy_attachment(content=file_content)
+        handler = self.request(role='receiver',
+                               user_id=rtip_desc['receiver_id'],
+                               attachment=attachment,
+                               handler_cls=rtip.ReceiverFileUpload)
+        yield handler.post(rtip_desc['id'])
+        yield Delivery().run()
+
+        rfile_id = (yield self.get_rfiles(rtip_desc['id']))[0]['id']
+        return rtip_desc['id'], rfile_id
+
+    @inlineCallbacks
+    def test_get_allows_infected_file(self):
+        wbtip_id, rfile_id = yield self.create_receiver_file()
+
+        yield self.set_rfile_antivirus_state(rfile_id, models.EnumStateFile.infected.name)
+
+        handler = self.request(role='whistleblower', user_id=wbtip_id)
+        yield handler.get(rfile_id)
+        self.assertNotEqual(handler.request.getResponseBody(), '')
+
+    @inlineCallbacks
+    def test_get_allows_pending_file(self):
+        wbtip_id, rfile_id = yield self.create_receiver_file()
+
+        yield self.set_rfile_antivirus_state(rfile_id, models.EnumStateFile.pending.name)
+
+        handler = self.request(role='whistleblower', user_id=wbtip_id)
+        yield handler.get(rfile_id)
+        self.assertNotEqual(handler.request.getResponseBody(), '')
+

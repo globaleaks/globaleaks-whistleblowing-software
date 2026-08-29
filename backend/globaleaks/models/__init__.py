@@ -7,7 +7,7 @@ from datetime import datetime
 
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
-    EnumFieldOptionScoreType, EnumUserRole, EnumVisibility
+    EnumFieldOptionScoreType, EnumStateFile, EnumUserRole, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
     UniqueConstraint, declarative_base, declared_attr, uuid4
@@ -245,6 +245,8 @@ class _Comment(Model):
     new = Column(Boolean, default=True, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -610,6 +612,8 @@ class _InternalFile(Model):
     reference_id = Column(UnicodeText(36), default='', nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
     @declared_attr
     def __table_args__(self):
@@ -1057,6 +1061,8 @@ class _ReceiverFile(Model):
     new = Column(Boolean, default=True, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
     @declared_attr
     def __table_args__(self):
