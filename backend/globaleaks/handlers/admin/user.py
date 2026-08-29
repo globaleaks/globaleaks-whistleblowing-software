@@ -16,6 +16,7 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
+from datetime import datetime
 
 
 def db_create_user(session, tid, user_session, request, language):
