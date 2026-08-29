@@ -10,10 +10,10 @@ export class JobResolver extends ResourceResolver<jobResolverModel[]> {
   private authenticationService = inject(AuthenticationService);
 
   constructor() {
-    super("api/admin/auditlog/jobs", []);
+    super("api/auditor/auditlog/jobs", []);
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "admin";
+    return this.authenticationService.session.role === "auditor";
   }
 }

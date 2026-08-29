@@ -39,7 +39,21 @@
                 <nav class="navbar navbar-expand-md p-0" role="navigation" [attr.aria-label]="'Main navigation' | translate">
                   <div class="collapse navbar-collapse">
                     <div class="navbar-nav">
-                      <ng-container [ngTemplateOutlet]="navItems"></ng-container>
+                      @if (appConfig.sidebar==='recipient-sidebar') {
+                        <src-receipt-sidebar class="nav-items"></src-receipt-sidebar>
+                      }
+                      @if (appConfig.sidebar==='custodian-sidebar') {
+                        <src-custodian-sidebar class="nav-items"></src-custodian-sidebar>
+                      }
+                      @if (appConfig.sidebar==='analyst-sidebar') {
+                        <src-analyst-sidebar class="nav-items"></src-analyst-sidebar>
+                      }
+                      @if (appConfig.sidebar==='auditor-sidebar') {
+                        <src-auditor-sidebar class="nav-items"></src-auditor-sidebar>
+                      }
+                      @if (appConfig.sidebar==='admin-sidebar') {
+                        <src-admin-sidebar class="nav-items"></src-admin-sidebar>
+                      }
                     </div>
                   </div>
                 </nav>
