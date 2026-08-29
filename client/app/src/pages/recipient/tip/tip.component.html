@@ -6,8 +6,8 @@
           <!-- Left side - All main actions -->
           <div class="d-flex align-items-center gap-1">
             <!-- Navigation and primary actions -->
-            <a id="link-tiplist" href="#/recipient/reports" ngbTooltip="{{'Reports' | translate}}"
-              class="btn btn-outline-secondary" [attr.aria-label]="'Reports' | translate">
+            <a id="link-tiplist" [routerLink]="backLink()" ngbTooltip="{{'Back' | translate}}"
+              class="btn btn-outline-secondary" [attr.aria-label]="'Back' | translate">
               <i class="fas fa-arrow-left"></i>
             </a>
             @if (canMarkImportant()) {
@@ -84,9 +84,19 @@
                     <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
-                @if (canAuthorizeForward()) {
-                  <button id="tip-action-authorize-forward" class="dropdown-item" type="button" (click)="authorizeForward()" [attr.aria-label]="'Authorize forward' | translate">
-                    <i class="fas fa-check me-2"></i>{{'Authorize forward' | translate}}
+                @if (canCommunicate()) {
+                  <button id="tip-action-communicate" class="dropdown-item" type="button" (click)="openCommunicationModal()" [attr.aria-label]="'Communicate with other organization' | translate">
+                    <i class="fas fa-envelope me-2"></i>{{'Communicate with other organization' | translate}}
+                  </button>
+                }
+                @if (canRequestAdditionalQuestionnaire()) {
+                  <button id="tip-action-request-additional-questionnaire" class="dropdown-item" type="button" (click)="requestAdditionalQuestionnaire()" [attr.aria-label]="'Request to fill an additional questionnaire' | translate">
+                    <i class="fas fa-clipboard-list me-2"></i>{{'Request to fill an additional questionnaire' | translate}}
+                  </button>
+                }
+                @if (canAuthorizeTransmission()) {
+                  <button id="tip-action-authorize-transmission" class="dropdown-item" type="button" (click)="authorizeTransmission()" [attr.aria-label]="'Authorize the report' | translate">
+                    <i class="fas fa-check me-2"></i>{{'Authorize the report' | translate}}
                   </button>
                 }
                 @if (canGetAccessCode()) {
@@ -94,9 +104,9 @@
                     <i class="fas fa-key me-2"></i>{{'Get access code' | translate}}
                   </button>
                 }
-                @if (canDenyForward()) {
-                  <button id="tip-action-deny-forward" class="dropdown-item" type="button" (click)="denyForward()" [attr.aria-label]="'Deny forward' | translate">
-                    <i class="fas fa-xmark me-2"></i>{{'Deny forward' | translate}}
+                @if (canDenyTransmission()) {
+                  <button id="tip-action-deny-transmission" class="dropdown-item" type="button" (click)="denyTransmission()" [attr.aria-label]="'Deny the report' | translate">
+                    <i class="fas fa-xmark me-2"></i>{{'Deny the report' | translate}}
                   </button>
                 }
                 @if (canChangeStatus() && tip.status === 'closed') {
@@ -115,7 +125,7 @@
           </div>
 
           <!-- Right side - Export, Logs, and Refresh only -->
-          <div class="d-flex align-items-center gap-1">
+          <div id="TipToolbar" class="d-flex align-items-center gap-1">
             <!-- Export Dropdown -->
             <div id="exportDropdown" class="btn-group" ngbDropdown placement="bottom-right">
               <button id="exportDropdownButton" class="btn btn-outline-secondary dropdown-toggle" type="button" ngbDropdownToggle
@@ -144,21 +154,6 @@
         </div>
       </div>
     </div>
-    @if (accessCode) {
-      <div class="row">
-        <div class="col-md-12">
-          <div id="AccessCodeBox" class="alert alert-info d-flex align-items-center justify-content-between">
-            <span>
-              <span>{{ 'Access code of the whistleblower' | translate }}:</span>
-              <strong id="AccessCode" class="ms-2">{{ accessCode }}</strong>
-            </span>
-            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="accessCode = ''" [attr.aria-label]="'Close' | translate">
-              <i class="fa-solid fa-circle-xmark"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    }
     <div class="row justify-content-between">
       <div class="col-md-12">
         @if (canChangeLabel()) {
@@ -180,6 +175,15 @@
         <src-tip-info [loading]="loading" [tipService]="RTipService"></src-tip-info>
       </div>
     </div>
+    @if (shouldShowAdditionalQuestionnaire()) {
+      <div class="row">
+        <div class="col-md-12">
+          <src-tip-additional-questionnaire-invite
+            [askedByViewer]="true"
+            (edit)="requestAdditionalQuestionnaire()"></src-tip-additional-questionnaire-invite>
+        </div>
+      </div>
+    }
     @if (tip && tip.receivers) {
       <div class="row">
         <div class="col-md-12">
@@ -197,33 +201,6 @@
         </div>
       }
     </div>
-    @if (tip && tip.forwards && tip.forwards.length) {
-      <div class="row">
-        <div class="col-md-12">
-          <h5>{{ 'Forwards' | translate }}</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>{{ 'Date' | translate }}</th>
-                <th>{{ 'Tenant' | translate }}</th>
-                <th>{{ 'Report' | translate }}</th>
-                <th>{{ 'Status' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (forward of tip.forwards; track forward) {
-                <tr>
-                  <td>{{ forward.creation_date | date:'short' }}</td>
-                  <td>{{ forward.target_tid }}</td>
-                  <td><a [routerLink]="['/reports', forward.id]">#{{ forward.progressive }}</a></td>
-                  <td>{{ forward.status | translate }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    }
     <div class="row">
       <div class="col-md-12">
         <src-tip-files-receiver id="ReportAttachments" [redactMode]="redactMode"></src-tip-files-receiver>
@@ -232,26 +209,58 @@
     <div class="row">
       <div class="col-md-12">
         <src-tabs id="CommunicationTabs">
+          <!-- "Everyone" is the space shared with the counterpart of the report: the
+               whistleblower, or the other site of an exchange -->
           <ng-template srcTab="everyone" title="Everyone">
             <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'public'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
+            @if (tip) {
+              <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'public'"></src-tip-comments>
             }
           </ng-template>
           <ng-template srcTab="recipients_only" title="Recipients only" [visible]="showRecipientsOnly()">
             <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'internal'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
-              }
+            @if (tip) {
+              <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'internal'"></src-tip-comments>
+            }
           </ng-template>
-          <ng-template srcTab="personal_notes" title="Personal notes">
+          <ng-template srcTab="personal_notes" title="Personal notes" [visible]="showPersonalNotes()">
             <src-tip-upload-wbfile id="TipUploadBox" [tip]="tip" [redactMode]="redactMode" (updated)="listenToFields()" [key]="'personal'"></src-tip-upload-wbfile>
-            @if (tip && tip.context) {
-              <src-tip-comments id="TipCommentsBox" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
+            @if (tip) {
+              <src-tip-comments [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode" [key]="'personal'"></src-tip-comments>
             }
           </ng-template>
         </src-tabs>
       </div>
     </div>
+    @if (tip && tip.exchanges && tip.exchanges.length) {
+      <div class="row">
+        <div class="col-md-12">
+          <div srcCollapsiblePanel id="TipCommunicationsBox" class="card card-default" [collapsed]="communicationsCollapsed" [label]="'Communications with other organizations' | translate" (toggle)="communicationsCollapsed = !communicationsCollapsed">
+            @if (!communicationsCollapsed) {
+              <div class="card-body">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'Date' | translate }}</th>
+                      <th>{{ 'Destination' | translate }}</th>
+                      <th>{{ 'Status' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of tip.exchanges; track entry) {
+                      <tr [class.tip-action-open]="canOpenExchangedReport(entry)" [attr.role]="canOpenExchangedReport(entry) ? 'button' : null" (click)="canOpenExchangedReport(entry) && openExchangedReport(entry.id)">
+                        <td>{{ entry.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+                        <td>{{ entry.tenant_name }}</td>
+                        <td>{{ entry.status | translate }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
   </div>
 }

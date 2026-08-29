@@ -136,12 +136,27 @@ def db_compose_profile(session, tid):
         'role': 'receiver',
         'roles': ['receiver'],
         'contexts': [context.id],
-        'permissions': {'can_forward_reports': True}
+        'permissions': {'can_send_communications': True}
     }, sync_users=False)
 
     return {'questionnaire_id': questionnaire.id,
             'context_id': context.id,
             'profile_id': profile['id']}
+
+
+@transact
+def db_declare_exchange_channel(session, tid):
+    """
+    Declare on an object a channel the exchanges run through
+    """
+    channel = models.Context()
+    channel.tid = tid
+    channel.exchange = True
+    channel.name = {'en': 'Channel of the exchanges'}
+    session.add(channel)
+    session.flush()
+
+    return channel.id
 
 
 @transact
@@ -155,6 +170,7 @@ def db_read_profile(session, tid):
     return {
         'contexts': [{'id': c.id,
                       'name': c.name,
+                      'exchange': c.exchange,
                       'questionnaire_id': c.questionnaire_id,
                       'tip_timetolive': c.tip_timetolive} for c in contexts],
         'questionnaires': [q.id for q in session.query(models.Questionnaire)
@@ -224,4 +240,74 @@ class TestProfileExportAndImport(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(content['profiles']), 1)
         profile = content['profiles'][0]
         self.assertEqual(profile['contexts'], [channel['id']])
-        self.assertIn('can_forward_reports', profile['permissions'])
+        self.assertIn('can_send_communications', profile['permissions'])
+
+    @inlineCallbacks
+    def test_a_channel_of_the_exchanges_is_carried_for_what_it_is(self):
+        yield db_declare_exchange_channel(self.source_tid)
+
+        imported = yield self.import_of((yield self.export()), 'exchanging')
+        content = yield db_read_profile(imported['id'])
+
+        # what makes a channel one of the exchanges travels with it: the
+        # exchanges themselves are established again where it is carried
+        channels = {c['name']['en']: c for c in content['contexts']}
+        self.assertTrue(channels['Channel of the exchanges']['exchange'])
+        self.assertFalse(channels['Channel of the profile']['exchange'])
+
+
+@transact
+def db_establish_exchange(session, source_tid, target_tid):
+    """
+    Establish an exchange between two objects, as the platform would
+    """
+    exchange = models.Exchange()
+    exchange.type = 'transmission'
+    exchange.source = ConfigFactory(session, source_tid).get_val('uuid')
+    exchange.target = ConfigFactory(session, target_tid).get_val('uuid')
+    session.add(exchange)
+    session.flush()
+
+    return exchange.id
+
+
+@transact
+def db_exchanges(session):
+    return [exchange.id for exchange in session.query(models.Exchange)]
+
+
+class TestTenantDeparture(helpers.TestHandlerWithPopulatedDB):
+    """
+    An exchange relates two objects of the platform and stands on both: the
+    departure of either leaves it relating nothing, and it departs with it.
+    """
+    _handler = tenant.TenantInstance
+
+    @inlineCallbacks
+    def test_the_exchanges_of_a_site_depart_with_it(self):
+        site = yield tenant.create(get_dummy_tenant_desc('departing'))
+
+        incoming = yield db_establish_exchange(1, site['id'])
+        outgoing = yield db_establish_exchange(site['id'], 1)
+        untouched = yield db_establish_exchange(1, 2)
+
+        yield tw(tenant.db_delete_tenant, 1, self.request(role='admin').session,
+                 site['id'], None)
+
+        self.assertEqual((yield db_exchanges()), [untouched])
+        self.assertNotIn(incoming, (yield db_exchanges()))
+        self.assertNotIn(outgoing, (yield db_exchanges()))
+
+    @inlineCallbacks
+    def test_the_exchanges_of_a_profile_depart_with_it(self):
+        profile = yield tenant.create(get_dummy_tenant_desc('departing-profile'),
+                                      is_profile=True)
+
+        established = yield db_establish_exchange(1, profile['id'])
+        untouched = yield db_establish_exchange(1, 2)
+
+        yield tw(tenant.db_delete_tenant, 1, self.request(role='admin').session,
+                 profile['id'], None)
+
+        self.assertEqual((yield db_exchanges()), [untouched])
+        self.assertNotIn(established, (yield db_exchanges()))

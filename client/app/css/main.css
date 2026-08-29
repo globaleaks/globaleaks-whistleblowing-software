@@ -911,22 +911,29 @@ text.axis-worktime {
   white-space: pre-wrap;
 }
 
-/* The whole row of a support request opens it */
-tr.support-request-row {
+/* The whole row of an expandable table opens the detail it carries */
+tr.expandable-row {
   cursor: pointer;
 }
 
-/* The detail of the support request expanded for management sits in a
-   framed box under its row, that loses the border towards it */
-tr.support-request-open > td {
+/* The detail expanded under a row sits in a framed box, and the row it
+   belongs to loses the border towards it, so that the two read as one */
+tr.expandable-row-open > td {
   border-bottom-width: 0;
 }
 
-tr.support-request-detail > td {
+tr.expandable-detail > td {
   padding: 0 1em 1.25em 1.5em;
 }
 
-.support-request-box {
+/* The detail is read, not opened: the highlight the table gives to the rows
+   that answer to the pointer stops at the row that carries it */
+.table-hover > tbody > tr.expandable-detail:hover > * {
+  --bs-table-color-state: initial;
+  --bs-table-bg-state: initial;
+}
+
+.expandable-box {
   border: 1px solid #c8d1e0;
   padding: 1.25em 1.5em;
 }

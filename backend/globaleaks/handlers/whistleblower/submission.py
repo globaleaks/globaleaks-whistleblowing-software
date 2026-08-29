@@ -153,6 +153,12 @@ def decrypt_tip(user_key, tip_prv_key, tip):
 
             decrypt_hashes(tip_key, tip['data'], k + '_')
 
+    if tip['data'].get('receipt'):
+        with contextlib.suppress(CryptoError, ValueError):
+            tip['data']['receipt'] = GCE.asymmetric_decrypt(
+                tip_key, Base64Encoder.decode(tip['data']['receipt'].encode())).decode()
+            decrypt_hashes(tip_key, tip['data'], 'receipt_')
+
     if 'iar' in tip:
         if tip['iar']['request_motivation']:
             with contextlib.suppress(CryptoError, ValueError):

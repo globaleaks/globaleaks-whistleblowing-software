@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
-    EnumFieldOptionScoreType, EnumStateFile, \
+    EnumFieldOptionScoreType, EnumExchangeOwner, EnumExchangeType, EnumStateFile, \
     EnumSupportRequestStatus, EnumUserRole, EnumUserStatus, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
@@ -17,16 +17,7 @@ from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
 
-# Permissions gating the administrative sections: each one authorizes an
-# independent area of the interface on every operation, reads included, so that
-# an administrator scoped out of an area neither changes it nor reads it: the
-# content of an area is as much part of it as its configuration, and leaving
-# the reads open would hand the credentials of the notifications and the
-# accounts of the users to whoever administers anything else. What the pages of
-# the other areas legitimately need - the names to choose a recipient, a
-# channel or a questionnaire from - is served apart by /api/admin/selectables,
-# which carries names and nothing else. can_manage_sites is additionally
-# confined to the root tenant by the handlers that carry it.
+# Each permission gates an independent administrative area on every operation, reads included
 admin_permissions = [
     'can_manage_settings',
     'can_manage_users',
@@ -49,9 +40,10 @@ user_permissions = admin_permissions + [
     'can_mask_information',
     'can_transfer_access_to_reports',
     'can_reopen_reports',
-    'can_forward_reports',
+    'can_send_communications',
     'can_change_status',
-    'can_change_label'
+    'can_change_label',
+    'can_configure_statistical_report_templates'
 ]
 
 
@@ -387,16 +379,30 @@ class _Context(Model):
     score_threshold_high = Column(Integer, default=0, nullable=False)
     score_threshold_medium = Column(Integer, default=0, nullable=False)
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
-    additional_questionnaire_id = Column(UnicodeText(36), index=True)
+    # The additional questionnaire asked automatically of every report filed on the channel; the
+    # recipients ask the others of a single report
+    additional_questionnaire_id = Column(UnicodeText(36), default='', nullable=False, index=True)
+    slug = Column(UnicodeText(100), default='', nullable=False)
     hidden = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
 
-    # The channel of a tenant derived from a channel of its tenant profile
-    # references it here and inherits its configuration; the reference is
-    # written by the derivation alone and never by a request
+    # Offered to the users of the site that enter a report in place of a reporting person
+    internally_available = Column(Boolean, default=False, nullable=False)
+
+    # Whether the access code of a report entered internally is handed to the user that entered it;
+    # otherwise the server draws one
+    provide_access_code = Column(Boolean, default=False, nullable=False)
+
+    # Derived from a channel of the tenant profile: references it and inherits its configuration;
+    # written by the derivation only
     template_id = Column(UnicodeText(36), default='', nullable=False)
 
+    # Receives what the other sites of the platform file here; declared by the exchanges that run
+    # through it
+    exchange = Column(Boolean, default=False, nullable=False)
+
     unicode_keys = [
+        'slug',
         'questionnaire_id',
         'additional_questionnaire_id'
     ]
@@ -421,10 +427,12 @@ class _Context(Model):
         'show_context',
         'show_receivers_in_alphabetical_order',
         'show_steps_navigation_interface',
-        'allow_recipients_selection'
+        'allow_recipients_selection',
+        'internally_available',
+        'provide_access_code'
     ]
 
-    list_keys = ['receivers', 'profiles']
+    list_keys = ['receivers', 'profiles', 'additional_questionnaires']
 
     @declared_attr
     def __table_args__(self):
@@ -678,6 +686,11 @@ class _InternalTip(Model):
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
     context_id = Column(UnicodeText(36), nullable=False)
+    # The additional questionnaire asked of this report: the automatic one of the channel, or the
+    # one the recipients asked
+    additional_questionnaire_id = Column(UnicodeText(36), default='', nullable=False)
+    type = Column(UnicodeText(24), default='submission', nullable=False)
+    allow_transmission = Column(Boolean, default=False, nullable=False)
     operator_id = Column(UnicodeText(33), default='', nullable=False)
     progressive = Column(Integer, default=0, nullable=False)
     access_count = Column(Integer, default=0, nullable=False)
@@ -700,6 +713,14 @@ class _InternalTip(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
+    def is_owned_by(self, tid):
+        """
+        Tell whether the report belongs to a tenant, that is whether it is
+
+        :param tid: The tenant ID of the recipient reading the report
+        """
+        return self.type not in ('request', 'exchange') or tid == self.tid
+
     @declared_attr
     def __table_args__(self):
         return (UniqueConstraint('tid', 'progressive'),
@@ -716,6 +737,9 @@ class _InternalTipAnswers(Model):
 
     internaltip_id = Column(UnicodeText(36), primary_key=True)
     questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    # The questionnaire the answers were given to; the hash names the archived schema. No foreign
+    # key, so that the answers outlive the questionnaire
+    questionnaire_id = Column(UnicodeText(36), default='', nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
     stat_answers = Column(JSON, default=dict, nullable=False)
@@ -778,6 +802,26 @@ class _Questionnaire(Model):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _ContextAdditionalQuestionnaire(Model):
+    """
+    The additional questionnaires a channel can ask of the reports filed on it
+    """
+    __tablename__ = 'context_additional_questionnaire'
+
+    context_id = Column(UnicodeText(36), primary_key=True)
+    questionnaire_id = Column(UnicodeText(36), primary_key=True)
+
+    unicode_keys = ['context_id', 'questionnaire_id']
+
+
+class ContextAdditionalQuestionnaire(_ContextAdditionalQuestionnaire, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['context_id'], ['context.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['questionnaire_id'], ['questionnaire.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('context_id', 'questionnaire_id'))
 
 
 class _ReceiverContext(Model):
@@ -860,6 +904,24 @@ class _Redaction(Model):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _Exchange(Model):
+    """
+    Class used to implement the exchanges established between the sites
+    """
+    __tablename__ = 'exchange'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    type = Column(Enum(EnumExchangeType), default='transmission', nullable=False)
+    source = Column(UnicodeText(36), nullable=False)
+    target = Column(UnicodeText(36), nullable=False)
+    channel = Column(UnicodeText(36), default='', nullable=False)
+    questionnaire = Column(UnicodeText(36), default='', nullable=False)
+    request_questionnaire = Column(UnicodeText(36), default='', nullable=False)
+
+    unicode_keys = ['type', 'source', 'target', 'channel',
+                    'questionnaire', 'request_questionnaire']
 
 
 class _Redirect(Model):
@@ -1187,7 +1249,6 @@ class UserProfile(_UserProfile, Base):
 class _UserProfileContext(Model):
     """
     This model keeps track of the channels associated to a user profile: the
-    users holding the profile are the receivers of the associated channels.
     """
     __tablename__ = 'user_profile_context'
 
@@ -1313,30 +1374,13 @@ class SupportMessage(_SupportMessage, Base):
         return ForeignKeyConstraint(['support_request_id'], ['supportrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
 
 
-class _InternalTipForwarding(Model):
+class _InternalTipTransmission(Model):
     """
-    This model keeps track of forward tip.
+    This model keeps track of transmission tip.
     """
-    __tablename__ = 'internaltip_forwarding'
+    __tablename__ = 'internaltip_transmission'
     internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
-    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
-    update_date = Column(DateTime, default=datetime_now, nullable=False)
-
-    # The private key of the report created by the forward, wrapped with the
-    # public key of the report forwarded so that the whistleblower can talk
-    # with the recipients of the tenant that received the forward
-    crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
-
-    def messages_enabled(self, forwarded_itip):
-        """
-        Tell whether the messages of the forward can reach the whistleblower
-
-        The whistleblower reads them through the key of the forwarded report
-        kept, wrapped, here; a forward missing it has no working exchange.
-
-        :param forwarded_itip: The internaltip of the report created by the forward
-        """
-        return not forwarded_itip.crypto_tip_pub_key or bool(self.crypto_tip_prv_key)
+    transmitting_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
 
     @declared_attr
     def __table_args__(self):
@@ -1349,7 +1393,7 @@ class _InternalTipForwarding(Model):
                 initially='DEFERRED'
             ),
             ForeignKeyConstraint(
-                ['forwarding_internaltip_id'],
+                ['transmitting_internaltip_id'],
                 ['internaltip.id'],
                 ondelete='CASCADE',
                 deferrable=True,
@@ -1358,7 +1402,7 @@ class _InternalTipForwarding(Model):
         )
 
 
-class InternalTipForwarding(_InternalTipForwarding, Base):
+class InternalTipTransmission(_InternalTipTransmission, Base):
     pass
 
 
@@ -1467,6 +1511,10 @@ class Redaction(_Redaction, Base):
 
 
 class Redirect(_Redirect, Base):
+    pass
+
+
+class Exchange(_Exchange, Base):
     pass
 
 

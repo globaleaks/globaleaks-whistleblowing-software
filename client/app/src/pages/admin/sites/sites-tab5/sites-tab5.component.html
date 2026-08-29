@@ -1,0 +1,169 @@
+<app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [itemsPerPage]="20" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+  <ng-template #toolbar>
+    <button class="btn btn-primary add-exchange-btn" type="button" (click)="toggleAddExchange()">
+      <i class="fas fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddExchange) {
+      <div class="row config-section">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="exchange-type">{{ 'Type' | translate }}</label>
+            <select id="exchange-type" class="form-select-custom" name="exchange-type" [(ngModel)]="draft.type" (ngModelChange)="onTypeChange()">
+              @for (type of types; track type) {
+                <option [value]="type">{{ typeLabels[type] | translate }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exchange-mode">{{ 'Mode' | translate }}</label>
+            <select id="exchange-mode" class="form-select-custom" name="exchange-mode" [(ngModel)]="draft.mode" (ngModelChange)="onModeChange()">
+              <option value=""></option>
+              @for (mode of modes; track mode) {
+                <option [value]="mode">{{ modeLabel(mode) }}</option>
+              }
+            </select>
+          </div>
+          @if (draft.mode) {
+            <div class="form-group">
+              <label for="exchange-from">{{ 'From' | translate }}</label>
+              <select id="exchange-from" class="form-select-custom" name="exchange-from" [(ngModel)]="draft.source" (ngModelChange)="onSourceChange()">
+                <option value=""></option>
+                @for (entity of sourceCandidates(); track entity.id) {
+                  <option [value]="entity.uuid">{{ entity.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="exchange-to">{{ 'To' | translate }}</label>
+              <select id="exchange-to" class="form-select-custom" name="exchange-to" [(ngModel)]="draft.target" (ngModelChange)="onTargetChange()" [disabled]="!draft.source">
+                <option value=""></option>
+                @for (entity of targetCandidates(); track entity.id) {
+                  <option [value]="entity.uuid">{{ entity.name }}</option>
+                }
+              </select>
+            </div>
+            @if (draft.target) {
+              <div class="form-group">
+                <label for="exchange-channel">{{ 'Exchange channel' | translate }}</label>
+                <select id="exchange-channel" class="form-select-custom" name="exchange-channel" [(ngModel)]="draft.channel">
+                  <option value=""></option>
+                  <option [value]="newChannel">-- {{ 'New' | translate }} --</option>
+                  @for (context of draftChannels(); track context.id) {
+                    <option [value]="context.id">{{ context.name }}</option>
+                  }
+                </select>
+              </div>
+              @if (declaringChannel()) {
+                <div class="form-group">
+                  <label for="exchange-channel-name">{{ 'Name' | translate }}</label>
+                  <input id="exchange-channel-name" class="form-control" name="exchange-channel-name" [(ngModel)]="draft.channel_name" type="text" required/>
+                </div>
+              }
+            }
+            <div class="form-group clearfix">
+              <button id="add-exchange" class="float-start btn btn-primary" type="button" [disabled]="draftIncomplete()" (click)="addExchange()">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add' | translate }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th appTableHeader [state]="table" [label]="'Type' | translate" sortBy="type_label" filter="type" [options]="typeOptions"></th>
+      <th appTableHeader [state]="table" [label]="'Mode' | translate" sortBy="mode_label" filter="mode" [options]="modeOptions"></th>
+      <th appTableHeader [state]="table" [label]="'From' | translate" sortBy="source_name" filter="source_name" [options]="sourceOptions"></th>
+      <th appTableHeader [state]="table" [label]="'To' | translate" sortBy="target_name" filter="target_name" [options]="targetOptions"></th>
+      <th appTableHeader [state]="table" [label]="'Data owner' | translate" sortBy="owner_name"></th>
+      <th appTableHeader [state]="table" [label]="'Channel' | translate" sortBy="channel_name"></th>
+      <th></th>
+    </tr>
+  </ng-template>
+  <ng-template #content let-row="item" let-index="index">
+    <tr class="exchange-row expandable-row" [class.expandable-row-open]="expandedId === row.exchange.id" [attr.data-cy]="'exchange-' + index" (click)="onRowClick(row, $event)">
+      <td>{{ row.type_label }}</td>
+      <td>{{ row.mode_label }}</td>
+      <td>{{ row.source_name }}</td>
+      <td>{{ row.target_name }}</td>
+      <td>{{ row.owner_name }}</td>
+      <td>{{ row.channel_name }}</td>
+      <td class="text-end">
+        <button type="button" class="btn btn-sm btn-danger" data-action="delete" (click)="removeExchange(row)">
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" data-action="toggle" [attr.aria-expanded]="expandedId === row.exchange.id" (click)="toggleRow(row)">
+          @if (expandedId === row.exchange.id) {
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          } @else {
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          }
+        </button>
+      </td>
+    </tr>
+    @if (expandedId === row.exchange.id) {
+      <tr class="exchange-detail expandable-detail" data-cy="exchange-details">
+        <td colspan="7">
+          <div class="expandable-box">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="config-section">
+                  <div class="form-group">
+                    <span>{{ 'Exchange channel' | translate }}:</span>
+                    @if (row.exchange.channel) {
+                      <a href="#" data-action="configure" (click)="configureChannel(row, $event)">{{ row.channel_name }}</a>
+                    } @else {
+                      <span>{{ row.channel_name }}</span>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <span>{{ 'Data owner' | translate }}:</span>
+                    <span>{{ row.owner_name }}</span>
+                  </div>
+                  <div class="form-group">
+                    <label for="exchange-questionnaire">{{ 'Questionnaire' | translate }}</label>
+                    <select id="exchange-questionnaire" class="form-select-custom" name="exchange-questionnaire" [(ngModel)]="config.questionnaire">
+                      <option value="">-</option>
+                      @for (questionnaire of ownerQuestionnaires(row); track questionnaire.id) {
+                        <option [value]="questionnaire.id">{{ questionnaire.name }}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (row.type !== 'communication') {
+                    <div class="form-group">
+                      <label>
+                        <input class="form-check-input" name="exchange-request-authorization" [(ngModel)]="requestAuthorization" (ngModelChange)="onRequestAuthorizationChange(row)" type="checkbox"/>
+                        <span>{{ 'Require a request before a report is entered' | translate }}</span>
+                      </label>
+                    </div>
+                    @if (requestAuthorization) {
+                      <div class="form-group">
+                        <label for="exchange-request-questionnaire">{{ "Request's questionnaire" | translate }}</label>
+                        <select id="exchange-request-questionnaire" class="form-select-custom" name="exchange-request-questionnaire" [(ngModel)]="config.request_questionnaire">
+                          @for (questionnaire of targetQuestionnaires(row); track questionnaire.id) {
+                            <option [value]="questionnaire.id">{{ questionnaire.name }}</option>
+                          }
+                        </select>
+                      </div>
+                    }
+                  }
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-primary" type="button" data-action="save" (click)="saveConfig(row)">
+                    <i class="fa-solid fa-check"></i>
+                    <span>{{ 'Save' | translate }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    }
+  </ng-template>
+</app-paginated-interface>
