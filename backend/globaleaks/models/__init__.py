@@ -17,8 +17,31 @@ from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
 
-user_permissions = [
-    'can_edit_general_settings',
+# Permissions gating the administrative sections: each one authorizes an
+# independent area of the interface on every operation, reads included, so that
+# an administrator scoped out of an area neither changes it nor reads it: the
+# content of an area is as much part of it as its configuration, and leaving
+# the reads open would hand the credentials of the notifications and the
+# accounts of the users to whoever administers anything else. What the pages of
+# the other areas legitimately need - the names to choose a recipient, a
+# channel or a questionnaire from - is served apart by /api/admin/selectables,
+# which carries names and nothing else. can_manage_sites is additionally
+# confined to the root tenant by the handlers that carry it.
+admin_permissions = [
+    'can_manage_settings',
+    'can_manage_users',
+    'can_manage_user_profiles',
+    'can_manage_channels',
+    'can_manage_questionnaires',
+    'can_manage_case_management',
+    'can_manage_notifications',
+    'can_manage_network',
+    'can_manage_sites',
+    'can_manage_auditlog',
+    'can_manage_support'
+]
+
+user_permissions = admin_permissions + [
     'can_delete_submission',
     'can_postpone_expiration',
     'can_grant_access_to_reports',
@@ -26,7 +49,6 @@ user_permissions = [
     'can_mask_information',
     'can_transfer_access_to_reports',
     'can_reopen_reports',
-    'can_request_forward',
     'can_forward_reports',
     'can_change_status',
     'can_change_label'

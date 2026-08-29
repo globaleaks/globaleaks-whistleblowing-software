@@ -49,7 +49,7 @@ class TestFileInstance(helpers.TestHandler):
     @inlineCallbacks
     def test_post_enable_authorized_recipients_to_upload_the_logos_and_only_them(self):
         for f in files:
-            handler = self.request({}, role='receiver', permissions={'can_edit_general_settings': True}, attachment=self.get_dummy_attachment(f['name']))
+            handler = self.request({}, role='receiver', permissions={'can_manage_settings': True}, attachment=self.get_dummy_attachment(f['name']))
             if f['handler'] in ['logo', 'logo-dark']:
                 yield handler.post(f['handler'])
             else:

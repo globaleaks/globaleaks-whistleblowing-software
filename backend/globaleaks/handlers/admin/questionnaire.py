@@ -162,9 +162,7 @@ def db_import_questionnaire(session, tid, questionnaire):
     # Create the new questionnaire in the database
     db_create_questionnaire(session, tid, None, q, 'en')
 
-    # The questionnaire is imported under an identity of its own: what
-    # referenced it - the channels composing their reports with it - is
-    # rewired by the name it had where it came from
+    # Imported under an identity of its own; the channels that referenced it are rewired by name
     return old_questionnaire_id, q['id']
 
 
@@ -271,6 +269,7 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
 
 class QuestionnairesCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self):
@@ -297,6 +296,7 @@ class QuestionnairesCollection(BaseHandler):
 
 class QuestionnaireInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self, questionnaire_id):
@@ -330,6 +330,7 @@ class QuestionnaireInstance(BaseHandler):
 
 class QuestionnareDuplication(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):

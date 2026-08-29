@@ -487,6 +487,7 @@ def get_fieldtemplate_list(session, tid, language):
 
 class FieldTemplatesCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self):
@@ -517,6 +518,7 @@ class FieldTemplatesCollection(BaseHandler):
 
 class FieldTemplateInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self, field_id):
@@ -546,6 +548,7 @@ class FieldTemplateInstance(BaseHandler):
 
 class FieldsCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):
@@ -562,6 +565,7 @@ class FieldsCollection(BaseHandler):
 
 class FieldInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def put(self, field_id):

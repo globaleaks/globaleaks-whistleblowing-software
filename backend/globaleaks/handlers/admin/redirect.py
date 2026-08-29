@@ -52,6 +52,7 @@ def create(session, tid, request):
 
 class RedirectCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
     invalidate_cache = True
 
@@ -77,6 +78,7 @@ class RedirectCollection(BaseHandler):
 
 class RedirectInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
     invalidate_cache = True
 
