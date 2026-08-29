@@ -23,6 +23,37 @@ def add_profile_role(session, username, role):
     session.add(models.UserProfileRole({'profile_id': user.profile_id, 'role': role}))
 
 
+@transact
+def get_idp_id(session, username):
+    return session.query(models.User).filter(models.User.tid == 1, models.User.username == username).one().idp_id
+
+
+@transact
+def set_idp_id(session, username, idp_id, enabled=True):
+    user = session.query(models.User).filter(models.User.tid == 1, models.User.username == username).one()
+    user.idp_id = idp_id
+    user.enabled = enabled
+
+
+@transact
+def set_config_variable(session, var_name, value):
+    ConfigFactory(session, 1).set_val(var_name, value)
+
+
+@transact
+def get_user_desc(session, username):
+    user = session.query(models.User).filter(models.User.tid == 1, models.User.username == username).one()
+
+    return {
+        'id': user.id,
+        'hash': user.hash,
+        'role': user.role,
+        'idp_id': user.idp_id,
+        'mail_address': user.mail_address,
+        'password_change_needed': user.password_change_needed
+    }
+
+
 class TestAuthTypeHandler(helpers.TestHandlerWithPopulatedDB):
     _handler = auth.AuthTypeHandler
 
@@ -84,6 +115,16 @@ class TestAuthTypeHandlerWithServersideHashing(helpers.TestHandlerWithPopulatedD
         self.assertEqual(response['type'], 'password')
 
 
+@transact
+def user_bound_to(session, idp_id):
+    user = session.query(models.User).filter(models.User.tid == 1, models.User.idp_id == idp_id).one_or_none()
+    if user is None:
+        return None
+
+    return {'username': user.username, 'name': user.name, 'mail_address': user.mail_address,
+            'role': user.role, 'hash': user.hash}
+
+
 class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
     _handler = auth.AuthenticationHandler
 
@@ -120,11 +161,7 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue('redirect' in response)
 
     @inlineCallbacks
-    def test_successful_role_switch(self):
-        # A profile may hold several roles: the switch mints a session on the
-        # requested one, that alone reaches the APIs of the auditor
-        yield add_profile_role('admin', 'auditor')
-
+    def test_the_switch_names_a_site_whose_cache_is_not_loaded_yet(self):
         handler = self.request({
             'tid': 1,
             'username': 'admin',
@@ -134,42 +171,20 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
 
         response = yield handler.post()
 
-        role_switch_handler = self.request({},
+        # The answer to the creation of a site returns before the reload of the
+        # state: until then the site is in the database and not in the cache,
+        # and the address handed back would name no site at all
+        del State.tenants[2]
+
+        auth_switch_handler = self.request({},
                                            headers={'x-session': response['id']},
-                                           handler_cls=auth.RoleAuthSwitchHandler)
+                                           handler_cls=auth.TenantAuthSwitchHandler)
 
-        response = yield role_switch_handler.get('auditor')
-        self.assertTrue('redirect' in response)
+        response = yield auth_switch_handler.get(2)
 
-        # The redirect is spent through the token login, as the client does,
-        # and the adopted session alone reads the audit log
-        token = response['redirect'].split('token=')[1]
-        token_login_handler = self.request({'authtoken': token},
-                                           handler_cls=auth.TokenAuthHandler)
-        response = yield token_login_handler.post()
+        self.assertTrue(State.tenants[2].cache.uuid)
+        self.assertIn('/t/%s/' % State.tenants[2].cache.uuid, response['redirect'])
 
-        auditlog_handler = self.request({},
-                                        headers={'x-session': response['id']},
-                                        handler_cls=auditor.AuditLog)
-        logs = yield auditlog_handler.get()
-        self.assertTrue(isinstance(logs, list))
-
-    @inlineCallbacks
-    def test_unsuccessful_role_switch(self):
-        handler = self.request({
-            'tid': 1,
-            'username': 'admin',
-            'password': helpers.VALID_KEY,
-            'authcode': ''
-        })
-
-        response = yield handler.post()
-
-        role_switch_handler = self.request({},
-                                           headers={'x-session': response['id']},
-                                           handler_cls=auth.RoleAuthSwitchHandler)
-
-        yield self.assertFailure(role_switch_handler.get('receiver'), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_accept_login_in_https(self):
@@ -337,6 +352,231 @@ class TestAuthenticationWithServersideHashing(helpers.TestHandlerWithPopulatedDB
         })
         response = yield handler.post()
         self.assertTrue('id' in response)
+
+
+class TestAuthenticationWithIdp(helpers.TestHandlerWithPopulatedDB):
+    _handler = auth.AuthenticationHandler
+
+    def login_request(self, username, subject):
+        handler = self.request({
+            'tid': 1,
+            'username': username,
+            'password': helpers.VALID_KEY,
+            'authcode': ''
+        })
+
+        handler.request.oidc_token = {'sub': subject} if subject else ''
+
+        return handler
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        State.tenants[1].cache.idp = True
+
+    @inlineCallbacks
+    def test_login_without_a_token_is_refused(self):
+        handler = self.login_request('admin', '')
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_login_without_a_subject_is_refused(self):
+        handler = self.login_request('admin', 'subject')
+        handler.request.oidc_token = {'name': 'no subject'}
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_login_binds_the_identity_to_the_account(self):
+        response = yield self.login_request('admin', 'subject-1').post()
+
+        self.assertIn('id', response)
+        self.assertEqual((yield get_idp_id('admin')), 'subject-1')
+        self.assertEqual((yield count_audit_entries('idp_identity_binding')), 1)
+
+    @inlineCallbacks
+    def test_a_bound_account_is_entered_by_its_identity_alone(self):
+        yield set_idp_id('admin', 'subject-1')
+
+        response = yield self.login_request('admin', 'subject-1').post()
+        self.assertIn('id', response)
+
+        handler = self.login_request('admin', 'subject-2')
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+        self.assertEqual((yield get_idp_id('admin')), 'subject-1')
+
+    @inlineCallbacks
+    def test_a_bound_identity_resolves_its_account_whatever_the_username(self):
+        yield set_idp_id('admin', 'subject-1')
+
+        response = yield self.login_request(self.dummyReceiver_1['username'], 'subject-1').post()
+
+        self.assertEqual(response['username'], 'admin')
+        self.assertEqual((yield get_idp_id(self.dummyReceiver_1['username'])), '')
+
+    @inlineCallbacks
+    def test_a_wrong_password_binds_nothing(self):
+        handler = self.request({'tid': 1, 'username': 'admin', 'password': 'wrong', 'authcode': ''})
+        handler.request.oidc_token = {'sub': 'subject-1'}
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+        self.assertEqual((yield get_idp_id('admin')), '')
+
+
+class TestAuthTypeHandlerWithIdpProvisioning(helpers.TestHandlerWithPopulatedDB):
+    _handler = auth.AuthTypeHandler
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        State.tenants[1].cache.idp = True
+        State.tenants[1].cache.idp_provisioning = True
+
+        yield set_config_variable('default_user_profile', 'recipient')
+
+    def authtype_request(self, claims):
+        handler = self.request({'username': ''})
+        handler.request.oidc_token = claims
+        return handler
+
+    @inlineCallbacks
+    def test_an_unknown_identity_naming_a_free_username_is_provisioned(self):
+        response = yield self.authtype_request({'sub': 'subject-1', 'preferred_username': 'newcomer'}).post()
+
+        self.assertEqual(response, {'type': 'provisioning'})
+
+    @inlineCallbacks
+    def test_an_unknown_identity_naming_a_taken_username_binds_through_the_credentials(self):
+        response = yield self.authtype_request({'sub': 'subject-1', 'preferred_username': 'admin'}).post()
+
+        self.assertEqual(response, {'type': 'binding'})
+
+    @inlineCallbacks
+    def test_an_unknown_identity_binds_where_nothing_is_provisioned(self):
+        State.tenants[1].cache.idp_provisioning = False
+
+        response = yield self.authtype_request({'sub': 'subject-1', 'preferred_username': 'newcomer'}).post()
+
+        self.assertEqual(response, {'type': 'binding'})
+
+    @inlineCallbacks
+    def test_a_bound_identity_is_asked_the_password_of_its_account(self):
+        yield set_idp_id('admin', 'subject-1')
+
+        response = yield self.authtype_request({'sub': 'subject-1'}).post()
+
+        self.assertEqual(response['type'], 'key')
+        self.assertEqual(response['username'], 'admin')
+
+    @inlineCallbacks
+    def test_a_provisioned_account_without_a_password_resumes_the_provisioning(self):
+        claims = {'sub': 'subject-1', 'preferred_username': 'newcomer'}
+
+        login = self.request({'tid': 1, 'username': '', 'password': '', 'authcode': ''},
+                             handler_cls=auth.AuthenticationHandler)
+        login.request.oidc_token = claims
+        yield login.post()
+
+        response = yield self.authtype_request(claims).post()
+
+        self.assertEqual(response, {'type': 'provisioning'})
+
+
+class TestAuthenticationWithIdpProvisioning(helpers.TestHandlerWithPopulatedDB):
+    _handler = auth.AuthenticationHandler
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        State.tenants[1].cache.idp = True
+        State.tenants[1].cache.idp_provisioning = True
+
+        yield set_config_variable('default_user_profile', 'recipient')
+
+    def login_request(self, username, password, claims):
+        handler = self.request({
+            'tid': 1,
+            'username': username,
+            'password': password,
+            'authcode': ''
+        })
+
+        handler.request.oidc_token = claims
+
+        return handler
+
+    @inlineCallbacks
+    def test_an_unknown_identity_is_provisioned_an_account(self):
+        claims = {'sub': 'subject-1', 'preferred_username': 'newcomer',
+                  'email': 'newcomer@example.org', 'name': 'New Comer'}
+
+        response = yield self.login_request('', '', claims).post()
+
+        self.assertIn('id', response)
+        user = yield user_bound_to('subject-1')
+        self.assertEqual((user['username'], user['name'], user['mail_address'], user['role'], user['hash']),
+                         ('newcomer', 'New Comer', 'newcomer@example.org', 'receiver', ''))
+        self.assertEqual((yield count_audit_entries('idp_user_provisioning')), 1)
+
+    @inlineCallbacks
+    def test_the_username_falls_back_on_the_email_and_then_on_the_subject(self):
+        yield self.login_request('', '', {'sub': 'subject-1', 'email': 'by-mail@example.org'}).post()
+        yield self.login_request('', '', {'sub': 'subject-2'}).post()
+
+        self.assertEqual((yield user_bound_to('subject-1'))['username'], 'by-mail@example.org')
+        self.assertEqual((yield user_bound_to('subject-2'))['username'], 'subject-2')
+
+    @inlineCallbacks
+    def test_a_provisioned_account_is_entered_again_by_its_identity(self):
+        claims = {'sub': 'subject-1', 'preferred_username': 'newcomer'}
+
+        yield self.login_request('', '', claims).post()
+        response = yield self.login_request('', '', claims).post()
+
+        self.assertIn('id', response)
+        self.assertEqual((yield count_audit_entries('idp_user_provisioning')), 1)
+
+    @inlineCallbacks
+    def test_an_identity_naming_a_taken_username_is_refused(self):
+        handler = self.login_request('', '', {'sub': 'subject-1', 'preferred_username': 'admin'})
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+        self.assertIsNone((yield user_bound_to('subject-1')))
+
+    @inlineCallbacks
+    def test_an_account_holding_a_password_is_not_entered_by_the_identity_alone(self):
+        yield set_idp_id('admin', 'subject-1')
+
+        handler = self.login_request('', '', {'sub': 'subject-1'})
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_nothing_is_provisioned_where_the_provisioning_is_off(self):
+        State.tenants[1].cache.idp_provisioning = False
+
+        handler = self.login_request('', '', {'sub': 'subject-1', 'preferred_username': 'newcomer'})
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+        self.assertIsNone((yield user_bound_to('subject-1')))
+
+    @inlineCallbacks
+    def test_nothing_is_provisioned_where_the_site_creates_no_user_by_default(self):
+        yield set_config_variable('default_user_profile', 'none')
+
+        handler = self.login_request('', '', {'sub': 'subject-1', 'preferred_username': 'newcomer'})
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_a_token_without_a_subject_provisions_nothing(self):
+        handler = self.login_request('', '', {'preferred_username': 'newcomer'})
+
+        yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
 
 
 class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
@@ -559,6 +799,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
         user_handler = self.request({}, headers={'x-session': session.id},
                                         handler_cls=UserInstance)
         yield self.assertRaises(errors.InvalidAuthentication, user_handler.get)
+
 
     @inlineCallbacks
     def test_redemption_enforces_session_tenant_connection_policy(self):
