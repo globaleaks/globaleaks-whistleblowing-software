@@ -252,6 +252,14 @@ AdminNodeDesc = {
     'enable_onion': bool,
     'default_tip_timetolive': int,
     'demo': bool,
+    'signup_invite_only': bool,
+    'signup_auto_authorize': bool,
+    'signup_profile': profile_regexp,
+    'signup_request_location': bool,
+    'signup_request_phone': bool,
+    'signup_request_tax_code': bool,
+    'signup_request_vat_code': bool,
+    'signup_request_subdomain': bool,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
     'signup_tos1_text': str,
@@ -571,16 +579,38 @@ WizardDesc = {
 }
 
 SignupDesc = {
-    'subdomain': subdomain_regexp,
+    'subdomain': subdomain_regexp_or_empty,
     'name': alphanumeric_str_regexp,
     'surname': alphanumeric_str_regexp,
     'role': alphanumeric_str_regexp,
-    'phone': phone_regexp,
     'email': email_regexp,
     'organization_name': str,
+    'organization_email': email_regexp_or_empty,
+    'organization_location': str,
+    # The phone number of the organization; the users are not asked for theirs
+    'phone': phone_regexp,
     'organization_tax_code': alphanumeric_str_regexp,
     'organization_vat_code': alphanumeric_str_regexp,
-    'organization_location': str,
+    'tos1': bool,
+    'tos2': bool
+}
+
+TenantInviteDesc = {
+    'organization_name': str,
+    'email': email_regexp,
+    'mail_template': str
+}
+
+TenantInviteUpdateDesc = {
+    'action': r'^(accept|deny)$'
+}
+
+TenantInviteAcceptanceDesc = {
+    'name': alphanumeric_str_regexp,
+    'surname': alphanumeric_str_regexp,
+    'role': alphanumeric_str_regexp,
+    'email': email_regexp,
+    'phone': phone_regexp,
     'tos1': bool,
     'tos2': bool
 }
