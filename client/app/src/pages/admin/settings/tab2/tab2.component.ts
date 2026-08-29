@@ -10,7 +10,6 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {AdminFile} from "@app/models/component-model/admin-file";
 import {AdminFileComponent} from "@app/shared/partials/admin-file/admin-file.component";
-import {SwitchComponent} from "@app/shared/components/switch/switch.component";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,7 +18,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tab2",
     templateUrl: "./tab2.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, AdminFileComponent, SwitchComponent, OrderByPipe, TranslateModule]
+    imports: [NgbTooltipModule, AdminFileComponent, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
   private appConfigService = inject(AppConfigService);
@@ -125,10 +124,11 @@ export class Tab2Component implements OnInit {
   }
 
   togglePermissionUploadFiles(): void {
-    // The switch shows the permission actually held by the session: the state
-    // changes only once the operation, which is authorized by the password
-    // confirmation, has succeeded. A rejected or dismissed confirmation
-    // therefore leaves the switch where it was.
+    // The switch shows the permission actually held by the session: the click
+    // does not flip it (the template prevents the default action of the
+    // checkbox) and the state changes only once the operation, which is
+    // authorized by the password confirmation, has succeeded. A rejected or
+    // dismissed confirmation therefore leaves the switch where it was.
     const enable = !this.authenticationData.session.permissions.can_upload_files;
     const operation = enable ? "enable_user_permission_file_upload" : "disable_user_permission_file_upload";
 

@@ -1047,6 +1047,16 @@ input[type="email"] {
   cursor: pointer;
 }
 
+/* The title of a collapsible card is a button, so that it is reached with the
+   keyboard, but it keeps the plain look of the text it wraps */
+.editorTitle {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
 .input-group-text {
   color: #495057;
   background-color: #f5f7fa;
@@ -1195,6 +1205,25 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   appearance: auto;
 }
 
+/* A switch is drawn by Bootstrap as a track with a sliding knob through a
+   background image, which requires the native rendering to be suppressed: the
+   rule above restores it for ordinary checkboxes and would flatten the switch
+   back into a checkbox. On/off is shown in the colors of the brand, blue when
+   on and red when off; the state is also carried by the adjacent text label,
+   so it is never conveyed by color alone */
+.form-switch .form-check-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #DE1B1B;
+  border-color: #DE1B1B;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #205782;
+  border-color: #205782;
+}
+
 .visually-hidden:not(:focus, :active) {
   position: absolute;
   overflow: hidden;
@@ -1244,4 +1273,8 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
     linear-gradient(45deg, transparent 50%, #1d1f2a 50%) right 0.9em center / 8px 8px no-repeat,
     linear-gradient(-45deg, transparent 50%, #1d1f2a 50%) right 0.4em center / 8px 8px no-repeat;
   background-color: white;
+}
+
+.receiver-tooltip {
+  white-space: pre-line;
 }
