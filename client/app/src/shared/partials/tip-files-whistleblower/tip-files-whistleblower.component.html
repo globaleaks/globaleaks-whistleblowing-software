@@ -12,6 +12,7 @@
               <th>{{'Upload date'|translate}}</th>
               <th>{{'Type'|translate}}</th>
               <th>{{'File size'|translate}}</th>
+              <th><i class="fas fa-check"></i></th>
             </tr>
           </thead>
           <tbody id="fileListBody">
@@ -33,6 +34,11 @@
                 <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
                 <td>{{file.type}}</td>
                 <td>{{file.size | byteFmt:2}}</td>
+                <td>
+                  @if (isWbFileRead(file)) {
+                    <i class="fas fa-check text-success" ngbTooltip="{{'Seen' | translate}}"></i>
+                  }
+                </td>
               </tr>
             }
           </tbody>

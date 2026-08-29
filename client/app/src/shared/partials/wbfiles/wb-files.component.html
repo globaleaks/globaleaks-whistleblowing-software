@@ -10,6 +10,9 @@
         }
 
         <span class="filename px-1">{{ displayName() }}</span>
+        @if ((ctx() === 'rtip' || ctx() === 'wbtip') && wbFile().downloaded) {
+          <i class="fas fa-check text-success float-end" ngbTooltip="{{'Seen' | translate}}"></i>
+        }
       </span>
 
       <span class="float-end">

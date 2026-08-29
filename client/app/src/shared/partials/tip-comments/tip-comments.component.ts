@@ -73,4 +73,21 @@ export class TipCommentsComponent {
 
     return this.maskService.maskingContent(id, index, value, this.tipService().tip);
   }
+
+  isCommentRead(comment: Comment): boolean {
+    if (this.tipService instanceof ReceiverTipService) {
+      if (!comment.author_id) {
+        return new Date(this.tipService.tip.last_access) > new Date(comment.creation_date);
+      } else {
+        return new Date(this.tipService.tip.itip_last_access) > new Date(comment.creation_date);
+      }
+    } else if (this.tipService instanceof WbtipService) {
+      if (!comment.author_id) {
+        return this.tipService.tip.receivers.some(r => r.last_access && new Date(r.last_access) > new Date(comment.creation_date));
+      } else {
+        return new Date(this.tipService.tip.last_access) > new Date(comment.creation_date);
+      }
+    }
+    return false;
+  }
 }
