@@ -1,13 +1,13 @@
 <app-paginated-interface [mode]="'table'" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
   <ng-template #header>
     <tr>
-      <th appTableHeader [state]="table" [label]="'ID' | translate"></th>
-      <th appTableHeader [state]="table" [label]="'Username' | translate" sortBy="username"></th>
-      <th appTableHeader [state]="table" [label]="'Role' | translate" sortBy="role" filter="role" [options]="roleOptions"></th>
-      <th appTableHeader [state]="table" [label]="'Name' | translate" sortBy="name"></th>
-      <th appTableHeader [state]="table" label="2FA" sortBy="two_factor"></th>
-      <th appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
-      <th appTableHeader [state]="table" [label]="'Last access' | translate" sortBy="last_login" filter="last_login"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'ID' | translate"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Username' | translate" sortBy="username"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Role' | translate" sortBy="role" filter="role" [options]="roleOptions"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Name' | translate" sortBy="name"></th>
+      <th scope="col" appTableHeader [state]="table" label="2FA" sortBy="two_factor"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
+      <th scope="col" appTableHeader [state]="table" [label]="'Last access' | translate" sortBy="last_login" filter="last_login"></th>
     </tr>
   </ng-template>
   <ng-template #content let-data="item" let-index="index">

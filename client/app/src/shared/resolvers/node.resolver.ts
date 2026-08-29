@@ -22,7 +22,7 @@ export class NodeResolver extends ResourceResolver<nodeResolverModel> {
     const role = this.authenticationService.session.role;
 
     return role === "admin" ||
-      (role === "receiver" && this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings);
+      (role === "receiver" && this.preferenceResolver.dataModel.profile.permissions.can_manage_settings);
   }
 
   // The node configuration decides what the pages render: navigation

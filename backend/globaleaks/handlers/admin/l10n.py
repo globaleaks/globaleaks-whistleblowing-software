@@ -35,6 +35,7 @@ def update(session, tid, lang, request):
 
 class AdminL10NHandler(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_settings'
     invalidate_cache = True
 
     def get(self, lang):

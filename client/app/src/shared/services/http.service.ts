@@ -31,7 +31,7 @@ import {tipsResolverModel} from "@app/models/resolvers/tips-resolver-model";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
-import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
+import {Selectables} from "@app/models/app/selectables";
 import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
@@ -40,7 +40,6 @@ import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistica
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
 import {FlowFile} from "@flowjs/flow.js";
-import {Selectables} from "@app/models/app/selectables";
 
 
 @Injectable({
@@ -202,8 +201,8 @@ export class HttpService {
     return this.httpClient.get<questionnaireResolverModel[]>("api/admin/questionnaires");
   }
 
-  requestTipResource(): Observable<tipsResolverModel> {
-    return this.httpClient.get<tipsResolverModel>("api/auditor/auditlog/tips");
+  requestAuditLogTipsResource(area: string): Observable<tipsResolverModel> {
+    return this.httpClient.get<tipsResolverModel>(`api/${area}/auditlog/tips`);
   }
 
   requestNotificationsResource(): Observable<notificationResolverModel> {
@@ -316,8 +315,8 @@ export class HttpService {
     return this.httpClient.get<Selectables>("api/admin/selectables");
   }
 
-  requestAdminAuditLogResource(): Observable<auditlogResolverModel> {
-    return this.httpClient.get<auditlogResolverModel>("api/auditor/auditlog");
+  requestAuditLogResource(area: string): Observable<auditlogResolverModel> {
+    return this.httpClient.get<auditlogResolverModel>(`api/${area}/auditlog`);
   }
 
   requestRecipientTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {
@@ -338,10 +337,6 @@ export class HttpService {
 
   requestUpdateAdminQuestionnaire(id: string, param: questionnaireResolverModel): Observable<questionnaireResolverModel> {
     return this.httpClient.put<questionnaireResolverModel>("api/admin/questionnaires/" + id, param);
-  }
-
-  requestJobResource(): Observable<jobResolverModel> {
-    return this.httpClient.get<jobResolverModel>("api/auditor/auditlog/jobs");
   }
 
   receiverTipResource(): Observable<rtipResolverModel[]> {
