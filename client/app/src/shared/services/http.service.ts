@@ -18,6 +18,7 @@ import {NewContext} from "@app/models/admin/new-context";
 import {NewStep} from "@app/models/admin/new-step";
 import {NewField} from "@app/models/admin/new-field";
 import {FieldTemplate} from "@app/models/admin/field-Template";
+import {Backup} from "@app/models/admin/backup";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {Root, Status, Substatus} from "@app/models/app/public-model";
@@ -163,6 +164,10 @@ export class HttpService {
 
   updateNodeResource(data: nodeResolverModel): Observable<nodeResolverModel> {
     return this.httpClient.put<nodeResolverModel>("api/admin/node", data);
+  }
+
+  requestBackupsResource(): Observable<Backup[]> {
+    return this.httpClient.get<Backup[]>("api/admin/backup/list");
   }
 
   requestUsersResource(): Observable<userResolverModel[]> {
