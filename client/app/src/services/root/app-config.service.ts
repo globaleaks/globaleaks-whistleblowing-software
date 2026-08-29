@@ -13,6 +13,7 @@ import {TitleService} from "@app/shared/services/title.service";
 import {Observable, forkJoin, of} from "rxjs";
 import {catchError, map} from "rxjs/operators";
 import {ThemeService} from "@app/shared/theme/theme.service";
+import {IdpService} from "@app/services/root/idp.service";
 import {TranslateLoader} from "@ngx-translate/core";
 import {TranslationLoader, guessLanguage} from "@app/services/helper/translation-loader";
 
@@ -30,6 +31,7 @@ export class AppConfigService {
   private activatedRoute = inject(ActivatedRoute);
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
+  private idpService = inject(IdpService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
   private readonly themeService = inject(ThemeService);
   private readonly translationLoader = inject(TranslateLoader);
@@ -66,6 +68,18 @@ export class AppConfigService {
       next: data => {
         if (data.body !== null) {
           this.appDataService.updatePublic(data.body);
+        }
+
+        this.themeService.setPrimaryColor(this.appDataService.public.node.primary_color);
+
+        if (this.appDataService.public.node.idp || this.appDataService.public.node.signup_idp) {
+          this.idpService.initialize().then(authenticated => {
+            if (authenticated && this.authenticationService.session) {
+              this.idpService.setupAutomaticRefresh();
+            }
+          });
+        } else {
+          this.idpService.disable();
         }
 
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);

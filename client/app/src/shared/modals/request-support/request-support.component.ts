@@ -42,9 +42,7 @@ export class RequestSupportComponent implements OnInit {
   ngOnInit(): void {
     this.arg.mail_address = this.preferenceResolver.dataModel?.mail_address || "";
 
-    // Whoever can read its own threads opens support mostly to read the reply
-    // it has been notified of, and the requests are what it is looking for;
-    // whoever cannot opens it from the login and writes at once.
+    // Whoever can read its own threads opens support to read the reply: the requests come first
     if (this.canReadRequests) {
       this.loadRequests();
     }
@@ -71,7 +69,8 @@ export class RequestSupportComponent implements OnInit {
    */
   get authenticated(): boolean {
     const session = this.authenticationService.session;
-    return !!session && session.role !== "whistleblower";
+    return (!!session && session.role !== "whistleblower") ||
+      this.authenticationService.idpIdentityBound;
   }
 
   /**
@@ -104,10 +103,8 @@ export class RequestSupportComponent implements OnInit {
       request.mail_address = this.arg.mail_address;
     }
 
-    // The request is submitted with the proof of work required of whoever
-    // holds no session, which replaces the headers of the request: the
-    // identity authenticated on the identity provider is passed explicitly so
-    // that it reaches the backend, which attributes the request to its account
+    // Submitted with the proof of work required without a session, which replaces the headers of the
+    // request
     this.httpService.requestSupport(request, this.authenticationService.getHeader()).subscribe({
       next: () => {
         this.arg.text = "";
