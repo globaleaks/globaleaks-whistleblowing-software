@@ -1,4 +1,4 @@
-import {Component, computed, inject, ChangeDetectionStrategy} from "@angular/core";
+import {Component, computed, inject, viewChild, ChangeDetectionStrategy} from "@angular/core";
 import {JobResolver} from "@app/shared/resolvers/job.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DatePipe} from "@angular/common";
@@ -19,7 +19,10 @@ export class AuditLogTab4Component {
 
   readonly jobs = computed(() => this.jobResolver.resource.value());
 
+  // What the list shows: search and ordering alike
+  private readonly list = viewChild.required(PaginatedInterfaceComponent);
+
   exportAuditLog() {
-    this.utilsService.generateCSV('jobs', this.jobs());
+    this.utilsService.generateCSV('jobs', this.list().filteredItems);
   }
 }

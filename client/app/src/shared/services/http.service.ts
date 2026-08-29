@@ -203,7 +203,7 @@ export class HttpService {
   }
 
   requestTipResource(): Observable<tipsResolverModel> {
-    return this.httpClient.get<tipsResolverModel>("api/admin/auditlog/tips");
+    return this.httpClient.get<tipsResolverModel>("api/auditor/auditlog/tips");
   }
 
   requestNotificationsResource(): Observable<notificationResolverModel> {
@@ -317,7 +317,15 @@ export class HttpService {
   }
 
   requestAdminAuditLogResource(): Observable<auditlogResolverModel> {
-    return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog");
+    return this.httpClient.get<auditlogResolverModel>("api/auditor/auditlog");
+  }
+
+  requestRecipientTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>(`api/recipient/rtips/${tipId}/auditlog`);
+  }
+
+  requestWhistleblowerTipAuditLogResource(): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>("api/whistleblower/wbtip/auditlog");
   }
 
   addQuestionnaire(param: NewQuestionare): Observable<questionnaireResolverModel> {
@@ -333,7 +341,7 @@ export class HttpService {
   }
 
   requestJobResource(): Observable<jobResolverModel> {
-    return this.httpClient.get<jobResolverModel>("api/admin/auditlog/jobs");
+    return this.httpClient.get<jobResolverModel>("api/auditor/auditlog/jobs");
   }
 
   receiverTipResource(): Observable<rtipResolverModel[]> {

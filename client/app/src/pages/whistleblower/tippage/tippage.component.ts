@@ -11,7 +11,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
-import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {NgClass} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
@@ -30,6 +32,7 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class TippageComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);
+  private modalService = inject(NgbModal);
   private fieldUtilities = inject(FieldUtilitiesService);
   private appConfigService = inject(AppConfigService);
   private wbTipResolver = inject(WbTipResolver);
@@ -223,5 +226,22 @@ export class TippageComponent implements OnInit {
     return tip?.status !== 'closed' &&
            !!tip?.context?.additional_questionnaire_id &&
            tip?.questionnaires?.length === 1;
+  }
+
+  /**
+   * The log of the report is read by the whistleblower as it is read by the
+   * recipients: the report it holds is what the fingerprints of its objects
+   * are resolved from
+   */
+  openLogsModal() {
+    const modalRef = this.modalService.open(TipAuditLogComponent, {
+      size: "xl",
+      backdrop: "static",
+      keyboard: false
+    });
+
+    modalRef.componentInstance.tipId = this.wbTipService.tip.id;
+    modalRef.componentInstance.tipData = this.wbTipService.tip;
+    modalRef.componentInstance.usersData = this.wbTipService.tip?.receivers || [];
   }
 }

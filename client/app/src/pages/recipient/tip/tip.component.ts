@@ -36,6 +36,7 @@ import {WhistleBlowerIdentityReceiverComponent} from "../whistleblower-identity-
 import {TipFilesReceiverComponent} from "@app/shared/partials/tip-files-receiver/tip-files-receiver.component";
 import {TipUploadWbFileComponent as TipUploadWbFileComponent_1} from "../../../shared/partials/tip-upload-wbfile/tip-upload-wb-file.component";
 import {TipCommentsComponent as TipCommentsComponent_1} from "../../../shared/partials/tip-comments/tip-comments.component";
+import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {DatePipe} from "@angular/common";
 
@@ -607,6 +608,18 @@ export class TipComponent implements OnInit {
 
   exportTip(tipId: string) {
     this.utils.saveAs(this.authenticationService, "tip.zip", `/api/recipient/rtips/${tipId}/export`);
+  }
+
+  openLogsModal() {
+    const modalRef = this.modalService.open(TipAuditLogComponent, {
+      size: 'xl',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.tipId = this.tip_id;
+    modalRef.componentInstance.tipData = this.tip;
+    modalRef.componentInstance.usersData = this.tip?.receivers || [];
   }
 
   toggleRedactMode() {

@@ -15,7 +15,7 @@ export class AuditLogResolver {
   dataModel: auditlogResolverModel = new auditlogResolverModel();
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
+    if (this.authenticationService.session.role === "auditor") {
       return this.httpService.requestAdminAuditLogResource().pipe(
         switchMap((response: auditlogResolverModel) => {
           this.handleResponse(response);
