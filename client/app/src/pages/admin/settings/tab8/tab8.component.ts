@@ -14,12 +14,12 @@ import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/s
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
-    selector: "src-tab5",
-    templateUrl: "./tab5.component.html",
+    selector: "src-tab8",
+    templateUrl: "./tab8.component.html",
     standalone: true,
     imports: [FormsModule, SelectionEditorComponent, TranslateModule]
 })
-export class Tab5Component {
+export class Tab8Component {
   protected authenticationService = inject(AuthenticationService);
   private modalService = inject(NgbModal);
   private appConfigService = inject(AppConfigService);

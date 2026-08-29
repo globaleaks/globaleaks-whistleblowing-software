@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="backup-time">{{ 'Time (hh:mm)' | translate }}</label>
+            <input type="time" [(ngModel)]="backupTime" id="backup-time" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="backup-period">{{ 'Period (hours)' | translate }}</label>
+          <select [(ngModel)]="backupPeriod" id="backup-period" class="form-control">
+            @for (h of periodOptions; track h) {
+              <option [ngValue]="h">{{ h }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="backup-retention">{{ 'Number of backups to keep' | translate }}</label>
+          <input type="number" [(ngModel)]="backupRetention" id="backup-retention" class="form-control" min="1"/>
+        </div>
+
+        @if (nodeData.backup_enabled) {
+        <div class="form-group">
+          <div class="row mb-3">
+            <div class="col-md-6 col-lg-6">
+              <label class="mb-1">{{ 'Backup Job Status' | translate }}</label>
+              <input type="text" [(ngModel)]="jobStatus" id="backup-status" class="form-control" disabled />
+            </div>
+          </div>
+        </div>
+        }
+        @if (backups.length) {
+        <div class="form-group">
+          <table class="table" id="backup-list">
+            <thead>
+              <tr>
+                <th>{{ 'Date' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (backup of backups; track backup.id) {
+                <tr>
+                  <td>{{ backup.creation_date | date:'medium' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+
+        <div class="form-group">
+          <button class="btn btn-primary me-2" id="save_settings" (click)="save()" type="submit">
+              <i class="fa-solid fa-check"></i>
+              <span>{{ 'Save' | translate }}</span>
+          </button>
+          @if (!nodeData.backup_enabled) {
+            <button type="button" class="btn btn-primary me-2" id="backup-enable" (click)="toggleBackup()">{{ 'Enable' | translate }}</button>
+          }
+          @if (nodeData.backup_enabled) {
+            <button type="button" class="btn btn-danger me-2" id="backup-disable" (click)="toggleBackup()">{{ 'Disable' | translate }}</button>
+          }
+          <button type="button" class="btn btn-danger" id="backup-reset" (click)="resetBackups()">{{ 'Reset' | translate }}</button>
+        </div>
+    </div>
+</div>

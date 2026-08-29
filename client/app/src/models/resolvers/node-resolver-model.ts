@@ -76,4 +76,10 @@ export class nodeResolverModel {
   onionservice: string;
   user_privacy_policy_url: string;
   can_postpone_expiration: boolean;
+  tid: number;
+  backup_enabled: boolean;
+  backup_time: string;
+  backup_period: number;
+  backup_retention: number;
+  backup_job_status: string;
 }
