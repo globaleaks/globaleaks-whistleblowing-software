@@ -1,17 +1,30 @@
-<!-- Toolbar: collection actions on the left, search on the right -->
-@if (toolbar() || scopedCount) {
-  <div class="row mb-3 align-items-center">
-    <div class="col">
-      @if (toolbar()) {
-        <ng-container [ngTemplateOutlet]="toolbar()!"></ng-container>
+<!-- Toolbar: collection actions on the left, search on the right, and the
+     optional narrowing of the list under the search it narrows -->
+@if (toolbar() || filterOptFn() || scopedCount) {
+  <div class="mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        @if (toolbar()) {
+          <ng-container [ngTemplateOutlet]="toolbar()!"></ng-container>
+        }
+      </div>
+      @if (scopedCount) {
+        <div class="col-auto">
+          <app-search-input
+            [(value)]="searchText"
+            (valueChange)="onSearchUpdate()">
+          </app-search-input>
+        </div>
       }
     </div>
-    @if (scopedCount) {
-      <div class="col-auto">
-        <app-search-input
-          [(value)]="searchText"
-          (valueChange)="onSearchUpdate()">
-        </app-search-input>
+    @if (filterOptFn()) {
+      <div class="row mt-2">
+        <div class="col">
+          <div class="form-check m-0 d-flex align-items-center justify-content-end">
+            <input class="form-check-input mt-0" type="checkbox" id="filterOpt" [(ngModel)]="filterOptEnabled" (ngModelChange)="update()" />
+            <label class="form-check-label ms-2 mb-0" for="filterOpt">{{ filterOptLabel() }}</label>
+          </div>
+        </div>
       </div>
     }
   </div>

@@ -18,8 +18,8 @@
   </div>
   <div class="row mt-2">
     <div class="col-md-12">
-      <table class="table table-condensed table-striped">
-        <thead>
+      <app-paginated-interface [mode]="'table'" [items]="iarResolver.dataModel" [orderBy]="'request_date'" [orderDesc]="true">
+        <ng-template #header>
           <tr>
             <th>{{'Request date'|translate}}</th>
             <th>{{'ID'|translate}}</th>
@@ -29,40 +29,38 @@
             <th>{{'Reply motivation'|translate}}</th>
             <th>{{'Authorization'|translate}}</th>
           </tr>
-        </thead>
-        <tbody>
-          @for (iar of iarResolver.dataModel; track iar; let index = $index) {
-            <tr id="iar-{{index}}">
-              <td>{{iar.request_date | date:'dd-MM-yyyy HH:mm'}}</td>
-              <td>{{iar.submission_progressive}}</td>
-              <td>{{iar.submission_date | date:'dd-MM-yyyy HH:mm'}}</td>
-              <td>{{usersNames[iar.request_user_id] || iar.request_user_id}}</td>
-              <td>{{iar.request_motivation}}</td>
-              <td>{{iar.reply_motivation}}</td>
-              <td>
-                <div>
-                  @switch (iar.reply) {
-                    @case ('authorized') {
-                      {{ 'Authorized' | translate }}
-                    }
-                    @case ('denied') {
-                      {{ 'Denied' | translate }}
-                    }
-                    @case ('pending') {
-                      <button class="btn btn-sm btn-primary" id="authorize" (click)="authorizeIdentityAccessRequest(iar.id)">
-                        {{ 'Authorize' | translate }}
-                      </button>
-                      <button class="btn btn-sm btn-danger" id="deny" (click)="fileDeniedIdentityAccessReply(iar.id)">
-                        {{ 'Deny' | translate }}
-                      </button>
-                    }
+        </ng-template>
+        <ng-template #content let-iar="item" let-index="index">
+          <tr id="iar-{{index}}">
+            <td>{{iar.request_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td>{{iar.submission_progressive}}</td>
+            <td>{{iar.submission_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td>{{usersNames[iar.request_user_id] || iar.request_user_id}}</td>
+            <td>{{iar.request_motivation}}</td>
+            <td>{{iar.reply_motivation}}</td>
+            <td>
+              <div>
+                @switch (iar.reply) {
+                  @case ('authorized') {
+                    {{ 'Authorized' | translate }}
                   }
-                </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                  @case ('denied') {
+                    {{ 'Denied' | translate }}
+                  }
+                  @case ('pending') {
+                    <button class="btn btn-sm btn-primary" id="authorize" (click)="authorizeIdentityAccessRequest(iar.id)">
+                      {{ 'Authorize' | translate }}
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="deny" (click)="fileDeniedIdentityAccessReply(iar.id)">
+                      {{ 'Deny' | translate }}
+                    </button>
+                  }
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-paginated-interface>
     </div>
   </div>
 </div>

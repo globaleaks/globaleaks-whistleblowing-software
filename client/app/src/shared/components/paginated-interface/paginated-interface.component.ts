@@ -1,5 +1,6 @@
-import {AfterViewInit, Component, contentChild, inject, input, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
+import {AfterViewInit, Component, contentChild, inject, input, model, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {UtilsService} from "@app/shared/services/utils.service";
 import {SearchInputComponent} from '@app/shared/components/search/search.component';
 import {PaginationComponent} from '@app/shared/components/pagination/pagination.component';
@@ -7,7 +8,7 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 @Component({
   selector: 'app-paginated-interface',
   templateUrl: './paginated-interface.component.html',
-  imports: [NgTemplateOutlet, PaginationComponent, SearchInputComponent],
+  imports: [FormsModule, NgTemplateOutlet, PaginationComponent, SearchInputComponent],
 })
 export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges {
   readonly mode = input<'table' | 'simple'>('simple');
@@ -17,6 +18,11 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
 
   /** Optional: filter by key-value pairs */
   readonly filter = input<Record<string, any>>();
+
+  /** Optional boolean filter, offered next to the search as a checkbox */
+  readonly filterOptLabel = input('');
+  readonly filterOptEnabled = model(false);
+  readonly filterOptFn = input<(item: T) => boolean>();
 
   /** Optional: order items by field and direction */
   readonly orderBy = input<keyof T>();
@@ -68,6 +74,12 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
     }
 
     this.scopedCount = this.filteredItems.length;
+
+    // Apply the optional boolean filter
+    const filterOptFn = this.filterOptFn();
+    if (filterOptFn && this.filterOptEnabled()) {
+      this.filteredItems = this.filteredItems.filter(item => filterOptFn(item));
+    }
 
     // Apply searchText filter
     if (this.searchText) {
