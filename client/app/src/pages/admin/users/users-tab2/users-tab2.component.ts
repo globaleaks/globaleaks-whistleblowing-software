@@ -84,6 +84,7 @@ export class UsersTab2Component implements OnInit {
        this.roles = [
         {value:'admin', role: 'Admin'},
         {value:'analyst', role: 'Analyst'},
+        {value:'auditor', role: 'Auditor'},
         {value:'custodian', role: 'Custodian'},
         {value:'receiver', role: 'Recipient'},
       ]

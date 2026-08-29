@@ -1,7 +1,7 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers import auth
+from globaleaks.handlers import auditor, auth
 from globaleaks.handlers.user import UserInstance
 from globaleaks.models.config import ConfigFactory
 from globaleaks.handlers.whistleblower.wbtip import WBTipInstance
@@ -15,6 +15,12 @@ from globaleaks.tests import helpers
 @transact
 def count_audit_entries(session, type):
     return session.query(models.AuditLog).filter(models.AuditLog.type == type).count()
+
+
+@transact
+def add_profile_role(session, username, role):
+    user = session.query(models.User).filter(models.User.tid == 1, models.User.username == username).one()
+    session.add(models.UserProfileRole({'profile_id': user.profile_id, 'role': role}))
 
 
 class TestAuthTypeHandler(helpers.TestHandlerWithPopulatedDB):
@@ -113,23 +119,40 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         response = yield auth_switch_handler.get(2)
         self.assertTrue('redirect' in response)
 
-    #@inlineCallbacks
-    #def test_successful_role_switch(self):
-    #    handler = self.request({
-    #        'tid': 1,
-    #        'username': 'admin',
-    #        'password': helpers.VALID_KEY,
-    #        'authcode': ''
-    #    })
-    #
-    #    response = yield handler.post()
-    #
-    #    role_switch_handler = self.request({},
-    #                                       headers={'x-session': response['id']},
-    #                                       handler_cls=auth.RoleAuthSwitchHandler)
-    #
-    #    response = yield role_switch_handler.get('custodian')
-    #    self.assertTrue('redirect' in response)
+    @inlineCallbacks
+    def test_successful_role_switch(self):
+        # A profile may hold several roles: the switch mints a session on the
+        # requested one, that alone reaches the APIs of the auditor
+        yield add_profile_role('admin', 'auditor')
+
+        handler = self.request({
+            'tid': 1,
+            'username': 'admin',
+            'password': helpers.VALID_KEY,
+            'authcode': ''
+        })
+
+        response = yield handler.post()
+
+        role_switch_handler = self.request({},
+                                           headers={'x-session': response['id']},
+                                           handler_cls=auth.RoleAuthSwitchHandler)
+
+        response = yield role_switch_handler.get('auditor')
+        self.assertTrue('redirect' in response)
+
+        # The redirect is spent through the token login, as the client does,
+        # and the adopted session alone reads the audit log
+        token = response['redirect'].split('token=')[1]
+        token_login_handler = self.request({'authtoken': token},
+                                           handler_cls=auth.TokenAuthHandler)
+        response = yield token_login_handler.post()
+
+        auditlog_handler = self.request({},
+                                        headers={'x-session': response['id']},
+                                        handler_cls=auditor.AuditLog)
+        logs = yield auditlog_handler.get()
+        self.assertTrue(isinstance(logs, list))
 
     @inlineCallbacks
     def test_unsuccessful_role_switch(self):

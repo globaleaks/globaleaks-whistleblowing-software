@@ -52,6 +52,58 @@ export class UtilsService {
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
+  actionLists = {
+    Low: [
+      'access_report',
+      'login',
+      'logout',
+      'whistleblower_login',
+      'whistleblower_logout',
+    ],
+    Medium: [
+      'change_password',
+      'create_user',
+      'enable_2fa',
+      'grant_access',
+      'send_password_reset_email',
+      'transfer_access',
+      'version_update',
+      'update_report_expiration',
+      'update_report_status',
+      'whistleblower_new_report',
+    ],
+    High: [
+      'delete_report',
+      'delete_user',
+      'disable_2fa',
+      'login_failure',
+      'reset_reports',
+      'revoke_access',
+      'update_redaction',
+      'whistleblower_login_failure',
+    ],
+  };
+
+  auditLogCategories: Record<string, Record<string, boolean>> = {
+    Low: this.listToDict(this.actionLists['Low']),
+    Medium: this.listToDict(this.actionLists['Medium']),
+    High: this.listToDict(this.actionLists['High']),
+  }
+
+  listToDict(list: string[]) {
+      return Object.fromEntries(list.map(item => [item, true]));
+  }
+
+  getAuditLogCategory(type: string): string {
+    for (const category in this.auditLogCategories) {
+      if (this.auditLogCategories[category][type]) {
+        return category;
+      }
+    }
+
+    return 'Low'; // default
+  }
+
   updateNode(nodeResolverModel:nodeResolverModel) {
     this.httpService.updateNodeResource(nodeResolverModel).subscribe();
   }

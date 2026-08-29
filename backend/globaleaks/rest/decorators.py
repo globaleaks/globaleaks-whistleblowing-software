@@ -13,7 +13,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import deferred_sleep
 
 
-USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver'}
+USERS_ROLES = {'any', 'admin', 'analyst', 'auditor', 'custodian', 'receiver'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
 
 # CSP violation reports are accepted unauthenticated (browsers post them without

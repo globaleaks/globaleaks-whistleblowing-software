@@ -14,13 +14,13 @@ from twisted.internet.threads import deferToThread
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.auditor import db_get_report_audit_log
 from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip, MAX_ANSWERS_DEPTH
-from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked, db_notify_report_update
 from globaleaks.handlers.user import serialize_user, user_serialize_user
 from globaleaks.models import UserProfile, serializers
 from globaleaks.models.config import ConfigFactory
@@ -40,6 +40,13 @@ from globaleaks.models.config import db_get_config_variable
 from io import BytesIO
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.zipstream import ZipStream
+
+@transact
+def get_report_audit_log(session, tid, user_id, itip_id):
+    _, _, _ = db_access_rtip(session, tid, user_id, itip_id)
+
+    return db_get_report_audit_log(session, tid, itip_id)
+
 
 def db_notify_grant_access(session, user):
     """
@@ -651,6 +658,8 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
                                models.ReceiverTip.internaltip_id == itip.id,
                                models.ReceiverTip.receiver_id != user_id,
                                models.ReceiverTip.last_notification < models.ReceiverTip.last_access):
+        # Imported here as the module of the whistleblower imports this one
+        from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
         db_notify_report_update(session, user, rtip, itip)
 
     db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id)
@@ -1227,6 +1236,8 @@ def create_comment(session, tid, user_id, itip_id, content, visibility='public')
     session.add(comment)
     session.flush()
 
+    db_log(session, tid=tid, type='add_comment', user_id=user_id, object_id=comment.id, data={'internaltip_id': itip.id})
+
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     ret['hash_sha256'] = hash_sha256
@@ -1564,6 +1575,7 @@ class WhistleblowerFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
+        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
         if db_file_is_masked(session, ifile.internaltip_id, ifile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):
@@ -1694,6 +1706,7 @@ class ReceiverFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
+        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
         if db_file_is_masked(session, rfile.internaltip_id, rfile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):
@@ -1778,3 +1791,13 @@ class IdentityAccessRequestsCollection(BaseHandler):
                                             self.session,
                                             itip_id,
                                             request)
+
+
+class ReportAuditLog(BaseHandler):
+    """
+    Handler that provides access to the audit log of a report
+    """
+    check_roles = 'receiver'
+
+    def get(self, itip_id):
+        return get_report_audit_log(self.session.tid, self.session.user_id, itip_id)
