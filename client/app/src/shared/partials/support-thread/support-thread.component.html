@@ -1,0 +1,30 @@
+@if (!request.key_available) {
+  <div class="alert alert-warning" role="alert">
+    <i class="fas fa-lock me-1" aria-hidden="true"></i>
+    <span>{{ 'You do not have access to decrypt this support request.' | translate }}</span>
+  </div>
+}
+@if (request.key_available) {
+  <div class="mb-3">
+    @for (message of request.messages; track message.id) {
+      <div class="message mb-2">
+        <div class="row">
+          <span class="col-md-6 title">{{ messageAuthor(message) }}</span>
+          <span class="col-md-6 text-md-end">{{ message.creation_date | date:'dd-MM-yyyy HH:mm' }}</span>
+        </div>
+        <div class="preformatted mt-2">{{ message.content }}</div>
+      </div>
+    }
+  </div>
+}
+<!-- The caller projects here the notice it wants above the answer box -->
+<ng-content></ng-content>
+@if (canReply) {
+  <div class="form-group">
+    <label class="title" [for]="'support-reply-' + request.id">{{ 'Reply' | translate }}</label>
+    <textarea [id]="'support-reply-' + request.id" class="form-control" [ngModel]="draft" (ngModelChange)="onDraftChange($event)" maxlength="4096" rows="4"></textarea>
+  </div>
+  <button type="button" class="btn btn-primary mt-2" data-cy="send-support-reply" [disabled]="!(draft || '').trim()" (click)="sendMessage()">
+    <span>{{ 'Send' | translate }}</span>
+  </button>
+}
