@@ -42,6 +42,10 @@ export class TipFilesReceiverComponent {
     return data;
   }
 
+  isWbFileRead(file: WbFile): boolean {
+    return new Date(this.tipService.tip.last_access) > new Date(file.creation_date);
+  }
+
   displayName(file: WbFile): string {
     // Privileged recipients receive the real name from the server; cover it
     // with the same placeholder used elsewhere while outside the masking editor.
