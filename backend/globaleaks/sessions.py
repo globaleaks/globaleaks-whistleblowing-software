@@ -28,6 +28,7 @@ class Session(dict):
             'user_tid': user_tid,
             'username': user_username,
             'role': user_role,
+            'idp_id': '',
             'roles': roles or [],
             'files': [],
             'token': State.tokens.new(tid),
