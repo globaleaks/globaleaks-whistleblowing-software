@@ -9,6 +9,8 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgForm, FormsModule} from "@angular/forms";
 import {AppConfigService} from "@app/services/root/app-config.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {DisclaimerComponent} from "@app/shared/modals/disclaimer/disclaimer.component";
 import {Context, Questionnaire, Receiver} from "@app/models/app/public-model";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import Flow from "@flowjs/flow.js";
@@ -42,6 +44,7 @@ export class SubmissionComponent implements OnInit {
   private titleService = inject(TitleService);
   private router = inject(Router);
   private appConfigService = inject(AppConfigService);
+  private modalService = inject(NgbModal);
   private whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
   protected authenticationService = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
@@ -50,6 +53,8 @@ export class SubmissionComponent implements OnInit {
   private httpService = inject(HttpService);
   private cryptoService = inject(CryptoService);
   submission = inject(SubmissionService);
+
+  disclaimerShown = false;
 
   public readonly submissionForm = viewChild<NgForm>("submissionForm");
   readonly stepForms = viewChildren<NgForm>("stepForm");
@@ -84,6 +89,23 @@ export class SubmissionComponent implements OnInit {
       this.appDataService.context_id = params.get('context') || this.appDataService.context_id;
       this.initializeSubmission();
     });
+
+    this.openDisclaimer();
+  }
+
+  // The disclaimer is shown on opening the page, so that it reaches whoever lands here directly
+  private openDisclaimer(): void {
+    if (!this.appDataService.public.node.disclaimer_text || this.disclaimerShown) {
+      return;
+    }
+
+    this.disclaimerShown = true;
+
+    const modalRef = this.modalService.open(DisclaimerComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.confirmFunction = () => {};
+
+    // Closing the disclaimer leaves the composition of the report in place
+    modalRef.result.then(() => {}, () => {});
   }
 
   firstStepIndex() {

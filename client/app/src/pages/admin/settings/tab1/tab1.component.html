@@ -28,16 +28,26 @@
     </div>
     @if (authenticationService.session?.role === 'admin') {
       <div class="form-group">
-        <label for="node-whistleblowing-question">{{ 'Question to solicit possible reporting persons' | translate }}</label>
+        <label for="node-whistleblowing-question">{{ 'Question' | translate }}</label>
         <div>
           <textarea id="node-whistleblowing-question" name="node.dataModel.whistleblowing_question" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_question"></textarea>
         </div>
       </div>
     }
     @if (authenticationService.session?.role === 'admin') {
-      <div class="form-group">
-        <label for="whistleblowing-button-input">{{ 'Whistleblowing button' | translate }}</label>
-        <input id="whistleblowing-button-input" name="nodeResolver.dataModel.whistleblowing_button" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_button" type="text" />
+      <label>{{ 'Button' | translate }}</label>
+      <div class="ms-4">
+        <div class="form-group">
+          <label for="whistleblowing-button-input">{{ 'Text' | translate }}</label>
+          <input id="whistleblowing-button-input" name="nodeResolver.dataModel.whistleblowing_button" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_button" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="whistleblowing-destination-select">{{ 'Destination' | translate }}</label>
+          <select id="whistleblowing-destination-select" class="form-select-custom" name="nodeResolver.dataModel.whistleblowing_destination" [(ngModel)]="nodeResolver.dataModel.whistleblowing_destination">
+            <option value="/submission">/submission</option>
+            <option value="/login">/login</option>
+          </select>
+        </div>
       </div>
     }
     @if (nodeResolver.dataModel.root_tenant || ['default', 'demo'].indexOf(appDataService.public.node.mode) !== -1) {
