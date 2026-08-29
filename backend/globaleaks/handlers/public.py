@@ -280,8 +280,8 @@ def db_serialize_node(session, tid, language):
     :return: The serialization of the public node configuration
     """
     languages = db_get_languages(session, tid)
-    ret = ConfigFactory(session, tid).serialize('public_node')
-    ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
+    node = ConfigFactory(session, tid)
+    ret = node.serialize('public_node')
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
@@ -300,17 +300,12 @@ def db_serialize_node(session, tid, language):
         if language not in languages:
             language = root_tenant_node.get_val('default_language')
 
-        root_tenant_l10n = ConfigL10NFactory(session, 1)
-
-        if ret['mode'] != 'default':
+        # Tenants not exposing their own onion service are reachable as a
+        # subdomain of the onion service of the root tenant
+        if not node.get_val('enable_onion'):
             ret['onionservice'] = ret['subdomain'] + '.' + root_tenant_node.get_val('onionservice')
 
-        if ret['mode'] not in ['default', 'demo']:
-            ret['disable_privacy_badge'] = root_tenant_node.get_val('disable_privacy_badge')
-            ret['footer'] = root_tenant_l10n.get_val('footer', language)
-            ret['whistleblowing_question'] = root_tenant_l10n.get_val('whistleblowing_question', language)
-            ret['whistleblowing_button'] = root_tenant_l10n.get_val('whistleblowing_button', language)
-            ret['disclaimer_text'] = root_tenant_l10n.get_val('disclaimer_text', language)
+    ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 
     return ret
 
@@ -558,7 +553,7 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
     :return: A list of contexts descriptors
     """
     questionnaires = session.query(models.Questionnaire) \
-                            .filter(models.Questionnaire.tid.in_({1, tid}),
+                            .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,
                                         models.Context.additional_questionnaire_id == models.Questionnaire.id),
                                     models.Context.tid == tid,
@@ -576,8 +571,9 @@ def db_get_contexts(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of contexts descriptors
     """
-    contexts = session.query(models.Context).filter(models.Context.tid == tid,
-                                                    models.Context.hidden.is_(False))
+    contexts = session.query(models.Context) \
+                      .filter(models.Context.tid == tid,
+                              models.Context.hidden.is_(False))
 
     data = db_prepare_contexts_serialization(session, contexts)
 
@@ -598,7 +594,7 @@ def db_get_context_questionnaires(session, tid, context, language):
     ids.discard(None)
 
     questionnaires = session.query(models.Questionnaire) \
-                            .filter(models.Questionnaire.tid.in_({1, tid}),
+                            .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
                                     models.Questionnaire.id.in_(ids))
 
     return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True, include_scoring=False) for questionnaire in questionnaires]

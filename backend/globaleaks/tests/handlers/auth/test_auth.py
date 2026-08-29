@@ -3,6 +3,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers import auth
 from globaleaks.handlers.user import UserInstance
+from globaleaks.models.config import ConfigFactory
 from globaleaks.handlers.whistleblower.wbtip import WBTipInstance
 from globaleaks.orm import transact
 from globaleaks.rest import errors
@@ -111,6 +112,41 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
 
         response = yield auth_switch_handler.get(2)
         self.assertTrue('redirect' in response)
+
+    #@inlineCallbacks
+    #def test_successful_role_switch(self):
+    #    handler = self.request({
+    #        'tid': 1,
+    #        'username': 'admin',
+    #        'password': helpers.VALID_KEY,
+    #        'authcode': ''
+    #    })
+    #
+    #    response = yield handler.post()
+    #
+    #    role_switch_handler = self.request({},
+    #                                       headers={'x-session': response['id']},
+    #                                       handler_cls=auth.RoleAuthSwitchHandler)
+    #
+    #    response = yield role_switch_handler.get('custodian')
+    #    self.assertTrue('redirect' in response)
+
+    @inlineCallbacks
+    def test_unsuccessful_role_switch(self):
+        handler = self.request({
+            'tid': 1,
+            'username': 'admin',
+            'password': helpers.VALID_KEY,
+            'authcode': ''
+        })
+
+        response = yield handler.post()
+
+        role_switch_handler = self.request({},
+                                           headers={'x-session': response['id']},
+                                           handler_cls=auth.RoleAuthSwitchHandler)
+
+        yield self.assertFailure(role_switch_handler.get('receiver'), errors.InvalidAuthentication)
 
     @inlineCallbacks
     def test_accept_login_in_https(self):
@@ -453,7 +489,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
         session.properties['authtoken'] = True
         self.authtoken = session.id
 
@@ -476,7 +512,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
         # A primary session id (not issued for the redirect login flow) must not
         # be adoptable through tokenauth: this prevents a captured session id from
         # being bound to a client-supplied key without proof of possession.
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
 
         handler = self.request({'authtoken': session.id})
         yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
@@ -489,7 +525,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     def test_session_use_enforces_tenant_connection_policy(self):
         # Every authenticated request must honour the session-owning tenant's
         # connection policy, not only the login/redemption step.
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, 'receiver')
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
 
         State.tenants[1].cache['https_receiver'] = True
         user_handler = self.request({}, headers={'x-session': session.id},
@@ -505,7 +541,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     def test_redemption_enforces_session_tenant_connection_policy(self):
         # A session bound to tenant 2 must be validated against tenant 2's
         # connection policy even when redeemed through a more permissive tenant.
-        session = Sessions.new(2, self.dummyReceiver_1['id'], 2, 'receiver')
+        session = Sessions.new(2, self.dummyReceiver_1['id'], 2, self.dummyReceiver_1['username'], 'receiver')
         session.properties['authtoken'] = True
 
         State.tenants[1].cache['https_receiver'] = True

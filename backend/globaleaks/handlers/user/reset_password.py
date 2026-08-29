@@ -178,9 +178,10 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code, dpop_
     user_session = Sessions.new(user.tid,
                                 user.id,
                                 user.tid,
+                                user.username,
                                 user.role,
                                 prv_key,
-                                user.crypto_escrow_prv_key != '',
+                                user.crypto_escrow_prv_key,
                                 dpop_jkt=dpop_jkt)
 
     # The session is issued for the redirect login flow: the client is sent to

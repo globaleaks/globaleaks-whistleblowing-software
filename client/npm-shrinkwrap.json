@@ -43,6 +43,7 @@
         "@ngx-translate/core": "17.0.0",
         "@ngx-translate/http-loader": "17.0.0",
         "@popperjs/core": "2.11.8",
+        "angular-oauth2-oidc": "20.0.3",
         "angularx-qrcode": "21.0.5",
         "bootstrap": "5.3.8",
         "chart.js": "4.5.1",
@@ -8843,6 +8844,19 @@
         "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0",
         "typescript": "*",
         "typescript-eslint": "^8.0.0"
+      }
+    },
+    "node_modules/angular-oauth2-oidc": {
+      "version": "20.0.3",
+      "resolved": "https://registry.npmjs.org/angular-oauth2-oidc/-/angular-oauth2-oidc-20.0.3.tgz",
+      "integrity": "sha512-SL0iV/WlrX35J4CXvc7VdoNhlol+YIo8c0i1NrfAQ70++dxLZjg/li6vNx7lu2sC3GElZLzmlbBZOvlvLB2Q5w==",
+      "license": "MIT",
+      "dependencies": {
+        "tslib": "^2.5.2"
+      },
+      "peerDependencies": {
+        "@angular/common": ">=20.0.0",
+        "@angular/core": ">=20.0.0"
       }
     },
     "node_modules/angularx-qrcode": {

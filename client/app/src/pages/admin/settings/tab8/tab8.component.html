@@ -47,6 +47,53 @@
     </div>
     <div class="form-group">
       <label>
+        <input class="form-check-input" name="node.dataModel.enable_forwarding_incoming" [(ngModel)]="nodeResolver.dataModel.enable_forwarding_incoming" type="checkbox"/>
+        <span>{{ 'Incoming' | translate }}</span>
+      </label>
+    </div>
+    @if (nodeResolver.dataModel.enable_forwarding_incoming) {
+      @if (isManagementSession()) {
+        <div class="form-group">
+          <label for="accept-forwarding-from">{{ 'Sites allowed to forward their reports here' | translate }}</label>
+          <input id="accept-forwarding-from" name="node.dataModel.accept_forwarding_from" class="form-control" [(ngModel)]="acceptForwardingFrom" type="text" />
+          <div>{{ 'Comma separated list of site identifiers; use * to allow every site.' | translate }}</div>
+        </div>
+      }
+      <div class="form-group">
+        <label for="forward-channel-select">{{ 'Channel receiving the forwarded reports' | translate }}</label>
+        <select id="forward-channel-select" class="form-select-custom" name="node.dataModel.forward_channel" [(ngModel)]="nodeResolver.dataModel.forward_channel">
+          <option value=""></option>
+          @for (context of contextsData(); track context.id) {
+            <option [value]="context.id">{{ context.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group">
+        <label>
+          <input class="form-check-input" name="node.dataModel.require_forward_requests" [(ngModel)]="nodeResolver.dataModel.require_forward_requests" type="checkbox"/>
+          <span>{{ 'Forward requests' | translate }}</span>
+        </label>
+      </div>
+      @if (nodeResolver.dataModel.require_forward_requests) {
+        <div class="form-group">
+          <label for="forward-request-channel-select">{{ 'Channel receiving the requests of forward' | translate }}</label>
+          <select id="forward-request-channel-select" class="form-select-custom" name="node.dataModel.forward_request_channel" [(ngModel)]="nodeResolver.dataModel.forward_request_channel">
+            <option value=""></option>
+            @for (context of contextsData(); track context.id) {
+              <option [value]="context.id">{{ context.name }}</option>
+            }
+          </select>
+        </div>
+      }
+    }
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="node.dataModel.enable_forwarding_outgoing" [(ngModel)]="nodeResolver.dataModel.enable_forwarding_outgoing" type="checkbox"/>
+        <span>{{ 'Outgoing' | translate }}</span>
+      </label>
+    </div>
+    <div class="form-group">
+      <label>
         <input class="form-check-input" name="node.dataModel.allow_indexing" [(ngModel)]="nodeResolver.dataModel.allow_indexing" type="checkbox" />
         <span>{{ 'Enable search engines indexing' | translate }}</span>
       </label>
@@ -89,6 +136,44 @@
         <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
       </div>
     }
+    <div class="form-group">
+      <label for="default-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
+      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
+        @for (item of questionnaireData(); track item) {
+          <option [ngValue]="item.id">{{item.name}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="default-user-profile-select">{{ 'User profile' | translate }}</label>
+      <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile">
+        <option value="admin">{{ 'Admin' | translate }}</option>
+        <option value="analyst">{{ 'Analyst' | translate }}</option>
+        <option value="custodian">{{ 'Custodian' | translate }}</option>
+        <option value="recipient">{{ 'Recipient' | translate }}</option>
+        @for (profile of userProfiles; track profile.id) {
+          <option [value]="profile.id">{{profile.name | translate}}</option>
+        }
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="default-tip-timetolive">{{ 'Data retention policy' | translate }} ({{ 'days' | translate }})</label>
+      <input id="default-tip-timetolive" name="default_tip_timetolive" class="form-control" [(ngModel)]="nodeResolver.dataModel.default_tip_timetolive" type="number" min="0" />
+    </div>
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" type="checkbox" />
+        <span>{{ 'Enable demo mode' | translate }}</span>
+      </label>
+      <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
+    </div>
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" type="checkbox" />
+        <span>{{ 'Enable a dedicated Tor onion service' | translate }}</span>
+      </label>
+      <div>{{ 'The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.' | translate }}</div>
+    </div>
     <div class="form-group">
       <label for="homepage-input">{{ 'Home' | translate }}</label>
       <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" required>

@@ -665,5 +665,25 @@
     "{LoginUrl}",
     "{RecipientName}",
     "{Username}"
+  ],
+  "signup_invite_mail_template":[
+    "{NodeName}",
+    "{TorSite}",
+    "{HTTPSSite}",
+    "{TorUrl}",
+    "{HTTPSUrl}",
+    "{Site}",
+    "{Url}",
+    "{DocumentationUrl}",
+    "{LoginUrl}",
+    "{RecipientName}",
+    "{OrganizationName}",
+    "{InviteUrl}",
+    "{ExpirationDate}"
+  ],
+  "signup_invite_mail_title":[
+    "{NodeName}",
+    "{OrganizationName}",
+    "{InviteUrl}"
   ]
 }

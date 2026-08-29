@@ -1,3 +1,26 @@
+export class NewUserPermissions {
+  can_postpone_expiration = true;
+  can_delete_submission = false;
+  can_grant_access_to_reports = false;
+  can_edit_general_settings = false;
+  can_transfer_access_to_reports = false;
+  can_request_forward = false;
+  can_forward_reports = false;
+  can_change_status = true;
+  can_change_label = true;
+  can_mask_information = true;
+  can_redact_information = false;
+}
+
+export class NewUserProfile {
+  id = "";
+  name = "";
+  role = "";
+  roles: string[] = [];
+  contexts: string[] = [];
+  permissions = new NewUserPermissions();
+}
+
 export class NewUser {
   id = "";
   username = "";
@@ -15,12 +38,7 @@ export class NewUser {
   language = "en";
   notification = true;
   forcefully_selected = false;
-  can_edit_general_settings = false;
-  can_grant_access_to_reports = false;
-  can_delete_submission = false;
-  can_postpone_expiration = true;
-  can_transfer_access_to_reports = false;
-  can_redact_information = false;
-  can_mask_information = false;
+  profile_id = "";
+  profile = new NewUserProfile();
   send_activation_link = true;
 }

@@ -1,5 +1,6 @@
-import {Injectable, inject} from '@angular/core';
+import {Injectable, Injector, inject} from '@angular/core';
 import {AppDataService} from "@app/app-data.service";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {TranslateService} from "@ngx-translate/core";
 import {Router} from "@angular/router";
 
@@ -10,6 +11,14 @@ export class TitleService {
   private appDataService = inject(AppDataService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
+
+  // The node is resolved lazily: this service is reached from the
+  // authentication, which the resolver of the node is reached through in turn
+  private injector = inject(Injector);
+
+  private get isProfile(): boolean {
+    return !!this.injector.get(NodeResolver).dataModel.is_profile;
+  }
 
 
   public setPage(page: string) {
@@ -24,7 +33,12 @@ export class TitleService {
       return;
     }
 
-    const projectTitle = rootData.node.name;
+    // A profile is not a site and holds no reporting people: whoever
+    // administers one is told so by the title itself
+    const projectTitle = this.isProfile ?
+      this.translateService.instant('Profile') + ': ' + rootData.node.name :
+      rootData.node.name;
+
     let pageTitle = rootData.node.header_title_homepage;
 
 

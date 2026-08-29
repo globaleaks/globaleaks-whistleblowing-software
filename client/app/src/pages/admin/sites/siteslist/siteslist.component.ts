@@ -27,16 +27,27 @@ export class SiteslistComponent {
 
   readonly tenant = input.required<tenantResolverModel>();
   readonly tenants = input<tenantResolverModel[]>();
+  // The profiles of the platform, the sites are read by the one they use
+  readonly profiles = input<tenantResolverModel[]>();
   readonly index = input<number>();
   readonly deleted = output<number>();
   editing = false;
+
+  // The profile a site inherits its configuration from, named as it is named
+  // among the profiles: a site is read by what it is made of, as an account is
+  // read by the profile it holds
+  protected get profileName(): string {
+    const profile = (this.profiles() || []).find(entry => entry.uuid === this.tenant().profile);
+
+    return profile ? profile.name : "";
+  }
 
   toggleActivation(event: Event): void {
     event.stopPropagation();
     this.tenant().active = !this.tenant().active;
 
     const url = "api/admin/tenants/" + this.tenant().id;
-    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe();
+    this.httpService.requestUpdateTenant(url, this.updateRequest()).subscribe();
   }
 
   isRemovableTenant(): boolean {
@@ -45,11 +56,20 @@ export class SiteslistComponent {
 
   saveTenant() {
     const url = "api/admin/tenants/" + this.tenant().id;
-    this.httpService.requestUpdateTenant(url, this.tenant()).subscribe();
+    this.httpService.requestUpdateTenant(url, this.updateRequest()).subscribe();
   }
 
-  deleteTenant(tenant: tenantResolverModel) {
-    this.openConfirmableModalDialog(tenant, "").subscribe();
+  // The update does not move a site between profiles, and the backend ignores the field: the
+  // request carries it only because it is validated, and the site keeps showing the one it uses
+  private updateRequest(): tenantResolverModel {
+    return {...this.tenant(), profile: this.tenant().profile || "default"};
+  }
+
+  // The confirmation states what the deletion carries away: the dialog asks
+  // the statistics of the site and, if they changed while it was open, the
+  // backend rejects the deletion and the dialog is presented once again
+  deleteTenant(tenant: tenantResolverModel, statsChanged = false) {
+    this.openConfirmableModalDialog(tenant, statsChanged).subscribe();
   }
 
   configureTenant($event: Event, tid: number): void {
@@ -60,15 +80,25 @@ export class SiteslistComponent {
     });
   }
 
-  openConfirmableModalDialog(arg: tenantResolverModel, scope: any): Observable<string> {
-    scope = !scope ? this : scope;
-    return new Observable(() => {
+  openConfirmableModalDialog(arg: tenantResolverModel, statsChanged = false): Observable<string> {
+    return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.tenant = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
+
       modalRef.componentInstance.confirmFunction = () => {
-        return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id).subscribe(() => {
-          this.deleted.emit(this.tenant().id);
+        const stats = modalRef.componentInstance.tenantStats;
+        observer.complete();
+
+        return this.utilsService.deleteWithConfirmation("api/admin/tenants/" + arg.id, stats).subscribe({
+          next: () => {
+            this.deleted.emit(this.tenant().id);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              this.deleteTenant(arg, true);
+            }
+          }
         });
       };
     });
