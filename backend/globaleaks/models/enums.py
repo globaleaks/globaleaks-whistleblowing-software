@@ -55,3 +55,11 @@ class EnumSupportRequestStatus(_Enum):
 class EnumUserStatus(_Enum):
     active = 0
     suspend = 1
+
+
+class EnumSubscriberStatus(_Enum):
+    requested = 0
+    accredited = 1
+    rejected = 2
+    instructor_request = 3
+    invited = 4

@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <div class="modal-title">{{'Invite'|translate}}</div>
+</div>
+<div class="modal-body">
+  <form #inviteForm="ngForm" novalidate>
+    <div class="form-group mb-3">
+      <label>{{'Organization name'|translate}}</label>
+      <input class="form-control" data-cy="invite-organization-name" name="organization_name" [(ngModel)]="invite.organization_name" required>
+    </div>
+    <div class="form-group mb-3">
+      <label>{{'Email'|translate}}</label>
+      <input type="email" class="form-control" data-cy="invite-email" name="email" [(ngModel)]="invite.email" [pattern]="Constants.emailRegexp" required>
+    </div>
+    <div class="form-group mb-3">
+      <label>{{'Template'|translate}}</label>
+      <textarea class="form-control" data-cy="invite-mail-template" name="mail_template" [(ngModel)]="invite.mail_template" rows="12"></textarea>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" id="confirm" data-cy="create-invite" [disabled]="inviteForm.invalid" (click)="confirm()" type="button">
+    {{'Invite'|translate}}
+  </button>
+  <button class="btn btn-light" id="close" (click)="cancel()" type="button">
+    {{'Close'|translate}}
+  </button>
+</div>

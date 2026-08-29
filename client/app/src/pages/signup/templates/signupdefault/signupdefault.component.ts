@@ -30,7 +30,6 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
 
   emailRegex: string;
   confirmation_email: string;
-  confirmation_organization_email: string;
   validated = false;
   mail: string;
   subdomainEdited = false;
@@ -42,17 +41,12 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
     // keeps the address chosen by the user in place of the computed one
     this.subdomainEdited = !!this.signup.subdomain && this.signup.subdomain !== this.computeSubdomain();
 
-    // The confirmations are not kept across the round trip towards the
-    // identity provider: the restored addresses were compiled by the user in
-    // this same session, so they are not asked for a second time
+    // Confirmations are not kept across the round trip: the user enters them again
     this.confirmation_email = this.signup.email;
-    this.confirmation_organization_email = this.signup.organization_email;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // The email published by the identity provider only prefills the form,
-    // both in the field and in its confirmation: the user is free to correct
-    // it and be notified on a different address
+    // The email published by the identity provider only prefills the form
     if (changes["idpEmail"] && this.idpEmail && !this.signup.email) {
       this.signup.email = this.idpEmail;
       this.confirmation_email = this.idpEmail;
@@ -75,8 +69,20 @@ export class SignupdefaultComponent implements OnInit, OnChanges {
     return !!this.signup.token;
   }
 
-  get organizationRequested(): boolean {
-    return !!this.appDataService.public.node.signup_request_organization;
+  get locationRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_location;
+  }
+
+  get phoneRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_phone;
+  }
+
+  get taxCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_tax_code;
+  }
+
+  get vatCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_vat_code;
   }
 
   // The site of an invited registration is the one created along the invitation

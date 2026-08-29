@@ -1,0 +1,97 @@
+<div class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>
+        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.adminonly" name="nodeResolver.dataModel.adminonly" type="checkbox" />
+        <span>{{'Use the first site for administrative purposes only'|translate}}</span>
+      </label>
+    </div>
+    <div class="form-group">
+      <label for="rootdomain-input">{{'Root domain used for secondary sites'|translate}}</label>
+      <div>
+        <input id="rootdomain-input" name="rootdomain" class="form-control" [(ngModel)]="nodeResolver.dataModel.rootdomain" type="text" />
+      </div>
+    </div>
+    @if (!nodeResolver.dataModel.adminonly) {
+      <div>
+        <div class="form-group">
+          <label>
+            <input name="enable_signup" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_signup" type="checkbox" />
+            <span>{{'Allow users to sign up'|translate}}</span>
+          </label>
+        </div>
+        @if (nodeResolver.dataModel.enable_signup) {
+          <div>
+            <div class="form-group">
+              <label>
+                <input name="signup_invite_only" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_invite_only" type="checkbox" />
+                <span>{{'Invite only'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input name="signup_auto_authorize" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_auto_authorize" type="checkbox" />
+                <span>{{'Automatically authorize newly registered sites'|translate}}</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label for="signup-profile-select">{{'Profile'|translate}}</label>
+              <select id="signup-profile-select" name="signup_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.signup_profile">
+                <option value="default">DEFAULT</option>
+                @for (profile of siteProfiles; track profile.id) {
+                  @if (profile.active) {
+                    <option [value]="profile.uuid">{{profile.name}}</option>
+                  }
+                }
+              </select>
+            </div>
+            <div class="title mt-2">{{'Questions'|translate}}</div>
+            <div class="nested">
+              <div class="form-group">
+                <span>{{'Organization'|translate}}</span>
+              </div>
+              <div class="nested">
+                <div class="form-group">
+                  <label>
+                    <input name="signup_request_subdomain" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_subdomain" type="checkbox" />
+                    <span>{{'Site'|translate}}</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input name="signup_request_location" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_location" type="checkbox" />
+                    <span>{{'Address'|translate}}</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input name="signup_request_phone" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_phone" type="checkbox" />
+                    <span>{{'Phone number'|translate}}</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input name="signup_request_tax_code" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_tax_code" type="checkbox" />
+                    <span>{{'Fiscal code'|translate}}</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input name="signup_request_vat_code" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_request_vat_code" type="checkbox" />
+                    <span>{{'Tax code'|translate}}</span>
+                  </label>
+                </div>
+              </div>
+              <src-signup-tos [node]="nodeResolver.dataModel" [index]="1"></src-signup-tos>
+              <src-signup-tos [node]="nodeResolver.dataModel" [index]="2"></src-signup-tos>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    <button type="button" class="btn btn-primary" id="save" (click)="utilsService.updateNode(nodeResolver.dataModel)">
+      <i class="fas fa-check"></i>
+      <span>{{'Save'|translate}}</span>
+    </button>
+  </div>
+</div>

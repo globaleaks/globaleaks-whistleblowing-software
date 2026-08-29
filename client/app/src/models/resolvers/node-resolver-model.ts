@@ -17,7 +17,10 @@ export class nodeResolverModel {
   enable_scoring_system: boolean;
   enable_signup: boolean;
   signup_invite_only: boolean;
-  signup_request_organization: boolean;
+  signup_request_location: boolean;
+  signup_request_phone: boolean;
+  signup_request_tax_code: boolean;
+  signup_request_vat_code: boolean;
   signup_request_subdomain: boolean;
   signup_auto_authorize: boolean;
   signup_profile: string;
