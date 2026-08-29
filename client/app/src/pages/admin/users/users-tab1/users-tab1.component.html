@@ -1,4 +1,4 @@
-<app-paginated-interface [items]="usersData()" [filterField]="'name'" [orderBy]="'name'" [trackKey]="byId">
+<app-paginated-interface [items]="usersData()" [filterField]="'name'" [orderBy]="'name'" [focusItemId]="focusUserId" [trackKey]="byId">
   <ng-template #toolbar>
     <button class="btn btn-primary show-add-user-btn" (click)="toggleAddUser()">
       <i class="fas fa-plus"></i>
@@ -82,7 +82,7 @@
   </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="user-{{index}}" class="userList" name="editUser" #editUser="ngForm" novalidate>
-      <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData()" [profiles]="profiles()" (deleted)="onDelete($event)"></src-user-editor>
+      <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData()" [profiles]="profiles()" [expanded]="item.id === focusUserId" (deleted)="onDelete($event)"></src-user-editor>
     </form>
   </ng-template>
 </app-paginated-interface>

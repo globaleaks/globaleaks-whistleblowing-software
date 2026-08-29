@@ -609,6 +609,8 @@ supported_template_types = {
     'export_comment': ExportMessageKeyword,
     'admin_anomaly': AnomalyKeyword,
     'admin_test': UserNodeKeyword,
+    'support_request': NodeKeyword,
+    'support_reply': NodeKeyword,
     'https_certificate_expiration': CertificateExprKeyword,
     'https_certificate_renewal_failure': CertificateExprKeyword,
     'software_update_available': SoftwareUpdateKeyword,

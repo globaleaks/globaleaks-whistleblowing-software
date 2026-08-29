@@ -1,4 +1,4 @@
-<app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'">
+<app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'" [focusItemId]="focusTenantId">
   <ng-template #toolbar>
     <button class="btn btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
       <i class="fas fa-plus"></i>
@@ -45,7 +45,7 @@
   </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="tenant-{{index}}"  #editTenant="ngForm" novalidate>
-      <src-siteslist [tenant]="item" [tenants]="tenants" [profiles]="siteProfiles" [index]="index" (deleted)="onDelete($event)"></src-siteslist>
+      <src-siteslist [tenant]="item" [tenants]="tenants" [profiles]="siteProfiles" [index]="index" [expanded]="isFocused(item)" (deleted)="onDelete($event)"></src-siteslist>
     </form>
   </ng-template>
 </app-paginated-interface>

@@ -41,7 +41,7 @@ def change_password(session, tid, user_session, new_password, current_password):
     user.password_change_needed = False
 
     cc = user_session.cc
-    if config.get_val('encryption'):
+    if config.get_val('encryption') or config.get_val('crypto_support_pub_key'):
         derived_public_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
         if not user.crypto_pub_key or not GCE.check_equality(
                 user.crypto_pub_key, derived_public_key):
@@ -50,6 +50,7 @@ def change_password(session, tid, user_session, new_password, current_password):
             # invalidates the support key wrapped to the old public key
             user.crypto_pub_key = derived_public_key
             user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(user_session.cc)
+            user.crypto_support_prv_key = ''
 
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
