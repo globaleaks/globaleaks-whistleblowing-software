@@ -2,8 +2,9 @@
 from globaleaks import models
 from globaleaks.handlers import admin
 from globaleaks.handlers.admin.field import check_field_association, create_field, delete_field
+from globaleaks.handlers.analyst import get_metric_catalog
 from globaleaks.handlers.public import serialize_field
-from globaleaks.orm import transact
+from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
@@ -220,6 +221,20 @@ class TestFieldTemplatesCollection(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.post()
         self.assertIn('id', response)
         self.assertNotEqual(response.get('options'), None)
+
+    @inlineCallbacks
+    def test_post_statistical(self):
+        """
+        A template marked as statistical keeps the mark and is offered to the statistical reports
+        """
+        values = helpers.get_dummy_field('selectbox')
+        values['statistical'] = True
+        handler = self.request(values, role='admin')
+        response = yield handler.post()
+        self.assertTrue(response['statistical'])
+
+        catalog = yield tw(get_metric_catalog, 1)
+        self.assertIn(response['id'], [m['template_id'] for m in catalog['question_template_dropdown_metrics']])
 
 
 class TestCheckFieldAssociation(helpers.TestHandler):

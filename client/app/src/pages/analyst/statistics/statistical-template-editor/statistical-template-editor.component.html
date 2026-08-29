@@ -1,0 +1,41 @@
+<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()" [chevron]="false">
+  <ng-container cardTitle>
+      <span>{{ templateData.label }}</span>
+  </ng-container>
+  <ng-container cardActions>
+        @if (!editing) {
+          <button class="btn btn-sm btn-outline-secondary" id="edit_template" (click)="toggleEditing()">
+            <span>{{ 'Edit' | translate }}</span>
+          </button>
+        }
+        @if (editing) {
+          <button class="btn btn-sm btn-primary" id="save_template" [disabled]="editTemplate.invalid" (click)="saveTemplate(templateData);toggleEditing()">
+            <span>{{ 'Save' | translate }}</span>
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" (click)="toggleEditing()">
+            <span>{{ 'Cancel' | translate }}</span>
+          </button>
+        }
+        <button class="btn btn-sm btn-danger" name="delete_template" id="delete_template" (click)="deleteTemplate(templateData)">
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+  </ng-container>
+  @if (editing) {
+    <div>
+      <div class="form-group">
+        <label>{{ 'Label' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
+      </div>
+    </div>
+    <div id="Content">
+      <src-statistical-template-view
+        [templateData]="templateData"
+        [templatesData]="templatesData"
+        [editable]="true"
+        (removeMetric)="removeMetric($event)"
+        (addNewMetric)="addNewMetric()"
+        (manageMetric)="manageMetric($event)">
+      </src-statistical-template-view>
+    </div>
+  }
+</src-collapsible-card>
