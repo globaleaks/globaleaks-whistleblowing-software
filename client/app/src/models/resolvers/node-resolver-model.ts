@@ -38,6 +38,7 @@ export class nodeResolverModel {
   signup_tos2_enable: boolean;
   simplified_login: boolean;
   subdomain: string;
+  support_escalation: string;
   threshold_free_disk_megabytes_high: number;
   threshold_free_disk_megabytes_low: number;
   threshold_free_disk_percentage_high: number;
