@@ -18,6 +18,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
+from globaleaks.utils.antivirus import get_av_result, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.securetempfile import SecureTemporaryFile
@@ -196,6 +197,13 @@ def prepare_tip_export(user_session, tip_export):
         if file_dict.get('masked'):
             continue
         file_dict['name'] = 'files_attached_from_recipients/' + file_dict['name']
+
+    metadata_rows = [{'name': f.get('name', ''),
+                      'type': f.get('type', ''),
+                      'size': f.get('size', ''),
+                      'av_result': get_av_result((f.get('status') or '').lower())}
+                     for f in files]
+    files.append({'fo': BytesIO(serialize_files_metadata_csv(metadata_rows)), 'name': 'metadata.csv'})
 
     tip_export['comments'] = tip_export['tip']['comments']
 

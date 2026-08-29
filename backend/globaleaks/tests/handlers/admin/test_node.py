@@ -1,10 +1,14 @@
 from twisted.internet.defer import inlineCallbacks
 
-from globaleaks import __version__
+from globaleaks import __version__, models
 from globaleaks.handlers.admin import node
+from globaleaks.jobs.delivery import Delivery
+from globaleaks.models.config import db_set_config_variable
+from globaleaks.orm import transact
 from globaleaks.rest.errors import InputValidationError
 from globaleaks.state import State
 from globaleaks.tests import helpers
+from globaleaks.utils.utility import datetime_now
 
 
 class FakeBackupJob:
@@ -31,6 +35,19 @@ class FakeBackupJob:
 class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
     _handler = node.NodeInstance
 
+    @transact
+    def set_antivirus_file_state(self, session, enabled):
+        db_set_config_variable(session, 1, 'antivirus_enabled', enabled)
+        ifile = session.query(models.InternalFile).first()
+        ifile.state = 'verified'
+        ifile.verification_date = datetime_now()
+        return ifile.id
+
+    @transact
+    def get_antivirus_file_state(self, session, file_id):
+        ifile = session.query(models.InternalFile).filter_by(id=file_id).one()
+        return ifile.state, ifile.verification_date
+
     @inlineCallbacks
     def test_get(self):
         handler = self.request(role='admin')
@@ -47,6 +64,46 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(isinstance(response, dict))
         self.assertTrue(response['version'], __version__)
         self.assertEqual(response['custom_support_url'], 'https://globaleaks.org')
+
+    @inlineCallbacks
+    def test_put_update_antivirus_clamd_endpoint(self):
+        self.dummyNode['antivirus_enabled'] = True
+        self.dummyNode['antivirus_clamd_ip'] = '192.0.2.10'
+        self.dummyNode['antivirus_clamd_port'] = 3311
+
+        handler = self.request(self.dummyNode, role='admin')
+        response = yield handler.put()
+
+        self.assertEqual(response['antivirus_clamd_ip'], '192.0.2.10')
+        self.assertEqual(response['antivirus_clamd_port'], 3311)
+
+    @inlineCallbacks
+    def test_put_updates_antivirus_runtime_cache(self):
+        self.dummyNode['antivirus_enabled'] = True
+        self.dummyNode['antivirus_clamd_ip'] = '192.0.2.20'
+        self.dummyNode['antivirus_clamd_port'] = 3320
+
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+
+        tenant_cache = self.state.tenants[1].cache
+        self.assertTrue(tenant_cache.antivirus_enabled)
+        self.assertEqual(tenant_cache.antivirus_clamd_ip, '192.0.2.20')
+        self.assertEqual(tenant_cache.antivirus_clamd_port, 3320)
+
+    @inlineCallbacks
+    def test_put_disable_antivirus_resets_file_verification(self):
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+        file_id = yield self.set_antivirus_file_state(True)
+
+        self.dummyNode['antivirus_enabled'] = False
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+
+        state, verification_date = yield self.get_antivirus_file_state(file_id)
+        self.assertEqual(state, 'pending')
+        self.assertIsNone(verification_date)
 
     @inlineCallbacks
     def test_put_update_node_invalid_lang(self):
@@ -89,12 +146,18 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(State.jobs_status["Backup"]["status"], "stopped")
 
     @inlineCallbacks
-    def test_put_backup_ignored_on_secondary_tenant(self):
+    def test_put_antivirus_and_backup_ignored_on_secondary_tenant(self):
+        self.dummyNode['antivirus_enabled'] = True
+        self.dummyNode['antivirus_clamd_ip'] = '192.0.2.30'
+        self.dummyNode['antivirus_clamd_port'] = 3330
         self.dummyNode['backup_enabled'] = True
 
         handler = self.request(self.dummyNode, role='admin', tid=2)
         response = yield handler.put()
 
+        self.assertFalse(response['antivirus_enabled'])
+        self.assertEqual(response['antivirus_clamd_ip'], 'localhost')
+        self.assertEqual(response['antivirus_clamd_port'], 3310)
         self.assertFalse(response['backup_enabled'])
 
     @inlineCallbacks

@@ -26,7 +26,6 @@
                       <span class="btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
                     } @else {
                       <button class="btn btn-sm btn-primary tip-action-download-file"
-                        [disabled]="file.error"
                         ngbTooltip="{{'Download' | translate}}"
                         [attr.aria-label]="'Download' | translate"
                         (click)="downloadWBFile(file)"

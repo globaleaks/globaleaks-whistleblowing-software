@@ -47,6 +47,23 @@ describe("admin enable submissions", () => {
   });
 });
 
+describe("admin enable antivirus", () => {
+  it("should enable antivirus", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings")
+    cy.get('[data-cy="antivirus"]').click().should("be.visible").click();
+
+    cy.get('#antivirus-clamd-ip').should("be.visible").should("have.value", "localhost");
+    cy.get('#antivirus-clamd-port').should("be.visible").should("have.value", "3310");
+    cy.get('#antivirus-enable').click();
+    cy.get('[data-cy="antivirus"]').click().should('be.visible').click();
+
+    cy.get('#antivirus-disable').should("be.visible");
+    cy.logout();
+    cy.waitForUrl("/#/login")
+  });
+});
+
 describe("admin enable scoring system", () => {
   it("should enable scoring system", () => {
     cy.login_admin();
