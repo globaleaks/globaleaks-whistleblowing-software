@@ -7,7 +7,8 @@ from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
+    db_get_pid_by_profile, db_set_own_config_variable
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
@@ -139,6 +140,30 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
+    # The sites created via signup can only be assigned to the default profile
+    # or to one of the profiles configured on the platform; any other reference,
+    # like the one of a profile deleted in the meantime, falls back on the default
+    if request.get('signup_profile', 'default') != 'default':
+        pid = db_get_pid_by_profile(session, request['signup_profile'])
+        if pid is None or pid <= DEFAULT_PROFILE_ID:
+            request['signup_profile'] = 'default'
+
+    # The channels designated to receive the forwards and the requests of
+    # forward are channels of the tenant; any other reference is dropped
+    designations = {}
+    for var in ['forward_channel', 'forward_request_channel']:
+        if var not in request:
+            continue
+
+        designations[var] = request.pop(var)
+
+        if designations[var] and \
+                session.query(models.Context) \
+                       .filter(models.Context.tid == tid,
+                               models.Context.id == designations[var]) \
+                       .one_or_none() is None:
+            designations[var] = ''
+
     # The antivirus and backup features are configurable on the primary tenant
     # only: their variables are dropped from the requests of any other context,
     # secondary tenants and profiles alike
@@ -152,6 +177,11 @@ def db_update_node(session, tid, user_session, request, language):
     idp_issuer_was = config.get_val('idp_issuer')
 
     config.update('node', request)
+
+    # The designations reference objects of the tenant and are therefore stored
+    # on the tenant itself and never on the profile from which it inherits
+    for var, value in designations.items():
+        db_set_own_config_variable(session, tid, var, value)
 
     # The accounts provisioned upon the first authentication of an identity are
     # created with the profile configured by default on the tenant, that is
