@@ -75,6 +75,24 @@ describe("admin enable scoring system", () => {
   });
 });
 
+describe("admin enable forwarding", () => {
+  it("should enable forwarding and designate the channels receiving it", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get('input[name="node.dataModel.enable_forwarding_incoming"]').should("not.be.checked").click();
+    cy.get('input[name="node.dataModel.enable_forwarding_outgoing"]').should("not.be.checked").click();
+    cy.get('select[name="node.dataModel.forward_channel"]').select(1);
+    cy.get('select[name="node.dataModel.forward_request_channel"]').select(1);
+    cy.get("#save").click();
+
+    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get('select[name="node.dataModel.forward_channel"]').should("not.have.value", "");
+    cy.get('select[name="node.dataModel.forward_request_channel"]').should("not.have.value", "");
+    cy.logout();
+  });
+});
+
 describe("admin add and remove disclaimer", function () {
   it("should add disclaimer", function () {
     cy.login_admin();

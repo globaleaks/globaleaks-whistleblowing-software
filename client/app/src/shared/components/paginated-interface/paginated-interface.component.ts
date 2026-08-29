@@ -28,6 +28,13 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   readonly orderBy = input<keyof T>();
   readonly orderDesc = input(false);
 
+  /**
+   * Optional: what a row is known by across the updates of the list. A row is
+   * the object itself by default, so a list rebuilding its items on every
+   * update rebuilds every row, and what the reader had open closes under it.
+   */
+  readonly trackKey = input<(item: T) => unknown>();
+
   /** Templates (auto-detected if mode not set) */
   readonly header = contentChild<TemplateRef<any>>('header');
   readonly content = contentChild<TemplateRef<any>>('content');
@@ -59,6 +66,12 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
       this.currentPage = 1;
       this.update();
     }
+  }
+
+  identity(item: T): unknown {
+    const key = this.trackKey();
+
+    return key ? key(item) : item;
   }
 
   update(): void {

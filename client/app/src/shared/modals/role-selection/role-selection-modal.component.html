@@ -1,0 +1,22 @@
+<div class="modal-header">
+  <div class="modal-title">{{ 'Switch role' | translate }}</div>
+</div>
+
+<div class="modal-body">
+  <div class="form-group">
+    <ng-select
+      name="role"
+      [(ngModel)]="selectedRole.value"
+      [items]="selectableRoles"
+      bindValue="value"
+      bindLabel="role"
+      [clearable]="false"
+      [searchable]="false">
+    </ng-select>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" id="modal-action-ok" (click)="confirm()" [disabled]="selectedRole.value === authenticationService.session.role">{{ 'Confirm' | translate }}</button>
+  <button class="btn btn-secondary" (click)="cancel()">{{ 'Cancel' | translate }}</button>
+</div>

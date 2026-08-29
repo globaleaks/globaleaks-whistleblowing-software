@@ -50,14 +50,12 @@
         </div>
       </div>
     }
-    @if (nodeResolver.dataModel.root_tenant || ['default', 'demo'].indexOf(appDataService.public.node.mode) !== -1) {
-      <div class="form-group">
-        <label for="node-disclaimer-text">{{ 'Disclaimer' | translate }}</label>
-        <div>
-          <textarea id="node-disclaimer-text" name="nodeResolver.dataModel.disclaimer_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.disclaimer_text"></textarea>
-        </div>
+    <div class="form-group">
+      <label for="node-disclaimer-text">{{ 'Disclaimer' | translate }}</label>
+      <div>
+        <textarea id="node-disclaimer-text" name="nodeResolver.dataModel.disclaimer_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.disclaimer_text"></textarea>
       </div>
-    }
+    </div>
     <div class="form-group">
       <label for="footer-whistleblowing-policy">{{'Whistleblowing Policy'|translate}}</label>
       <input id="footer-whistleblowing-policy" name="footer_whistleblowing_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_whistleblowing_policy" [pattern]="Constants.secureLocalUrlRegexp" [class.is-invalid]="contentForm().form.get('footer_whistleblowing_policy')?.errors?.['pattern']" type="text" />
@@ -66,14 +64,12 @@
       <label for="footer-privacy-policy">{{'Privacy Policy'|translate}}</label>
       <input id="footer-privacy-policy" name="footer_privacy_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_privacy_policy" [pattern]="Constants.secureLocalUrlRegexp" [class.is-invalid]="contentForm().form.get('footer_privacy_policy')?.errors?.['pattern']" type="text" />
     </div>
-    @if (nodeResolver.dataModel.root_tenant || ['default', 'demo'].indexOf(appDataService.public.node.mode) !== -1) {
-      <div class="form-group">
-        <label for="node-footer">{{ 'Footer' | translate }}</label>
-        <div>
-          <textarea id="node-footer" name="nodeResolver.dataModel.footer" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer"></textarea>
-        </div>
+    <div class="form-group">
+      <label for="node-footer">{{ 'Footer' | translate }}</label>
+      <div>
+        <textarea id="node-footer" name="nodeResolver.dataModel.footer" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer"></textarea>
       </div>
-    }
+    </div>
     <div class="form-group">
       <button class="btn btn-primary" id="save_settings" [disabled]="contentForm().invalid" (click)="updateNode()" type="submit">
         <i class="fas fa-check"></i>

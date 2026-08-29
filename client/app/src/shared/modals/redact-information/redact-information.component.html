@@ -17,7 +17,7 @@
 <div class="modal-footer">
   <div class="container">
     <div class="float-start">
-      @if (preferenceResolver.dataModel.can_mask_information && preferenceResolver.dataModel.can_redact_information) {
+      @if (preferenceResolver.dataModel.profile.permissions.can_mask_information && preferenceResolver.dataModel.profile.permissions.can_redact_information) {
         <div class="btn mask-btn">
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"

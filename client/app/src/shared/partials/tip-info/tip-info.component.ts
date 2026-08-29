@@ -4,6 +4,7 @@ import {WbtipService} from "@app/services/helper/wbtip.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
+import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
@@ -29,4 +30,26 @@ export class TipInfoComponent {
     const current_date = new Date();
     return current_date > report_date;
   };
+
+  getReceiverTip(): RecieverTipData | null {
+    if (this.tipService instanceof ReceiverTipService) {
+      return this.tipService.tip;
+    }
+
+    return null;
+  }
+
+  hasForwardRequestStatus() {
+    const tip = this.getReceiverTip();
+
+    return !!tip?.data?.forward_request && (!!tip?.allow_forward || tip?.status === "closed");
+  }
+
+  forwardRequestStatusLabel() {
+    if (!this.hasForwardRequestStatus()) {
+      return "";
+    }
+
+    return this.getReceiverTip()?.allow_forward ? "Authorized" : "Denied";
+  }
 }

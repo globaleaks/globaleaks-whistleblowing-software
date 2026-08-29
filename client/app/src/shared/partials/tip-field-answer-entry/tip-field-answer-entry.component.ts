@@ -40,6 +40,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   readonly fieldAnswers = input<any>();
   readonly redactOperationTitle = input<string>();
   readonly redactMode = input<boolean>();
+  readonly disabled = input(false);
 
   format = "dd/MM/yyyy";
   locale = "en-US";
@@ -140,8 +141,8 @@ export class TipFieldAnswerEntryComponent implements OnInit {
     // The masker reads the real content; the masked rendering is shown to
     // them only while editing the masking (redact mode).
     if (!this.redactMode() &&
-        (this.preferenceResolver.dataModel?.can_mask_information ||
-         this.preferenceResolver.dataModel?.can_redact_information)) {
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information)) {
       return value;
     }
 

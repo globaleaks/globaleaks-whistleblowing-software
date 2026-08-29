@@ -186,7 +186,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                       permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
@@ -205,7 +206,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                       permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
@@ -222,7 +224,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                   permissions={'can_grant_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
 
@@ -237,7 +240,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                   permissions={'can_transfer_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
             yield self.test_model_count(models.ReceiverTip, count)
@@ -458,7 +462,8 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(rtip_descs) * 2, self.population_of_submissions * self.population_of_recipients)
 
         # we delete the first and then we verify that the second does not exist anymore
-        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'])
+        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'],
+                               permissions={'can_delete_submission': True})
         yield handler.delete(rtip_descs[0]['id'])
 
         rtip_descs = yield self.get_rtips()
@@ -1010,13 +1015,13 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
             yield self.add_redaction(itip_id, identity_field_id, [{'start': 0, 'end': 100}])
 
             # A privileged recipient reads the original identity.
-            report = yield rtip.redact_report(receiver_id, build_report(itip_id))
+            report = yield rtip.redact_report(SimpleNamespace(user_id=receiver_id), build_report(itip_id))
             self.assertEqual(report['data']['whistleblower_identity'][identity_field_id][0]['value'],
                              'SECRET identity')
 
             # A recipient without the permission reads the masked identity.
             yield self.set_redaction_privileges(receiver_id, False)
-            report = yield rtip.redact_report(receiver_id, build_report(itip_id))
+            report = yield rtip.redact_report(SimpleNamespace(user_id=receiver_id), build_report(itip_id))
             value = report['data']['whistleblower_identity'][identity_field_id][0]['value']
             self.assertNotIn('SECRET', value)
             self.assertIn(mask, value)

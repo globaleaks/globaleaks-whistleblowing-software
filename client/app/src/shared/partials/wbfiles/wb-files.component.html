@@ -28,7 +28,7 @@
               <i class="fas fa-download"></i>
             </button>
 
-            @if (preferenceResolver.dataModel.can_mask_information) {
+            @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
               <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"
@@ -39,7 +39,7 @@
               </button>
             }
 
-            @if (preferenceResolver.dataModel.can_redact_information) {
+            @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
               <button
                 type="button"
                 class="tip-action-delete-file btn btn-sm btn-danger"
@@ -59,7 +59,7 @@
             <i class="fas fa-download"></i>
           </button>
 
-          @if (redactMode() && preferenceResolver.dataModel.can_mask_information) {
+          @if (redactMode() && preferenceResolver.dataModel.profile.permissions.can_mask_information) {
             <button
               type="button"
               class="btn btn-sm btn-outline-secondary"

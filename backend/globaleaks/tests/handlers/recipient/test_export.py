@@ -26,6 +26,17 @@ def set_redaction_privileges(session, user_id, value):
     user.can_mask_information = value
     user.can_redact_information = value
 
+    # The permissions are read from the profile of the user
+    for permission in ('can_mask_information', 'can_redact_information'):
+        row = session.query(models.UserProfilePermission) \
+                     .filter(models.UserProfilePermission.profile_id == user.profile_id,
+                             models.UserProfilePermission.permission == permission).one_or_none()
+        if value and row is None:
+            session.add(models.UserProfilePermission({'profile_id': user.profile_id,
+                                                      'permission': permission}))
+        elif not value and row is not None:
+            session.delete(row)
+
 
 class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
     _handler = export.ExportHandler

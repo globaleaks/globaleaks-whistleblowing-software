@@ -34,6 +34,7 @@ class TestMailUtils(unittest.TestCase):
     @patch("globaleaks.utils.mail.ESMTPSenderFactory")
     def test_sendmail_success(self, mock_factory, mock_connect, mock_reactor):
         """Test that sendmail initiates an SMTP connection correctly and handles success."""
+
         mock_factory.return_value = ESMTPSenderFactory(
             username="user".encode(),
             password="pass".encode(),
@@ -64,6 +65,7 @@ class TestMailUtils(unittest.TestCase):
     @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", side_effect=lambda *args, **kwargs: fail(Exception("Connection Failed")))
     def test_sendmail_failure(self, mock_connect, mock_reactor):
         """Test that sendmail handles failures correctly."""
+
         d = sendmail(tid=1,
                      smtp_host="smtp.example.com",
                      smtp_port=587,

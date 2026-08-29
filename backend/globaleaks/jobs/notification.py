@@ -80,10 +80,7 @@ class MailGenerator:
 
         data['node'] = self.serialize_config(session, 'node', tid, language)
 
-        if data['node']['mode'] == 'default':
-            data['notification'] = self.serialize_config(session, 'notification', tid, language)
-        else:
-            data['notification'] = self.serialize_config(session, 'notification', 1, language)
+        data['notification'] = self.serialize_config(session, 'notification', tid, language)
 
         if 'tip' in data:
             data['submission_statuses'] = self.serialize_config(session, 'submission_statuses', tid, language)
@@ -134,10 +131,7 @@ class MailGenerator:
                 log.debug("Discarding emails for %s due to receiver's preference.", user.id)
                 continue
 
-            if data['node']['mode'] == 'default':
-                data['notification'] = db_get_notification(session, tid, user.language)
-            else:
-                data['notification'] = db_get_notification(session, 1, user.language)
+            data['notification'] = db_get_notification(session, tid, user.language)
 
             subject, body = Templating().get_mail_subject_and_body(data)
 
