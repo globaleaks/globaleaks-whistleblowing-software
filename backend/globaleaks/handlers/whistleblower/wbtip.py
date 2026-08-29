@@ -20,7 +20,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import GCE
+from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null
@@ -94,17 +94,27 @@ def create_comment(session, tid, user_id, content):
     itip.update_date = itip.last_access = datetime_now()
 
     _content = content
+    hash_sha256 = sha256(content)
+    hash_sha512 = sha512(content)
+    _hash_sha256 = hash_sha256.decode()
+    _hash_sha512 = hash_sha512.decode()
     if itip.crypto_tip_pub_key:
         _content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, content)).decode()
+        _hash_sha256 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha256)).decode()
+        _hash_sha512 = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, hash_sha512)).decode()
 
     comment = models.Comment()
     comment.internaltip_id = itip.id
     comment.content = _content
+    comment.hash_sha256 = _hash_sha256
+    comment.hash_sha512 = _hash_sha512
     session.add(comment)
     session.flush()
 
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
+    ret['hash_sha256'] = hash_sha256
+    ret['hash_sha512'] = hash_sha512
 
     return ret
 
@@ -130,12 +140,13 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
     answers = {whistleblower_identity.id: [wbi]}
     db_validate_answers(session, tid, context.questionnaire_id, answers, True)
 
-    wbi = answers[whistleblower_identity.id][0]
+    identity_data = answers[whistleblower_identity.id][0]
 
+    wbi = identity_data
     if itip.crypto_tip_pub_key:
         wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
 
-    db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi)
+    db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, None, identity_data, itip.crypto_tip_pub_key)
 
     now = datetime_now()
     itip.update_date = now
@@ -158,10 +169,11 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
     steps, _ = db_validate_answers(session, tid, context.additional_questionnaire_id, answers, True)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
+    plaintext_answers = answers
     if itip.crypto_tip_pub_key:
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers)
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, None, plaintext_answers, itip.crypto_tip_pub_key)
 
     db_notify_recipients_of_tip_update(session, itip.id)
 

@@ -18,7 +18,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.utils.crypto import sha256, GCE
+from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null, parse_ISO8601
 
@@ -49,6 +49,13 @@ def index_answers(answers, parent_index='', depth=0):
             index_answers(answer, str_index, depth + 1)
 
 
+def decrypt_hashes(tip_key, holder, prefix=''):
+    for k in [prefix + 'hash_sha256', prefix + 'hash_sha512']:
+        if holder.get(k):
+            with contextlib.suppress(CryptoError, ValueError):
+                holder[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(holder[k].encode())).decode()
+
+
 def decrypt_tip(user_key, tip_prv_key, tip):
     tip_key = GCE.asymmetric_decrypt(user_key, tip_prv_key)
 
@@ -57,6 +64,7 @@ def decrypt_tip(user_key, tip_prv_key, tip):
 
     for questionnaire in tip['questionnaires']:
         questionnaire['answers'] = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(questionnaire['answers'].encode())).decode())
+        decrypt_hashes(tip_key, questionnaire)
 
     for q in tip['questionnaires']:
         index_answers(q['answers'])
@@ -70,6 +78,8 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 # The bug is due to the fact that the data was initially saved as an array of one entry
                 tip['data'][k] = tip['data'][k][0]
 
+            decrypt_hashes(tip_key, tip['data'], k + '_')
+
     if 'iar' in tip:
         if tip['iar']['request_motivation']:
             with contextlib.suppress(CryptoError, ValueError):
@@ -80,11 +90,12 @@ def decrypt_tip(user_key, tip_prv_key, tip):
                 tip['iar']['reply_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['reply_motivation'])).decode()
 
     for x in tip['comments']:
-        if x['content']:
-            x['content'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x['content'].encode())).decode()
+        for k in ['content', 'hash_sha256', 'hash_sha512']:
+            if k in x and x[k]:
+                x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
 
     for x in tip['wbfiles'] + tip['rfiles']:
-        for k in ['name', 'description', 'type', 'size']:
+        for k in ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512']:
             if k in x and x[k]:
                 x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
                 if k == 'size':
@@ -93,7 +104,30 @@ def decrypt_tip(user_key, tip_prv_key, tip):
     return tip
 
 
-def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, date=None):
+def data_hashes(value, crypto_tip_pub_key=''):
+    """
+    The fingerprints of a datum of a report, computed on the value as it was
+    provided and never on the encrypted form it is stored in.
+
+    They are sealed to the report exactly as the datum they attest is, so that
+    they never expose at rest the content they fingerprint
+    """
+    if value is None:
+        return '', ''
+
+    val_str = value if isinstance(value, str) else json.dumps(value, sort_keys=True)
+
+    hash_sha256 = sha256(val_str)
+    hash_sha512 = sha512(val_str)
+
+    if not crypto_tip_pub_key:
+        return hash_sha256.decode(), hash_sha512.decode()
+
+    return Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_tip_pub_key, hash_sha256)).decode(), \
+           Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_tip_pub_key, hash_sha512)).decode()
+
+
+def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, date=None, plaintext=None, crypto_tip_pub_key=''):
     x = session.query(models.InternalTipAnswers) \
                .filter(models.InternalTipAnswers.internaltip_id == itip_id,
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
@@ -105,6 +139,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, da
     ita.internaltip_id = itip_id
     ita.questionnaire_hash = questionnaire_hash
     ita.answers = answers
+    ita.hash_sha256, ita.hash_sha512 = data_hashes(answers if plaintext is None else plaintext, crypto_tip_pub_key)
 
     if date:
         ita.creation_date = date
@@ -114,7 +149,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, da
     return ita
 
 
-def db_set_internaltip_data(session, itip_id, key, value, date=None):
+def db_set_internaltip_data(session, itip_id, key, value, date=None, plaintext=None, crypto_tip_pub_key=''):
     x = session.query(models.InternalTipData) \
                .filter(models.InternalTipData.internaltip_id == itip_id,
                        models.InternalTipData.key == key).one_or_none()
@@ -126,6 +161,7 @@ def db_set_internaltip_data(session, itip_id, key, value, date=None):
     itd.internaltip_id = itip_id
     itd.key = key
     itd.value = value
+    itd.hash_sha256, itd.hash_sha512 = data_hashes(value if plaintext is None else plaintext, crypto_tip_pub_key)
 
     if date:
         itd.creation_date = date
@@ -720,6 +756,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
                                      models.Questionnaire.id == models.Context.questionnaire_id))
 
     answers = request['answers']
+
     # The answers are validated and reconciled with the questionnaire trigger
     # logic once (see db_validate_answers), mirroring the client: the blocking
     # screening, the recipients override and the triage score are all derived
@@ -803,6 +840,9 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     # Apply special handling to the whistleblower identity question
     if itip.enable_whistleblower_identity and request['identity_provided'] and answers[whistleblower_identity.id]:
+
+        identity_data = answers[whistleblower_identity.id][0]
+
         if crypto_is_available:
             wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers[whistleblower_identity.id][0]).encode())).decode()
         else:
@@ -810,16 +850,17 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         answers[whistleblower_identity.id] = ''
 
-        db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date)
+        db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date, identity_data, itip.crypto_tip_pub_key)
 
+    plaintext_answers = answers
     if crypto_is_available:
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, itip.creation_date)
+    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
 
     for uploaded_file in user_session.files:
         if crypto_is_available:
-            for k in ['name', 'type', 'size']:
+            for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
                 uploaded_file[k] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
 
         new_file = models.InternalFile()
@@ -831,6 +872,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         new_file.internaltip_id = itip.id
         new_file.reference_id = uploaded_file['reference_id']
         new_file.creation_date = itip.creation_date
+        new_file.hash_sha256 = uploaded_file['hash_sha256']
+        new_file.hash_sha512 = uploaded_file['hash_sha512']
         session.add(new_file)
 
     for user in receivers:
