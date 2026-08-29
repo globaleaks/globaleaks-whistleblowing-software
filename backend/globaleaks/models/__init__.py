@@ -966,10 +966,24 @@ class _Subscriber(Model):
     registration_date = Column(DateTime, default=datetime_now, nullable=False)
     tos1 = Column(UnicodeText, default='', nullable=False)
     tos2 = Column(UnicodeText, default='', nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    state = Column(Integer, default=None, nullable=True)
+    organization_email = Column(UnicodeText, nullable=True)
+    organization_institutional_site = Column(UnicodeText, default='', nullable=False)
+    accreditation_date = Column(DateTime, nullable=True)
+    recipient_user_id = Column(UnicodeText, default='', nullable=False)
+    recipient_name = Column(UnicodeText, nullable=True)
+    recipient_surname = Column(UnicodeText, nullable=True)
+    recipient_email = Column(UnicodeText, nullable=True)
+    recipient_tax_code = Column(UnicodeText, nullable=True)
+    requestor_id = Column(UnicodeText, nullable=True)
+
     unicode_keys = ['subdomain', 'language', 'name', 'surname', 'phone', 'email', 'tax_code',
                     'organization_name', 'organization_tax_code',
                     'organization_vat_code', 'organization_location',
-                    'client_ip_address', 'client_user_agent']
+                    'client_ip_address', 'client_user_agent', 'state', 'organization_email',
+                    'organization_institutional_site', 'recipient_name', 'recipient_surname', 'recipient_email',
+                    'recipient_tax_code', 'requestor_id']
 
     bool_keys = ['tos1', 'tos2']
 

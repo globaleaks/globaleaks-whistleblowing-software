@@ -1,36 +1,150 @@
-# Handlers implementing platform signup
-from twisted.internet.threads import deferToThread
+import json
+from datetime import timedelta
+
 from globaleaks import models
-from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.db import db_refresh_tenant_cache
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.tenant import db_create as db_create_tenant, db_wizard
 from globaleaks.handlers.admin.user import db_get_users
+from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
-from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import db_del, transact
+from globaleaks.models.config import ConfigFactory, db_get_signup_idp_config, db_get_signup_profile, db_set_config_variable
+from globaleaks.models.enums import EnumSubscriberStatus
+from globaleaks.orm import db_del, db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.state import State
 from globaleaks.utils.crypto import generateRandomKey, generateRandomPassword, sha256, GCE
 from globaleaks.utils.log import log
+from globaleaks.utils.oidc import extract_bearer_token
+from globaleaks.utils.utility import datetime_now
+
+
+def db_verify_signup_token(session, tid, bearer_token):
+    """
+    Verify the OIDC ID token carried by a signup request
+
+    The token is validated against the IdP inherited from the profile
+    configured for the tenants created via signup.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant handling the signups
+    :param bearer_token: The OIDC ID token carried by the request
+    :return: The claims of the verified token or None if no IdP is configured
+    """
+    idp_config = db_get_signup_idp_config(session, tid)
+
+    if not idp_config['signup_idp']:
+        return None
+
+    if not bearer_token:
+        raise errors.ForbiddenOperation
+
+    try:
+        return State.oidcauth.verify_token(bearer_token,
+                                           idp_config['signup_idp_issuer'],
+                                           idp_config['signup_idp_client_id'])
+    except:
+        raise errors.ForbiddenOperation
 
 
 @transact
-def signup(session, request, language):
+def signup(session, request, language, bearer_token=None):
     """
     Transact handling the registration of a new signup
 
     :param session: An ORM session
     :param request: A user request
     :param language: A language of the request
+    :param bearer_token: The OIDC ID token carried by the request
     """
     config = ConfigFactory(session, 1)
 
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
-    if request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
+    oidc_token = db_verify_signup_token(session, 1, bearer_token)
+
+    # The data of the user are the sole data always collected on the
+    # registration; the identity provider, when configured, is the source
+    # trusted for them, so that they cannot be forged by a client.
+    #
+    # The claims are published by a third party and are therefore validated as
+    # any other input: the request has been validated before them and a claim
+    # not conforming to the format expected for the field is discarded, the
+    # value compiled by the user being kept in its place.
+    #
+    # The email is deliberately not among them: the identity provider may not
+    # publish it, and when it does the address only prefills the form, the
+    # user being free to be notified on an address different from the one
+    # registered on the identity provider.
+    if oidc_token:
+        for claim, key in [('given_name', 'name'),
+                           ('family_name', 'surname')]:
+            value = oidc_token.get(claim)
+            if isinstance(value, str) and BaseHandler.validate_regexp(value, requests.SignupDesc[key]):
+                request[key] = value
+
+    if not config.get_val('signup_request_subdomain'):
+        request['subdomain'] = ''
+
+    invite = None
+    invited_tenant = None
+    invite_token = request['token']
+
+    if invite_token:
+        ret = session.query(models.Subscriber, models.Tenant) \
+            .filter(models.Subscriber.activation_token == sha256(invite_token).decode(),
+                    models.Subscriber.state == EnumSubscriberStatus.invited.value,
+                    models.Tenant.id == models.Subscriber.tid).one_or_none()
+
+        if ret is None:
+            raise errors.ForbiddenOperation
+
+        invite, invited_tenant = ret
+
+        if invite.registration_date < datetime_now() - timedelta(hours=24):
+            db_del(session, models.Tenant, models.Tenant.id == invited_tenant.id)
+            raise errors.ForbiddenOperation
+
+        # The organization is the one the invitation has been issued to: its
+        # identity is taken from the invitation and never from the request, so
+        # that an invited registration cannot be performed on an organization
+        # different from the invited one
+        request['subdomain'] = ''
+        request['organization_name'] = invite.organization_name
+        request['organization_email'] = invite.organization_email
+    elif config.get_val('signup_invite_only'):
+        raise errors.ForbiddenOperation
+    elif config.get_val('signup_request_subdomain') and not request['subdomain']:
+        raise errors.InputValidationError
+
+    # The name of the organization is always asked for and is therefore
+    # mandatory; on an invited registration it is the one the invitation has
+    # been issued to
+    if not request['organization_name']:
+        raise errors.InputValidationError
+
+    # The email address of the organization is not collected on the
+    # registration: it is known only through an invitation, as the address
+    # the invitation was delivered to
+    if invite is None:
+        request['organization_email'] = ''
+
+    # The other details of the organization are asked for only when so
+    # configured, and are then mandatory; the ones not asked for are dropped
+    # so that they cannot be planted by a client
+    for var, key in [('signup_request_location', 'organization_location'),
+                     ('signup_request_phone', 'phone'),
+                     ('signup_request_tax_code', 'organization_tax_code'),
+                     ('signup_request_vat_code', 'organization_vat_code')]:
+        if not config.get_val(var):
+            request[key] = ''
+        elif not request[key]:
+            raise errors.InputValidationError
+
+    if request['subdomain'] and request['subdomain'] + "." + config.get_val('rootdomain') == config.get_val('hostname'):
         raise errors.ForbiddenOperation
 
     activation_token = generateRandomKey()
@@ -42,86 +156,240 @@ def signup(session, request, language):
 
     # Delete the tenants created for the same subdomain that have still not been activated
     # Ticket reference: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2640
-    tids = [tid for (tid,) in session.query(models.Tenant.id).filter(
-        models.Subscriber.subdomain == request['subdomain'],
-        models.Subscriber.activation_token.isnot(None),
-        models.Tenant.id == models.Subscriber.tid
-    ).all()]
+    tids = []
+    if request['subdomain']:
+        tids = [tid for (tid,) in session.query(models.Tenant.id).filter(
+            models.Subscriber.subdomain == request['subdomain'],
+            models.Subscriber.activation_token.isnot(None),
+            models.Tenant.id == models.Subscriber.tid
+        ).all()]
 
     db_del(session, models.Tenant, models.Tenant.id.in_(tids))
 
-    tenant = db_create_tenant(session, {'active': False,
-                                        'name': request['subdomain'],
-                                        'subdomain': request['subdomain'],
-                                        'mode': config.get_val('mode')})
+    # The tenant is always created upon the registration; it is activated
+    # right away only when the automatic authorization of the newly registered
+    # sites is enabled, and is otherwise activated when an administrator
+    # authorizes the platform
+    active = config.get_val('signup_auto_authorize')
 
-    signup = models.Subscriber(request)
+    if invite is not None:
+        tenant = invited_tenant
 
-    signup.tid = tenant.id
+        signup = invite
+        for key in request:
+            if key != 'subdomain' and hasattr(signup, key):
+                setattr(signup, key, request[key])
+        db_set_config_variable(session, tenant.id, 'subdomain', request['subdomain'])
+        signup.state = EnumSubscriberStatus.invited.value
+    else:
+        tenant = db_create_tenant(session, {'active': False,
+                                            'name': request['organization_name'] or request['subdomain'] or request['email'],
+                                            'subdomain': request['subdomain'],
+                                            'profile': db_get_signup_profile(session, 1)})
 
-    session.add(signup)
+        signup = models.Subscriber(request)
+
+        # The subdomain of a registration performed on a platform not asking
+        # for one is a placeholder, the column being unique: the site is
+        # reached via the hostname configured on it afterwards
+        signup.subdomain = request['subdomain'] or generateRandomKey()
+
+        signup.tid = tenant.id
+
+        session.add(signup)
 
     session.flush()
 
-    # We need to send two emails
-    #
-    # The first one is sent to the platform owner with the activation email.
-    #
-    # The second goes to the instance administrators notifying them that a new
-    # platform has been added.
+    # The request of registration is the event opening the accreditation of an
+    # organization and is recorded on the audit log of the root tenant, that
+    # holds every other event of the accreditation
+    db_log(session, tid=1, type='signup', object_id=signup.id, data={'tid': tenant.id})
 
-    signup_dict = serializers.serialize_signup(signup)
-    # Use the raw token only for the activation email; the database stores the hash
-    signup_dict['activation_token'] = activation_token
+    if active:
+        db_signup_activation(session, activation_token, language, oidc_token)
+    else:
+        # Notify the administrators that a new platform is waiting for the
+        # authorization; the notification carries the raw token performing it,
+        # the database storing only its hash
+        signup_dict = serializers.serialize_signup(signup)
+        signup_dict['activation_token'] = activation_token
 
-    # Email 1 - Activation Link
-    template_vars = {
-        'type': 'signup',
-        'node': db_admin_serialize_node(session, 1, language),
-        'notification': db_get_notification(session, 1, language),
-        'signup': signup_dict
+        notif = State.tenants[1].cache.notification
+        if not notif or notif.enable_admin_notification_emails:
+            for user_desc in db_get_users(session, 1, 'admin'):
+                # Do not generate emails if the user has disabled notifications
+                if not user_desc['notification']:
+                    log.debug("Discarding emails for %s due to user's preference.", user_desc['id'])
+                    continue
+
+                template_vars = {
+                    'type': 'admin_signup_alert',
+                    'node': db_admin_serialize_node(session, 1, user_desc['language']),
+                    'notification': db_get_notification(session, 1, user_desc['language']),
+                    'user': user_desc,
+                    'signup': signup_dict
+                }
+
+                State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
+
+        # The registration of a platform not activated right away is confirmed
+        # on its own; when the activation is automatic and contextual to the
+        # registration the confirmation of the activation is the only one sent
+        signup_dict = serializers.serialize_signup(signup)
+        signup_dict['activation_token'] = ''
+
+        for address in signup_notification_addresses(signup):
+            template_vars = {
+                'type': 'signup',
+                'node': db_admin_serialize_node(session, 1, language),
+                'notification': db_get_notification(session, 1, language),
+                'signup': signup_dict
+            }
+
+            State.format_and_send_mail(session, 1, address, template_vars)
+
+
+def signup_notification_addresses(signup):
+    """
+    Return the addresses to be notified about a registration: the user and,
+    when the registration originates from an invitation, the address the
+    invitation was delivered to; a single address is returned when they match
+
+    :param signup: The subscriber of the registration
+    :return: The list of the addresses to be notified
+    """
+    addresses = [signup.email]
+
+    if signup.state is not None and signup.organization_email and signup.organization_email != signup.email:
+        addresses.append(signup.organization_email)
+
+    return addresses
+
+
+def db_signup_provision(session, signup, language, username, password, idp_claims=None):
+    """
+    Transaction provisioning the accounts of a platform registered via signup
+
+    :param session: An ORM session
+    :param signup: The subscriber of the registration
+    :param language: A language of the request
+    :param username: The username to be assigned to the account
+    :param password: The generated password protecting the account
+    :param idp_claims: The claims of the identity that performed the registration
+    :return: The role and the username of the provisioned account
+    """
+    config = ConfigFactory(session, 1)
+
+    # The IdP configuration is not copied on the created tenant as it is
+    # inherited from the profile assigned to the tenants created via signup
+    node = ConfigFactory(session, signup.tid)
+
+    # The subdomain configured on the tenant is empty when the registration
+    # does not ask for one, the value held by the subscriber being a placeholder
+    node_name = signup.organization_name or node.get_val('subdomain') or signup.email
+
+    salt = node.get_val('receipt_salt')
+
+    default_role, default_profile_id = db_resolve_default_user_profile(session, signup.tid)
+
+    # A registered platform always provisions the account of its user: when no
+    # default user profile is configured the user is created as the
+    # administrator of its own platform
+    if not default_role:
+        default_role = 'admin'
+        default_profile_id = ''
+
+    default_username = username
+    default_salt = GCE.generate_salt(salt + ":" + default_username)
+
+    # The generated password reaches the account only through its usual
+    # derivation, as any other password
+    default_key = GCE.derive_key(password, default_salt).encode()
+
+    skip_admin_account_creation = default_role != 'admin'
+    skip_recipient_account_creation = default_role != 'receiver'
+    skip_default_account_creation = default_role in ('admin', 'receiver')
+
+    admin_key = default_key if default_role == 'admin' else ''
+    receiver_key = default_key if default_role == 'receiver' else ''
+
+    wizard = {
+        'node_language': signup.language,
+        'node_name': node_name,
+        'admin_username': default_username or 'admin',
+        'admin_name': signup.name + ' ' + signup.surname,
+        'admin_password': admin_key,
+        'admin_mail_address': signup.email,
+        'admin_profile_id': default_profile_id if default_role == 'admin' else '',
+        'admin_escrow': config.get_val('escrow'),
+        'receiver_username': default_username or 'recipient',
+        'receiver_name': signup.name + ' ' + signup.surname,
+        'receiver_password': receiver_key,
+        'receiver_mail_address': signup.email,
+        'receiver_profile_id': default_profile_id if default_role == 'receiver' else '',
+        'default_username': default_username,
+        'default_name': signup.name + ' ' + signup.surname,
+        'default_password': default_key if not skip_default_account_creation else '',
+        'default_mail_address': signup.email,
+        'default_role': default_role,
+        'default_profile_id': default_profile_id if not skip_default_account_creation else '',
+        # The account is bound to the identity that performed the registration
+        'idp_id': idp_claims.get('sub', '') if idp_claims else '',
+        'profile': 'default',
+        'skip_admin_account_creation': skip_admin_account_creation,
+        'skip_recipient_account_creation': skip_recipient_account_creation,
+        'skip_default_account_creation': skip_default_account_creation,
+        'enable_developers_exception_notification': True
     }
 
-    State.format_and_send_mail(session, 1, signup.email, template_vars)
+    db_wizard(session, signup.tid, '', wizard)
 
-    # Email 2 - Admin Notification
-    notif = State.tenants[1].cache.notification
-    if notif and not notif.enable_admin_notification_emails:
-        return
+    # The account is bound to the registration so that the notifications can
+    # reference it; its password has been provisioned on behalf of the user
+    # and must therefore be changed on first login
+    user = session.query(models.User) \
+                  .filter(models.User.tid == signup.tid,
+                          models.User.username == default_username).one_or_none()
 
-    for user_desc in db_get_users(session, 1, 'admin'):
-        # Do not generate emails if the user has disabled notifications
-        if not user_desc['notification']:
-            log.debug("Discarding emails for %s due to user's preference.", user_desc['id'])
-            continue
+    if user is not None:
+        signup.user_id = user.id
 
-        template_vars = {
-            'type': 'admin_signup_alert',
-            'node': db_admin_serialize_node(session, 1, user_desc['language']),
-            'notification': db_get_notification(session, 1, user_desc['language']),
-            'user': user_desc,
-            'signup': signup_dict
-        }
-
-        State.format_and_send_mail(session, 1, user_desc['mail_address'], template_vars)
+    return default_role, default_username
 
 
-@transact
-def signup_activation(session, token, hostname, language):
+def db_signup_activation(session, token, language, idp_claims=None):
     """
     Transaction registering the activation of a platform registered via signup
 
     :param session: An ORM session
     :param token: A activation token
-    :param hostname: The choosen hostname
     :param language: A language of the request
+    """
+    if not token:
+        # An empty token would match subscribers whose activation token has
+        # been voided upon activation, reactivating them.
+        return {}
+
+    return db_signup_activation_by_hash(session, sha256(token).decode(), language, idp_claims)
+
+
+def db_signup_activation_by_hash(session, token_hash, language, idp_claims=None):
+    """
+    Transaction registering the activation of a platform via the hash of its
+    activation token, as stored at rest.
+
+    The activation makes the site active and provisions the account of its
+    user, whose generated credentials are delivered via email only to the
+    address of the user.
     """
     config = ConfigFactory(session, 1)
 
     if not config.get_val('enable_signup'):
         raise errors.ForbiddenOperation
 
-    token_hash = sha256(token).decode()
+    if not token_hash:
+        return {}
+
     ret = session.query(models.Subscriber, models.Tenant) \
                  .filter(models.Subscriber.activation_token == token_hash,
                          models.Tenant.id == models.Subscriber.tid).one_or_none()
@@ -135,57 +403,40 @@ def signup_activation(session, token, hostname, language):
 
     signup.activation_token = None
 
-    node_name = signup.organization_name or signup.subdomain
+    # The account is provisioned upon the activation with a generated
+    # password, using the email address of the user as its username
+    default_password = generateRandomPassword(16)
+    default_role, default_username = db_signup_provision(session, signup, language, signup.email, default_password, idp_claims)
 
-    node = ConfigFactory(session, tenant.id)
-    mode = node.get_val('mode')
-    salt = node.get_val('receipt_salt')
+    signup_dict = serializers.serialize_signup(signup)
 
-    if mode == 'wbpa':
-        skip_admin_account_creation = True
-        admin_password = admin_key = ''
-    else:
-        skip_admin_account_creation = False
-        admin_password = generateRandomPassword(16)
-        admin_salt = GCE.generate_salt(salt + ":" + 'admin')
-        admin_key = GCE.derive_key(admin_password, admin_salt).encode()
+    # The activation is confirmed, with the link to access the platform, to
+    # the user and, for an invited registration, to the address the invitation
+    # was delivered to; a single confirmation is sent when the addresses
+    # match and the credentials are delivered only to the address of the user
+    for address in signup_notification_addresses(signup):
+        template_vars = {
+            'type': 'activation',
+            'node': db_admin_serialize_node(session, 1, language),
+            'notification': db_get_notification(session, 1, language),
+            'signup': signup_dict,
+            'password': default_password if address == signup.email else '',
+            'password_admin': '',
+            'password_recipient': '',
+            'signup_user_role': default_role,
+            'signup_user_username': default_username
+        }
 
-    receiver_password = generateRandomPassword(16)
-    receiver_salt = GCE.generate_salt(salt + ":" + 'recipient')
-    receiver_key = GCE.derive_key(receiver_password, receiver_salt).encode()
+        State.format_and_send_mail(session, 1, address, template_vars)
 
-    wizard = {
-        'node_language': signup.language,
-        'node_name': node_name,
-        'admin_username': 'admin',
-        'admin_name': signup.name + ' ' + signup.surname,
-        'admin_password': admin_key,
-        'admin_mail_address': signup.email,
-        'admin_escrow': config.get_val('escrow'),
-        'receiver_username': 'recipient',
-        'receiver_name': signup.name + ' ' + signup.surname,
-        'receiver_password': receiver_key,
-        'receiver_mail_address': signup.email,
-        'profile': 'default',
-        'skip_admin_account_creation': skip_admin_account_creation,
-        'skip_recipient_account_creation': False,
-        'enable_developers_exception_notification': True
-    }
+    db_log(session, tid=1, type='activate_signup', object_id=signup.id, data={'tid': tenant.id})
 
-    db_wizard(session, signup.tid, hostname, wizard)
+    db_refresh_tenant_cache(session, tenant.id)
 
-    template_vars = {
-        'type': 'activation',
-        'node': db_admin_serialize_node(session, 1, language),
-        'notification': db_get_notification(session, 1, language),
-        'signup': serializers.serialize_signup(signup),
-        'password_admin': admin_password,
-        'password_recipient': receiver_password
-    }
 
-    State.format_and_send_mail(session, 1, signup.email, template_vars)
-
-    deferToThread(sync_refresh_tenant_cache, tenant)
+@transact
+def signup_activation(session, token, language):
+    return db_signup_activation(session, token, language)
 
 
 class Signup(BaseHandler):
@@ -196,13 +447,22 @@ class Signup(BaseHandler):
     root_tenant_only = True
 
     def post(self):
-        request = self.validate_request(self.request.content.read(),
-                                        requests.SignupDesc)
+        raw_request = self.request.content.read()
+        try:
+            parsed_request = json.loads(raw_request)
+        except:
+            raise errors.InputValidationError
+
+        token = ''
+        if 'token' in parsed_request:
+            token = parsed_request['token']
+        request = self.validate_request(parsed_request, requests.SignupDesc)
 
         request['client_ip_address'] = self.request.client_ip
         request['client_user_agent'] = self.request.client_ua
+        request['token'] = token
 
-        return signup(request, self.request.language)
+        return signup(request, self.request.language, extract_bearer_token(self.request))
 
 
 class SignupActivation(BaseHandler):
@@ -214,4 +474,4 @@ class SignupActivation(BaseHandler):
     invalidate_cache = True
 
     def post(self, token):
-        return signup_activation(token, self.request.hostname, self.request.language)
+        return signup_activation(token, self.request.language)

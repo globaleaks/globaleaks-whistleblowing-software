@@ -148,6 +148,10 @@ export class HttpService {
     return this.httpClient.post<void>("api/signup", param, headers ? {headers} : {});
   }
 
+  requestSignupInvite(token: string): Observable<{organization_name: string; organization_email: string; expiration_date: string}> {
+    return this.httpClient.get<{organization_name: string; organization_email: string; expiration_date: string}>("api/invites/" + token);
+  }
+
   requestWizard(param: string): Observable<void> {
     return this.httpClient.post<void>("api/wizard", param);
   }

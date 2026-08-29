@@ -46,7 +46,8 @@
     "{UseCase}",
     "{Language}",
     "{AdminCredentials}",
-    "{RecipientCredentials}"
+    "{RecipientCredentials}",
+    "{Credentials}"
   ],
   "activation_mail_title":[
     "{NodeName}",
@@ -67,7 +68,8 @@
     "{UseCase}",
     "{Language}",
     "{AdminCredentials}",
-    "{RecipientCredentials}"
+    "{RecipientCredentials}",
+    "{Credentials}"
   ],
   "admin_anomaly_mail_template":[
     "{NodeName}",

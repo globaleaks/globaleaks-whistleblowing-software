@@ -23,6 +23,7 @@ describe("User Perform Signup", function() {
     cy.takeScreenshot("admin/signup_form");
 
     cy.get('input[name="subdomain"]').type("test");
+    cy.get('input[name="organization_name"]').type("Test Organization");
     cy.get('input[name="name"]').type("Name");
     cy.get('input[name="surname"]').type("Surname");
     cy.get('input[name="mail_address"]').type("test@example.net");
