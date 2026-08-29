@@ -5,6 +5,7 @@ import threading
 import traceback
 
 from acme.errors import ValidationError
+from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
@@ -82,7 +83,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.jobs_status = {}
         self.services = []
         self.tor = None
-
+        self.antivirus_files = []
+        self.antivirus_file_ids = set()
         self.exceptions = {}
         self.exceptions_email_count = 0
 

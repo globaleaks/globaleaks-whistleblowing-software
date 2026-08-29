@@ -1,15 +1,20 @@
+import io
 import os
-
+import time
+from datetime import datetime
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
+from globaleaks.models.config import db_get_config_variable
 from globaleaks.orm import transact
 from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
+from globaleaks.utils.antivirus import FileAnalysis
+from globaleaks.models.enums import EnumStateFile
 
 
 __all__ = ['Delivery']
@@ -52,6 +57,8 @@ def file_delivery(session):
             'key': itip.crypto_tip_pub_key,
             'src': ifile.id,
             'dst': os.path.abspath(os.path.join(Settings.attachments_path, ifile.id)),
+            'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
+            'type': 'internal'
         }
 
         # Retrieve all receivers for this file
@@ -67,8 +74,43 @@ def file_delivery(session):
 
             session.add(whistleblowerfile)
 
+    for rfile, itip in session.query(models.ReceiverFile, models.InternalTip)\
+                               .filter(models.ReceiverFile.new.is_(True),
+                                       models.ReceiverFile.internaltip_id == models.InternalTip.id) \
+                               .order_by(models.ReceiverFile.creation_date) \
+                               .limit(20):
+        rfile.new = False
+
+        files_map[rfile.id] = {
+            'key': itip.crypto_tip_pub_key,
+            'src': rfile.id,
+            'dst': os.path.abspath(os.path.join(Settings.attachments_path, rfile.id)),
+            'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
+            'type': 'receiver'
+        }
+
     return files_map
 
+@transact
+def save_antivirus_status(session, file_id, result, file_type='internal'):
+    model = models.InternalFile if file_type == 'internal' else models.ReceiverFile
+    file_obj = session.query(model).filter_by(id=file_id).first()
+    if file_obj is None:
+        return
+
+    tid = session.query(models.InternalTip.tid).filter_by(id=file_obj.internaltip_id).scalar()
+    if tid is None or not db_get_config_variable(session, tid, 'antivirus_enabled'):
+        result = None
+
+    if result == 'unsafe':
+        file_obj.verification_date = datetime.utcnow()
+        file_obj.state = EnumStateFile.infected.name
+    elif result == 'safe':
+        file_obj.verification_date = datetime.utcnow()
+        file_obj.state = EnumStateFile.verified.name
+    else:
+        file_obj.verification_date = None
+        file_obj.state = EnumStateFile.pending.name
 
 def write_plaintext_file(sf, dest_path):
     try:
@@ -106,10 +148,18 @@ class Delivery(LoopingJob):
         This function creates receiver files
         """
         files_map = yield file_delivery()
+        scanner = FileAnalysis()
 
-        for _, file in files_map.items():
+        for file_id, file in files_map.items():
             try:
-                sf = self.state.get_tmp_file_by_name(file['src'])
+                sf = self._get_source_file(file['src'])
+                if sf is None:
+                    continue
+
+                if file['scan']:
+                    yield self._scan(sf, file_id, file.get('type', 'internal'), scanner)
+                else:
+                    save_antivirus_status(file_id, None, file.get('type', 'internal'))
 
                 if file['key']:
                     yield deferToThread(write_encrypted_file, file['key'], sf, file['dst'])
@@ -117,3 +167,22 @@ class Delivery(LoopingJob):
                     yield deferToThread(write_plaintext_file, sf, file['dst'])
             except Exception as e:
                 log.err("Unable to deliver a receiver file: %s", e)
+
+    def _get_source_file(self, filename):
+        # Only the sources the writers can consume are returned: they open the
+        # object themselves, so a bare file descriptor read from disk would not
+        # do. A file that is not there yet is delivered on one of the next runs.
+        return self.state.get_tmp_file_by_name(filename)
+
+    @inlineCallbacks
+    def _scan(self, sf, file_id, file_type, scanner):
+        # The content is read through a handle of its own so that the writers
+        # keep receiving the source object they expect.
+        with sf.open('r') as fd:
+            content = fd.read()
+
+        result = yield scanner.scan_file(content)
+
+        save_antivirus_status(file_id, result, file_type)
+
+        return result

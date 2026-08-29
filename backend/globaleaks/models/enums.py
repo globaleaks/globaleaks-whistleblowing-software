@@ -37,3 +37,9 @@ class EnumVisibility(_Enum):
     public = 0
     internal = 1
     personal = 2
+
+
+class EnumStateFile(_Enum):
+    pending = 0
+    verified = 1
+    infected = 2

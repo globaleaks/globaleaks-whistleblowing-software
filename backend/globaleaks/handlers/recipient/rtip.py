@@ -1,6 +1,7 @@
 # Handlers dealing with tip interface for receivers (rtip)
 import copy
 import json
+import mimetypes
 import os
 import re
 import time
@@ -26,13 +27,17 @@ from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.settings import Settings
 from globaleaks.state import State
+from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
-
+from globaleaks.models.config import db_get_config_variable
+from io import BytesIO
+from globaleaks.utils.securetempfile import SecureTemporaryFile
+from globaleaks.utils.zipstream import ZipStream
 
 def db_notify_grant_access(session, user):
     """
@@ -691,7 +696,6 @@ def db_access_rfile(session, tid, user_id, rfile_id):
         )
         .one_or_none()
     )
-
 
 @transact
 def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
@@ -1421,6 +1425,9 @@ class RTipInstance(OperationHandler):
     def get(self, tip_id):
         tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, tip_id, self.request.language)
 
+        if State.tenants[self.request.tid].cache.antivirus_enabled and crypto_tip_prv_key:
+            enqueue_tip_files_for_rescan(tip, GCE.asymmetric_decrypt(self.session.cc, crypto_tip_prv_key))
+
         tip = yield serializers.process_logs(tip, tip['id'])
 
         if State.tenants[self.request.tid].cache.encryption and crypto_tip_prv_key:
@@ -1512,6 +1519,9 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.InternalTip.tid == tid,
                                             models.WhistleblowerFile.id == file_id))
 
+        antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
+        recheck_needed = prepare_file_download(ifile, antivirus_enabled)
+
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
@@ -1525,13 +1535,19 @@ class WhistleblowerFileDownload(BaseHandler):
 
         db_log(session, tid=tid, type='access_file', user_id=user_id, object_id=wbfile.id, data={'internaltip_id': ifile.internaltip_id})
 
-        return ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key, rtip.deprecated_crypto_files_prv_key, user.pgp_key_public
+        return (ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key,
+                rtip.deprecated_crypto_files_prv_key, user.pgp_key_public,
+                ifile.state, antivirus_enabled, recheck_needed, ifile.size)
 
     @inlineCallbacks
     def get(self, wbfile_id):
-        name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key = yield self.download_wbfile(self.request.tid,
-                                                                                                   self.session.user_id,
-                                                                                                   wbfile_id)
+        (name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key,
+         state, antivirus_enabled, recheck_needed, size) = yield self.download_wbfile(
+            self.request.tid, self.session.user_id, wbfile_id)
+
+        if recheck_needed and tip_prv_key:
+            _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
+            enqueue_antivirus_scan(ifile_id, _tip_prv_key)
 
         filelocation = os.path.join(self.state.settings.attachments_path, wbfile_id)
         if not os.path.exists(filelocation):
@@ -1540,48 +1556,52 @@ class WhistleblowerFileDownload(BaseHandler):
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
+        files = []
+
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             name = GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(name.encode())).decode()
 
             try:
                 # First attempt
-                filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                sfo = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+                files.append({'fo': sfo, 'name': name})
             except Exception:
                 # Second attempt
                 if not tip_prv_key2:
                     raise
 
                 files_prv_key2 = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key2))
-                filelocation = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
-
-        if pgp_key:
-            # PGP wrapping encrypts the whole file; serialize it per user so a
-            # recipient cannot run several of these CPU-heavy downloads at once.
-            yield self.serialize_download(self.write_file_as_download, name, filelocation, pgp_key)
+                sfo = GCE.streaming_encryption_open('DECRYPT', files_prv_key2, filelocation)
+                files.append({'fo': sfo, 'name': name})
         else:
-            yield self.write_file_as_download(name, filelocation, pgp_key)
+            files.append({'path': filelocation, 'name': name})
 
+        mimetype, _ = mimetypes.guess_type(name)
+        mimetype = mimetype or 'application/octet-stream'
+        if tip_prv_key and size:
+            size = int(GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(str(size).encode())).decode())
 
-def write_rfile_to_disk(uploaded_file, crypto_key):
-    sf = uploaded_file['body']
-    dst = os.path.abspath(os.path.join(Settings.attachments_path, uploaded_file['filename']))
-    if crypto_key:
-        with sf.open('r') as src, \
-             GCE.streaming_encryption_open('ENCRYPT', crypto_key, dst) as seo:
-            while True:
-                chunk = src.read(65536)
-                if not chunk:
-                    break
-                seo.encrypt_chunk(chunk, 0)
-            seo.encrypt_chunk(b'', 1)
-    else:
-        with sf.open('r') as src, open(dst, 'wb') as out:
-            while True:
-                chunk = src.read(65536)
-                if not chunk:
-                    break
-                out.write(chunk)
+        metadata = serialize_files_metadata_csv([{'name': name, 'type': mimetype,
+                                                  'size': size, 'av_result': get_av_result(state)}])
+        files.append({'fo': BytesIO(metadata), 'name': 'metadata.csv'})
+
+        zipstream = ZipStream(files)
+        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+
+        with stf.open('w') as f:
+            for x in zipstream:
+                f.write(x)
+
+        zip_name = os.path.splitext(name)[0] + '.zip'
+        with stf.open('r') as f:
+            if pgp_key:
+                # PGP wrapping encrypts the whole archive; serialize it per user
+                # so a recipient cannot run several of these CPU-heavy downloads
+                # at once.
+                yield self.serialize_download(self.write_file_as_download, zip_name, f, pgp_key)
+            else:
+                yield self.write_file_as_download(zip_name, f, pgp_key)
 
 
 class ReceiverFileUpload(BaseHandler):
@@ -1593,8 +1613,10 @@ class ReceiverFileUpload(BaseHandler):
 
     @inlineCallbacks
     def post(self, itip_id):
-        result, crypto_key = yield register_rfile_on_db(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
-        yield deferToThread(write_rfile_to_disk, self.uploaded_file, crypto_key)
+        # The file is only registered here: the delivery job writes it to the
+        # attachments, because that is where its content is scanned, and a copy
+        # written before the scan would be reachable while still unverified.
+        result, _ = yield register_rfile_on_db(self.request.tid, self.session.user_id, itip_id, self.uploaded_file)
         return result
 
 
@@ -1621,6 +1643,9 @@ class ReceiverFileDownload(BaseHandler):
                                         models.InternalTip.tid == tid,
                                         or_(models.ReceiverFile.visibility != 2,
                                             models.ReceiverFile.author_id == user_id)))
+
+            antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
+            recheck_needed = prepare_file_download(rfile, antivirus_enabled)
         except Exception:
             raise errors.ResourceNotFound
 
@@ -1634,28 +1659,66 @@ class ReceiverFileDownload(BaseHandler):
 
         db_log(session, tid=tid, type='access_file', user_id=user_id, object_id=rfile.id, data={'internaltip_id': rfile.internaltip_id})
 
-        return rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public
+        return (rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public,
+                rfile.state, recheck_needed, rfile.size)
 
     @inlineCallbacks
     def get(self, rfile_id):
-        name, filename, tip_prv_key, pgp_key = yield self.download_rfile(self.request.tid, self.session.user_id,
-                                                                         rfile_id)
+        (name, filename, tip_prv_key, pgp_key,
+         state, recheck_needed, size) = yield self.download_rfile(
+            self.request.tid, self.session.user_id, rfile_id)
+
+        if recheck_needed and tip_prv_key:
+            _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
+            enqueue_antivirus_scan(filename, _tip_prv_key)
 
         filelocation = os.path.join(self.state.settings.attachments_path, filename)
+        if not os.path.exists(filelocation):
+            filelocation = os.path.join(self.state.settings.attachments_path, filename)
+
         directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
+
+        files = []
 
         if tip_prv_key:
             tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             name = GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(name.encode())).decode()
-            filelocation = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
-
-        if pgp_key:
-            # PGP wrapping encrypts the whole file; serialize it per user so a
-            # recipient cannot run several of these CPU-heavy downloads at once.
-            yield self.serialize_download(self.write_file_as_download, name, filelocation, pgp_key)
+            sfo = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, filelocation)
+            files.append({'fo': sfo, 'name': name})
         else:
-            yield self.write_file_as_download(name, filelocation, pgp_key)
+            files.append({'path': filelocation, 'name': name})
+
+        mimetype, _ = mimetypes.guess_type(name)
+        mimetype = mimetype or 'application/octet-stream'
+        if tip_prv_key and size:
+            size = int(GCE.asymmetric_decrypt(tip_prv_key, Base64Encoder.decode(str(size).encode())).decode())
+
+        metadata = serialize_files_metadata_csv([{'name': name, 'type': mimetype,
+                                                  'size': size, 'av_result': get_av_result(state)}])
+        files.append({'fo': BytesIO(metadata), 'name': 'metadata.csv'})
+
+        zipstream = ZipStream(files)
+        stf = SecureTemporaryFile(self.state.settings.tmp_path)
+
+        with stf.open('w') as f:
+            for x in zipstream:
+                f.write(x)
+
+        with stf.open('r') as f:
+            if pgp_key:
+                # PGP wrapping encrypts the whole archive; serialize it per user
+                # so a recipient cannot run several of these CPU-heavy downloads
+                # at once.
+                yield self.serialize_download(self.write_file_as_download, name + '.zip', f, pgp_key)
+            else:
+                yield self.write_file_as_download(name + '.zip', f, pgp_key)
+
+    def delete(self, file_id):
+        """
+        This interface allow the recipient to set the description of a ReceiverFile
+        """
+        return delete_rfile(self.request.tid, self.session.user_id, file_id)
 
 
 class IdentityAccessRequestsCollection(BaseHandler):
