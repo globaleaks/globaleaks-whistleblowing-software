@@ -46,6 +46,7 @@ class TestAPI(TestGL):
                                                    'whistleblower',
                                                    'admin',
                                                    'analyst',
+                                                   'auditor',
                                                    'receiver',
                                                    'custodian'], check_roles))
             self.assertTrue(len(rest) == 0)

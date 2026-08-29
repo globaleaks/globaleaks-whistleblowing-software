@@ -23,6 +23,7 @@ from twisted.web.server import NOT_DONE_YET
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.handlers import admin, \
                                 analyst, \
+                                auditor, \
                                 auth, \
                                 custodian, \
                                 file, \
@@ -48,7 +49,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.sock import isIPAddress
 
 tid_regexp = r'([0-9]+)'
-role_regexp = r'(admin|analyst|custodian|receiver)'
+role_regexp = r'(admin|analyst|auditor|custodian|receiver)'
 uuid_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 uuid_regexp_or_closed = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|closed)'
 key_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|[a-z_]{0,100})'
@@ -85,6 +86,7 @@ api_spec = [
     # Receiver Handlers
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
+    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
@@ -101,6 +103,7 @@ api_spec = [
     ('/api/whistleblower/submission', whistleblower.submission.SubmissionInstance),
     ('/api/whistleblower/submission/attachment', whistleblower.attachment.SubmissionAttachment),
     ('/api/whistleblower/wbtip', whistleblower.wbtip.WBTipInstance),
+    ('/api/whistleblower/wbtip/auditlog', whistleblower.wbtip.ReportAuditLog),
     ('/api/whistleblower/wbtip/comments', whistleblower.wbtip.WBTipCommentCollection),
     ('/api/whistleblower/wbtip/rfiles', whistleblower.wbtip.ReceiverFileDownload, r'/api/whistleblower/wbtip/rfiles/' + uuid_regexp),
     ('/api/whistleblower/wbtip/wbfiles',  whistleblower.attachment.PostSubmissionAttachment),
@@ -143,11 +146,12 @@ api_spec = [
     ('/api/admin/selectables', admin.selectables.SelectablesCollection),
     ('/api/admin/redirects', admin.redirect.RedirectCollection, r'/api/admin/redirects'),
     ('/api/admin/redirects', admin.redirect.RedirectInstance, r'/api/admin/redirects/' + uuid_regexp),
-    ('/api/admin/auditlog', admin.auditlog.AuditLog),
-    ('/api/admin/auditlog/access', admin.auditlog.AccessLog),
-    ('/api/admin/auditlog/debug', admin.auditlog.DebugLog),
-    ('/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
-    ('/api/admin/auditlog/tips', admin.auditlog.TipsCollection),
+    ('/api/auditor/auditlog', auditor.AuditLog),
+    ('/api/auditor/auditlog/access', auditor.AccessLog),
+    ('/api/auditor/auditlog/debug', auditor.DebugLog),
+    ('/api/auditor/auditlog/jobs', auditor.JobsTiming),
+    ('/api/auditor/auditlog/tips', auditor.TipsCollection),
+    ('/api/auditor/auditlog/users', auditor.UsersAudit),
     ('/api/admin/backup/list', jobs.backup.BackupList),
     ('/api/admin/l10n/', admin.l10n.AdminL10NHandler, r'/api/admin/l10n/(' + '|'.join(LANGUAGES_SUPPORTED_CODES) + ')'),
     ('/api/admin/config', admin.operation.AdminOperationHandler),
