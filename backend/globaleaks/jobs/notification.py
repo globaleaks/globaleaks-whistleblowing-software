@@ -9,6 +9,7 @@ from twisted.internet import defer
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.exchange import db_get_report_exchange
 from globaleaks.handlers.public import db_get_submission_statuses
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.jobs.job import LoopingJob
@@ -34,7 +35,7 @@ def _to_datetime(val):
     if isinstance(val, str):
         try:
             return datetime.fromisoformat(val)
-        except Exception:
+        except ValueError:
             return None
     return None
 
@@ -164,6 +165,47 @@ class MailGenerator:
             except Exception as e:
                 log.err("Unable to generate a user notification: %s", e, tid=user.tid)
 
+    @staticmethod
+    def db_exchange_announcement(session, user, itip):
+        """
+        What a report filed by an exchange announces to a recipient: the exchange itself to the
+        site that receives it, the update of the report it was carried from to the site that sent a
+        communication, and nothing to the site that sent anything else
+
+        :param session: An ORM session
+        :param user: The recipient the report is announced to
+        :param itip: The report the exchange filed
+        :return: The type of the announcement and the report it is rendered on, or None when the
+                 recipient is announced nothing
+        """
+        # An exchange a single site reads is an ordinary report of that site
+        if not serializers.db_runs_between_sites(session, itip):
+            return 'tip', itip
+
+        source_tid, target_tid = serializers.db_exchange_sides(session, itip)
+
+        exchange = db_get_report_exchange(session, itip)
+        communication = exchange is not None and exchange.type == 'communication'
+
+        if user.tid == target_tid:
+            if communication:
+                return 'communication', itip
+
+            return 'transmission_request' if itip.type == 'request' else 'transmission', itip
+
+        # The site that sent a communication reads it on the report it was carried from: what
+        # changed, for its recipients, is that report
+        if user.tid == source_tid and communication:
+            origin = session.query(models.InternalTip) \
+                            .filter(models.InternalTip.id == models.InternalTipTransmission.internaltip_id,
+                                    models.InternalTipTransmission.transmitting_internaltip_id == itip.id) \
+                            .one_or_none()
+
+            if origin is not None:
+                return 'tip_update', origin
+
+        return None
+
     @transact
     def generate(self, session):
         now_dt = datetime_now()
@@ -223,13 +265,37 @@ class MailGenerator:
                 continue
 
             try:
-                if isinstance(obj, models.ReceiverTip):
-                    data = {'type': 'tip'}
+                if not isinstance(obj, models.ReceiverTip):
+                    announcement = 'tip_update', itip
+                elif itip.type in ('exchange', 'request'):
+                    announcement = self.db_exchange_announcement(session, user, itip)
                 else:
-                    data = {'type': 'tip_update'}
+                    announcement = 'tip', itip
+
+                if announcement is None:
+                    obj.new = False
+                    continue
+
+                mail_type, announced_itip = announcement
+
+                # An announcement rendered on another report is silenced and dated on that report,
+                # so that a recipient that has not read it yet is not written to twice
+                announced_rtip = rtip if announced_itip.id == itip.id else \
+                    session.query(models.ReceiverTip) \
+                           .filter(models.ReceiverTip.internaltip_id == announced_itip.id,
+                                   models.ReceiverTip.receiver_id == user.id) \
+                           .one_or_none()
+
+                if announced_rtip is None or rtips_ids.get(announced_rtip.id, False) or \
+                        announced_rtip.last_notification > announced_rtip.last_access:
+                    obj.new = False
+                    continue
+
+                data = {'type': mail_type}
 
                 data['user'] = user_serialize_user(session, user, user.language)
-                data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
+                data['tip'] = serializers.serialize_rtip(session, announced_itip, announced_rtip,
+                                                         user.language)
 
                 self.process_mail_creation(session, tid, data)
 
@@ -238,8 +304,8 @@ class MailGenerator:
                 # report eligible for retry on the next run instead of being
                 # silently and permanently flagged as notified.
                 obj.new = False
-                rtip.last_notification = now_dt
-                rtips_ids[rtip.id] = True
+                announced_rtip.last_notification = now_dt
+                rtips_ids[announced_rtip.id] = True
             except Exception:
                 log.err("Unable to generate notification for report %s", rtip.id, tid=tid)
 

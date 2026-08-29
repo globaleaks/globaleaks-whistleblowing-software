@@ -42,7 +42,7 @@ export const RECIPIENT_PERMISSIONS: PermissionItem[] = [
   {key: "can_change_status", label: "Change report status"},
   {key: "can_change_label", label: "Change report labels"},
   {key: "can_postpone_expiration", label: "Postpone expiration date"},
-  {key: "can_forward_reports", label: "Forward reports"},
+  {key: "can_send_communications", label: "Send communication to other organizations"},
   {key: "can_grant_access_to_reports", label: "Grant access to reports"},
   {key: "can_transfer_access_to_reports", label: "Transfer access to reports"}
 ];

@@ -181,10 +181,8 @@ class BaseHandler:
     invalidate_cache = False
     root_tenant_only = False
     root_tenant_or_management_only = False
-    # The permission the session must hold to reach the handler, gating every
-    # method the reads included; None leaves them open to every session the
-    # role check admits. A single permission, a tuple of alternatives, or a
-    # per-method map (see decorators.decorate_method).
+    # The permission required to reach the handler, reads included; None leaves it to the role
+    # check; a single permission or a tuple of alternatives
     require_permission = None
     upload_handler = False
     uploaded_file = None
@@ -629,8 +627,16 @@ class BaseHandler:
         finally:
             self.uploaded_file['path'] = destination
 
+    def root_or_management_session(self):
+        """
+        Tell whether the request comes from the administrators of the platform
+        """
+        return self.request.tid == 1 or \
+            bool(self.session and self.session.properties and
+                 self.session.properties.get('management_session', False))
+
     def check_root_or_management_session(self):
-        if self.request.tid != 1 and not (self.session and self.session.properties and self.session.properties.get('management_session', False)):
+        if not self.root_or_management_session():
             raise errors.ForbiddenOperation
 
     def check_execution_time(self):

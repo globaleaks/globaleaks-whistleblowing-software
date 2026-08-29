@@ -12,6 +12,8 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 })
 export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges {
   readonly mode = input<'table' | 'simple'>('simple');
+  /** Rows that open on a click: they follow the pointer instead of striping */
+  readonly hoverRows = input(false);
   readonly items = input<T[]>([]);
   readonly filterField = input('');
   readonly itemsPerPage = input(20);
@@ -53,8 +55,8 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
-  // The items surviving the structural filter alone: the search is offered
-  // only when it has something to narrow down
+  // The items surviving the structural filter alone: the search and the
+  // toggle are offered only when they have something to narrow down
   scopedCount = 0;
 
   // The item the interface has already been positioned on: the position is

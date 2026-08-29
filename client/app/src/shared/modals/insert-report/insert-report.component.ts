@@ -20,6 +20,7 @@ import {firstValueFrom} from "rxjs";
 interface InsertionChannel {
   id: string;
   name: string;
+  provide_access_code: boolean;
 }
 
 /**
@@ -27,8 +28,9 @@ interface InsertionChannel {
  *
  * The channel is chosen first and its questionnaire is the one composed: a
  * single channel is the one chosen and is not offered as a choice. What is
- * entered is a report of the site as any other, and the receipt it is opened
- * with is handed to the recipient that entered it.
+ * entered is a report of the site as any other; the access code it is opened
+ * with is handed to the recipient that entered it only where the channel
+ * provides it, and is otherwise held by no one.
  */
 @Component({
   selector: "src-insert-report",
@@ -67,6 +69,9 @@ export class InsertReportComponent implements OnInit, OnDestroy {
   done = false;
   error = "";
   receipt = "";
+  // A report entered on a channel that does not provide the access code is
+  // acknowledged in its place: there is no code to hand over
+  submitted = false;
   file_upload_url = "";
   private uploadWatcher: ReturnType<typeof setInterval> | null = null;
 
@@ -105,7 +110,8 @@ export class InsertReportComponent implements OnInit, OnDestroy {
   }
 
   composing(): boolean {
-    return !!this.selectedChannel && this.questionnaire.steps.length > 0 && !this.receipt;
+    return !!this.selectedChannel && this.questionnaire.steps.length > 0 &&
+           !this.receipt && !this.submitted;
   }
 
   goToStep(step: number) {
@@ -202,9 +208,10 @@ export class InsertReportComponent implements OnInit, OnDestroy {
   }
 
   private async performSubmission() {
-    // The receipt is composed here and the platform is told of its hash
+    // The access code is composed here and the platform is told of its hash
     // alone, exactly as when a report is filed by the reporting person: what
-    // opens the report is handed over and is not kept anywhere else
+    // The code that opens the report is handed over and kept nowhere else; without
+    // provide_access_code the platform keys it
     const receipt = this.cryptoService.generateReceipt();
 
     const type = await firstValueFrom(
@@ -218,9 +225,13 @@ export class InsertReportComponent implements OnInit, OnDestroy {
       answers: this.answers,
       receipt: hashed
     }).subscribe({
-      next: () => {
-        this.receipt = receipt;
-        // The receipt lands outside change detection (zoneless): request a
+      next: (response: any) => {
+        if (response?.provide_access_code) {
+          this.receipt = receipt;
+        } else {
+          this.submitted = true;
+        }
+        // The outcome lands outside change detection (zoneless): request a
         // refresh so that it is rendered
         this.cdr.markForCheck();
       },

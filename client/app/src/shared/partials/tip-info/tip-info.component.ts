@@ -31,25 +31,49 @@ export class TipInfoComponent {
     return current_date > report_date;
   };
 
+  isExchange(): boolean {
+    // A request runs between two sites like the report of an exchange, and shares its header
+    return !!this.exchange();
+  }
+
+  // The reminder belongs to the owning tenant
+  ownsReport(): boolean {
+    return !!this.getReceiverTip()?.owned;
+  }
+
+  // The read receipt is the counterpart's: the whistleblower, or the other tenant
+  counterpartLastAccess(): string {
+    return this.getReceiverTip()?.counterpart_last_access || '';
+  }
+
+  counterpartHasReadLastUpdate(): boolean {
+    const tip = this.getReceiverTip();
+    return !!tip && tip.counterpart_last_access >= tip.update_date;
+  }
+
+  exchange() {
+    return this.getReceiverTip()?.exchange || null;
+  }
+
   getReceiverTip(): RecieverTipData | null {
-    if (this.tipService instanceof ReceiverTipService) {
-      return this.tipService.tip;
+    if (this.tipService() instanceof ReceiverTipService) {
+      return this.tipService().tip as RecieverTipData;
     }
 
     return null;
   }
 
-  hasForwardRequestStatus() {
+  hasRequestStatus() {
     const tip = this.getReceiverTip();
 
-    return !!tip?.data?.forward_request && (!!tip?.allow_forward || tip?.status === "closed");
+    return !!tip?.data?.request && (!!tip?.allow_transmission || tip?.status === "closed");
   }
 
-  forwardRequestStatusLabel() {
-    if (!this.hasForwardRequestStatus()) {
+  requestStatusLabel() {
+    if (!this.hasRequestStatus()) {
       return "";
     }
 
-    return this.getReceiverTip()?.allow_forward ? "Authorized" : "Denied";
+    return this.getReceiverTip()?.allow_transmission ? "Authorized" : "Denied";
   }
 }
