@@ -147,6 +147,7 @@ export interface WbFile {
   reference_id: string;
   masked: boolean;
   error: boolean;
+  downloaded: boolean;
 }
 
 export interface RFile {
@@ -160,7 +161,7 @@ export interface RFile {
   masked: boolean;
   error: boolean;
   author_id: string;
-  downloads: number;
+  downloaded: boolean;
 }
 
 export interface QuestionWhistleblowerIdentityName {
