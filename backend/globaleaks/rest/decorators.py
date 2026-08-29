@@ -13,7 +13,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import deferred_sleep
 
 
-USERS_ROLES = {'any', 'admin', 'analyst', 'auditor', 'custodian', 'receiver'}
+USERS_ROLES = {'any', 'admin', 'analyst', 'auditor', 'custodian', 'receiver', 'transmitter'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
 
 # CSP violation reports are accepted unauthenticated (browsers post them without
@@ -123,15 +123,8 @@ def decorator_dpop(f):
 
 
 def decorator_require_permission(f, permission):
-    # Decorator that enforces the permission declared by the handler on the
-    # authenticated session. It wraps every method, reads included: an area an
-    # administrator does not manage is one it does not read either, its content
-    # being as much part of the area as its configuration. A handler that
-    # declares no permission (permission is None) is left open. The declaration
-    # is a single permission or a collection of alternatives of which the
-    # session must hold at least one. It runs after the authentication
-    # decorator, so the session is present and its tenant already reconciled;
-    # the check fails closed on a missing session.
+    # Enforces the permission the handler declares on every method, reads included; None leaves it
+    # open; a single permission or alternatives; fails closed without a session
     permissions = (permission,) if isinstance(permission, str) else permission
 
     def wrapper(self, *args, **kwargs):

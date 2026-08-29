@@ -244,13 +244,13 @@ class TestUserPermissions(helpers.TestHandlerWithPopulatedDB):
 
         self.assertEqual(user_id, profile_id)
 
-        desc['profile']['permissions']['can_forward_reports'] = True
+        desc['profile']['permissions']['can_send_communications'] = True
 
         handler = self.request(desc, role='admin')
         yield handler.put(user_id)
 
         permissions = yield get_profile_permissions(profile_id)
-        self.assertIn('can_forward_reports', permissions)
+        self.assertIn('can_send_communications', permissions)
 
     @inlineCallbacks
     def test_put_does_not_update_the_permissions_of_a_shared_profile(self):
@@ -259,13 +259,13 @@ class TestUserPermissions(helpers.TestHandlerWithPopulatedDB):
         profile_id = yield create_shared_profile()
 
         desc['profile_id'] = profile_id
-        desc['profile']['permissions']['can_forward_reports'] = True
+        desc['profile']['permissions']['can_send_communications'] = True
 
         handler = self.request(desc, role='admin')
         yield handler.put(user_id)
 
         permissions = yield get_profile_permissions(profile_id)
-        self.assertNotIn('can_forward_reports', permissions)
+        self.assertNotIn('can_send_communications', permissions)
 
     @inlineCallbacks
     def test_put_discards_unknown_permissions(self):

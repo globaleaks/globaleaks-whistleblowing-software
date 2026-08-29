@@ -48,7 +48,8 @@ export class ProfileEditorComponent implements OnInit {
        { value: 'analyst', role: 'Analyst' },
        { value: 'auditor', role: 'Auditor' },
        { value: 'custodian', role: 'Custodian' },
-       { value: 'receiver', role: 'Recipient' }
+       { value: 'receiver', role: 'Recipient' },
+       { value: 'transmitter', role: 'Transmitter' }
      ];
 
   protected readonly Constants = Constants;
@@ -163,16 +164,6 @@ export class ProfileEditorComponent implements OnInit {
 
   setDefaultRole(role: string) {
     this.profile.role = role;
-  }
-
-  normalizeForwardingProfilePermissions(profile: UserProfile) {
-    if (profile.tid === 1 || !profile.permissions.can_forward_reports) {
-      return;
-    }
-
-    profile.permissions.can_mask_information = false;
-    profile.permissions.can_redact_information = false;
-    profile.permissions.can_delete_submission = false;
   }
 
 }
