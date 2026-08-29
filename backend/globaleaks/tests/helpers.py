@@ -50,7 +50,7 @@ from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 
 from globaleaks.utils import dpop as dpop_utils
 from globaleaks.utils import tempdict
-from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
+from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
@@ -529,7 +529,9 @@ def get_dummy_attachment(name=None, content=None):
         'type': content_type,
         'submission': False,
         "reference_id": '',
-        "visibility": b'public'
+        "visibility": b'public',
+        "hash_sha256": sha256(content),
+        "hash_sha512": sha512(content)
     }
 
 
@@ -887,6 +889,20 @@ class TestGL(unittest.TestCase):
         token_path = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
         with open(token_path, "w") as f:
             f.write(user_id)
+
+    def verify_questionnaire_hashes(self, tip_desc):
+        self.assertTrue('questionnaires' in tip_desc)
+        self.assertTrue(len(tip_desc['questionnaires']) > 0)
+
+        for questionnaire in tip_desc['questionnaires']:
+            self.assertTrue('hash_sha256' in questionnaire)
+            self.assertTrue('hash_sha512' in questionnaire)
+            self.assertIsInstance(questionnaire['hash_sha256'], str)
+            self.assertIsInstance(questionnaire['hash_sha512'], str)
+            self.assertTrue(len(questionnaire['hash_sha256']) > 0)
+            self.assertTrue(len(questionnaire['hash_sha512']) > 0)
+            self.assertEqual(len(questionnaire['hash_sha256']), 64)
+            self.assertEqual(len(questionnaire['hash_sha512']), 128)
 
 
 class TestGLWithPopulatedDB(TestGL):
