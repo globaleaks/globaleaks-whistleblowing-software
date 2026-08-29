@@ -38,6 +38,7 @@ class NotificationInstance(BaseHandler):
     Manage Notification settings (account details and template)
     """
     check_roles = 'admin'
+    require_permission = 'can_manage_notifications'
     invalidate_cache = True
 
     def get(self):

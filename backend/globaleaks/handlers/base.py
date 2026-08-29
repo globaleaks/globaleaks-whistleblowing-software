@@ -181,6 +181,11 @@ class BaseHandler:
     invalidate_cache = False
     root_tenant_only = False
     root_tenant_or_management_only = False
+    # The permission the session must hold to reach the handler, gating every
+    # method the reads included; None leaves them open to every session the
+    # role check admits. A single permission, a tuple of alternatives, or a
+    # per-method map (see decorators.decorate_method).
+    require_permission = None
     upload_handler = False
     uploaded_file = None
     allowed_mimetypes = []

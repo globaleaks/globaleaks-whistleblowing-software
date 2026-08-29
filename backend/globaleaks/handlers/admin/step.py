@@ -107,6 +107,7 @@ def order_elements(session, handler, req_args, *args, **kwargs):
 
 class StepCollection(OperationHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):
@@ -123,6 +124,7 @@ class StepCollection(OperationHandler):
 
 class StepInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def put(self, step_id):

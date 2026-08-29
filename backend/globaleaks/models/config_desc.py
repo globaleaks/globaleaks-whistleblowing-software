@@ -404,8 +404,11 @@ ConfigFilters = {
     'general_settings': [
         'default_language',
         'description',
+        'disclaimer_text',
         'favicon',
         'footer',
+        'footer_privacy_policy',
+        'footer_whistleblowing_policy',
         'header_title_homepage',
         'languages_enabled',
         'languages_supported',

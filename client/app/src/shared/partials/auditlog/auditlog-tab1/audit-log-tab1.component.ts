@@ -10,6 +10,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
+import {auditLogArea} from "@app/shared/partials/auditlog/auditlog-area";
 
 /**
  * The username of who acted is resolved from its identifier: it is kept on
@@ -38,6 +39,10 @@ export class AuditLogTab1Component implements OnInit {
 
   // What the list shows: column filters, search and ordering alike
   private readonly list = viewChild.required<PaginatedInterfaceComponent<AuditLogRow>>(PaginatedInterfaceComponent);
+
+  // The log files are downloaded from the area serving the log to the role in
+  // session, the same one the entries have been read from
+  readonly auditLogPath = "/api/" + auditLogArea(this.authenticationService.session.role) + "/auditlog";
 
   userOptions: TableFilterOption[] = [];
 

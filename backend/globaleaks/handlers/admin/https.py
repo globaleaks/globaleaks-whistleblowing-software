@@ -296,6 +296,7 @@ class ChainFileRes(FileResource):
 
 class FileHandler(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
 
     mapped_resources = {
@@ -348,6 +349,7 @@ class FileHandler(BaseHandler):
 
 class ConfigHandler(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
 
     def get(self):
@@ -365,6 +367,7 @@ class ConfigHandler(BaseHandler):
 
 class CSRHandler(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
 
     def post(self):
@@ -399,6 +402,7 @@ class CSRHandler(BaseHandler):
 
 class AcmeHandler(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
 
     @inlineCallbacks
