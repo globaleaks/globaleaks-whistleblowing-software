@@ -34,6 +34,10 @@ export class ReceiverTipService {
 
     this.tip.msg_receiver_selected = null;
     this.tip.msg_receivers_selector = this.getMsgReceiversSelector();
+    this.tip.receivers_by_id = {};
+    for (const r of this.tip.receivers) {
+      this.tip.receivers_by_id[r.id] = { name: r.name, active: r.active, last_access: r.last_access };
+    }
   }
 
 

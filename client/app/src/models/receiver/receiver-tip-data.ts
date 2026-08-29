@@ -27,6 +27,7 @@ export class RecieverTipData {
   reminder_date: string;
   identity_provided: boolean;
   last_access: string;
+  itip_last_access: string;
   score: number;
   status: string;
   substatus: string;
@@ -64,6 +65,7 @@ export interface Receiver {
   // A report names, besides the recipients holding it, the ones that took part
   // in it and hold it no longer: only the former are active
   active: boolean;
+  last_access: string | null;
 }
 
 export interface Data {
@@ -104,4 +106,5 @@ export interface MsgReceiversSelector {
 export type ReceiversById = Record<string, {
     name: string;
     active: boolean;
+    last_access: string | null;
   }>;
