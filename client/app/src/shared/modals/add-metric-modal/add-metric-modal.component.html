@@ -1,0 +1,55 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Add' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+</div>
+<div class="modal-body">
+  <div class="selection-section">
+    <div class="form-group">
+      <label for="metric-select">{{ 'Metric' | translate }}</label>
+      <ng-select id="metric-select" [(ngModel)]="selectedMetricId" name="selectedMetricId" bindLabel="title" bindValue="id" [items]="filteredMetricList" groupBy="group" [searchable]="true" [clearable]="false" [placeholder]="'Search' | translate" (search)="onMetricSearch($event.term)" (ngModelChange)="selectMetric($event)">
+        <ng-template ng-optgroup-tmp let-item="item">
+          <span>{{ item.group | translate }}</span>
+        </ng-template>
+        <ng-template ng-option-tmp let-item="item">
+          <span>{{ item.title | translate }}</span>
+        </ng-template>
+      </ng-select>
+    </div>
+  </div>
+  @if (selectedMetricId) {
+    <div class="display-section">
+      <div class="display-types">
+        @if (isDisplayTypeCompatible('number')) {
+          <div class="btn btn-outline-secondary" data-cy="display-type-number" [ngClass]="{'active': selectedDisplayType === 'number'}" (click)="selectDisplayType('number')">
+            <div>{{ 'Number' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('percentage')) {
+          <div class="btn btn-outline-secondary" data-cy="display-type-percentage" [ngClass]="{'active': selectedDisplayType === 'percentage'}" (click)="selectDisplayType('percentage')">
+            <div>{{ 'Percentage' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('bar')) {
+          <div class="btn btn-outline-secondary" data-cy="display-type-bar" [ngClass]="{'active': selectedDisplayType === 'bar'}" (click)="selectDisplayType('bar')">
+            <div>{{ 'Bar Chart' | translate }}</div>
+          </div>
+        }
+        @if (isDisplayTypeCompatible('pie')) {
+          <div class="btn btn-outline-secondary" data-cy="display-type-pie" [ngClass]="{'active': selectedDisplayType === 'pie'}" (click)="selectDisplayType('pie')">
+            <div>{{ 'Pie Chart' | translate }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+<div class="modal-footer">
+  <button type="button" id="modal-action-cancel" class="btn btn-secondary" (click)="cancel()">
+    {{ 'Cancel' | translate }}
+  </button>
+  <button type="button" id="modal-action-ok" class="btn btn-primary" (click)="save()" [disabled]="!selectedMetricId || !selectedDisplayType">
+    {{ 'Add' | translate }}
+  </button>
+</div>

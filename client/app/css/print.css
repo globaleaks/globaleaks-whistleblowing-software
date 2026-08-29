@@ -5,7 +5,111 @@
     fill: #103253 !important;
   }
 
- .dropdown-menu.show {
-   display: none;
- }
+  .dropdown-menu.show {
+    display: none;
+  }
+
+  body.report-print-mode * {
+    visibility: hidden !important;
+  }
+
+  body.report-print-mode > *:not(.report-print-container) {
+    display: none !important;
+  }
+
+  body.report-print-mode .report-print-container,
+  body.report-print-mode .report-print-container * {
+    visibility: visible !important;
+  }
+
+  body.report-print-mode .report-print-container {
+    position: static;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+    z-index: 9999;
+    color: #1d1f2a;
+    font-family: "Inter Variable", "Noto Sans", sans-serif;
+    font-size: 16px;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  .report-print-container .row {
+    display: block !important;
+  }
+
+  .report-print-container [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    display: block !important;
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 12px !important;
+  }
+
+  .report-print-container .card,
+  .report-print-container .metric-card,
+  .report-print-container .chart-card,
+  .report-print-container .chart-container,
+  .report-print-container .metrics-section,
+  .report-print-container .config-item {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
+
+  .report-print-container canvas,
+  .report-print-container img {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
+
+  .editorHeader,
+  .downloadButton,
+  .btn,
+  .form-group,
+  .filter-section,
+  .dropdown-menu,
+  .dropdown-menu.show {
+    display: none !important;
+  }
+
+  .metrics-section {
+    margin: 0 !important;
+  }
+
+  .report-print-container > *:last-child,
+  .report-print-container .metrics-section:last-child,
+  .report-print-container .config-item:last-child {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .chart-legend.print-legend {
+    display: block !important;
+    margin-top: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    margin-right: 8px;
+    border-radius: 3px;
+  }
+
+  @page {
+    margin: 10mm;
+  }
 }

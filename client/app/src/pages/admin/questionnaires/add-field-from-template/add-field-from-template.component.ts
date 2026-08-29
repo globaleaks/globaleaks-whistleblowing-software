@@ -59,6 +59,7 @@ export class AddFieldFromTemplateComponent implements OnInit {
     const template = this.fieldTemplatesData()?.find(fieldTemplate => fieldTemplate.id === templateId);
     if (template) {
       field.type = template.type;
+      field.statistical = template.statistical;
     }
 
     if (isStep) {
