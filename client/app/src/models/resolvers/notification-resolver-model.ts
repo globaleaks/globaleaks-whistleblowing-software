@@ -10,6 +10,15 @@ export class notificationResolverModel {
   smtp_server: string;
   smtp_source_email: string;
   smtp_username: string;
+  smtp2_enabled: boolean;
+  smtp2_authentication: boolean;
+  smtp2_password: string;
+  smtp2_port: number;
+  smtp2_security: string;
+  smtp2_server: string;
+  smtp2_source_email: string;
+  smtp2_template_types: any;
+  smtp2_username: string;
   tip_expiration_threshold: number;
   account_activation_mail_template: string;
   account_activation_mail_title: string;
