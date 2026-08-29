@@ -12,6 +12,7 @@ export interface Field {
   fieldgroup_id: string;
   multi_entry: boolean;
   required: boolean;
+  statistical: boolean;
   attrs: Attrs;
   x: number;
   y: number;
@@ -39,6 +40,7 @@ export class fieldtemplatesResolverModel {
   fieldgroup_id: string;
   multi_entry: boolean;
   required: boolean;
+  statistical: boolean;
   attrs: Attrs;
   x: number;
   y: number;
