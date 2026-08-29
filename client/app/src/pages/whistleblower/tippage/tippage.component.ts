@@ -23,7 +23,6 @@ import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whi
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {TranslateModule} from "@ngx-translate/core";
-
 @Component({
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",

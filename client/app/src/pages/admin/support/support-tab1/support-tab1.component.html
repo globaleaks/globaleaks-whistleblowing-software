@@ -11,7 +11,7 @@
 </div>
 <div class="row mt-2">
   <div class="col-md-12">
-    <app-paginated-interface [mode]="'table'" [items]="table.result" [itemsPerPage]="20" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+    <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [itemsPerPage]="20" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
       <ng-template #header>
         <tr>
           @if (nodeResolver.dataModel.root_tenant) {
@@ -26,7 +26,7 @@
         </tr>
       </ng-template>
       <ng-template #content let-request="item" let-index="index">
-        <tr class="support-request-row" [attr.data-cy]="'support-request-' + index" [class.support-request-open]="expandedRequestId === request.id" [class.fw-bold]="hasUnreadUserMessages(request)" (click)="onRowClick(request, $event)">
+        <tr class="support-request-row expandable-row" [attr.data-cy]="'support-request-' + index" [class.expandable-row-open]="expandedRequestId === request.id" [class.fw-bold]="hasUnreadUserMessages(request)" (click)="onRowClick(request, $event)">
           @if (nodeResolver.dataModel.root_tenant) {
             <td>
               @if (canReachTenant()) {
@@ -63,9 +63,9 @@
           </td>
         </tr>
         @if (expandedRequestId === request.id) {
-          <tr class="support-request-detail" data-cy="support-request-details">
+          <tr class="expandable-detail" data-cy="support-request-details">
             <td [attr.colspan]="columnCount">
-              <div class="support-request-box">
+              <div class="expandable-box">
               @if (nodeResolver.dataModel.root_tenant) {
                 <div class="mb-3">
                   <span class="title">{{ 'Tenant' | translate }}:</span>
@@ -98,15 +98,6 @@
                   </select>
                 </div>
               </div>
-              @if (canResetAuthorPassword(request)) {
-                <div class="mb-3">
-                  <span class="title d-block">{{ 'Password' | translate }}</span>
-                  <button type="button" class="btn btn-outline-secondary" name="send_reset_link" data-cy="send-support-reset-link" (click)="resetAuthorPassword(request)">
-                    <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
-                    <span>{{ 'Send reset link' | translate }}</span>
-                  </button>
-                </div>
-              }
               <src-support-thread [request]="request" viewer="admin" [(draft)]="replyDrafts[request.id]" (send)="sendReply(request, $event)">
                 @if (request.key_available && !request.author_id) {
                   <div class="alert alert-warning" role="alert">

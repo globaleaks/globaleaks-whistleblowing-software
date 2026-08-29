@@ -1,12 +1,18 @@
-<src-list-item [(editing)]="editing" [canDelete]="!contextResolver().is_forward_channel" [saveDisabled]="!!editContext().invalid" (save)="saveContext(contextResolver())" (deleted)="deleteContext(contextResolver())">
+<src-list-item [(editing)]="editing" [readOnly]="!canConfigure()" [canDelete]="canConfigure() && !contextResolver().exchange_in_use" [saveDisabled]="!!editContext().invalid" (save)="saveContext(contextResolver())" (deleted)="deleteContext(contextResolver())">
   <ng-container title>
     <span>{{ contextResolver().name }}</span>
-    @if (contextResolver().hidden) {
+    @if (isExchangeChannel()) {
+      @for (type of exchangeTypes(); track type) {
+        <span class="badge bg-info">{{ 'Exchange channel' | translate }} ({{ exchangeTypeLabel(type) | translate }})</span>
+      } @empty {
+        <span class="badge bg-info">{{ 'Exchange channel' | translate }}</span>
+      }
+    } @else if (contextResolver().hidden) {
       <span class="badge bg-secondary">{{ 'Hidden' | translate }}</span>
     }
   </ng-container>
   <ng-container actions>
-    @if (!nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
+    @if (!isExchangeChannel() && !nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
       <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUp($event, index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
         <i class="fas fa-chevron-up"></i>
       </button>
@@ -18,27 +24,31 @@
   <ng-template #body>
     <div class="row">
       <div class="col-md-6">
-        <div class="form-group">
-          <div appImageUpload [imageUploadModel]="contextResolver()" [imageUploadModelAttr]="'picture'" [imageUploadId]="contextResolver().id"></div>
-        </div>
+        @if (!isExchangeChannel()) {
+          <div class="form-group">
+            <div appImageUpload [imageUploadModel]="contextResolver()" [imageUploadModelAttr]="'picture'" [imageUploadId]="contextResolver().id"></div>
+          </div>
+        }
         <div class="form-group">
           <label for="context-name-input">{{ 'Name' | translate }}</label>
-          <input id="context-name-input" name="name" class="form-control" [(ngModel)]="contextResolver().name" type="text" required>
+          <input id="context-name-input" name="name" class="form-control" [(ngModel)]="contextResolver().name" type="text" required [disabled]="!canConfigure()">
           @if (editContext().form.get('name')?.errors?.['required']) {
             <div class="text-danger">{{ 'This field is mandatory' | translate }}</div>
           }
         </div>
-        <div class="form-group">
-          <label for="context-slug-input">{{ 'Slug' | translate }}</label>
-          <input id="context-slug-input" name="slug" class="form-control" [(ngModel)]="contextResolver().slug" type="text">
-        </div>
-        <div class="form-group">
-          <label for="context-description">{{ 'Description' | translate }}</label>
-          <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver().description"></textarea>
-        </div>
+        @if (!isExchangeChannel()) {
+          <div class="form-group">
+            <label for="context-slug-input">{{ 'Slug' | translate }}</label>
+            <input id="context-slug-input" name="slug" class="form-control" [(ngModel)]="contextResolver().slug" type="text">
+          </div>
+          <div class="form-group">
+            <label for="context-description">{{ 'Description' | translate }}</label>
+            <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver().description"></textarea>
+          </div>
+        }
         <div class="form-group">
           <label for="context-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
-          <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver().questionnaire_id">
+          <select id="context-questionnaire-select" class="form-select-custom" name="contextResolver.questionnaire_id" [(ngModel)]="contextResolver().questionnaire_id" [disabled]="!canConfigure()">
             @for (item of questionnairesData(); track item) {
               <option [value]="item.id">{{ item.name }}</option>
             }
@@ -47,10 +57,12 @@
         <div class="form-group">
           <label>
             <span>{{ 'Recipients' | translate }}</span>
-            <button class="btn btn-sm btn-primary add-receiver-btn" (click)="toggleSelect()">
-              <i class="fas fa-plus"></i>
-              <span>{{ 'Add' | translate }}</span>
-            </button>
+            @if (canConfigure()) {
+              <button class="btn btn-sm btn-primary add-receiver-btn" (click)="toggleSelect()">
+                <i class="fas fa-plus"></i>
+                <span>{{ 'Add' | translate }}</span>
+              </button>
+            }
           </label>
           <div id="ReceiverContextAdder" class="row">
             @if (showSelect) {
@@ -68,9 +80,11 @@
           <ol class="selection-list">
             @for (profile of namedProfiles(); track profile; let index = $index) {
               <li>
-                <span (click)="removeProfile(index)" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="removeProfile(index)" tabindex="0" role="button">
-                  <i class="fas fa-xmark"></i>
-                </span>
+                @if (canConfigure()) {
+                  <span (click)="removeProfile(index)" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="removeProfile(index)" tabindex="0" role="button">
+                    <i class="fas fa-xmark"></i>
+                  </span>
+                }
                 <span>{{ profilesById()[profile]?.name }}</span>
               </li>
             }
@@ -85,7 +99,7 @@
             </div>
             <div class="input-group">
               <label for="context-tip-reminder" class="visually-hidden">{{ 'Reminder' | translate }}</label>
-              <input id="context-tip-reminder" class="form-control" name="reminder" [(ngModel)]="contextResolver().tip_reminder" type="number" min="0" />
+              <input id="context-tip-reminder" class="form-control" name="reminder" [(ngModel)]="contextResolver().tip_reminder" type="number" min="0" [disabled]="!canConfigure()" />
             </div>
           </div>
           <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
@@ -94,16 +108,30 @@
           <label>
             <span>{{ 'Data retention policy' | translate }}</span> ({{ 'days' | translate }}) </label>
             <div [class.is-invalid]="editContext().form.get('timetolive')?.errors?.['invalid']">
-              <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver().tip_timetolive" type="number" min="0" max="3650" />
+              <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver().tip_timetolive" type="number" min="0" max="3650" [disabled]="!canConfigure()" />
             </div>
             <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
           </div>
+          @if (!isExchangeChannel()) {
           <div class="form-group">
             <input id="context-hidden" class="form-check-input" [(ngModel)]="contextResolver().hidden" name="contextResolver.hidden" type="checkbox" />
             <label for="context-hidden">{{ 'Hidden' | translate }}</label>
           </div>
+          <div class="form-group">
+            <input id="context-internally-available" class="form-check-input" [(ngModel)]="contextResolver().internally_available" name="contextResolver.internally_available" type="checkbox" />
+            <label for="context-internally-available">{{ 'Internally available' | translate }}</label>
+            @if (contextResolver().internally_available) {
+              <div class="form-group">
+                <input id="context-provide-access-code" class="form-check-input" [(ngModel)]="contextResolver().provide_access_code" name="contextResolver.provide_access_code" type="checkbox" />
+                <label for="context-provide-access-code">{{ 'Provide the access code to the user that enters the report' | translate }}</label>
+                <div>{{ 'When disabled the report is readable by its recipients alone and nothing opens it afterwards.' | translate }}</div>
+              </div>
+            }
+          </div>
+          }
         </div>
       </div>
+      @if (!isExchangeChannel()) {
       <hr />
       <div class="row">
         <div class="col-md-12">
@@ -158,9 +186,7 @@
                   <div class="form-group">
                     <label for="context-additional-questionnaire-select">{{ 'Additional questionnaire' | translate }}</label>
                     <select id="context-additional-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver().additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
-                      @if (contextResolver().additional_questionnaire_id) {
-                        <option [value]="null"></option>
-                      }
+                      <option value=""></option>
                       @for (item of questionnairesData(); track item) {
                         @if (item.id !== contextResolver().questionnaire_id) {
                           <option [value]="item.id">{{ item.name }}</option>
@@ -205,7 +231,10 @@
           </div>
         </div>
       </div>
-    <hr />
-    <div class="form-group">UUID: <a [href]="'#/submission?context=' + contextResolver().id" target="_blank">{{contextResolver().id}}</a></div>
+      }
+    @if (!isExchangeChannel()) {
+      <hr />
+      <div class="form-group">UUID: <a [href]="'#/submission?context=' + contextResolver().id" target="_blank">{{contextResolver().id}}</a></div>
+    }
   </ng-template>
 </src-list-item>
