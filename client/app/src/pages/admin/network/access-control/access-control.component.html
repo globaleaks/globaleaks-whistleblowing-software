@@ -67,6 +67,19 @@
                   }
                 </td>
               </tr>
+              <tr>
+                <td>{{ 'Transmitter' | translate }}</td>
+                <td>
+                  <label for="ip-filter-transmitter-enable" class="visually-hidden">{{ 'Enable' | translate }}</label>
+                  <input id="ip-filter-transmitter-enable" class="form-check-input" [(ngModel)]="networkData().ip_filter_transmitter_enable" type="checkbox" name="ip_filter_transmitter_enable" />
+                </td>
+                <td>
+                  @if (networkData().ip_filter_transmitter_enable) {
+                    <label for="ip-filter-transmitter" class="visually-hidden">{{ 'Allowed IP address' | translate }}</label>
+                    <input id="ip-filter-transmitter" class="form-control" name="ip_filter_transmitter" [(ngModel)]="networkData().ip_filter_transmitter" type="text" autocomplete="off" />
+                  }
+                </td>
+              </tr>
             </tbody>
           </table>
           <div>

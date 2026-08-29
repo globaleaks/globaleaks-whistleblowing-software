@@ -83,10 +83,10 @@ export class WbFilesComponent {
         next: async token => {
           this.cryptoService.proofOfWork(token).subscribe(
             (ans) => {
-              if (this.authenticationService.session?.role === "receiver") {
-                window.open("api/recipient/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
-              } else {
+              if (this.authenticationService.session?.role === "whistleblower") {
                 window.open("api/whistleblower/wbtip/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
+              } else {
+                window.open("api/recipient/rfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);
               }
               this.appDataService.updateShowLoadingPanel(false);
             }

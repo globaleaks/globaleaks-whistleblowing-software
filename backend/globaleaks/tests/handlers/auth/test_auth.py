@@ -802,6 +802,25 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
 
 
     @inlineCallbacks
+    def test_session_of_a_transmitter_is_admitted_as_the_one_of_a_user(self):
+        # A transmitter files reports on the sites the platform exchanges with:
+        # its session reaches what every user reaches and is governed by the
+        # connection policy the site declares for the transmitters alone.
+        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'transmitter')
+
+        State.tenants[1].cache['https_transmitter'] = True
+        State.tenants[1].cache['https_receiver'] = False
+        user_handler = self.request({}, headers={'x-session': session.id},
+                                        handler_cls=UserInstance)
+        yield user_handler.get()
+
+        State.tenants[1].cache['https_transmitter'] = False
+        State.tenants[1].cache['https_receiver'] = True
+        user_handler = self.request({}, headers={'x-session': session.id},
+                                        handler_cls=UserInstance)
+        yield self.assertRaises(errors.InvalidAuthentication, user_handler.get)
+
+    @inlineCallbacks
     def test_redemption_enforces_session_tenant_connection_policy(self):
         # A session bound to tenant 2 must be validated against tenant 2's
         # connection policy even when redeemed through a more permissive tenant.
