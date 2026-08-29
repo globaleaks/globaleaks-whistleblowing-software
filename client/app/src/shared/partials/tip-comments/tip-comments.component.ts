@@ -66,8 +66,8 @@ export class TipCommentsComponent {
     // The masker reads the real content; the masked rendering is shown to
     // them only while editing the masking (redact mode).
     if (!this.redactMode() &&
-        (this.preferenceResolver.dataModel?.can_mask_information ||
-         this.preferenceResolver.dataModel?.can_redact_information)) {
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information)) {
       return value;
     }
 

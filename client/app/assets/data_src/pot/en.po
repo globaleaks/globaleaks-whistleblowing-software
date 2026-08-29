@@ -1666,6 +1666,9 @@ msgstr "please enter numbers only."
 msgid "seconds"
 msgstr "seconds"
 
+msgid "Not in use"
+msgstr "Not in use"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 

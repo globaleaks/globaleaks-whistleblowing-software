@@ -19,13 +19,19 @@
                 <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
               </div>
             </div>
-            <div class="form-group">
-              <label>{{'Mode:'|translate}}</label>
-              <select name="type" class="form-select-custom" [(ngModel)]="newTenant.mode" required>
-                <option value="default" [selected]="newTenant.mode === 'default'">DEFAULT</option>
-                <option value="wbpa">WHISTLEBLOWINGPA</option>
-              </select>
-            </div>
+            @if (siteProfiles.length) {
+              <div class="form-group">
+                <label>{{ 'Profile:' | translate }}</label>
+                <select name="profile" class="form-select-custom" [(ngModel)]="newTenant.profile" required>
+                  <option value="default">DEFAULT</option>
+                  @for (tenant of siteProfiles; track tenant) {
+                    @if (tenant.active) {
+                      <option [value]="tenant.uuid">{{tenant.name}}</option>
+                    }
+                  }
+                </select>
+              </div>
+            }
             <div class="form-group clearfix">
               <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
                 <i class="fas fa-plus"></i>
@@ -39,7 +45,7 @@
   </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="tenant-{{index}}"  #editTenant="ngForm" novalidate>
-      <src-siteslist [tenant]="item" [tenants]="tenants" (deleted)="onDelete($event)"></src-siteslist>
+      <src-siteslist [tenant]="item" [tenants]="tenants" [profiles]="siteProfiles" [index]="index" (deleted)="onDelete($event)"></src-siteslist>
     </form>
   </ng-template>
 </app-paginated-interface>

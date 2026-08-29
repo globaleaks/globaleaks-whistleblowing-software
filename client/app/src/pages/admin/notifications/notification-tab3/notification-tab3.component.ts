@@ -20,8 +20,8 @@ import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/
 })
 export class NotificationTab3Component {
   protected notificationResolver = inject(NotificationsResolver);
-  private utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
 
   readonly notificationForm = input.required<NgForm>();
   protected readonly Constants = Constants;
@@ -47,6 +47,7 @@ export class NotificationTab3Component {
     'software_update_available',
     'admin_signup_alert',
     'signup',
+    'signup_invite',
     'activation',
     'email_validation',
     'account_activation',

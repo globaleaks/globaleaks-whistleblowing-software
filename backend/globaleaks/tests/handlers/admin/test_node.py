@@ -106,6 +106,46 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertIsNone(verification_date)
 
     @inlineCallbacks
+    def test_put_update_antivirus_clamd_endpoint(self):
+        self.dummyNode['antivirus_enabled'] = True
+        self.dummyNode['antivirus_clamd_ip'] = '192.0.2.10'
+        self.dummyNode['antivirus_clamd_port'] = 3311
+
+        handler = self.request(self.dummyNode, role='admin')
+        response = yield handler.put()
+
+        self.assertEqual(response['antivirus_clamd_ip'], '192.0.2.10')
+        self.assertEqual(response['antivirus_clamd_port'], 3311)
+
+    @inlineCallbacks
+    def test_put_updates_antivirus_runtime_cache(self):
+        self.dummyNode['antivirus_enabled'] = True
+        self.dummyNode['antivirus_clamd_ip'] = '192.0.2.20'
+        self.dummyNode['antivirus_clamd_port'] = 3320
+
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+
+        tenant_cache = self.state.tenants[1].cache
+        self.assertTrue(tenant_cache.antivirus_enabled)
+        self.assertEqual(tenant_cache.antivirus_clamd_ip, '192.0.2.20')
+        self.assertEqual(tenant_cache.antivirus_clamd_port, 3320)
+
+    @inlineCallbacks
+    def test_put_disable_antivirus_resets_file_verification(self):
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+        file_id = yield self.set_antivirus_file_state(True)
+
+        self.dummyNode['antivirus_enabled'] = False
+        handler = self.request(self.dummyNode, role='admin')
+        yield handler.put()
+
+        state, verification_date = yield self.get_antivirus_file_state(file_id)
+        self.assertEqual(state, 'pending')
+        self.assertIsNone(verification_date)
+
+    @inlineCallbacks
     def test_put_update_node_invalid_lang(self):
         self.dummyNode['languages_enabled'] = ["en", "shit"]
         handler = self.request(self.dummyNode, role='admin')

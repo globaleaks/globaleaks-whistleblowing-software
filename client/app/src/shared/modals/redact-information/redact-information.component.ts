@@ -86,7 +86,7 @@ export class RedactInformationComponent implements OnInit{
       this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
       this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2588),"");
     } else {
-      if (!this.preferenceResolver.dataModel.can_mask_information) {
+      if (!this.preferenceResolver.dataModel.profile.permissions.can_mask_information) {
         this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
       } else {
         this.ranges_selected = response.new_ranges;

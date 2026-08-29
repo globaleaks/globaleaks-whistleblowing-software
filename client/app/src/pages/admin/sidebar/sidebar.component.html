@@ -1,4 +1,3 @@
-
 <a routerLink="/admin/home" routerLinkActive="active" id="admin_home" [attr.aria-current]="isActive('/admin/home') ? 'page' : 'false'">
   <i class="fas fa-house"></i>
   <span>{{'Home'|translate}}</span>
@@ -19,27 +18,33 @@
   <i class="fas fa-inbox"></i>
   <span>{{'Channels'|translate}}</span>
 </a>
-<a routerLink="/admin/casemanagement" routerLinkActive="active" id="admin_case_management" [attr.aria-current]="isActive('/admin/casemanagement') ? 'page' : 'false'">
-  <i class="fas fa-bars-progress"></i>
-  <span>{{'Case management'|translate}}</span>
-</a>
-<a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
-  <i class="fas fa-envelope"></i>
-  <span>{{'Notifications'|translate}}</span>
-</a>
-@if (nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session) {
+@if (!nodeResolver.dataModel.is_profile) {
+  <a routerLink="/admin/casemanagement" routerLinkActive="active" id="admin_case_management" [attr.aria-current]="isActive('/admin/casemanagement') ? 'page' : 'false'">
+    <i class="fas fa-bars-progress"></i>
+    <span>{{'Case management'|translate}}</span>
+  </a>
+}
+@if (!nodeResolver.dataModel.is_profile) {
+  <a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
+    <i class="fas fa-envelope"></i>
+    <span>{{'Notifications'|translate}}</span>
+  </a>
+}
+@if (nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session && !nodeResolver.dataModel.is_profile) {
   <a routerLink="/admin/network" routerLinkActive="active" id="admin_network" [attr.aria-current]="isActive('/admin/network') ? 'page' : 'false'">
     <i class="fas fa-network-wired"></i>
     <span>{{'Network'|translate}}</span>
   </a>
 }
-@if (nodeResolver.dataModel.root_tenant) {
+@if (nodeResolver.dataModel.root_tenant && !nodeResolver.dataModel.is_profile) {
   <a routerLink="/admin/sites" routerLinkActive="active" id="admin_sites" [attr.aria-current]="isActive('/admin/sites') ? 'page' : 'false'">
     <i class="fas fa-sitemap"></i>
     <span>{{'Sites'|translate}}</span>
   </a>
 }
-<a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
-  <i class="fas fa-clipboard-list"></i>
-  <span>{{'Audit log'|translate}}</span>
-</a>
+@if (!nodeResolver.dataModel.is_profile) {
+  <a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
+    <i class="fas fa-clipboard-list"></i>
+    <span>{{'Audit log'|translate}}</span>
+  </a>
+}

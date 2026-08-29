@@ -57,6 +57,7 @@ export class AppConfigService {
         if (data.body !== null) {
           this.appDataService.updatePublic(data.body);
         }
+
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);

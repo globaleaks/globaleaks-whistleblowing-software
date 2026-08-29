@@ -10,10 +10,27 @@
       <label>
         <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
       </div>
-      <div id="Role">
-        <label>
-          <span>{{'Role'|translate}}</span>: </label>
-          <span>{{role}}</span>
+        <div id="Role">
+          <label>
+            <span>{{'Default Role'|translate}}</span>:
+          </label>
+          @if (preferenceResolver.dataModel.profile.roles && preferenceResolver.dataModel.profile.roles.length > 1) {
+           <ng-select
+             [items]="roleOptions"
+             bindLabel="role"
+             bindValue="value"
+             [(ngModel)]="userRole"
+             [placeholder]="'Change default role' | translate"
+             (ngModelChange)="onDefaultRoleChange($event)">
+           </ng-select>
+          }
+          @else {
+            <span>
+              {{ preferenceResolver.dataModel.role === 'receiver'
+                ? 'Recipient'
+                : (preferenceResolver.dataModel.role.charAt(0).toUpperCase() + preferenceResolver.dataModel.role.slice(1)) }}
+            </span>
+          }
         </div>
         <div id="Name">
           <label for="pref-name-input">
@@ -21,7 +38,7 @@
             @if (!editingName) {
               <span>
                 <span>{{preferenceResolver.dataModel.name}}</span>
-                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
+                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
                   <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
                     <span>{{'Edit'|translate}}</span>
                   </button>
@@ -38,7 +55,7 @@
               @if (!editingPublicName) {
                 <span>
                   <span>{{preferenceResolver.dataModel.public_name}}</span>
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>
@@ -56,7 +73,7 @@
                   @if (!editingEmailAddress) {
                     <span>{{preferenceResolver.dataModel.mail_address}}</span>
                   }
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>

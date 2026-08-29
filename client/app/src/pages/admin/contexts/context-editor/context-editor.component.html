@@ -1,4 +1,4 @@
-<src-list-item [(editing)]="editing" [saveDisabled]="!!editContext().invalid" (save)="saveContext(contextResolver())" (deleted)="deleteContext(contextResolver())">
+<src-list-item [(editing)]="editing" [canDelete]="!contextResolver().is_forward_channel" [saveDisabled]="!!editContext().invalid" (save)="saveContext(contextResolver())" (deleted)="deleteContext(contextResolver())">
   <ng-container title>
     <span>{{ contextResolver().name }}</span>
     @if (contextResolver().hidden) {
@@ -29,6 +29,10 @@
           }
         </div>
         <div class="form-group">
+          <label for="context-slug-input">{{ 'Slug' | translate }}</label>
+          <input id="context-slug-input" name="slug" class="form-control" [(ngModel)]="contextResolver().slug" type="text">
+        </div>
+        <div class="form-group">
           <label for="context-description">{{ 'Description' | translate }}</label>
           <textarea id="context-description" name="description" class="form-control" [(ngModel)]="contextResolver().description"></textarea>
         </div>
@@ -52,7 +56,7 @@
             @if (showSelect) {
               <div class="col-md-12">
                 <label for="context-receiver-select" class="visually-hidden">{{'Select' | translate}}</label>
-                <ng-select id="context-receiver-select" [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="usersData() | filter:  'role': 'receiver'" [searchable]="true" [placeholder]="'Search' | translate" (change)="moveReceiver($event)" [ariaLabel]="'Select' | translate">
+                <ng-select id="context-receiver-select" [(ngModel)]="selected.value" name="selected.value" bindLabel="name" [items]="profilesData()" [searchable]="true" [placeholder]="'Search' | translate" (change)="addProfile($event)" [ariaLabel]="'Select' | translate">
                   <ng-template ng-option-tmp let-item="item">
                     {{ item.name }}
                   </ng-template>
@@ -62,26 +66,12 @@
             }
           </div>
           <ol class="selection-list">
-            @for (receiver of contextResolver().receivers; track receiver; let index = $index) {
+            @for (profile of namedProfiles(); track profile; let index = $index) {
               <li>
-                @if (!contextResolver().show_receivers_in_alphabetical_order) {
-                  <span>
-                    @if (index !== 0) {
-                      <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}" (keydown.enter)="moveUpReceiver(index)" tabindex="0" role="button">
-                        <i class="fas fa-chevron-up"></i>
-                      </span>
-                    }
-                    @if (index !== contextResolver().receivers.length - 1) {
-                      <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}" (keydown.enter)="moveDownReceiver(index)" tabindex="0" role="button">
-                        <i class="fas fa-chevron-down"></i>
-                      </span>
-                    }
-                  </span>
-                }
-                <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" tabindex="0" role="button">
+                <span (click)="removeProfile(index)" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="removeProfile(index)" tabindex="0" role="button">
                   <i class="fas fa-xmark"></i>
                 </span>
-                <span>{{adminReceiversById()[receiver].name}}</span>
+                <span>{{ profilesById()[profile]?.name }}</span>
               </li>
             }
           </ol>
@@ -102,7 +92,7 @@
         </div>
         <div class="form-group">
           <label>
-            <span>{{ 'Expiration date' | translate }}</span> ({{ 'days' | translate }}) </label>
+            <span>{{ 'Data retention policy' | translate }}</span> ({{ 'days' | translate }}) </label>
             <div [class.is-invalid]="editContext().form.get('timetolive')?.errors?.['invalid']">
               <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver().tip_timetolive" type="number" min="0" max="3650" />
             </div>

@@ -31,15 +31,14 @@ def db_update_enabled_languages(session, tid, languages, default_language):
     # get sure that the default language is included in the enabled languages
     languages = set(languages + [default_language])
 
-    appdata = None
     for lang_code in languages:
         if lang_code not in LANGUAGES_SUPPORTED_CODES:
             raise errors.InputValidationError("Invalid lang code: %s" % lang_code)
 
         if lang_code not in cur_enabled_langs:
-            if appdata is None:
-                appdata = load_appdata()
-            models.config.add_new_lang(session, tid, lang_code, appdata)
+            # The texts of a language enabled afterwards are inherited from the
+            # profile of the tenant rather than loaded on the tenant itself
+            session.add(models.EnabledLanguage({'tid': tid, 'name': lang_code}))
 
     to_remove = list(set(cur_enabled_langs) - set(languages))
     if to_remove:
@@ -65,6 +64,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
     logo = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == 'logo').one_or_none()
 
     ret.update({
+        'tid': tid,
         'changelog': read_file('/usr/share/globaleaks/CHANGELOG'),
         'license': read_file('/usr/share/globaleaks/LICENSE'),
         'languages_supported': LANGUAGES_SUPPORTED,
@@ -169,7 +169,8 @@ def db_update_node(session, tid, user_session, request, language):
     if tid == 1:
         log.setloglevel(config.get_val('log_level'))
 
-    db_log(session, tid=tid, type='update_node', user_id=user_session.user_id)
+    if user_session is not None:
+        db_log(session, tid=tid, type='update_node', user_id=user_session.user_id)
 
     return db_admin_serialize_node(session, tid, language)
 
@@ -199,6 +200,8 @@ class NodeInstance(BaseHandler):
                        self.request.tid,
                        self.request.language,
                        config_desc=config[0])
+
+        ret["is_profile"] = True if self.request.tid > 1000001 else False
 
         if ret.get("backup_enabled"):
             backup_job = State.jobs_status.get("Backup", None)

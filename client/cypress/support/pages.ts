@@ -1,6 +1,6 @@
 class WhistleblowerPage {
-  public static performSubmission(number_of_attachments:number) {
-    cy.visit("#/");
+  public static performSubmission(number_of_attachments:number, url = "#/") {
+    cy.visit(url);
     cy.takeScreenshot("whistleblower/home");
 
     cy.get("#WhistleblowingButton").click();

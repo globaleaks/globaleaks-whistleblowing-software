@@ -48,6 +48,7 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.sock import isIPAddress
 
 tid_regexp = r'([0-9]+)'
+role_regexp = r'(admin|analyst|custodian|receiver)'
 uuid_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 uuid_regexp_or_closed = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|closed)'
 key_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|[a-z_]{0,100})'
@@ -72,6 +73,7 @@ api_spec = [
     ('/api/auth/receiptauth', auth.ReceiptAuthHandler),
     ('/api/auth/session', auth.SessionHandler),
     ('/api/auth/tenantauthswitch/', auth.TenantAuthSwitchHandler, r'/api/auth/tenantauthswitch/' + tid_regexp),
+    ('/api/auth/roleauthswitch/', auth.RoleAuthSwitchHandler, r'/api/auth/roleauthswitch/' + role_regexp),
 
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
@@ -123,6 +125,9 @@ api_spec = [
     ('/api/admin/network', admin.network.NetworkInstance),
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
+    ('/api/admin/users', admin.user.UserStats, r'/api/admin/users/' + uuid_regexp + '/stats'),
+    ('/api/admin/users/profiles', admin.user_profile.UserProfilesCollection),
+    ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
     ('/api/admin/contexts', admin.context.ContextsCollection),
     ('/api/admin/contexts', admin.context.ContextInstance, r'/api/admin/contexts/' + uuid_regexp),
     ('/api/admin/questionnaires', admin.questionnaire.QuestionnairesCollection),
@@ -135,6 +140,7 @@ api_spec = [
     ('/api/admin/steps', admin.step.StepInstance, r'/api/admin/steps/' + uuid_regexp),
     ('/api/admin/fieldtemplates', admin.field.FieldTemplatesCollection),
     ('/api/admin/fieldtemplates', admin.field.FieldTemplateInstance, r'/api/admin/fieldtemplates/' + key_regexp),
+    ('/api/admin/selectables', admin.selectables.SelectablesCollection),
     ('/api/admin/redirects', admin.redirect.RedirectCollection, r'/api/admin/redirects'),
     ('/api/admin/redirects', admin.redirect.RedirectInstance, r'/api/admin/redirects/' + uuid_regexp),
     ('/api/admin/auditlog', admin.auditlog.AuditLog),
@@ -153,6 +159,7 @@ api_spec = [
     ('/api/admin/files', admin.file.FileInstance, r'/api/admin/files/(.+)'),
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
+    ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusCollection),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusInstance, r'/api/admin/statuses/' + uuid_regexp_or_closed),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionSubStatusCollection, r'/api/admin/statuses/' + uuid_regexp_or_closed + r'/substatuses'),
@@ -161,6 +168,7 @@ api_spec = [
     # Signup
     ('/api/signup', signup.Signup),
     ('/api/signup', signup.SignupActivation, r'/api/signup/([a-zA-Z0-9_\-]{64})'),
+
 
     # Well known path
     ('/.well-known/acme-challenge', admin.https.AcmeChallengeHandler, r'/\.well-known/acme-challenge/([a-zA-Z0-9_\-]{42,44})'),
@@ -260,7 +268,6 @@ class Trie:
         """
         Search for a matching handler based on the path.
         """
-        match = None
         node = self.root
         parts = path.strip('/').split('/')
 
@@ -412,7 +419,6 @@ class APIResourceWrapper(Resource):
         request.multilang = False
         request.finished = False
         request.nonce = base64.b64encode(secrets.token_bytes(16))
-
         client_address = request.getClientAddress()
         if isinstance(client_address, (address.IPv4Address, address.IPv6Address)):
             request.client_ip = client_address.host

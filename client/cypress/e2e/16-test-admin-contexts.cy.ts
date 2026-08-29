@@ -8,13 +8,15 @@ describe("admin configure, add, and delete channels", () => {
     cy.get("#context-0").within(() => {
       cy.get("[data-action='edit']").click();
 
+      // A channel names the user profiles whose accounts receive on it, and no
+      // longer the accounts one by one
       cy.get(".add-receiver-btn").click();
       cy.get('ng-select[name="selected.value"]').click();
-      cy.get('ng-select[name="selected.value"]').contains("Recipient").click();
+      cy.get('ng-select[name="selected.value"]').contains("Profile1").click();
 
       cy.get(".add-receiver-btn").click();
       cy.get('ng-select[name="selected.value"]').click();
-      cy.get('ng-select[name="selected.value"]').contains("Recipient2").click();
+      cy.get('ng-select[name="selected.value"]').contains("Profile2").click();
 
       cy.get("#advance_context").click();
       cy.get("[data-action='save']").click();

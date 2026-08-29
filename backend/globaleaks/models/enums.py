@@ -43,3 +43,8 @@ class EnumStateFile(_Enum):
     pending = 0
     verified = 1
     infected = 2
+
+
+class EnumUserStatus(_Enum):
+    active = 0
+    suspend = 1

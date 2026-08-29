@@ -1,23 +1,7 @@
 <div class="row">
   @if (step === 1) {
     <div class="col-md-6 wizard-block">
-      @switch (appDataService.public.node.mode) {
-        @case ('default') {
-          <div>
-            <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-          </div>
-        }
-        @case ('demo') {
-          <div>
-            <src-signupdefault (complete)="complete()" [signup]="signup"></src-signupdefault>
-          </div>
-        }
-        @case ('wbpa') {
-          <div>
-            <src-wbpa (updateSubdomain)=updateSubdomain() (complete)="complete()" [signup]="signup"></src-wbpa>
-          </div>
-        }
-      }
+      <src-signupdefault (complete)="complete()" [signup]="signup" [idpRequired]="idpRequired" [idpAuthenticated]="idpAuthenticated" [idpFields]="idpFields" [idpEmail]="idpEmail"></src-signupdefault>
     </div>
   }
   @if (step === 2) {
@@ -25,10 +9,13 @@
       <div class="congratulations">
         <div class="title">{{'Success!'|translate}}</div>
         <div>
-          <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
-          <span>{{'Check your inbox to activate it.'|translate}}</span>
-          <br />
-          <span>{{'If not activated within 24 hours the platform will be automatically deleted.'|translate}}</span>
+          @if (appDataService.public.node.signup_auto_authorize || signup.token) {
+            <span>{{'Your whistleblowing platform is almost ready!'|translate}}</span>
+            <span>{{'Check your inbox for the credentials.'|translate}}</span>
+          }
+          @if (!appDataService.public.node.signup_auto_authorize && !signup.token) {
+            <span>{{'Your whistleblowing platform registration is waiting for approval.'|translate}}</span>
+          }
         </div>
       </div>
     </div>

@@ -21,6 +21,10 @@ export class RecieverTipData {
   expiration_date: string;
   progressive: number;
   context_id: string;
+  type: string;
+  allow_forward: boolean;
+  can_forward: boolean;
+  forward_receipt_valid: boolean;
   questionnaires: Questionnaire[];
   tor: boolean;
   mobile: boolean;
@@ -52,6 +56,7 @@ export class RecieverTipData {
   whistleblower_identity_field: Children;
   tip_id: string;
   redactions: RedactionData[];
+  forwards: ForwardReport[];
 }
 
 export type Answers = Record<string, {
@@ -68,14 +73,31 @@ export interface Receiver {
   last_access: string | null;
 }
 
+export interface ForwardReport {
+  id: string;
+  creation_date: string;
+  target_tid: number;
+  progressive: number;
+  status: string;
+  substatus: string;
+}
+
 export interface Data {
   whistleblower_identity_provided: boolean;
   whistleblower_identity: WhistleblowerIdentity;
   whistleblower_identity_date: string;
+  forwarded_from?: {
+    source_tid: number | string;
+  };
+  forward_request?: {
+    source_tid: number | string;
+  };
+  forward_receipt?: string;
 }
 
 export interface Context {
   id: string;
+  slug: string;
   hidden: boolean;
   order: number;
   tip_timetolive: number;

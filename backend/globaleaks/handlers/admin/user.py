@@ -1,14 +1,19 @@
+import copy
+import json
 from nacl.encoding import Base64Encoder
+from sqlalchemy import func
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
+from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_update_user_profile, sync_permissions
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      parse_pgp_options, \
-                                     user_serialize_user
+                                     serialize_user, \
+                                     user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.models import fill_localized_keys
+from globaleaks.models import config, Config, UserProfile, fill_localized_keys
 from globaleaks.models.config import db_get_protected_users
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
@@ -17,10 +22,9 @@ from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
-from datetime import datetime
 
 
-def db_create_user(session, tid, user_session, request, language):
+def db_create_user(session, tid, user_session, request, language, defer_password_setup=False):
     """
     Transaction for creating a new user
 
@@ -29,44 +33,63 @@ def db_create_user(session, tid, user_session, request, language):
     :param user_session: The session of the user performing the operation
     :param request: The request data
     :param language: The language of the request
+    :param defer_password_setup: Whether the account is created holding no
+                                 password, its user being required to set one
+                                 before proceeding
     :return: The serialized descriptor of the created object
     """
-    config = models.config.ConfigFactory(session, tid)
+    existing_user = session.query(models.User).filter(models.User.tid == tid, models.User.username == request['username']).first()
+    if existing_user:
+        raise errors.DuplicateUserError
 
+    config = models.config.ConfigFactory(session, tid)
     encryption = config.get_val('encryption')
 
-    request['tid'] = tid
-
     fill_localized_keys(request, models.User.localized_keys, language)
+
+    request['tid'] = tid
+    request['id'] = uuid4()
+
+    if not request['username']:
+        request['username'] = request['id']
+
+    if not request['profile_id'] or request['profile_id'] == 'none':
+        request['profile_id'] = request['id']
+
+        profile = {
+          'id': request['id'],
+          'role': request['role'],
+          'roles':  [request['role']],
+          'permissions':  copy.deepcopy(user_permissions)
+        }
+
+        db_create_user_profile(session, tid, profile)
 
     if not request['public_name']:
         request['public_name'] = request['name']
 
     user = models.User(request)
-
-    if not request['username']:
-        user.username = user.id = uuid4()
-
-    existing_user = session.query(models.User).filter(models.User.tid == user.tid, models.User.username == user.username).first()
-    if existing_user:
-        raise errors.DuplicateUserError
-
-    salt = config.get_val('receipt_salt')
-    user.salt = GCE.generate_salt(salt + ":" + user.username)
-
+    user.salt = GCE.generate_salt(config.get_val('receipt_salt') + ":" + user.username)
     user.language = request['language']
 
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
 
-    password = request.get('password', '')
-    if not password:
-        password = generateRandomPassword(16)
-        key = Base64Encoder.decode(GCE.derive_key(password, user.salt).encode())
+    if defer_password_setup:
+        # The account holds no password: an empty hash marks an account whose
+        # user is authenticated elsewhere and is required to set a password
+        # before proceeding, the encryption material of the account being
+        # initialized at that point
+        user.hash = ''
     else:
-        key = Base64Encoder.decode(password)
+        password = request.get('password', '')
+        if not password:
+            password = generateRandomPassword(16)
+            key = Base64Encoder.decode(GCE.derive_key(password, user.salt).encode())
+        else:
+            key = Base64Encoder.decode(password)
 
-    user.hash = sha256(key)
+        user.hash = sha256(key)
 
     session.add(user)
 
@@ -75,19 +98,29 @@ def db_create_user(session, tid, user_session, request, language):
     # After flush align date to user.creation_date
     user.password_change_date = user.creation_date
 
+    # A receiver bound to a shared profile is a recipient of the channels the
+    # profile is associated to
+    if user.profile_id != user.id:
+        profile = session.query(models.UserProfile) \
+                         .filter(models.UserProfile.id == user.profile_id).one_or_none()
+        if profile is not None:
+            db_attach_user_to_profile_contexts(session, user, profile)
+
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
 
     if request.get('send_activation_link', False):
         token = db_generate_password_reset_token(session, user)
-        db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
+        if user_session:
+            db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
     else:
         token = None
 
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
 
-    if (encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password')):
+    if not defer_password_setup and \
+       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or (encryption and request.get('password'))):
         cc, user.crypto_pub_key = GCE.generate_keypair()
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
         user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
@@ -99,8 +132,10 @@ def db_create_user(session, tid, user_session, request, language):
             current_user = db_get(session, models.User, models.User.id == user_session.user_id)
             db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
 
-
-    if not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n:
+    # The account holding no password holds no encryption material yet: the
+    # keys, and with them the copies kept by the escrows, are generated upon
+    # the setup of the password performed by its user
+    if defer_password_setup or (not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n):
         return user
 
     if crypto_escrow_pub_key_tenant_1:
@@ -112,28 +147,82 @@ def db_create_user(session, tid, user_session, request, language):
     return user
 
 
-def db_delete_user(session, tid, user_session, user_id):
+def db_get_user_stats(session, tid, user_id):
+    """
+    Get statistics about a user's report access
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The ID of the user
+    :return: A dictionary with user statistics
+    """
+    total_reports = session.query(func.count(models.ReceiverTip.id)).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar() or 0
+
+    user_tips = session.query(models.ReceiverTip.internaltip_id).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).subquery()
+
+    exclusive_reports = 0
+    for (internaltip_id,) in session.query(user_tips.c.internaltip_id):
+        recipient_count = session.query(func.count(models.ReceiverTip.id)).filter(
+            models.ReceiverTip.internaltip_id == internaltip_id
+        ).scalar() or 0
+        if recipient_count == 1:
+            exclusive_reports += 1
+
+    last_update = session.query(func.max(models.InternalTip.update_date)).join(
+        models.ReceiverTip,
+        models.InternalTip.id == models.ReceiverTip.internaltip_id
+    ).filter(
+        models.ReceiverTip.receiver_id == user_id
+    ).scalar()
+
+    if not last_update:
+        last_update = datetime_null()
+
+    return {
+        'total_reports': total_reports,
+        'exclusive_reports': exclusive_reports,
+        'last_update': last_update.isoformat()
+    }
+
+
+def db_delete_user(session, tid, user_session, user_id, check):
     db_get(session, models.User, models.User.id == user_session.user_id)
 
-    user_to_be_deleted = db_get(session, models.User, (models.User.tid == tid, models.User.id == user_id))
+    user = db_get(session, models.User, models.User.id == user_id)
 
     if user_session.user_id == user_id:
         # Prevent users to delete themeselves
         raise errors.ForbiddenOperation
-    elif user_to_be_deleted.crypto_escrow_prv_key and not user_session.ek:
+    elif user.crypto_escrow_prv_key and not user_session.ek:
         # Prevent users to delete privileged users when escrow keys could be invalidated
         raise errors.ForbiddenOperation
-    elif user_to_be_deleted.id in db_get_protected_users(session, tid):
+    elif user.id in db_get_protected_users(session, tid):
         # Prevent deletion of protected users
         raise errors.ForbiddenOperation
 
+    stats = db_get_user_stats(session, tid, user_id)
+
+    if check:
+        stats_changed = (
+            stats['total_reports'] != check['total_reports'] or
+            stats['exclusive_reports'] != check['exclusive_reports'] or
+            stats['last_update'] != check['last_update']
+        )
+
+        if stats_changed:
+            raise errors.OperationConflict
+
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
 
-    # Revoke the deleted user's active sessions (self-deletion is already
-    # prevented above, so this never affects the operator's own session).
-    Sessions.revoke(tid, user_id)
+    if user.profile_id == user_id:
+        # Delete the personal profile of the users configured with a standard role
+        db_del(session, models.UserProfile, models.UserProfile.id == user_id)
 
-    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id)
+    db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id, data=stats)
 
 
 @transact
@@ -148,10 +237,41 @@ def create_user(session, tid, user_session, request, language):
     :return: The serialized descriptor of the created object
     """
     user = db_create_user(session, tid, user_session, request, language)
-    return user_serialize_user(session, user, language)
+    return serialize_user(session, user, language)
 
 
-def db_admin_update_user(session, tid, user_session, user_id, request, language):
+def db_update_user_permissions(session, user, request):
+    """
+    Apply on the profile of a user the permissions carried by a user update request
+
+    The permissions are stored on the profile of the user that remains their only
+    source of truth; the user editor acts as the interface of the personal profile
+    of the users that do not use a profile shared with other users.
+
+    :param session: An ORM session
+    :param user: The user object of the update
+    :param request: The request data
+    :return: A boolean indicating if the permissions of the user changed
+    """
+    permissions = (request.get('profile') or {}).get('permissions')
+
+    if user.id != user.profile_id or not isinstance(permissions, dict):
+        return False
+
+    permissions = {k: v for k, v in permissions.items() if k in user_permissions}
+
+    current_permissions = set(user.profile.permissions_list)
+
+    sync_permissions(session, user.profile, {'permissions': permissions})
+    session.flush()
+
+    updated_permissions = {p[0] for p in session.query(models.UserProfilePermission.permission)
+                                                .filter(models.UserProfilePermission.profile_id == user.profile_id)}
+
+    return current_permissions != updated_permissions
+
+
+def db_update_user(session, tid, user_session, user_id, request, language):
     """
     Transaction for updating an existing user
 
@@ -165,14 +285,30 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     """
     fill_localized_keys(request, models.User.localized_keys, language)
 
-    protected_users = db_get_protected_users(session, tid)
-    if user_id in protected_users and user_session.user_id not in protected_users:
-        # Prevent non-protected operators from editing protected users
-        raise errors.ForbiddenOperation
-
     user = db_get_user(session, tid, user_id)
-    user.can_redact_information = request['can_redact_information']
-    user.can_mask_information = request['can_mask_information']
+    old_role = user.role
+    old_profile_id = user.profile_id
+    old_enabled = user.enabled
+
+    if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
+        # Delete profiles when:
+        # - the user configuration passes from using a standard role to a custom profile
+        # - the user uses a standard role but the role changes
+        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
+
+    if ((user.id != user.profile_id and request['profile_id'] == user.id) or (user.role != request['role'])):
+        # Recreate the profile when:
+        # - the user configuration passes from using a custom profile to using a standard role
+        # - the user user changes from a standard role to one other
+        profile = {
+          'id': user.id,
+          'role': request['role'],
+          'roles':  [request['role']],
+          'permissions':  copy.deepcopy(user_permissions)
+        }
+
+        db_create_user_profile(session, tid, profile)
+
     if request['mail_address'] != user.mail_address:
         user.change_email_token = None
         user.change_email_address = ''
@@ -186,14 +322,31 @@ def db_admin_update_user(session, tid, user_session, user_id, request, language)
     parse_pgp_options(user, request)
 
     user.update(request)
+    session.flush()
+    session.expire(user, ['profile'])
 
-    # Revoke the target user's active sessions so that the reconfiguration
-    # (e.g. account disabling or role change) takes effect immediately rather
-    # than after idle session expiration; never revoke the operator's own.
-    if user_session.user_id != user_id:
-        Sessions.revoke(tid, user_id)
+    # A change of profile realigns the channels the user receives on: the ones
+    # of the profile left are detached and the ones of the profile taken are
+    # attached
+    if old_profile_id != user.profile_id:
+        old_profile = session.query(models.UserProfile) \
+                             .filter(models.UserProfile.id == old_profile_id).one_or_none()
+        if old_profile is not None:
+            db_detach_user_from_profile_contexts(session, user, old_profile)
 
-    return user_serialize_user(session, user, language)
+        if user.profile_id != user.id:
+            new_profile = session.query(models.UserProfile) \
+                                 .filter(models.UserProfile.id == user.profile_id).one_or_none()
+            if new_profile is not None:
+                db_attach_user_to_profile_contexts(session, user, new_profile)
+
+    permissions_changed = db_update_user_permissions(session, user, request)
+
+    revoke_session = old_role != user.role or \
+        old_profile_id != user.profile_id or \
+        old_enabled != user.enabled or \
+        permissions_changed
+    return serialize_user(session, user, language), revoke_session
 
 
 def db_get_users(session, tid, role=None, language=None):
@@ -214,7 +367,18 @@ def db_get_users(session, tid, role=None, language=None):
 
     language = language or State.tenants[tid].cache.default_language
 
-    return [user_serialize_user(session, user, language) for user in users]
+    return [serialize_user(session, user, language) for user in users]
+
+
+def get_user(session, tid, id):
+    """
+    Return specific user.
+    """
+    user = session.query(models.User).filter(models.User.id == id, models.User.tid == tid).first()
+    if user:
+        return serialize_user(session, user, State.tenants[tid].cache.default_language)
+
+    raise errors.ResourceNotFound
 
 
 class UsersCollection(BaseHandler):
@@ -230,13 +394,12 @@ class UsersCollection(BaseHandler):
     @inlineCallbacks
     def post(self):
         """
-        Create a new user
+        Create a new user.
         """
-        request = self.validate_request(self.request.content.read(),
-                                        requests.AdminUserDesc)
+        request = json.loads(self.request.content.read())
 
+        request = yield self.validate_request(json.dumps(request), requests.AdminUserDesc)
         user = yield create_user(self.request.tid, self.session, request, self.request.language)
-
         return user
 
 
@@ -244,23 +407,61 @@ class UserInstance(BaseHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
+    def get(self, user_id):
+        """
+        Retrieve the specified user.
+        """
+        return tw(get_user, self.request.tid, user_id)
+
+    @inlineCallbacks
     def put(self, user_id):
         """
         Update the specified user.
         """
-        request = self.validate_request(self.request.content.read(), requests.AdminUserDesc)
+        request = json.loads(self.request.content.read())
+        request = self.validate_request(request, requests.AdminUserDesc)
+        user, revoke_session = yield tw(
+            db_update_user,
+            self.request.tid,
+            self.session,
+            user_id,
+            request,
+            self.request.language
+        )
+        # Revoke the target user's active sessions so that the reconfiguration
+        # (e.g. account disabling or role change) takes effect immediately rather
+        # than after idle session expiration; never revoke the operator's own.
+        if self.session.user_id != user_id:
+            Sessions.revoke_user(self.request.tid, user_id)
 
-        return tw(db_admin_update_user,
-                  self.request.tid,
-                  self.session,
-                  user_id,
-                  request,
-                  self.request.language)
+        return user
 
+    @inlineCallbacks
     def delete(self, user_id):
         """
         Delete the specified user.
         """
         self.check_confirmation()
 
-        return tw(db_delete_user, self.request.tid, self.session, user_id)
+        check = self.request.content.read()
+        if check:
+            check = self.validate_request(check,
+                                          requests.AdminUserDeleteDesc)
+
+
+        yield tw(db_delete_user,
+                 self.request.tid,
+                 self.session,
+                 user_id,
+                 check)
+        Sessions.revoke_user(self.request.tid, user_id)
+
+
+class UserStats(BaseHandler):
+    check_roles = 'admin'
+
+    def get(self, user_id):
+        """
+        Retrieve statistics about a user's report access.
+        """
+        return tw(db_get_user_stats, self.request.tid, user_id)

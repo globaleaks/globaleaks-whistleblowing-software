@@ -11,7 +11,7 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
-import {userResolverModel} from "@app/models/resolvers/user-resolver-model";
+import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {DatePipe} from "@angular/common";
@@ -31,16 +31,19 @@ export class UserEditorComponent implements OnInit {
   private preference = inject(PreferenceResolver);
   private authenticationService = inject(AuthenticationService);
   private nodeResolver = inject(NodeResolver);
-  private utilsService = inject(UtilsService);
+  protected utilsService = inject(UtilsService);
   private cryptoService = inject(CryptoService);
+  protected preferenceResolver = inject(PreferenceResolver);
 
-  readonly user = input.required<userResolverModel>();
-  readonly users = input<userResolverModel[]>();
+  readonly user = input.required<User>();
+  readonly users = input<User[]>();
   readonly index = input<number>();
   readonly editUser = input.required<NgForm>();
+  readonly profiles = input<UserProfile[]>([]);
   readonly deleted = output<string>();
   readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
+  filteredProfiles: UserProfile[];
   changePasswordArgs: { password_change_needed: string };
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
@@ -64,15 +67,23 @@ export class UserEditorComponent implements OnInit {
     this.changePasswordArgs = {
       password_change_needed: ""
     };
+
+    this.user().profile = this.profiles().filter(profile => profile.id === this.user().profile_id)[0];
+    this.normalizeForwardingProfilePermissions(this.user().profile);
+    this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
   }
 
-  disable2FA(user: userResolverModel) {
+  disable2FA(user: User) {
     this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, false).subscribe(() => {
       user.two_factor = false;
     });
   }
 
-  async setPassword(user: userResolverModel) {
+  resetIdpBinding(user: User) {
+    this.utilsService.runAdminOperation("reset_idp_binding", {"value": user.id}, true).subscribe();
+  }
+
+  async setPassword(user: User) {
     // Generate a random password on the client. The plaintext is shown to the
     // administrator only after the change has been confirmed and applied so
     // that it can be communicated to the user; only the derived hash is sent.
@@ -92,14 +103,17 @@ export class UserEditorComponent implements OnInit {
     });
   }
 
-  saveUser(userData: userResolverModel) {
+  saveUser(userData: User) {
+    this.normalizeForwardingProfilePermissions(userData.profile);
     const user = userData;
     if (user.pgp_key_remove) {
       user.pgp_key_public = "";
     }
+
     if (user.pgp_key_public !== "") {
       user.pgp_key_remove = false;
     }
+
     return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
       error:()=>{
         const uploaderInput = this.uploaderInput();
@@ -110,30 +124,39 @@ export class UserEditorComponent implements OnInit {
     });
   }
 
-  deleteUser(user: userResolverModel) {
-    this.openConfirmableModalDialog(user, "").subscribe();
+  deleteUser(user: User, statsChanged = false) {
+    this.openConfirmableModalDialog(user, statsChanged).subscribe();
   }
 
-  openConfirmableModalDialog(arg: userResolverModel, scope: any): Observable<string> {
-    scope = !scope ? this : scope;
-    return new Observable(() => {
+  openConfirmableModalDialog(arg: User, statsChanged = false): Observable<string> {
+    return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.arg = arg;
-      modalRef.componentInstance.scope = scope;
+      modalRef.componentInstance.user = arg;
+      modalRef.componentInstance.statsChanged = statsChanged;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.utilsService.deleteAdminUser(arg.id).subscribe(() => {
-          this.deleted.emit(this.user().id);
+        const stats = modalRef.componentInstance.userStats;
+        observer.complete();
+
+        return this.utilsService.deleteAdminUser(arg.id, stats).subscribe({
+          next: () => {
+            this.deleted.emit(this.user().id);
+          },
+          error: (err) => {
+            if (err.status === 409) {
+              this.deleteUser(arg, true);
+            }
+          }
         });
       };
     });
   }
 
-  resetUserPassword(user: userResolverModel) {
+  resetUserPassword(user: User) {
     this.utilsService.runAdminOperation("send_password_reset_email", {"value": user.id}, true).subscribe();
   }
 
-  loadPublicKeyFile(files: FileList | null,user:userResolverModel) {
+  loadPublicKeyFile(files: FileList | null, user:User) {
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0])
         .subscribe((txt: string) => {
@@ -147,11 +170,73 @@ export class UserEditorComponent implements OnInit {
     return this.authenticationData.session?.user_id;
   }
 
-  toggleUserEscrow(user: userResolverModel) {
+  getUserProfile(profileId: string): UserProfile | undefined {
+    return this.profiles().find((profile) => profile.id === profileId);
+  }
+
+  getUserRoleOrProfileLabel(user: any): string {
+    const roleMap: { [key: string]: string } = {
+      'admin': 'Admin',
+      'analyst': 'Analyst',
+      'custodian': 'Custodian',
+      'receiver': 'Recipient'
+    };
+
+    if (user.id == user.profile_id) {
+      return roleMap[user.role];
+    } else {
+      return this.getUserProfile(user.profile_id)!.name;
+    }
+  }
+
+  getUserDisplayName(user:any) {
+    const profileName = this.getUserProfile(user.profile_id)!.name;
+
+    let roleDisplay = '';
+    switch (user.role) {
+      case 'admin':
+        roleDisplay = 'Admin';
+        break;
+      case 'receiver':
+        roleDisplay = 'Recipient';
+        break;
+      case 'custodian':
+        roleDisplay = 'Custodian';
+        break;
+      case 'analyst':
+        roleDisplay = 'Analyst';
+        break;
+      default:
+        roleDisplay = '';
+    }
+
+    return user.id !== user.profile_id ? `${profileName} (${roleDisplay})` : roleDisplay;
+  }
+
+  onUserProfileChange() {
+    const profile = this.getUserProfile(this.user().profile_id);
+
+    if (profile) {
+        this.user().profile = profile;
+        this.user().role = profile.role;
+    }
+  }
+
+  toggleUserEscrow(user: User) {
     this.utilsService.runAdminOperation("toggle_user_escrow", {"value": user.id}, true).subscribe({
       error:()=>{
         user.escrow = !user.escrow;
       }
     });
+  }
+
+  normalizeForwardingProfilePermissions(profile: UserProfile) {
+    if (profile.tid === 1 || !profile?.permissions?.can_forward_reports) {
+      return;
+    }
+
+    profile.permissions.can_mask_information = false;
+    profile.permissions.can_redact_information = false;
+    profile.permissions.can_delete_submission = false;
   }
 }
