@@ -129,7 +129,6 @@ describe("admin add, configure, and delete users", () => {
       grant("Transfer access to reports");
       grant("Delete reports");
       grant("Settings");
-      grant("Forward reports");
 
       cy.get("#save_profile").click();
     });
