@@ -5,6 +5,8 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
+import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
+import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {RedirectsResolver} from "@app/shared/resolvers/redirects.resolver";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
@@ -105,6 +107,15 @@ export const adminRoutes: Routes = [
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Case management"},
+  },
+  {
+    path: "statistics",
+    loadComponent: () => import('@app/pages/analyst/statistics/statistics.component').then(m => m.StatisticsComponent),
+    resolve: {
+      NodeResolver, PreferenceResolver, StatisticalTemplatesResolver, StatisticalMetricsResolver
+    },
+    pathMatch: "full",
+    data: {sidebar: "admin-sidebar", pageTitle: "Statistics"},
   },
   {
     path: "auditlog",
