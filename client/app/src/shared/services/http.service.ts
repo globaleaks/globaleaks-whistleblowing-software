@@ -37,6 +37,7 @@ import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {metricCatalogResolverModel} from "@app/models/resolvers/metric-catalog-resolver-model";
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
@@ -423,6 +424,14 @@ export class HttpService {
 
   requestCreateStatisticalTemplate(data: { label: string; data: Record<string, unknown> }): Observable<statisticalTemplateResolverModel> {
     return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
+  }
+
+  requestImportStatisticalTemplate(data: string): Observable<statisticalTemplateResolverModel> {
+    return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
+  }
+
+  requestMetricCatalog(): Observable<metricCatalogResolverModel> {
+    return this.httpClient.get<metricCatalogResolverModel>("api/analyst/metrics");
   }
 
   requestUpdateStatisticalTemplate(id: string, data: statisticalTemplateResolverModel): Observable<statisticalTemplateResolverModel> {

@@ -3,13 +3,14 @@ import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, injec
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbDropdownModule, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {CommonModule} from "@angular/common";
-import {FilterOptionsResponse, MetricCard, MetricModalResult, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {MetricCard, MetricModalResult, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {ReportTemplateData} from "@app/models/analyst/report-template.model";
 import {AddMetricModalComponent} from "@app/shared/modals/add-metric-modal/add-metric-modal.component";
 import {ManageMetricModalComponent} from "@app/shared/modals/manage-metric-modal/manage-metric-modal.component";
-import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
-import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 import {TranslateModule} from "@ngx-translate/core";
 import {provideCharts, withDefaultRegisterables} from "ng2-charts";
 import {StatisticalTemplateViewComponent} from "@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component";
@@ -31,14 +32,15 @@ import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statisti
 })
 export class StatisticalTemplateEditorComponent implements OnInit {
   private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
   private readonly modalService = inject(NgbModal);
-  private readonly statisticsResolver = inject(StatisticsResolver);
+  private readonly metricsResolver = inject(StatisticalMetricsResolver);
   private readonly templateService = inject(StatisticalTemplateService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() templateData!: statisticalTemplateResolverModel;
   @Input() templatesData: statisticalTemplateResolverModel[] = [];
-  @Input() filterOptions: FilterOptionsResponse;
   @Input() index = 0;
   @Input() editTemplate!: NgForm;
   @Output() dataToParent = new EventEmitter<string>();
@@ -67,13 +69,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
   }
 
   private initializeMetrics(): void {
-    const dataModel = this.statisticsResolver.dataModel;
-    if (!dataModel) {
-      this.availableMetrics = [];
-      return;
-    }
-
-    this.availableMetrics = this.templateService.createMetricCatalog(dataModel);
+    this.availableMetrics = this.templateService.createMetricCatalog(this.metricsResolver.dataModel);
   }
 
   addNewMetric(): void {
@@ -230,6 +226,10 @@ export class StatisticalTemplateEditorComponent implements OnInit {
     this.editing = !this.editing;
   }
 
+  exportTemplate(template: statisticalTemplateResolverModel): void {
+    this.utilsService.saveAs(this.authenticationService, template.label + ".json", "api/analyst/templates/" + template.id);
+  }
+
   deleteTemplate(template: statisticalTemplateResolverModel): void {
     this.httpService.requestDeleteStatisticalTemplate(template.id).subscribe({
       next: () => {
@@ -249,6 +249,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
         if (templateIndex !== -1) {
           this.templatesData[templateIndex] = updatedTemplate;
         }
+
         this.cdr.markForCheck();
       }
     });

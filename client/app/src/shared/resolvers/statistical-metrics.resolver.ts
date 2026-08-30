@@ -1,25 +1,23 @@
 import {Injectable, inject} from "@angular/core";
 import {Observable, of} from "rxjs";
+import {map} from "rxjs/operators";
 import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {map} from "rxjs/operators";
-import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {metricCatalogResolverModel} from "@app/models/resolvers/metric-catalog-resolver-model";
 
 @Injectable({
   providedIn: "root"
 })
-export class StatisticalTemplatesResolver {
+export class StatisticalMetricsResolver {
   private httpService = inject(HttpService);
   private authenticationService = inject(AuthenticationService);
 
-  dataModel: statisticalTemplateResolverModel[] = [];
+  dataModel: metricCatalogResolverModel = new metricCatalogResolverModel();
 
   resolve(): Observable<boolean> {
-    // The templates are read by the analysts, that are presented with them, and
-    // by the administrators that compose them
     const role = this.authenticationService.session.role;
     if (role === "analyst" || role === "admin") {
-      return this.httpService.requestStatisticalTemplates().pipe(
+      return this.httpService.requestMetricCatalog().pipe(
         map((response) => {
           this.dataModel = response;
           return true;

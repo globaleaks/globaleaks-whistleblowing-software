@@ -1,84 +1,62 @@
 import {Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
+import {AuthenticationService} from '@app/services/helper/authentication.service';
+import {PreferenceResolver} from '@app/shared/resolvers/preference.resolver';
 import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
-import {TranslateService, TranslateModule} from '@ngx-translate/core';
+import {StatisticalTemplatesResolver} from '@app/shared/resolvers/statistical-templates.resolver';
+import {statisticalTemplateResolverModel} from '@app/models/resolvers/statistical-template-resolver-model';
+import {TranslateModule} from '@ngx-translate/core';
 import {TabsComponent} from '@app/shared/components/tabs/tabs.component';
 import {TabDirective} from '@app/shared/components/tabs/tab.directive';
 import {StatisticalReportsTabComponent} from '@app/pages/analyst/statistics/statistical-reports-tab/statistical-reports-tab.component';
 import {StatisticalTemplatesTabComponent} from '@app/pages/analyst/statistics/statistical-templates-tab/statistical-templates-tab.component';
+import {StatisticalTemplateViewComponent} from '@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component';
 
-import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
-
+/**
+ * The statistics of a site.
+ *
+ * The analysts read the statistics and compose the reports; whoever holds the
+ * permission composes the templates the statistics and the reports are
+ * presented with, administrators included: to them the page offers the
+ * templates alone.
+ */
 @Component({
     selector: 'src-statistics',
     templateUrl: './statistics.component.html',
     standalone: true,
     imports: [
-    BaseChartDirective,
     FormsModule,
     TabsComponent,
     TabDirective,
     StatisticalReportsTabComponent,
     StatisticalTemplatesTabComponent,
+    StatisticalTemplateViewComponent,
     TranslateModule
 ],
-    providers: [provideCharts(withDefaultRegisterables())],
 })
 export class StatisticsComponent {
-  private translateService = inject(TranslateService);
   private statisticsResolver = inject(StatisticsResolver);
+  private templatesResolver = inject(StatisticalTemplatesResolver);
+  private preferenceResolver = inject(PreferenceResolver);
+  private authenticationService = inject(AuthenticationService);
 
-  readonly charts = computed(() => this.initializeCharts());
+  /** The statistics of the platform, as they stand right now. */
+  readonly statistics = computed(() => this.statisticsResolver.resource.value());
 
-  private calculatePercentage(value: number, total: number): string {
-    if (total === 0) {
-      return '0.0';
-    }
-    return ((value / total) * 100).toFixed(1);
+  get templatesData(): statisticalTemplateResolverModel[] {
+    return this.templatesResolver.dataModel;
   }
 
-  private createChart(title: string, labels: string[], values: number[], colors: string[]) {
-    let total = 0;
-    let i: any;
-
-    for (i in values) {
-      total += values[i];
-    }
-
-    for (i in labels) {
-      labels[i] = this.translateService.instant(labels[i]) + ": " + this.calculatePercentage(values[i], total) + "%";
-    }
-
-    return {
-      title: this.translateService.instant(title),
-      total: total,
-      labels: labels,
-      datasets: [{'labels': labels, 'data': values, 'backgroundColor': colors}],
-    };
+  /** The template the statistics are presented with, configured by the administrators. */
+  get defaultTemplate(): statisticalTemplateResolverModel | null {
+    return this.templatesData?.find(template => template.default) || this.templatesData?.[0] || null;
   }
 
-  private initializeCharts() {
-    const dataModel = this.statisticsResolver.resource.value();
-    const reports_count: number = dataModel.reports_count;
+  get isAnalyst(): boolean {
+    return this.authenticationService.session.role === "analyst";
+  }
 
-    const a_1: number = dataModel.reports_with_no_access || 0;
-    const a_2: number = reports_count - dataModel.reports_with_no_access || 0;
-
-    const b_1: number = dataModel.reports_anonymous || 0;
-    const b_2: number = dataModel.reports_subscribed || 0;
-    const b_3: number = dataModel.reports_initially_anonymous || 0;
-
-    const c_1: number = dataModel.reports_tor || 0;
-    const c_2: number = reports_count - dataModel.reports_tor || 0;
-
-    const d_1: number = dataModel.reports_mobile || 0;
-    const d_2: number = reports_count - dataModel.reports_mobile || 0;
-
-    return [
-      this.createChart("Returning whistleblowers", ["Yes", "No"], [a_1, a_2], ["rgb(96,186,255)", "rgb(0,127,224)"]),
-      this.createChart("Anonymity", ["Anonymous", "Subscribed", "Subscribed later"], [b_1, b_2, b_3], ["rgb(96,186,255)", "rgb(0,127,224)", "rgb(0,46,82)"]),
-      this.createChart("Tor", ["Yes", "No"], [c_1, c_2], ["rgb(96,186,255)", "rgb(0,127,224)"]),
-      this.createChart("Mobile", ["Yes", "No"], [d_1, d_2], ["rgb(96,186,255)", "rgb(0,127,224)"]),
-    ];
+  get canConfigureTemplates(): boolean {
+    return !!this.preferenceResolver.dataModel?.profile?.permissions?.can_configure_statistical_report_templates;
   }
 }
