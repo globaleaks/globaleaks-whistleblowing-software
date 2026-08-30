@@ -2,13 +2,15 @@ from sqlalchemy.sql.expression import func, and_, false
 from nacl.encoding import Base64Encoder
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_config_variable, db_get_pid, db_set_config_variable
 from globaleaks.orm import transact, tw
 from twisted.internet.defer import inlineCallbacks
 import json
 from datetime import datetime, timedelta
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import datetime_now, uuid4
+from globaleaks.utils.utility import uuid4
+from nacl.exceptions import CryptoError
 
 
 def _empty_time_metrics():
@@ -27,7 +29,7 @@ def _hours_between(later, earlier):
         return None
     try:
         return (later - earlier).total_seconds() / 3600.0
-    except Exception:
+    except (TypeError, AttributeError):
         return None
 
 
@@ -45,7 +47,7 @@ def _get_status_from_audit_log_data(log_data):
     if isinstance(log_data, str):
         try:
             parsed = json.loads(log_data)
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
         if isinstance(parsed, dict):
@@ -209,7 +211,8 @@ def _decode_stat_answers(raw_stat_answers, stat_prv_key):
             parsed = json.loads(stat_text)
             if isinstance(parsed, dict):
                 return parsed
-        except Exception:
+        except ValueError:
+            # Not plain JSON: the answers may be encrypted, and are read below
             pass
 
         if not stat_prv_key:
@@ -221,7 +224,7 @@ def _decode_stat_answers(raw_stat_answers, stat_prv_key):
             parsed = json.loads(decrypted)
             if isinstance(parsed, dict):
                 return parsed
-        except Exception:
+        except (ValueError, CryptoError):
             return {}
 
     return {}
@@ -241,11 +244,19 @@ def _get_user_stat_prv_key(session, tid, user_id, user_cc):
 
     try:
         return GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(encrypted_stat_key[0].encode()))
-    except Exception:
+    except (ValueError, CryptoError):
         return None
 
 
-def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
+def db_get_statistical_questions(session, tid, language='en'):
+    """
+    Return the questions the statistics account for: the question templates of
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param language: The language of the serialization
+    :return: The questions, by the ID of their template
+    """
     template_rows = session.query(models.Field.id, models.Field.label) \
                            .filter(models.Field.tid.in_({1, tid}),
                                    models.Field.instance == 'template',
@@ -253,29 +264,68 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
                                    models.Field.type.in_(('selectbox', 'multichoice', 'checkbox')),
                                    models.Field.statistical == True) \
                            .all()
-    if not template_rows:
-        return []
 
-    template_ids = [template_id for template_id, _ in template_rows]
-    template_id_keys = {template_id: str(template_id) for template_id in template_ids}
-    template_metrics = {
-        template_id_keys[template_id]: {
-            'template_id': template_id_keys[template_id],
+    questions = {
+        str(template_id): {
+            'template_id': str(template_id),
             'title': _localized_label(label, language),
-            'option_labels': {},
-            'option_counts': {},
-            'total_answers': 0
+            'options': []
         } for template_id, label in template_rows
     }
 
+    if not questions:
+        return questions
+
     option_rows = session.query(models.FieldOption.field_id, models.FieldOption.id, models.FieldOption.label) \
-                         .filter(models.FieldOption.field_id.in_(template_ids)) \
+                         .filter(models.FieldOption.field_id.in_(list(questions))) \
                          .all()
+
     for field_id, option_id, option_label in option_rows:
-        field_id_key = template_id_keys.get(field_id, str(field_id))
         option_id_str = str(option_id)
-        template_metrics[field_id_key]['option_labels'][option_id_str] = _localized_label(option_label, language) or option_id_str
-        template_metrics[field_id_key]['option_counts'][option_id_str] = 0
+        questions[str(field_id)]['options'].append({
+            'id': option_id_str,
+            'label': _localized_label(option_label, language) or option_id_str
+        })
+
+    return questions
+
+
+def db_get_metric_catalog(session, tid, language='en'):
+    """
+    Return the metrics a template is composed of, carrying no value
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param language: The language of the serialization
+    :return: The catalog of the metrics of the site
+    """
+    questions = db_get_statistical_questions(session, tid, language)
+
+    return {
+        'question_template_dropdown_metrics': [{
+            'id': 'question_template_dropdown_%s' % question['template_id'],
+            'template_id': question['template_id'],
+            'title': question['title'] or question['template_id'],
+            'options': question['options']
+        } for question in sorted(questions.values(), key=lambda q: (q['title'] or '').lower())]
+    }
+
+
+def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
+    questions = db_get_statistical_questions(session, tid, language)
+    if not questions:
+        return []
+
+    template_ids = list(questions)
+    template_metrics = {
+        template_id: {
+            'template_id': template_id,
+            'title': question['title'],
+            'option_labels': {option['id']: option['label'] for option in question['options']},
+            'option_counts': {option['id']: 0 for option in question['options']},
+            'total_answers': 0
+        } for template_id, question in questions.items()
+    }
 
     field_template_rows = session.query(models.Field.id, models.Field.template_id) \
                                  .filter(models.Field.tid.in_({1, tid}),
@@ -284,7 +334,7 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
                                  .all()
 
     field_to_template = {
-        str(field_id): template_id_keys.get(template_id, str(template_id))
+        str(field_id): str(template_id)
         for field_id, template_id in field_template_rows
     }
 
@@ -601,22 +651,58 @@ def get_stats(session, tid, filters=None, language='en', user_id=None, user_cc=N
     return db_get_stats(session, tid, filters, language, user_id, user_cc)
 
 
-def _default_template():
+# The template of the platform is designated by a conventional identifier, so
+# that it can be recognized wherever it is presented and replaced in the future
+DEFAULT_TEMPLATE_ID = 'globaleaks'
+
+
+def empty_template_data():
+    """
+    Return the configuration of a template holding no metric: a template is
+    """
     return {
-        'label': 'GlobaLeaks',
-        'creation_date': datetime_now(),
-        'data': {
-            'config': {
-                'selectedMetrics': ['reports_received', 'avg_opening_time', 'avg_closure_time'],
-                'selectedCharts': [{'id': 'anonymity', 'chartType': 'pie'}]
-            },
-            'permissions': {
-                'canEdit': True,
-                'canDelete': False,
-                'canExport': True
-            }
+        'config': {
+            'selectedMetrics': [],
+            'selectedCharts': []
         }
     }
+
+
+def default_template_data():
+    """
+    Return the configuration of the template a platform starts with: the
+    """
+    return {
+        'config': {
+            'selectedMetrics': [
+                {'id': 'reports_received', 'title': 'Reports', 'chartType': 'number'}
+            ],
+            'selectedCharts': [
+                {'id': 'returning_whistleblowers', 'title': 'Returning whistleblowers', 'chartType': 'pie'},
+                {'id': 'anonymity', 'title': 'Anonymity', 'chartType': 'pie'},
+                {'id': 'tor', 'title': 'Tor', 'chartType': 'pie'},
+                {'id': 'mobile', 'title': 'Mobile', 'chartType': 'pie'}
+            ]
+        }
+    }
+
+
+def db_load_default_statistical_template(session):
+    """
+    Transaction for loading the statistical template of the platform
+
+    :param session: An ORM session
+    """
+    template = session.query(models.StatisticalReportTemplate) \
+                      .filter(models.StatisticalReportTemplate.id == DEFAULT_TEMPLATE_ID) \
+                      .one_or_none()
+
+    if template is None:
+        template = models.StatisticalReportTemplate({'id': DEFAULT_TEMPLATE_ID, 'tid': DEFAULT_PROFILE_ID})
+        session.add(template)
+
+    template.label = 'GlobaLeaks'
+    template.data = default_template_data()
 
 
 class FilterOptions(BaseHandler):
@@ -664,37 +750,102 @@ class Statistics(BaseHandler):
 
 
 def db_create_statistical_template(session, tid, request):
-    default = _default_template()
     request['id'] = uuid4()
     request['tid'] = tid
-    request['data'] = default['data']
+    request['data'] = request.get('data') or empty_template_data()
 
     template = models.StatisticalReportTemplate(request)
     session.add(template)
     session.flush()
+
     return template
+
+
+def db_statistical_template_tids(session, tid):
+    """
+    Return the tenants holding the templates a site is presented with: the site
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: The tenant IDs the templates are looked up on
+    """
+    return {DEFAULT_PROFILE_ID, db_get_pid(session, tid) or DEFAULT_PROFILE_ID, tid}
 
 
 def db_list_statistical_templates(session, tid):
-    return session.query(models.StatisticalReportTemplate).filter(models.StatisticalReportTemplate.tid == tid).all()
+    """
+    Return the templates a site is presented with: the template of the platform
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: The templates of the site
+    """
+    templates = session.query(models.StatisticalReportTemplate) \
+                       .filter(models.StatisticalReportTemplate.tid.in_(db_statistical_template_tids(session, tid))).all()
+
+    return sorted(templates, key=lambda t: (t.id != DEFAULT_TEMPLATE_ID, t.label.lower()))
 
 
 def db_get_statistical_template(session, tid, template_id):
-    template = session.query(models.StatisticalReportTemplate).filter(models.StatisticalReportTemplate.tid == tid,
-                                                                      models.StatisticalReportTemplate.id == template_id).first()
+    template = session.query(models.StatisticalReportTemplate) \
+                      .filter(models.StatisticalReportTemplate.tid.in_(db_statistical_template_tids(session, tid)),
+                              models.StatisticalReportTemplate.id == template_id).one_or_none()
     if not template:
         raise errors.ResourceNotFound
+
     return template
 
 
-def db_update_statistical_template(session, tid, template_id, request):
+def db_get_own_statistical_template(session, tid, template_id):
+    """
+    Return a template of the site, the only kind a site writes: the template of
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param template_id: The ID of the template
+    :return: The template the site holds
+    """
     template = db_get_statistical_template(session, tid, template_id)
+
+    if template.tid != tid or template.id == DEFAULT_TEMPLATE_ID:
+        raise errors.ForbiddenOperation
+
+    return template
+
+
+def db_get_default_statistical_template(session, tid, templates):
+    """
+    Return the ID of the template the statistics of a site are presented with:
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param templates: The templates of the site
+    :return: The ID of the template presenting the statistics
+    """
+    template_id = db_get_config_variable(session, tid, 'default_statistical_template')
+
+    if not any(template.id == template_id for template in templates):
+        template_id = DEFAULT_TEMPLATE_ID
+
+    return template_id
+
+
+def db_update_statistical_template(session, tid, template_id, request):
+    template = db_get_own_statistical_template(session, tid, template_id)
     template.update(request)
+
     return template
 
 
 def db_delete_statistical_template(session, tid, template_id):
-    template = db_get_statistical_template(session, tid, template_id)
+    template = db_get_own_statistical_template(session, tid, template_id)
+
+    # A template a report is built on is kept, or the report would lose its layout
+    if session.query(models.StatisticalReport) \
+              .filter(models.StatisticalReport.tid == tid,
+                      models.StatisticalReport.template_id == template.id).first():
+        raise errors.ForbiddenOperation
+
     session.delete(template)
 
 
@@ -702,13 +853,14 @@ def db_create_statistical_report(session, tid, request, language='en', user_id=N
     request['id'] = uuid4()
     request['tid'] = tid
 
+    # A report is built on a template the site is presented with
+    db_get_statistical_template(session, tid, request['template_id'])
+
+    # A report is a frozen snapshot: the statistics are computed once, at
+    # creation, and stored so that the view renders the stored values
     data = request.get('data') or {}
-    # Non-realtime reports are frozen snapshots: the statistics are computed
-    # once, at creation, and stored so the view renders the stored values.
-    # Realtime reports omit the snapshot and are recomputed on every view.
-    if not data.get('realtime'):
-        data['snapshot'] = db_get_stats(session, tid, data.get('filters') or None, language, user_id, user_cc)
-        request['data'] = data
+    data['snapshot'] = db_get_stats(session, tid, data.get('filters') or None, language, user_id, user_cc)
+    request['data'] = data
 
     report = models.StatisticalReport(request)
     session.add(report)
@@ -739,13 +891,23 @@ def db_delete_statistical_report(session, tid, report_id):
     session.delete(report)
 
 
-def serialize_statistical_template(template):
+def serialize_statistical_template(template, tid, default_id):
+    """
+    Serialize a template of the statistics
+
+    :param template: The template to be serialized
+    :param tid: The tenant ID the template is presented to
+    :param default_id: The ID of the template presenting the statistics
+    :return: The serialization of the template
+    """
     return {
         'id': template.id,
         'tid': template.tid,
         'label': template.label,
         'creation_date': template.creation_date,
-        'data': template.data if template.data is not None else _default_template()['data']
+        'editable': template.tid == tid and template.id != DEFAULT_TEMPLATE_ID,
+        'default': template.id == default_id,
+        'data': template.data if template.data is not None else empty_template_data()
     }
 
 
@@ -762,22 +924,40 @@ def serialize_statistical_report(report):
 
 def create_statistical_template(session, tid, request):
     template = db_create_statistical_template(session, tid, request)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
 
 
 def list_statistical_templates(session, tid):
     templates = db_list_statistical_templates(session, tid)
-    return [serialize_statistical_template(t) for t in templates]
+    default_id = db_get_default_statistical_template(session, tid, templates)
+    return [serialize_statistical_template(t, tid, default_id) for t in templates]
 
 
 def get_statistical_template(session, tid, template_id):
     template = db_get_statistical_template(session, tid, template_id)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
 
 
 def update_statistical_template(session, tid, template_id, request):
     template = db_update_statistical_template(session, tid, template_id, request)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
+
+
+def get_metric_catalog(session, tid, language='en'):
+    return db_get_metric_catalog(session, tid, language)
+
+
+def set_default_statistical_template(session, tid, template_id):
+    """
+    Configure the template the statistics of a site are presented with
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param template_id: The ID of the template to be presented
+    """
+    db_get_statistical_template(session, tid, template_id)
+
+    db_set_config_variable(session, tid, 'default_statistical_template', template_id)
 
 
 def delete_statistical_template(session, tid, template_id):
@@ -808,8 +988,20 @@ def delete_statistical_report(session, tid, report_id):
     return db_delete_statistical_report(session, tid, report_id)
 
 
+class MetricCatalog(BaseHandler):
+    # The catalog names the metrics and carries none of their values: it is read
+    # by whoever is presented the templates, and says nothing about the reports
+    check_roles = {'analyst', 'admin'}
+
+    def get(self):
+        return tw(get_metric_catalog, self.request.tid, self.request.language)
+
+
 class StatisticalReportTemplates(BaseHandler):
-    check_roles = 'analyst'
+    # Composed by the analysts and by the administrators holding the permission
+    check_roles = {'analyst', 'admin'}
+
+    require_permission = {'post': 'can_configure_statistical_report_templates'}
 
     def get(self):
         return tw(list_statistical_templates, self.request.tid)
@@ -823,7 +1015,10 @@ class StatisticalReportTemplates(BaseHandler):
 
 
 class StatisticalReportTemplateInstance(BaseHandler):
-    check_roles = 'analyst'
+    check_roles = {'analyst', 'admin'}
+
+    require_permission = {'put': 'can_configure_statistical_report_templates',
+                          'delete': 'can_configure_statistical_report_templates'}
 
     def get(self, template_id):
         return tw(get_statistical_template, self.request.tid, template_id)
@@ -869,3 +1064,4 @@ class StatisticalReportInstance(BaseHandler):
 
     def delete(self, report_id):
         return tw(delete_statistical_report, self.request.tid, report_id)
+

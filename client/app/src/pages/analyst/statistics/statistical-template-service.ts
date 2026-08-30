@@ -1,6 +1,24 @@
 import {inject, Injectable} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
-import {ChartConfig, MetricCard} from "@app/models/resolvers/statistical-template-resolver-model";
+import type {Chart, ChartOptions, TooltipItem} from "chart.js";
+import {ChartConfig, MetricCard, StatisticalReportTemplate, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
+import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+
+// The metrics of the dropdown questions, as the statistics carry them with
+// their values and as the catalog carries them without
+interface DropdownOption {id: string; label: string; count?: number}
+interface DropdownMetric {id: string; template_id: string; title: string; total_answers?: number; options: DropdownOption[]}
+type MetricSource = Partial<Omit<statisticsResolverModel, "question_template_dropdown_metrics">> &
+  {question_template_dropdown_metrics?: DropdownMetric[]};
+
+// What a template names among the metrics: the identifier alone, or the
+// identifier with the chart the metric is drawn as
+type TemplateSelection = string | {id: string; chartType?: string};
+interface TemplateConfig {
+  selectedMetrics?: TemplateSelection[];
+  selectedCharts?: TemplateSelection[];
+}
+type StatisticalTemplate = StatisticalReportTemplate | statisticalTemplateResolverModel;
 
 @Injectable({
   providedIn: "root"
@@ -12,10 +30,10 @@ export class StatisticalTemplateService {
     '#3679BB', '#205282', '#9FC9F1', '#103253', '#4BC0C0', '#FFCE56', '#36A2EB', '#5A9FD4'
   ];
 
-  createMetricCatalog(dataModel: any): MetricCard[] {
-    const toNumber = (value: any): number => Number(value) || 0;
+  createMetricCatalog(dataModel: MetricSource): MetricCard[] {
+    const toNumber = (value: unknown): number => Number(value) || 0;
     const toFixed1 = (value: number): string => value.toFixed(1);
-    const toDurationLabel = (hoursValue: any): string => {
+    const toDurationLabel = (hoursValue: unknown): string => {
       const hours = toNumber(hoursValue);
       if (!Number.isFinite(hours) || hours <= 0) {
         return "0.0 days";
@@ -56,7 +74,7 @@ export class StatisticalTemplateService {
       category: 'numeric',
       group: 'Default',
       compatibleTypes: ['number']
-    } as any);
+    });
 
     const distributionMetric = (id: string, title: string, labels: string[], data: number[]): MetricCard => ({
       id,
@@ -67,7 +85,7 @@ export class StatisticalTemplateService {
       group: 'Default',
       compatibleTypes: ['pie', 'bar', 'percentage'],
       customData: { labels, data }
-    } as any);
+    });
 
     const newCatalog: MetricCard[] = [
       scalarMetric('reports_received', 'Reports', reports_count),
@@ -85,11 +103,11 @@ export class StatisticalTemplateService {
       ? dataModel.question_template_dropdown_metrics
       : [];
 
-    const customDropdownCatalog: MetricCard[] = dropdownTemplateMetrics.map((metric: any) => {
+    const customDropdownCatalog: MetricCard[] = dropdownTemplateMetrics.map((metric: DropdownMetric) => {
       const optionEntries = Array.isArray(metric.options) ? metric.options : [];
-      const labels = optionEntries.map((option: any) => option.label || option.id || '');
-      const values = optionEntries.map((option: any) => Number(option.count) || 0);
-      const totalAnswers = Number(metric.total_answers) || values.reduce((sum:any, value:any) => sum + value, 0);
+      const labels = optionEntries.map((option: DropdownOption) => option.label || option.id || '');
+      const values = optionEntries.map((option: DropdownOption) => Number(option.count) || 0);
+      const totalAnswers = Number(metric.total_answers) || values.reduce((sum: number, value: number) => sum + value, 0);
 
       return {
         id: metric.id || `question_template_dropdown_${metric.template_id}`,
@@ -109,11 +127,12 @@ export class StatisticalTemplateService {
     return [...newCatalog, ...customDropdownCatalog];
   }
 
-  loadTemplateConfiguration(template: any, availableMetrics: MetricCard[]) {
+  loadTemplateConfiguration(template: StatisticalTemplate | null | undefined, availableMetrics: MetricCard[]) {
+    const config: TemplateConfig = template?.data?.config || {};
     const metricCards: MetricCard[] = [];
     const chartMetrics: MetricCard[] = [];
 
-    const selectedMetrics: any[] = (template?.data?.config && (template.data.config as any).selectedMetrics) ? (template.data.config as any).selectedMetrics : [];
+    const selectedMetrics: TemplateSelection[] = config.selectedMetrics || [];
     if (selectedMetrics && selectedMetrics.length > 0) {
       const templateMetrics = selectedMetrics
         .map(metricItem => {
@@ -126,13 +145,7 @@ export class StatisticalTemplateService {
       metricCards.push(...templateMetrics);
     }
 
-    if (metricCards.length === 0) {
-      if (availableMetrics.length >= 3) {
-        metricCards.push(...availableMetrics.slice(0, 3).map(metric => ({ ...metric, chartType: 'number' })));
-      }
-    }
-
-    const selectedCharts: any[] = (template?.data?.config && (template.data.config as any).selectedCharts) ? (template.data.config as any).selectedCharts : [];
+    const selectedCharts: TemplateSelection[] = config.selectedCharts || [];
     if (selectedCharts && selectedCharts.length > 0) {
       const templateCharts = selectedCharts
         .map(chartItem => {
@@ -151,7 +164,7 @@ export class StatisticalTemplateService {
 
   presentCard(card: MetricCard): MetricCard {
     if (card.chartType === 'percentage' && card.customData?.data?.length) {
-      const values = card.customData.data.map((value: any) => Number(value) || 0);
+      const values = card.customData.data.map((value: unknown) => Number(value) || 0);
       const total = values.reduce((sum: number, value: number) => sum + value, 0);
       const share = total > 0 ? (values[0] / total) * 100 : 0;
       return { ...card, value: `${share.toFixed(1)}% ${card.customData.labels[0] || ''}`.trim() };
@@ -167,24 +180,28 @@ export class StatisticalTemplateService {
     }
   }
 
-  generateChartData(metric: MetricCard, dataModel: any) {
+  generateChartData(metric: MetricCard, dataModel: MetricSource | null | undefined, preview = false) {
     if (!dataModel) return { labels: [], datasets: [] };
 
     if (metric.customData && metric.customData.labels && metric.customData.data) {
+      // While a template is composed the chart carries no value: it is drawn on
+      // equal slices, so that the shape of what is being composed is visible
+      const data = preview ? metric.customData.labels.map(() => 1) : metric.customData.data;
+
       return {
         labels: metric.customData.labels,
         datasets: [{
-          data: metric.customData.data,
-          backgroundColor: metric.customData.data.map((_: number, index: number) => this.GLOBALEAKS_COLORS[index % this.GLOBALEAKS_COLORS.length])
+          data,
+          backgroundColor: metric.customData.labels.map((_: string, index: number) => this.GLOBALEAKS_COLORS[index % this.GLOBALEAKS_COLORS.length])
         }]
       };
     }
 
-    return { labels: [this.translateService.instant('Value')], datasets: [{ data: [metric.value], backgroundColor: [this.GLOBALEAKS_COLORS[0]] }] };
+    return { labels: [this.translateService.instant('Value')], datasets: [{ data: [preview ? 1 : metric.value], backgroundColor: [this.GLOBALEAKS_COLORS[0]] }] };
   }
 
-  private getChartOptions(chartType?: string): any {
-    const getTooltipValue = (context: any): number | string => {
+  private getChartOptions(chartType?: string, preview = false): ChartOptions<'bar' | 'pie'> {
+    const getTooltipValue = (context: TooltipItem<'bar' | 'pie'>): number | string => {
       if (typeof context.raw === 'number' || typeof context.raw === 'string') {
         return context.raw;
       }
@@ -193,13 +210,16 @@ export class StatisticalTemplateService {
         return context.parsed;
       }
 
-      if (context.parsed && typeof context.parsed === 'object') {
-        if (typeof context.parsed.y === 'number' || typeof context.parsed.y === 'string') {
-          return context.parsed.y;
+      // A bar carries the value on one of its axes, a slice carries it alone
+      const parsed: unknown = context.parsed;
+      if (parsed && typeof parsed === 'object') {
+        const point = parsed as {x?: unknown; y?: unknown};
+        if (typeof point.y === 'number' || typeof point.y === 'string') {
+          return point.y;
         }
 
-        if (typeof context.parsed.x === 'number' || typeof context.parsed.x === 'string') {
-          return context.parsed.x;
+        if (typeof point.x === 'number' || typeof point.x === 'string') {
+          return point.x;
         }
       }
 
@@ -216,14 +236,16 @@ export class StatisticalTemplateService {
           labels: {
             usePointStyle: true,
             padding: 20,
-            generateLabels: function (chart: any) {
+            generateLabels: function (chart: Chart) {
               const data = chart.data;
-              if (data.labels.length && data.datasets.length) {
-                return data.labels.map((label: string, i: number) => {
+              const labels = data.labels ?? [];
+              if (labels.length && data.datasets.length) {
+                return labels.map((rawLabel, i) => {
+                  const label = String(rawLabel);
                   const value = data.datasets[0].data[i];
                   return {
-                    text: `${label}: ${value}`,
-                    fillStyle: data.datasets[0].backgroundColor[i],
+                    text: preview ? label : `${label}: ${value}`,
+                    fillStyle: (data.datasets[0].backgroundColor as string[])[i],
                     hidden: false,
                     index: i
                   };
@@ -235,8 +257,12 @@ export class StatisticalTemplateService {
         },
         tooltip: {
           callbacks: {
-            label: function (context: any) {
+            label: function (context: TooltipItem<'bar' | 'pie'>) {
               const label = context.label || '';
+              if (preview) {
+                return label;
+              }
+
               const value = getTooltipValue(context);
               return label ? `${label}: ${value}` : `${value}`;
             }
@@ -252,7 +278,7 @@ export class StatisticalTemplateService {
           y: {
             beginAtZero: true,
             ticks: {
-              callback: function (value: any) {
+              callback: function (value: string | number) {
                 return value;
               }
             }
@@ -271,13 +297,13 @@ export class StatisticalTemplateService {
     return baseOptions;
   }
 
-  buildChartConfigs(chartMetrics: MetricCard[], dataModel: any): ChartConfig[] {
+  buildChartConfigs(chartMetrics: MetricCard[], dataModel: MetricSource, preview = false): ChartConfig[] {
     return chartMetrics.map(chartMetric => ({
       id: `chart-${chartMetric.id}`,
       title: chartMetric.title,
-      type: this.getChartType((chartMetric as any).chartType),
-      data: this.generateChartData(chartMetric, dataModel),
-      options: this.getChartOptions((chartMetric as any).chartType)
+      type: this.getChartType(chartMetric.chartType),
+      data: this.generateChartData(chartMetric, dataModel, preview),
+      options: this.getChartOptions(chartMetric.chartType, preview)
     }));
   }
 }

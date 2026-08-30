@@ -1,7 +1,8 @@
 import {Component, Input, OnInit, Output, EventEmitter, inject, OnChanges, SimpleChanges} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {ChartConfig, MetricCard, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
-import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
+import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 import {provideCharts, withDefaultRegisterables, BaseChartDirective} from "ng2-charts";
 import {TranslateModule} from "@ngx-translate/core";
 import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statistical-template-service";
@@ -15,13 +16,18 @@ import {NgbDropdownModule, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
   imports: [CommonModule, TranslateModule, BaseChartDirective, NgbDropdownModule, NgbTooltipModule]
 })
 export class StatisticalTemplateViewComponent implements OnInit, OnChanges {
-  protected readonly statisticsResolver = inject(StatisticsResolver);
+  protected readonly metricsResolver = inject(StatisticalMetricsResolver);
   protected readonly templateService = inject(StatisticalTemplateService);
 
   @Input() templateData!: statisticalTemplateResolverModel | null;
   @Input() templatesData: statisticalTemplateResolverModel[] = [];
   @Input() editable = false;
-  @Input() refreshKey = 0;
+  /**
+   * The statistics the template is rendered on. Lacking them the template is
+   * rendered on the catalog of the metrics, that carries no value: it is how a
+   * template is presented while it is composed.
+   */
+  @Input() statisticsData: statisticsResolverModel | null = null;
 
   @Output() removeMetric = new EventEmitter<string>();
   @Output() addNewMetric = new EventEmitter<void>();
@@ -38,13 +44,18 @@ export class StatisticalTemplateViewComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['templateData'] && !changes['templateData'].firstChange) ||
-        (changes['refreshKey'] && !changes['refreshKey'].firstChange)) {
+        (changes['statisticsData'] && !changes['statisticsData'].firstChange)) {
       this.initializeComponentWithTemplate(this.templateData);
     }
   }
 
+  /** Whether the template is presented without the values of its metrics */
+  get preview(): boolean {
+    return !this.statisticsData;
+  }
+
   private initializeComponentWithTemplate(template: statisticalTemplateResolverModel | null): void {
-    const dataModel = this.statisticsResolver.dataModel;
+    const dataModel = this.statisticsData || this.metricsResolver.dataModel;
     if (!dataModel) {
       this.availableMetrics = [];
       return;
@@ -54,7 +65,7 @@ export class StatisticalTemplateViewComponent implements OnInit, OnChanges {
     const cfg = this.templateService.loadTemplateConfiguration(template, this.availableMetrics);
     this.metricCards = cfg.metricCards;
     this.chartMetrics = cfg.chartMetrics;
-    this.chartConfigs = this.templateService.buildChartConfigs(this.chartMetrics, dataModel);
+    this.chartConfigs = this.templateService.buildChartConfigs(this.chartMetrics, dataModel, this.preview);
   }
 
   canAddMoreMetrics(): boolean {

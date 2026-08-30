@@ -7,6 +7,7 @@ from globaleaks import models
 from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.analyst import set_default_statistical_template
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.handlers.user import get_user
@@ -101,9 +102,6 @@ def db_get_session_escrow_key(session, user_session):
 def reset_backups(session, tid, user_id):
     """
     Transaction to reset the backup configuration of the specified tenant
-
-    Every backup variable is restored to its default (disabling the feature),
-    so the snapshots deletion that follows starts from a clean configuration.
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -339,10 +337,7 @@ class AdminOperationHandler(OperationHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
-    # Each operation is gated on the permission of the administrative area it
-    # belongs to, rather than on a single class-wide permission, so that e.g. an
-    # administrator scoped to the settings cannot perform account operations
-    # (password reset, 2FA disable, IdP unbind) on other users.
+    # Each operation is gated on the permission of its area, not on a class-wide one
     operation_permissions = {
         'enable_encryption': 'can_manage_settings',
         'reset_submissions': 'can_manage_settings',
@@ -359,7 +354,8 @@ class AdminOperationHandler(OperationHandler):
         'disable_2fa': 'can_manage_users',
         'reset_idp_binding': 'can_manage_users',
         'enable_user_permission_file_upload': 'can_manage_users',
-        'disable_user_permission_file_upload': 'can_manage_users'
+        'disable_user_permission_file_upload': 'can_manage_users',
+        'set_default_statistical_template': 'can_configure_statistical_report_templates'
     }
 
     require_confirmation = [
@@ -385,15 +381,16 @@ class AdminOperationHandler(OperationHandler):
 
     @inlineCallbacks
     def validate_idp(self, req_args, *args, **kwargs):
-        # The issuer is validated by performing the OIDC discovery and fetching
-        # its JWKS, and the client by probing the token endpoint, verifying
-        # that the IdP exists, is reachable and recognizes the client before
-        # the configuration is allowed to be enabled.
+        # The issuer is validated by the OIDC discovery and the JWKS fetch, the client by probing
+        # the token endpoint
         try:
             yield State.oidcauth.validate_issuer(req_args['issuer'])
             yield State.oidcauth.validate_client(req_args['issuer'], req_args['client_id'])
         except Exception as e:
             raise errors.InputValidationError(str(e))
+
+    def set_default_statistical_template(self, req_args, *args, **kwargs):
+        return tw(set_default_statistical_template, self.request.tid, req_args['value'])
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -529,5 +526,6 @@ class AdminOperationHandler(OperationHandler):
             'toggle_user_escrow': AdminOperationHandler.toggle_user_escrow,
             'enable_user_permission_file_upload': AdminOperationHandler.enable_user_permission_file_upload,
             'disable_user_permission_file_upload': AdminOperationHandler.disable_user_permission_file_upload,
-            'reset_templates': AdminOperationHandler.reset_templates
+            'reset_templates': AdminOperationHandler.reset_templates,
+            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template
         }

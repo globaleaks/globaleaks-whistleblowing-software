@@ -19,6 +19,7 @@ export class NewUserPermissions {
   can_change_label = true;
   can_mask_information = true;
   can_redact_information = false;
+  can_configure_statistical_report_templates = false;
 }
 
 export class NewUserProfile {
