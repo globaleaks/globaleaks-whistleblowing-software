@@ -1342,3 +1342,9 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 .receiver-tooltip {
   white-space: pre-line;
 }
+
+/* The height of a chart is declared here and not on the element: the
+   Content-Security-Policy of the platform forbids the inline styles */
+.chart-container {
+  height: 300px;
+}

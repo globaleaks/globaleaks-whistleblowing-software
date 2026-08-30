@@ -3,6 +3,10 @@ export class StatisticalReportTemplate {
   tid: number;
   label: string;
   creation_date: string;
+  /** Whether the site holds the template and may therefore write it */
+  editable: boolean;
+  /** Whether the statistics of the site are presented with the template */
+  default: boolean;
   data: any;
 }
 
@@ -11,6 +15,8 @@ export class statisticalTemplateResolverModel {
   tid: number;
   label: string;
   creation_date: string;
+  editable: boolean;
+  default: boolean;
   data: any;
 }
 

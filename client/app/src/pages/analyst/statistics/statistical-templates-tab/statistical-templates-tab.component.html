@@ -1,10 +1,29 @@
 <div class="config-section reveal">
+  @if (isAdmin) {
+    <div class="form-group row align-items-center">
+      <label class="col-auto col-form-label" for="default-statistical-template">{{ 'Default statistical template' | translate }}</label>
+      <div class="col-md-4">
+        <select id="default-statistical-template" name="default_statistical_template" class="form-control"
+          [ngModel]="defaultTemplateId" (ngModelChange)="setDefaultTemplate($event)">
+          @for (template of templatesData; track template.id) {
+            <option [value]="template.id">{{ template.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+  }
   <div>
     <span>{{ 'Templates' | translate }}</span>
     <button class="btn btn-sm btn-primary show-add-template-btn" (click)="toggleAddTemplate()">
       <i class="fas fa-plus"></i>
       <span>{{ 'Add' | translate }}</span>
     </button>
+    <span class="custom-file">
+      <input id="import-template-file" type="file" hidden #templateUploadInput (change)="importTemplate(templateUploadInput.files)" />
+      <label for="import-template-file" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-upload"></i>{{'Import' | translate}}
+      </label>
+    </span>
   </div>
   @if (showAddTemplate) {
     <div class="row">
@@ -27,15 +46,13 @@
       </div>
     </div>
   }
-  @if (filterOptions) {
-    <app-paginated-interface [items]="templatesData" [filterField]="'label'">
+  <app-paginated-interface [items]="templatesData" [filterField]="'label'">
       <ng-template #content let-item="item" let-index="index">
         <div class="templateList">
           <form id="template-{{index}}" name="editTemplate" #editTemplate="ngForm" novalidate>
-            <src-statistical-template-editor [templateData]="item" [templatesData]="templatesData" [editTemplate]="editTemplate" [filterOptions]="filterOptions" [index]="index" (dataToParent)="onTemplateRemoved($event)"></src-statistical-template-editor>
+            <src-statistical-template-editor [templateData]="item" [templatesData]="templatesData" [editTemplate]="editTemplate" [index]="index" (dataToParent)="onTemplateRemoved($event)"></src-statistical-template-editor>
           </form>
         </div>
-      </ng-template>
-    </app-paginated-interface>
-  }
+    </ng-template>
+  </app-paginated-interface>
 </div>
