@@ -21,13 +21,6 @@ STATISTICAL_KEY_ROLES = ('admin', 'analyst')
 def db_grant_statistical_key(session, tid, stat_prv_key):
     """
     Distribute the (already decrypted) statistical private key to every
-    admin/analyst of the tenant that already owns an encryption keypair but
-    does not hold the statistical key yet.
-
-    The statistical key is a push-only shared secret: it can only be granted
-    by someone who already holds it, encrypting it to the recipient's public
-    key. It is intentionally kept separate from the escrow key so that holding
-    it grants access to aggregated statistical data only, never to reports.
     """
     users = session.query(models.User) \
                    .filter(models.User.tid == tid,
@@ -43,21 +36,19 @@ def db_grant_statistical_key(session, tid, stat_prv_key):
 def db_reconcile_statistical_key(session, tid, user, cc):
     """
     If the given user holds the statistical key, distribute it to any
-    admin/analyst still missing it. Invoked on login of a key holder so that
-    users provisioned via activation link (whose keypair is created only at
-    first login) and legacy accounts get the key automatically.
     """
     if not cc or not user.crypto_global_stat_prv_key:
         return
 
     try:
         stat_prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
-    except Exception:
+    except (ValueError, CryptoError):
         return
 
     db_grant_statistical_key(session, tid, stat_prv_key)
 
 import globaleaks.handlers.user.validate_email
+from nacl.exceptions import CryptoError
 
 user_permissions = ObjectDict({
     'can_manage_settings': False,
@@ -79,7 +70,8 @@ user_permissions = ObjectDict({
     'can_transfer_access_to_reports': False,
     'can_send_communications': False,
     'can_change_status': True,
-    'can_change_label': True
+    'can_change_label': True,
+    'can_configure_statistical_report_templates': False
 })
 
 
@@ -87,7 +79,7 @@ def serialize_user_profile(session, profile):
     """
     Serialize a user profile object into a dictionary format.
 
-    :param user: The user profile object to serialize.
+    :param profile: The user profile object to serialize.
     :return: A dictionary containing user profile data.
     """
     user_profile = {
@@ -235,11 +227,8 @@ def db_user_update_user(session, tid, user_session, request):
     user.language = request.get('language', State.tenants[tid].cache.default_language)
     user.notification = request['notification']
 
-    # The identity fields are changed only by an administrator or by a user
-    # entitled to manage the settings: a self-service update must not let a
-    # user rename itself. The role is never self-assignable: it changes only
-    # through the user editor, where the operation is bound to the privilege
-    # of the operator.
+    # Identity fields are changed by an administrator or with the settings permission: no self-
+    # service rename
     if user_session.role == 'admin' or user_session.has_permission('can_manage_settings'):
         user.name = request['name']
         user.public_name = request['public_name'] or request['name']

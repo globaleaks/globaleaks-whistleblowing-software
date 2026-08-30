@@ -3,6 +3,7 @@ import os
 from globaleaks import models
 from globaleaks.handlers.admin.field import db_create_field
 from globaleaks.handlers.admin.questionnaire import db_create_questionnaire
+from globaleaks.handlers.analyst import db_load_default_statistical_template
 from globaleaks.orm import db_del
 from globaleaks.settings import Settings
 from globaleaks.utils.fs import read_json_file
@@ -96,3 +97,4 @@ def db_load_defaults(session):
     """
     db_load_default_questionnaires(session)
     db_load_default_fields(session)
+    db_load_default_statistical_template(session)
