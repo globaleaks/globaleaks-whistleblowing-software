@@ -285,12 +285,19 @@ class MigrationScript(MigrationBase):
     ACCREDITOR_ROLE = EnumUserRole.auditor.name
     ACCREDITOR_PERMISSIONS = ['can_manage_sites']
 
+    # Statistical report templates: composing them becomes a permission of the
+    # analysts, that every analyst held so far.
+    ANALYST_PERMISSIONS = ['can_configure_statistical_report_templates']
+
     def user_permissions(self, old_obj):
         """
         Return the permissions the profile of an account is granted
         """
         if old_obj.role == self.ACCREDITOR_ROLE:
             return self.ACCREDITOR_PERMISSIONS
+
+        if old_obj.role == EnumUserRole.analyst.name:
+            return self.ANALYST_PERMISSIONS
 
         permissions = [p for p in self.PROFILE_PERMISSIONS if getattr(old_obj, p, False)]
 

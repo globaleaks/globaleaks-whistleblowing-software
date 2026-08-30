@@ -1,35 +1,14 @@
 <form name="statisticsForm" #statisticsForm="ngForm" novalidate class="reveal">
   <src-tabs>
-    <ng-template srcTab="statistics" title="Statistics">
-      <div class="row">
-        <div class="col-md-3">
-          <div class="card">
-            <div class="card-header">{{ 'Reports' | translate }}</div>
-            <div class="card-body text-center">
-              <h2>{{ charts()[0].total }}</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        @for (chart of charts(); track chart; let i = $index) {
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-header">{{ chart.title | translate }}</div>
-              <div class="card-body analyst-graph">
-                <canvas baseChart class="chart chart-pie" [type]="'pie'" [labels]="chart.labels" [datasets]="chart.datasets" [legend]="true">
-                </canvas>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
+    <ng-template srcTab="statistics" title="Statistics" [visible]="isAnalyst">
+      @if (defaultTemplate) {
+        <src-statistical-template-view [templateData]="defaultTemplate" [templatesData]="templatesData" [statisticsData]="statistics()"></src-statistical-template-view>
+      }
     </ng-template>
-    <ng-template srcTab="statistical_reports" title="Statistical Reports">
+    <ng-template srcTab="statistical_reports" title="Statistical reports" [visible]="isAnalyst">
       <src-statistical-reports-tab [statisticsForm]="statisticsForm"></src-statistical-reports-tab>
     </ng-template>
-    <ng-template srcTab="templates" title="Templates">
+    <ng-template srcTab="templates" title="Templates" [visible]="canConfigureTemplates">
       <src-statistical-templates-tab [statisticsForm]="statisticsForm"></src-statistical-templates-tab>
     </ng-template>
   </src-tabs>
