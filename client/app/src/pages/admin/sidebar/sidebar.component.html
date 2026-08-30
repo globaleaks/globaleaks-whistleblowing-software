@@ -32,6 +32,12 @@
     <span>{{'Case management'|translate}}</span>
   </a>
 }
+@if (permissions.can_configure_statistical_report_templates) {
+  <a routerLink="/admin/statistics" routerLinkActive="active" id="admin_statistics" [attr.aria-current]="isActive('/admin/statistics') ? 'page' : 'false'">
+    <i class="fas fa-chart-pie"></i>
+    <span>{{'Statistics'|translate}}</span>
+  </a>
+}
 @if (permissions.can_manage_notifications && !nodeResolver.dataModel.is_profile) {
   <a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
     <i class="fas fa-envelope"></i>

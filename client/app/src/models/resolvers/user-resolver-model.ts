@@ -26,6 +26,7 @@ export class UserProfile {
     can_change_label: boolean;
     can_mask_information: boolean;
     can_redact_information: boolean;
+    can_configure_statistical_report_templates: boolean;
   };
   custom: boolean;
 }
