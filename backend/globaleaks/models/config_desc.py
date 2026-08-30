@@ -67,6 +67,7 @@ ConfigDescriptor = {
     'crypto_stat_pub_key': Unicode(default=''),
     'default_language': Unicode(default='en'),
     'default_questionnaire': Unicode(default='default'),
+    'default_statistical_template': Unicode(default='globaleaks'),
     'default_tip_timetolive': Int(default=90),  # Days
     'demo': Bool(default=False),
     'description': Unicode(default='Secure reporting platform based on GlobaLeaks free and open-source whistleblowing software.'),

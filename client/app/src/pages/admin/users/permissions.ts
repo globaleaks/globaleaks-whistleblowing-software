@@ -47,6 +47,11 @@ export const RECIPIENT_PERMISSIONS: PermissionItem[] = [
   {key: "can_transfer_access_to_reports", label: "Transfer access to reports"}
 ];
 
+// Composing the statistical templates is offered to the administrators as well
+export const ANALYST_PERMISSIONS: PermissionItem[] = [
+  {key: "can_configure_statistical_report_templates", label: "Templates"}
+];
+
 /**
  * Build the permission subsections to render for a profile, one per role it
  * holds. can_manage_settings is an administrative area; a non administrator
@@ -59,7 +64,7 @@ export function buildPermissionGroups(roles: string[], onRootTenant: boolean): P
   if (isAdmin) {
     groups.push({
       role: "Admin",
-      permissions: ADMIN_AREAS.filter(area => !area.rootOnly || onRootTenant)
+      permissions: [...ADMIN_AREAS.filter(area => !area.rootOnly || onRootTenant), ...ANALYST_PERMISSIONS]
     });
   }
 
@@ -69,6 +74,10 @@ export function buildPermissionGroups(roles: string[], onRootTenant: boolean): P
       permissions.push({key: "can_manage_settings", label: "Settings"});
     }
     groups.push({role: "Recipient", permissions});
+  }
+
+  if (roles.includes("analyst")) {
+    groups.push({role: "Analyst", permissions: ANALYST_PERMISSIONS});
   }
 
   return groups;
