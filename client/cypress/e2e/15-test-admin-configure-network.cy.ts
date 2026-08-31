@@ -5,13 +5,13 @@ describe("admin configure network", () => {
   });
 
   it("should be able to configure https", () => {
-    cy.get('[data-cy="https"]').should('be.visible').click();
+    cy.get('[data-cy="https"]').click();
 
     cy.get('[name="hostname"]').clear().type("127.0.0.1");
     cy.get('#save_hostname').click();
 
     cy.get("#HTTPSManualMode").click();
-    cy.get("#pkGen").should('be.visible').click();
+    cy.get("#pkGen").click();
     cy.get("#csrGen").click();
     cy.get('[name="country"]').type("IT");
     cy.get('[name="province"]').type("Milano");
@@ -21,9 +21,9 @@ describe("admin configure network", () => {
     cy.get("#csrSubmit").click();
 
     cy.get("#deleteKey").click();
-    cy.get("#modal-action-ok").should('be.visible').click();
+    cy.get("#modal-action-ok").click();
     cy.get("#deleteKey").should("not.exist");
-    cy.get("#HTTPSManualMode").should('be.visible').click();
+    cy.get("#HTTPSManualMode").click();
 
     cy.get("div.card.key input[type=file]").selectFile({
       contents: "../backend/globaleaks/tests/data/https/valid/key.pem",
@@ -51,7 +51,7 @@ describe("admin configure network", () => {
     cy.get("#deleteCert").click();
     cy.get("#modal-action-ok").click();
 
-    cy.get("#deleteKey").should('be.visible').click();
+    cy.get("#deleteKey").click();
     cy.get("#modal-action-ok").click();
     cy.logout();
   });

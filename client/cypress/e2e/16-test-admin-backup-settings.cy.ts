@@ -16,6 +16,8 @@ describe("admin backup settings", () => {
     cy.get('#backup-time').should('have.value', '03:30');
     cy.get('#backup-period').find('option:selected').should('have.text', '6');
     cy.get('#backup-retention').should('have.value', '10');
+    // the backup is photographed configured and enabled, as the chapter shows it
+    cy.takeScreenshot("admin/backup_settings");
     cy.logout();
   });
 

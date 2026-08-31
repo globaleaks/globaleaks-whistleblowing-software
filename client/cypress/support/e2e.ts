@@ -44,5 +44,12 @@ Cypress.on("window:before:load", (win) => {
 });
 
 Cypress.on("uncaught:exception", (err) => {
+  // The suite does not fail on an exception of the application, but reports it
+  try {
+    Cypress.log({name: "uncaught", message: err.message});
+  } catch {
+    // no-op
+  }
+
   return false;
 });

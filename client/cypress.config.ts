@@ -112,6 +112,14 @@ export default defineConfig({
         },
       });
 
+      // the labels the specs match on are read in the language of the run
+      try {
+        config.env.l10n = JSON.parse(fs.readFileSync(
+          path.resolve(__dirname, "app/assets/data/l10n", config.env.language + ".json"), "utf8"));
+      } catch (e) {
+        config.env.l10n = {};
+      }
+
       return config;
     },
     baseUrl: "https://127.0.0.1:8443",
