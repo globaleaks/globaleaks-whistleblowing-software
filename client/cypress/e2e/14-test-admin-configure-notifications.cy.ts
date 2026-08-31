@@ -29,20 +29,27 @@ describe("admin configure mail", () => {
     cy.logout();
   });
 
+  // the administrator tests both the main and the secondary outgoing
+  // mail configurations, each with its own test action.
   it("should test SMTP configurations", () => {
     cy.login_admin();
     cy.visit("/#/admin/notifications");
     cy.get('[data-cy="smtp"]').first().click();
+    cy.takeScreenshot("admin/notification_settings_test1_detail", '.form-group:has(#test_smtp1)');
     cy.get('#test_smtp1').click();
     cy.get('input[name="to_mail_address"]').clear().type('test@example.com');
     cy.takeScreenshot("admin/notification_settings_test1");
+    cy.takeScreenshot("admin/notification_test_mail_detail", ".modal-dialog");
+    cy.intercept("PUT", "**/api/admin/config").as("testMail1");
     cy.get('#confirm').click();
-    cy.wait(1000);
+    cy.wait("@testMail1");
+    cy.takeScreenshot("admin/notification_settings_test2_detail", '.form-group:has(#test_smtp2)');
     cy.get('#test_smtp2').click();
     cy.get('input[name="to_mail_address"]').clear().type('test@example.com');
     cy.takeScreenshot("admin/notification_settings_test2");
+    cy.intercept("PUT", "**/api/admin/config").as("testMail2");
     cy.get('#confirm').click();
-    cy.wait(1000);
+    cy.wait("@testMail2");
     cy.logout();
   });
 });
