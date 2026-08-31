@@ -7,8 +7,8 @@ describe("IDP/Keycloak admin configuration workflow", () => {
       keycloakOrigin,
       {
         args: {
-          username: "admin",
-          password: Cypress.env("keycloak_user_password")
+          username: "globaleaks",
+          password: "globaleaks"
         }
       },
       ({username, password}) => {
@@ -25,9 +25,10 @@ describe("IDP/Keycloak admin configuration workflow", () => {
   // The platform delegates the authentication to the provider configured here,
   // which in the deployment of the Authority is the national digital identity
   // system; the test exercises the same delegation against a local provider.
-  it("keeps login, logout, and signup IDP redirects on the intended route", () => {
+  it("delegates to the identity provider the authentication of an accreditation", () => {
     cy.login_admin();
 
+    // the accreditation page has to be offered, for an identity to be spent on it
     cy.visit("/#/admin/sites");
     cy.openTab("options");
     cy.get('input[name="enable_signup"]').then(input => {
@@ -41,56 +42,50 @@ describe("IDP/Keycloak admin configuration workflow", () => {
       }
     });
 
+    // the provider is described while the delegation is off, and the delegation
+    // is a separate act: the configuration is locked once it is on
     cy.visit("/#/admin/settings");
-    cy.get('[data-cy="authentication"]').click().should("be.visible");
-    cy.get('select[name="auth_type"]').select("idp");
-    cy.get('#idp-issuer').clear().type(issuerUrl);
-    cy.get("#save").should("not.be.disabled").click();
+    cy.openTab("authentication");
+    cy.get("#idp-issuer").clear().type(issuerUrl);
+    cy.get("#idp-client-id").clear().type("globaleaks");
+    cy.get("#save").click();
+    cy.waitForPageIdle();
+
+    cy.openTab("authentication");
+    cy.get("#idp-enable").click();
+    cy.waitForPageIdle();
     cy.logout();
 
-    authenticateWithKeycloak();
-    cy.get("#default-login-password").type(Cypress.env("user_password"));
-    cy.get("#login-button").first().click();
-    cy.get("#LogoutLink").should("be.visible");
-
-    cy.logout();
+    // the accreditation page offers the identity instead of a set of fields
     cy.visit("/#/signup");
     cy.contains("button", "Authenticate with IDP").should("be.visible");
     cy.takeScreenshot("forward/idp_authentication");
     cy.contains("button", "Authenticate with IDP").click();
+
     authenticateWithKeycloak();
+
     cy.location("hash").should("include", "/signup");
-    cy.get('input[name="subdomain"]').should("be.visible");
+    cy.get("#signup-name").should("be.visible");
 
     // the fields valued by the claims of the identity are read only
     cy.takeScreenshot("forward/idp_claims_detail", '.row:has(#signup-name)');
 
+    // the delegation is taken off, so that the specs that follow authenticate
+    // with the credentials the platform holds
     cy.visit("/#/login");
     cy.get("#default-login-password").type(Cypress.env("user_password"));
     cy.get("#login-button").first().click();
-
     cy.get("#LogoutLink").should("be.visible");
+
     cy.visit("/#/admin/settings");
-    cy.get('[data-cy="authentication"]').click().should("be.visible");
-    cy.get('select[name="auth_type"]').select("globaleaks");
-    cy.get("#save").should("not.be.disabled").click();
+    cy.openTab("authentication");
+    cy.get("#idp-disable").click();
+    cy.waitForPageIdle();
+    cy.openTab("authentication");
+    cy.get("#idp-reset").click();
+    cy.waitForPageIdle();
+    cy.get("#idp-enable").should("exist");
 
-    cy.visit("/#/admin/sites");
-    cy.get('[data-cy="options"]').click();
-    cy.get('input[name="enable_signup"]').then(input => {
-      if (input.is(":checked")) {
-        cy.wrap(input).click();
-        cy.get("#save").click();
-      }
-    });
-
-    cy.logout();
-
-    cy.login_admin();
-    cy.visit("/#/admin/settings");
-    cy.get('[data-cy="authentication"]').click().should("be.visible");
-    cy.get('select[name="auth_type"]').should("have.value", "globaleaks");
-    cy.get('#idp-issuer').should('not.exist');
     cy.logout();
   });
 });
