@@ -1,6 +1,35 @@
+// The delegation of the authentication is a configuration of the whole
+// platform: while it is on, every account authenticates through the provider.
+// This spec therefore runs last, and puts the platform back as it found it
+// whatever its own outcome, so that a failure here cannot be mistaken for a
+// failure of what would have followed.
 describe("IDP/Keycloak admin configuration workflow", () => {
   const issuerUrl = "http://127.0.0.1:9090/realms/globaleaks";
   const keycloakOrigin = "http://127.0.0.1:9090";
+
+  const restore_local_authentication = () => {
+    cy.visit("/#/login");
+    cy.get("#default-login-password", {timeout: 20000}).should("be.visible").type(Cypress.env("user_password"));
+    cy.get("#login-button").first().click();
+    cy.get("#LogoutLink").should("be.visible");
+
+    cy.visit("/#/admin/settings");
+    cy.openTab("authentication");
+    cy.get("body").then(($body) => {
+      if ($body.find("#idp-disable").length) {
+        cy.get("#idp-disable").click();
+        cy.waitForPageIdle();
+        cy.openTab("authentication");
+      }
+    });
+    cy.get("#idp-reset").click();
+    cy.waitForPageIdle();
+    cy.get("#idp-enable").should("exist");
+  };
+
+  after(() => {
+    restore_local_authentication();
+  });
 
   function authenticateWithKeycloak() {
     cy.origin(
@@ -54,7 +83,12 @@ describe("IDP/Keycloak admin configuration workflow", () => {
     cy.openTab("authentication");
     cy.get("#idp-enable").click();
     cy.waitForPageIdle();
-    cy.logout();
+
+    // the session is dropped without passing through the logout: with the
+    // delegation on, the logout is the provider's and does not come back to
+    // the login of the platform
+    cy.clearCookies();
+    cy.window().then((win) => win.localStorage.clear());
 
     // the accreditation page offers the identity instead of a set of fields
     cy.visit("/#/signup");
@@ -70,22 +104,8 @@ describe("IDP/Keycloak admin configuration workflow", () => {
     // the fields valued by the claims of the identity are read only
     cy.takeScreenshot("forward/idp_claims_detail", '.row:has(#signup-name)');
 
-    // the delegation is taken off, so that the specs that follow authenticate
-    // with the credentials the platform holds
-    cy.visit("/#/login");
-    cy.get("#default-login-password").type(Cypress.env("user_password"));
-    cy.get("#login-button").first().click();
-    cy.get("#LogoutLink").should("be.visible");
-
-    cy.visit("/#/admin/settings");
-    cy.openTab("authentication");
-    cy.get("#idp-disable").click();
-    cy.waitForPageIdle();
-    cy.openTab("authentication");
-    cy.get("#idp-reset").click();
-    cy.waitForPageIdle();
-    cy.get("#idp-enable").should("exist");
-
-    cy.logout();
+    // the delegation is taken off here as well as in the hook that closes the
+    // spec: what the test asserts is that it can be taken off
+    restore_local_authentication();
   });
 });
