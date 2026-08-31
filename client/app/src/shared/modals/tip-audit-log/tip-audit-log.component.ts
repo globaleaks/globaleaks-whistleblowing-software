@@ -1,6 +1,6 @@
 import {Component, Input, inject, OnInit, ChangeDetectorRef} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {DatePipe} from "@angular/common";
+import {DatePipe, NgTemplateOutlet} from "@angular/common";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
@@ -17,11 +17,13 @@ interface AuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  // What a deletion leaves of the content it took away
+  hash_sha256?: string;
+  hash_sha512?: string;
 }
 
 interface GroupedAuditLogEntry extends AuditLogEntry {
   isGroup?: boolean;
-  isExpanded?: boolean;
   groupedEntries?: AuditLogEntry[];
   groupCount?: number;
 }
@@ -30,10 +32,22 @@ interface GroupedAuditLogEntry extends AuditLogEntry {
   selector: "src-tip-audit-log",
   templateUrl: "./tip-audit-log.component.html",
   standalone: true,
-  imports: [DatePipe, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule],
+  imports: [DatePipe, NgTemplateOutlet, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule],
   styles: [`
     .table {
       table-layout: fixed;
+    }
+
+    .audit-detail-line {
+      font-size: 0.8125rem;
+    }
+
+    .audit-detail-line + .audit-detail-line {
+      margin-top: 0.5em;
+    }
+
+    .audit-detail-line code {
+      word-break: break-all;
     }
   `]
 })
@@ -49,6 +63,11 @@ export class TipAuditLogComponent implements OnInit {
   @Input() tipId: string = '';
   @Input() tipData: any = null; // Will receive the tip data from parent
   @Input() usersData: any[] = []; // Will receive users data from parent
+
+  // The entry whose detail is open: one at a time, as on the other tables
+  // that carry an expandable row
+  // the ids of the rows opened, groups and entries alike
+  expanded = new Set<string>();
 
   readonly typeOptions: TableFilterOption[] = [
     {id: 'Access', label: 'Access'},
@@ -136,15 +155,15 @@ export class TipAuditLogComponent implements OnInit {
         action: log.type,
         type: this.categorizeAuditLogType(log.type),
         timestamp: new Date(log.date),
-        data: log.data
+        data: log.data,
+        hash_sha256: log.data?.hash_sha256 || '',
+        hash_sha512: log.data?.hash_sha512 || ''
       };
     });
 
     this.table.setItems(this.groupAccessReportEntries(this.auditLogEntries));
 
-    // The application runs zoneless: the entries arrive on an http callback,
-    // which notifies nothing on its own, and would be painted only on the next
-    // interaction
+    // Zoneless: the entries arrive on an http callback, which notifies nothing on its own
     this.cdr.detectChanges();
   }
 
@@ -196,7 +215,6 @@ export class TipAuditLogComponent implements OnInit {
             ...earliestEntry,
             id: `group_${currentEntry.user}_${i}`,
             isGroup: true,
-            isExpanded: false,
             groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
             groupCount: groupEntries.length
           });
@@ -241,6 +259,7 @@ export class TipAuditLogComponent implements OnInit {
       // Deletion actions
       case 'revoke_access':
       case 'delete_attachment':
+      case 'delete_file':
       case 'delete_report':
         return 'Delete';
 
@@ -261,11 +280,27 @@ export class TipAuditLogComponent implements OnInit {
     }
   }
 
-  toggleGroupExpansion(entry: GroupedAuditLogEntry) {
-    if (entry.isGroup) {
-      entry.isExpanded = !entry.isExpanded;
-      this.cdr.detectChanges();
+  // What a row can open: the entries it groups, or the details of the entry
+  isExpandable(entry: GroupedAuditLogEntry): boolean {
+    return !!entry.isGroup || this.hasDetails(entry);
+  }
+
+  // What an entry holds beyond its row: today the fingerprints of a deletion
+  hasDetails(entry: AuditLogEntry): boolean {
+    return !!entry.hash_sha256 || !!entry.hash_sha512;
+  }
+
+  isExpanded(entry: AuditLogEntry): boolean {
+    return this.expanded.has(entry.id);
+  }
+
+  toggle(entry: AuditLogEntry) {
+    if (this.expanded.has(entry.id)) {
+      this.expanded.delete(entry.id);
+    } else {
+      this.expanded.add(entry.id);
     }
+    this.cdr.detectChanges();
   }
 
   getTypeDotColor(actionType: string): string {
@@ -290,6 +325,7 @@ export class TipAuditLogComponent implements OnInit {
       Type: item.type,
       Action: item.action,
       User: item.user,
+      Fingerprint: item.hash_sha256 || '',
       Data: item.data ? JSON.stringify(item.data) : ''
     }));
 
@@ -298,7 +334,7 @@ export class TipAuditLogComponent implements OnInit {
       filename += '_filtered';
     }
 
-    this.utilsService.generateCSV(filename, exportData, ["Date", "Type", "Action", "User", "Data"]);
+    this.utilsService.generateCSV(filename, exportData, ["Date", "Type", "Action", "User", "Fingerprint", "Data"]);
   }
 
   cancel() {
