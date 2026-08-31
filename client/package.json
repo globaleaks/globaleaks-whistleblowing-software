@@ -3,8 +3,10 @@
   "version": "5.0.101",
   "scripts": {
     "test": "npx cypress run --browser=chromium",
+    "test:verify": "npx cypress run --browser=chromium --expose takeScreenshots=false",
     "test:unit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.ts",
     "eslint": "eslint app/src",
+    "tscheck": "npx tsc -p cypress/tsconfig.json --noEmit",
     "stylelint": "npx stylelint 'app/css/**/*.css'",
     "analyze": "ng build --configuration=production --stats-json && npx esbuild-visualizer --metadata=dist/stats.json --open=true"
   },
