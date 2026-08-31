@@ -42,6 +42,11 @@ export default defineConfig({
       // the Cypress.env("users_passwords") dict indexed by username.
       const users_passwords: Record<string, string> = {};
 
+      // The receipts of the reports filed by the whistleblower are kept here for
+      // the same reason: a later spec needs to enter a report as its author, for
+      // instance to make it read and let the read receipt appear on the other side
+      const receipts: string[] = [];
+
       // All your plugin logic goes here
       registerCodeCoverageTasks(on, config);
 
@@ -109,6 +114,13 @@ export default defineConfig({
         },
         getUsersPasswords() {
           return users_passwords;
+        },
+        storeReceipt(receipt) {
+          receipts.push(receipt);
+          return null;
+        },
+        getReceipts() {
+          return receipts;
         },
       });
 
