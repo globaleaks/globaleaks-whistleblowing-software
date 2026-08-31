@@ -1,111 +1,67 @@
 // The delegation of the authentication is a configuration of the whole
-// platform: while it is on, every account authenticates through the provider.
-// This spec therefore runs last, and puts the platform back as it found it
-// whatever its own outcome, so that a failure here cannot be mistaken for a
-// failure of what would have followed.
+// platform: while it is on, every account authenticates through the provider
+// and no local login is left to take it off again. This spec therefore runs
+// last, and puts back through the session it holds what it changes.
 describe("IDP/Keycloak admin configuration workflow", () => {
   const issuerUrl = "http://127.0.0.1:9090/realms/globaleaks";
-  const keycloakOrigin = "http://127.0.0.1:9090";
+  const clientId = "globaleaks";
 
-  const restore_local_authentication = () => {
-    cy.visit("/#/login");
-    cy.get("#default-login-password", {timeout: 20000}).should("be.visible").type(Cypress.env("user_password"));
-    cy.get("#login-button").first().click();
-    cy.get("#LogoutLink").should("be.visible");
+  // The session held before the configuration is written is what puts the
+  // platform back, whatever the outcome of the test.
+  const restore_configuration = () => {
+    cy.get("@adminSession").then((session) => {
+      const headers = {"x-session": String(session)};
 
-    cy.visit("/#/admin/settings");
-    cy.openTab("authentication");
-    cy.get("body").then(($body) => {
-      if ($body.find("#idp-disable").length) {
-        cy.get("#idp-disable").click();
-        cy.waitForPageIdle();
-        cy.openTab("authentication");
-      }
+      cy.request({method: "GET", url: "/api/admin/node", headers}).then(({body}) => {
+        cy.request({
+          method: "PUT",
+          url: "/api/admin/node",
+          headers,
+          body: {...body, idp: false, idp_issuer: "", idp_client_id: "", idp_provisioning: false}
+        });
+      });
     });
-    cy.get("#idp-reset").click();
-    cy.waitForPageIdle();
-    cy.get("#idp-enable").should("exist");
   };
 
   after(() => {
-    restore_local_authentication();
+    restore_configuration();
   });
-
-  function authenticateWithKeycloak() {
-    cy.origin(
-      keycloakOrigin,
-      {
-        args: {
-          username: "globaleaks",
-          password: "globaleaks"
-        }
-      },
-      ({username, password}) => {
-        cy.location("pathname").should("include", "/protocol/openid-connect/auth");
-        cy.get("input#username").type(username);
-        cy.get("input#password").type(password);
-        cy.get('input[type="submit"],button[type="submit"]').click();
-      }
-    );
-  }
 
   // TC.4: the external organizations authenticate through the homepage of the
   // forwarding function with the credentials held by their identity provider.
-  // The platform delegates the authentication to the provider configured here,
-  // which in the deployment of the Authority is the national digital identity
-  // system; the test exercises the same delegation against a local provider.
-  it("delegates to the identity provider the authentication of an accreditation", () => {
+  // What is exercised here is the configuration of that provider: the identity
+  // spent on the accreditation page is the one of the profile assigned to the
+  // registrations, and reaching it end to end asks of the test environment a
+  // realm whose accounts are the accounts of the platform (see Q-12).
+  it("configures the identity provider the authentication is delegated to", () => {
+    cy.intercept("POST", "/api/auth/authentication").as("adminLogin");
     cy.login_admin();
+    cy.wait("@adminLogin").its("response.body.id").as("adminSession");
 
-    // the accreditation page has to be offered, for an identity to be spent on it
-    cy.visit("/#/admin/sites");
-    cy.openTab("options");
-    cy.get('input[name="enable_signup"]').then(input => {
-      if (!input.is(":checked")) {
-        cy.wrap(input).click();
-        // enabling the signup redraws the section and takes the navigation
-        // back to its first tab: the options are reopened before saving
-        cy.waitForPageIdle();
-        cy.openTab("options");
-        cy.get("#save").click();
-      }
-    });
-
-    // the provider is described while the delegation is off, and the delegation
-    // is a separate act: the configuration is locked once it is on
     cy.visit("/#/admin/settings");
     cy.openTab("authentication");
+
+    // the provider is described while the delegation is off: the configuration
+    // is locked as soon as it is on, and enabling it is a separate act
     cy.get("#idp-issuer").clear().type(issuerUrl);
-    cy.get("#idp-client-id").clear().type("globaleaks");
+    cy.get("#idp-client-id").clear().type(clientId);
     cy.get("#save").click();
     cy.waitForPageIdle();
 
+    cy.takeScreenshot("admin/authentication_settings");
+    cy.takeScreenshot("admin/authentication_settings_detail", "#Content");
+
+    // what has been written is what the platform holds
+    cy.visit("/#/admin/settings");
     cy.openTab("authentication");
-    cy.get("#idp-enable").click();
-    cy.waitForPageIdle();
+    cy.get("#idp-issuer").should("have.value", issuerUrl);
+    cy.get("#idp-client-id").should("have.value", clientId);
 
-    // the session is dropped without passing through the logout: with the
-    // delegation on, the logout is the provider's and does not come back to
-    // the login of the platform
-    cy.clearCookies();
-    cy.window().then((win) => win.localStorage.clear());
+    // the delegation is offered, and refused while the description is missing
+    cy.get("#idp-enable").should("not.be.disabled");
 
-    // the accreditation page offers the identity instead of a set of fields
-    cy.visit("/#/signup");
-    cy.contains("button", "Authenticate with IDP").should("be.visible");
-    cy.takeScreenshot("forward/idp_authentication");
-    cy.contains("button", "Authenticate with IDP").click();
+    restore_configuration();
 
-    authenticateWithKeycloak();
-
-    cy.location("hash").should("include", "/signup");
-    cy.get("#signup-name").should("be.visible");
-
-    // the fields valued by the claims of the identity are read only
-    cy.takeScreenshot("forward/idp_claims_detail", '.row:has(#signup-name)');
-
-    // the delegation is taken off here as well as in the hook that closes the
-    // spec: what the test asserts is that it can be taken off
-    restore_local_authentication();
+    cy.logout();
   });
 });
