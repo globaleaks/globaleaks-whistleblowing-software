@@ -41,7 +41,7 @@ describe("admin add, configure and delete questionnaires", () => {
         }
       }
 
-      cy.get('[data-cy="import-options"]').should('be.visible').click();
+      cy.get('[data-cy="import-options"]').click();
 
       cy.fixture("questionnaires/options_import.txt").then((fileContent) => {
         cy.get('input[type="file"]').last().then((input) => {
@@ -83,7 +83,7 @@ describe("admin add, configure and delete questionnaires", () => {
     add_step("Step 3");
 
     const fieldTypes = Cypress.env("field_types");
-    cy.contains("Step 2").should('be.visible').click();
+    cy.contains("Step 2").click();
 
     fieldTypes.forEach((questionType: string, index: number) => {
       add_question(questionType, index);
@@ -162,6 +162,24 @@ describe("admin add, configure and delete questionnaires", () => {
     cy.login_admin();
     cy.visit("/#/admin/questionnaires");
     cy.get(".fa-file-export").first().click();
+    cy.logout();
+  });
+
+  // The statistical mark is offered on the question templates with closed answers
+  it("should mark a question template for the statistical reports", function () {
+    cy.login_admin();
+    cy.visit("/#/admin/questionnaires");
+    cy.get('[data-cy="question_templates"]').click();
+
+    cy.get(".show-add-question-btn").first().click();
+    cy.get("input[name='new_field.label']").first().type("Statistical question");
+    cy.get("select[name='new_field.type']").first().select("Selection box");
+    cy.get("#add-field-btn").first().click();
+
+    cy.contains(".fieldBox span", "Statistical question").click();
+    cy.contains(".fieldBox .form-group", "Include in statistical reports").should("be.visible");
+    cy.takeScreenshot("admin/question_statistical_detail", '.fieldBox:contains("Statistical question")');
+
     cy.logout();
   });
 });
