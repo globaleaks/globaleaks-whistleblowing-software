@@ -139,23 +139,48 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
             yield handler.post()
 
 
+@transact
+def ask_of_every_report(session, context_id, questionnaire_id):
+    """
+    Elect on a channel the additional questionnaire it asks by itself
+    """
+    session.query(models.Context) \
+           .filter(models.Context.id == context_id) \
+           .update({'additional_questionnaire_id': questionnaire_id})
+
+    session.add(models.ContextAdditionalQuestionnaire({'context_id': context_id,
+                                                       'questionnaire_id': questionnaire_id}))
+
+
+@transact
+def ask_of_the_report(session, questionnaire_id):
+    """
+    Ask an additional questionnaire of the reports, as their recipients do
+    """
+    session.query(models.InternalTip) \
+           .update({'additional_questionnaire_id': questionnaire_id})
+
+
 class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
+    """
+    The additional questionnaire a channel elects is asked of every report
+    """
     _handler = wbtip.WBTipAdditionalQuestionnaire
 
     @inlineCallbacks
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        # The elected questionnaire reuses the schema composing the reports so
+        # that the fill-form endpoint stores answers
+        yield ask_of_every_report(self.dummyContext['id'], self.dummyContext['questionnaire_id'])
         yield self.perform_full_submission_actions()
-        # Enable an additional questionnaire on the context reusing the main
-        # questionnaire schema so that the fill-form endpoint stores answers.
-        yield self.set_additional_questionnaire(self.dummyContext['id'],
-                                                self.dummyContext['questionnaire_id'])
 
-    @transact
-    def set_additional_questionnaire(self, session, context_id, questionnaire_id):
-        session.query(models.Context) \
-               .filter(models.Context.id == context_id) \
-               .update({'additional_questionnaire_id': questionnaire_id})
+    @inlineCallbacks
+    def test_the_election_is_asked_of_the_report_from_the_moment_it_is_filed(self):
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(wbtip_desc['additional_questionnaire_id'],
+                             self.dummyContext['questionnaire_id'])
 
     @inlineCallbacks
     def test_post(self):
@@ -188,6 +213,97 @@ class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
         for wbtip_desc in wbtips_desc:
             handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
             yield handler.post()
+
+
+class TestWBTipAdditionalQuestionnaireRequestedOnTheReport(helpers.TestHandlerWithPopulatedDB):
+    """
+    The questionnaire the recipients ask of a single report is presented to the
+    """
+    _handler = wbtip.WBTipAdditionalQuestionnaire
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        # The channel of the reports elects no additional questionnaire: the
+        # request is the one the recipients make on the single report
+        yield ask_of_the_report('default')
+
+    def fill(self, wbtip_desc, answers):
+        body = {
+          'cmd': 'fill',
+          'answers': answers
+        }
+
+        return self.request(body, role='whistleblower', user_id=wbtip_desc['id']).post()
+
+    @inlineCallbacks
+    def test_the_request_is_presented_with_the_report(self):
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(wbtip_desc['additional_questionnaire_id'], 'default')
+            self.assertEqual(wbtip_desc['additional_questionnaire']['id'], 'default')
+            self.assertTrue(wbtip_desc['additional_questionnaire']['steps'])
+
+    @inlineCallbacks
+    def test_post(self):
+        answers = yield self.fill_random_answers('default')
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(len(wbtip_desc['questionnaires']), 1)
+
+            yield self.fill(wbtip_desc, answers)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(len(wbtip_desc['questionnaires']), 2)
+
+            # The request has been answered and no longer stands: the report is
+            # asked nothing until the recipients ask another questionnaire
+            self.assertEqual(wbtip_desc['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_report_answers_more_than_one_over_its_life(self):
+        answers = yield self.fill_random_answers('default')
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            yield self.fill(wbtip_desc, answers)
+
+        second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+        yield ask_of_the_report(second['id'])
+
+        answers = yield self.fill_random_answers(second['id'])
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(wbtip_desc['additional_questionnaire_id'], second['id'])
+
+            yield self.fill(wbtip_desc, answers)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            # The questionnaire composing the report and the two it has been
+            # asked since, each named by the questionnaire it was given to
+            self.assertEqual([questionnaire['questionnaire_id'] for questionnaire in wbtip_desc['questionnaires']],
+                             [self.dummyContext['questionnaire_id'], 'default', second['id']])
+
+            self.assertEqual(wbtip_desc['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_report_asked_nothing_answers_nothing(self):
+        yield ask_of_the_report('')
+
+        answers = yield self.fill_random_answers('default')
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            yield self.fill(wbtip_desc, answers)
+
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            self.assertEqual(len(wbtip_desc['questionnaires']), 1)
 
 
 class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):

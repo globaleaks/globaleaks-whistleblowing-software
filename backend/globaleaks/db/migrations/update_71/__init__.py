@@ -366,6 +366,74 @@ class MigrationScript(MigrationBase):
 
         return min(EXPIRATION_ALERT_DAYS, key=lambda d: abs(d - days))
 
+    def migrate_additional_questionnaires(self):
+        """
+        Give the additional questionnaires the shape the channels and the
+        reports now hold them in
+
+        A channel used to name a single additional questionnaire, asked of
+        every report filed on it. It now names a set of them, that the
+        recipients choose from of a single report, and elects one of the set as
+        the automatic one: the questionnaire it had is that election, and joins
+        the set it is elected from.
+
+        The election is asked of a report by the report itself and no longer by
+        its channel: the reports that have not answered it yet carry it from
+        here on, so that asking and answering read the same field.
+
+        The answers used to name the schema they were archived against and not
+        the questionnaire they were given to: the first answers of a report are
+        the ones of the questionnaire composing it, the following ones those of
+        the additional questionnaire its channel asked.
+        """
+        from globaleaks.models import ContextAdditionalQuestionnaire
+
+        Context = self.model_to['Context']
+        InternalTip = self.model_to['InternalTip']
+        InternalTipAnswers = self.model_to['InternalTipAnswers']
+        Questionnaire = self.model_to['Questionnaire']
+
+        known = {questionnaire.id for questionnaire in self.session_new.query(Questionnaire)}
+
+        questionnaires = {}
+        for context in self.session_new.query(Context):
+            automatic = context.additional_questionnaire_id or ''
+
+            # A channel could name a questionnaire that is no longer there: the
+            # column carried no foreign key. Such an election is dropped rather
+            # than turned into an association that would not hold
+            if automatic not in known:
+                automatic = ''
+                context.additional_questionnaire_id = ''
+
+            questionnaires[context.id] = (context.questionnaire_id, automatic)
+
+            if not automatic:
+                continue
+
+            entry = ContextAdditionalQuestionnaire()
+            entry.context_id = context.id
+            entry.questionnaire_id = automatic
+            self.add_entry('ContextAdditionalQuestionnaire', entry)
+
+        answers = {}
+        for row in self.session_new.query(InternalTipAnswers) \
+                                   .order_by(InternalTipAnswers.internaltip_id,
+                                             InternalTipAnswers.creation_date):
+            answers.setdefault(row.internaltip_id, []).append(row)
+
+        for itip in self.session_new.query(InternalTip):
+            main, automatic = questionnaires.get(itip.context_id, ('', ''))
+
+            filled = answers.get(itip.id, [])
+            for i, row in enumerate(filled):
+                row.questionnaire_id = main if i == 0 else automatic
+
+            # A report that has answered nothing beyond the questionnaire
+            # composing it is still being asked the automatic one
+            if automatic and len(filled) < 2 and itip.status != 'closed':
+                itip.additional_questionnaire_id = automatic
+
     def epilogue(self):
         tenant.db_create(self.session_new, {'active': False, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
         self.entries_count['SubmissionStatus'] += 3
@@ -378,3 +446,5 @@ class MigrationScript(MigrationBase):
         max_tid = self.session_new.query(func.max(self.model_to['Tenant'].id)) \
                                   .filter(self.model_to['Tenant'].id < tenant.DEFAULT_PROFILE_ID).scalar()
         db_set_config_variable(self.session_new, 1, 'counter_tenants', max_tid or 1)
+
+        self.migrate_additional_questionnaires()

@@ -184,15 +184,20 @@
                     </div>
                   }
                   <div class="form-group">
-                    <label for="context-additional-questionnaire-select">{{ 'Additional questionnaire' | translate }}</label>
-                    <select id="context-additional-questionnaire-select" class="form-select-custom" [(ngModel)]="contextResolver().additional_questionnaire_id" name="contextResolver.additional_questionnaire_id">
-                      <option value=""></option>
-                      @for (item of questionnairesData(); track item) {
-                        @if (item.id !== contextResolver().questionnaire_id) {
-                          <option [value]="item.id">{{ item.name }}</option>
-                        }
-                      }
-                    </select>
+                    <src-selection-editor
+                      label="Additional questionnaires"
+                      addButtonClass="add-additional-questionnaire-btn"
+                      adderId="AdditionalQuestionnaireAdder"
+                      defaultLabel="Automatic"
+                      defaultTooltip="Ask automatically"
+                      [clearableDefault]="true"
+                      [options]="additionalQuestionnaireOptions()"
+                      [selected]="additionalQuestionnaires()"
+                      [defaultId]="contextResolver().additional_questionnaire_id"
+                      (entryAdded)="addAdditionalQuestionnaire($event)"
+                      (entryRemoved)="removeAdditionalQuestionnaire($event.index)"
+                      (defaultPicked)="contextResolver().additional_questionnaire_id = $event">
+                    </src-selection-editor>
                   </div>
                   @if (nodeData.enable_scoring_system) {
                     <div>

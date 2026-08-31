@@ -186,10 +186,6 @@ def decrypt_tip(user_key, tip_prv_key, tip):
 def data_hashes(value, crypto_tip_pub_key=''):
     """
     The fingerprints of a datum of a report, computed on the value as it was
-    provided and never on the encrypted form it is stored in.
-
-    They are sealed to the report exactly as the datum they attest is, so that
-    they never expose at rest the content they fingerprint
     """
     if value is None:
         return '', ''
@@ -206,7 +202,7 @@ def data_hashes(value, crypto_tip_pub_key=''):
            Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_tip_pub_key, hash_sha512)).decode()
 
 
-def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, stat_answers, date=None, plaintext=None, crypto_tip_pub_key=''):
+def db_set_internaltip_answers(session, itip_id, questionnaire_id, questionnaire_hash, answers, stat_answers, date=None, plaintext=None, crypto_tip_pub_key=''):
     x = session.query(models.InternalTipAnswers) \
                .filter(models.InternalTipAnswers.internaltip_id == itip_id,
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
@@ -216,6 +212,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_hash, answers, st
 
     ita = models.InternalTipAnswers()
     ita.internaltip_id = itip_id
+    ita.questionnaire_id = questionnaire_id
     ita.questionnaire_hash = questionnaire_hash
     ita.answers = answers
     ita.stat_answers = stat_answers
@@ -896,6 +893,9 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
     itip.context_id = context.id
 
+    # The automatic additional questionnaire of the channel is asked by the report itself
+    itip.additional_questionnaire_id = context.additional_questionnaire_id
+
     whistleblower_identity = session.query(models.Field) \
                                     .filter(models.Field.template_id == 'whistleblower_identity',
                                             models.Field.step_id == models.Step.id,
@@ -943,7 +943,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
+    db_set_internaltip_answers(session, itip.id, context.questionnaire_id, questionnaire_hash, answers, stat_data, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
 
     operator_id = user_session.properties.get('operator_session', '')
     if operator_id:

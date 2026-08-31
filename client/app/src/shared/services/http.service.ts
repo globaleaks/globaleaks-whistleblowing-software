@@ -10,7 +10,7 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
 import {FileResource} from "@app/models/component-model/file-resources";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
-import {Answers} from "@app/models/receiver/receiver-tip-data";
+import {Answers, RequestableQuestionnaire} from "@app/models/receiver/receiver-tip-data";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
@@ -378,6 +378,10 @@ export class HttpService {
 
   requestAuditLogResource(area: string): Observable<auditlogResolverModel> {
     return this.httpClient.get<auditlogResolverModel>(`api/${area}/auditlog`);
+  }
+
+  requestRecipientTipQuestionnaires(tipId: string): Observable<RequestableQuestionnaire[]> {
+    return this.httpClient.get<RequestableQuestionnaire[]>(`api/recipient/rtips/${tipId}/questionnaires`);
   }
 
   requestRecipientTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {

@@ -10,6 +10,10 @@ import {IarData} from "@app/models/receiver/iar-data";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 export interface Questionnaire {
+  // The questionnaire these answers were given to: a report carries the one
+  // composing it and the additional ones it has been asked over its life
+  questionnaire_id?: string;
+  name?: string;
   steps: Step[];
   answers: Answers;
 }
@@ -61,6 +65,15 @@ export class RecieverTipData {
   redactions: RedactionData[];
   exchanges: ExchangeReport[];
   exchange: ExchangeChannel | null;
+  additional_questionnaire_requestable: boolean;
+  // The additional questionnaire the report is asked, if it is asked one
+  additional_questionnaire_id: string;
+}
+
+// The identity and the name of a questionnaire the report can be asked to fill
+export interface RequestableQuestionnaire {
+  id: string;
+  name: string;
 }
 
 export type Answers = Record<string, {
