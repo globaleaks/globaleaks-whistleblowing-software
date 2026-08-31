@@ -360,11 +360,22 @@ class TenantAuthSwitchHandler(BaseHandler):
     """
     check_roles = 'admin'
 
+    @inlineCallbacks
     def get(self, tid):
         if self.request.tid != 1:
             raise errors.InvalidAuthentication
 
         tid = int(tid)
+
+        # A site created a moment ago is not in the state yet: the answer to
+        # its creation returns before the reload of the cache, and until then
+        # the site has no name to be addressed by. It is loaded here, so that
+        # the address handed back names the site instead of nothing.
+        if not State.tenants.get(tid) or not State.tenants[tid].cache.uuid:
+            # Local import: the database module reaches the handlers
+            from globaleaks.db import refresh_tenant_cache
+            yield refresh_tenant_cache(tid)
+
         session = Sessions.new(tid,
                                self.session.user_id,
                                self.session.user_tid,
