@@ -79,6 +79,30 @@ describe("acquire screenshots necessary for user documentation - Admin Section",
   });
 });
 
+// The audit log is the only section of the auditor
+describe("Acquire screenshots necessary for user documentation - Auditor Section", () => {
+  it("should capture screenshots of the auditor section", function () {
+    cy.login_auditor();
+    cy.takeScreenshot("auditor/home");
+    cy.takeScreenshot("auditor/sidebar_detail", ".nav-items");
+
+    cy.get("#auditor_audit_log").first().click();
+    cy.takeScreenshot("auditor/audit_log");
+    cy.takeScreenshot("auditor/audit_log_detail", "src-auditlog-tab1 table");
+
+    cy.get('[data-cy="users"]').click();
+    cy.takeScreenshot("auditor/audit_log_users");
+
+    cy.get('[data-cy="reports"]').first().click();
+    cy.takeScreenshot("auditor/audit_log_reports");
+
+    cy.get('[data-cy="scheduled_jobs"]').first().click();
+    cy.takeScreenshot("auditor/audit_log_scheduled_jobs");
+
+    cy.logout();
+  });
+});
+
 describe("Acquire screenshots necessary for user documentation - Recipient Section", () => {
   it("should capture screenshots of the recipient section", function () {
     cy.login_receiver();

@@ -1,4 +1,26 @@
+import {t} from "../support/i18n";
 import * as pages from '../support/pages';
+
+// The list holds the reports of the reporting people and the ones the exchanges create
+const openOrdinaryReport = () => {
+  cy.visit("/#/recipient/reports");
+  cy.waitForUrl("/recipient/reports");
+  // the heading row carries the channel filter with the channel names: match on the rows, not on the
+  // text alone
+  cy.contains("#TipList tr.tip-action-open", "Default").first().click();
+  cy.get("#TipInfoBox").should("be.visible");
+};
+
+// A panel renders its body only when open: captured closed it is an empty strip
+const expandPanel = (selector: string) => {
+  cy.get(selector).should("be.visible").then(($panel) => {
+    // the body exists only while the panel is open: that decides whether the header has to be
+    // clicked
+    if ($panel.find(".card-body").length === 0) {
+      cy.get(`${selector} .card-header`).click();
+    }
+  });
+};
 
 describe("globaleaks process", function () {
   let receipts: any = [];
@@ -63,7 +85,7 @@ describe("globaleaks process", function () {
 
     cy.visit("/#/recipient/reports");
     cy.waitForUrl("/#/recipient/reports");
-    cy.get("#tip-0").should('be.visible').first().click();
+    cy.get("#tip-0").first().click();
 
     cy.get("#TipInfoBox").should("be.visible");
     cy.takeScreenshot("recipient/report");
@@ -123,8 +145,8 @@ describe("globaleaks process", function () {
     cy.get('#modal-action-ok').click();
 
     // Silence email notifications
-    cy.get('[id="tip-action-silence"]').should('be.visible').click();
-    cy.get('#tip-action-notify').should('be.visible').click();
+    cy.get('[id="tip-action-silence"]').click();
+    cy.get('#tip-action-notify').click();
     cy.get('#tip-action-silence').should('be.visible').should('be.visible');
 
     // Upload file
@@ -147,12 +169,12 @@ describe("globaleaks process", function () {
     // Mask information
     cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions_option_mask", "#tip-action-mask");
-    cy.get('[id="tip-action-mask"]').should('be.visible').click();
+    cy.get('[id="tip-action-mask"]').click();
 
     cy.takeScreenshot("recipient/report_with_masking_enabled_questionnaire_detail", "#ReportAnswers");
     cy.takeScreenshot("recipient/report_with_masking_enabled_files_detail", "#ReportAttachments");
 
-    cy.get("#edit-question").should('be.visible').first().click();
+    cy.get("#edit-question").first().click();
     cy.takeScreenshot("recipient/modal_mask_1", ".modal-dialog");
     cy.get('textarea[name="controlElement"]').should('be.visible').then((textarea: any) => {
       const val = textarea.val();
@@ -163,12 +185,12 @@ describe("globaleaks process", function () {
     cy.get("#save_masking").click();
 
     cy.get('#actionsDropdownButton').click();
-    cy.get('[id="tip-action-mask"]').should('be.visible').click();
+    cy.get('[id="tip-action-mask"]').click();
     cy.takeScreenshot("recipient/report_after_masking", "#ReportAnswers");
 
     cy.get('#actionsDropdownButton').click();
-    cy.get('[id="tip-action-mask"]').should('be.visible').click();
-    cy.get("#edit-question").should('be.visible').first().click();
+    cy.get('[id="tip-action-mask"]').click();
+    cy.get("#edit-question").first().click();
     cy.get('textarea[name="controlElement"]').should('be.visible').then((textarea: any) => {
       const val = textarea.val();
       cy.get('textarea[name="controlElement"]').should('be.visible').clear().type(val);
@@ -177,7 +199,7 @@ describe("globaleaks process", function () {
     cy.get("#save_masking").click();
 
     cy.get('#actionsDropdownButton').click();
-    cy.get('[id="tip-action-mask"]').should('be.visible').click();
+    cy.get('[id="tip-action-mask"]').click();
 
     // Download
     cy.get('#exportDropdownButton').click();
@@ -204,7 +226,7 @@ describe("globaleaks process", function () {
     cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_users_option_grant_access", "#tip-action-grant-access");
-    cy.get("#tip-action-grant-access").should('be.visible').click();
+    cy.get("#tip-action-grant-access").click();
     cy.takeScreenshot("recipient/modal_grant_access", ".modal-dialog");
     cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
@@ -212,10 +234,10 @@ describe("globaleaks process", function () {
     cy.contains('.ng-option', 'Recipient3').click();
     cy.get("#modal-action-ok").click();
 
-    // Granting access reloads the report, and the reload navigates back to it:
-    // leaving before the recipient is on the report races with that navigation
-    // and lands on the report again instead of on the list
-    cy.get("#TipPageReceiversInfoBox").should("contain", "Recipient3");
+    // The operation keeps the page busy for a moment and a navigation issued meanwhile is undone by
+    // the router: wait for the modal to be gone
+    cy.get(".modal-dialog").should("not.exist");
+    cy.waitForPageIdle();
 
     // Navigate list and acquire screenshot for documentation
     cy.visit("/#/recipient/reports");
@@ -228,7 +250,7 @@ describe("globaleaks process", function () {
     cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users", ".dropdown-menu.show");
     cy.takeScreenshot("recipient/menu_users_option_revoke_access", "#tip-action-revoke-access");
-    cy.get("#tip-action-revoke-access").should('be.visible').click();
+    cy.get("#tip-action-revoke-access").click();
     cy.takeScreenshot("recipient/modal_revoke_access", ".modal-dialog");
     cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
@@ -239,10 +261,11 @@ describe("globaleaks process", function () {
     // Delete report
     cy.get('#actionsDropdownButton').click();
     cy.takeScreenshot("recipient/menu_actions_option_delete_report", "#tip-action-delete-report");
-    cy.get("#tip-action-delete-report").should('be.visible').click();
+    cy.get("#tip-action-delete-report").click();
     cy.takeScreenshot("recipient/modal_delete_report", ".modal-dialog");
     cy.get("#modal-action-ok").click();
 
+    cy.get(".modal-dialog").should("not.exist");
     cy.waitForUrl("/#/recipient/reports");
 
     cy.get("#tip-0").first().click();
@@ -250,7 +273,7 @@ describe("globaleaks process", function () {
     // Transfer access to Recipient3
     cy.get('#usersDropdownButton').click();
     cy.takeScreenshot("recipient/menu_users_option_transfer_access", "#tip-action-transfer-access");
-    cy.get("#tip-action-transfer-access").should('be.visible').click();
+    cy.get("#tip-action-transfer-access").click();
     cy.takeScreenshot("recipient/modal_transfer_access", ".modal-dialog");
     cy.get('[data-cy="receiver_selection"]').click();
     cy.get('.ng-dropdown-panel').should('be.visible');
@@ -258,7 +281,37 @@ describe("globaleaks process", function () {
     cy.contains('.ng-option', 'Recipient3').click();
     cy.get("#modal-action-ok").click();
 
+    cy.get(".modal-dialog").should("not.exist");
     cy.waitForUrl("/#/recipient/reports");
+  });
+
+  it("Recipient should be able to work the list of the reports", function () {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+
+    cy.get('#search-filter-input').type("your search term");
+    cy.get('#search-filter-input').clear();
+    cy.get('th.TipInfoID').click();
+    cy.get('#filter-context_name').click();
+    cy.get('.multiselect-item-checkbox').eq(1).click();
+    cy.get('.multiselect-item-checkbox').eq(0).click();
+    cy.get('#filter-creation_date').click();
+    cy.get('.custom-date-selector').first().click();
+    cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
+    cy.contains('button.btn.btn-danger', 'Reset').click();
+
+    cy.get('#tip-action-select-all').click();
+    cy.visit("/#/recipient/reports");
+    cy.get('#tip-action-export').click();
+
+    cy.get("#tip-action-enter-report").click();
+    cy.get(".modal-dialog").should("be.visible");
+    cy.takeScreenshot("recipient/insert_report");
+    cy.takeScreenshot("recipient/insert_report_detail", ".modal-dialog");
+    cy.get("#InsertionForm").should("be.visible");
+    cy.get(".modal-header .btn-close").click();
+
+    cy.logout();
   });
 
   it("should update default channel", () => {
@@ -267,7 +320,18 @@ describe("globaleaks process", function () {
     cy.get("[data-action='edit']").first().click();
     cy.get('select[name="contextResolver.questionnaire_id"]').should("be.visible").select('questionnaire 1');
     cy.get("#advance_context").click();
-    cy.get('select[name="contextResolver.additional_questionnaire_id"]').should("be.visible").select('questionnaire 2');
+    // The channel names the additional questionnaires and elects one as automatic; the other is left
+    // to the recipients
+    cy.get(".add-additional-questionnaire-btn").click();
+    cy.get("#AdditionalQuestionnaireAdder ng-select").click();
+    cy.get("div.ng-option").contains("questionnaire 2").click();
+    cy.get("ul.selection-list li").should("contain", "questionnaire 2");
+    cy.get("ul.selection-list li .non-default-entry").click();
+    cy.get("ul.selection-list li .clear-default-btn").should("be.visible");
+    cy.get(".add-additional-questionnaire-btn").click();
+    cy.get("#AdditionalQuestionnaireAdder ng-select").click();
+    cy.get("div.ng-option").contains("duplicate questionnaire").click();
+    cy.get("ul.selection-list li").should("contain", "duplicate questionnaire");
     cy.get("[data-action='save']").click();
     cy.logout();
   });
@@ -280,7 +344,7 @@ describe("globaleaks process", function () {
     cy.get("#start_recording").click();
     cy.wait(10000);
     cy.get("#stop_recording").click();
-    cy.get("#delete_recording").should("be.visible").click();
+    cy.get("#delete_recording").click();
     cy.get("#start_recording").click();
     cy.wait(10000);
     cy.get("#stop_recording").click();
@@ -298,6 +362,37 @@ describe("globaleaks process", function () {
     cy.get("#open_additional_questionnaire").click();
     cy.get("input[type='text']").eq(1).should("be.visible").type("single line text input");
     cy.get("#SubmitButton").click();
+    // Answered: nothing more is asked until the recipients ask again
+    cy.get("#open_additional_questionnaire").should("not.exist");
+    cy.logout();
+  });
+
+  it("should ask a further questionnaire of the report and withdraw it", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.get("#tip-0").first().click();
+
+    cy.get("#actionsDropdownButton").click();
+    cy.get("#tip-action-request-additional-questionnaire").should("be.visible").click();
+    cy.get('[data-cy="questionnaire_selection"]').click();
+    cy.get(".ng-option").contains("duplicate questionnaire").click();
+    cy.get("#modal-action-ok").click();
+
+    // The request stands and is shown to the recipients that asked it, chosen where it is decided
+    // again
+    cy.get("#edit_additional_questionnaire").should("be.visible");
+    cy.get("#actionsDropdownButton").click();
+    cy.get("#tip-action-request-additional-questionnaire").click();
+    cy.get('[data-cy="questionnaire_selection"]').contains("duplicate questionnaire");
+    cy.get("#modal-action-cancel").click();
+
+    // Edited from the report itself: leaving nothing chosen withdraws it
+    cy.get("#edit_additional_questionnaire").click();
+    cy.get('[data-cy="questionnaire_selection"]').contains("duplicate questionnaire");
+    cy.get('[data-cy="questionnaire_selection"] .ng-clear-wrapper').click();
+    cy.get("#modal-action-ok").click();
+    cy.get("#edit_additional_questionnaire").should("not.exist");
+
     cy.logout();
   });
 
@@ -326,7 +421,7 @@ describe("globaleaks process", function () {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
     cy.waitForUrl("/#/recipient/reports");
-    cy.get("#tip-0").should('be.visible').first().click();
+    cy.get("#tip-0").first().click();
     cy.takeScreenshot("recipient/identity_post_denial", "#Identity");
     cy.get("#identity_access_request").click();
     cy.get('textarea[name="request_motivation"]').type("This is the motivation text.");
@@ -345,11 +440,12 @@ describe("globaleaks process", function () {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
     cy.waitForUrl("/#/recipient/reports");
-    cy.get("#tip-0").should('be.visible').first().click();
+    cy.get("#tip-0").first().click();
     cy.takeScreenshot("recipient/identity_post_authorization", "#Identity");
     cy.logout();
   });
 
+  // the audit log of a report lists the operations performed on it.
   it("should access report audit log", () => {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
@@ -367,5 +463,185 @@ describe("globaleaks process", function () {
     cy.get('select[name="contextResolver.questionnaire_id"]').select('GLOBALEAKS');
     cy.get("[data-action='save']").click();
     cy.logout();
+  });
+
+  it("should mark the comments the other side has read", () => {
+    pages.WhistleblowerPage.performSubmission(0).then((receipt) => {
+      cy.login_receiver();
+      openOrdinaryReport();
+      expandPanel("#TipCommentsBox");
+      cy.get("[name='newCommentContent']").should("be.visible").type("Answer of the recipient");
+      cy.get("#comment-action-send").click();
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+
+      // a file is attached too: its receipt is the download by the other side
+      expandPanel("#TipPageRFileUpload");
+      cy.get("#upload_description").first().should("be.visible").type("attachment of the recipient");
+      cy.get('input[type="file"]').selectFile("./cypress/fixtures/files/test.txt", {force: true});
+      cy.get("#TipPageRFileUpload .download-button").should("be.visible");
+      cy.logout();
+
+      // the reporting person reads the answer and replies
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      expandPanel("#TipCommentsBox");
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+      cy.get("[name='newCommentContent']").should("be.visible").type("Reply of the reporting person");
+      cy.get("#comment-action-send").click();
+      cy.get("#comment-0").should("contain", "Reply of the reporting person");
+      // the download opens in a window of its own, out of reach of an intercept: the receipt
+      // on the file is set by it, so it is given the time to complete
+      cy.get(".download-button").first().click();
+      cy.wait(3000);
+      cy.logout();
+
+      // the recipient is shown that its answer has been read, and its file downloaded
+      cy.login_receiver();
+      openOrdinaryReport();
+      expandPanel("#TipCommentsBox");
+      cy.get("#TipCommentsBox .text-success .fa-check").should("exist");
+      cy.takeScreenshot("recipient/tip_comments_read_receipt");
+      cy.takeScreenshot("recipient/tip_comments_read_receipt_detail", "#TipCommentsBox");
+      expandPanel("#TipPageRFileUpload");
+      cy.get("#TipPageRFileUpload .text-success .fa-check").should("exist");
+      cy.takeScreenshot("recipient/tip_files_read_receipt_detail", "#TipUploadBox");
+
+      // the list marks the reports whose last update the reporting person has read
+      cy.visit("/#/recipient/reports");
+      cy.waitForUrl("/#/recipient/reports");
+      cy.get("#TipList").should("be.visible");
+      cy.takeScreenshot("recipient/tips_read_receipt_detail", "#TipList");
+      cy.logout();
+
+      // the reporting person is shown that its reply has been read
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      expandPanel("#TipCommentsBox");
+      cy.get("#TipCommentsBox .text-success .fa-check").should("exist");
+      cy.takeScreenshot("whistleblower/tip_comments_read_receipt");
+      cy.takeScreenshot("whistleblower/tip_comments_read_receipt_detail", "#TipCommentsBox");
+      cy.logout();
+    });
+  });
+});
+
+describe("report audit log", () => {
+  // among them the upload of the attachments and the accesses to them.
+  it("should list the operations on the report and on its files", () => {
+    cy.login_receiver();
+    openOrdinaryReport();
+
+    cy.takeScreenshot("admin/report_audit_log_button_detail", "#TipToolbar");
+
+    // A report without attachments produces no file events: one is attached and downloaded here
+    expandPanel("#TipPageRFileUpload");
+    cy.get("#upload_description").first().should("be.visible").type("attachment of the recipient");
+    cy.get('input[type="file"]').selectFile("./cypress/fixtures/files/test.txt", {force: true});
+    cy.get(".download-button").first().click();
+
+    cy.get("#tip-action-access-audit-log").click();
+    cy.get(".modal").should("be.visible");
+    cy.takeScreenshot("admin/report_audit_log", ".modal-dialog");
+
+    cy.get(`.modal input[placeholder*='${t("Search")}']`).first().should("be.visible").type("file");
+    cy.contains(".modal", "file").should("be.visible");
+    cy.takeScreenshot("admin/report_audit_log_files");
+    cy.takeScreenshot("admin/report_audit_log_files_detail", ".modal-dialog");
+    cy.get("#modal-action-cancel").click();
+
+    cy.logout();
+  });
+
+  it("should filter the reports that are new or updated", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+
+    cy.get("#filterOpt").should("exist").check({ force: true });
+    cy.takeScreenshot("recipient/tips_unread_filter");
+    cy.takeScreenshot("recipient/tips_unread_filter_detail", "#TipList");
+    cy.get("#filterOpt").uncheck({ force: true });
+
+    cy.logout();
+  });
+
+  it("should show the recipients that have access to a report", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+
+    cy.get(".TipInfoRecipientCount").first().should("be.visible");
+    cy.takeScreenshot("recipient/tips_recipients_count");
+    cy.get(".TipInfoRecipientCount span").first().trigger("mouseenter");
+    cy.takeScreenshot("recipient/tips_recipients_count_detail", "#TipList");
+
+    cy.logout();
+  });
+});
+
+describe("fingerprints of the deleted content", () => {
+  // What is deleted leaves its fingerprints on the log, read by the recipient and by the
+  // whistleblower
+  // The attachments reach the recipients through the delivery job, a few seconds after the
+  // submission: the report is opened again until the file is there
+  const openOrdinaryReportWithItsFile = (attempt = 0) => {
+    openOrdinaryReport();
+    cy.get("body").then(($body) => {
+      if ($body.find("#fileListBody tr").length > 0) {
+        return;
+      }
+
+      expect(attempt, "attempts made waiting for the delivery").to.be.lessThan(12);
+      cy.wait(5000);
+      openOrdinaryReportWithItsFile(attempt + 1);
+    });
+  };
+
+  it("should keep on the log the fingerprints of a deleted attachment", () => {
+    pages.WhistleblowerPage.performSubmission(1).then((receipt) => {
+      cy.login_receiver();
+      openOrdinaryReportWithItsFile();
+
+      // deleting an attachment lives in the masking mode: masked first, then redacted away
+      cy.get("#actionsDropdownButton").click();
+      cy.get("#tip-action-mask").click();
+
+      cy.get("#ReportAttachments .fa-eraser").first().click();
+      cy.get("#ReportAttachments .tip-action-delete-file").should("be.visible").first().click();
+
+      cy.get("#tip-action-access-audit-log").click();
+      cy.get(".modal").should("be.visible");
+      cy.contains(".modal", "delete_file").should("be.visible");
+
+      // the details of an entry open from the entry: two named fingerprints
+      cy.contains(".modal tr", "delete_file").find('[data-action="toggle"]').click();
+      cy.get('.modal [data-cy="audit-details"]').should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
+
+      cy.takeScreenshot("recipient/report_audit_log_hashes");
+      cy.takeScreenshot("recipient/report_audit_log_hashes_detail", ".modal-dialog");
+
+      cy.get("#modal-action-cancel").click();
+      cy.logout();
+
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#tip-action-access-audit-log").click();
+      cy.get(".modal").should("be.visible");
+      cy.contains(".modal", "delete_file").should("be.visible");
+
+      // the details of an entry open from the entry: two named fingerprints
+      cy.contains(".modal tr", "delete_file").find('[data-action="toggle"]').click();
+      cy.get('.modal [data-cy="audit-details"]').should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
+
+      cy.takeScreenshot("whistleblower/report_audit_log_hashes");
+      cy.takeScreenshot("whistleblower/report_audit_log_hashes_detail", ".modal-dialog");
+
+      cy.get("#modal-action-cancel").click();
+      cy.logout();
+    });
   });
 });
