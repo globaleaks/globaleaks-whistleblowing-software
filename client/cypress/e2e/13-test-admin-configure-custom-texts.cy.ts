@@ -1,3 +1,4 @@
+import {t} from "../support/i18n";
 describe("admin disable submissions", () => {
   it("should disable submission", () => {
     cy.login_admin();
@@ -17,7 +18,7 @@ describe("admin update custom texts (1)", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
     cy.get('[data-cy="text_customization"]').click();
-    cy.get('select[name="vars.text_to_customize"]').select("Submissions disabled");
+    cy.get('select[name="vars.text_to_customize"]').select(t("Submissions disabled"));
     cy.get("[name='vars.custom_text']").clear().type("Whistleblowing disabled");
     cy.get("#addCustomTextButton").click();
     cy.logout();
