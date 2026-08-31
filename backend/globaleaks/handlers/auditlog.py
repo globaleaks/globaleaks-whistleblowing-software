@@ -15,6 +15,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import transact
 from globaleaks.state import State
+from globaleaks.utils.crypto import GCE
 
 
 def serialize_log(log, username=''):
@@ -26,6 +27,23 @@ def serialize_log(log, username=''):
         'object_id': log.object_id,
         'data': log.data
     }
+
+
+def decrypt_log_hashes(user_key, tip_prv_key, logs):
+    """
+    Reveal the fingerprints the entries carry of what has been deleted.
+
+    :param user_key: The key of the user reading the log
+    :param tip_prv_key: The key of the report, wrapped for that user
+    :param logs: The serialized entries
+    """
+    from globaleaks.handlers.whistleblower.submission import decrypt_hashes
+
+    tip_key = GCE.asymmetric_decrypt(user_key, tip_prv_key)
+
+    for entry in logs:
+        if entry['data']:
+            decrypt_hashes(tip_key, entry['data'])
 
 
 @transact
@@ -46,11 +64,6 @@ def db_get_report_audit_log(session, tid, itip_id):
     """
     The audit log of a report.
 
-    It holds what happened on the report and what happened on the objects the
-    report is made of: an event on a file or on a comment acts upon that
-    object, and names it, so it is reached through the objects belonging to
-    the report rather than through the report itself.
-
     :param session: An ORM session
     :param tid: A tenant ID
     :param itip_id: The ID of the report
@@ -60,6 +73,7 @@ def db_get_report_audit_log(session, tid, itip_id):
                            .filter(models.InternalFile.internaltip_id == itip_id)
 
     objects = [
+        # An entry naming the report itself: how a deletion stays in the log once its object is gone
         models.AuditLog.object_id == itip_id,
         models.AuditLog.object_id.in_(internalfiles),
         models.AuditLog.object_id.in_(
@@ -194,7 +208,6 @@ class DebugLogHandler(BaseHandler):
 def serialize_user_audit(user):
     """
     Serialize the audit view of a user: the traits relevant to the oversight
-    of the accounts, and none of the configuration of the account itself
     """
     return {
         'id': user.id,
