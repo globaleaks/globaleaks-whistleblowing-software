@@ -2,7 +2,7 @@
   <div class="row">
     <span class="col-md-8">
       <span>{{'Substatuses'|translate}}</span>
-      <button class="btn btn-sm btn-primary" id="add-sub-status" (click)="toggleAddSubStatus()">
+      <button type="button" class="btn btn-sm btn-primary" id="add-sub-status" (click)="toggleAddSubStatus()">
         <i class="fas fa-plus"></i>
         <span>{{'Add'|translate}}</span>
       </button>
@@ -28,7 +28,7 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group clearfix">
-                <button class="float-start btn btn-primary" id="add-submission-sub-status" [disabled]="newSubStatusList.invalid" (click)="addSubmissionSubStatus(); toggleAddSubStatus()">
+                <button type="button" class="float-start btn btn-primary" id="add-submission-sub-status" [disabled]="newSubStatusList.invalid" (click)="addSubmissionSubStatus(); toggleAddSubStatus()">
                   <i class="fas fa-plus"></i>
                   <span> Add</span>
                 </button>
