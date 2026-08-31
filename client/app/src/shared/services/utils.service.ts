@@ -586,10 +586,13 @@ export class UtilsService {
 
       let response: any;
       let confirmed = false;
+      let refusal: any = null;
 
       // The modal awaits this promise and only closes when it resolves; a
-      // rejection keeps the modal open so the operator can correct the secret
-      // and try again.
+      // rejection keeps it open so the operator can correct the secret and try
+      // again. A refusal over the state of the resource is not the operator's
+      // to correct here: the dialog closes and the refusal reaches whoever
+      // asked for the operation, which is the side that states what changed.
       modalRef.componentInstance.confirmFunction = (secret: string) => {
         return new Promise<void>((resolve, reject) => {
           performRequest(secret).subscribe({
@@ -599,6 +602,11 @@ export class UtilsService {
               resolve();
             },
             error: (error) => {
+              if (error.status === 409) {
+                refusal = error;
+                modalRef.dismiss();
+              }
+
               reject(error);
             }
           });
@@ -606,8 +614,9 @@ export class UtilsService {
       };
 
       // The downstream subscriber is notified only after the modal has closed:
-      // it emits the response on a confirmed request and simply completes when
-      // the operator dismisses the dialog.
+      // it emits the response on a confirmed request, hands over a refusal that
+      // was not the operator's to correct, and simply completes when the
+      // operator dismisses the dialog.
       modalRef.result.then(
         () => {
           if (confirmed) {
@@ -616,7 +625,11 @@ export class UtilsService {
           observer.complete();
         },
         () => {
-          observer.complete();
+          if (refusal) {
+            observer.error(refusal);
+          } else {
+            observer.complete();
+          }
         }
       );
     });

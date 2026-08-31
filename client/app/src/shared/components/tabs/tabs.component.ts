@@ -19,7 +19,7 @@ import {TabDirective} from "@app/shared/components/tabs/tab.directive";
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="active()" (activeIdChange)="active.set($event)">
       @for (tab of tabs(); track tab.id()) {
         <li [ngbNavItem]="tab.id()">
-          <button ngbNavLink [attr.data-cy]="tab.id()">
+          <button type="button" ngbNavLink [attr.data-cy]="tab.id()">
             @if (tab.icon()) {
               <i [class]="tab.icon()"></i>
             }

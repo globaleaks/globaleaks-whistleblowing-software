@@ -55,7 +55,7 @@
                   <td class="preformatted">{{ default_texts[item] }}</td>
                   <td class="clearfix">
                     <span class="preformatted">{{ custom_texts[item] }}</span>
-                    <button class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
+                    <button type="button" class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
                       <i class="fas fa-xmark"></i>
                     </button>
                   </td>
