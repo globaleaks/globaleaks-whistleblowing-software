@@ -1,6 +1,7 @@
 import base64
 import json
 import time
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from twisted.internet import defer
@@ -9,493 +10,207 @@ from globaleaks.tests import helpers
 from globaleaks.utils import oidc
 
 
-class Test_OIDCAuth(helpers.TestGL):
-    def setUp(self):
-        # Generate the RSA private key
-        self.private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
+ISSUER = "http://127.0.0.1:9090/realms/globaleaks"
+CLIENT = "globaleaks"
 
-        # OIDC metadata
-        self.issuer = "http://127.0.0.1:9090/realms/globaleaks"
-        self.audience = "account"
-        self.client_id = "globaleaks"
+
+def base64url(data):
+    return base64.urlsafe_b64encode(data).rstrip(b'=')
+
+
+class Test_OIDCAuth(helpers.TestGL):
+    """
+    The identity token is the only thing that attests an authentication, and
+    """
+    def setUp(self):
+        self.private_key = rsa.generate_private_key(public_exponent=65537,
+                                                    key_size=2048)
 
         self.oidc = oidc.OIDCAuth()
-        self.oidc.jwks = {self.issuer: {"keys": []}}
+        self.oidc.jwks = {ISSUER: {"keys": []}}
 
-    def base64url_encode(self, data):
+    def encode(self, payload, headers=None):
         """
-        Encodes data in base64url encoding.
+        Sign a token with the key of this test, as the identity provider does
         """
-        return base64.urlsafe_b64encode(data).rstrip(b'=')
-
-    def encode_token(self, payload, headers=None):
-        """
-        Signs a JWT with the dynamically created private key; this is the
-        counterpart of the verification implemented in globaleaks.utils.oidc.
-        """
-        headers = headers or {}
+        headers = dict(headers or {})
         headers.setdefault("kid", "test-key-id")
         headers.setdefault("alg", "RS256")
         headers.setdefault("typ", "JWT")
 
-        segments = [
-            self.base64url_encode(json.dumps(headers).encode('utf-8')),
-            self.base64url_encode(json.dumps(payload).encode('utf-8'))
-        ]
+        segments = [base64url(json.dumps(headers).encode()),
+                    base64url(json.dumps(payload).encode())]
 
-        signing_input = b'.'.join(segments)
-
-        signature = self.private_key.sign(signing_input,
+        signature = self.private_key.sign(b'.'.join(segments),
                                           padding.PKCS1v15(),
                                           hashes.SHA256())
 
-        segments.append(self.base64url_encode(signature))
+        segments.append(base64url(signature))
 
-        return b'.'.join(segments).decode('utf-8')
+        return b'.'.join(segments).decode()
 
-    def generate_valid_token(self):
+    def jwk(self):
         """
-        Generates a valid ID token signed with the dynamically created private key.
+        The public key of this test, in the form the identity provider
         """
-        payload = {
-            "sub": "admin",
-            "name": "John Doe",
-            "email": "john.doe@example.com",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() + 3600,
-            "iat": time.time(),
-            "nonce": "random_nonce_value"
-        }
+        numbers = self.private_key.public_key().public_numbers()
 
-        return self.encode_token(payload)
+        def encode(value):
+            return base64url(value.to_bytes((value.bit_length() + 7) // 8,
+                                            'big')).decode()
 
-    def generate_jwk(self):
+        return {"kty": "RSA", "kid": "test-key-id", "use": "sig",
+                "alg": "RS256", "n": encode(numbers.n), "e": encode(numbers.e)}
+
+    def advertise(self):
+        self.oidc.jwks = {ISSUER: {"keys": [self.jwk()]}}
+
+    def refused(self, operation, expected, subject):
         """
-        Generates a JSON Web Key (JWK) from the public key.
+        Assert that an operation is refused for the expected reason, naming the
         """
-        # Extract public key numbers
-        public_numbers = self.private_key.public_key().public_numbers()
-        n = public_numbers.n
-        e = public_numbers.e
+        try:
+            operation()
+        except Exception as e:
+            self.assertRegex(str(e), expected,
+                             "%s is refused, but not because it is %s"
+                             % (subject, expected))
+        else:
+            self.fail("%s is accepted" % subject)
 
-        # Convert numbers to bytes
-        n_bytes = n.to_bytes((n.bit_length() + 7) // 8, byteorder='big')
-        e_bytes = e.to_bytes((e.bit_length() + 7) // 8, byteorder='big')
+    def claims(self, **kwargs):
+        payload = {"sub": "admin",
+                   "email": "john.doe@example.com",
+                   "iss": ISSUER,
+                   "aud": CLIENT,
+                   "azp": CLIENT,
+                   "exp": time.time() + 3600,
+                   "iat": time.time()}
+        payload.update(kwargs)
 
-        # Base64url encode the modulus and exponent
-        n_base64 = self.base64url_encode(n_bytes).decode('utf-8')
-        e_base64 = self.base64url_encode(e_bytes).decode('utf-8')
+        return {k: v for k, v in payload.items() if v is not None}
 
-        # Create JWK structure
-        jwk = {
-            "kty": "RSA",
-            "kid": "test-key-id",  # A unique key ID for the key
-            "use": "sig",  # The key is used for signing
-            "alg": "RS256",  # RSA-SHA256 algorithm
-            "n": n_base64,
-            "e": e_base64
-        }
+    def test_a_token_of_the_configured_issuer_and_client_is_accepted(self):
+        self.advertise()
 
-        return jwk
-
-    def test_validate_token(self):
-        """
-        Test JWT validation using a mocked JWKS response containing the dynamically generated key.
-        """
-        # Generate a valid JWT token using the private key
-        valid_token = self.generate_valid_token()
-
-        # Generate the JWK from the public key
-        jwk_key = self.generate_jwk()
-
-        # Mock the JWKS response with the generated key
-        self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
-
-        claims = self.oidc.verify_token(valid_token, self.issuer, self.client_id)
+        claims = self.oidc.verify_token(self.encode(self.claims()), ISSUER, CLIENT)
 
         self.assertEqual(claims['sub'], 'admin')
 
-    def test_invalid_token_format(self):
+    def test_a_token_audienced_to_the_client_is_accepted_without_azp(self):
+        # An identity provider that does not issue the authorized party leaves
+        # the audience to say who the token is for
+        self.advertise()
+
+        self.oidc.verify_token(self.encode(self.claims(aud=[CLIENT], azp=None)),
+                               ISSUER, CLIENT)
+
+    def test_the_token_is_refused(self):
         """
-        Test that the validator correctly raises an error for invalid token format.
+        The reasons a token is refused, one row each. The row is named in the
         """
-        # Provide an invalid JWT format (less than 3 parts)
-        invalid_token = "invalid_token_format"
+        cases = [
+            ("malformed",
+             lambda: "not-a-token", {}, "malformed"),
+            ("signed with an algorithm other than the expected one",
+             lambda: self.encode(self.claims(), {"alg": "none"}), {}, "expected algorithm"),
+            ("typed as an access token",
+             lambda: self.encode(self.claims(), {"typ": "at+jwt"}), {}, "not an ID token"),
+            ("signed by a key the provider does not advertise",
+             lambda: self.encode(self.claims()),
+             {"keys": [{"kid": "other-key-id", "alg": "RS256", "use": "sig"}]},
+             "Public key not found"),
+            ("tampered with after being signed",
+             lambda: self.encode(self.claims())[:-3] + "XXX", {}, "signature is not valid"),
+            ("expired",
+             lambda: self.encode(self.claims(exp=time.time() - 3600)), {}, "expired"),
+            ("carrying no expiration, which would make it valid forever",
+             lambda: self.encode(self.claims(exp=None)), {}, "valid expiration"),
+            ("valid only from a moment still to come",
+             lambda: self.encode(self.claims(exp=time.time() + 7200,
+                                             nbf=time.time() + 3600)), {}, "not valid yet"),
+            ("issued by another issuer",
+             lambda: self.encode(self.claims(iss=ISSUER + "-other")), {}, "configured issuer"),
+            ("issued to another client",
+             lambda: self.encode(self.claims(aud="another", azp="another")), {}, "configured client"),
+            ("audienced to a resource, as the access tokens of the provider are",
+             lambda: self.encode(self.claims(aud="account")), {}, "configured client"),
+            ("authorized to a party other than the client",
+             lambda: self.encode(self.claims(aud=[CLIENT], azp="another")), {}, "configured client")
+        ]
 
-        # Mock the JWKS response with the generated key
-        jwk_key = self.generate_jwk()
-        self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
+        for reason, token, jwks, expected in cases:
+            self.advertise()
+            if jwks:
+                self.oidc.jwks = {ISSUER: jwks}
 
-        self.assertRaisesRegex(Exception, "malformed", self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
+            self.refused(lambda: self.oidc.verify_token(token(), ISSUER, CLIENT),
+                         expected, "a token %s" % reason)
 
-    def test_no_key_in_jwks(self):
+    def test_no_token_is_accepted_where_the_provider_is_not_configured(self):
+        self.advertise()
+
+        for issuer, client, expected in [(ISSUER, '', "No IdP client identifier"),
+                                         ('', CLIENT, "No IdP issuer")]:
+            self.assertRaisesRegex(Exception, expected, self.oidc.verify_token,
+                                   self.encode(self.claims()), issuer, client)
+
+    def test_the_endpoint_of_the_provider_is_reached_over_a_protected_transport(self):
         """
-        Test the case where the JWKS does not contain the key ID (kid) from the JWT.
-        """
-        # Generate a valid JWT token using the private key
-        valid_token = self.generate_valid_token()
-
-        # Mock a JWKS response without the correct key ID
-        self.oidc.jwks = {self.issuer: {"keys": [{"kid": "other-key-id", "alg": "RS256", "use": "sig"}]}}
-
-        self.assertRaisesRegex(Exception, "Public key not found", self.oidc.verify_token, valid_token, self.issuer, self.client_id)
-
-    def test_invalid_signature(self):
-        """
-        Test that the token is rejected if the signature is invalid.
-        """
-        # Generate a valid JWT token
-        valid_token = self.generate_valid_token()
-
-        # Modify the token slightly to invalidate the signature
-        invalid_token = valid_token[:-3] + "XXX"  # Change the 3 characters
-
-        # Mock the JWKS response with the generated key
-        jwk_key = self.generate_jwk()
-        self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
-
-        self.assertRaisesRegex(Exception, "signature is not valid", self.oidc.verify_token, invalid_token, self.issuer, self.client_id)
-
-    def test_token_signed_by_another_key(self):
-        """
-        Test that a token signed by a key different from the one advertised in
-        the JWKS is rejected.
-        """
-        valid_token = self.generate_valid_token()
-
-        # Advertise a JWK carrying the key id of the token but the public key
-        # of a different key pair
-        self.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "signature is not valid", self.oidc.verify_token, valid_token, self.issuer, self.client_id)
-
-    def test_token_signed_with_an_unexpected_algorithm(self):
-        """
-        Test that the algorithm is never taken from the token header: a token
-        declaring a different algorithm is rejected instead of being verified
-        with the algorithm it declares.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() + 3600
-        }
-
-        token = self.encode_token(payload, {"alg": "none"})
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "expected algorithm", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_expired_signature(self):
-        """
-        Test that an expired token is rejected by the validator.
-        """
-        # Generate an expired JWT token
-        expired_payload = {
-            "sub": "admin",
-            "name": "John Doe",
-            "email": "john.doe@example.com",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() - 3600,  # Set expiration in the past
-            "iat": time.time(),
-            "nonce": "random_nonce_value"
-        }
-
-        # Use the same private key to generate an expired token
-        expired_token = self.encode_token(expired_payload)
-
-        # Mock the JWKS response with the generated key
-        jwk_key = self.generate_jwk()
-        self.oidc.jwks = {self.issuer: {"keys": [jwk_key]}}
-
-        self.assertRaisesRegex(Exception, "expired", self.oidc.verify_token, expired_token, self.issuer, self.client_id)
-
-    def test_token_without_expiration(self):
-        """
-        Test that a token carrying no expiration is rejected: it would
-        otherwise be accepted forever.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "valid expiration", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_token_not_yet_valid(self):
-        """
-        Test that a token whose validity starts in the future is rejected.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() + 7200,
-            "nbf": time.time() + 3600
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "not valid yet", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_token_issued_by_another_issuer(self):
-        """
-        Test that a token issued by an issuer different from the configured
-        one is rejected.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": "http://127.0.0.1:9090/realms/another",
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() + 3600
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "configured issuer", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_access_token_of_the_idp_is_rejected(self):
-        """
-        Test that an access token of the same issuer is rejected: it is
-        audienced to a resource (the generic audience Keycloak issues by
-        default) and not to the client, and only the ID token attests the
-        authentication.
-        """
-        payload = {
-            "sub": "admin",
-            "email": "john.doe@example.com",
-            "iss": self.issuer,
-            "aud": self.audience,
-            "azp": self.client_id,
-            "exp": time.time() + 3600,
-            "iat": time.time()
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "configured client", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_access_token_typed_as_such_is_rejected(self):
-        """
-        Test that a token typed as an OAuth access token (RFC 9068) is
-        rejected even when its claims mimic the ones of an ID token.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": self.issuer,
-            "aud": self.client_id,
-            "azp": self.client_id,
-            "exp": time.time() + 3600,
-            "iat": time.time()
-        }
-
-        token = self.encode_token(payload, {"typ": "at+jwt"})
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "not an ID token", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_token_issued_to_another_client(self):
-        """
-        Test that a token issued by the same issuer to a different client is
-        rejected.
-        """
-        payload = {
-            "sub": "admin",
-            "email": "john.doe@example.com",
-            "iss": self.issuer,
-            "aud": "another-client",
-            "azp": "another-client",
-            "exp": time.time() + 3600,
-            "iat": time.time()
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "configured client", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_token_authorized_to_another_party_is_rejected(self):
-        """
-        Test that a token naming a different authorized party is rejected even
-        when its audience contains the configured client.
-        """
-        payload = {
-            "sub": "admin",
-            "iss": self.issuer,
-            "aud": [self.client_id],
-            "azp": "another-client",
-            "exp": time.time() + 3600,
-            "iat": time.time()
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "configured client", self.oidc.verify_token, token, self.issuer, self.client_id)
-
-    def test_token_audienced_to_the_configured_client(self):
-        """
-        Test that a token whose audience is the configured client is accepted
-        also when the IdP does not issue the 'azp' claim.
-        """
-        payload = {
-            "sub": "admin",
-            "email": "john.doe@example.com",
-            "iss": self.issuer,
-            "aud": [self.client_id],
-            "exp": time.time() + 3600,
-            "iat": time.time()
-        }
-
-        token = self.encode_token(payload)
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.oidc.verify_token(token, self.issuer, self.client_id)
-
-    def test_no_client_id_configured(self):
-        """
-        Test that no token is accepted when no client identifier is configured.
-        """
-        valid_token = self.generate_valid_token()
-
-        self.oidc.jwks = {self.issuer: {"keys": [self.generate_jwk()]}}
-
-        self.assertRaisesRegex(Exception, "No IdP client identifier", self.oidc.verify_token, valid_token, self.issuer, '')
-
-    def test_endpoint_published_via_https(self):
-        """
-        Test that an endpoint published via HTTPS is accepted.
+        The metadata of the provider are collected over HTTPS, so that whoever
         """
         oidc.validate_endpoint("https://idp.globaleaks.org/realms/globaleaks")
-
-    def test_endpoint_published_via_http(self):
-        """
-        Test that an endpoint published via plain HTTP is refused.
-        """
-        self.assertRaisesRegex(Exception, "HTTPS", oidc.validate_endpoint,
-                               "http://idp.globaleaks.org/realms/globaleaks")
-
-    def test_endpoint_published_via_http_on_the_loopback_interface(self):
-        """
-        Test that an endpoint published via plain HTTP is accepted on the
-        loopback interface, so that a local IdP can be used on testing setups.
-        """
         oidc.validate_endpoint("http://127.0.0.1:9090/realms/globaleaks")
 
-    def test_endpoint_published_via_an_unsupported_scheme(self):
+        for endpoint in ["http://idp.globaleaks.org/realms/globaleaks",
+                         "file:///etc/passwd"]:
+            self.refused(lambda: oidc.validate_endpoint(endpoint),
+                         "HTTPS", "the endpoint %s" % endpoint)
+
+    def test_the_metadata_of_another_issuer_are_refused(self):
+        # A document is trusted for the issuer it has been retrieved for, and
+        # names it: naming another one is how a provider would speak for one
+        self.oidc.fetch_json = lambda url: defer.succeed({"issuer": "https://another.example.org"})
+
+        return self.assertFailure(self.oidc.fetch_metadata(ISSUER), Exception)
+
+    def test_a_document_larger_than_the_platform_accepts_is_dropped(self):
+        # Whatever the provider answers is read into memory: a bound on it is
+        # what keeps a provider from exhausting the platform
+        collected = []
+        within = oidc.BoundedBodyProtocol(1024)
+        within.finished.addCallback(collected.append)
+        within.dataReceived(b'{"issuer":')
+        within.dataReceived(b'"globaleaks"}')
+        within.connectionLost(None)
+
+        self.assertEqual(collected, [b'{"issuer":"globaleaks"}'])
+
+        refused = []
+        beyond = oidc.BoundedBodyProtocol(8)
+        beyond.finished.addErrback(refused.append)
+        beyond.dataReceived(b'x' * 9)
+        beyond.connectionLost(None)
+
+        self.assertEqual(len(refused), 1)
+
+    @defer.inlineCallbacks
+    def test_the_client_is_validated_against_the_provider(self):
         """
-        Test that an endpoint published via a scheme other than HTTP(S) is refused.
+        The client is probed with an authorization code that cannot be valid:
         """
-        self.assertRaisesRegex(Exception, "HTTPS", oidc.validate_endpoint,
-                               "file:///etc/passwd")
+        def answering(response):
+            self.oidc.fetch_metadata = lambda issuer: defer.succeed(
+                {"issuer": ISSUER, "token_endpoint": ISSUER + "/protocol/openid-connect/token"})
+            self.oidc.post_form = lambda url, form: defer.succeed(response)
 
-    def test_document_within_the_accepted_size(self):
-        """
-        Test that a document within the accepted size is collected.
-        """
-        protocol = oidc.BoundedBodyProtocol(1024)
+        # the code is refused, so the client exists and holds the code grant
+        answering({"error": "invalid_grant"})
+        yield self.oidc.validate_client(ISSUER, CLIENT)
 
-        documents = []
-        protocol.finished.addCallback(documents.append)
+        for reason, response in [("unknown to the provider", {"error": "invalid_client"}),
+                                 ("not allowed the code grant", {"error": "unauthorized_client"})]:
+            answering(response)
+            yield self.assertFailure(self.oidc.validate_client(ISSUER, CLIENT), Exception)
 
-        protocol.dataReceived(b'{"issuer":')
-        protocol.dataReceived(b'"globaleaks"}')
-        protocol.connectionLost(None)
-
-        self.assertEqual(documents, [b'{"issuer":"globaleaks"}'])
-
-    def test_document_exceeding_the_accepted_size(self):
-        """
-        Test that a document exceeding the accepted size is dropped, so that an
-        identity provider cannot exhaust the memory of the platform.
-        """
-        protocol = oidc.BoundedBodyProtocol(8)
-
-        failures = []
-        protocol.finished.addErrback(failures.append)
-
-        protocol.dataReceived(b'x' * 9)
-        protocol.connectionLost(None)
-
-        self.assertEqual(len(failures), 1)
-
-    def test_metadata_advertising_another_issuer(self):
-        """
-        Test that the metadata advertising an issuer different from the one they
-        have been retrieved for are refused, as required by OIDC Discovery.
-        """
-        self.oidc.fetch_json = lambda url: defer.succeed({"issuer": "https://another.globaleaks.org"})
-
-        return self.assertFailure(self.oidc.fetch_metadata(self.issuer), Exception)
-
-    def setup_client_validation(self, token_response):
-        self.oidc.fetch_metadata = lambda issuer: defer.succeed({"issuer": self.issuer,
-                                                                 "token_endpoint": self.issuer + "/protocol/openid-connect/token"})
-        self.oidc.post_form = lambda url, form: defer.succeed(token_response)
-
-    def test_validate_client_recognized_by_the_idp(self):
-        """
-        Test that a client whose bogus authorization code is rejected with
-        invalid_grant is recognized as existing on the IdP.
-        """
-        self.setup_client_validation({"error": "invalid_grant"})
-
-        return self.oidc.validate_client(self.issuer, self.client_id)
-
-    def test_validate_client_unknown_to_the_idp(self):
-        """
-        Test that a client rejected with invalid_client is refused, as the IdP
-        does not recognize it.
-        """
-        self.setup_client_validation({"error": "invalid_client"})
-
-        return self.assertFailure(self.oidc.validate_client(self.issuer, self.client_id),
-                                  Exception)
-
-    def test_validate_client_not_allowed_to_use_the_code_grant(self):
-        """
-        Test that a client not allowed to use the authorization code grant is
-        refused, as the login flow could not be performed with it.
-        """
-        self.setup_client_validation({"error": "unauthorized_client"})
-
-        return self.assertFailure(self.oidc.validate_client(self.issuer, self.client_id),
-                                  Exception)
-
-    def test_validate_client_not_configured(self):
-        """
-        Test that the validation of the client is refused when no client
-        identifier is configured.
-        """
-        return self.assertFailure(self.oidc.validate_client(self.issuer, ""),
-                                  Exception)
+        yield self.assertFailure(self.oidc.validate_client(ISSUER, ""), Exception)

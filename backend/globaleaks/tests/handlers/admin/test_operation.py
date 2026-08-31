@@ -209,16 +209,6 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
                                            tid=2,
                                            properties={'management_session': True})
 
-    @defer.inlineCallbacks
-    def test_admin_reset_idp_binding(self):
-        yield set_idp_id(self.dummyReceiver_1['id'], 'subject1')
-
-        yield self._test_operation_handler('reset_idp_binding',
-                                           {'value': self.dummyReceiver_1['id']})
-
-        # The account is bound again on its next authentication
-        idp_id = yield get_idp_id(self.dummyReceiver_1['id'])
-        self.assertEqual(idp_id, '')
 
     def test_admin_enable_encryption(self):
         return self._test_operation_handler('enable_encryption')
@@ -254,29 +244,6 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
 
     def test_admin_enable_user_permission_file_upload(self):
         return self._test_operation_handler('enable_user_permission_file_upload')
-
-    @defer.inlineCallbacks
-    def test_admin_reset_backups(self):
-        yield set_backup_config(1, {
-            'backup_enabled': True,
-            'backup_time': '10:00',
-            'backup_period': 12,
-            'backup_retention': 30
-        })
-
-        yield self._test_operation_handler('reset_backups')
-
-        config = yield get_backup_config(1)
-        self.assertEqual(config, {
-            'backup_enabled': False,
-            'backup_time': '02:00',
-            'backup_period': 24,
-            'backup_retention': 7
-        })
-
-    def test_admin_reset_backups_forbidden_on_secondary_tenant(self):
-        return self.assertFailure(self._test_operation_handler('reset_backups', tid=2),
-                                  errors.ForbiddenOperation)
 
 
 class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):

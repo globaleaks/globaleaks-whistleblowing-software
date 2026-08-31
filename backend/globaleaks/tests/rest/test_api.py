@@ -1,11 +1,62 @@
 import copy
-from twisted.internet.defer import inlineCallbacks
+import re
 
+from twisted.internet.defer import inlineCallbacks, maybeDeferred
+
+from globaleaks import models
 from globaleaks.db import refresh_tenant_cache
 from globaleaks.handlers.admin.node import db_update_enabled_languages
+from globaleaks.handlers.admin.user_profile import user_permissions
 from globaleaks.orm import tw
-from globaleaks.rest import api
+from globaleaks.rest import api, errors
+from globaleaks.tests import helpers
 from globaleaks.tests.helpers import TestGL, forge_request
+
+
+# The routes an administrator reaches without holding any permission. Each is a
+# deliberate exception and is named here so that a new one cannot be introduced
+# without this test being updated on purpose:
+#
+#   - entering a site one administers is not the management of an area;
+#   - the catalog of the metrics and the options offered when choosing carry no
+#     value of their own, only names to pick from;
+#   - the operations on the configuration declare a permission of their own, one
+#     per operation, inside the handler;
+#   - the files of a site are served to whoever administers it.
+ROUTES_OPEN_TO_EVERY_ADMINISTRATOR = {
+    "AdminOperationHandler",
+    "FileCollection",
+    "FileInstance",
+    "MetricCatalog",
+    "SelectablesCollection",
+    "TenantAuthSwitchHandler"
+}
+
+
+def declared_permissions(handler, method):
+    """
+    Return the permissions a handler demands on one of its methods
+    """
+    permission = getattr(handler, 'require_permission', None)
+
+    if isinstance(permission, dict):
+        permission = permission.get(method)
+
+    if permission is None:
+        return ()
+
+    return (permission,) if isinstance(permission, str) else tuple(permission)
+
+
+def declared_methods(handler):
+    return [m for m in ['delete', 'get', 'put', 'post'] if hasattr(handler, m)]
+
+
+def route_arguments(spec):
+    """
+    Return the number of arguments the route of a spec carries
+    """
+    return re.compile(spec[2]).groups if len(spec) > 2 else 0
 
 
 class TestAPI(TestGL):
@@ -51,6 +102,38 @@ class TestAPI(TestGL):
                                                    'transmitter',
                                                    'custodian'], check_roles))
             self.assertTrue(len(rest) == 0)
+
+    def test_every_administrative_route_declares_the_permission_of_its_area(self):
+        """
+        The routes are walked, not listed: a handler added tomorrow is checked
+        """
+        known = set(user_permissions) | set(models.admin_permissions)
+
+        undeclared = set()
+
+        for spec in api.api_spec:
+            handler = spec[1]
+            roles = getattr(handler, 'check_roles')
+            roles = {roles} if isinstance(roles, str) else set(roles)
+
+            if 'admin' not in roles:
+                continue
+
+            demanded = set()
+            for method in declared_methods(handler):
+                demanded.update(declared_permissions(handler, method))
+
+            if not demanded:
+                undeclared.add(handler.__name__)
+                continue
+
+            # What is demanded is a permission the platform knows: a typo in a
+            # declaration would otherwise leave the area open to everybody
+            self.assertTrue(demanded.issubset(known),
+                            "%s demands %s, which is not a permission"
+                            % (handler.__name__, sorted(demanded - known)))
+
+        self.assertEqual(undeclared, ROUTES_OPEN_TO_EVERY_ADMINISTRATOR)
 
     def test_get_with_no_accept_language_header(self):
         request = forge_request()
@@ -249,3 +332,68 @@ class TestAPI(TestGL):
         self.assertFalse(request.client_using_tor)
         self.assertEqual(request.responseCode, 302)
         self.assertEqual(request.responseHeaders.getRawHeaders('location')[0], 'https://globaleaks.org/')
+
+
+class TestPermissionEnforcement(helpers.TestHandler):
+    """
+    Every permission a route declares is enforced on every one of its methods,
+    """
+    # A method that refuses for a reason of its own even when the permission is
+    # held: the deletion of an invitation refuses one that does not exist, and
+    # the identifier this test hands over is a made up one.
+    REFUSING_FOR_THEIR_OWN_REASONS = {"AdminInviteInstance.delete"}
+
+    @inlineCallbacks
+    def test_the_declared_permission_is_demanded_by_every_method(self):
+        exercised = 0
+
+        for spec in api.api_spec:
+            handler = spec[1]
+            roles = getattr(handler, 'check_roles')
+            roles = {roles} if isinstance(roles, str) else set(roles)
+
+            if 'admin' not in roles:
+                continue
+
+            arguments = ['x' * 36] * route_arguments(spec)
+
+            for method in declared_methods(handler):
+                demanded = declared_permissions(handler, method)
+                if not demanded:
+                    continue
+
+                # The session holds every permission but the ones the method
+                # demands: what is refused is refused for that reason alone
+                request = self.request(role='admin',
+                                       handler_cls=handler,
+                                       permissions={p: False for p in demanded})
+
+                yield self.assertFailure(
+                    maybeDeferred(getattr(request, method), *arguments),
+                    errors.ForbiddenOperation)
+
+                # The counter-proof, without which the check above would pass
+                # on a method that refuses everything: holding the permission,
+                # the same call is no longer refused for lack of it.
+                granted = self.request(role='admin',
+                                       handler_cls=handler,
+                                       permissions={p: True for p in demanded})
+
+                try:
+                    yield maybeDeferred(getattr(granted, method), *arguments)
+                except errors.ForbiddenOperation:
+                    self.assertIn("%s.%s" % (handler.__name__, method),
+                                  self.REFUSING_FOR_THEIR_OWN_REASONS,
+                                  "%s.%s refuses even to whoever holds %s"
+                                  % (handler.__name__, method, sorted(demanded)))
+                except Exception:
+                    # Refused for anything else - a made up identifier, an empty
+                    # body: what matters is that it is not the permission
+                    pass
+
+                exercised += 1
+
+        # The walk found what it was supposed to: a change that emptied
+        # api_spec, or that stopped declaring permissions altogether, would
+        # otherwise leave this test green over nothing
+        self.assertEqual(exercised, 93)

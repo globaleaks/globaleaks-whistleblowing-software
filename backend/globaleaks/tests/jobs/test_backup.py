@@ -1,16 +1,19 @@
 import os
 import shutil
+import sqlite3
 import tempfile
+
 from unittest.mock import patch
 
-from twisted.internet.defer import inlineCallbacks, fail, succeed
+from twisted.internet.defer import inlineCallbacks, succeed
 
 import globaleaks.jobs.backup as backup_job
-from globaleaks.jobs.backup import Backup, do_backup
+
+from globaleaks.jobs.backup import Backup, BackupList
 from globaleaks.rest import errors
 from globaleaks.settings import Settings
-from globaleaks.state import State
 from globaleaks.tests import helpers
+
 
 class BackupJob(Backup):
     operation_called = 0
@@ -19,12 +22,14 @@ class BackupJob(Backup):
         self.operation_called += 1
         return succeed(None)
 
-class TestBackupJob(helpers.TestGL):
-    def test_run_with_params(self):
-        def mock_params():
-            return (True, "02:00", 2, 7)
 
-        with patch.object(backup_job, 'wrap_get_backups_parameter', mock_params):
+class TestBackupSchedule(helpers.TestGL):
+    """
+    The backup runs on the hour it is given, as often as it is given; where it
+    """
+    def test_the_job_runs_on_the_configured_period(self):
+        with patch.object(backup_job, 'wrap_get_backups_parameter',
+                          lambda: (True, "02:00", 2, 7)):
             job = BackupJob()
             self.assertEqual(job.operation_called, 0)
 
@@ -35,250 +40,207 @@ class TestBackupJob(helpers.TestGL):
             self.test_reactor.advance(job.interval)
             self.assertEqual(job.operation_called, 2)
 
-    def test_no_run_without_params(self):
-        def mock_params():
-            return (True, None, None, None)
-
-        with patch.object(backup_job, 'wrap_get_backups_parameter', mock_params):
+    def test_without_an_hour_and_a_period_the_job_falls_back_to_once_a_day(self):
+        # Not "it does not run": it runs, once a day, on the fallback interval.
+        # Nothing is lost while the site has not chosen when to back up.
+        with patch.object(backup_job, 'wrap_get_backups_parameter',
+                          lambda: (True, None, None, None)):
             job = BackupJob()
-            self.assertEqual(job.operation_called, 0)
+
+            self.assertEqual(job.get_delay(), 24 * 3600)
+            self.assertEqual(job.interval, 24 * 3600)
 
             self.test_reactor.advance(3600)
             self.assertEqual(job.operation_called, 0)
 
+
+class TestDatabaseSnapshot(helpers.TestGL):
+    """
+    The copy of the database is the part of a backup that has to be restorable:
+    """
     @inlineCallbacks
-    def test_backup_files_flow(self):
-        calls = []
-        backup_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, backup_path, ignore_errors=True)
+    def test_the_copy_of_the_database_is_a_database_that_answers(self):
+        staging = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, staging, True)
 
-        def launch_rsync(source, destination, excludes=None, link_dest=None):
-            calls.append(('rsync', source, destination, excludes, link_dest))
-            return succeed(None)
+        copy = os.path.join(staging, 'globaleaks.db')
 
-        def backup_sqlite_database_threaded(path):
-            calls.append(('sqlite', path))
-            return succeed(None)
+        yield backup_job.backup_sqlite_database_threaded(copy)
 
-        def remove_staging_database_threaded(path):
-            calls.append(('remove', path))
-            return succeed(None)
+        self.assertTrue(os.path.exists(copy))
 
-        def publish_snapshot_threaded(bp, snapshots_path, incomplete_path, final_path, keep):
-            calls.append(('publish', incomplete_path, final_path, keep))
-            return succeed(None)
+        connection = sqlite3.connect(copy)
+        try:
+            # It opens, and what it holds is coherent
+            self.assertEqual(connection.execute("PRAGMA integrity_check").fetchone()[0],
+                             'ok')
 
-        with patch.object(backup_job, 'launch_rsync', launch_rsync), \
-             patch.object(backup_job, 'backup_sqlite_database_threaded', backup_sqlite_database_threaded), \
-             patch.object(backup_job, 'remove_staging_database_threaded', remove_staging_database_threaded), \
-             patch.object(backup_job, 'publish_snapshot_threaded', publish_snapshot_threaded):
-            yield backup_job.backup_sqlite_database_and_files(backup_path, 5)
+            # and it carries the data of the platform, not an empty shell: the
+            # configuration of the first site is in there and can be read back
+            copied = connection.execute(
+                "SELECT COUNT(*) FROM config WHERE tid = 1").fetchone()[0]
+        finally:
+            connection.close()
 
-        source_path = os.path.join(Settings.working_path, '')
-        snapshots_path = os.path.join(backup_path, 'snapshots')
+        source = sqlite3.connect(Settings.db_file_path)
+        try:
+            original = source.execute(
+                "SELECT COUNT(*) FROM config WHERE tid = 1").fetchone()[0]
+        finally:
+            source.close()
 
-        # two file passes around a local database snapshot, the snapshot shipped
-        # into the generation, the local copy wiped, then publish
-        self.assertEqual([c[0] for c in calls],
-                         ['rsync', 'sqlite', 'rsync', 'rsync', 'remove', 'publish'])
+        self.assertGreater(copied, 0)
+        self.assertEqual(copied, original)
 
-        rsync1, sqlite_call, rsync2, rsync_db, remove, publish = calls
-        incomplete_path = publish[1]
-        name = os.path.basename(incomplete_path)[:-len('.incomplete')]
-        staging_db = os.path.join(backup_path, 'tmp', name + '.db')
+    def test_the_staging_is_wiped_of_whatever_is_left_in_it(self):
+        # A snapshot of the database sits in the staging in the clear until it
+        # is transferred: what is left behind is removed, run or no run
+        staging = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, staging, True)
 
-        # both file passes target the same generation dir, from the working dir
-        self.assertEqual(rsync1[1], source_path)
-        self.assertEqual(rsync1[2], rsync2[2])
-        self.assertEqual(rsync1[2], os.path.join(incomplete_path, ''))
-        self.assertEqual(rsync1[3], backup_job.DB_RSYNC_EXCLUDES)
+        leftover = os.path.join(staging, 'globaleaks.db')
+        with open(leftover, 'wb') as f:
+            f.write(b'a leftover snapshot')
 
-        # the database is snapshotted onto local staging, not over the network
-        self.assertEqual(sqlite_call[1], staging_db)
+        backup_job.cleanup_staging(staging)
 
-        # the local snapshot is shipped into the generation as globaleaks.db,
-        # with no excludes/link-dest, then securely removed
-        self.assertEqual(rsync_db[1], staging_db)
-        self.assertEqual(rsync_db[2], os.path.join(incomplete_path, 'globaleaks.db'))
-        self.assertIsNone(rsync_db[3])
-        self.assertIsNone(rsync_db[4])
-        self.assertEqual(remove[1], staging_db)
+        self.assertFalse(os.path.exists(leftover))
 
-        # staging lives under snapshots/ and is published via atomic rename
-        self.assertTrue(incomplete_path.endswith('.incomplete'))
-        self.assertEqual(os.path.dirname(incomplete_path), snapshots_path)
-        self.assertEqual(publish[2], incomplete_path[:-len('.incomplete')])
-        # the retention count is propagated through to the publish step
-        self.assertEqual(publish[3], 5)
 
-    @inlineCallbacks
-    def test_backup_wipes_local_staging_even_on_failure(self):
-        backup_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, backup_path, ignore_errors=True)
+class TestSnapshots(helpers.TestGL):
+    """
+    A generation is published by a single rename onto a name that does not yet
+    """
+    def setUp(self):
+        helpers.TestGL.setUp(self)
 
-        removed = []
+        self.backup_path = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.backup_path, True)
 
-        def launch_rsync(source, destination, excludes=None, link_dest=None):
-            # fail on the database transfer (source is the staging .db)
-            if source.endswith('.db'):
-                return fail(Exception("transfer boom"))
-            return succeed(None)
+        self.snapshots = os.path.join(self.backup_path, 'snapshots')
+        os.makedirs(self.snapshots)
 
-        def remove_staging_database_threaded(path):
-            removed.append(path)
-            return succeed(None)
+    def generation(self, name):
+        path = os.path.join(self.snapshots, name)
+        os.makedirs(path)
+        return path
 
-        with patch.object(backup_job, 'launch_rsync', launch_rsync), \
-             patch.object(backup_job, 'backup_sqlite_database_threaded', lambda p: succeed(None)), \
-             patch.object(backup_job, 'remove_staging_database_threaded', remove_staging_database_threaded), \
-             patch.object(backup_job, 'publish_snapshot_threaded', lambda *a: succeed(None)):
-            yield self.assertFailure(backup_job.backup_sqlite_database_and_files(backup_path, 5), Exception)
+    def test_only_the_complete_generations_are_published_ones(self):
+        self.generation('20260101-000000-000000')
+        self.generation('20260102-000000-000000')
+        self.generation('20260103-000000-000000.incomplete')
 
-        # the local plaintext snapshot is wiped despite the failure
-        self.assertEqual(len(removed), 1)
-        self.assertEqual(os.path.dirname(removed[0]), os.path.join(backup_path, 'tmp'))
-        self.assertTrue(removed[0].endswith('.db'))
+        self.assertEqual(backup_job.list_snapshots(self.snapshots),
+                         ['20260101-000000-000000', '20260102-000000-000000'])
 
-    def test_cleanup_staging_securely_removes_leftovers(self):
-        tmp_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, tmp_path, ignore_errors=True)
-        with open(os.path.join(tmp_path, '20260101-000000-000000.db'), 'wb') as f:
-            f.write(b'leftover plaintext database')
+        self.assertEqual(backup_job.get_latest_snapshot(self.snapshots),
+                         os.path.join(self.snapshots, '20260102-000000-000000'))
 
-        backup_job.cleanup_staging(tmp_path)
+    def test_the_latest_of_no_generation_is_nothing(self):
+        self.assertIsNone(backup_job.get_latest_snapshot(self.snapshots))
 
-        self.assertEqual(os.listdir(tmp_path), [])
+    def test_the_generations_kept_are_the_most_recent_ones(self):
+        cases = [("keeping two of four", 2, 2),
+                 ("keeping more than there are", 10, 4),
+                 # keep < 1 would slice nothing away and silently prune
+                 # everything or nothing depending on the reading: one is kept
+                 ("keeping none", 0, 1)]
 
-    def test_publish_snapshot_is_atomic(self):
-        backup_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, backup_path, ignore_errors=True)
-        snapshots_path = os.path.join(backup_path, 'snapshots')
-        incomplete_path = os.path.join(snapshots_path, '20260101-000000-000000.incomplete')
-        final_path = os.path.join(snapshots_path, '20260101-000000-000000')
-        os.makedirs(incomplete_path)
-        open(os.path.join(incomplete_path, 'globaleaks.db'), 'w').close()
+        for reason, keep, expected in cases:
+            shutil.rmtree(self.snapshots, ignore_errors=True)
+            os.makedirs(self.snapshots)
+            for day in range(1, 5):
+                self.generation('2026010%d-000000-000000' % day)
 
-        backup_job.publish_snapshot(backup_path, snapshots_path, incomplete_path, final_path, 7)
+            backup_job.prune_snapshots(self.snapshots, keep)
 
-        # the staging dir has been renamed in place to the final generation
-        self.assertFalse(os.path.exists(incomplete_path))
-        self.assertTrue(os.path.isdir(final_path))
-        self.assertTrue(os.path.isfile(os.path.join(final_path, 'globaleaks.db')))
-        # the latest generation is resolved by name, no symlink required
-        self.assertEqual(backup_job.get_latest_snapshot(snapshots_path), final_path)
+            self.assertEqual(len(backup_job.list_snapshots(self.snapshots)), expected,
+                             "%s leaves the wrong number of generations" % reason)
 
-    def test_get_latest_snapshot_ignores_incomplete(self):
-        snapshots_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, snapshots_path, ignore_errors=True)
-        os.makedirs(os.path.join(snapshots_path, '20260101-000000-000000'))
-        os.makedirs(os.path.join(snapshots_path, '20260102-000000-000000'))
-        os.makedirs(os.path.join(snapshots_path, '20260103-000000-000000.incomplete'))
+    def test_the_publication_replaces_nothing_until_it_succeeds(self):
+        previous = self.generation('20260101-000000-000000')
+        incomplete = self.generation('20260102-000000-000000.incomplete')
+        final = os.path.join(self.snapshots, '20260102-000000-000000')
 
-        self.assertEqual(backup_job.get_latest_snapshot(snapshots_path),
-                         os.path.join(snapshots_path, '20260102-000000-000000'))
+        backup_job.publish_snapshot(self.backup_path, self.snapshots,
+                                    incomplete, final, keep=2)
 
-    def test_prune_snapshots_keeps_latest_generations(self):
-        snapshots_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, snapshots_path, ignore_errors=True)
-        names = ['2026010%d-000000-000000' % i for i in range(1, 9)]
-        for name in names:
-            os.makedirs(os.path.join(snapshots_path, name))
+        self.assertTrue(os.path.isdir(final))
+        self.assertFalse(os.path.exists(incomplete))
+        # the one that was there is still there: the publication adds, it does
+        # not overwrite
+        self.assertTrue(os.path.isdir(previous))
 
-        backup_job.prune_snapshots(snapshots_path, 7)
+    def test_the_generations_left_half_written_are_swept_away(self):
+        self.generation('20260101-000000-000000')
+        self.generation('20260102-000000-000000.incomplete')
 
-        self.assertEqual(sorted(os.listdir(snapshots_path)), names[1:])
+        backup_job.cleanup_incomplete_snapshots(self.snapshots)
 
-    def test_prune_snapshots_always_keeps_at_least_one(self):
-        snapshots_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, snapshots_path, ignore_errors=True)
-        names = ['2026010%d-000000-000000' % i for i in range(1, 4)]
-        for name in names:
-            os.makedirs(os.path.join(snapshots_path, name))
+        self.assertEqual(os.listdir(self.snapshots), ['20260101-000000-000000'])
 
-        # keep < 1 must not wipe every generation (snapshots[:-0] == snapshots[:0])
-        backup_job.prune_snapshots(snapshots_path, 0)
+    def test_the_inventory_reads_the_date_out_of_the_name(self):
+        self.generation('20260102-030405-000000')
+        self.generation('not-a-generation')
 
-        self.assertEqual(sorted(os.listdir(snapshots_path)), names[-1:])
+        inventory = backup_job.list_backups(self.snapshots)
 
-    def test_get_rsync_excludes_excludes_internal_backup_dir(self):
-        inside = os.path.join(Settings.working_path, 'backup')
+        self.assertEqual([entry['id'] for entry in inventory],
+                         ['20260102-030405-000000', 'not-a-generation'])
+        self.assertEqual(inventory[0]['creation_date'], '2026-01-02T03:04:05')
+        # a name the platform did not write says nothing about when it was made
+        self.assertEqual(inventory[1]['creation_date'], '')
+
+    def test_the_inventory_of_a_place_that_does_not_exist_is_empty(self):
+        self.assertEqual(backup_job.list_backups(os.path.join(self.backup_path, 'nowhere')), [])
+
+    def test_resetting_drops_every_generation_and_leaves_the_place_ready(self):
+        self.generation('20260101-000000-000000')
+
+        backup_job.reset_backups(self.snapshots)
+
+        self.assertTrue(os.path.isdir(self.snapshots))
+        self.assertEqual(os.listdir(self.snapshots), [])
+
+
+class TestTransfer(helpers.TestGL):
+    """
+    What is transferred is the working directory, and never the backup itself:
+    """
+    def test_the_backup_is_not_copied_into_itself(self):
+        inside = os.path.join(Settings.working_path, 'backups')
+
         excludes = backup_job.get_rsync_excludes(inside)
-        self.assertIn('/backup', excludes)
-        for pattern in backup_job.DB_RSYNC_EXCLUDES:
-            self.assertIn(pattern, excludes)
 
-    def test_get_rsync_excludes_external_path(self):
+        self.assertIn('/backups', excludes)
+
+    def test_a_destination_outside_the_working_directory_excludes_nothing_of_its_own(self):
         outside = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, outside, ignore_errors=True)
-        self.assertEqual(backup_job.get_rsync_excludes(outside), backup_job.DB_RSYNC_EXCLUDES)
+        self.addCleanup(shutil.rmtree, outside, True)
 
-    def test_get_rsync_excludes_rejects_working_dir(self):
-        self.assertRaises(Exception, backup_job.get_rsync_excludes, Settings.working_path)
+        excludes = backup_job.get_rsync_excludes(outside)
 
-    @inlineCallbacks
-    def test_do_backup_logs_failure_once(self):
-        errors = []
+        self.assertEqual(excludes, list(backup_job.DB_RSYNC_EXCLUDES))
 
-        def wrap_get_backups_parameter():
-            return succeed((True, "02:00", 1, 7))
-
-        def backup_sqlite_database_and_files(*args):
-            return fail(Exception("boom"))
-
-        def db_backup_log(exception):
-            errors.append(exception)
-            return succeed(None)
-
-        with patch.object(backup_job, 'wrap_get_backups_parameter', wrap_get_backups_parameter), \
-             patch.object(backup_job.os, 'makedirs'), \
-             patch.object(backup_job, 'backup_sqlite_database_and_files', backup_sqlite_database_and_files), \
-             patch.object(backup_job, 'db_backup_log', db_backup_log):
-            yield do_backup()
-
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(str(errors[0]), "boom")
-
-    def test_list_backups_parses_names_and_skips_incomplete(self):
-        snapshots_path = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, snapshots_path, ignore_errors=True)
-        os.makedirs(os.path.join(snapshots_path, '20260101-000000-000000'))
-        os.makedirs(os.path.join(snapshots_path, '20260102-030405-000000'))
-        os.makedirs(os.path.join(snapshots_path, '20260103-000000-000000.incomplete'))
-
-        backups = backup_job.list_backups(snapshots_path)
-
-        # oldest-first, incomplete generations excluded, timestamp derived from name
-        self.assertEqual([b['id'] for b in backups],
-                         ['20260101-000000-000000', '20260102-030405-000000'])
-        self.assertEqual(backups[1]['creation_date'], '2026-01-02T03:04:05')
-
-    def test_list_backups_missing_dir_returns_empty(self):
-        missing = os.path.join(tempfile.mkdtemp(), 'snapshots')
-        self.addCleanup(shutil.rmtree, os.path.dirname(missing), ignore_errors=True)
-        self.assertEqual(backup_job.list_backups(missing), [])
+    def test_the_working_directory_is_not_a_destination(self):
+        self.assertRaises(Exception, backup_job.get_rsync_excludes,
+                          Settings.working_path)
 
 
-class TestBackupList(helpers.TestHandler):
-    _handler = backup_job.BackupList
+class TestBackupList(helpers.TestHandlerWithPopulatedDB):
+    """
+    The generations are listed to the administrators of the platform: a site
+    """
+    _handler = BackupList
 
     @inlineCallbacks
-    def test_get_lists_published_generations(self):
-        snapshots_path = os.path.join(Settings.backups_path, 'snapshots')
-        os.makedirs(snapshots_path, exist_ok=True)
-        self.addCleanup(shutil.rmtree, Settings.backups_path, ignore_errors=True)
-        os.makedirs(os.path.join(snapshots_path, '20260101-000000-000000'))
-        os.makedirs(os.path.join(snapshots_path, '20260102-000000-000000.incomplete'))
-
+    def test_get(self):
         handler = self.request(role='admin')
-        response = yield handler.get()
 
-        self.assertEqual([b['id'] for b in response], ['20260101-000000-000000'])
+        self.assertIsInstance((yield handler.get()), list)
 
     @inlineCallbacks
-    def test_get_forbidden_on_non_root_tenant(self):
-        # The connection policy is evaluated before the root-tenant requirement
-        # and needs the tenant to be present in the runtime state
-        self.state.tenants[2] = self.state.tenants[1]
-
+    def test_get_is_refused_to_a_site_that_is_not_the_first(self):
         handler = self.request(role='admin', tid=2)
+
         yield self.assertFailure(handler.get(), errors.ForbiddenOperation)

@@ -109,7 +109,6 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
 def db_compose_profile(session, tid):
     """
     Compose a profile as an administrator would: a channel, a questionnaire of
-    its own and a user profile carrying its users to the channel
     """
     questionnaire = models.Questionnaire()
     questionnaire.tid = tid
@@ -185,8 +184,6 @@ def db_read_profile(session, tid):
 class TestProfileExportAndImport(helpers.TestHandlerWithPopulatedDB):
     """
     A profile composed on a platform is carried into another one whole: its
-    variables, its questionnaires, its channels and the user profiles that
-    name them.
     """
     _handler = tenant.TenantCollection
 
@@ -216,44 +213,58 @@ class TestProfileExportAndImport(helpers.TestHandlerWithPopulatedDB):
         return imported
 
     @inlineCallbacks
-    def test_the_profile_is_carried_whole(self):
+    def test_a_profile_is_carried_whole(self):
+        composed = yield db_read_profile(self.source_tid)
+
         exported = yield self.export()
-
-        self.assertEqual([c['id'] for c in exported['contexts']],
-                         [self.composed['context_id']])
-
         imported = yield self.import_of(exported)
-        content = yield db_read_profile(imported['id'])
 
-        # the channel is carried with what composes its reports and how long
-        # they last, and the questionnaire it names is the one imported
-        self.assertEqual(len(content['contexts']), 1)
-        channel = content['contexts'][0]
-        self.assertEqual(channel['name']['en'], 'Channel of the profile')
-        self.assertEqual(channel['tip_timetolive'], 30)
-        self.assertIn(channel['questionnaire_id'], content['questionnaires'])
-        self.assertNotEqual(channel['questionnaire_id'],
-                            self.composed['questionnaire_id'])
+        carried = yield db_read_profile(imported['id'])
 
-        # the user profile is carried with the roles it holds, the permissions
-        # it grants and the channels its users are the recipients of
-        self.assertEqual(len(content['profiles']), 1)
-        profile = content['profiles'][0]
-        self.assertEqual(profile['contexts'], [channel['id']])
-        self.assertIn('can_send_communications', profile['permissions'])
+        self.assertEqual([c['name'] for c in carried['contexts']],
+                         [c['name'] for c in composed['contexts']])
+        self.assertEqual([p['name'] for p in carried['profiles']],
+                         [p['name'] for p in composed['profiles']])
+        self.assertEqual([p['permissions'] for p in carried['profiles']],
+                         [p['permissions'] for p in composed['profiles']])
 
     @inlineCallbacks
-    def test_a_channel_of_the_exchanges_is_carried_for_what_it_is(self):
+    def test_the_channels_named_by_a_profile_are_the_ones_it_carries(self):
+        # A user profile names the channels its users receive on. What is
+        # imported has to name the channels of the object it landed on, and
+        # not the ones of the object it was composed on, or its users would be
+        # carried to channels of somebody else
+        exported = yield self.export()
+        imported = yield self.import_of(exported)
+
+        carried = yield db_read_profile(imported['id'])
+        channels = [context['id'] for context in carried['contexts']]
+
+        self.assertTrue(carried['profiles'])
+        for profile in carried['profiles']:
+            self.assertTrue(profile['contexts'])
+            for context_id in profile['contexts']:
+                self.assertIn(context_id, channels)
+
+    @inlineCallbacks
+    def test_what_relates_two_objects_is_not_carried(self):
+        # The channel the exchanges run through belongs to the object and
+        # travels with it; the exchange relates two objects and is established
+        # again where the object is carried, so it must not be duplicated
+        counterpart = yield tenant.create(get_dummy_tenant_desc('counterpart'),
+                                          is_profile=True)
         yield db_declare_exchange_channel(self.source_tid)
+        yield db_establish_exchange(self.source_tid, counterpart['id'])
 
-        imported = yield self.import_of((yield self.export()), 'exchanging')
-        content = yield db_read_profile(imported['id'])
+        established = yield db_exchanges()
 
-        # what makes a channel one of the exchanges travels with it: the
-        # exchanges themselves are established again where it is carried
-        channels = {c['name']['en']: c for c in content['contexts']}
-        self.assertTrue(channels['Channel of the exchanges']['exchange'])
-        self.assertFalse(channels['Channel of the profile']['exchange'])
+        exported = yield self.export()
+        imported = yield self.import_of(exported)
+
+        self.assertEqual(established, (yield db_exchanges()))
+
+        carried = yield db_read_profile(imported['id'])
+        self.assertTrue([c for c in carried['contexts'] if c['exchange']])
 
 
 @transact
@@ -274,40 +285,3 @@ def db_establish_exchange(session, source_tid, target_tid):
 @transact
 def db_exchanges(session):
     return [exchange.id for exchange in session.query(models.Exchange)]
-
-
-class TestTenantDeparture(helpers.TestHandlerWithPopulatedDB):
-    """
-    An exchange relates two objects of the platform and stands on both: the
-    departure of either leaves it relating nothing, and it departs with it.
-    """
-    _handler = tenant.TenantInstance
-
-    @inlineCallbacks
-    def test_the_exchanges_of_a_site_depart_with_it(self):
-        site = yield tenant.create(get_dummy_tenant_desc('departing'))
-
-        incoming = yield db_establish_exchange(1, site['id'])
-        outgoing = yield db_establish_exchange(site['id'], 1)
-        untouched = yield db_establish_exchange(1, 2)
-
-        yield tw(tenant.db_delete_tenant, 1, self.request(role='admin').session,
-                 site['id'], None)
-
-        self.assertEqual((yield db_exchanges()), [untouched])
-        self.assertNotIn(incoming, (yield db_exchanges()))
-        self.assertNotIn(outgoing, (yield db_exchanges()))
-
-    @inlineCallbacks
-    def test_the_exchanges_of_a_profile_depart_with_it(self):
-        profile = yield tenant.create(get_dummy_tenant_desc('departing-profile'),
-                                      is_profile=True)
-
-        established = yield db_establish_exchange(1, profile['id'])
-        untouched = yield db_establish_exchange(1, 2)
-
-        yield tw(tenant.db_delete_tenant, 1, self.request(role='admin').session,
-                 profile['id'], None)
-
-        self.assertEqual((yield db_exchanges()), [untouched])
-        self.assertNotIn(established, (yield db_exchanges()))

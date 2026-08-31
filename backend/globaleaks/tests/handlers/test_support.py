@@ -5,6 +5,7 @@ from globaleaks import models
 from globaleaks.handlers import support
 from globaleaks.handlers.admin.tenant import create_and_initialize
 from globaleaks.handlers.admin.user import create_user, db_update_user
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Session
@@ -15,12 +16,6 @@ from globaleaks.utils.crypto import GCE
 class TestSupport(helpers.TestHandlerWithPopulatedDB):
     """
     The support keys implement the same hierarchy of the escrow keys:
-
-      root support key --wraps--> secondary tenant support key --wraps--> thread key
-
-    Every administrator holds the support key of its own tenant, sealed to its
-    own key; the administrators of the root tenant reach the key of any
-    secondary tenant by descending the hierarchy.
     """
     _handler = support.SupportHandler
 
@@ -70,7 +65,6 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     def drop_user_keypair(self, session, user_id):
         """
         Bring the account back to the state of one that has not completed its
-        access yet: it holds no key of its own
         """
         user = session.query(models.User).filter(models.User.id == user_id).one()
         user.crypto_pub_key = ''
@@ -80,7 +74,6 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     def bind_idp_identity(self, session, user_id, subject):
         """
         Bind an identity of the identity provider to the account, as the login
-        does once the account has authenticated with its own credentials
         """
         user = session.query(models.User).filter(models.User.id == user_id).one()
         user.idp_id = subject
@@ -425,3 +418,72 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
                                 for support_request in support_requests),
                          [(1, 1), (1, 2), (2, 1), (2, 2)])
         self.assertTrue(all(support_request['tenant_name'] for support_request in support_requests))
+
+
+class TestSupportEscalation(helpers.TestHandlerWithPopulatedDB):
+    """
+    A site decides how much of its own assistance the platform holding it is
+    """
+    _handler = support.SupportHandler
+    initialize_test_database_using_archived_db = False
+
+    @transact
+    def set_escalation(self, session, tid, scope):
+        ConfigFactory(session, tid).set_val('support_escalation', scope)
+
+    @transact
+    def escalates(self, session, tid, author_id):
+        return support.db_escalates_to_root(session, tid, author_id)
+
+    @transact
+    def author_of_a_role(self, session, tid, role):
+        user = session.query(models.User) \
+                      .filter(models.User.tid == tid,
+                              models.User.role == role).first()
+
+        return user.id if user else None
+
+    @inlineCallbacks
+    def test_the_platform_handles_what_the_site_lets_it_handle(self):
+        administrator = yield self.author_of_a_role(2, 'admin')
+        recipient = yield self.author_of_a_role(2, 'receiver')
+
+        cases = [
+            ("all of it", 'all', administrator, True),
+            ("all of it, whoever wrote", 'all', recipient, True),
+            ("none of it", 'none', administrator, False),
+            ("none of it, not even from an administrator", 'none', recipient, False),
+            ("the requests of the administrators", 'admins', administrator, True),
+            ("the requests of the administrators, and this is not one", 'admins', recipient, False),
+            # an anonymous request identifies nobody, so it is not the request
+            # of an administrator and stays with the site
+            ("the requests of the administrators, and nobody signed this", 'admins', None, False)
+        ]
+
+        for reason, scope, author, expected in cases:
+            yield self.set_escalation(2, scope)
+
+            self.assertEqual((yield self.escalates(2, author)), expected,
+                             "letting the platform handle %s, the request %s escalated"
+                             % (reason, "is not" if expected else "is"))
+
+    @inlineCallbacks
+    def test_the_platform_always_handles_its_own(self):
+        # The scope is meaningless on the platform itself: there is nobody
+        # above it for a request to escalate to
+        author = yield self.author_of_a_role(1, 'admin')
+
+        for scope in ['all', 'admins', 'none']:
+            yield self.set_escalation(1, scope)
+
+            self.assertFalse((yield self.escalates(1, author)))
+
+    @inlineCallbacks
+    def test_a_scope_the_platform_does_not_know_hands_over_everything(self):
+        # A configuration that says something unreadable is read as the widest
+        # scope: what is unclear is escalated rather than quietly withheld
+        yield self.set_escalation(2, 'whatever')
+
+        administrator = yield self.author_of_a_role(2, 'admin')
+
+        self.assertTrue((yield self.escalates(2, administrator)))

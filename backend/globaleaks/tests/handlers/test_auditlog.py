@@ -5,6 +5,8 @@ from twisted.trial import unittest
 
 from globaleaks.handlers import auditlog, auditor
 from globaleaks.handlers.admin import auditlog as admin_auditlog
+from globaleaks.handlers.recipient import rtip
+from globaleaks.jobs.delivery import Delivery
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
@@ -40,7 +42,6 @@ class TestExports(unittest.TestCase):
 class AuditLogBehaviour:
     """
     The checks the audit log satisfies on whichever area it is exported; the
-    role is the one of the export under test.
     """
     role = None
 
@@ -216,3 +217,51 @@ class TestAdminJobsTiming(JobsTimingBehaviour, helpers.TestHandler):
 class TestAuditorJobsTiming(JobsTimingBehaviour, helpers.TestHandler):
     _handler = auditor.JobsTiming
     role = 'auditor'
+
+
+class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
+    """
+    The audit log of a single report, read by whoever the report belongs to.
+    """
+    _handler = rtip.ReportAuditLog
+
+    # what a recipient deletes from a report leaves on the log of the
+    # report the fingerprints of what has been taken away, so that what is no
+    # longer there stays verifiable.
+    @inlineCallbacks
+    def test_a_deleted_file_leaves_its_fingerprints_on_the_log_of_the_report(self):
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+        rtips_desc = yield self.get_rtips()
+        rtip_desc = rtips_desc[0]
+
+        # the recipient attaches a file of its own and then takes it away
+        self._handler = rtip.ReceiverFileUpload
+        handler = self.request(role='receiver',
+                               user_id=rtip_desc['receiver_id'],
+                               attachment=self.get_dummy_attachment(content=b'Hello World'))
+        yield handler.post(rtip_desc['id'])
+
+        rtips_desc = yield self.get_rtips()
+        rfile_id = rtips_desc[0]['rfiles'][0]['id']
+
+        self._handler = rtip.ReceiverFileDownload
+        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.delete(rfile_id)
+
+        self._handler = rtip.ReportAuditLog
+        handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+        logs = yield handler.get(rtip_desc['id'])
+
+        deletions = [entry for entry in logs if entry['type'] == 'delete_file']
+        self.assertEqual(len(deletions), 1)
+
+        # the entry stays in the log of the report although the row it attests
+        # is gone: what it names is the report, and the file inside itself
+        self.assertEqual(deletions[0]['object_id'], rtip_desc['id'])
+        self.assertEqual(deletions[0]['data']['file_id'], rfile_id)
+
+        # and the fingerprints reach the reader opened, as the digests they are
+        self.assertEqual(len(deletions[0]['data']['hash_sha256']), 64)
+        self.assertEqual(len(deletions[0]['data']['hash_sha512']), 128)

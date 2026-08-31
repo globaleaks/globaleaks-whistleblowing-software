@@ -1,307 +1,159 @@
-from twisted.internet.defer import inlineCallbacks
+from twisted.internet.defer import inlineCallbacks, maybeDeferred
 
 from globaleaks import models
-from globaleaks.handlers.admin import context, tenant, user, user_profile
-from globaleaks.models.config import ConfigFactory
+from globaleaks.handlers.admin import user_profile
 from globaleaks.orm import transact
 from globaleaks.rest import errors
-from globaleaks.state import State, TenantState
 from globaleaks.tests import helpers
 
 
 @transact
-def update_profile_of(session, tid, profile_id, request):
-    return user_profile.db_update_user_profile(session, tid, profile_id, request)
+def profile_of_a_user(session, tid):
+    """
+    Return the profile of an account of the site, and the account holding it
+    """
+    user = session.query(models.User) \
+                  .filter(models.User.tid == tid,
+                          models.User.profile_id.isnot(None)).first()
+
+    return user.profile_id
 
 
-class TestUserProfilesCollection(helpers.TestCollectionHandler):
-    _handler = user_profile.UserProfilesCollection
-    _test_desc = {
-        'model': models.UserProfile,
-        'create': user_profile.create_user_profile,
-        'data': {}
+def profile_desc(**kwargs):
+    request = {
+        'name': 'Profile',
+        'role': 'receiver',
+        'roles': ['receiver'],
+        'permissions': {'can_mask_information': True},
+        'contexts': []
     }
+    request.update(kwargs)
 
-    def get_dummy_request(self):
-        data = helpers.TestCollectionHandler.get_dummy_request(self)
-        data['roles'] = ['admin']
-        data['permissions'] = user.user_permissions
-        return data
+    return request
 
 
-class TestUserProfileInstance(helpers.TestInstanceHandler):
+class TestUserProfilesCollection(helpers.TestHandlerWithPopulatedDB):
+    """
+    The profiles of the accounts of a site are configured as any other object
+    """
+    _handler = user_profile.UserProfilesCollection
+
+    @inlineCallbacks
+    def test_get(self):
+        handler = self.request(role='admin')
+        response = yield handler.get()
+
+        self.assertTrue(len(response) > 0)
+        for entry in response:
+            self.assertIn('id', entry)
+            self.assertIn('permissions', entry)
+
+    @inlineCallbacks
+    def test_post(self):
+        handler = self.request(profile_desc(), role='admin')
+        response = yield handler.post()
+
+        self.assertEqual(response['name'], 'Profile')
+        self.assertEqual(response['role'], 'receiver')
+        self.assertTrue(response['permissions']['can_mask_information'])
+
+    @inlineCallbacks
+    def test_post_discards_a_permission_the_platform_does_not_know(self):
+        # A permission is granted by being named: a name the platform does not
+        # know is dropped instead of being stored, so that a typo in an import
+        # cannot grant anything
+        handler = self.request(profile_desc(permissions={'can_do_anything': True,
+                                                         'can_mask_information': True}),
+                               role='admin')
+        response = yield handler.post()
+
+        self.assertNotIn('can_do_anything', response['permissions'])
+        self.assertTrue(response['permissions']['can_mask_information'])
+
+
+class TestUserProfileInstance(helpers.TestHandlerWithPopulatedDB):
+    """
+    A profile is read, altered and dropped by whoever manages the profiles of
+    """
     _handler = user_profile.UserProfileInstance
-    _test_desc = {
-        'model': models.UserProfile,
-        'create': user_profile.create_user_profile,
-        'data': {}
-    }
 
-    def get_dummy_request(self):
-        data = helpers.TestInstanceHandler.get_dummy_request(self)
-        data['role'] = 'admin'
-        data['roles'] = ['admin']
-        data['permissions'] = user.user_permissions
-        return data
-
-
-class TestUserProfileGating(helpers.TestHandlerWithPopulatedDB):
-    """
-    The mutation of the profiles requires the dedicated permission, while the
-    operators entitled to manage users keep reading them to bind them.
-    """
-    _handler = user_profile.UserProfilesCollection
-
-    users_only = {p: p == 'can_manage_users' for p in models.admin_permissions}
-    profiles_only = {p: p == 'can_manage_user_profiles' for p in models.admin_permissions}
-
-    def get_dummy_profile_request(self):
-        request = models.UserProfile().dict('en')
-        request['name'] = 'Gated'
-        request['role'] = 'receiver'
-        request['roles'] = ['receiver']
-        request['contexts'] = []
-        request['permissions'] = {p: False for p in models.user_permissions}
-        return request
-
-    @inlineCallbacks
-    def test_profiles_stay_readable_to_the_user_managers(self):
-        handler = self.request(role='admin', permissions=dict(self.users_only))
-        yield handler.get()
-
-    def test_creation_requires_the_profile_permission(self):
-        data = self.get_dummy_profile_request()
-
-        handler = self.request(data, role='admin', permissions=dict(self.users_only))
-        self.assertRaises(errors.ForbiddenOperation, handler.post)
-
-    @inlineCallbacks
-    def test_creation_allowed_by_the_profile_permission(self):
-        data = self.get_dummy_profile_request()
-
-        handler = self.request(data, role='admin', permissions=dict(self.profiles_only))
-        yield handler.post()
-
-    @inlineCallbacks
-    def test_altering_a_profile_above_the_operator_scope_is_forbidden(self):
-        data = self.get_dummy_profile_request()
-        data['role'] = 'admin'
-        data['roles'] = ['admin']
-        data['permissions']['can_manage_settings'] = True
-        profile = yield user_profile.create_user_profile(1, None, data, 'en')
-
-        # The request strips the permission: conferring nothing, it would pass
-        # the grant gate; the current privilege of the profile blocks it
-        data['permissions']['can_manage_settings'] = False
-
-        operator = dict(self.profiles_only)
-        handler = self.request(data, role='admin', permissions=operator,
-                               handler_cls=user_profile.UserProfileInstance)
-        yield self.assertFailure(handler.put(profile['id']), errors.ForbiddenOperation)
-
-    @inlineCallbacks
-    def test_update_and_deletion_require_the_profile_permission(self):
-        data = self.get_dummy_profile_request()
-        profile = yield user_profile.create_user_profile(1, None, data, 'en')
-
-        handler = self.request(data, role='admin', permissions=dict(self.users_only),
-                               handler_cls=user_profile.UserProfileInstance)
-        self.assertRaises(errors.ForbiddenOperation, handler.put, profile['id'])
-
-        handler = self.request(None, role='admin', permissions=dict(self.users_only),
-                               handler_cls=user_profile.UserProfileInstance)
-        self.assertRaises(errors.ForbiddenOperation, handler.delete, profile['id'])
-
-
-@transact
-def get_profile_uuid(session, tid):
-    return ConfigFactory(session, tid).get_val('uuid')
-
-
-@transact
-def get_derived_contexts(session, tid):
-    return {c.template_id: {'id': c.id, 'name': c.name, 'tip_timetolive': c.tip_timetolive}
-            for c in session.query(models.Context).filter(models.Context.tid == tid,
-                                                          models.Context.template_id != '')}
-
-
-@transact
-def get_receiver_context_ids(session, user_id):
-    return [r.context_id for r in session.query(models.ReceiverContext)
-                                         .filter(models.ReceiverContext.receiver_id == user_id)]
-
-
-@transact
-def file_report_on(session, tid, context_id):
-    itip = models.InternalTip()
-    itip.tid = tid
-    itip.context_id = context_id
-    itip.progressive = 1
-    itip.receipt_hash = 'x' * 64
-    session.add(itip)
-
-
-class TestTenantProfileChannels(helpers.TestGLWithPopulatedDB):
-    """
-    The channels of a tenant profile are templates: the tenants created with
-    the profile derive their channels from them and follow their updates, and
-    the receivers reach the channels through the user profiles they hold.
-    """
     @inlineCallbacks
     def setUp(self):
-        yield helpers.TestGLWithPopulatedDB.setUp(self)
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
 
-        # A tenant profile carrying one channel and one recipient profile
-        # associated to it
-        profile = yield tenant.create_and_initialize(
-            {'name': 'Profile', 'active': True, 'subdomain': '', 'profile': 'default'},
-            is_profile=True)
-        self.profile_tid = profile['id']
+        collection = self.request(profile_desc(),
+                                  role='admin',
+                                  handler_cls=user_profile.UserProfilesCollection)
 
-        # A profile carries no channel of its own: its templates are the
-        # channels its administrator defines on it
-        context_desc = models.Context().dict('en')
-        context_desc['name'] = 'Template'
-        context_desc['status'] = 'enabled'
-        context_desc['questionnaire_id'] = 'default'
-        template = yield context.create_context(self.profile_tid, None, context_desc, 'en')
-        self.template_id = template['id']
-
-        profile_desc = models.UserProfile().dict('en')
-        profile_desc['name'] = 'Operators'
-        profile_desc['role'] = 'receiver'
-        profile_desc['roles'] = ['receiver']
-        profile_desc['permissions'] = {p: False for p in models.user_permissions}
-        self.user_profile = yield user_profile.create_user_profile(
-            self.profile_tid, None, profile_desc, 'en')
-
-        # The channel names the user profiles whose users receive on it
-        yield self.name_profiles_on(self.template_id, [self.user_profile['id']])
-
-        # A tenant created with the profile
-        profile_uuid = yield get_profile_uuid(self.profile_tid)
-        child = yield tenant.create_and_initialize(
-            {'name': 'Child', 'active': True, 'subdomain': '', 'profile': profile_uuid})
-        self.child_tid = child['id']
-
-        # the tenants created by the test gain their in-memory state, as the
-        # cache refresh of the production path would provide; the state is
-        # global and the entries are dropped with the test
-        for tid in (self.profile_tid, self.child_tid):
-            State.tenants[tid] = TenantState()
-            self.addCleanup(State.tenants.pop, tid, None)
+        self.profile = yield collection.post()
 
     @inlineCallbacks
-    def name_profiles_on(self, context_id, profile_ids):
-        request = models.Context().dict('en')
-        request['name'] = 'Template'
-        request['questionnaire_id'] = 'default'
-        request['profiles'] = profile_ids
+    def test_get(self):
+        handler = self.request(role='admin')
+        response = yield handler.get(self.profile['id'])
 
-        yield context.update_context(self.profile_tid, context_id, request, 'en')
-
-    @inlineCallbacks
-    def create_child_receiver(self):
-        user_desc = models.User().dict('en')
-        user_desc['username'] = 'operator'
-        user_desc['name'] = 'Operator'
-        user_desc['mail_address'] = 'operator@example.org'
-        user_desc['role'] = 'receiver'
-        user_desc['profile_id'] = self.user_profile['id']
-        user_desc['roles'] = ['receiver']
-        user_desc['profile'] = {}
-        user_desc['pgp_key_remove'] = False
-        created = yield user.create_user(self.child_tid, None, user_desc, 'en')
-        return created
+        self.assertEqual(response['id'], self.profile['id'])
+        self.assertEqual(response['name'], 'Profile')
 
     @inlineCallbacks
-    def test_the_tenant_derives_the_channels_of_its_profile(self):
-        derived = yield get_derived_contexts(self.child_tid)
+    def test_put(self):
+        handler = self.request(profile_desc(name='Renamed',
+                                            permissions={'can_redact_information': True}),
+                               role='admin')
 
-        self.assertIn(self.template_id, derived)
+        response = yield handler.put(self.profile['id'])
 
-    @inlineCallbacks
-    def test_the_derived_channel_follows_the_updates_of_its_template(self):
-        request = models.Context().dict('en')
-        request['name'] = 'Renamed'
-        request['tip_timetolive'] = 42
-        request['receivers'] = []
-        yield context.update_context(self.profile_tid, self.template_id, request, 'en')
+        self.assertEqual(response['name'], 'Renamed')
+        self.assertTrue(response['permissions']['can_redact_information'])
+        # What is not named any more is taken away: the permissions of a
+        # profile are the ones it declares, not the ones it accumulated. The
+        # answer says so as well, and not only the profile read afterwards: the
+        # interface redraws on the answer, and would otherwise keep showing a
+        # permission that has just been revoked.
+        self.assertFalse(response['permissions']['can_mask_information'])
 
-        derived = yield get_derived_contexts(self.child_tid)
-        self.assertEqual(derived[self.template_id]['tip_timetolive'], 42)
-        self.assertEqual(derived[self.template_id]['name'].get('en'), 'Renamed')
-
-    @inlineCallbacks
-    def test_a_channel_added_to_the_profile_reaches_the_tenant(self):
-        request = models.Context().dict('en')
-        request['name'] = 'Added'
-        request['receivers'] = []
-        added = yield context.create_context(self.profile_tid, None, request, 'en')
-
-        derived = yield get_derived_contexts(self.child_tid)
-        self.assertIn(added['id'], derived)
+        reread = self.request(role='admin')
+        stored = yield reread.get(self.profile['id'])
+        self.assertTrue(stored['permissions']['can_redact_information'])
+        self.assertFalse(stored['permissions']['can_mask_information'])
 
     @inlineCallbacks
-    def test_the_receiver_reaches_the_channels_of_its_profile(self):
-        created = yield self.create_child_receiver()
+    def test_delete(self):
+        handler = self.request(role='admin')
 
-        derived = yield get_derived_contexts(self.child_tid)
-        attached = yield get_receiver_context_ids(created['id'])
-        self.assertEqual(attached, [derived[self.template_id]['id']])
+        yield handler.delete(self.profile['id'])
 
-    @inlineCallbacks
-    def test_the_receivers_follow_the_channels_of_their_profile(self):
-        created = yield self.create_child_receiver()
+        collection = self.request(role='admin',
+                                  handler_cls=user_profile.UserProfilesCollection)
+        response = yield collection.get()
 
-        request = models.Context().dict('en')
-        request['name'] = 'Added'
-        request['receivers'] = []
-        added = yield context.create_context(self.profile_tid, None, request, 'en')
-
-        # The channel naming the profile attaches its holders, the channel
-        # that stops naming it detaches them
-        yield self.name_profiles_on(added['id'], [self.user_profile['id']])
-
-        derived = yield get_derived_contexts(self.child_tid)
-        attached = yield get_receiver_context_ids(created['id'])
-        self.assertEqual(sorted(attached),
-                         sorted([derived[self.template_id]['id'], derived[added['id']]['id']]))
-
-        yield self.name_profiles_on(self.template_id, [])
-
-        attached = yield get_receiver_context_ids(created['id'])
-        self.assertEqual(attached, [derived[added['id']]['id']])
+        self.assertNotIn(self.profile['id'], [entry['id'] for entry in response])
 
     @inlineCallbacks
-    def test_a_derived_channel_is_neither_updated_nor_deleted_directly(self):
-        derived = yield get_derived_contexts(self.child_tid)
-        derived_id = derived[self.template_id]['id']
+    def test_delete_of_a_profile_an_account_is_bound_to_is_refused(self):
+        # The profile is what says the role and the permissions of its
+        # accounts: dropping it while an account holds it would leave that
+        # account saying nothing about itself
+        bound = yield profile_of_a_user(1)
 
-        request = models.Context().dict('en')
-        request['name'] = 'Local'
-        request['tip_timetolive'] = 7
-        request['receivers'] = []
-        yield context.update_context(self.child_tid, derived_id, request, 'en')
+        handler = self.request(role='admin')
 
-        # the configuration is inherited from the template and stays
-        derived = yield get_derived_contexts(self.child_tid)
-        self.assertNotEqual(derived[self.template_id]['tip_timetolive'], 7)
-
-        yield self.assertFailure(context.delete_context(self.child_tid, derived_id),
+        yield self.assertFailure(maybeDeferred(handler.delete, bound),
                                  errors.ForbiddenOperation)
 
     @inlineCallbacks
-    def test_a_template_with_reports_on_a_derived_channel_is_not_deleted(self):
-        derived = yield get_derived_contexts(self.child_tid)
-        yield file_report_on(self.child_tid, derived[self.template_id]['id'])
+    def test_whoever_binds_the_profiles_reads_them_without_altering_them(self):
+        # Binding a profile to an account is managing the accounts, and asks to
+        # see the profiles on offer; changing what a profile grants is another
+        # matter, and asks for the permission over the profiles themselves.
+        binding = {'can_manage_users': True, 'can_manage_user_profiles': False}
 
-        yield self.assertFailure(context.delete_context(self.profile_tid, self.template_id),
+        reader = self.request(role='admin', permissions=dict(binding))
+        yield reader.get(self.profile['id'])
+
+        writer = self.request(profile_desc(name='Renamed'),
+                              role='admin',
+                              permissions=dict(binding))
+
+        yield self.assertFailure(maybeDeferred(writer.put, self.profile['id']),
                                  errors.ForbiddenOperation)
-
-    @inlineCallbacks
-    def test_a_template_without_reports_is_deleted_with_its_derived_channels(self):
-        yield context.delete_context(self.profile_tid, self.template_id)
-
-        derived = yield get_derived_contexts(self.child_tid)
-        self.assertNotIn(self.template_id, derived)
