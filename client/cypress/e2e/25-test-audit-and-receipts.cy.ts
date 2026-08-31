@@ -51,9 +51,10 @@ describe("administrator audit log", () => {
     cy.get("#filter-username").click();
 
     // a capture changes the viewport and the list of the users closes with it:
-    // the user is chosen first, and the captures are taken afterwards
-    cy.get("ng-multiselect-dropdown .multiselect-item-checkbox").should("be.visible");
-    cy.get("ng-multiselect-dropdown .multiselect-item-checkbox").first().click();
+    // the user is chosen first, and the captures are taken afterwards. The
+    // click is left free of the assertion that would fix its subject: the list
+    // is redrawn while the log refreshes.
+    cy.get("ng-multiselect-dropdown .multiselect-item-checkbox").first().click({force: true});
 
     cy.get("#filter-username").should("have.class", "filter-active");
     cy.takeScreenshot("admin/audit_log_user_filtered");
@@ -104,8 +105,11 @@ describe("administrator sites list", () => {
 // closed produces a strip a few pixels tall with nothing in it
 const expandPanel = (selector: string) => {
   cy.get(selector).should("be.visible").then(($panel) => {
-    if ($panel.find(".card-body, .card-header + *").length === 0 ||
-        $panel.find("[aria-expanded='false']").length > 0) {
+    // the body of a panel is rendered only while the panel is open: it is the
+    // one thing that says whether the header has to be clicked. Reading a
+    // nested control instead made the header be clicked on an open panel,
+    // which closed it.
+    if ($panel.find(".card-body").length === 0) {
       cy.get(`${selector} .card-header`).click();
     }
   });
