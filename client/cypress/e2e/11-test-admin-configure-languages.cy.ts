@@ -4,25 +4,25 @@ describe("admin configure languages", () => {
     cy.visit("/#/admin/settings");
     cy.get('[data-cy="languages"]').click();
 
-    // The selector closes on every choice: it is opened again for each of the
-    // languages the site is given
-    const enable = (language: string) => {
+    // The selector closes once a language has been picked: it is reopened for
+    // each of them, from the Add button of the section
+    const addLanguage = (label: string) => {
       cy.get(".add-language-btn").click();
-      cy.get("#LanguageAdder ng-select").click();
-      cy.get('div.ng-option').contains(language).click();
-      cy.get('ul.selection-list li').should('contain', language);
+      cy.get("ng-select").last().click();
+      cy.get("div.ng-option").contains(label).click();
+      cy.get("ul.selection-list li").should("contain", label);
     };
 
     if (Cypress.env('language')!=="en") {
-      enable('English [en]');
+      addLanguage('English [en]');
     }
 
     if (Cypress.env('language')!=="it") {
-      enable('Italian [it]');
+      addLanguage('Italian [it]');
     }
 
     if (Cypress.env('language')!=="de") {
-      enable('German [de]');
+      addLanguage('German [de]');
     }
 
     cy.get("#save_language").click();

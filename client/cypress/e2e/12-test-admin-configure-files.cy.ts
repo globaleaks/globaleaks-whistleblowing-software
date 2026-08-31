@@ -6,10 +6,8 @@ describe("Admin configure files", () => {
 
     cy.get('[data-cy="files"]').click();
 
-    // The permission is offered as one switch, that says what it is and is what
-    // is toggled: the name it used to carry lives in the directive now
-    cy.get("#toggle-upload-files").should("not.be.checked");
-    cy.get("#toggle-upload-files").click();
+    // the permission is now a single switch, confirmed with the administrator password
+    cy.get("#toggle-upload-files").should("not.be.checked").click();
     cy.get(".modal").should("be.visible");
     cy.get(".modal [type='password']").type("wrongpassword");
     cy.get(".modal .btn-primary").click();

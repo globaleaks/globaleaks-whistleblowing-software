@@ -2,7 +2,8 @@ describe("admin configure advanced settings", () => {
   it("should perform main configuration", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
-    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("advanced");
     cy.get('input[name="node.dataModel.allow_indexing"]').click();
     cy.get("#save").click();
   });
@@ -12,12 +13,13 @@ describe("admin disable submissions", () => {
   it("should disable submission", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
-    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("advanced");
 
     cy.get('input[name="disable_submissions"]').click();
     cy.get("#save").click();
 
-    cy.get('[data-cy="advanced"]').click().should('be.visible').click();
+    cy.openTab("advanced");
 
     cy.get('input[name="disable_submissions"]').should("be.visible").should("be.checked");
     cy.logout();
@@ -31,12 +33,13 @@ describe("admin disable submissions", () => {
 describe("admin enable submissions", () => {
   it("should enable submission", () => {
     cy.login_admin();
-    cy.visit("/#/admin/settings")
-    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("advanced");
 
     cy.get('input[name="disable_submissions"]').click();
     cy.get("#save").click();
-    cy.get('[data-cy="advanced"]').click().should('be.visible').click();
+    cy.openTab("advanced");
 
     cy.get('input[name="disable_submissions"]').should("be.visible").should("not.be.checked");
     cy.logout();
@@ -50,15 +53,20 @@ describe("admin enable submissions", () => {
 describe("admin enable antivirus", () => {
   it("should enable antivirus", () => {
     cy.login_admin();
-    cy.visit("/#/admin/settings")
-    cy.get('[data-cy="antivirus"]').click().should("be.visible").click();
+    cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("antivirus");
 
     cy.get('#antivirus-clamd-ip').should("be.visible").should("have.value", "localhost");
     cy.get('#antivirus-clamd-port').should("be.visible").should("have.value", "3310");
     cy.get('#antivirus-enable').click();
-    cy.get('[data-cy="antivirus"]').click().should('be.visible').click();
+    cy.openTab("antivirus");
 
     cy.get('#antivirus-disable').should("be.visible");
+
+    // the antivirus is photographed enabled, as the chapter shows it
+    cy.takeScreenshot("admin/antivirus_settings");
+    cy.takeScreenshot("admin/antivirus_settings_detail", '.form-group:has(#antivirus-clamd-ip)');
     cy.logout();
     cy.waitForUrl("/#/login")
   });
@@ -68,7 +76,8 @@ describe("admin enable scoring system", () => {
   it("should enable scoring system", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
-    cy.get('[data-cy="advanced"]').click().should("be.visible").click();
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("advanced");
     cy.get('#scoring_system').click();
     cy.get("#save").click();
     cy.logout();
@@ -79,6 +88,7 @@ describe("admin add and remove disclaimer", function () {
   it("should add disclaimer", function () {
     cy.login_admin();
     cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
     cy.get('textarea[name="nodeResolver.dataModel.disclaimer_text"]').type("disclaimer_text");
     cy.get("#save_settings").click();
 
@@ -91,6 +101,7 @@ describe("admin add and remove disclaimer", function () {
 
     cy.login_admin();
     cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
     cy.get('textarea[name="nodeResolver.dataModel.disclaimer_text"]').clear();
     cy.get("#save_settings").click();
     cy.logout();
@@ -119,3 +130,16 @@ describe("admin add and remove user privacy policy", function () {
     cy.logout();
   });
 });
+
+describe("admin authentication settings", () => {
+  it("should show the identity provider settings", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get('[data-cy="authentication"]').click();
+    cy.get("#idp-issuer").should("be.visible");
+    cy.takeScreenshot("admin/authentication_settings");
+    cy.takeScreenshot("admin/authentication_settings_detail", "form:has(#idp-issuer)");
+    cy.logout();
+  });
+});
+
