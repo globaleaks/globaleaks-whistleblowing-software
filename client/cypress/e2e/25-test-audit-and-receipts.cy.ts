@@ -51,10 +51,10 @@ describe("administrator audit log", () => {
     cy.get("#filter-username").click();
 
     // a capture changes the viewport and the list of the users closes with it:
-    // the user is chosen first, and the captures are taken afterwards. The
-    // click is left free of the assertion that would fix its subject: the list
-    // is redrawn while the log refreshes.
-    cy.get("ng-multiselect-dropdown .multiselect-item-checkbox").first().click({force: true});
+    // the user is chosen first, and the captures are taken afterwards. Nothing
+    // stands between the opening of the list and the choice, so that the list
+    // is not redrawn in between.
+    cy.get("ng-multiselect-dropdown .multiselect-item-checkbox").first().click();
 
     cy.get("#filter-username").should("have.class", "filter-active");
     cy.takeScreenshot("admin/audit_log_user_filtered");
