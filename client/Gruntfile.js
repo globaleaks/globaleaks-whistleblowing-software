@@ -337,7 +337,7 @@ module.exports = function(grunt) {
         command: "nyc instrument dist --in-place"
       },
       brotli_compress: {
-        command: 'find . -type f -not -name \'index.html\' -not -path \'./data/*\' -not -path \'./fonts/*\' -not -path \'./images/*\' -exec brotli -q 11 {} --output={}.br \\;',
+        command: 'find . -type f -not -name \'index.html\' -not -name \'*.br\' -not -path \'./data/*\' -not -path \'./fonts/*\' -not -path \'./images/*\' -exec brotli -f -q 11 {} --output={}.br \\;',
         options: {
           execOptions: {
             cwd: './build'
