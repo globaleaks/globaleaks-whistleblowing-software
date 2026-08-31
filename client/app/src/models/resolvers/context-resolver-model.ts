@@ -22,6 +22,9 @@ export class contextResolverModel {
   show_steps_navigation_interface: boolean;
   questionnaire_id: string;
   additional_questionnaire_id: string;
+  // The additional questionnaires the channel can ask of its reports; the one
+  // named by additional_questionnaire_id is the one it asks automatically
+  additional_questionnaires: string[];
   receivers: string[];
   picture: boolean;
   name: string;
