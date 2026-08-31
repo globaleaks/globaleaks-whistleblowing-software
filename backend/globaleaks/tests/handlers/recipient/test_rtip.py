@@ -32,6 +32,34 @@ def create_substatus(session, submissionstatus_id):
 
 
 @transact
+def set_context_additional_questionnaires(session, context_id, questionnaire_ids):
+    session.query(models.ContextAdditionalQuestionnaire) \
+           .filter(models.ContextAdditionalQuestionnaire.context_id == context_id).delete()
+
+    for questionnaire_id in questionnaire_ids:
+        session.add(models.ContextAdditionalQuestionnaire({'context_id': context_id,
+                                                           'questionnaire_id': questionnaire_id}))
+
+
+@transact
+def close_reports(session):
+    session.query(models.InternalTip).update({'status': 'closed'})
+
+
+@transact
+def record_answers(session, itip_id, questionnaire_id):
+    """
+    Record on a report the answers it gave to a questionnaire
+    """
+    answers = models.InternalTipAnswers()
+    answers.internaltip_id = itip_id
+    answers.questionnaire_id = questionnaire_id
+    answers.questionnaire_hash = questionnaire_id * 8
+
+    session.add(answers)
+
+
+@transact
 def remove_receivertip(session, itip_id, receiver_id):
     session.query(models.ReceiverTip) \
            .filter(models.ReceiverTip.internaltip_id == itip_id,
@@ -532,6 +560,187 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
             self.assertEqual(rtip_desc['reminder_date'], datetime_never())
+
+
+class TestRTipAdditionalQuestionnaireRequest(helpers.TestHandlerWithPopulatedDB):
+    """
+    The recipients ask an additional questionnaire of a single report.
+    """
+    _handler = rtip.RTipInstance
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+        # The questionnaire composing the reports is answered by them from the
+        # moment they are filed and is never among what they can be asked: the
+        # channel names two others
+        self.second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+
+        yield set_context_additional_questionnaires(self.dummyContext['id'],
+                                                    ['default', self.second['id']])
+
+    def request_operation(self, rtip_desc, questionnaire_id):
+        operation = {
+          'operation': 'request_additional_questionnaire',
+          'args': {
+            'questionnaire': questionnaire_id
+          }
+        }
+
+        return self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+
+    @inlineCallbacks
+    def test_request(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertTrue(rtip_desc['additional_questionnaire_requestable'])
+            self.assertEqual(rtip_desc['additional_questionnaire_id'], '')
+
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+            self.assertEqual(handler.request.code, 200)
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], 'default')
+            # The request stands and is still open to be withdrawn or replaced
+            self.assertTrue(response['additional_questionnaire_requestable'])
+
+    @inlineCallbacks
+    def test_the_request_is_replaced_while_it_stands(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+
+            handler = self.request_operation(rtip_desc, self.second['id'])
+            yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], self.second['id'])
+
+    @inlineCallbacks
+    def test_the_request_is_withdrawn_by_asking_nothing(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+
+            handler = self.request_operation(rtip_desc, '')
+            yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_questionnaire_the_channel_does_not_name_is_rejected(self):
+        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default'])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, self.second['id'])
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_questionnaire_of_another_site_is_rejected(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, str(uuid4()))
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_channel_naming_nothing_leaves_nothing_to_decide(self):
+        yield set_context_additional_questionnaires(self.dummyContext['id'], [])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertFalse(rtip_desc['additional_questionnaire_requestable'])
+
+            handler = self.request_operation(rtip_desc, 'default')
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+    @inlineCallbacks
+    def test_a_closed_report_is_asked_nothing_more(self):
+        yield close_reports()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertFalse(rtip_desc['additional_questionnaire_requestable'])
+
+            handler = self.request_operation(rtip_desc, 'default')
+            with self.assertRaises(errors.ForbiddenOperation):
+                yield handler.put(rtip_desc['id'])
+
+
+class TestRTipQuestionnairesCollection(helpers.TestHandlerWithPopulatedDB):
+    _handler = rtip.RTipQuestionnairesCollection
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+    @inlineCallbacks
+    def test_the_channel_decides_what_can_be_asked(self):
+        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default'])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], ['default'])
+
+    @inlineCallbacks
+    def test_a_channel_naming_nothing_offers_nothing(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual(response, [])
+
+    @inlineCallbacks
+    def test_an_answered_questionnaire_is_not_offered_again(self):
+        second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+
+        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default', second['id']])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield record_answers(rtip_desc['id'], 'default')
+
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], [second['id']])
+
+    @inlineCallbacks
+    def test_the_questionnaire_composing_the_report_is_not_offered(self):
+        """
+        The report answers it from the moment it is filed: a questionnaire is
+        """
+        yield set_context_additional_questionnaires(self.dummyContext['id'],
+                                                    ['default', self.dummyContext['questionnaire_id']])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], ['default'])
 
 
 class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):

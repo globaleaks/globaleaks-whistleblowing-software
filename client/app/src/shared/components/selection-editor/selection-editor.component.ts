@@ -44,6 +44,14 @@ export class SelectionEditorComponent implements OnChanges {
   // entry, if any, still cannot be removed
   readonly selectableDefault = input(true);
 
+  // How the election is named to the readers: 'Default' where the elected entry is what happens by
+  // itself
+  readonly defaultLabel = input("Default");
+  readonly defaultTooltip = input("Use as default");
+
+  // When true the election can be cleared from its check mark, emitting an empty defaultPicked
+  readonly clearableDefault = input(false);
+
   readonly entryAdded = output<string>();
   readonly entryRemoved = output<{index: number, id: string}>();
   readonly defaultPicked = output<string>();

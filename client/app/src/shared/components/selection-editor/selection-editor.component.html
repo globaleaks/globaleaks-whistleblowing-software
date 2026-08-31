@@ -24,14 +24,19 @@
       @for (entry of selected(); track entry.id; let index = $index) {
         <li>
           <span class="action-btns">
-            @if (selectableDefault() && entry.id === defaultId()) {
+            @if (selectableDefault() && entry.id === defaultId() && !clearableDefault()) {
               <span class="default-entry">
                 <i class="fas fa-check" aria-hidden="true"></i>
-                <span class="visually-hidden">{{ 'Default' | translate }}</span>
+                <span class="visually-hidden">{{ defaultLabel() | translate }}</span>
               </span>
             }
+            @if (selectableDefault() && entry.id === defaultId() && clearableDefault()) {
+              <button type="button" class="icon-action default-entry clear-default-btn" ngbTooltip="{{defaultLabel() | translate}}" [attr.aria-pressed]="true" [attr.aria-label]="(defaultLabel() | translate) + ': ' + entry.label" (click)="defaultPicked.emit('')">
+                <i class="fas fa-check" aria-hidden="true"></i>
+              </button>
+            }
             @if (selectableDefault() && entry.id !== defaultId()) {
-              <button type="button" class="icon-action non-default-entry" ngbTooltip="{{'Use as default' | translate}}" [attr.aria-label]="('Use as default' | translate) + ': ' + entry.label" (click)="defaultPicked.emit(entry.id)">
+              <button type="button" class="icon-action non-default-entry" ngbTooltip="{{defaultTooltip() | translate}}" [attr.aria-label]="(defaultTooltip() | translate) + ': ' + entry.label" (click)="defaultPicked.emit(entry.id)">
                 <i class="fas fa-check" aria-hidden="true"></i>
               </button>
             }

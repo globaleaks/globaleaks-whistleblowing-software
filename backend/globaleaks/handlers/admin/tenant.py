@@ -222,9 +222,7 @@ def db_get_tenant_list(session, language='en'):
     ret = []
     configs = db_get_configs(session, 'tenant')
 
-    # The channels and the questionnaires of each tenant are carried along, so
-    # that the exchanges can name the ones they run through: a channel of the
-    # exchanges says so, since an exchange runs through those alone
+    # Channels and questionnaires are carried along, so that the exchanges can name them
     contexts = {}
     for context in session.query(models.Context):
         contexts.setdefault(context.tid, []).append(
@@ -261,13 +259,6 @@ def get_tenant_list(session, language='en'):
 def get(session, self, tid):
     """
     Return what a site or a profile is made of, so that it can be carried elsewhere
-
-    What is carried is what the object configures of itself: its variables,
-    its questionnaires, its channels - the ones the reporting people reach and
-    the ones the exchanges run through - and the user profiles that name them.
-    What relates it to another object of the platform is not carried: an
-    exchange relates two of them and does not travel with either, and is
-    established again where the object is carried.
     """
     tenant = db_get(session, models.Tenant, models.Tenant.id == tid)
     configs = session.query(models.Config).filter(models.Config.tid == tid).all()
@@ -411,9 +402,8 @@ def db_wizard(session, tid, hostname, request):
 
     db_initialize_support(session, tid)
 
-    # The tenant whose profile carries channels derives one from each of its
-    # templates, and the users bound to a shared profile become the receivers
-    # of the channels their profile is associated to
+    # A tenant whose profile carries channels derives one from each template; the users of a shared
+    # profile receive on it
     templates = []
     if tid != 1:
         pid = config.db_get_pid(session, tid)
@@ -434,9 +424,8 @@ def db_wizard(session, tid, hostname, request):
             if user_profile is not None:
                 db_attach_user_to_profile_contexts(session, user, user_profile)
     elif tid < DEFAULT_PROFILE_ID:
-        # The site whose profile has no channel keeps the default one; a
-        # profile instead carries no channel until its administrator defines
-        # the templates the sites inheriting from it derive their channels from
+        # Without channels in the profile the default one is kept; a profile carries none until its
+        # templates are defined
         context_desc = models.Context().dict(language)
         context_desc['name'] = 'Default'
         context_desc['status'] = 'enabled'
@@ -528,15 +517,6 @@ def db_import_contexts(session, tid, contexts, questionnaire_map):
     """
     Recreate on an imported object the channels it was composed with
 
-    A channel is created here as any other and is therefore named by an id of
-    its own: what named it where it came from - the user profiles carrying
-    their users to it - is rewired on the id it is created under, exactly as
-    the questionnaires are.
-
-    The questionnaires are imported the same way, and the channels composing
-    their reports with them follow: a reference the import cannot resolve
-    falls back on the questionnaire every platform holds.
-
     :param session: An ORM session
     :param tid: The tenant ID of the imported object
     :param contexts: The channels of the object
@@ -560,20 +540,28 @@ def db_import_contexts(session, tid, contexts, questionnaire_map):
         request = {key: value for key, value in context.items()
                    if key not in ['id', 'tid', 'template_id', 'picture', 'profiles']}
 
-        # The recipients of a channel are accounts of the object it lives on
-        # and are not among what is carried; the user profiles that name it
-        # are composed after the channels and name them from their own side
+        # Recipients are accounts of the object and are not carried; the user profiles naming the
+        # channel are composed afterwards
         request['receivers'] = []
 
         request['questionnaire_id'] = resolve(request.get('questionnaire_id')) or 'default'
 
         request['additional_questionnaire_id'] = resolve(request.get('additional_questionnaire_id'))
 
+        # Additional questionnaires are named by the ids they are imported under; the automatic
+        # election travels with them
+        additional = [q for q in (resolve(questionnaire_id)
+                                  for questionnaire_id in context.get('additional_questionnaires', []))
+                      if q]
+
+        if request['additional_questionnaire_id'] and request['additional_questionnaire_id'] not in additional:
+            additional.append(request['additional_questionnaire_id'])
+
+        request['additional_questionnaires'] = additional
+
         created = db_create_context(session, tid, None, request, 'en')
 
-        # What makes a channel one of the exchanges travels with it: no
-        # request declares such a channel, and the one carried here is
-        # recreated for what it is
+        # The exchange nature of a channel travels with it; no request declares it
         created.exchange = context.get('exchange', False)
 
         context_map[context['id']] = created.id
@@ -584,10 +572,6 @@ def db_import_contexts(session, tid, contexts, questionnaire_map):
 def db_import_user_profiles(session, tid, user_profiles, context_map):
     """
     Recreate on an imported object the user profiles it was composed with
-
-    A user profile carries the roles it holds, the permissions it grants and
-    the channels its users are the recipients of: the channels are named by
-    the ids they are imported under.
 
     :param session: An ORM session
     :param tid: The tenant ID of the imported object
@@ -609,9 +593,6 @@ def db_import_user_profiles(session, tid, user_profiles, context_map):
 def import_tenant_content(session, tid, content):
     """
     Compose an imported object with what it was composed of elsewhere
-
-    Everything is written in a single transaction: an object is imported whole
-    or is not imported at all.
 
     :param session: An ORM session
     :param tid: The tenant ID of the imported object

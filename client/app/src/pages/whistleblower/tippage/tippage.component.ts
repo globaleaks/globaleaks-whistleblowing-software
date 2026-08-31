@@ -222,9 +222,9 @@ export class TippageComponent implements OnInit {
 
   shouldShowAdditionalQuestionnaire(): boolean {
     const tip = this.wbTipService.tip;
-    return tip?.status !== 'closed' &&
-           !!tip?.context?.additional_questionnaire_id &&
-           tip?.questionnaires?.length === 1;
+
+    // The report carries the additional questionnaire asked, and none once answered or withdrawn
+    return tip?.status !== 'closed' && !!tip?.additional_questionnaire;
   }
 
   /**
