@@ -97,6 +97,7 @@ api_spec = [
     ('/api/recipient/rtips', exchange.RTipCommunication, r'/api/recipient/rtips/' + uuid_regexp + r'/communication'),
     ('/api/recipient/rtips', exchange.CommunicationAttachment, r'/api/recipient/rtips/' + uuid_regexp + r'/communication/attachment'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
+    ('/api/recipient/rtips', recipient.rtip.RTipQuestionnairesCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/questionnaires'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
     ('/api/recipient/rtips', recipient.rtip.ReceiverFileUpload, r'/api/recipient/rtips/' + uuid_regexp + r'/rfiles'),

@@ -5,8 +5,12 @@
         <div>
           @if (tipService().tip.questionnaires.length > 1) {
             <div>
-              <span>{{'Questionnaire'|translate}}</span>
-              <span>{{index + 1}}</span>
+              @if (questionnaire.name) {
+                <span>{{questionnaire.name}}</span>
+              } @else {
+                <span>{{'Questionnaire'|translate}}</span>
+                <span>{{index + 1}}</span>
+              }
             </div>
           }
           @for (step of questionnaire.steps | orderBy:'order'; track step; let questionare_steps = $index) {
