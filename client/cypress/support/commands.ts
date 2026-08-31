@@ -1,17 +1,23 @@
+export {};
+
 declare global {
   namespace Cypress {
-    interface Chainable {
+    interface Chainable<Subject = any> {
       // @ts-ignore
       login_admin: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
+      login_user: (username?: string, password?: string, url?: string, firstlogin?: boolean, home?: string) => void;
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_receiver: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_custodian: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
-      login_keycloak: (username?: string, password?: string, url?: string) => void;
+      login_auditor: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_whistleblower: (receipt: string) => void;
       logout: () => void;
       simple_login_admin: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       simple_login_receiver: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       takeScreenshot: (filename: string, locator?: string) => void;
+      openAdminUsers: () => void;
+      openTab: (name: string) => void;
+      waitForPageIdle: (timeout?: number) => void;
       waitForTipImageUpload: (attempt?: number) => void;
       waitForUrl: (url: string, timeout?: number) => Chainable<any>;
       waitUntilClickable: (locator: string, timeout?: number) => void;
@@ -20,7 +26,7 @@ declare global {
 }
 
 // Define at the top of the spec file or just import it
-function terminalLog(violations) {
+function terminalLog(violations: any[]) {
   cy.task(
     'log',
     `${violations.length} accessibility violation${
@@ -29,7 +35,7 @@ function terminalLog(violations) {
   )
   // pluck specific keys to keep the table readable
   const violationData = violations.map(
-    ({ id, impact, description, nodes }) => ({
+    ({ id, impact, description, nodes }: any) => ({
       id,
       impact,
       description,
@@ -39,24 +45,6 @@ function terminalLog(violations) {
 
   cy.task('table', violationData)
 }
-
-Cypress.Commands.add("login_keycloak", (username, password, url) => {
-  username = username === undefined ? "admin" : username;
-  password = password === undefined ? Cypress.env("keycloak_user_password") : password;
-  url = url === undefined ? "/#/login" : url;
-
-  cy.visit(url);
-
-  cy.origin(
-    'http://127.0.0.1:9090',
-    { args: [username, password] },
-    ([u, p]) => {
-      cy.get('input#username').type(u);
-      cy.get('input#password').type(p);
-      cy.get('input[type="submit"],button[type="submit"]').click();
-    }
-  );
-});
 
 Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
@@ -87,37 +75,12 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   }
 });
 
-Cypress.Commands.add("login_analyst", (username, password, url, firstlogin) => {
-  username = username === undefined ? "Analyst" : username;
+// The login of every role is the same sequence, written once
+Cypress.Commands.add("login_user", (username, password, url, firstlogin, home) => {
+  username = username === undefined ? "" : username;
   password = password === undefined ? Cypress.env("user_password") : password;
   url = url === undefined ? "#/login" : url;
-
-  let finalURL = "/actions/forcedpasswordchange";
-
-  cy.visit(url);
-  cy.get("[name=\"username\"]").type(username);
-
-  // @ts-ignore
-  cy.get("[name=\"password\"]").type(password);
-  cy.get("#login-button").click();
-
-  if (!firstlogin) {
-    cy.url().should("include", "#/login").then(() => {
-      cy.url().should("not.include", "#/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
-        finalURL = hashPart === "login" ? "/analyst/home" : hashPart;
-        cy.waitForUrl(finalURL);
-      });
-    });
-  }
-});
-
-Cypress.Commands.add("login_custodian", (username, password, url, firstlogin) => {
-  username = username === undefined ? "Custodian" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
-  url = url === undefined ? "#/login" : url;
-
-  let finalURL = "/actions/forcedpasswordchange";
+  home = home === undefined ? "" : home;
 
   cy.visit(url);
   cy.get("[name=\"username\"]").type(username);
@@ -129,11 +92,22 @@ Cypress.Commands.add("login_custodian", (username, password, url, firstlogin) =>
     cy.url().should("include", "/login").then(() => {
       cy.url().should("not.include", "/login").then((currentURL) => {
         const hashPart = currentURL.split("#")[1];
-        finalURL = hashPart === "login" ? "/custodian/home" : hashPart;
-        cy.waitForUrl(finalURL);
+        cy.waitForUrl(hashPart === "login" ? home : hashPart);
       });
     });
   }
+});
+
+Cypress.Commands.add("login_analyst", (username, password, url, firstlogin) => {
+  cy.login_user(username === undefined ? "Analyst" : username, password, url, firstlogin, "/analyst/home");
+});
+
+Cypress.Commands.add("login_custodian", (username, password, url, firstlogin) => {
+  cy.login_user(username === undefined ? "Custodian" : username, password, url, firstlogin, "/custodian/home");
+});
+
+Cypress.Commands.add("login_auditor", (username, password, url, firstlogin) => {
+  cy.login_user(username === undefined ? "Auditor" : username, password, url, firstlogin, "/auditor/home");
 });
 
 Cypress.Commands.add("login_receiver", (username, password, url, firstlogin) => {
@@ -241,29 +215,62 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     cy.get(".modal").invoke("attr", "style", "height: auto; position: absolute;");
   }
 
+  // The two viewport changes that preceded the capture were what kept it from photographing a
+  // transition
+  cy.waitForPageIdle();
+  cy.wait(200);
+
   return cy.document().then((doc) => {
-    const viewports = [
-      { width: DESKTOP_VIEWPORT.width, height: doc.body.scrollHeight },
-      { width: 375, height: 667, prefix: "mobile/" }
+    // The tallest of the four measures: an inner container that scrolls on its
+    // own makes the body shorter than the page really is.
+    const documentHeight = Math.max(
+      doc.body.scrollHeight, doc.documentElement.scrollHeight,
+      doc.body.offsetHeight, doc.documentElement.offsetHeight,
+      DESKTOP_VIEWPORT.height
+    );
+
+    // The narrow capture is produced only on demand: no chapter of the manual
+    // uses one, and taking it doubled the work of every single capture.
+    const viewports: {width: number; height: number; prefix?: string}[] = [
+      { width: DESKTOP_VIEWPORT.width, height: documentHeight },
+      ...(Cypress.env("mobileScreenshots")
+        ? [{ width: 375, height: 667, prefix: "mobile/" }]
+        : [])
     ];
 
-    cy.injectAxe();
-    cy.checkA11y(null, null, terminalLog, true);
+    // The accessibility scan runs only on request: on every capture it repeated the same findings
+    if (Cypress.env("a11yOnScreenshots")) {
+      cy.injectAxe();
+      cy.checkA11y(undefined, undefined, terminalLog, true);
+    }
 
-    return cy.wrap(viewports).each(({ width, height, prefix }) => {
+    return cy.wrap(viewports).each((viewport: unknown) => {
+      const { width, height, prefix } = viewport as {width: number; height: number; prefix?: string};
+      // The viewport is set once, to the size of the document
       cy.viewport(width, height);
       cy.wait(50);
 
       const screenshotPath = prefix ? `${prefix}${filename}` : filename;
 
       if (locator && locator !== ".modal") {
-        // A modal is photographed with the backdrop around it, so that its border and its
-        // rounded corners are seen: a capture cut on the box shows a bare white rectangle
+        // A capture of a collapsed panel, of a hidden tab or of a duplicated identifier comes out a
+        // few pixels tall. A modal is photographed with the backdrop around it, so that its border
+        // and its rounded corners are seen: a capture cut on the box shows a bare white rectangle
         const padding = /modal/.test(locator) ? 16 : 0;
-        return cy.get(locator).screenshot(screenshotPath, { overwrite: true, scale: true, padding });
+        return cy.get(locator)
+          .should(($el) => {
+            const box = $el[0].getBoundingClientRect();
+            expect(box.width, `width of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
+            expect(box.height, `height of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
+          })
+          .screenshot(screenshotPath, { overwrite: true, scale: true, padding });
       } else {
-        cy.get("#FooterBox").scrollIntoView();
-        return cy.screenshot(screenshotPath, { capture: "fullPage", overwrite: true, scale: true });
+        // A full page capture stitches several scrolls: a modal, or anything fixed, breaks it
+        return cy.screenshot(screenshotPath, {
+          capture: prefix ? "fullPage" : "viewport",
+          overwrite: true,
+          scale: true
+        });
       }
     }).then(() => {
       // Restore desktop viewport
@@ -281,4 +288,26 @@ Cypress.Commands.add("waitForUrl", (url: string, timeout?: number) => {
 Cypress.Commands.add("waitUntilClickable", (locator: string, timeout?: number) => {
   const t = timeout === undefined ? Cypress.config().defaultCommandTimeout : timeout;
   cy.get(locator).click({timeout: t});
+});
+
+// Clicking an active tab redraws the navigation and detaches the button: opened only when inactive
+Cypress.Commands.add("openAdminUsers", () => {
+  cy.intercept("GET", "/api/admin/users/profiles").as("adminUsersProfiles");
+  cy.visit("/#/admin/users");
+  cy.wait("@adminUsersProfiles");
+  cy.waitForPageIdle();
+});
+
+Cypress.Commands.add("openTab", (name: string) => {
+  cy.get(`[data-cy="${name}"]`).should("be.visible").then(($tab) => {
+    if (!$tab.hasClass("active")) {
+      cy.wrap($tab).click();
+    }
+  });
+});
+
+// The overlay covers the page while a request is in flight: its absence is the settled page
+Cypress.Commands.add("waitForPageIdle", (timeout?: number) => {
+  const t = timeout === undefined ? Cypress.config().defaultCommandTimeout : timeout;
+  cy.get("#PageOverlay", {timeout: t}).should("not.exist");
 });

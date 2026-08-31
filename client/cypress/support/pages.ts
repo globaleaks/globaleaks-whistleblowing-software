@@ -1,6 +1,10 @@
 class WhistleblowerPage {
   public static performSubmission(number_of_attachments:number, url = "#/") {
     cy.visit(url);
+
+    // the home is photographed once it offers what it is there for: capturing
+    // it right after the visit produced a page still empty of its own content
+    cy.get("#WhistleblowingButton").should("be.visible");
     cy.takeScreenshot("whistleblower/home");
 
     cy.get("#WhistleblowingButton").click();
