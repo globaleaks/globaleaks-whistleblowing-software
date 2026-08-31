@@ -9,49 +9,11 @@
         <th appTableHeader [state]="table" [label]="'User' | translate" sortBy="user"></th>
         <th appTableHeader [state]="table" [label]="'Type' | translate" sortBy="action" filter="type" [options]="typeOptions"></th>
         <th appTableHeader [state]="table" [label]="'Date' | translate" sortBy="timestamp"></th>
+        <th></th>
       </tr>
     </ng-template>
     <ng-template #content let-entry="item">
-      <tr [class]="entry.isGroup ? 'audit-group-row' : ''"
-          [style.cursor]="entry.isGroup ? 'pointer' : 'default'"
-          (click)="entry.isGroup ? toggleGroupExpansion(entry) : null">
-        <td>{{entry.user}}</td>
-        <td>
-          <span class="badge bg-light text-dark">
-            <span [class]="getTypeDotColor(entry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{entry.action}}</span>
-          </span>
-        </td>
-        <td>
-          <div class="d-flex justify-content-between align-items-center">
-            <span>{{entry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</span>
-            @if (entry.isGroup) {
-              <button class="btn btn-sm btn-link p-0 ms-2 chevron-btn"
-                      (click)="$event.stopPropagation()"
-                      [attr.aria-label]="entry.isExpanded ? ('Collapse' | translate) : ('Expand' | translate)">
-                @if (entry.isExpanded) {
-                  <i class="fas fa-chevron-down"></i>
-                } @else {
-                  <i class="fas fa-chevron-right"></i>
-                }
-              </button>
-            }
-          </div>
-        </td>
-      </tr>
-
-      @if (entry.isGroup && entry.isExpanded && entry.groupedEntries) {
-        @for (childEntry of entry.groupedEntries; track childEntry.id) {
-          <tr>
-            <td>{{childEntry.user}}</td>
-            <td>
-              <span class="badge bg-light text-dark">
-                <span [class]="getTypeDotColor(childEntry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{childEntry.action}}</span>
-              </span>
-            </td>
-            <td>{{childEntry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</td>
-          </tr>
-        }
-      }
+      <ng-container *ngTemplateOutlet="riga; context: {$implicit: entry}"></ng-container>
     </ng-template>
   </app-paginated-interface>
 
@@ -69,3 +31,55 @@
     <span>{{'Close' | translate}}</span>
   </button>
 </div>
+
+<!-- A row opens the way every expandable row of the interface opens: from its
+     toggle. What it opens is what the entry holds: the entries it groups, each
+     with a toggle of its own, and the details of the entry itself -->
+<ng-template #riga let-entry>
+  <tr [class.expandable-row]="isExpandable(entry)"
+      [class.expandable-row-open]="isExpanded(entry)"
+      (click)="isExpandable(entry) ? toggle(entry) : null">
+    <td>{{entry.user}}</td>
+    <td>
+      <span class="badge bg-light text-dark">
+        <span [class]="getTypeDotColor(entry.type)"><i class="fas fa-circle-dot"></i></span> <span>{{entry.action}}</span>
+      </span>
+    </td>
+    <td>{{entry.timestamp | date:'dd-MM-yyyy HH:mm:ss'}}</td>
+    <td class="text-end">
+      @if (isExpandable(entry)) {
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="toggle"
+                [attr.aria-expanded]="isExpanded(entry)"
+                [attr.aria-label]="(isExpanded(entry) ? 'Collapse' : 'Expand') | translate"
+                (click)="$event.stopPropagation(); toggle(entry)">
+          @if (isExpanded(entry)) {
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          } @else {
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          }
+        </button>
+      }
+    </td>
+  </tr>
+  @if (isExpanded(entry)) {
+    @if (entry.isGroup) {
+      @for (childEntry of entry.groupedEntries; track childEntry.id) {
+        <ng-container *ngTemplateOutlet="riga; context: {$implicit: childEntry}"></ng-container>
+      }
+    }
+    @if (hasDetails(entry)) {
+      <tr class="expandable-detail" data-cy="audit-details">
+        <td [attr.colspan]="4">
+          <div class="expandable-box">
+            @if (entry.hash_sha256) {
+              <div class="audit-detail-line"><span class="title">sha256:</span> <code>{{entry.hash_sha256}}</code></div>
+            }
+            @if (entry.hash_sha512) {
+              <div class="audit-detail-line"><span class="title">sha512:</span> <code>{{entry.hash_sha512}}</code></div>
+            }
+          </div>
+        </td>
+      </tr>
+    }
+  }
+</ng-template>
