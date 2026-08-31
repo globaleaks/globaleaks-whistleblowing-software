@@ -118,10 +118,6 @@ describe("admin configure, add, configure and delete tenants", () => {
     // the page is already displayed by the step before, and visiting the very
     // address that is displayed performs no navigation and issues no request:
     // the platform is left first
-    // the rows carry the profile of each account and are redrawn when the
-    // profiles arrive; the request is issued once per load of the application,
-    // so it is watched from before the first address is visited
-    cy.intercept("GET", "**/api/admin/users/profiles").as("tenantUsersProfiles");
     cy.visit(`${tenantUrl}/#/admin/home`);
     cy.visit(`${tenantUrl}/#/admin/users`);
     cy.get('[data-cy="users"]').click();

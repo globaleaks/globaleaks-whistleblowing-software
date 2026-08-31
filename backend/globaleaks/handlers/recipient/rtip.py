@@ -1100,6 +1100,14 @@ def db_log_file_deletion(session, tid, user_id, itip_id, file):
     """
     Register the deletion of a file of a report, keeping its fingerprints
 
+    The entry names the **report**, and not the file: the identifier of a
+    deleted file belongs to nothing any more, and the log of a report is
+    gathered from the objects the report is made of. Naming the report is what
+    keeps the entry in the log once the row it attests is gone; the file is
+    named inside the entry, together with the fingerprints of its content,
+    sealed to the report exactly as the content was, so that recipients and
+    whistleblower verify afterwards what is no longer there.
+
     :param session: An ORM session
     :param tid: A tenant ID
     :param user_id: The user ID of the user performing the deletion
