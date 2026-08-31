@@ -58,18 +58,28 @@ def db_derive_context(session, tid, template):
     session.add(context)
     session.flush()
 
+    db_inherit_additional_questionnaires(session, template, context)
+
     return context
+
+
+def db_inherit_additional_questionnaires(session, template, derived):
+    """
+    Give a derived channel the additional questionnaires of its template
+
+    :param session: An ORM session
+    :param template: The channel of the profile
+    :param derived: The channel derived from it
+    """
+    inherited = [q[0] for q in session.query(models.ContextAdditionalQuestionnaire.questionnaire_id)
+                                      .filter(models.ContextAdditionalQuestionnaire.context_id == template.id)]
+
+    db_associate_context_additional_questionnaires(session, derived, inherited)
 
 
 def db_sync_derived_contexts(session, template):
     """
     Align to a channel of a profile the channels the tenants derived from it
-
-    The channels of a tenant profile are templates: the tenants using the
-    profile hold a derived channel for each of them, that inherits its
-    configuration and follows its updates. The receivers of a derived channel
-    are not part of the template: they belong to the tenant and are associated
-    through the user profiles.
 
     :param session: An ORM session
     :param template: The channel of the profile
@@ -85,6 +95,8 @@ def db_sync_derived_contexts(session, template):
 
         for column in CONTEXT_TEMPLATE_COLUMNS:
             setattr(derived, column, getattr(template, column))
+
+        db_inherit_additional_questionnaires(session, template, derived)
 
 
 def normalize_context_slug(slug):
@@ -106,6 +118,9 @@ def admin_serialize_context(session, context, language):
 
     picture = session.query(models.File).filter(models.File.name == context.id).one_or_none() is not None
 
+    additional_questionnaires = [q[0] for q in session.query(models.ContextAdditionalQuestionnaire.questionnaire_id)
+                                                     .filter(models.ContextAdditionalQuestionnaire.context_id == context.id)]
+
     ret = {
         'id': context.id,
         'hidden': context.hidden,
@@ -120,6 +135,9 @@ def admin_serialize_context(session, context, language):
         'show_receivers_in_alphabetical_order': context.show_receivers_in_alphabetical_order,
         'show_steps_navigation_interface': context.show_steps_navigation_interface,
         'questionnaire_id': context.questionnaire_id,
+        # The additional questionnaires the channel can ask, and the one of
+        # them it asks by itself of every report filed on it
+        'additional_questionnaires': additional_questionnaires,
         'additional_questionnaire_id': context.additional_questionnaire_id,
         'slug': context.slug,
         'template_id': context.template_id,
@@ -160,13 +178,6 @@ def get_contexts(session, tid, language):
 def db_associate_context_profiles(session, context, profile_ids):
     """
     Name on a channel the user profiles whose users receive on it
-
-    A user profile carries its users to the channels that name it: the users
-    holding it become recipients of them, on the tenant the profile lives on
-    and on every tenant inheriting from it, and lose them where the channel
-    stops naming the profile. The reports already received stay with their
-    recipients: naming a profile decides the reports to come, never the ones
-    at rest.
 
     :param session: An ORM session
     :param context: The channel
@@ -251,6 +262,25 @@ def db_associate_context_receivers(session, context, receiver_ids):
                                             'order': i}))
 
 
+def db_associate_context_additional_questionnaires(session, context, questionnaire_ids):
+    """
+    Name on a channel the additional questionnaires it can ask of its reports
+
+    :param session: An ORM session
+    :param context: The channel
+    :param questionnaire_ids: The additional questionnaires the channel can ask
+    """
+    if questionnaire_ids is None:
+        return
+
+    db_del(session, models.ContextAdditionalQuestionnaire,
+           models.ContextAdditionalQuestionnaire.context_id == context.id)
+
+    for questionnaire_id in set(questionnaire_ids):
+        session.add(models.ContextAdditionalQuestionnaire({'context_id': context.id,
+                                                           'questionnaire_id': questionnaire_id}))
+
+
 @transact
 def get_context(session, tid, context_id, language):
     """
@@ -272,12 +302,17 @@ def check_context_questionnaire_association(session, tid, request):
     Ensure the questionnaire ids referenced by a context request belong to the
     requesting tenant (or to the platform-wide tenant 1).
 
+    The additional questionnaire of a channel is the one it asks by itself of
+    every report filed on it, and is chosen among the ones the channel can ask:
+    a channel never asks what it does not name.
+
     :param session: An ORM session
     :param tid: The tenant ID
     :param request: The request data to be verified
     """
-    for key in ('questionnaire_id', 'additional_questionnaire_id'):
-        qid = request.get(key, '')
+    additional = set(request.get('additional_questionnaires') or [])
+
+    for qid in {request.get(key, '') for key in ('questionnaire_id', 'additional_questionnaire_id')} | additional:
         if not qid:
             continue
 
@@ -285,6 +320,11 @@ def check_context_questionnaire_association(session, tid, request):
                 models.Questionnaire.id == qid,
                 not_(models.Questionnaire.tid.in_({1, tid}))).count():
             raise errors.InputValidationError
+
+    if 'additional_questionnaires' in request and \
+            request.get('additional_questionnaire_id', '') and \
+            request['additional_questionnaire_id'] not in additional:
+        raise errors.InputValidationError("Invalid additional questionnaire reference")
 
 
 def fill_context_request(tid, request, language):
@@ -330,6 +370,7 @@ def db_create_context(session, tid, user_session, request, language):
 
     db_associate_context_receivers(session, context, request['receivers'])
     db_associate_context_profiles(session, context, request.get('profiles'))
+    db_associate_context_additional_questionnaires(session, context, request.get('additional_questionnaires'))
 
     return context
 
@@ -359,12 +400,6 @@ def create_context(session, tid, user_session, request, language):
 def db_update_exchange_channel(session, tid, context, request, language):
     """
     Update a channel of the exchanges with what is decided of it
-
-    Such a channel carries the name the exchanges running through it are known
-    by on this side, the recipients that take part in them and, where the
-    reports live here, the questionnaire composing them and how long they
-    last. What a channel configures for the reporting people has no part in
-    it: they neither reach it nor are offered it, and it is not written here.
 
     :param session: An ORM session
     :param tid: The tenant ID
@@ -404,6 +439,7 @@ def db_update_context(session, tid, context, request, language):
 
     db_associate_context_receivers(session, context, request['receivers'])
     db_associate_context_profiles(session, context, request.get('profiles'))
+    db_associate_context_additional_questionnaires(session, context, request.get('additional_questionnaires'))
 
     return context
 
@@ -427,10 +463,8 @@ def update_context(session, tid, context_id, request, language, root_session=Fal
                      (models.Context.tid == tid,
                       models.Context.id == context_id))
 
-    # A channel of the exchanges belongs to the exchanges that run through it:
-    # it is configured by the administrators of the platform, that established
-    # them, entering the site holding it. The administrators of the site read
-    # it where it lives but do not write it
+    # A channel of the exchanges is configured by the administrators of the platform, entering the
+    # site that holds it
     if db_is_exchange_channel(session, context) and not root_session:
         raise errors.ForbiddenOperation
 
@@ -440,10 +474,8 @@ def update_context(session, tid, context_id, request, language, root_session=Fal
         db_associate_context_receivers(session, context, request['receivers'])
         return admin_serialize_context(session, context, language)
 
-    # A channel of the exchanges carries the name they are known by, the
-    # recipients that take part in them and the questionnaire and the
-    # retention of what lives here: the rest of what a channel configures is
-    # for the reporting people, that do not reach it, and is not written here
+    # A channel of the exchanges carries the name, the recipients, the questionnaire and the
+    # retention of what lives on it
     if db_is_exchange_channel(session, context):
         db_update_exchange_channel(session, tid, context, request, language)
 
@@ -494,9 +526,8 @@ def delete_context(session, tid, context_id, root_session=False):
     if context.exchange and not root_session:
         raise errors.ForbiddenOperation
 
-    # The template is deleted with the channels derived from it: none of them
-    # can be deleted while an exchange runs through it or while it holds
-    # reports
+    # Deleted with the channels derived from it; none of them while an exchange runs through it or
+    # it holds reports
     contexts = [context] + session.query(models.Context) \
                                   .filter(models.Context.template_id == context_id) \
                                   .all()

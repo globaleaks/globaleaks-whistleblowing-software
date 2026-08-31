@@ -14,13 +14,14 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
+import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
 import {exchangeType, exchangeTypeLabels} from "@app/models/admin/exchange";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent, SelectionEditorComponent]
 })
 export class ContextEditorComponent implements OnInit {
   private modalService = inject(NgbModal);
@@ -57,9 +58,7 @@ export class ContextEditorComponent implements OnInit {
     return !!this.contextResolver().exchange;
   }
 
-  // The channel is known by the kinds of exchange running through it: it says
-  // in a word whether what travels here is a report filed on the site or what
-  // a report of another one carries
+  // The kinds of exchange running through the channel, in a word
   exchangeTypes(): string[] {
     return this.contextResolver().exchange_types || [];
   }
@@ -82,9 +81,8 @@ export class ContextEditorComponent implements OnInit {
 
   readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);
 
-  // The users receive on a channel through the profile they hold: a profile
-  // shared among accounts carries them all, the personal profile of an account
-  // carries that one alone and is named by it
+  // Users receive through their profile: a shared one carries all its accounts, a personal one its
+  // account
   readonly profilesData = computed<SelectableEntry[]>(() => this.selectablesResolver.dataModel.user_profiles);
   readonly profilesById = computed<Record<string, SelectableEntry>>(() => this.utilsService.array_to_map(this.profilesData()));
   nodeData: nodeResolverModel;
@@ -138,6 +136,50 @@ export class ContextEditorComponent implements OnInit {
 
   removeProfile(index: number): void {
     this.namedProfiles().splice(index, 1);
+  }
+
+  /**
+   * A channel names the additional questionnaires it can ask of its reports,
+   * and elects one of them as the automatic one: the elected questionnaire is
+   * asked of every report filed on the channel by the channel itself, while
+   * the others are asked of a single report by its recipients. A channel that
+   * elects none asks nothing by itself and leaves the whole decision to them.
+   */
+  namedAdditionalQuestionnaires(): string[] {
+    const context = this.contextResolver();
+
+    if (!context.additional_questionnaires) {
+      context.additional_questionnaires = [];
+    }
+
+    return context.additional_questionnaires;
+  }
+
+  additionalQuestionnaires(): SelectionEntry[] {
+    const questionnaires = this.utilsService.array_to_map(this.questionnairesData());
+
+    return this.namedAdditionalQuestionnaires()
+               .map(id => ({id: id, label: questionnaires[id] ? questionnaires[id].name : id}));
+  }
+
+  // The questionnaire composing the reports of the channel is not among the
+  // ones it can additionally ask: it is already asked of every one of them
+  additionalQuestionnaireOptions(): SelectionEntry[] {
+    const named = this.namedAdditionalQuestionnaires();
+
+    return this.questionnairesData()
+               .filter(item => item.id !== this.contextResolver().questionnaire_id && named.indexOf(item.id) === -1)
+               .map(item => ({id: item.id, label: item.name}));
+  }
+
+  addAdditionalQuestionnaire(id: string): void {
+    if (id && this.namedAdditionalQuestionnaires().indexOf(id) === -1) {
+      this.namedAdditionalQuestionnaires().push(id);
+    }
+  }
+
+  removeAdditionalQuestionnaire(index: number): void {
+    this.namedAdditionalQuestionnaires().splice(index, 1);
   }
 
   deleteContext(context: contextResolverModel): void {

@@ -38,6 +38,7 @@ tables_since = {
     'IdentityAccessRequestCustodian': 65,
     'Redaction': 65,
     'InternalTipTransmission': 69,
+    'ContextAdditionalQuestionnaire': 71,
     'Exchange': 71,
     'StatisticalReport': 71,
     'StatisticalReportTemplate': 71,

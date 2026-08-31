@@ -31,7 +31,7 @@ from globaleaks.orm import transact, tw
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.admin.context import create_context, get_context
 from globaleaks.handlers.admin.field import create_field, db_create_field
-from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create_questionnaire
+from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create_questionnaire, duplicate_questionnaire
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.admin.tenant import create as create_tenant, db_wizard
 from globaleaks.handlers.admin.user import create_user
@@ -819,6 +819,22 @@ class TestGL(unittest.TestCase):
                 self.fill_random_field_recursively(answers, field)
 
         return answers
+
+    @transact
+    def questionnaire_named(self, session, name):
+        questionnaire = session.query(models.Questionnaire) \
+                               .filter(models.Questionnaire.name == name).one()
+
+        return {'id': questionnaire.id, 'name': questionnaire.name}
+
+    @inlineCallbacks
+    def copy_questionnaire(self, questionnaire_id, name):
+        """
+        Copy a questionnaire and return the copy
+        """
+        yield duplicate_questionnaire(1, None, questionnaire_id, name)
+
+        return (yield self.questionnaire_named(name))
 
     @inlineCallbacks
     def get_dummy_submission(self, context_id):
