@@ -1,30 +1,26 @@
 // The delegation of the authentication is a configuration of the whole
 // platform: while it is on, every account authenticates through the provider
 // and no local login is left to take it off again. This spec therefore runs
-// last, and puts back through the session it holds what it changes.
+// last, describes the provider without turning the delegation on, and puts
+// back what it wrote whatever its own outcome.
 describe("IDP/Keycloak admin configuration workflow", () => {
   const issuerUrl = "http://127.0.0.1:9090/realms/globaleaks";
   const clientId = "globaleaks";
 
-  // The session held before the configuration is written is what puts the
-  // platform back, whatever the outcome of the test.
+  // The configuration is put back through the interface: a session of the
+  // platform is bound to the browser that opened it, and cannot be spent on a
+  // request of the test.
   const restore_configuration = () => {
-    cy.get("@adminSession").then((session) => {
-      const headers = {"x-session": String(session)};
-
-      cy.request({method: "GET", url: "/api/admin/node", headers}).then(({body}) => {
-        cy.request({
-          method: "PUT",
-          url: "/api/admin/node",
-          headers,
-          body: {...body, idp: false, idp_issuer: "", idp_client_id: "", idp_provisioning: false}
-        });
-      });
-    });
+    cy.visit("/#/admin/settings");
+    cy.openTab("authentication");
+    cy.get("#idp-reset").click();
+    cy.waitForPageIdle();
   };
 
   after(() => {
+    cy.login_admin();
     restore_configuration();
+    cy.logout();
   });
 
   // TC.4: the external organizations authenticate through the homepage of the
@@ -34,9 +30,7 @@ describe("IDP/Keycloak admin configuration workflow", () => {
   // registrations, and reaching it end to end asks of the test environment a
   // realm whose accounts are the accounts of the platform (see Q-12).
   it("configures the identity provider the authentication is delegated to", () => {
-    cy.intercept("POST", "/api/auth/authentication").as("adminLogin");
     cy.login_admin();
-    cy.wait("@adminLogin").its("response.body.id").as("adminSession");
 
     cy.visit("/#/admin/settings");
     cy.openTab("authentication");
