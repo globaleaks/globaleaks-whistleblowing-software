@@ -103,6 +103,17 @@ describe("administrator sites list", () => {
 
 // A panel of the report renders its body only when it is open: capturing it
 // closed produces a strip a few pixels tall with nothing in it
+// The list of a recipient holds the reports of the reporting people and the
+// reports the exchanges with the other sites create: the chapters on the log,
+// on the attachments and on the read receipts describe an ordinary report,
+// which is the one on the channel the platform ships with.
+const openOrdinaryReport = () => {
+  cy.visit("/#/recipient/reports");
+  cy.waitForUrl("/recipient/reports");
+  cy.contains("#TipList tr", "Default").first().click();
+  cy.get("#TipInfoBox").should("be.visible");
+};
+
 const expandPanel = (selector: string) => {
   cy.get(selector).should("be.visible").then(($panel) => {
     // the body of a panel is rendered only while the panel is open: it is the
@@ -195,10 +206,7 @@ describe("report audit log and read receipts", () => {
   // TC.30: among them the upload of the attachments and the accesses to them.
   it("should list the operations on the report and on its files", () => {
     cy.login_receiver();
-    cy.visit("/#/recipient/reports");
-    cy.waitForUrl("/recipient/reports");
-    cy.get("#tip-0").first().click();
-    cy.get("#TipInfoBox").should("be.visible");
+    openOrdinaryReport();
 
     cy.takeScreenshot("admin/report_audit_log_button_detail", "#TipToolbar");
 
@@ -232,9 +240,7 @@ describe("report audit log and read receipts", () => {
     // filed, the recipient writes on it, the whistleblower reads.
     pages.WhistleblowerPage.performSubmission(0).then((receipt) => {
       cy.login_receiver();
-      cy.visit("/#/recipient/reports");
-      cy.waitForUrl("/recipient/reports");
-      cy.get("#tip-0").first().click();
+      openOrdinaryReport();
 
       expandPanel("#TipCommentsBox");
       cy.get("[name='newCommentContent']").should("be.visible").type("Answer of the recipient");
@@ -250,9 +256,7 @@ describe("report audit log and read receipts", () => {
       cy.logout();
 
       cy.login_receiver();
-      cy.visit("/#/recipient/reports");
-      cy.waitForUrl("/recipient/reports");
-      cy.get("#tip-0").first().click();
+      openOrdinaryReport();
     });
 
     // the panels open on their own body: a capture of a closed panel shows the
@@ -316,10 +320,7 @@ describe("fingerprints of the deleted content", () => {
   it("should keep on the log the fingerprints of a deleted attachment", () => {
     pages.WhistleblowerPage.performSubmission(1).then((receipt) => {
       cy.login_receiver();
-      cy.visit("/#/recipient/reports");
-      cy.waitForUrl("/recipient/reports");
-      cy.get("#tip-0").first().click();
-      cy.get("#TipInfoBox").should("be.visible");
+      openOrdinaryReport();
 
       // the deletion of an attachment lives in the masking mode: a file is
       // masked first, and the masked file is the one that can be redacted away
