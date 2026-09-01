@@ -212,6 +212,11 @@ describe("globaleaks process", function () {
     cy.contains('.ng-option', 'Recipient3').click();
     cy.get("#modal-action-ok").click();
 
+    // Granting access reloads the report, and the reload navigates back to it:
+    // leaving before the recipient is on the report races with that navigation
+    // and lands on the report again instead of on the list
+    cy.get("#TipPageReceiversInfoBox").should("contain", "Recipient3");
+
     // Navigate list and acquire screenshot for documentation
     cy.visit("/#/recipient/reports");
     cy.waitForUrl("/#/recipient/reports");
