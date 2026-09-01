@@ -261,7 +261,7 @@ export class TipComponent implements OnInit {
     this.httpService.tipOperation("update_status", args, this.tip.id)
       .subscribe(
         () => {
-          this.utils.reloadComponent();
+          this.reload();
         }
       );
   };
@@ -307,8 +307,17 @@ export class TipComponent implements OnInit {
            this.tip.rfiles.some(rfile => rfile.visibility === "internal");
   }
 
+  /**
+   * Read the report again.
+   *
+   * What changes on this page - the recipients it is granted to, the dates it
+   * carries - is read back by asking for the report, not by leaving the route
+   * and entering it again: navigating away and back races with whoever else is
+   * navigating, and reloadComponent() disables the reuse of every route of the
+   * session on its way.
+   */
   reload(): void {
-    this.utils.reloadComponent();
+    this.loadTipData();
   }
 
   preprocessTipAnswers(tip: RecieverTipData) {
