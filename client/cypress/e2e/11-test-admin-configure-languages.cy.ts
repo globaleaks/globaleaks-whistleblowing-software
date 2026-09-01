@@ -3,27 +3,26 @@ describe("admin configure languages", () => {
     cy.login_admin();
     cy.visit("/#/admin/settings");
     cy.get('[data-cy="languages"]').click();
-    cy.get(".add-language-btn").click();
+
+    // The selector closes on every choice: it is opened again for each of the
+    // languages the site is given
+    const enable = (language: string) => {
+      cy.get(".add-language-btn").click();
+      cy.get("#LanguageAdder ng-select").click();
+      cy.get('div.ng-option').contains(language).click();
+      cy.get('ul.selection-list li').should('contain', language);
+    };
 
     if (Cypress.env('language')!=="en") {
-      cy.get("body").click("top");
-      cy.get('ng-select').last().click();
-      cy.get('div.ng-option').contains('English [en]').click();
-      cy.get('ul.selection-list li').should('contain', 'English [en]');
+      enable('English [en]');
     }
 
     if (Cypress.env('language')!=="it") {
-      cy.get("body").click("top");
-      cy.get('ng-select').last().click();
-      cy.get('div.ng-option').contains('Italian [it]').click();
-      cy.get('ul.selection-list li').should('contain', 'Italian [it]');
+      enable('Italian [it]');
     }
 
     if (Cypress.env('language')!=="de") {
-      cy.get("body").click("top");
-      cy.get('ng-select').last().click();
-      cy.get('div.ng-option').contains('German [de]').click();
-      cy.get('ul.selection-list li').should('contain', 'German [de]');
+      enable('German [de]');
     }
 
     cy.get("#save_language").click();
