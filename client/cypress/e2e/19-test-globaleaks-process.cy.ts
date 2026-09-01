@@ -645,3 +645,161 @@ describe("fingerprints of the deleted content", () => {
     });
   });
 });
+
+describe("report audit log and read receipts", () => {
+  // TC.29: the audit log of a report is reachable and lists the operations
+  // performed on it.
+  // TC.30: among them the upload of the attachments and the accesses to them.
+  it("should list the operations on the report and on its files", () => {
+    cy.login_receiver();
+    openOrdinaryReport();
+
+    cy.takeScreenshot("admin/report_audit_log_button_detail", "#TipToolbar");
+
+    // The chapter on the file events needs a log that contains them: a report
+    // without attachments produces none, so one is attached and downloaded here
+    // and the log is then filtered on those very events.
+    expandPanel("#TipPageRFileUpload");
+    cy.get("#upload_description").first().should("be.visible").type("attachment of the recipient");
+    cy.get('input[type="file"]').selectFile("./cypress/fixtures/files/test.txt", {force: true});
+    cy.get(".download-button").first().click();
+
+    cy.get("#tip-action-access-audit-log").click();
+    cy.get(".modal").should("be.visible");
+    cy.takeScreenshot("admin/report_audit_log", ".modal-dialog");
+
+    cy.get(".modal input[placeholder*='Search']").first().should("be.visible").type("file");
+    cy.contains(".modal", "file").should("be.visible");
+    cy.takeScreenshot("admin/report_audit_log_files");
+    cy.takeScreenshot("admin/report_audit_log_files_detail", ".modal-dialog");
+    cy.get("#modal-action-cancel").click();
+
+    cy.logout();
+  });
+
+  // TC.31: the read receipt on the comments and on the files tells the sender
+  // that the counterpart has seen what was sent.
+  it("should show the read receipt on the comments and on the files", () => {
+    // The receipt appears on a message only once the counterpart has read it,
+    // so the exchange is built here in both directions instead of relying on
+    // the order in which other specs happen to leave the reports: a report is
+    // filed, the recipient writes on it, the whistleblower reads.
+    pages.WhistleblowerPage.performSubmission(0).then((receipt) => {
+      cy.login_receiver();
+      openOrdinaryReport();
+
+      expandPanel("#TipCommentsBox");
+      cy.get("[name='newCommentContent']").should("be.visible").type("Answer of the recipient");
+      cy.get("#comment-action-send").click();
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+      cy.logout();
+
+      // reading is what makes the receipt appear on the other side
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      expandPanel("#TipCommentsBox");
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+      cy.logout();
+
+      cy.login_receiver();
+      openOrdinaryReport();
+    });
+
+    // the panels open on their own body: a capture of a closed panel shows the
+    // header alone, and one without comments shows nothing of what is described
+    expandPanel("#TipCommentsBox");
+    cy.get("#SubmissionComments").should("be.visible");
+    cy.get("#comment-0").should("exist");
+    cy.get("#TipCommentsBox .fa-check.text-success").should("exist");
+
+    cy.takeScreenshot("recipient/tip_comments_read_receipt", "#TipCommentsBox");
+    cy.takeScreenshot("recipient/tip_comments_read_receipt_detail", "#SubmissionComments");
+
+    expandPanel("#TipPageFilesInfoBox");
+    cy.get("#TipPageFilesInfoBox").should("be.visible");
+    cy.takeScreenshot("recipient/tip_files_read_receipt_detail", "#TipPageFilesInfoBox");
+
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+    cy.get("#tip-0").should("be.visible");
+    cy.takeScreenshot("recipient/tips_read_receipt_detail", "#TipList");
+
+    cy.logout();
+  });
+
+  // TC.33: the recipient restricts the list to the reports that are new or
+  // have been updated since the last access.
+  it("should filter the reports that are new or updated", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+
+    cy.get("#filterOpt").should("exist").check({ force: true });
+    cy.takeScreenshot("recipient/tips_unread_filter");
+    cy.takeScreenshot("recipient/tips_unread_filter_detail", "#TipList");
+    cy.get("#filterOpt").uncheck({ force: true });
+
+    cy.logout();
+  });
+
+  // TC.34: the recipient sees how many recipients have access to a report and,
+  // hovering the count, which ones.
+  it("should show the recipients that have access to a report", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+
+    cy.get(".TipInfoRecipientCount").first().should("be.visible");
+    cy.takeScreenshot("recipient/tips_recipients_count");
+    cy.get(".TipInfoRecipientCount span").first().trigger("mouseenter");
+    cy.takeScreenshot("recipient/tips_recipients_count_detail", "#TipList");
+
+    cy.logout();
+  });
+});
+
+describe("fingerprints of the deleted content", () => {
+  // TC.26, TC.27 and TC.28: what is deleted from a report leaves in the audit
+  // log of the report the fingerprints of what has been taken away. The entry
+  // is read by the recipient on its own copy and by the whistleblower on the
+  // report it holds the receipt of, and by nobody else.
+  it("should keep on the log the fingerprints of a deleted attachment", () => {
+    pages.WhistleblowerPage.performSubmission(1).then((receipt) => {
+      cy.login_receiver();
+      openOrdinaryReport();
+
+      // the deletion of an attachment lives in the masking mode: a file is
+      // masked first, and the masked file is the one that can be redacted away
+      cy.get("#actionsDropdownButton").click();
+      cy.get("#tip-action-mask").click();
+
+      cy.get("#ReportAttachments .fa-eraser").first().click();
+      cy.get("#ReportAttachments .tip-action-delete-file").should("be.visible").first().click();
+
+      cy.get("#tip-action-access-audit-log").click();
+      cy.get(".modal").should("be.visible");
+      cy.contains(".modal", "delete_file").should("be.visible");
+      cy.get(".modal .audit-fingerprint code").should("be.visible");
+
+      cy.takeScreenshot("recipient/report_audit_log_hashes");
+      cy.takeScreenshot("recipient/report_audit_log_hashes_detail", ".modal-dialog");
+
+      cy.get("#modal-action-cancel").click();
+      cy.logout();
+
+      // the same entry reaches the whistleblower on the report it filed
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#tip-action-access-audit-log").click();
+      cy.get(".modal").should("be.visible");
+      cy.contains(".modal", "delete_file").should("be.visible");
+      cy.get(".modal .audit-fingerprint code").should("be.visible");
+
+      cy.takeScreenshot("whistleblower/report_audit_log_hashes");
+      cy.takeScreenshot("whistleblower/report_audit_log_hashes_detail", ".modal-dialog");
+
+      cy.get("#modal-action-cancel").click();
+      cy.logout();
+    });
+  });
+});
