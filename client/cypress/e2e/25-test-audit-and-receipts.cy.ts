@@ -101,31 +101,6 @@ describe("administrator sites list", () => {
   });
 });
 
-// A panel of the report renders its body only when it is open: capturing it
-// closed produces a strip a few pixels tall with nothing in it
-// The list of a recipient holds the reports of the reporting people and the
-// reports the exchanges with the other sites create: the chapters on the log,
-// on the attachments and on the read receipts describe an ordinary report,
-// which is the one on the channel the platform ships with.
-const openOrdinaryReport = () => {
-  cy.visit("/#/recipient/reports");
-  cy.waitForUrl("/recipient/reports");
-  cy.contains("#TipList tr", "Default").first().click();
-  cy.get("#TipInfoBox").should("be.visible");
-};
-
-const expandPanel = (selector: string) => {
-  cy.get(selector).should("be.visible").then(($panel) => {
-    // the body of a panel is rendered only while the panel is open: it is the
-    // one thing that says whether the header has to be clicked. Reading a
-    // nested control instead made the header be clicked on an open panel,
-    // which closed it.
-    if ($panel.find(".card-body").length === 0) {
-      cy.get(`${selector} .card-header`).click();
-    }
-  });
-};
-
 describe("deletion protected by the confirmation modal", () => {
   // TC.36.1 and TC.36.2: the deletion of a user states what is being deleted.
   // The counts are shown only for a user that has reports, so the capture is
