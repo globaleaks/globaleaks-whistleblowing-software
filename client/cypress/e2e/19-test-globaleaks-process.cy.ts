@@ -526,7 +526,9 @@ describe("globaleaks process", function () {
 });
 
 describe("report audit log", () => {
-  // among them the upload of the attachments and the accesses to them.
+  // TC.29: the audit log of a report is reachable and lists the operations
+  // performed on it.
+  // TC.30: among them the upload of the attachments and the accesses to them.
   it("should list the operations on the report and on its files", () => {
     cy.login_receiver();
     openOrdinaryReport();
@@ -552,6 +554,8 @@ describe("report audit log", () => {
     cy.logout();
   });
 
+  // TC.33: the recipient restricts the list to the reports that are new or
+  // have been updated since the last access.
   it("should filter the reports that are new or updated", () => {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
@@ -565,6 +569,8 @@ describe("report audit log", () => {
     cy.logout();
   });
 
+  // TC.34: the recipient sees how many recipients have access to a report and,
+  // hovering the count, which ones.
   it("should show the recipients that have access to a report", () => {
     cy.login_receiver();
     cy.visit("/#/recipient/reports");
@@ -577,11 +583,63 @@ describe("report audit log", () => {
 
     cy.logout();
   });
+
+  // TC.31: the read receipt on the comments and on the files tells the sender
+  // that the counterpart has seen what was sent.
+  it("should show the read receipt on the comments and on the files", () => {
+    // The receipt appears on a message only once the counterpart has read it,
+    // so the exchange is built here in both directions instead of relying on
+    // the order in which other specs happen to leave the reports: a report is
+    // filed, the recipient writes on it, the whistleblower reads.
+    pages.WhistleblowerPage.performSubmission(0).then((receipt) => {
+      cy.login_receiver();
+      openOrdinaryReport();
+
+      expandPanel("#TipCommentsBox");
+      cy.get("[name='newCommentContent']").should("be.visible").type("Answer of the recipient");
+      cy.get("#comment-action-send").click();
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+      cy.logout();
+
+      // reading is what makes the receipt appear on the other side
+      cy.login_whistleblower(String(receipt));
+      cy.get("#TipInfoBox").should("be.visible");
+      expandPanel("#TipCommentsBox");
+      cy.get("#comment-0").should("contain", "Answer of the recipient");
+      cy.logout();
+
+      cy.login_receiver();
+      openOrdinaryReport();
+    });
+
+    // the panels open on their own body: a capture of a closed panel shows the
+    // header alone, and one without comments shows nothing of what is described
+    expandPanel("#TipCommentsBox");
+    cy.get("#SubmissionComments").should("be.visible");
+    cy.get("#comment-0").should("exist");
+    cy.get("#TipCommentsBox .fa-check.text-success").should("exist");
+
+    cy.takeScreenshot("recipient/tip_comments_read_receipt", "#TipCommentsBox");
+    cy.takeScreenshot("recipient/tip_comments_read_receipt_detail", "#SubmissionComments");
+
+    expandPanel("#TipPageFilesInfoBox");
+    cy.get("#TipPageFilesInfoBox").should("be.visible");
+    cy.takeScreenshot("recipient/tip_files_read_receipt_detail", "#TipPageFilesInfoBox");
+
+    cy.visit("/#/recipient/reports");
+    cy.waitForUrl("/recipient/reports");
+    cy.get("#tip-0").should("be.visible");
+    cy.takeScreenshot("recipient/tips_read_receipt_detail", "#TipList");
+
+    cy.logout();
+  });
 });
 
 describe("fingerprints of the deleted content", () => {
-  // What is deleted leaves its fingerprints on the log, read by the recipient and by the
-  // whistleblower
+  // TC.26, TC.27 and TC.28: what is deleted from a report leaves in the audit
+  // log of the report the fingerprints of what has been taken away. The entry
+  // is read by the recipient on its own copy and by the whistleblower on the
+  // report it holds the receipt of, and by nobody else.
   // The attachments reach the recipients through the delivery job, a few seconds after the
   // submission: the report is opened again until the file is there
   const openOrdinaryReportWithItsFile = (attempt = 0) => {
