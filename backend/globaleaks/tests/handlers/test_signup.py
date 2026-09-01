@@ -159,6 +159,8 @@ def db_profile_uuid(session, tid):
 def db_provisioned_site(session, subdomain):
     """
     Return what a registration made of the site it created: the channels the
+    site holds, the account it provisions, the user profile that names it and
+    the channels that account receives on
     """
     subscriber = session.query(models.Subscriber) \
                         .filter(models.Subscriber.subdomain == subdomain).one()
@@ -187,6 +189,9 @@ def db_provisioned_site(session, subdomain):
 class TestSignupFromAProfile(helpers.TestHandlerWithPopulatedDB):
     """
     A registration completed builds a site made as the profile the platform
+    assigns to the registrations: the channels of the profile are on it, and
+    the account it provisions carries the user profile that profile elects by
+    default, receiving on the channel that profile names.
     """
     _handler = signup.Signup
 
