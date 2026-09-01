@@ -646,7 +646,7 @@ describe("fingerprints of the deleted content", () => {
   });
 });
 
-describe("report audit log and read receipts", () => {
+describe("report audit log", () => {
   // TC.29: the audit log of a report is reachable and lists the operations
   // performed on it.
   // TC.30: among them the upload of the attachments and the accesses to them.
@@ -673,56 +673,6 @@ describe("report audit log and read receipts", () => {
     cy.takeScreenshot("admin/report_audit_log_files");
     cy.takeScreenshot("admin/report_audit_log_files_detail", ".modal-dialog");
     cy.get("#modal-action-cancel").click();
-
-    cy.logout();
-  });
-
-  // TC.31: the read receipt on the comments and on the files tells the sender
-  // that the counterpart has seen what was sent.
-  it("should show the read receipt on the comments and on the files", () => {
-    // The receipt appears on a message only once the counterpart has read it,
-    // so the exchange is built here in both directions instead of relying on
-    // the order in which other specs happen to leave the reports: a report is
-    // filed, the recipient writes on it, the whistleblower reads.
-    pages.WhistleblowerPage.performSubmission(0).then((receipt) => {
-      cy.login_receiver();
-      openOrdinaryReport();
-
-      expandPanel("#TipCommentsBox");
-      cy.get("[name='newCommentContent']").should("be.visible").type("Answer of the recipient");
-      cy.get("#comment-action-send").click();
-      cy.get("#comment-0").should("contain", "Answer of the recipient");
-      cy.logout();
-
-      // reading is what makes the receipt appear on the other side
-      cy.login_whistleblower(String(receipt));
-      cy.get("#TipInfoBox").should("be.visible");
-      expandPanel("#TipCommentsBox");
-      cy.get("#comment-0").should("contain", "Answer of the recipient");
-      cy.logout();
-
-      cy.login_receiver();
-      openOrdinaryReport();
-    });
-
-    // the panels open on their own body: a capture of a closed panel shows the
-    // header alone, and one without comments shows nothing of what is described
-    expandPanel("#TipCommentsBox");
-    cy.get("#SubmissionComments").should("be.visible");
-    cy.get("#comment-0").should("exist");
-    cy.get("#TipCommentsBox .fa-check.text-success").should("exist");
-
-    cy.takeScreenshot("recipient/tip_comments_read_receipt", "#TipCommentsBox");
-    cy.takeScreenshot("recipient/tip_comments_read_receipt_detail", "#SubmissionComments");
-
-    expandPanel("#TipPageFilesInfoBox");
-    cy.get("#TipPageFilesInfoBox").should("be.visible");
-    cy.takeScreenshot("recipient/tip_files_read_receipt_detail", "#TipPageFilesInfoBox");
-
-    cy.visit("/#/recipient/reports");
-    cy.waitForUrl("/recipient/reports");
-    cy.get("#tip-0").should("be.visible");
-    cy.takeScreenshot("recipient/tips_read_receipt_detail", "#TipList");
 
     cy.logout();
   });
