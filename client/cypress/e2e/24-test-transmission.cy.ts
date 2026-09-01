@@ -121,9 +121,6 @@ describe("recipient exchange workflow", function () {
       cy.get("@communicatingReportUrl").then((url) => {
         cy.visit(String(url));
       });
-      // the address differs from the current one by its hash alone, which is no
-      // navigation at all: the page is asked for again
-      cy.reload();
       cy.get("#TipInfoBox").should("be.visible");
       cy.get("#TipCommunicationsBox").should("be.visible");
       cy.takeScreenshot("recipient/forwards_list_detail", "#TipCommunicationsBox");
