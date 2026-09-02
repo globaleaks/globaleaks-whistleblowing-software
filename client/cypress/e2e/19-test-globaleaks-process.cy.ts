@@ -729,7 +729,13 @@ describe("fingerprints of the deleted content", () => {
       cy.get("#tip-action-access-audit-log").click();
       cy.get(".modal").should("be.visible");
       cy.contains(".modal", "delete_file").should("be.visible");
-      cy.get(".modal .audit-fingerprint code").should("be.visible");
+
+      // what an entry holds beyond its row is opened from the entry itself: the
+      // fingerprints are two, and each one is named
+      cy.contains(".modal tr", "delete_file").find('[data-cy="audit-details-toggle"]').click();
+      cy.get('.modal [data-cy="audit-details"]').should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
 
       cy.takeScreenshot("recipient/report_audit_log_hashes");
       cy.takeScreenshot("recipient/report_audit_log_hashes_detail", ".modal-dialog");
@@ -743,7 +749,13 @@ describe("fingerprints of the deleted content", () => {
       cy.get("#tip-action-access-audit-log").click();
       cy.get(".modal").should("be.visible");
       cy.contains(".modal", "delete_file").should("be.visible");
-      cy.get(".modal .audit-fingerprint code").should("be.visible");
+
+      // what an entry holds beyond its row is opened from the entry itself: the
+      // fingerprints are two, and each one is named
+      cy.contains(".modal tr", "delete_file").find('[data-cy="audit-details-toggle"]').click();
+      cy.get('.modal [data-cy="audit-details"]').should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
+      cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
 
       cy.takeScreenshot("whistleblower/report_audit_log_hashes");
       cy.takeScreenshot("whistleblower/report_audit_log_hashes_detail", ".modal-dialog");
