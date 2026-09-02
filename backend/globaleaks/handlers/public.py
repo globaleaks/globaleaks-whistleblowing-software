@@ -9,6 +9,7 @@ from globaleaks.models import get_localized_values
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
+from globaleaks.utils.crypto import GCE
 
 
 default_questionnaires = ['default']
@@ -284,6 +285,9 @@ def db_serialize_node(session, tid, language):
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
+    # The cost of the key derivation the client has to match
+    ret['kdf_opslimit'] = GCE.options['OPSLIMIT']
+    ret['kdf_memlimit'] = GCE.options['MEMLIMIT']
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 

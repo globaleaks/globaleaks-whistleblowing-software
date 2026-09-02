@@ -120,6 +120,14 @@ class SettingsClass(metaclass=Singleton):
     def set_devel_mode(self):
         self.devel_mode = True
         self.rsa_key_bits = 1024
+
+        # The key derivation runs at a minimal cost, as the RSA keys are short:
+        # the cost is embedded in every hash stored, and the client reads it
+        # from the public configuration, so a database created in development
+        # mode opens in development mode alone
+        from globaleaks.utils.crypto import GCE
+        GCE.options['OPSLIMIT'] = 1
+        GCE.options['MEMLIMIT'] = 20
         self.acme_directory_url = 'https://acme-staging-v02.api.letsencrypt.org/directory'
         self.bind_local_ports = [8080, 8082, 8083, 8443]
         self.bind_remote_ports = []

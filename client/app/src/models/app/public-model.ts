@@ -9,6 +9,8 @@ export class Root {
 }
 
 export class Node {
+  kdf_opslimit?: number;
+  kdf_memlimit?: number;
   viewer: boolean;
   acme: boolean;
   allow_indexing: boolean;

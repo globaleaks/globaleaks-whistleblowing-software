@@ -1,4 +1,5 @@
-import {Injectable} from "@angular/core";
+import {Injectable, inject} from "@angular/core";
+import {AppDataService} from "@app/app-data.service";
 import {Observable, from, of} from "rxjs";
 import {switchMap} from "rxjs/operators";
 
@@ -110,7 +111,20 @@ export class CryptoService {
     return this.arrayToBase64(combinedBytes);
   }
 
-  async hashArgon2(text: string, salt: string, iterations = 16, memory: number = 1 << 27): Promise<string> {
+  private readonly appDataService = inject(AppDataService);
+
+  // The cost of the key derivation is the one the platform publishes: the
+  // hashes stored embed it, so the client derives with the same parameters
+  kdfOpslimit(): number {
+    return this.appDataService.public?.node?.kdf_opslimit || 16;
+  }
+
+  kdfMemlimit(): number {
+    const exponent = this.appDataService.public?.node?.kdf_memlimit;
+    return 1 << (exponent || 27);
+  }
+
+  async hashArgon2(text: string, salt: string, iterations = this.kdfOpslimit(), memory: number = this.kdfMemlimit()): Promise<string> {
     this.initializeWorker();
 
     const id = (this.messageId++).toString();
