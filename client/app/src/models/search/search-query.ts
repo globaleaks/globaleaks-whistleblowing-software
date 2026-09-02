@@ -26,6 +26,12 @@ export interface SearchDashboardState {
   personal: SearchDashboardTab[];
 }
 
+export interface SearchableReportContent {
+  id: string;
+  comments: string[];
+  files: string[];
+}
+
 export const emptySearchQuery = (): SearchQuery => ({
   negated: false,
   filters: []

@@ -4,6 +4,7 @@ from nacl.encoding import Base64Encoder
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
@@ -136,6 +137,56 @@ def get_recipient_dashboard(session, tid, user_session):
     return {'defaults': defaults, 'personal': personal}
 
 
+def redact_content(content, ranges):
+    result = list(content)
+    for item in sorted(ranges, key=lambda value: value['start']):
+        start = item.get('start', 0)
+        end = item.get('end', 0) + 1
+        if start < end:
+            result[start:end] = '\u2591' * (end - start)
+    return ''.join(result)
+
+
+@transact
+def get_searchable_content(session, tid, user_session, language):
+    reports = []
+    rows = session.query(models.ReceiverTip, models.InternalTip) \
+                  .filter(models.ReceiverTip.receiver_id == user_session.user_id,
+                          models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                          models.InternalTip.tid == tid)
+
+    for recipient_tip, internal_tip in rows:
+        report = serializers.serialize_rtip(session, internal_tip, recipient_tip, language)
+        redactions = {item['reference_id']: item['temporary_redaction'] for item in report['redactions']}
+        can_view_unredacted = user_session.permissions.can_mask_information or user_session.permissions.can_redact_information
+        comments = []
+        files = []
+
+        try:
+            tip_key = None
+            if internal_tip.crypto_tip_pub_key:
+                tip_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(recipient_tip.crypto_tip_prv_key))
+            for comment in report['comments']:
+                content = comment['content']
+                if tip_key and content:
+                    content = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(content.encode())).decode()
+                if not can_view_unredacted and comment['id'] in redactions:
+                    content = redact_content(content, redactions[comment['id']])
+                comments.append(content)
+
+            for file in report['wbfiles'] + report['rfiles']:
+                name = file['name']
+                if tip_key and name:
+                    name = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(name.encode())).decode()
+                files.append(name)
+        except Exception:
+            continue
+
+        reports.append({'id': internal_tip.id, 'comments': comments, 'files': files})
+
+    return reports
+
+
 @transact
 def set_recipient_dashboard(session, tid, user_session, tabs):
     user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_session.user_id).one()
@@ -206,6 +257,13 @@ class RecipientDashboard(BaseHandler):
     def put(self):
         request = self.validate_request(self.request.content.read(), requests.SearchDashboardDesc)
         return set_recipient_dashboard(self.request.tid, self.session, request['tabs'])
+
+
+class SearchableContent(BaseHandler):
+    check_roles = 'receiver'
+
+    def get(self):
+        return get_searchable_content(self.request.tid, self.session, self.request.language)
 
 
 class AdminDashboard(BaseHandler):

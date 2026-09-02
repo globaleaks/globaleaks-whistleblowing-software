@@ -8,8 +8,8 @@
     <span>{{'Reports' | translate}}</span>
   </a>
   <a routerLink="/recipient/search" routerLinkActive="active" id="recipient_search" [ngClass]="{'active': isActive('/recipient/search')}" [attr.aria-current]="isActive('/recipient/search') ? 'page' : 'false'">
-    <i class="fas fa-magnifying-glass"></i>
-    <span>{{'Search dashboard' | translate}}</span>
+    <i class="fas fa-gear"></i>
+    <span>{{'Configure search' | translate}}</span>
   </a>
 }
 @if (preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {

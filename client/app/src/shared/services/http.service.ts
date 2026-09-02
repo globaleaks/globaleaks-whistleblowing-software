@@ -37,7 +37,7 @@ import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
-import {SearchDashboardState, SearchDashboardTab, SearchQuery} from "@app/models/search/search-query";
+import {SearchableReportContent, SearchDashboardState, SearchDashboardTab, SearchQuery} from "@app/models/search/search-query";
 
 
 @Injectable({
@@ -546,6 +546,10 @@ export class HttpService {
 
   saveRecipientTabs(tabs: SearchDashboardTab[]): Observable<SearchDashboardState> {
     return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
+  }
+
+  getSearchableReportContent(): Observable<SearchableReportContent[]> {
+    return this.httpClient.get<SearchableReportContent[]>("api/recipient/search-dashboard/content");
   }
 
   auditSearchExport(query: SearchQuery, resultCount: number): Observable<void> {

@@ -28,15 +28,14 @@
       </div>
     </div>
   </div>
-  @if (isSearchDashboard) {
-    <src-search-dashboard
-      [query]="searchQuery"
-      (queryChange)="onSearchQueryChange($event)">
-    </src-search-dashboard>
-  }
+  <src-search-dashboard
+    mode="apply"
+    [query]="searchQuery"
+    (queryChange)="onSearchQueryChange($event)">
+  </src-search-dashboard>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [showSearch]="!isSearchDashboard" [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [showSearch]="true" [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>

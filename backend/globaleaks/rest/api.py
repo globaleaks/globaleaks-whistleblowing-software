@@ -87,6 +87,7 @@ api_spec = [
     # Receiver Handlers
     ('/api/recipient/operations', recipient.Operations),
     ('/api/recipient/search-dashboard', recipient.search_dashboard.RecipientDashboard),
+    ('/api/recipient/search-dashboard/content', recipient.search_dashboard.SearchableContent),
     ('/api/recipient/search/export-audit', recipient.search_dashboard.SearchExportAudit),
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),

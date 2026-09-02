@@ -33,12 +33,9 @@ export const recipientRoutes: Routes = [
   },
   {
     path: "search",
-    loadComponent: () => import('@app/pages/recipient/tips/tips.component').then(m => m.TipsComponent),
+    loadComponent: () => import('@app/pages/recipient/configure-search/configure-search.component').then(m => m.ConfigureSearchComponent),
     pathMatch: "full",
-    resolve: {
-      PreferenceResolver, RTipsResolver
-    },
-    data: {pageTitle: "Search dashboard"},
+    data: {pageTitle: "Configure search"},
   },
   {
     path: "settings",

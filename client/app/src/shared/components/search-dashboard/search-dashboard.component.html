@@ -1,11 +1,36 @@
-<section class="card mb-3" [attr.aria-label]="'Search dashboard' | translate">
+@if (mode === "apply" && (defaultTabs.length || personalTabs.length)) {
+  <nav class="d-flex flex-wrap align-items-center gap-2 mb-3" [attr.aria-label]="'Saved searches' | translate">
+    <span class="text-secondary me-1">
+      <i class="fas fa-filter me-1" aria-hidden="true"></i>
+      {{ "Saved searches" | translate }}
+    </span>
+    <button type="button" class="btn btn-sm"
+            [class.btn-primary]="!activeTabId" [class.btn-outline-primary]="activeTabId"
+            (click)="clear()">
+      {{ "All reports" | translate }}
+    </button>
+    @for (tab of defaultTabs; track tab.id) {
+      <button type="button" class="btn btn-sm"
+              [class.btn-primary]="activeTabId === tab.id" [class.btn-outline-primary]="activeTabId !== tab.id"
+              (click)="run(tab)">{{ tab.name | translate }}</button>
+    }
+    @for (tab of personalTabs; track tab.id) {
+      <button type="button" class="btn btn-sm"
+              [class.btn-primary]="activeTabId === tab.id" [class.btn-outline-primary]="activeTabId !== tab.id"
+              (click)="run(tab)">{{ tab.name }}</button>
+    }
+  </nav>
+}
+
+@if (mode === "configure") {
+<section class="card mb-3" [attr.aria-label]="'Saved searches' | translate">
   <div class="card-body">
     @if (defaultTabs.length || personalTabs.length) {
       <nav class="nav nav-tabs mb-3" [attr.aria-label]="'Saved searches' | translate">
         @for (tab of defaultTabs; track tab.id) {
           <button type="button" class="nav-link" [class.active]="activeTabId === tab.id" (click)="run(tab)">{{ tab.name | translate }}</button>
         }
-        @for (tab of personalTabs; track tab) {
+        @for (tab of personalTabs; track tab.id) {
           <button type="button" class="nav-link" [class.active]="activeTabId === tab.id" (click)="run(tab)">{{ tab.name }}</button>
         }
       </nav>
@@ -79,3 +104,4 @@
     }
   </div>
 </section>
+}

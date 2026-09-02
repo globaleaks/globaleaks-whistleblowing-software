@@ -13,6 +13,7 @@ import {HttpService} from "@app/shared/services/http.service";
 export class SearchDashboardComponent implements OnInit {
   private httpService = inject(HttpService);
   @Input({required: true}) query: SearchQuery;
+  @Input() mode: "configure" | "apply" = "configure";
   @Output() queryChange = new EventEmitter<SearchQuery>();
   defaultTabs: SearchDashboardTab[] = [];
   personalTabs: SearchDashboardTab[] = [];

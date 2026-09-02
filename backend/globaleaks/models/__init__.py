@@ -1385,7 +1385,7 @@ class _SearchDashboardTab(Model):
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False, index=True)
-    user_id = Column('owner_id', UnicodeText(36), nullable=True, index=True)
+    user_id = Column(UnicodeText(36), nullable=True, index=True)
     name = Column(UnicodeText, default='', nullable=False)
     query = Column(JSON, default=dict, nullable=False)
     encrypted_data = Column(UnicodeText, default='', nullable=False)
@@ -1403,5 +1403,5 @@ class SearchDashboardTab(_SearchDashboardTab, Base):
     def __table_args__(self):
         return (
             ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
-            ForeignKeyConstraint(['owner_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+            ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
         )

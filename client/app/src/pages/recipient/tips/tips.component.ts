@@ -9,7 +9,8 @@ import {TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
+import {Answers, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
+import {Children} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {concatMap, delay, from, tap} from "rxjs";
@@ -20,7 +21,7 @@ import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/d
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {SearchDashboardComponent} from "@app/shared/components/search-dashboard/search-dashboard.component";
-import {SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
+import {SearchableReportContent, SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
 import {SearchQueryService} from "@app/shared/services/search-query.service";
 
 @Component({
@@ -46,8 +47,11 @@ export class TipsComponent implements OnInit {
 
   selectedTips: string[] = [];
   filteredTips: rtipResolverModel[];
-  isSearchDashboard = false;
+  dashboardQueryActive = false;
   searchQuery: SearchQuery = emptySearchQuery();
+  searchableContent = new Map<string, SearchableReportContent>();
+  searchableContentLoaded = false;
+  searchableContentLoading = false;
   reportDateFilter: [number, number] | null = null;
   updateDateFilter: [number, number] | null = null;
   expiryDateFilter: [number, number] | null = null;
@@ -84,7 +88,6 @@ export class TipsComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.isSearchDashboard = this.router.url.startsWith("/recipient/search");
     if (!this.RTips.dataModel) {
       this.router.navigate(["/recipient/home"]).then();
     } else {
@@ -219,7 +222,7 @@ export class TipsComponent implements OnInit {
   }
 
   onChanged(model: { id: number; label: string; }[], type: string) {
-    if (!this.isSearchDashboard) {
+    if (!this.dashboardQueryActive) {
       this.processTips();
       if (model.length > 0) {
         this.dropdownContextModel = [];
@@ -308,7 +311,7 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.reportDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.isSearchDashboard) {
+    if (this.dashboardQueryActive) {
       this.setDateFilter("creation_date", "Report date", this.reportDateFilter);
     }
     this.applyFilter();
@@ -323,7 +326,7 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.updateDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.isSearchDashboard) {
+    if (this.dashboardQueryActive) {
       this.setDateFilter("update_date", "Last update", this.updateDateFilter);
     }
     this.applyFilter();
@@ -338,14 +341,14 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.expiryDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.isSearchDashboard) {
+    if (this.dashboardQueryActive) {
       this.setDateFilter("expiration_date", "Expiration date", this.expiryDateFilter);
     }
     this.applyFilter();
   }
 
   applyFilter() {
-    if (!this.isSearchDashboard) {
+    if (!this.dashboardQueryActive) {
       this.filteredTips = this.utils.getStaticFilter(this.RTips.dataModel, this.dropdownStatusModel, "submissionStatusStr", this.translateService);
       this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownContextModel, "context_name", this.translateService);
       this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownScoreModel, "score", this.translateService);
@@ -356,7 +359,16 @@ export class TipsComponent implements OnInit {
 
     this.filteredTips = this.searchQueryService.execute(this.RTips.dataModel, this.searchQuery, (tip, field) => {
       if (field === "searchable_content") {
-        return [tip.progressive, tip.label, tip.context_name, tip.submissionStatusStr, tip.receiver_names, tip.answers];
+        return [
+          tip.progressive,
+          tip.label,
+          tip.context_name,
+          tip.submissionStatusStr,
+          tip.receiver_names,
+          this.getAnswerSearchContent(tip),
+          this.searchableContent.get(tip.id)?.comments,
+          this.searchableContent.get(tip.id)?.files
+        ];
       }
       if (field === "status") {
         return [tip.status, tip.submissionStatusStr];
@@ -371,10 +383,50 @@ export class TipsComponent implements OnInit {
     });
   }
 
+  private getAnswerSearchContent(tip: rtipResolverModel): unknown[] {
+    const content: unknown[] = [tip.answers];
+    const questionnaires = [tip.context?.questionnaire, tip.context?.additional_questionnaire].filter(Boolean);
+
+    for (const questionnaire of questionnaires) {
+      for (const step of questionnaire.steps ?? []) {
+        this.addAnsweredFields(step.children ?? [], tip.answers, content);
+      }
+    }
+
+    return content;
+  }
+
+  private addAnsweredFields(fields: Children[], answers: Answers, content: unknown[]) {
+    for (const field of fields) {
+      const fieldAnswers = answers?.[field.id];
+      if (fieldAnswers?.length) {
+        content.push(field.label, fieldAnswers);
+        const selectedValues = new Set(this.searchQueryService.flattenValues(fieldAnswers).map(value => String(value)));
+        content.push(field.options?.filter(option => selectedValues.has(option.id)).map(option => option.label));
+      }
+      if (field.children?.length) {
+        this.addAnsweredFields(field.children, answers, content);
+      }
+    }
+  }
+
   onSearchQueryChange(query: SearchQuery) {
+    this.dashboardQueryActive = true;
     this.searchQuery = query;
     this.syncColumnFilters();
     this.applyFilter();
+    if (query.filters.some(filter => filter.field === "searchable_content") && !this.searchableContentLoaded && !this.searchableContentLoading) {
+      this.searchableContentLoading = true;
+      this.httpService.getSearchableReportContent().subscribe({
+        next: content => {
+          this.searchableContent = new Map(content.map(report => [report.id, report]));
+          this.searchableContentLoaded = true;
+          this.applyFilter();
+        },
+        complete: () => this.searchableContentLoading = false,
+        error: () => this.searchableContentLoading = false
+      });
+    }
   }
 
   private setDateFilter(field: string, label: string, value: [number, number] | null) {
@@ -438,7 +490,7 @@ export class TipsComponent implements OnInit {
   }
 
   exportToCsv(): void {
-    if (this.isSearchDashboard) {
+    if (this.dashboardQueryActive) {
       this.httpService.auditSearchExport(this.searchQuery, this.filteredTips.length).subscribe();
     }
     this.utils.generateCSV('reports', this.getDataCsv());

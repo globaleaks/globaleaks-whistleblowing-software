@@ -17,6 +17,10 @@ export class SearchQueryService {
     });
   }
 
+  flattenValues(value: unknown): unknown[] {
+    return this.flatten(value);
+  }
+
   private matches(candidate: unknown, filter: SearchFilter): boolean {
     if (filter.operator === "between") {
       const [from, to] = filter.value as [number, number];
