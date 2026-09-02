@@ -178,12 +178,9 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
       .pipe(
         catchError((error: HttpErrorResponse) => {
           if(error.error){
+            // A resource not found is answered to the caller, which knows what its absence means
             if (error.error["error_code"] === 10) {
               this.authenticationService.deleteSession();
-            } else if (error.error["error_code"] === 6 && this.authenticationService.session) {
-              if (this.authenticationService.session.role !== "whistleblower") {
-                location.pathname = this.authenticationService.session.homepage;
-              }
             }
             this.appDataService.errorCodes = new ErrorCodes(error.error["error_message"], error.error["error_code"], error.error["arguments"]);
           }
