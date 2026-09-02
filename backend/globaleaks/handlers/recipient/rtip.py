@@ -1324,7 +1324,7 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
 
                 if session.query(models.ReceiverFile) \
                           .filter(models.ReceiverFile.id == redaction.reference_id).count():
-                    delete_rfile(session, tid, user_id, redaction.reference_id)
+                    db_delete_rfile(session, tid, user_id, redaction.reference_id)
                 else:
                     delete_wbfile(session, tid, user_id, redaction.reference_id)
 
@@ -1333,9 +1333,10 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
             db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
 
 
-def delete_rfile(session, tid, user_id, file_id):
+def db_delete_rfile(session, tid, user_id, file_id):
     """
-    Transaction for deleting a rfile
+    Delete a rfile, from within a transaction of the caller
+
     :param session: An ORM session
     :param tid: A tenant ID
     :param user_id: The user ID of the user performing the operation
@@ -1346,6 +1347,19 @@ def delete_rfile(session, tid, user_id, file_id):
         raise errors.ResourceNotFound
 
     session.delete(rfile)
+
+
+@transact
+def delete_rfile(session, tid, user_id, file_id):
+    """
+    Transaction for deleting a rfile
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The user ID of the user performing the operation
+    :param file_id: The file ID of the rfile to be deleted
+    """
+    return db_delete_rfile(session, tid, user_id, file_id)
 
 
 class RTipRedactionCollection(BaseHandler):
