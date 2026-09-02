@@ -87,6 +87,10 @@ class Service(service.Service):
                 create_db()
                 initialize_db()
 
+            # The limits on the callers protect a site in production; in development mode the callers
+            # are the tests, which come faster than any threshold allows
+            self.state.RateLimit.enabled = not self.state.settings.devel_mode
+
             for sock in self.state.http_socks:
                 listen_tcp_on_sock(reactor, sock.fileno(), self.api_factory)
 
