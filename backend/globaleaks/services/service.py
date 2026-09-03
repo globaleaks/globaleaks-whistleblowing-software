@@ -30,6 +30,6 @@ class Service(task.LoopingCall):
         return
 
     def on_error(self, excep):
-        log.err("Exception while running %s" % self.name)
+        log.err(f"Exception while running {self.name}")
         log.exception(excep)
         extract_exception_traceback_and_schedule_email(excep)

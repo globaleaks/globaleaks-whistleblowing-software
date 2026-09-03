@@ -26,7 +26,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     def setUp(self):
         # The test suite mocks key generation with a single fixed keypair:
         # the hierarchy is only meaningful when every key is distinct.
-        setattr(GCE, 'generate_keypair', helpers.GCE_orig_generate_keypair)
+        GCE.generate_keypair = helpers.GCE_orig_generate_keypair
 
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
 
@@ -34,7 +34,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         self.tenant_admin = yield self.get_administrator(2)
 
     def tearDown(self):
-        setattr(GCE, 'generate_keypair', helpers.mock_GCE_generate_keypair)
+        GCE.generate_keypair = helpers.mock_GCE_generate_keypair
 
         return helpers.TestHandlerWithPopulatedDB.tearDown(self)
 
@@ -464,8 +464,7 @@ class TestSupportEscalation(helpers.TestHandlerWithPopulatedDB):
             yield self.set_escalation(2, scope)
 
             self.assertEqual((yield self.escalates(2, author)), expected,
-                             "letting the platform handle %s, the request %s escalated"
-                             % (reason, "is not" if expected else "is"))
+                             "letting the platform handle {}, the request {} escalated".format(reason, "is not" if expected else "is"))
 
     @inlineCallbacks
     def test_the_platform_always_handles_its_own(self):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import db, models
@@ -38,7 +37,7 @@ def take_part(session, channel_id, receiver_id):
 def questionnaire_of(session, tid):
     questionnaire = models.Questionnaire()
     questionnaire.tid = tid
-    questionnaire.name = 'questionnaire of %d' % tid
+    questionnaire.name = f'questionnaire of {tid}'
     session.add(questionnaire)
     session.flush()
 
@@ -120,7 +119,7 @@ class ExchangeTest(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def comment(self, itip_id, visibility, tid=1, user_id=None):
-        handler = self.request({'content': 'a word from side %d' % tid, 'visibility': visibility},
+        handler = self.request({'content': f'a word from side {tid}', 'visibility': visibility},
                                tid=tid, user_id=user_id, role='receiver',
                                handler_cls=rtip.RTipCommentCollection)
         return (yield handler.post(itip_id))
@@ -192,7 +191,8 @@ class TestCommunication(ExchangeTest):
         destination = yield self.read(filed['id'], tid=2, user_id=self.destination['id'])
 
         # the comments written, apart from what the log of the report adds among them
-        written = lambda report: [c for c in report['comments'] if 'type' not in c]
+        def written(report):
+            return [c for c in report['comments'] if 'type' not in c]
 
         self.assertEqual(sorted(c['visibility'] for c in written(origin)), ['internal', 'public'])
         self.assertEqual(sorted(c['visibility'] for c in written(destination)), ['internal', 'public'])

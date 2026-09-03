@@ -2,7 +2,6 @@ from sqlalchemy import and_, delete, or_, tuple_
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.models import Config, ConfigL10N
-from globaleaks.models.properties import *
 from globaleaks.models.config_desc import ConfigDescriptor, ConfigFilters, ConfigL10NFilters
 from globaleaks.utils.onion import generate_onion_service_v3
 
@@ -229,18 +228,15 @@ class ConfigFactory:
                         self.session.delete(config[self.tid])
                         return
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID].value == value:
-                        self.session.delete(config[self.tid])
-                        return
-            else:
-                if self.pid in config:
-                    if config[self.pid].value == value:
-                        return
+                elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
+                    self.session.delete(config[self.tid])
+                    return
+            elif self.pid in config:
+                if config[self.pid].value == value:
+                    return
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID].value == value:
-                        return
+            elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
+                return
 
         self.session.merge(Config({'tid': self.tid, 'var_name': var_name, 'value': value}))
 
@@ -333,18 +329,15 @@ class ConfigL10NFactory:
                         self.session.delete(config[self.tid])
                         return
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID].value == value:
-                        self.session.delete(config[self.tid])
-                        return
-            else:
-                if self.pid in config:
-                    if config[self.pid].value == value:
-                        return
+                elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
+                    self.session.delete(config[self.tid])
+                    return
+            elif self.pid in config:
+                if config[self.pid].value == value:
+                    return
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID].value == value:
-                        return
+            elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
+                return
 
         self.session.merge(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': var_name, 'value': value}))
 
@@ -439,9 +432,6 @@ def db_get_protected_users(session, tid):
 
     return value if isinstance(value, list) else []
 
-
-def initialize_config(session, tid, mode):
-    variables = {}
 
 def db_set_own_config_variable(session, tid, var_name, value):
     """

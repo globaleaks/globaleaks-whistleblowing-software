@@ -22,7 +22,7 @@ class TestAdminL10NHandler(helpers.TestHandler):
     def test_get(self):
         handler = self.request(role='admin')
 
-        response = yield handler.get(lang=u'en')
+        response = yield handler.get(lang='en')
 
         self.assertEqual(response, {})
 
@@ -32,12 +32,12 @@ class TestAdminL10NHandler(helpers.TestHandler):
         self.assertEqual(empty_texts, check)
 
         handler = self.request(custom_texts1, role='admin')
-        yield handler.put(lang=u'en')
+        yield handler.put(lang='en')
         check = yield admin_l10n.get(1, 'en')
         self.assertEqual(custom_texts1, check)
 
         handler = self.request(custom_texts1, role='admin')
-        yield handler.put(lang=u'en')
+        yield handler.put(lang='en')
         check = yield admin_l10n.get(1, 'en')
         self.assertEqual(custom_texts2, check)
 
@@ -49,7 +49,7 @@ class TestAdminL10NHandler(helpers.TestHandler):
         self.assertEqual(custom_texts1, check)
 
         handler = self.request({}, role='admin')
-        handler.delete(lang=u'en')
+        handler.delete(lang='en')
 
         check = yield admin_l10n.get(1, 'en')
         self.assertEqual(empty_texts, check)

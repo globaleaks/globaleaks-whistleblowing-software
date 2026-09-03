@@ -105,10 +105,10 @@ class TestGLAdminBackupRestore(unittest.TestCase):
         self._perform_restore(self.test_dir, self.backup_file)
 
         # Verify content
-        with open(os.path.join(self.test_dir, 'globaleaks.db'), 'r') as f:
+        with open(os.path.join(self.test_dir, 'globaleaks.db')) as f:
             self.assertEqual(f.read(), original_db_content)
 
-        with open(os.path.join(self.test_dir, 'files', 'file1.txt'), 'r') as f:
+        with open(os.path.join(self.test_dir, 'files', 'file1.txt')) as f:
             self.assertEqual(f.read(), original_file_content)
 
     def test_restore_preserves_directory_structure(self):

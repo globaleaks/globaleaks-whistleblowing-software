@@ -170,7 +170,7 @@ def decorator_rate_limit(f):
     def wrapper(self, *args, **kwargs):
         root_tenant = State.tenants.get(1)
         if not root_tenant:
-            return
+            return None
 
         delay = False
         block = False
@@ -281,21 +281,20 @@ def decorator_rate_limit(f):
                             State.RateLimit.check(b"reports_per_hour_per_system",
                                                   root_tenant.cache.threshold_reports_per_hour_per_system,
                                                   3600) > 0
-                else:
-                    if not self.upload_handler:
-                        delay = State.RateLimit.check(b"operations_per_second_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_second_per_report,
-                                                      1)
+                elif not self.upload_handler:
+                    delay = State.RateLimit.check(b"operations_per_second_per_report:" + user_id,
+                                                  root_tenant.cache.threshold_operations_per_second_per_report,
+                                                  1)
 
-                        delay = delay or \
-                                State.RateLimit.check(b"operations_per_minute_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_minute_per_report,
-                                                      60)
+                    delay = delay or \
+                            State.RateLimit.check(b"operations_per_minute_per_report:" + user_id,
+                                                  root_tenant.cache.threshold_operations_per_minute_per_report,
+                                                  60)
 
-                        delay = delay or \
-                                State.RateLimit.check(b"operations_per_hour_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_hour_per_report,
-                                                      3600)
+                    delay = delay or \
+                            State.RateLimit.check(b"operations_per_hour_per_report:" + user_id,
+                                                  root_tenant.cache.threshold_operations_per_hour_per_report,
+                                                  3600)
 
         if block:
             raise errors.ForbiddenOperation()
@@ -311,7 +310,7 @@ def decorator_rate_limit(f):
 
 
 def decorate_method(h, method):
-    roles = getattr(h, 'check_roles')
+    roles = h.check_roles
     if isinstance(roles, str):
         roles = {roles}
 
@@ -321,9 +320,8 @@ def decorate_method(h, method):
         if method == 'get':
             if h.cache_resource:
                 f = decorator_cache_get(f)
-        elif method in ['delete', 'post', 'put']:
-            if h.invalidate_cache:
-                f = decorator_cache_invalidate(f)
+        elif method in ['delete', 'post', 'put'] and h.invalidate_cache:
+            f = decorator_cache_invalidate(f)
 
     permission = getattr(h, 'require_permission', None)
     if isinstance(permission, dict):

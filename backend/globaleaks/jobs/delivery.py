@@ -1,6 +1,4 @@
-import io
 import os
-import time
 from datetime import datetime
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
@@ -70,7 +68,7 @@ def file_delivery(session):
             # https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
-            whistleblowerfile.new = not ifile.creation_date == itip.creation_date
+            whistleblowerfile.new = ifile.creation_date != itip.creation_date
 
             session.add(whistleblowerfile)
 

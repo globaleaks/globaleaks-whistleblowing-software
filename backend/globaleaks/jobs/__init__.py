@@ -12,7 +12,6 @@ from globaleaks.jobs import anomalies, \
                             pgp_check, \
                             update_check, \
                             antivirus_decryptor, \
-                            job, \
                             backup
 
 jobs_list = [

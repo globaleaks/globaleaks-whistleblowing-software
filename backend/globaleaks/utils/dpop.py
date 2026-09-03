@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Verification of DPoP proofs (RFC 9449 - OAuth 2.0 Demonstrating Proof of
 # Possession). GlobaLeaks binds every session to an ECDSA P-256 key pair that
@@ -80,7 +79,7 @@ def jwk_thumbprint(jwk):
     For kty=EC the canonical JSON contains exactly the members crv, kty, x, y
     in lexicographic order, with no whitespace.
     """
-    canonical = '{"crv":"%s","kty":"EC","x":"%s","y":"%s"}' % (jwk['crv'], jwk['x'], jwk['y'])
+    canonical = '{{"crv":"{}","kty":"EC","x":"{}","y":"{}"}}'.format(jwk['crv'], jwk['x'], jwk['y'])
     return b64url_encode(hashlib.sha256(canonical.encode()).digest())
 
 
@@ -208,7 +207,7 @@ def verify_dpop_proof(proof, htm, htu, *, thumbprint=None, ath=None):
     tp, jti = parse_and_verify(proof, htm, htu, thumbprint=thumbprint, ath=ath)
 
     # Imported lazily to avoid a circular import (state imports handlers utils).
-    from globaleaks.state import State
+    from globaleaks.state import State  # noqa: PLC0415
 
     if jti in State.dpop_jti:
         raise errors.InvalidDPoP

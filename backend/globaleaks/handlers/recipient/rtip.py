@@ -22,17 +22,15 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.whistleblower.submission import db_create_receivertip, decrypt_tip, MAX_ANSWERS_DEPTH
-from globaleaks.handlers.user import serialize_user, user_serialize_user
-from globaleaks.models import UserProfile, serializers
+from globaleaks.handlers.user import serialize_user
+from globaleaks.models import serializers
 
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
-from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
@@ -40,6 +38,7 @@ from globaleaks.models.config import db_get_config_variable
 from io import BytesIO
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.zipstream import ZipStream
+from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
 
 @transact
 def get_report_audit_log(session, tid, user_id, itip_id):
@@ -89,7 +88,6 @@ def db_grant_tip_access(session, tid, user_session, itip, rtip, receiver_id):
     :param rtip: An rtip on which to perform operation
     :param receiver_id: A user ID of the the user to which grant access to the report
     """
-    user_id = user_session.user_id
     user_cc = user_session.cc
 
     existing = session.query(models.ReceiverTip).filter(models.ReceiverTip.receiver_id == receiver_id,
@@ -529,7 +527,7 @@ def db_redact_answers(answers, redaction, depth=0):
                 not isinstance(answers[key], list):
             continue
 
-        for inner_idx, answer in enumerate(answers[key]):
+        for answer in answers[key]:
             if 'value' in answer:
                 if key == redaction.reference_id and answer['index'] == redaction.entry:
                     answer['value'] = redact_content(answer['value'], redaction.permanent_redaction)
@@ -557,7 +555,7 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction, rang
         # would be iterated character by character and indexed as a mapping.
         if not isinstance(whistleblower_identities[key], list):
             continue
-        for inner_idx, whistleblower_identity in enumerate(whistleblower_identities[key]):
+        for whistleblower_identity in whistleblower_identities[key]:
             if not isinstance(whistleblower_identity, dict):
                 continue
             if 'value' in whistleblower_identity:
@@ -662,7 +660,7 @@ def update_tip_submission_status(session, tid, user_id, rtip_id, status_id, subs
                                models.ReceiverTip.receiver_id != user_id,
                                models.ReceiverTip.last_notification < models.ReceiverTip.last_access):
         # imported here: the whistleblower module imports this one
-        from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update
+        from globaleaks.handlers.whistleblower.wbtip import db_notify_report_update  # noqa: PLC0415
         db_notify_report_update(session, user, rtip, itip)
 
     db_update_submission_status(session, tid, user_id, itip, status_id, substatus_id)
@@ -835,7 +833,7 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
         for questionnaire in report['questionnaires']:
             questionnaire['answers'] = {}
 
-    from globaleaks.handlers import exchange
+    from globaleaks.handlers import exchange  # noqa: PLC0415
 
     # presented on the channel the reader's site knows the exchange by
     report['context_id'] = exchange.db_get_presented_context_id(session, tid, itip)
@@ -886,7 +884,7 @@ def redact_answers(answers, redactions, depth=0):
                 not isinstance(answers[key], list):
             continue
 
-        for inner_idx, answer in enumerate(answers[key]):
+        for answer in answers[key]:
             if 'value' in answer:
                 for redaction in redactions:
                     if key == redaction.reference_id and answer['index'] == redaction.entry:
@@ -1037,8 +1035,7 @@ def db_postpone_expiration(session, itip, expiration_date):
     min_date = time.time() + 90 * 86400
     min_date = min_date - min_date % 86400
     min_date = datetime.fromtimestamp(min_date)
-    if itip.expiration_date <= min_date:
-        min_date = itip.expiration_date
+    min_date = min(itip.expiration_date, min_date)
 
     # Enable to postpone but not after max(365, 2 time the policy)
     if policy <= 0:
@@ -1862,7 +1859,7 @@ class WhistleblowerFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
-        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
+        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked  # noqa: PLC0415
         if db_file_is_masked(session, ifile.internaltip_id, ifile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):
@@ -1997,7 +1994,6 @@ class ReceiverFileDownload(BaseHandler):
         # The masker keeps access to the content; only recipients without the
         # masking/redaction permission are denied (the whistleblower is denied
         # in its own handler, having no such permission).
-        from globaleaks.handlers.whistleblower.wbtip import db_file_is_masked
         if db_file_is_masked(session, rfile.internaltip_id, rfile.id) and \
                 not user.has_permission('can_mask_information') and \
                 not user.has_permission('can_redact_information'):

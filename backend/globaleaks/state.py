@@ -5,7 +5,6 @@ import threading
 import traceback
 
 from acme.errors import ValidationError
-from datetime import datetime, timedelta, timezone
 
 from txtorcon.torcontrolprotocol import TorProtocolError
 from sqlalchemy.exc import OperationalError
@@ -39,6 +38,7 @@ from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.token import TokenList
 from globaleaks.utils.tor_exit_set import TorExitSet
 from globaleaks.utils.utility import datetime_now
+from globaleaks.models.config import ConfigFactory
 
 
 silenced_exceptions = (
@@ -183,7 +183,6 @@ class StateClass(ObjectDict, metaclass=Singleton):
         # explicit database uri, as done by the other early-startup database
         # accesses. The default (True) is assumed when the database is not yet
         # present so that a fresh installation keeps listening publicly.
-        from globaleaks.models.config import ConfigFactory
 
         db_file = os.path.join(self.settings.working_path, 'globaleaks.db')
         if not os.path.exists(db_file):
@@ -232,11 +231,11 @@ class StateClass(ObjectDict, metaclass=Singleton):
             print("- [HTTPS]: https://127.0.0.1:8443")
 
         elif tenant_cache.reachable_via_web:
-            hostname = tenant_cache.hostname or '0.0.0.0'
-            print("- [HTTPS]: https://%s" % hostname)
+            hostname = tenant_cache.hostname or '0.0.0.0'  # nosec B104
+            print(f"- [HTTPS]: https://{hostname}")
 
         if tenant_cache.onionservice:
-            print("- [Tor]:  http://%s" % tenant_cache.onionservice)
+            print(f"- [Tor]:  http://{tenant_cache.onionservice}")
 
     def reset_minutely(self):
         self.exceptions.clear()
@@ -389,11 +388,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
             delivery_list.append(('exceptions@globaleaks.org', ''))
 
         for mail_address, pgp_key_public in delivery_list:
-            mail_body = "Platform: %s\nHost: %s (%s)\nVersion: %s\n\n%s" % (self.tenants[tid].cache.name,
-                                                                            self.tenants[tid].cache.hostname,
-                                                                            self.tenants[tid].cache.onionservice,
-                                                                            __version__,
-                                                                            exception_text)
+            mail_body = f"Platform: {self.tenants[tid].cache.name}\nHost: {self.tenants[tid].cache.hostname} ({self.tenants[tid].cache.onionservice})\nVersion: {__version__}\n\n{exception_text}"
 
             # Opportunisticly encrypt the mail body. NOTE that mails will go out
             # unencrypted if one address in the list does not have a public key set.
@@ -415,6 +410,8 @@ class StateClass(ObjectDict, metaclass=Singleton):
         for k, v in self.TempUploadFiles.items():
             if os.path.basename(v.filepath) == filename:
                 return self.TempUploadFiles.pop(k)
+
+        return None
 
     def update_tor_exits_list(self):
         net_agent = self.get_agent()
@@ -468,7 +465,7 @@ def mail_exception_handler(etype, value, tback):
     exc_type = re.sub("(<(type|class ')|'exceptions.|'>|__main__.)",
                       "", str(etype))
 
-    mail_body += "%s %s\n\n" % (exc_type.strip(), etype.__doc__)
+    mail_body += f"{exc_type.strip()} {etype.__doc__}\n\n"
 
     mail_body += '\n'.join(traceback.format_exception(etype, value, tback))
 

@@ -102,6 +102,8 @@ class SessionsFactory(TempDict):
             decrypted_copy.decrypt(key)
             return decrypted_copy
 
+        return None
+
     def revoke(self, tid, user_id):
         for k, v in list(self.items()):
             if v.tid == tid and v.user_id == user_id:

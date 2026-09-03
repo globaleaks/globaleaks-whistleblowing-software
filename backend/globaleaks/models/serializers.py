@@ -11,6 +11,7 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
 from globaleaks.utils.utility import datetime_never, datetime_null
+from globaleaks.handlers.public import serialize_questionnaire
 
 
 def get_identity_files(data):
@@ -347,7 +348,7 @@ def serialize_rtip(session, itip, rtip, language):
     # The read receipt is the counterpart's, any of whom reads for all: the recipients of the other
     # site on a request or a communication, the whistleblower otherwise, on a transmitted report
     # through the messages handed to them
-    from globaleaks.handlers.exchange import db_get_report_exchange
+    from globaleaks.handlers.exchange import db_get_report_exchange  # noqa: PLC0415
 
     exchange = db_get_report_exchange(session, itip)
     if db_runs_between_sites(session, itip) and \
@@ -374,7 +375,7 @@ def serialize_rtip(session, itip, rtip, language):
         ret['reminder_date'] = datetime_never()
 
     # Local import to avoid a circular import with handlers.recipient.rtip.
-    from globaleaks.handlers.recipient.rtip import db_get_requestable_questionnaires
+    from globaleaks.handlers.recipient.rtip import db_get_requestable_questionnaires  # noqa: PLC0415
 
     # Requestable while the report is owned and open, and there is something to ask or already asked
     ret['additional_questionnaire_requestable'] = \
@@ -406,8 +407,8 @@ def serialize_rtip(session, itip, rtip, language):
         # named by the receiving site, or by the channel when it stayed on this one
         destination = get_tenant_name(counterpart_tid)
         if source_tid == target_tid:
-            from globaleaks.handlers.exchange import db_get_report_exchange
-            from globaleaks.models.exchanges import db_get_exchange_channel
+            from globaleaks.handlers.exchange import db_get_report_exchange  # noqa: PLC0415
+            from globaleaks.models.exchanges import db_get_exchange_channel  # noqa: PLC0415
 
             exchange = db_get_report_exchange(session, filed_itip)
             channel = db_get_exchange_channel(session, exchange, viewer_tid) \
@@ -557,7 +558,6 @@ def serialize_rtip(session, itip, rtip, language):
 
 def serialize_wbtip(session, itip, language):
     # Local import to avoid a circular import with handlers.public.
-    from globaleaks.handlers.public import serialize_questionnaire
 
     ret = serialize_itip(session, itip, language)
 

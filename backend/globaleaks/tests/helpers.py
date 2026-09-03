@@ -56,6 +56,7 @@ from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
+from globaleaks.rest import api
 
 GCE.options['OPSLIMIT'] = 1
 
@@ -102,8 +103,8 @@ def mock_GCE_generate_keypair():
     return USER_PRV_KEY, USER_PUB_KEY
 
 
-setattr(GCE, 'generate_key', mock_GCE_generate_key)
-setattr(GCE, 'generate_keypair', mock_GCE_generate_keypair)
+GCE.generate_key = mock_GCE_generate_key
+GCE.generate_keypair = mock_GCE_generate_keypair
 # END MOCKS NECESSARY FOR DETERMINISTIC ENCRYPTION
 ################################################################################
 
@@ -128,7 +129,7 @@ HTTPS_DATA = {
 
 HTTPS_DATA_DIR = os.path.join(DATA_DIR, 'https')
 for k, fname in HTTPS_DATA.items():
-    with open(os.path.join(HTTPS_DATA_DIR, 'valid', fname), 'r') as fd:
+    with open(os.path.join(HTTPS_DATA_DIR, 'valid', fname)) as fd:
         HTTPS_DATA[k] = fd.read()
 
 
@@ -596,11 +597,10 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
     if len(x) > 1:
         host = x[0]
         port = int(x[1])
+    elif uri.startswith(b'http://'):
+        port = 8080
     else:
-        if uri.startswith(b'http://'):
-            port = 8080
-        else:
-            port = 8443
+        port = 8443
 
     headers = headers if headers is not None else {}
     args = args if args is not None else {}
@@ -691,7 +691,7 @@ class TestGL(unittest.TestCase):
 
         if self.initialize_test_database_using_archived_db:
             shutil.copy(
-                os.path.join(TEST_DIR, 'db', 'empty', 'globaleaks-%d.db' % DATABASE_VERSION),
+                os.path.join(TEST_DIR, 'db', 'empty', f'globaleaks-{DATABASE_VERSION}.db'),
                 os.path.join(Settings.db_file_path)
             )
         else:
@@ -757,7 +757,7 @@ class TestGL(unittest.TestCase):
             new_u['roles'] = [role]
 
         new_u['username'] = username
-        new_u['name'] = new_u['public_name'] = new_u['mail_address'] = "%s@%s.xxx" % (username, username)
+        new_u['name'] = new_u['public_name'] = new_u['mail_address'] = f"{username}@{username}.xxx"
         new_u['description'] = ''
         new_u['password'] = VALID_KEY
         new_u['enabled'] = True
@@ -1156,7 +1156,7 @@ class TestGLWithPopulatedDB(TestGL):
     @inlineCallbacks
     def perform_full_submission_actions(self):
         """Populates the DB with tips, comments, and files"""
-        for x in range(self.population_of_submissions):
+        for _ in range(self.population_of_submissions):
             session = self.perform_submission_start()
             self.perform_submission_uploads(session.id)
             yield self.perform_submission_actions(session.id)
@@ -1208,7 +1208,6 @@ class TestHandler(TestGLWithPopulatedDB):
         """
         Constructs a handler for preforming mock requests using the bag of params described below.
         """
-        from globaleaks.rest import api
         if headers is None:
             headers = {}
 
@@ -1231,7 +1230,7 @@ class TestHandler(TestGLWithPopulatedDB):
                 user_id = self.dummyCustodian['id']
 
         if role is not None:
-            if role == 'whistleblower' and user_id == None:
+            if role == 'whistleblower' and user_id is None:
                 session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
             else:
                 session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions, dpop_jkt=DPOP_JKT)
@@ -1312,7 +1311,7 @@ class TestHandler(TestGLWithPopulatedDB):
         return handler
 
     def get_dummy_request(self):
-        request = self._test_desc['model']().dict(u'en')
+        request = self._test_desc['model']().dict('en')
         if isinstance(self._test_desc['model'](), models.User):
             request['roles'] = [request['role']]
             request['profile'] = {}

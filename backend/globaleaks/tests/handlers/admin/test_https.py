@@ -23,7 +23,7 @@ class TestFileHandler(helpers.TestHandler):
 
     @inlineCallbacks
     def setUp(self):
-        yield super(TestFileHandler, self).setUp()
+        yield super().setUp()
         yield set_init_params()
 
     @inlineCallbacks
@@ -206,7 +206,7 @@ class TestAcmeChallengeHandler(helpers.TestHandler):
     def test_get(self):
         # tmp_chall_dict pollutes scope
         tok = 'yT-RDI9dU7dJPxaTYOgY_YnYYByT4CVAVCC7W3zUDIw'
-        v = '{}.5vh2ZRCJGmNUKEEBn-SN6esbMnSl1w8ZT0LDUwexTAM'.format(tok)
+        v = f'{tok}.5vh2ZRCJGmNUKEEBn-SN6esbMnSl1w8ZT0LDUwexTAM'
         ct = ChallTok(v)
 
         State.tenants[1].acme_tmp_chall_dict[tok] = ct

@@ -7,9 +7,8 @@ from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key
 from globaleaks.handlers.user import serialize_user_profile, \
                                      user_permissions
-from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.models import config, UserProfile, fill_localized_keys
-from globaleaks.orm import db_get, db_log, transact, tw
+from globaleaks.models import config, UserProfile
+from globaleaks.orm import db_get, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import Sessions
 from globaleaks.utils.utility import uuid4

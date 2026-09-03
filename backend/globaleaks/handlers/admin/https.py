@@ -255,7 +255,7 @@ class CertFileRes(FileResource):
                 'set': False
             }
 
-        c = """{}""".format(c)
+        c = f"""{c}"""
         x509 = crypto.load_certificate(crypto.FILETYPE_PEM, c)
         expr_date = letsencrypt.convert_asn1_date(x509.get_notAfter())
 

@@ -4,7 +4,6 @@ from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.analyst import set_default_statistical_template
@@ -140,14 +139,14 @@ def toggle_escrow(session, tid, user_session):
 
         if tid == 1:
             user.crypto_escrow_bkp1_key = crypto_escrow_bkp_key
-            session.query(models.User).filter(models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)
+            session.query(models.User).filter(models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)  # nosec B105
         else:
             user.crypto_escrow_bkp2_key = crypto_escrow_bkp_key
             root_config_escrow = root_config.get_val('crypto_escrow_pub_key')
             if root_config_escrow:
                 config.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_config_escrow, crypto_escrow_prv_key)))
 
-            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)
+            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)  # nosec B105
 
     else:
         # Only protected users may dismantle key escrow. When protected users
@@ -349,8 +348,8 @@ class AdminOperationHandler(OperationHandler):
         'reset_onion_private_key': 'can_manage_network',
         'test_mail': 'can_manage_notifications',
         'reset_templates': 'can_manage_notifications',
-        'set_user_password': 'can_manage_users',
-        'send_password_reset_email': 'can_manage_users',
+        'set_user_password': 'can_manage_users',  # nosec B105
+        'send_password_reset_email': 'can_manage_users',  # nosec B105
         'disable_2fa': 'can_manage_users',
         'reset_idp_binding': 'can_manage_users',
         'enable_user_permission_file_upload': 'can_manage_users',
@@ -450,8 +449,8 @@ class AdminOperationHandler(OperationHandler):
         # Imported lazily: globaleaks.jobs pulls in handlers that import back into
         # this module (admin.operation), so a top-level import here would create a
         # circular import at startup.
-        from globaleaks.jobs.backup import reset_backups_threaded
-        from globaleaks.jobs.job import stop_job
+        from globaleaks.jobs.backup import reset_backups_threaded  # noqa: PLC0415
+        from globaleaks.jobs.job import stop_job  # noqa: PLC0415
 
         # Stop the running job first so no backup runs against the directory
         # while it is being cleared, then restore the default configuration

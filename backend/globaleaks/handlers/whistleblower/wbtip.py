@@ -29,7 +29,6 @@ from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.json import JSONEncoder
-from globaleaks.utils.log import log
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
 from globaleaks.models.config import db_get_config_variable
@@ -264,7 +263,7 @@ class WBTipInstance(BaseHandler):
     @inlineCallbacks
     def get(self):
         # Local import to avoid a circular import with recipient.rtip.
-        from globaleaks.handlers.recipient.rtip import redact_report
+        from globaleaks.handlers.recipient.rtip import redact_report  # noqa: PLC0415
 
         tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
 

@@ -25,6 +25,7 @@ from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, msdos_encode
 from globaleaks.utils.zipstream import ZipStream, ZipStreamProducer
+from globaleaks.handlers.exchange import db_get_presented_context_id
 
 
 try:
@@ -39,7 +40,7 @@ try:
         report_margin = 10
 
         def __init__(self, *args, **kwargs):
-            super(REPORTPDF, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
             fontspath = os.path.join(Settings.client_path, "fonts")
             self.add_font(family="Inter-Regular.ttf", style='', fname=os.path.join(fontspath, "Inter-Regular.ttf"))
@@ -112,7 +113,6 @@ def get_tip_export(session, tid, user_id, itip_id, language):
     user, context, itip, rtip = row
 
     # The export carries the channel the reader's site knows the report by
-    from globaleaks.handlers.exchange import db_get_presented_context_id
 
     context = db_get(session,
                      models.Context,
@@ -143,10 +143,9 @@ def create_pdf_report(input_text, data):
             if pdf.report_direction == 'ltr':
                 pdf.report_direction = 'rtl'
                 pdf.set_text_shaping(use_shaping_engine=False, direction=pdf.report_direction)
-        else:
-            if pdf.report_direction == 'rtl':
-                pdf.report_direction = 'ltr'
-                pdf.set_text_shaping(use_shaping_engine=False, direction=pdf.report_direction)
+        elif pdf.report_direction == 'rtl':
+            pdf.report_direction = 'ltr'
+            pdf.set_text_shaping(use_shaping_engine=False, direction=pdf.report_direction)
 
         pdf.multi_cell(0, pdf.report_line_height, line.strip(), align='L')
         pdf.ln()

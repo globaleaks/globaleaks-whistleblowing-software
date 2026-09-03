@@ -1,7 +1,7 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers import auditor, auth
+from globaleaks.handlers import auth
 from globaleaks.handlers.user import UserInstance
 from globaleaks.models.config import ConfigFactory
 from globaleaks.handlers.whistleblower.wbtip import WBTipInstance
@@ -183,7 +183,7 @@ class TestAuthentication(helpers.TestHandlerWithPopulatedDB):
         response = yield auth_switch_handler.get(2)
 
         self.assertTrue(State.tenants[2].cache.uuid)
-        self.assertIn('/t/%s/' % State.tenants[2].cache.uuid, response['redirect'])
+        self.assertIn(f'/t/{State.tenants[2].cache.uuid}/', response['redirect'])
 
 
     @inlineCallbacks

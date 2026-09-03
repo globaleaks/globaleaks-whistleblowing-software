@@ -152,7 +152,7 @@ class Keyword:
     def __init__(self, data):
         for k in self.data_keys:
             if k not in data:
-                raise errors.InternalServerError('Missing key \'%s\' while resolving template \'%s\'' % (k, type(self).__name__))
+                raise errors.InternalServerError(f'Missing key \'{k}\' while resolving template \'{type(self).__name__}\'')
 
         self.data = data
 
@@ -215,7 +215,7 @@ class UserKeyword(Keyword):
         return self.data['user']['name']
 
     def Username(self):
-        return '%s' % self.data['user']['username']
+        return '{}'.format(self.data['user']['username'])
 
 
 class UserNodeKeyword(NodeKeyword, UserKeyword):
@@ -423,7 +423,7 @@ class AdminPGPAlertKeyword(UserNodeKeyword):
             fingerprint = r['pgp_key_fingerprint']
             key = fingerprint[:7] if fingerprint is not None else ''
 
-            ret += '\t%s, %s (%s)\n' % (r['name'],
+            ret += '\t{}, {} ({})\n'.format(r['name'],
                                         key,
                                         datetime_to_day_str(r['pgp_key_expiration']))
         return ret
@@ -436,7 +436,7 @@ class PGPAlertKeyword(UserNodeKeyword):
         fingerprint = self.data['user']['pgp_key_fingerprint']
         key = fingerprint[:7] if fingerprint is not None else ''
 
-        return '\t0x%s (%s)' % (key, datetime_to_day_str(self.data['user']['pgp_key_expiration']))
+        return '\t0x{} ({})'.format(key, datetime_to_day_str(self.data['user']['pgp_key_expiration']))
 
 
 class AnomalyKeyword(UserNodeKeyword):
@@ -454,10 +454,10 @@ class AnomalyKeyword(UserNodeKeyword):
             return self.data['notification']['admin_anomaly_disk_high']
 
     def FreeMemory(self):
-        return '%s' % bytes_to_pretty_str(self.data['alert']['measured_freespace'])
+        return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_freespace']))
 
     def TotalMemory(self):
-        return '%s' % bytes_to_pretty_str(self.data['alert']['measured_totalspace'])
+        return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_totalspace']))
 
 
 class CertificateExprKeyword(UserNodeKeyword):
@@ -476,10 +476,10 @@ class SoftwareUpdateKeyword(UserNodeKeyword):
     data_keys = UserNodeKeyword.data_keys + ['latest_version']
 
     def LatestVersion(self):
-        return '%s' % self.data['latest_version']
+        return '{}'.format(self.data['latest_version'])
 
     def InstalledVersion(self):
-        return '%s' % __version__
+        return f'{__version__}'
 
     def ChangeLogUrl(self):
         return 'https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG'
@@ -493,13 +493,13 @@ class UserCredentials(Keyword):
     data_keys = ['role', 'username', 'password']
 
     def Role(self):
-        return '%s' % self.data['role']
+        return '{}'.format(self.data['role'])
 
     def Username(self):
-        return '%s' % self.data['username']
+        return '{}'.format(self.data['username'])
 
     def Password(self):
-        return '%s' % self.data['password']
+        return '{}'.format(self.data['password'])
 
 
 class PlatformSignupKeyword(NodeKeyword):

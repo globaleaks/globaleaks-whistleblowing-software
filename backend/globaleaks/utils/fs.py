@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import secrets
@@ -94,7 +93,7 @@ def get_disk_space(path):
 
 def read_file(p):
     try:
-        with io.open(p, 'r', encoding='utf-8') as f:
+        with open(p, encoding='utf-8') as f:
             return f.read().rstrip("\n")
     except (OSError, UnicodeDecodeError):
         # OSError: missing/unreadable file. UnicodeDecodeError: invalid UTF-8 bytes.

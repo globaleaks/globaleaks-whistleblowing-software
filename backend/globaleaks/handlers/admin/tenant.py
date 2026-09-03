@@ -18,11 +18,10 @@ from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_con
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import serialize_user_profile, user_permissions
-from globaleaks.models import Config, EnabledLanguage, config, serializers
+from globaleaks.models import EnabledLanguage, config, serializers
 from globaleaks.models.exchanges import db_forget_exchanges
 from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
-    db_get_config_variable, db_get_signup_profile, db_set_config_variable, \
-    db_set_own_config_variable
+    db_get_config_variable, db_get_signup_profile, db_set_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -346,7 +345,7 @@ def db_wizard(session, tid, hostname, request):
         admin_desc['mail_address'] = request['admin_mail_address']
         admin_desc['language'] = language
         admin_desc['role'] = 'admin'
-        admin_desc['profile_id'] = request['admin_profile_id'] if 'admin_profile_id' in request else ''
+        admin_desc['profile_id'] = request.get('admin_profile_id', '')
         admin_desc['idp_id'] = request.get('idp_id', '')
         admin_desc['pgp_key_remove'] = False
         admin_desc = admin_desc | user_permissions
@@ -371,7 +370,7 @@ def db_wizard(session, tid, hostname, request):
         receiver_desc['mail_address'] = request['receiver_mail_address']
         receiver_desc['language'] = language
         receiver_desc['role'] = 'receiver'
-        receiver_desc['profile_id'] = request['receiver_profile_id'] if 'receiver_profile_id' in request else ''
+        receiver_desc['profile_id'] = request.get('receiver_profile_id', '')
         receiver_desc['idp_id'] = request.get('idp_id', '')
         receiver_desc['pgp_key_remove'] = False
         receiver_desc = receiver_desc | user_permissions
@@ -389,7 +388,7 @@ def db_wizard(session, tid, hostname, request):
         default_desc['mail_address'] = request['default_mail_address']
         default_desc['language'] = language
         default_desc['role'] = request['default_role']
-        default_desc['profile_id'] = request['default_profile_id'] if 'default_profile_id' in request else ''
+        default_desc['profile_id'] = request.get('default_profile_id', '')
         default_desc['idp_id'] = request.get('idp_id', '')
         default_desc['pgp_key_remove'] = False
         default_desc = default_desc | user_permissions
@@ -469,7 +468,7 @@ def update(session, tid, request, language):
         if subscriber is not None:
             # The subscriber stores the hash of its activation token: the
             # activation is invoked through its hash-based variant
-            from globaleaks.handlers.signup import db_signup_activation_by_hash
+            from globaleaks.handlers.signup import db_signup_activation_by_hash  # noqa: PLC0415
             db_signup_activation_by_hash(session, subscriber.activation_token, language)
         else:
             t.active = True

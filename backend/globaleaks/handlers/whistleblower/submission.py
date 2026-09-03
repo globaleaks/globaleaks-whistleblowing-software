@@ -122,7 +122,7 @@ def extract_statistical_data(session, tid:int, answers:dict):
         answers_dict[k] = answer_value
 
         if is_template_choice and field_data['template_statistical']:
-            template_key = 'template:%s' % field_data['template_id']
+            template_key = 'template:{}'.format(field_data['template_id'])
             if template_key not in answers_dict:
                 answers_dict[template_key] = answer_value
 
@@ -208,7 +208,7 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_id, questionnaire
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
 
     if x is not None:
-        return
+        return None
 
     ita = models.InternalTipAnswers()
     ita.internaltip_id = itip_id
@@ -232,7 +232,7 @@ def db_set_internaltip_data(session, itip_id, key, value, date=None, plaintext=N
                        models.InternalTipData.key == key).one_or_none()
 
     if x is not None:
-        return
+        return None
 
     itd = models.InternalTipData()
     itd.internaltip_id = itip_id
@@ -750,9 +750,8 @@ def db_validate_submission_answers(steps, answers):
                     if child is not None and isinstance(value, list):
                         prune_entries(child, value)
                         continue
-                elif field_type == 'checkbox':
-                    if key in option_ids and isinstance(value, bool):
-                        continue
+                elif field_type == 'checkbox' and key in option_ids and isinstance(value, bool):
+                    continue
 
                 del entry[key]
 

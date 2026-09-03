@@ -17,7 +17,7 @@ class StaticFileHandler(BaseHandler):
     def __init__(self, state, request):
         BaseHandler.__init__(self, state, request)
 
-        self.root = "%s%s" % (os.path.abspath(state.settings.client_path), "/")
+        self.root = "{}{}".format(os.path.abspath(state.settings.client_path), "/")
 
     def get(self, filename):
         abspath = os.path.abspath(os.path.join(self.root, filename))
@@ -30,6 +30,6 @@ class StaticFileHandler(BaseHandler):
                 data = data.replace(b'dir="ltr"', b'dir="' + get_language_direction(self.request.language).encode() + b'"')
                 data = data.replace(b'randomCspNonce', self.request.nonce)
                 self.request.write(data)
-                return
+                return None
 
         return self.write_file(filename, abspath)

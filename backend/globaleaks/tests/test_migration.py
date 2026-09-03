@@ -19,7 +19,7 @@ from globaleaks.tests import helpers
 class TestMigrationRoutines(unittest.TestCase):
     def _test(self, path, version):
         helpers.init_state()
-        srcpath = os.path.join(path, 'globaleaks-%d.db' % version)
+        srcpath = os.path.join(path, f'globaleaks-{version}.db')
         dstpath = os.path.join(Settings.working_path, 'globaleaks.db')
         shutil.copyfile(srcpath, dstpath)
 
@@ -44,4 +44,4 @@ path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'db', 'populate
 
 
 for i in range(FIRST_DATABASE_VERSION_SUPPORTED, DATABASE_VERSION + 1):
-    setattr(TestMigrationRoutines, "test_db_migration_%d" % i, test(path, i))
+    setattr(TestMigrationRoutines, f"test_db_migration_{i}", test(path, i))

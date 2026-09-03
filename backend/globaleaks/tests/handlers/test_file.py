@@ -12,7 +12,7 @@ class TestFileInstance(helpers.TestHandler):
     @inlineCallbacks
     def test_get(self):
         handler = self.request()
-        yield self.assertFailure(handler.get(u'custom'), ResourceNotFound)
+        yield self.assertFailure(handler.get('custom'), ResourceNotFound)
 
         self._handler = admin_file.FileInstance
         handler = self.request({}, role='admin', permissions={'can_upload_files': True})
