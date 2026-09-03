@@ -85,7 +85,7 @@ class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(BaseHandler.validate_type('foca', str))
         self.assertTrue(BaseHandler.validate_type(True, bool))
         self.assertTrue(BaseHandler.validate_type(4, int))
-        self.assertTrue(BaseHandler.validate_type(u'foca', str))
+        self.assertTrue(BaseHandler.validate_type('foca', str))
         self.assertTrue(BaseHandler.validate_type(['foca', 'fessa'], list))
         self.assertTrue(BaseHandler.validate_type({'foca': 1}, dict))
 
@@ -100,7 +100,7 @@ class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(BaseHandler.validate_python_type('foca', str))
         self.assertTrue(BaseHandler.validate_python_type(True, bool))
         self.assertTrue(BaseHandler.validate_python_type(4, int))
-        self.assertTrue(BaseHandler.validate_python_type(u'foca', str))
+        self.assertTrue(BaseHandler.validate_python_type('foca', str))
         self.assertTrue(BaseHandler.validate_python_type(None, dict))
 
     def test_validate_regexp_valid(self):

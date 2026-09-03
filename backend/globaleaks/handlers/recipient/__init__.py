@@ -5,7 +5,7 @@ from datetime import datetime
 
 from nacl.encoding import Base64Encoder
 from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import func, and_, or_
+from sqlalchemy.sql.expression import and_, or_
 
 import globaleaks.handlers.recipient.export
 import globaleaks.handlers.exchange
@@ -20,10 +20,11 @@ from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_never
+from globaleaks.handlers.exchange import db_get_presented_context_id
 
 
 @transact
-def get_receivertips(session, tid, user_session, language, args={}):
+def get_receivertips(session, tid, user_session, language, args=None):
     """
     Return list of submissions received by the specified receiver
 
@@ -36,6 +37,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
     user_id = user_session.user_id
     user_key = user_session.cc
 
+    args = args or {}
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
 
@@ -95,7 +97,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
         return context_cache[context_id]
 
     # Fetch rtip, internaltip and associated questionnaire schema
-    for rtip, itip, answers, data in session.query(models.ReceiverTip,
+    for rtip, itip, itip_answers, data in session.query(models.ReceiverTip,
                                                    models.InternalTip,
                                                    models.InternalTipAnswers,
                                                    models.InternalTipData) \
@@ -116,7 +118,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
                                                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
                                                     models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
                                             .group_by(models.ReceiverTip.id):
-        answers = answers.answers
+        answers = itip_answers.answers
         label = itip.label
         important = itip.important
         reminder_date = itip.reminder_date
@@ -129,7 +131,6 @@ def get_receivertips(session, tid, user_session, language, args={}):
 
         # The report of an exchange is presented to the recipients of each of
         # the two sites on the channel their own site knows it by
-        from globaleaks.handlers.exchange import db_get_presented_context_id
 
         context_id = db_get_presented_context_id(session, tid, itip)
 
@@ -215,7 +216,7 @@ def get_receivertips(session, tid, user_session, language, args={}):
             context_order = get_context_info(report['context_id'])['order']
             report['channel_progressive'] = index
             report['context_count'] = index
-            report['channel_progressive_sort_key'] = '%08d-%08d' % (context_order, index)
+            report['channel_progressive_sort_key'] = f'{context_order:08d}-{index:08d}'
 
     return ret
 

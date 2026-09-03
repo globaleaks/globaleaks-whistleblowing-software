@@ -296,7 +296,7 @@ def db_reconcile_support_user_access(session, tid, user, support_private_key, ad
     if support_private_key is None or not support_private_key_matches(session, tid, support_private_key):
         # Every administrator must hold the support key: failing to resolve it
         # would silently produce an administrator without access.
-        raise errors.InternalServerError("Unable to resolve the support key of tenant %d" % tid)
+        raise errors.InternalServerError(f"Unable to resolve the support key of tenant {tid}")
 
     user.crypto_support_prv_key = encode_ciphertext(GCE.asymmetric_encrypt(user.crypto_pub_key, support_private_key))
 

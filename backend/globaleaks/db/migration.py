@@ -56,7 +56,7 @@ def load_snapshots():
     snapshots = {}
 
     for version in range(FIRST_DATABASE_VERSION_SUPPORTED, DATABASE_VERSION):
-        module = importlib.import_module("globaleaks.db.migrations.update_%d" % (version + 1))
+        module = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
 
         for name, cls in vars(module).items():
             match = re.fullmatch(r'(\w+)_v_(\d+)', name)
@@ -113,7 +113,7 @@ def perform_data_update(db_file):
     if removed_languages:
         removed_languages.sort()
         removed_languages = ', '.join(removed_languages)
-        raise Exception("FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete (%s)\n" % removed_languages)
+        raise Exception(f"FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete ({removed_languages})\n")
 
     try:
         original_version = config.ConfigFactory(session, 1).get_val('version')
@@ -147,7 +147,7 @@ def perform_migration(version):
     :param version: The current version of the database to update
     """
     if version < FIRST_DATABASE_VERSION_SUPPORTED:
-        log.info("Migrations from DB version lower than %d are no longer supported!" % FIRST_DATABASE_VERSION_SUPPORTED)
+        log.info(f"Migrations from DB version lower than {FIRST_DATABASE_VERSION_SUPPORTED} are no longer supported!")
         sys.exit(1)
 
     tmpdir = os.path.abspath(os.path.join(Settings.tmp_path, 'tmp'))
@@ -165,8 +165,7 @@ def perform_migration(version):
 
     try:
         while version < DATABASE_VERSION:
-            log.info("Updating DB from version %d to version %d" %
-                     (version, version + 1))
+            log.info(f"Updating DB from version {version} to version {version + 1}")
 
             j = version - FIRST_DATABASE_VERSION_SUPPORTED
 
@@ -186,7 +185,7 @@ def perform_migration(version):
             session_new = sessionmaker(bind=engine)()
 
             # Here is instanced the migration script
-            MigrationModule = importlib.import_module("globaleaks.db.migrations.update_%d" % (version + 1))
+            MigrationModule = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
             migration_script = MigrationModule.MigrationScript(migration_mapping, version, session_old, session_new)
 
             log.info("Migrating table:")
@@ -195,7 +194,7 @@ def perform_migration(version):
                 try:
                     migration_script.prologue()
                 except Exception as exception:
-                    log.err("Failure while executing migration prologue: %s" % exception)
+                    log.err(f"Failure while executing migration prologue: {exception}")
                     raise exception
 
                 for model_name, _ in migration_mapping.items():
@@ -207,13 +206,13 @@ def perform_migration(version):
                             # the precise migration that may fail.
                             migration_script.commit()
                         except Exception as exception:
-                            log.err("Failure while migrating table %s: %s " % (model_name, exception))
+                            log.err(f"Failure while migrating table {model_name}: {exception} ")
                             raise exception
                 try:
                     migration_script.epilogue()
                     migration_script.commit()
                 except Exception as exception:
-                    log.err("Failure while executing migration epilogue: %s " % exception)
+                    log.err(f"Failure while executing migration epilogue: {exception} ")
                     raise exception
 
             finally:
@@ -230,14 +229,11 @@ def perform_migration(version):
                     count = session_new.query(migration_script.model_to[model_name]).count()
                     if migration_script.entries_count[model_name] != count:
                         if migration_script.skip_count_check.get(model_name, False):
-                            log.info(" * %s table migrated (entries count changed from %d to %d)" %
-                                     (model_name, migration_script.entries_count[model_name], count))
+                            log.info(f" * {model_name} table migrated (entries count changed from {migration_script.entries_count[model_name]} to {count})")
                         else:
-                            raise AssertionError("Integrity check failed on count equality for table %s: %d != %d" %
-                                                 (model_name, count, migration_script.entries_count[model_name]))
+                            raise AssertionError(f"Integrity check failed on count equality for table {model_name}: {count} != {migration_script.entries_count[model_name]}")
                     else:
-                        log.info(" * %s table migrated (%d entry(s))" %
-                                             (model_name, migration_script.entries_count[model_name]))
+                        log.info(f" * {model_name} table migrated ({migration_script.entries_count[model_name]} entry(s))")
 
             version += 1
 

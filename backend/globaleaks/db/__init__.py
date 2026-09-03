@@ -20,6 +20,7 @@ from globaleaks.utils import fs
 from globaleaks.utils.crypto import generateRandomKey
 from globaleaks.utils.log import log
 from globaleaks.utils.objectdict import ObjectDict
+from globaleaks.handlers.admin import tenant
 
 
 def get_db_file(db_path):
@@ -36,8 +37,8 @@ def get_db_file(db_path):
         session.close()
         return version_db, path
 
-    for i in reversed(range(0, DATABASE_VERSION + 1)):
-        file_name = 'glbackend-%d.db' % i
+    for i in reversed(range(DATABASE_VERSION + 1)):
+        file_name = f'glbackend-{i}.db'
         db_file_path = os.path.join(db_path, 'db', file_name)
         if os.path.exists(db_file_path):
             return i, db_file_path
@@ -81,7 +82,6 @@ def initialize_db(session):
     Transaction for initializing the application database
     :param session: An ORM session
     """
-    from globaleaks.handlers.admin import tenant
     tenant.db_create(session, {'active': True, 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''})
     tenant.db_create(session, {'active': True, 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
 
@@ -96,7 +96,7 @@ def update_db():
         return 0
 
     try:
-        from globaleaks.db import migration
+        from globaleaks.db import migration  # noqa: PLC0415
         log.err('Found an already initialized database version: %d', db_version)
 
         if db_version != DATABASE_VERSION:
@@ -289,25 +289,24 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
     if to_refresh is None or to_refresh == 1:
         tids = active_tids
-    else:
-        if to_refresh in active_tids:
-            tids = [to_refresh]
-            if to_refresh < DEFAULT_PROFILE_ID:
-                pid = db_get_pid(session, to_refresh)
-                if pid is not None and pid != to_refresh:
-                    tids.append(pid)
+    elif to_refresh in active_tids:
+        tids = [to_refresh]
+        if to_refresh < DEFAULT_PROFILE_ID:
+            pid = db_get_pid(session, to_refresh)
+            if pid is not None and pid != to_refresh:
+                tids.append(pid)
 
-            else:
-                matching_tids = [tid for tid in db_get_profile_children(session, to_refresh)
-                                 if tid in active_tids and tid != to_refresh]
-
-                tids.extend(matching_tids)
-
-                # Invalidate every tenant using the updated profile
-                for tid in matching_tids:
-                    Cache.invalidate(tid)
         else:
-            tids = []
+            matching_tids = [tid for tid in db_get_profile_children(session, to_refresh)
+                             if tid in active_tids and tid != to_refresh]
+
+            tids.extend(matching_tids)
+
+            # Invalidate every tenant using the updated profile
+            for tid in matching_tids:
+                Cache.invalidate(tid)
+    else:
+        tids = []
 
     if not tids:
         return
@@ -400,14 +399,14 @@ def db_refresh_tenant_cache(session, to_refresh=None):
                 tenant_cache.onionservice = tenant_cache.subdomain + '.' + root_tenant_cache.onionservice
 
             if root_tenant_cache.rootdomain and tenant_cache.reachable_via_web:
-                tenant_cache.hostnames.append('{}.{}'.format(tenant_cache.subdomain, root_tenant_cache.rootdomain).encode())
+                tenant_cache.hostnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.rootdomain}'.encode())
 
             if root_tenant_cache.onionservice:
-                tenant_cache.onionnames.append('{}.{}'.format(tenant_cache.subdomain, root_tenant_cache.onionservice).encode())
+                tenant_cache.onionnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.onionservice}'.encode())
 
         State.tenant_hostname_id_map.update({h: tid for h in tenant_cache.hostnames + tenant_cache.onionnames})
 
-    if getattr(State, 'tor'):
+    if State.tor:
         State.tor.load_all_onion_services()
 
     # The IdP of the signups is inherited from the signup profile and resolved separately

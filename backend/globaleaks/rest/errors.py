@@ -16,10 +16,7 @@ class GLException(Exception):
         return self.__repr__()
 
     def __repr__(self):
-        return "%s: <<%s>> (%d) HTTP:%d" % (
-            self.__class__.__name__, self.reason,
-            self.error_code, self.status_code
-        )
+        return f"{self.__class__.__name__}: <<{self.reason}>> ({self.error_code}) HTTP:{self.status_code}"
 
 
 class InternalServerError(GLException):
@@ -30,7 +27,7 @@ class InternalServerError(GLException):
     status_code = 500  # Internal Server Error
 
     def __init__(self, error_str):
-        self.reason = "InternalServerError [%s]" % error_str
+        self.reason = f"InternalServerError [{error_str}]"
         self.arguments = [error_str]
 
 
@@ -54,7 +51,7 @@ class InputValidationError(GLException):
     status_code = 406  # Not Acceptable
 
     def __init__(self, error=''):
-        self.reason = "Invalid Input [%s]" % error
+        self.reason = f"Invalid Input [{error}]"
         self.arguments = [error]
 
 
@@ -155,8 +152,7 @@ class FileTooBig(GLException):
     status_code = 413  # Bad Request
 
     def __init__(self, size_limit):
-        self.reason = ("Provided file upload overcomes size limits (%d Mb)" %
-                       size_limit)
+        self.reason = f"Provided file upload overcomes size limits ({int(size_limit)} Mb)"
         self.arguments = [size_limit]
 
 
