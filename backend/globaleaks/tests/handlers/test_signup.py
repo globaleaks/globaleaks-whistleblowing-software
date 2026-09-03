@@ -9,7 +9,6 @@ from globaleaks.models.config import ConfigFactory, DEFAULT_PROFILE_ID, db_set_c
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Session
-from globaleaks.state import State
 from globaleaks.tests import helpers
 from globaleaks.tests.handlers.admin.test_tenant import db_compose_profile, \
                                                        get_dummy_tenant_desc
@@ -168,7 +167,7 @@ class TestSignupActivation(helpers.TestHandlerWithPopulatedDB):
 
     def test_get_with_signup_disabled(self):
         handler = self.request(self.dummySignup)
-        return self.assertFailure(handler.post(u'valid_or_invalid'), errors.ForbiddenOperation)
+        return self.assertFailure(handler.post('valid_or_invalid'), errors.ForbiddenOperation)
 
 
     @inlineCallbacks
@@ -176,7 +175,7 @@ class TestSignupActivation(helpers.TestHandlerWithPopulatedDB):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
 
         handler = self.request(self.dummySignup)
-        r = yield handler.post(u'invalid')
+        r = yield handler.post('invalid')
 
         self.assertTrue(not r)
 

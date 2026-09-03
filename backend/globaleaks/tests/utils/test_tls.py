@@ -1,7 +1,9 @@
 import os
 
 from cryptography import x509
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 
 from OpenSSL import crypto, SSL
 from OpenSSL.crypto import load_certificate, FILETYPE_PEM
@@ -10,13 +12,12 @@ from twisted.trial import unittest
 
 from globaleaks.tests import helpers
 from globaleaks.utils import tls
-
-
+from globaleaks.utils.utility import datetime_now, datetime_never
 
 
 class TestObjectValidators(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(TestObjectValidators, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.test_data_dir = os.path.join(helpers.DATA_DIR, 'https')
 
         self.invalid_files = [
@@ -65,7 +66,7 @@ class TestObjectValidators(unittest.TestCase):
 
         for fname in good_keys:
             p = os.path.join(self.test_data_dir, 'valid', fname)
-            with open(p, 'r') as f:
+            with open(p) as f:
                 self.cfg['ssl_key'] = f.read()
             ok, err = pkv.validate(self.cfg)
             self.assertTrue(ok)
@@ -149,7 +150,7 @@ class TestObjectValidators(unittest.TestCase):
         ]
         for cert_path, issuer_name in test_cases:
             p = os.path.join(self.test_data_dir, cert_path)
-            with open(p, 'r') as f:
+            with open(p) as f:
                 x509 = crypto.load_certificate(FILETYPE_PEM, f.read())
 
             res = tls.parse_issuer_name(x509)
@@ -254,9 +255,6 @@ class TestParseIssuerName(unittest.TestCase):
 
     def _cert_with_issuer(self, **fields):
         """Build a self-signed cert whose subject (== issuer) contains the given fields."""
-        from cryptography.hazmat.primitives.asymmetric import ec
-        from cryptography.hazmat.primitives import hashes
-        from cryptography.hazmat.backends import default_backend
 
         oid_map = {
             'O': x509.NameOID.ORGANIZATION_NAME,
@@ -268,7 +266,6 @@ class TestParseIssuerName(unittest.TestCase):
         name = x509.Name(attrs)
         key = ec.generate_private_key(ec.SECP256R1(), default_backend())
 
-        from globaleaks.utils.utility import datetime_now, datetime_never
         cert = (
             x509.CertificateBuilder()
             .subject_name(name)

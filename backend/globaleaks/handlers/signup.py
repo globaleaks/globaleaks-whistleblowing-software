@@ -43,7 +43,7 @@ def db_verify_signup_token(session, tid, bearer_token):
         return State.oidcauth.verify_token(bearer_token,
                                            idp_config['signup_idp_issuer'],
                                            idp_config['signup_idp_client_id'])
-    except:
+    except Exception:
         raise errors.ForbiddenOperation
 
 
@@ -207,7 +207,7 @@ def signup(session, request, language, bearer_token=None):
         # Confirmed on its own unless activated at once, when the confirmation of the activation is
         # the only one sent
         signup_dict = serializers.serialize_signup(signup)
-        signup_dict['activation_token'] = ''
+        signup_dict['activation_token'] = ''  # nosec B105
 
         for address in signup_notification_addresses(signup):
             template_vars = {
@@ -375,8 +375,8 @@ def db_signup_activation_by_hash(session, token_hash, language, idp_claims=None)
             'notification': db_get_notification(session, 1, language),
             'signup': signup_dict,
             'password': default_password if address == signup.email else '',
-            'password_admin': '',
-            'password_recipient': '',
+            'password_admin': '',  # nosec B105
+            'password_recipient': '',  # nosec B105
             'signup_user_role': default_role,
             'signup_user_username': default_username
         }
@@ -386,6 +386,8 @@ def db_signup_activation_by_hash(session, token_hash, language, idp_claims=None)
     db_log(session, tid=1, type='activate_signup', object_id=signup.id, data={'tid': tenant.id})
 
     db_refresh_tenant_cache(session, tenant.id)
+
+    return {}
 
 
 @transact
@@ -404,10 +406,10 @@ class Signup(BaseHandler):
         raw_request = self.request.content.read()
         try:
             parsed_request = json.loads(raw_request)
-        except:
+        except Exception:
             raise errors.InputValidationError
 
-        token = ''
+        token = ''  # nosec B105
         if 'token' in parsed_request:
             token = parsed_request['token']
         request = self.validate_request(parsed_request, requests.SignupDesc)

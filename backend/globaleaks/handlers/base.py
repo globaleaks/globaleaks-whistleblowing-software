@@ -55,7 +55,7 @@ def quote_header_value(value):
         return value
 
     value = value.replace("\\", "\\\\").replace('"', '\\"')
-    return '"%s"' % value
+    return f'"{value}"'
 
 
 def sanitize_filename(filename):
@@ -94,9 +94,9 @@ def content_disposition_attachment(filename):
     except UnicodeEncodeError:
         fallback = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore').decode('ascii')
         encoded = quote(filename, safe="!#$&+-.^_`|~")  # safe = RFC 8187 attr-char (ex RFC 5987)
-        return "attachment; filename=%s; filename*=UTF-8''%s" % (quote_header_value(fallback), encoded)
+        return f"attachment; filename={quote_header_value(fallback)}; filename*=UTF-8''{encoded}"
 
-    return 'attachment; filename=%s' % quote_header_value(filename)
+    return f'attachment; filename={quote_header_value(filename)}'
 
 
 def decodeString(string):
@@ -105,7 +105,7 @@ def decodeString(string):
     uint16_array = []
     for i in range(len(uint8_array)):
         if not (i%2):
-             uint16_array.append((uint8_array[i] | (uint8_array[i+1] << 8)))
+             uint16_array.append(uint8_array[i] | (uint8_array[i+1] << 8))
     return ''.join(map(chr, uint16_array))
 
 
@@ -120,7 +120,7 @@ def serve_file(request, fo):
         fo.close()
 
     if request.finished:
-        return
+        return None
 
     d = filesender.beginFileTransfer(fo, request)
     d.addCallback(on_success)
@@ -227,7 +227,7 @@ class BaseHandler:
             # share an exit identity and are excluded to avoid penalizing them.
             if not self.request.client_using_tor and \
                State.RateLimit.check(b"token_validations_per_minute_per_ip:" + get_ip_identity(self.request.client_ip).encode(), 100, 60) > 0:
-                return
+                return None
 
             try:
                 self.token = self.state.tokens.validate(token)
@@ -242,7 +242,7 @@ class BaseHandler:
                     session = self.token.session
                     self.session_from_token = True
             except Exception:
-                return
+                return None
 
         # Check session header
         session_id = self.request.headers.get(b'x-session')
@@ -252,7 +252,7 @@ class BaseHandler:
             self.session_from_token = False
 
         if session is None or session.tid != self.request.tid:
-            return
+            return None
 
         if session.role != 'whistleblower' and \
            self.state.tenants[1].cache.get('log_accesses_of_internal_users', False):
@@ -306,9 +306,8 @@ class BaseHandler:
             except Exception:
                 return False
 
-        if python_type is bool:
-            if value in {'true', 'false'}:
-                return True
+        if python_type is bool and value in {'true', 'false'}:
+            return True
 
         return isinstance(value, python_type)
 
@@ -392,7 +391,7 @@ class BaseHandler:
 
                 if not BaseHandler.validate_type(value, request_template[key]):
                     log.err("Received key %s: type validation fail", key)
-                    raise errors.InputValidationError("Key (%s) type validation failure" % key)
+                    raise errors.InputValidationError(f"Key ({key}) type validation failure")
                 success_check += 1
 
             for key in keys_to_strip:
@@ -403,11 +402,11 @@ class BaseHandler:
                     log.debug("Key %s expected but missing!", key)
                     log.debug("Received schema %s - Expected %s",
                               request.keys(), request_template.keys())
-                    raise errors.InputValidationError("Missing key %s" % key)
+                    raise errors.InputValidationError(f"Missing key {key}")
 
                 if not BaseHandler.validate_type(request[key], value):
                     log.err("Expected key: %s type validation failure", key)
-                    raise errors.InputValidationError("Key (%s) double validation failure" % key)
+                    raise errors.InputValidationError(f"Key ({key}) double validation failure")
 
                 if isinstance(value, (dict, list)) and value:
                     BaseHandler.validate_request(request[key], value)
@@ -420,8 +419,7 @@ class BaseHandler:
 
         elif isinstance(request_template, list):
             if not all(BaseHandler.validate_type(x, request_template[0]) for x in request):
-                raise errors.InputValidationError("Not every element in %s is %s" %
-                                                  (request, request_template[0]))
+                raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
 
         return request
 
@@ -576,7 +574,7 @@ class BaseHandler:
             # process_file_upload runs synchronously on the reactor thread, so this
             # check-and-write needs no lock.
             if chunk_number != f.written_chunks + 1:
-                return None
+                return
 
             f.write(self.request.args[b'file'][0])
             f.hash_sha256_ctx.update(self.request.args[b'file'][0])
@@ -584,7 +582,7 @@ class BaseHandler:
             f.written_chunks += 1
 
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
-                return None
+                return
 
         filename = sanitize_filename(self.request.args[b'flowFilename'][0].decode())
         mime_type, _ = mimetypes.guess_type(filename)
