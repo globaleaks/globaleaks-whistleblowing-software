@@ -102,10 +102,10 @@ export class SubmissionComponent implements OnInit {
     this.disclaimerShown = true;
 
     const modalRef = this.modalService.open(DisclaimerComponent, {backdrop: 'static', keyboard: false});
-    modalRef.componentInstance.confirmFunction = () => {};
+    modalRef.componentInstance.confirmFunction = () => { /* nothing to confirm */ };
 
     // Closing the disclaimer leaves the composition of the report in place
-    modalRef.result.then(() => {}, () => {});
+    modalRef.result.then(() => { /* accepted */ }, () => { /* dismissed */ });
   }
 
   firstStepIndex() {

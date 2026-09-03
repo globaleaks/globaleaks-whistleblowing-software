@@ -19,7 +19,7 @@ export class SitesTab4Component implements OnInit {
   private modalService = inject(NgbModal);
 
   invites: any[] = [];
-  expandedRegistration: string = '';
+  expandedRegistration = '';
 
   ngOnInit(): void {
     this.loadInvites();
