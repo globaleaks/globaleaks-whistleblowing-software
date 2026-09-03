@@ -102,7 +102,7 @@ export class TipComponent implements OnInit {
   showEditLabelInput: boolean;
   loading = true;
   communicationsCollapsed = false;
-  redactMode:boolean = false;
+  redactMode = false;
   redactOperationTitle: string;
   submission: any;
 
@@ -227,8 +227,7 @@ export class TipComponent implements OnInit {
               this.reload();
             });
         },
-        () => {
-        }
+        () => { /* dismissed */ }
       );
     });
   }
@@ -445,7 +444,7 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.title = "Communication";
     modalRef.result.then(
       () => this.reload(),
-      () => {}
+      () => { /* dismissed */ }
     );
   }
 

@@ -235,7 +235,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     });
 
     configure_site_tenant("Platform E");
-    visit_configured_tenant().then((tenantUrl: string) => {
+    visit_configured_tenant().then(() => {
       cy.get("#admin_settings").click();
       cy.get('[data-cy="advanced"]').click();
       cy.get('input[name="disable_submissions"]').should('be.checked');

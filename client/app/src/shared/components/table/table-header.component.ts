@@ -14,6 +14,7 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
  *          sortBy="status" filter="status" [options]="statusOptions">
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector -- attribute component on a native element
   selector: "th[appTableHeader]",
   templateUrl: "./table-header.component.html",
   standalone: true,

@@ -1,13 +1,13 @@
 <div [class]="cardClass()">
   <div class="editorHeader row">
-    <button type="button" class="editorTitle col-md-{{ titleColumns() }}" [attr.aria-expanded]="expanded()" (click)="toggle.emit()">
+    <button type="button" class="editorTitle col-md-{{ titleColumns() }}" [attr.aria-expanded]="expanded()" (click)="toggled.emit()">
       <ng-content select="[cardTitle]"></ng-content>
     </button>
     <span class="col-md-{{ actionsColumns }} clearfix">
       <span class="float-end">
         <ng-content select="[cardActions]"></ng-content>
         @if (chevron()) {
-          <button type="button" class="btn btn-sm btn-outline-secondary" [attr.aria-expanded]="expanded()" [attr.aria-label]="(expanded() ? 'Collapse' : 'Expand') | translate" (click)="toggle.emit()">
+          <button type="button" class="btn btn-sm btn-outline-secondary" [attr.aria-expanded]="expanded()" [attr.aria-label]="(expanded() ? 'Collapse' : 'Expand') | translate" (click)="toggled.emit()">
             @if (expanded()) {
               <i class="fas fa-chevron-up" aria-hidden="true"></i>
             } @else {

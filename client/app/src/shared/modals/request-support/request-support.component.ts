@@ -118,7 +118,7 @@ export class RequestSupportComponent implements OnInit {
           this.activeModal.close();
         }
       },
-      error: () => {}
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
@@ -178,7 +178,7 @@ export class RequestSupportComponent implements OnInit {
         this.replyDrafts[request.id] = "";
         this.changeDetectorRef.detectChanges();
       },
-      error: () => {}
+      error: () => { /* reported by the interceptor */ }
     });
   }
 

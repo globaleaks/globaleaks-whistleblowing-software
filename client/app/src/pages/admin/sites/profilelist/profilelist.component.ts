@@ -42,7 +42,7 @@ export class ProfilelistComponent {
   saveTenant() {
     this.tenant.profile = 'default';
     const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe((_) => {});
+    this.httpService.requestUpdateTenant(url, this.tenant).subscribe();
   }
 
   deleteTenant(event: Event, tenant: tenantResolverModel, statsChanged = false) {

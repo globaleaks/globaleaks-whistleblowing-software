@@ -68,7 +68,7 @@
 
 <ng-template #requestList>
   @for (request of requests; track request.id) {
-    <src-collapsible-card [expanded]="expandedRequestId === request.id" [titleColumns]="11" (toggle)="toggleRequest(request)">
+    <src-collapsible-card [expanded]="expandedRequestId === request.id" [titleColumns]="11" (toggled)="toggleRequest(request)">
       <span cardTitle class="d-flex justify-content-between align-items-start gap-2">
         <span class="overflow-hidden">
           <span class="badge me-2" [ngClass]="statusClass(request.status)">{{ statusLabels[request.status] | translate }}</span>
