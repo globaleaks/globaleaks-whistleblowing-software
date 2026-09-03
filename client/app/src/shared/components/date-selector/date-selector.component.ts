@@ -1,11 +1,12 @@
 import {Component, input, output} from "@angular/core";
 import {NgbDate, NgbDatepickerModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: "src-date-selector",
   standalone: true,
-  imports: [NgbDatepickerModule, FormsModule],
+  imports: [NgbDatepickerModule, FormsModule, TranslateModule],
   templateUrl: "./date-selector.component.html"
 })
 export class DateRangeSelectorComponent {
