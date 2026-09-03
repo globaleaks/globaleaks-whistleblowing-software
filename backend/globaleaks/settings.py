@@ -2,6 +2,7 @@ import os
 
 from globaleaks.orm import make_db_uri, set_db_uri, enable_orm_debug
 from globaleaks.utils.singleton import Singleton
+from globaleaks.utils.crypto import GCE
 
 this_directory = os.path.dirname(__file__)
 
@@ -133,7 +134,6 @@ class SettingsClass(metaclass=Singleton):
         # The key derivation runs at a minimal cost: the cost is embedded in every hash stored, and the
         # client reads it from the public configuration, so a database created with the test cost
         # opens with the test cost alone, and a database created with the real cost without it
-        from globaleaks.utils.crypto import GCE
         GCE.options['OPSLIMIT'] = 1
         GCE.options['MEMLIMIT'] = 20
 

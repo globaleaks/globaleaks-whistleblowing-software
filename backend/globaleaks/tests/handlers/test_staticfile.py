@@ -5,6 +5,7 @@ from globaleaks import to_bcp47
 from globaleaks.handlers.staticfile import StaticFileHandler
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+from globaleaks import LANGUAGES_SUPPORTED_CODES
 
 
 class TestToBcp47(unittest.TestCase):
@@ -26,7 +27,6 @@ class TestToBcp47(unittest.TestCase):
         self.assertEqual(to_bcp47('ug@Cyrl'), 'ug-Cyrl')
 
     def test_result_never_contains_posix_separators(self):
-        from globaleaks import LANGUAGES_SUPPORTED_CODES
         for code in LANGUAGES_SUPPORTED_CODES:
             tag = to_bcp47(code)
             self.assertNotIn('_', tag)

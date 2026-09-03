@@ -2,7 +2,6 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin import user
-from globaleaks.handlers.admin import user_profile
 from globaleaks.handlers.admin.user_profile import db_create_user_profile
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.user import serialize_user

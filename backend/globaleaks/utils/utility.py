@@ -13,7 +13,7 @@ from twisted.internet.defer import Deferred
 
 def get_distribution_codename():
     try:
-        with open("/etc/os-release", "r", encoding="utf-8") as fd:
+        with open("/etc/os-release", encoding="utf-8") as fd:
             for line in fd:
                 key, value = line.split("=")
                 if key == "VERSION_CODENAME":
@@ -183,7 +183,7 @@ def ISO8601_to_day_str(isodate, tz=0):
 
 def iso_year_start(iso_year):
     """Returns the gregorian calendar date of the first day of the given ISO year"""
-    fourth_jan = datetime.strptime('{0}-01-04'.format(iso_year), '%Y-%m-%d')
+    fourth_jan = datetime.strptime(f'{iso_year}-01-04', '%Y-%m-%d')
     delta = timedelta(fourth_jan.isoweekday() - 1)
     return fourth_jan - delta
 
@@ -199,9 +199,9 @@ def bytes_to_pretty_str(b):
         b = int(b)
 
     if b >= 1000000000:
-        return "%dGB" % int(b / 1000000000)
+        return f"{int(b / 1000000000)}GB"
 
     if b >= 1000000:
-        return "%dMB" % int(b / 1000000)
+        return f"{int(b / 1000000)}MB"
 
-    return "%dKB" % int(b / 1000)
+    return f"{int(b / 1000)}KB"

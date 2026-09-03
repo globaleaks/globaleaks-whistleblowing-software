@@ -37,7 +37,7 @@ def decrypt_log_hashes(user_key, tip_prv_key, logs):
     :param tip_prv_key: The key of the report, wrapped for that user
     :param logs: The serialized entries
     """
-    from globaleaks.handlers.whistleblower.submission import decrypt_hashes
+    from globaleaks.handlers.whistleblower.submission import decrypt_hashes  # noqa: PLC0415
 
     tip_key = GCE.asymmetric_decrypt(user_key, tip_prv_key)
 
@@ -214,7 +214,7 @@ def serialize_user_audit(user):
         'username': user.username,
         'role': user.role,
         'name': user.name,
-        'two_factor': user.two_factor_secret != '',
+        'two_factor': bool(user.two_factor_secret),
         'creation_date': user.creation_date,
         'last_login': user.last_login
     }

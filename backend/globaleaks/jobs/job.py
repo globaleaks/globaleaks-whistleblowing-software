@@ -109,7 +109,7 @@ class Job(task.LoopingCall):
         return 0
 
     def on_error(self, excep):
-        log.err("Exception while running %s" % self.name)
+        log.err(f"Exception while running {self.name}")
         log.exception(excep)
         extract_exception_traceback_and_schedule_email(excep)
         self.state.jobs_status[self.name]["status"] = "failed"
@@ -126,8 +126,7 @@ class LoopingJob(Job):
     last_monitor_check_failed = 0  # Epoch start
 
     def on_error(self, excep):
-        error = "Job %s died with runtime %.4f [low: %.4f, high: %.4f]" % \
-                (self.name, self.mean_time, self.low_time, self.high_time)
+        error = f"Job {self.name} died with runtime {self.mean_time:.4f} [low: {self.low_time:.4f}, high: {self.high_time:.4f}]"
         log.err(error)
         log.exception(excep)
         extract_exception_traceback_and_schedule_email(excep)
@@ -193,13 +192,13 @@ class JobsMonitor(LoopingJob):
                 job.last_monitor_check_failed = current_time
 
                 if execution_time < 60:
-                    error = "Job %s is taking more than %d seconds to execute" % (job.name, execution_time)
+                    error = f"Job {job.name} is taking more than {int(execution_time)} seconds to execute"
                 elif execution_time < 3600:
                     minutes = execution_time // 60
-                    error = "Job %s is taking more than %d minutes to execute" % (job.name, minutes)
+                    error = f"Job {job.name} is taking more than {int(minutes)} minutes to execute"
                 else:
                     hours = execution_time // 3600
-                    error = "Job %s is taking more than %d hours to execute" % (job.name, hours)
+                    error = f"Job {job.name} is taking more than {int(hours)} hours to execute"
                 error_msg += error + '\n'
                 log.err(error)
 

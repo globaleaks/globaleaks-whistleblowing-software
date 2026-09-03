@@ -156,7 +156,7 @@ def disable_2fa(session, tid, user_id, obj_id):
         # Prevent disabling two factor authentication of protected users
         raise errors.ForbiddenOperation
 
-    user.two_factor_secret = ''
+    user.two_factor_secret = ''  # nosec B105
 
     db_log(session, tid=tid, type='disable_2fa', user_id=user_id, object_id=obj_id)
 

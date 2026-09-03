@@ -9,7 +9,8 @@ from twisted.python.log import ILogObserver
 from twisted.python.log import addObserver
 from twisted.web import resource, server
 
-from globaleaks.jobs import job, jobs_list
+from globaleaks.jobs import jobs_list
+from globaleaks.jobs.job import JobsMonitor
 from globaleaks.services import tor
 
 from globaleaks.db import create_db, initialize_db, update_db, \
@@ -25,7 +26,7 @@ from globaleaks.utils.sock import listen_tcp_on_sock, listen_tls_on_sock
 def fail_startup(excep):
     log.err("ERROR: Cannot start GlobaLeaks. Please manually examine the exception.")
     log.err("EXCEPTION: %s", excep)
-    log.debug('TRACE: %s', traceback.format_exc(excep))
+    log.debug('TRACE: %s', traceback.format_exc())
     if reactor.running:
         reactor.stop()
 
@@ -60,13 +61,13 @@ class Service(service.Service):
         self.state.tor = tor.Tor()
         self.state.services.append(self.state.tor)
 
-        self.state.jobs_monitor = job.JobsMonitor(self.state.jobs)
+        self.state.jobs_monitor = JobsMonitor(self.state.jobs)
 
     def stop_jobs(self):
         deferred_list = []
 
-        for job in self.state.jobs + self.state.services:
-            deferred_list.append(defer.maybeDeferred(job.stop))
+        for j in self.state.jobs + self.state.services:
+            deferred_list.append(defer.maybeDeferred(j.stop))
 
         if self.state.jobs_monitor is not None:
             deferred_list.append(self.state.jobs_monitor.stop())

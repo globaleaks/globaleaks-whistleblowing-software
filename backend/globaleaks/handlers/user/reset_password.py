@@ -123,7 +123,7 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code, dpop_
     try:
         filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(reset_token).decode()))
         directory_traversal_check(State.settings.ramdisk_path, filepath)
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             token = f.read()
             user_id = token.split(":")[0]
     except Exception:
