@@ -235,7 +235,7 @@
     @if (tip && tip.exchanges && tip.exchanges.length) {
       <div class="row">
         <div class="col-md-12">
-          <div srcCollapsiblePanel id="TipCommunicationsBox" class="card card-default" [collapsed]="communicationsCollapsed" [label]="'Communications with other organizations' | translate" (toggle)="communicationsCollapsed = !communicationsCollapsed">
+          <div srcCollapsiblePanel id="TipCommunicationsBox" class="card card-default" [collapsed]="communicationsCollapsed" [label]="'Communications with other organizations' | translate" (toggled)="communicationsCollapsed = !communicationsCollapsed">
             @if (!communicationsCollapsed) {
               <div class="card-body">
                 <table class="table table-hover">

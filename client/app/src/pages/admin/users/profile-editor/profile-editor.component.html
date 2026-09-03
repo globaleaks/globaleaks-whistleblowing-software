@@ -1,4 +1,4 @@
-<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()">
+<src-collapsible-card [expanded]="editing" (toggled)="toggleEditing()">
   <span cardTitle>{{ profile.name }}</span>
   <ng-container cardActions>
         @if (editing && nodeData.tid === profile.tid) {

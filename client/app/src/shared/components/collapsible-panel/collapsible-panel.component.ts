@@ -10,7 +10,7 @@ import {TranslateModule} from "@ngx-translate/core";
  *
  *   <div srcCollapsiblePanel id="TipCommentsBox" class="card card-default"
  *        [collapsed]="collapsed" [label]="'Comments' | translate"
- *        (toggle)="toggleCollapse()">
+ *        (toggled)="toggleCollapse()">
  *     @if (!collapsed) { <div class="card-body">…</div> }
  *   </div>
  *
@@ -18,6 +18,7 @@ import {TranslateModule} from "@ngx-translate/core";
  * panel is open; a title richer than a label is projected on [panelTitle].
  */
 @Component({
+    // eslint-disable-next-line @angular-eslint/component-selector -- attribute component on a native element
     selector: "div[srcCollapsiblePanel]",
     templateUrl: "./collapsible-panel.component.html",
     standalone: true,
@@ -28,5 +29,5 @@ export class CollapsiblePanelComponent {
   readonly label = input("");
   /** Some panels are opened from their own body and carry no chevron */
   readonly chevron = input(true);
-  readonly toggle = output<void>();
+  readonly toggled = output<void>();
 }

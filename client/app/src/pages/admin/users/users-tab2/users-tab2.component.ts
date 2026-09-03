@@ -60,7 +60,7 @@ export class UsersTab2Component implements OnInit {
         profile.permissions[p] = true;
       }
     }
-    this.utilsService.addAdminUserProfile(profile).subscribe(_ => {
+    this.utilsService.addAdminUserProfile(profile).subscribe(() => {
       this.getResolver();
       this.new_profile = {name: "", role: "", roles: [], permissions: []};
     });

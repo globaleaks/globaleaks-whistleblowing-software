@@ -143,7 +143,7 @@ export class TipsComponent implements OnInit {
     modalRef.componentInstance.title = "Enter a report";
     modalRef.result.then(
       () => this.reload(),
-      () => {}
+      () => { /* dismissed */ }
     );
   }
 

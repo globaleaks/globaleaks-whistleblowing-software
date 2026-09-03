@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="TipPageRFileUpload" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggle)="collapsed = !collapsed">
+<div srcCollapsiblePanel id="TipPageRFileUpload" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggled)="collapsed = !collapsed">
   @if (!collapsed) {
     <div class="card-body">
       @for (rfile of tipService.tip.rfiles | filter : 'visibility' : key() | orderBy: 'creation_date'; track rfile; let index = $index) {

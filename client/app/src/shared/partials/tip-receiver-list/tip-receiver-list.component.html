@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="TipPageReceiversInfoBox" class="card card-default" [collapsed]="collapsed" [label]="'Recipients' | translate" (toggle)="toggleCollapse()">
+<div srcCollapsiblePanel id="TipPageReceiversInfoBox" class="card card-default" [collapsed]="collapsed" [label]="'Recipients' | translate" (toggled)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @for (receiver of tipService().tip.receivers | filter : 'active' : true; track receiver) {

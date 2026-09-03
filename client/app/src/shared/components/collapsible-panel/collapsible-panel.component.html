@@ -1,4 +1,4 @@
-<div class="card-header d-flex justify-content-between" role="button" tabindex="0" [attr.aria-expanded]="!collapsed()" (click)="toggle.emit()" (keydown.enter)="toggle.emit()" (keydown.space)="$event.preventDefault(); toggle.emit()">
+<div class="card-header d-flex justify-content-between" role="button" tabindex="0" [attr.aria-expanded]="!collapsed()" (click)="toggled.emit()" (keydown.enter)="toggled.emit()" (keydown.space)="$event.preventDefault(); toggled.emit()">
   <span>
     <ng-content select="[panelTitle]"></ng-content>
     {{ label() }}

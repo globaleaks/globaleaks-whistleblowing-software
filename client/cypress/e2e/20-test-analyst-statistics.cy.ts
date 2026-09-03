@@ -148,7 +148,7 @@ describe("Analyst statistics templates and reports", () => {
       .contains("Report Template")
       .invoke("attr", "value")
       .then((value) => {
-        expect(value, "template option value").to.not.be.undefined;
+        expect(value, "template option value").to.not.equal(undefined);
         cy.get("#new-report-template-id").select(value as string);
       });
 

@@ -410,7 +410,7 @@ export class HttpService {
 
   requestStatisticsResource(filters?: {
     context_id?: string,
-    channel?: Array<string | number>,
+    channel?: (string | number)[],
     date_from?: number | string,
     date_to?: number | string
   }): Observable<statisticsResolverModel> {

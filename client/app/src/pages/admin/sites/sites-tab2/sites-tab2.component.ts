@@ -28,8 +28,8 @@ export class SitesTab2Component implements OnInit {
     is_profile: true
   };
   tenants: tenantResolverModel[] = [];
-  showAddTenant: boolean = false;
-  indexNumber: number = 0;
+  showAddTenant = false;
+  indexNumber = 0;
 
   ngOnInit(): void {
     this.getResolver();
@@ -50,7 +50,7 @@ export class SitesTab2Component implements OnInit {
     const files = input.files;
     if (files && files.length > 0) {
       this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
-        let jsonTxt = JSON.parse(txt);
+        const jsonTxt = JSON.parse(txt);
         jsonTxt.tenant.profile = "default";
 
         return this.http.post("api/admin/tenants", jsonTxt).subscribe({

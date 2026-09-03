@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="AttachedWBFile" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggle)="toggleCollapse()">
+<div srcCollapsiblePanel id="AttachedWBFile" class="card card-default" [collapsed]="collapsed" [label]="'Files attached by recipients' | translate" (toggled)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @for (wbfile of wbTipService.tip.rfiles | orderBy: 'creation_date'; track wbfile) {

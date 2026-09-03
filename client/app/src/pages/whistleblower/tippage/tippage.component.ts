@@ -13,7 +13,7 @@ import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
-import {DatePipe, NgClass} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";

@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="TipInfoBox" class="card card-default" [attr.data-cy]="'identity_toggle'" [collapsed]="collapsed" [label]="'Identity' | translate" (toggle)="toggleCollapse()">
+<div srcCollapsiblePanel id="TipInfoBox" class="card card-default" [attr.data-cy]="'identity_toggle'" [collapsed]="collapsed" [label]="'Identity' | translate" (toggled)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @if (tipService.tip.iar && tipService.tip.iar.reply !== 'authorized') {

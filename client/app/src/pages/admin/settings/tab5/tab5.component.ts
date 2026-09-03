@@ -17,10 +17,10 @@ import {AppDataService} from "@app/app-data.service";
 export class Tab5Component implements OnInit {
   @Input() contentForm: NgForm;
   nodeData: nodeResolverModel;
-  idpEnabled: boolean = false;
-  idpIssuer: string = "";
-  idpClientId: string = "";
-  idpProvisioning: boolean = false;
+  idpEnabled = false;
+  idpIssuer = "";
+  idpClientId = "";
+  idpProvisioning = false;
 
   protected utilsService = inject(UtilsService);
   private authenticationService = inject(AuthenticationService);

@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="TipQuestionnaireAnswersBox" class="card card-default" [collapsed]="collapsed" [label]="'Questionnaire answers' | translate" (toggle)="toggleCollapse()">
+<div srcCollapsiblePanel id="TipQuestionnaireAnswersBox" class="card card-default" [collapsed]="collapsed" [label]="'Questionnaire answers' | translate" (toggled)="toggleCollapse()">
   @if (!collapsed) {
     <div class="card-body">
       @for (questionnaire of tipService().tip.questionnaires; track questionnaire; let index = $index) {

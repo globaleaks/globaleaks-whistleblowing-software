@@ -1,5 +1,5 @@
 @if (tipService.tip) {
-  <div srcCollapsiblePanel id="TipPageFilesInfoBox" class="card card-default" [collapsed]="collapsed" [label]="'Attachments' | translate" (toggle)="collapsed = !collapsed">
+  <div srcCollapsiblePanel id="TipPageFilesInfoBox" class="card card-default" [collapsed]="collapsed" [label]="'Attachments' | translate" (toggled)="collapsed = !collapsed">
     @if (!collapsed) {
       <div class="card-body">
         @if (tipService.tip.wbfiles) {
