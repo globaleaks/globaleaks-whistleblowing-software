@@ -17,8 +17,8 @@ export class AddMetricModalComponent implements OnInit {
 
   @Input() availableMetrics: MetricCard[] = [];
   @Input() currentMetricIds: string[] = [];
-  @Input() canAddCards: boolean = true;
-  @Input() canAddCharts: boolean = true;
+  @Input() canAddCards = true;
+  @Input() canAddCharts = true;
 
   selectedMetricId = '';
   selectedDisplayType = 'number';

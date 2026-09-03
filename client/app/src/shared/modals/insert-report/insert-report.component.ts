@@ -264,7 +264,7 @@ export class InsertReportComponent implements OnInit, OnDestroy {
     this.fieldUtilitiesService.onAnswersUpdate(this);
   }
 
-  onFileUpload(_: any): void {
+  onFileUpload(): void {
     this.fieldUtilitiesService.onAnswersUpdate(this);
   }
 }

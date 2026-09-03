@@ -1,4 +1,4 @@
-<src-collapsible-card cardClass="config-item reveal" [expanded]="editing" [chevron]="tenant.id !== 1" [titleColumns]="6" (toggle)="toggleEditing()">
+<src-collapsible-card cardClass="config-item reveal" [expanded]="editing" [chevron]="tenant.id !== 1" [titleColumns]="6" (toggled)="toggleEditing()">
   <ng-container cardTitle>
       <div>
         <span class="badge bg-secondary">{{indexNumber}}</span>

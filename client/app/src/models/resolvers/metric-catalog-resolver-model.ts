@@ -5,13 +5,13 @@
  * and the values are read and frozen when a report is saved.
  */
 export class metricCatalogResolverModel {
-  question_template_dropdown_metrics: Array<{
+  question_template_dropdown_metrics: {
     id: string;
     template_id: string;
     title: string;
-    options: Array<{
+    options: {
       id: string;
       label: string;
-    }>;
-  }> = [];
+    }[];
+  }[] = [];
 }

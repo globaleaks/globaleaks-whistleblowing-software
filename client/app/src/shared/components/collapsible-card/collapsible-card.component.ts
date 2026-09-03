@@ -24,7 +24,7 @@ export class CollapsibleCardComponent {
   readonly titleColumns = input(7);
   /** Some cards open only through their own actions and carry no chevron */
   readonly chevron = input(true);
-  readonly toggle = output<void>();
+  readonly toggled = output<void>();
 
   get actionsColumns(): number {
     return 12 - this.titleColumns();

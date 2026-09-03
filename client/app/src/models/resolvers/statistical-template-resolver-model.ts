@@ -63,7 +63,7 @@ export class DateFilter {
 }
 
 export class StatisticsFilter {
-  channel?: Array<string | number>;
+  channel?: (string | number)[];
   date_from?: number | string;
   date_to?: number | string;
 }

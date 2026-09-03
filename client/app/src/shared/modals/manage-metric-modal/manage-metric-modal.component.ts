@@ -19,8 +19,8 @@ export class ManageMetricModalComponent implements OnInit {
   @Input() currentMetricIds: string[] = [];
   @Input() currentMetricCard?: MetricCard;
 
-  selectedMetricId: string = '';
-  selectedChartType: string = 'number';
+  selectedMetricId = '';
+  selectedChartType = 'number';
   filteredMetricList: MetricCard[] = [];
 
   chartTypes: ChartType[] = [

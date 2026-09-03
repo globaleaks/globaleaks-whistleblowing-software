@@ -1,4 +1,4 @@
-<div srcCollapsiblePanel id="TipInfoBox" class="card card.bg-primary" [collapsed]="collapsed" [chevron]="false" [label]="'Additional questionnaire' | translate" (toggle)="toggleColLapse()">
+<div srcCollapsiblePanel id="TipInfoBox" class="card card.bg-primary" [collapsed]="collapsed" [chevron]="false" [label]="'Additional questionnaire' | translate" (toggled)="toggleColLapse()">
   @if (!collapsed) {
     <div class="card-body d-flex justify-content-between">
       <div>{{'It is requested to fill an additional questionnaire'|translate}}</div>

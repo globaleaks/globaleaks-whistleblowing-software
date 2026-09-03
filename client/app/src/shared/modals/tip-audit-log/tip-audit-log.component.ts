@@ -60,7 +60,7 @@ export class TipAuditLogComponent implements OnInit {
   private utilsService = inject(UtilsService);
   private cdr = inject(ChangeDetectorRef);
 
-  @Input() tipId: string = '';
+  @Input() tipId = '';
   @Input() tipData: any = null; // Will receive the tip data from parent
   @Input() usersData: any[] = []; // Will receive users data from parent
 
