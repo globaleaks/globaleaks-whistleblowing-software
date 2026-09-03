@@ -71,8 +71,7 @@ class TestSecondarySmtpRouting(unittest.TestCase):
             self.assertEqual(
                 mail_uses_smtp2(self.routing(**configuration), mail_type),
                 expected,
-                "with the second server %s, a %s mail %s routed to it"
-                % (reason, mail_type, "is not" if expected else "is"))
+                "with the second server {}, a {} mail {} routed to it".format(reason, mail_type, "is not" if expected else "is"))
 
     def test_the_configuration_is_read_the_same_from_the_cache_of_a_site(self):
         # The configuration reaches this function either as the serialized

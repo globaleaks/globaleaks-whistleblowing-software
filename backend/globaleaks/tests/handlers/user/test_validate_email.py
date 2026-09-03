@@ -21,11 +21,11 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request()
         yield set_email_validation_token(
             self.dummyReceiver_1['id'],
-            u"token",
-            u"test@changeemail.com"
+            "token",
+            "test@changeemail.com"
         )
 
-        yield handler.get(u"token")
+        yield handler.get("token")
 
         # Now we check if the token was update
         for r in (yield tw(user.db_get_users, 1, 'receiver', 'en')):
@@ -38,11 +38,11 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request()
         yield set_email_validation_token(
             self.dummyReceiver_1['id'],
-            u"token",
-            u"test@changeemail.com"
+            "token",
+            "test@changeemail.com"
         )
 
-        yield handler.get(u"wrong_token")
+        yield handler.get("wrong_token")
 
         # Now we check if the token was update
         for r in (yield tw(user.db_get_users, 1, 'receiver', 'en')):

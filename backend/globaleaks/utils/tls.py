@@ -185,7 +185,7 @@ def gen_x509_csr(key_pair, csr_fields, csr_sign_bits):
     return (
         x509.CertificateSigningRequestBuilder()
         .subject_name(name)
-        .sign(key, getattr(hashes, 'SHA%d' % csr_sign_bits)(), default_backend())
+        .sign(key, getattr(hashes, f'SHA{csr_sign_bits}')(), default_backend())
     )
 
 
@@ -280,7 +280,7 @@ def client_tls_options(hostname, ctx):
     :return: An object usable as ESMTP/TLSMemoryBIOFactory contextFactory.
     """
     try:
-        from twisted.internet._sslverify import ClientTLSOptions
+        from twisted.internet._sslverify import ClientTLSOptions  # noqa: PLC0415
     except ImportError as e:  # pragma: no cover
         raise ImportError(
             "twisted.internet._sslverify.ClientTLSOptions is unavailable in "
@@ -318,7 +318,7 @@ def new_tls_client_context():
     # doesn't, so we'll supply a function which does the same thing.
     def _verifyCallback(conn, cert, errno, depth, ok):
         if not ok:
-            log.err("Unable to verify validity of certificate: %s" % cert.get_subject())
+            log.err(f"Unable to verify validity of certificate: {cert.get_subject()}")
 
         return ok
 

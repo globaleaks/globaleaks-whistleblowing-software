@@ -18,7 +18,7 @@ from nacl.secret import SecretBox
 from nacl.utils import EncryptedMessage
 from nacl.utils import random as nacl_random
 
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 # --- Optional SecretStream bindings (libsodium >= 1.0.14) ---
 try:
@@ -249,7 +249,7 @@ class _StreamingEncryptionObject:
         chunk = _convert_to_bytes(chunk)
         (self._encrypt_chunk_v2 if self.use_secretstream else self._encrypt_chunk_v1)(chunk, last)
 
-    def _decrypt_chunk_v1(self) -> Tuple[int, bytes]:
+    def _decrypt_chunk_v1(self) -> tuple[int, bytes]:
         last_flag = self.fd.read(1)
         if not last_flag:
             self.EOF = True
@@ -265,7 +265,7 @@ class _StreamingEncryptionObject:
             raise ValueError("Corrupted v1 stream: truncated ciphertext")
         return last, self.box.decrypt(ct, self.getNextNonce(last))
 
-    def _decrypt_chunk_v2(self) -> Tuple[int, bytes]:
+    def _decrypt_chunk_v2(self) -> tuple[int, bytes]:
         sz = self.fd.read(4)
         if not sz:
             self.EOF = True
@@ -281,7 +281,7 @@ class _StreamingEncryptionObject:
         self.EOF = bool(last)
         return last, self._strip_padded_bytes(msg)
 
-    def decrypt_chunk(self) -> Tuple[int, bytes]:
+    def decrypt_chunk(self) -> tuple[int, bytes]:
         return (self._decrypt_chunk_v2 if self.use_secretstream else self._decrypt_chunk_v1)()
 
     def read(self, a: int) -> bytes:
@@ -379,7 +379,7 @@ class _GCE:
         return _GCE.argon2id(password, salt, _GCE.options['OPSLIMIT'], 1 << _GCE.options['MEMLIMIT'])
 
     @staticmethod
-    def calculate_key_and_hash(password: Union[bytes, str], salt: str) -> Tuple[bytes, bytes]:
+    def calculate_key_and_hash(password: bytes | str, salt: str) -> tuple[bytes, bytes]:
         """
         Calculate and returns password key derivation and key hashing.
         """
@@ -390,7 +390,7 @@ class _GCE:
         return key, hashv
 
     @staticmethod
-    def generate_keypair() -> Tuple[bytes, bytes]:
+    def generate_keypair() -> tuple[bytes, bytes]:
         """
         Generate a curve25519 keypair.
         """
@@ -398,7 +398,7 @@ class _GCE:
         return prv_key.encode(Base64Encoder), prv_key.public_key.encode(Base64Encoder)
 
     @staticmethod
-    def generate_recovery_key(prv_key: bytes) -> Tuple[bytes, bytes]:
+    def generate_recovery_key(prv_key: bytes) -> tuple[bytes, bytes]:
         rec_key = _GCE.generate_key()
         pub_key = PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder)
         bkp_key = _GCE.symmetric_encrypt(rec_key, prv_key)
@@ -420,10 +420,8 @@ class _GCE:
         pmax = _StreamingEncryptionObject.PADDING_MAX
 
         max_pad = int(n * frac)
-        if max_pad < pmin:
-            max_pad = pmin
-        if max_pad > pmax:
-            max_pad = pmax
+        max_pad = max(max_pad, pmin)
+        max_pad = min(max_pad, pmax)
 
         pad_len = secrets.randbelow(max_pad + 1)
         padding = os.urandom(pad_len)

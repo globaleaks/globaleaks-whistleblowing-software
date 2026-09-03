@@ -53,7 +53,7 @@ class SubmissionStatusCollectionDesc(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get_with_substatuses(self):
-        yield create_substatus(u'new')
+        yield create_substatus('new')
 
         handler = self.request({}, role='admin')
         response = yield handler.get()
@@ -166,10 +166,10 @@ class SubmissionSubStatusCollectionDesc(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        yield create_substatus(u'new')
+        yield create_substatus('new')
 
         handler = self.request({}, role='admin')
-        response = yield handler.get(u'new')
+        response = yield handler.get('new')
         self.assertEqual(len(response), 1)
 
     @inlineCallbacks
@@ -180,7 +180,7 @@ class SubmissionSubStatusCollectionDesc(helpers.TestHandlerWithPopulatedDB):
             'tip_timetolive': 30
         }
         handler = self.request(data_request, role='admin')
-        yield handler.post(u'new')
+        yield handler.post('new')
 
         submission_status = yield tw(db_get_submission_status, 1, 'new', 'en')
         self.assertEqual(len(submission_status['substatuses']), 1)
@@ -194,7 +194,7 @@ class SubmissionSubStatusInstanceDesc(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_put(self):
-        yield create_substatus(u'new')
+        yield create_substatus('new')
 
         submission_status = yield tw(db_get_submission_status, 1, 'new', 'en')
         substatus_id = submission_status['substatuses'][0]['id']
@@ -206,20 +206,20 @@ class SubmissionSubStatusInstanceDesc(helpers.TestHandlerWithPopulatedDB):
         }
 
         handler = self.request(data_request, role='admin')
-        yield handler.put(u'new', substatus_id)
+        yield handler.put('new', substatus_id)
 
         submission_status = yield tw(db_get_submission_status, 1, 'new', 'en')
         self.assertEqual(submission_status['substatuses'][0]['label'], '12345')
 
     @inlineCallbacks
     def test_delete(self):
-        yield create_substatus(u'new')
+        yield create_substatus('new')
 
         submission_status = yield tw(db_get_submission_status, 1, 'new', 'en')
         substatus_id = submission_status['substatuses'][0]['id']
 
         handler = self.request({}, role='admin')
-        yield handler.delete(u'new', substatus_id)
+        yield handler.delete('new', substatus_id)
 
         submission_status = yield tw(db_get_submission_status, 1, 'new', 'en')
         self.assertEqual(len(submission_status['substatuses']), 0)

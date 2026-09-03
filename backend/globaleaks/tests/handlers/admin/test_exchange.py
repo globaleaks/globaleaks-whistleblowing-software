@@ -25,7 +25,7 @@ def channel_of(session, channel_id):
 def questionnaire_of(session, tid):
     questionnaire = models.Questionnaire()
     questionnaire.tid = tid
-    questionnaire.name = 'questionnaire of %d' % tid
+    questionnaire.name = f'questionnaire of {tid}'
     session.add(questionnaire)
     session.flush()
 

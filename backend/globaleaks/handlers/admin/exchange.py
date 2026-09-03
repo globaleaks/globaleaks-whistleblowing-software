@@ -2,7 +2,7 @@
 from globaleaks import models
 from globaleaks.handlers.admin.context import db_sync_derived_contexts
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.models.config import ConfigFactory, DEFAULT_PROFILE_ID, \
+from globaleaks.models.config import DEFAULT_PROFILE_ID, \
                                      db_get_tid_by_uuid
 from globaleaks.models.enums import EnumExchangeOwner, EnumExchangeType
 from globaleaks.models.exchanges import db_exchange_owner_side, \
@@ -217,7 +217,7 @@ def create(session, request, language='en'):
     """
     Establish an exchange between two objects of the platform
     """
-    if request['type'] not in EnumExchangeType.keys():
+    if request['type'] not in EnumExchangeType.keys():  # noqa: SIM118 - an Enum, not a dict
         raise errors.InputValidationError("Invalid exchange type")
 
     source_tid, target_tid = db_validate_sides(session, request)

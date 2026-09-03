@@ -34,12 +34,12 @@ def _is_registered(subscriber):
     return bool(subscriber.name or subscriber.surname)
 
 
-def serialize_invite(subscriber, tenant, token=''):
+def serialize_invite(subscriber, tenant, token=None):
     # The raw token is available at creation time only: the database stores
     # its hash, so listings cannot re-expose the invite link afterwards
     return {
         'id': subscriber.id,
-        'token': token,
+        'token': token or '',
         'organization_name': subscriber.organization_name,
         'organization_email': subscriber.organization_email,
         'organization_tax_code': subscriber.organization_tax_code,
@@ -222,7 +222,7 @@ def update_invite(session, request_tid, user_session, invite_id, request, langua
         if invite.activation_token is None:
             raise errors.ForbiddenOperation
 
-        from globaleaks.handlers.signup import db_signup_activation_by_hash
+        from globaleaks.handlers.signup import db_signup_activation_by_hash  # noqa: PLC0415
         db_signup_activation_by_hash(session, invite.activation_token, language)
         invite.state = EnumSubscriberStatus.accredited.value
         invite.accreditation_date = datetime_now()

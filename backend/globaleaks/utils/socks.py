@@ -37,7 +37,6 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
     def socks_state_0(self):
         # error state
         self.error()
-        return
 
     def socks_state_1(self):
         if len(self._buf) < 2:
@@ -51,7 +50,7 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self._buf = self._buf[2:]
 
         self.state = 2
-        getattr(self, 'socks_state_%s' % self.state)()
+        getattr(self, f'socks_state_{self.state}')()
 
     def socks_state_2(self):
         if len(self._buf) < 2:
@@ -64,7 +63,7 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self._buf = self._buf[2:]
 
         self.state = 3
-        getattr(self, 'socks_state_%s' % self.state)()
+        getattr(self, f'socks_state_{self.state}')()
 
     def socks_state_3(self):
         if len(self._buf) < 8:
@@ -98,7 +97,7 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
     def dataReceived(self, data):
         if self.state != 4:
             self._buf = b''.join([self._buf, data])
-            getattr(self, 'socks_state_%s' % self.state)()
+            getattr(self, f'socks_state_{self.state}')()
         else:
             self.wrappedProtocol.dataReceived(data)
 
